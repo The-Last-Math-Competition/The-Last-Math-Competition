@@ -8,6 +8,11 @@ the scoring model can be re-tuned cheaply.
 
 Sandbox note: process at most ~2500 files per invocation.
 
+v1.1 (2026-09-12): added `numbers` and `max_number`. The feature set is
+additive only — no existing key changed meaning or value. This was verified by
+re-scoring the whole corpus with the v1.1 features and byte-comparing the
+result against the v1.0 `metadata.scored.csv` (0 differences).
+
 Usage:
   python3 extract_features.py --start 1 --count 2500 --out features_01.jsonl \
       --freq freq_01.json
@@ -236,6 +241,13 @@ def features(cid, text):
         "has_variant": bool(VARIANT.search(text)),
         "has_infinite_family": bool(INFINITE_FAMILY.search(text)) or bool(FORALL.search(text)),
         "n_numbers": len(NUMBER.findall(text)),
+        # The magnitudes themselves, not just how many: a statement about
+        # "order 12, 16, 24" is directly enumerable in a way that "for all
+        # 4 | n" is not, and that difference is invisible in the count.
+        # Capped so the JSONL stays small; `max_number` is the value the
+        # adjudicability scale actually reads.
+        "numbers": sorted({int(x) for x in NUMBER.findall(text)})[:40],
+        "max_number": max((int(x) for x in NUMBER.findall(text)), default=0),
         "grand": grand,
         "deep": deep,
         "n_names": len(names),
