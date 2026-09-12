@@ -1,0 +1,127 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A Proof of Conjecture 00000000034}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Every finite colouring of $\mathbb N$ contains a monochromatic three-term
+geometric progression $x,\,xr,\,xr^2$ with integer ratio $r>1$. The proof is
+the standard reduction to van der Waerden's theorem along the powers of two.
+The argument is formalized in Lean~4 against Mathlib, and the formalization is
+unconditional: van der Waerden's theorem is derived from Mathlib's
+Hales--Jewett theorem rather than assumed.
+\end{abstract}
+
+\section{Statement}
+
+\begin{theorem}\label{thm:main}
+Let $c:\mathbb N\to K$ be any colouring of the natural numbers by a finite set
+$K$ of colours. Then there exist a positive integer $x$ and an integer $r>1$
+with
+\[
+  c(x)=c(xr)=c(xr^2).
+\]
+\end{theorem}
+
+Since the witness produced below satisfies $x\ge1$, it is immaterial whether
+$\mathbb N$ is taken to contain $0$.
+
+\section{Proof}
+
+We use van der Waerden's theorem in the following form.
+
+\begin{lemma}[van der Waerden, three-term case]\label{lem:vdw}
+For every colouring $c':\mathbb N\to K$ by a finite set of colours there exist
+$a\ge0$ and $d>0$ with
+\[
+  c'(a)=c'(a+d)=c'(a+2d).
+\]
+\end{lemma}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Define a colouring of the exponents by
+\[
+  c'(m)=c(2^m),\qquad m\in\mathbb N .
+\]
+This is again a colouring by the finite set $K$, so Lemma~\ref{lem:vdw} gives
+$a\ge0$ and $d>0$ with
+\[
+  c(2^a)=c(2^{a+d})=c(2^{a+2d}).
+\]
+Put
+\[
+  x=2^a,\qquad r=2^d .
+\]
+Then $x\ge1$, and $r=2^d>1$ because $d>0$. The exponent laws give
+\[
+  2^{a+d}=2^a\,2^d=xr,
+  \qquad
+  2^{a+2d}=2^a\left(2^d\right)^2=xr^2 ,
+\]
+so the displayed equalities read $c(x)=c(xr)=c(xr^2)$. As $r$ is an integer
+greater than~$1$, this is a monochromatic geometric progression of the required
+form.
+\end{proof}
+
+\begin{remark}
+Nothing is special about the base $2$: any integer base $b\ge2$ works, and
+applying van der Waerden's theorem to $k$-term arithmetic progressions instead
+yields monochromatic geometric progressions $x,xr,\ldots,xr^{k-1}$ of every
+length $k$. Only the three-term case is formalized below.
+\end{remark}
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes Theorem~\ref{thm:main} against
+Mathlib. The formalization is \emph{unconditional}: van der Waerden's theorem
+is not taken as a hypothesis.
+
+\begin{itemize}
+  \item \texttt{vanDerWaerden3} --- Lemma~\ref{lem:vdw}, obtained from Mathlib's
+    \texttt{Combinatorics.exists\_mono\_homothetic\_copy} applied to the finite
+    set $S=\{0,1,2\}\subseteq\mathbb N$. That theorem --- a corollary of the
+    Hales--Jewett theorem, which Mathlib proves --- produces $a>0$, $b$ and a
+    colour $k$ with $c'(a\cdot s+b)=k$ for every $s\in S$, which is exactly a
+    monochromatic three-term arithmetic progression with first term $b$ and
+    common difference $a$.
+  \item \texttt{exists\_mono\_geometric\_progression} ---
+    Theorem~\ref{thm:main} for an arbitrary finite colour type:
+    \[
+      \forall\,\kappa\ \text{finite},\ \forall\,c:\mathbb N\to\kappa,\quad
+      \exists\,x\,r,\ 0<x\ \wedge\ 1<r\ \wedge\
+      c\,x=c\,(xr)\ \wedge\ c\,(xr)=c\,(xr^2).
+    \]
+  \item \texttt{exists\_mono\_geometric\_progression\_fin} --- the same
+    statement for a colouring $\mathbb N\to\mathrm{Fin}\,q$, matching the
+    ``$q$ colours'' phrasing of the conjecture.
+\end{itemize}
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and
+introduces no axioms of its own:
+\texttt{\#print axioms exists\_mono\_geometric\_progression} reports exactly the
+three standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
