@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\setlength{\emergencystretch}{3em}
+
+\title{A Local-Obstruction Counterexample to Conjecture 00000000008}
+\author{Feiyu}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\section*{Statement of the conjecture}
+
+Conjecture 00000000008 concerns the number of prime values of a
+square-free integer-coefficient quadratic polynomial. It asserts that
+there is a constant $c_f>0$ such that the prime-value count has an
+explicit lower bound of order
+\[
+  c_f\frac{x}{\log x}.
+\]
+The statement, as written, does not impose the usual local-obstruction
+condition that no prime divide every value of $f$.
+
+\section*{Counterexample}
+
+Consider
+\[
+  f(n)=n^2+n+2=n(n+1)+2.
+\]
+This is an integer-coefficient quadratic polynomial. Its discriminant is
+\[
+  \Delta=1^2-4\cdot1\cdot2=-7\ne0,
+\]
+so it has no repeated root.
+
+For every integer $n$, one of $n$ and $n+1$ is even. Hence $n(n+1)$ is
+even, and therefore $f(n)$ is even. For every positive integer $n$,
+\[
+  f(n)=n^2+n+2\ge4.
+\]
+Consequently, for every positive integer $n$, $f(n)$ is an even integer
+strictly larger than $2$, and therefore is not prime.
+
+Thus the polynomial has no prime values on the positive integers. If
+\(\Pi_f(x)\) denotes the number of positive integers \(n\le x\) for
+which \(f(n)\) is prime, then
+\[
+  \Pi_f(x)=0
+\]
+for every positive integer $x$. This contradicts any lower bound
+\[
+  \Pi_f(x)\ge c_f\frac{x}{\log x}
+\]
+with $c_f>0$ for sufficiently large $x$.
+
+\section*{What the counterexample shows}
+
+The failure is caused by a fixed local obstruction at the prime $2$:
+\[
+  f(n)\equiv0\pmod 2
+  \qquad\text{for every integer }n.
+\]
+A corrected version of the conjecture would need, at minimum, to exclude
+polynomials having a fixed prime divisor. This condition is separate from
+having nonzero discriminant: the present polynomial has discriminant
+$-7$, but still has the fixed prime divisor $2$ in all its values.
+
+\section*{Formal verification}
+
+The accompanying Lean 4 project defines the polynomial, the discriminant,
+a fixed-divisor-free elementary prime predicate, and the prime-value count
+on positive inputs. It proves the following facts:
+
+\begin{itemize}
+  \item $f(n)\bmod 2=0$ for every natural number $n$;
+  \item $f(n)\ge4$ for every positive natural number $n$;
+  \item no positive input gives a prime value;
+  \item the discriminant is nonzero;
+  \item the prime-value count is identically zero.
+\end{itemize}
+
+The project uses Lean 4.33.1 and only the standard library. It contains no
+axioms or admitted proof steps.
+
+\end{document}
