@@ -1,0 +1,248 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{parskip}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Disproof of conjecture \texttt{00000001097}}
+\author{earthking11}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001097} as stated. The refutation is
+unconditional and elementary. The mean root count of $x^d + ax + b$ over
+$\mathbb{F}_q$ is \emph{exactly} $1$ for every prime power $q$ and every $d$; the
+claimed ``main term'' is strictly larger than $1$ and, when
+$\gcd(d-1,q-1)=1$, coincides with the second moment $2-1/q$ rather than with the
+mean; and the conjectured variance $2-1/q$ is off by exactly $1$. At $q=5$, $d=2$
+the conjecture asserts both $9/5$ and $1$ for the same mean, so it is internally
+inconsistent.
+
+\section{The conjecture}
+
+\begin{definition}[as stated]
+The \emph{mean root count} of the trinomial $x^d + ax + b$ over $\mathbb{F}_q$ is
+the expectation of the number of roots, taken over uniform
+$(a,b) \in \mathbb{F}_q^2$.
+\end{definition}
+
+\begin{quote}
+\textbf{Conjecture.} The mean equals $1 + (q-1)/q^{\gcd(d-1,q-1)}$ as the main
+term; when $\gcd(d-1,q-1) = 1$ the mean is exactly $1$, and the variance of the
+mean is $2 - 1/q$.
+\end{quote}
+
+Throughout, $q$ is a prime power and $\mathbb{F}_q$ the field with $q$ elements.
+For $(a,b) \in \mathbb{F}_q^2$ put
+\[
+N(a,b) \;=\; \#\{\,x \in \mathbb{F}_q : x^d + ax + b = 0\,\},
+\]
+so that the mean root count is
+\[
+M(q,d) \;=\; \frac{1}{q^2} \sum_{a,b \in \mathbb{F}_q} N(a,b).
+\]
+We write $g = \gcd(d-1, q-1)$.
+
+\section{The exact mean is $1$}
+
+\begin{theorem}\label{thm:mean-one}
+For every prime power $q$ and every integer $d \ge 1$,
+\[
+M(q,d) = 1.
+\]
+\end{theorem}
+
+\begin{proof}
+We count the triples $(a,b,x) \in \mathbb{F}_q^3$ satisfying
+$x^d + ax + b = 0$. By definition of $M$,
+\[
+q^2 \, M(q,d) \;=\; \#\{(a,b,x) \in \mathbb{F}_q^3 : x^d + ax + b = 0\}.
+\]
+Fix $x \in \mathbb{F}_q$ and $a \in \mathbb{F}_q$. The map
+\[
+\mathbb{F}_q \to \mathbb{F}_q, \qquad b \mapsto x^d + ax + b
+\]
+is a bijection: it is translation by the constant $x^d + ax$, with inverse
+$c \mapsto c - (x^d+ax)$. Hence it has exactly one zero, namely
+$b = -x^d - ax$. Consequently, for each of the $q$ choices of $x$ and each of the
+$q$ choices of $a$ there is exactly one $b$ for which the equation holds. The
+number of triples is therefore $q \cdot q = q^2$, and
+\[
+M(q,d) \;=\; \frac{q^2}{q^2} \;=\; 1. \qedhere
+\]
+\end{proof}
+
+Only the field property of $\mathbb{F}_q$ is used, via invertibility of translation
+by $b$; no hypothesis on $d$ is needed.
+
+\begin{corollary}\label{cor:main-term-wrong}
+For every prime power $q>1$ and every $d$, the conjectured value
+\[
+1 + \frac{q-1}{q^{\gcd(d-1,q-1)}}
+\]
+is strictly greater than $1$, and therefore does not equal $M(q,d)$.
+\end{corollary}
+
+\begin{proof}
+Since $q>1$ we have $q-1>0$, and $q^{g} \ge q > 0$ for $g = \gcd(d-1,q-1) \ge 1$.
+Hence $(q-1)/q^{g} > 0$, so the displayed quantity is $>1$. By
+Theorem~\ref{thm:mean-one}, $M(q,d)=1$, so equality fails.
+\end{proof}
+
+\section{Internal contradiction at $q=5$, $d=2$}
+
+\begin{theorem}\label{thm:contradiction}
+The conjecture is internally inconsistent.
+\end{theorem}
+
+\begin{proof}
+Take $q = 5$ and $d = 2$. Then
+\[
+\gcd(d-1,\,q-1) = \gcd(1,4) = 1.
+\]
+The conjecture asserts, within one sentence, both
+\[
+M(5,2) = 1 + \frac{5-1}{5^{1}} = 1 + \frac{4}{5} = \frac{9}{5}
+\qquad\text{and}\qquad
+M(5,2) = 1 \quad\text{(``exactly $1$'' when $\gcd(d-1,q-1)=1$).}
+\]
+Since $9/5 \ne 1$, these two clauses cannot both hold. The same argument applies to
+every $q>1$ with $\gcd(d-1,q-1)=1$: for instance $q=7$, $d=2$ gives
+$\gcd(1,6)=1$ and $1+6/7 = 13/7 \ne 1$.
+\end{proof}
+
+\begin{remark}
+The contradiction is between two clauses of the conjecture itself and does not
+require the exact computation of $M(5,2)$: whatever the mean is, the conjecture
+demands two different values for it. Theorem~\ref{thm:mean-one} identifies the
+correct value, namely $1$.
+\end{remark}
+
+\section{The variance clause is false}
+
+Let $N = N(a,b)$ for uniform $(a,b) \in \mathbb{F}_q^2$. We compute the exact
+second moment.
+
+\begin{lemma}\label{lem:second-moment}
+For every prime power $q$ and every $d$,
+\[
+\mathbb{E}[N^2] \;=\; 2 - \frac{1}{q}.
+\]
+\end{lemma}
+
+\begin{proof}
+For each unordered pair $\{x,y\}$ of \emph{distinct} points of $\mathbb{F}_q$, we
+count the pairs $(a,b)$ for which both $x$ and $y$ are roots:
+\[
+x^d + ax + b = 0, \qquad y^d + ay + b = 0.
+\]
+Subtracting the second equation from the first,
+\[
+(x^d - y^d) + a(x-y) = 0.
+\]
+Since $x \ne y$, the difference $x-y$ is nonzero and hence invertible in the field
+$\mathbb{F}_q$, so
+\[
+a = -\frac{x^d - y^d}{x-y}
+\]
+is uniquely determined; substituting back gives $b = -x^d - ax$, also unique.
+Thus each unordered pair of distinct points is a pair of common roots for exactly
+one $(a,b)$, and there are $\binom{q}{2} = q(q-1)/2$ such pairs.
+
+Now sum $N(a,b)^2$ over all $(a,b)$: this counts ordered pairs $(x,y)$ of roots of
+the same trinomial. Splitting into the diagonal $x=y$ and the off-diagonal
+$x \ne y$,
+\[
+\sum_{a,b} N(a,b)^2
+= \sum_{a,b} N(a,b) + 2 \cdot \#\{(a,b,\{x,y\}) : x \ne y,\ x,y \text{ roots}\}.
+\]
+By Theorem~\ref{thm:mean-one}, $\sum_{a,b} N(a,b) = q^2 M(q,d) = q^2$. The
+off-diagonal unordered pairs number $\binom{q}{2}$, by the previous paragraph.
+Hence
+\[
+\sum_{a,b} N(a,b)^2 = q^2 + 2\binom{q}{2}
+= q^2 + q(q-1) = q(2q-1),
+\]
+and dividing by $q^2$,
+\[
+\mathbb{E}[N^2] = \frac{q(2q-1)}{q^2} = \frac{2q-1}{q} = 2 - \frac{1}{q}. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}\label{cor:variance}
+For every prime power $q$,
+\[
+\operatorname{Var}(N) = \mathbb{E}[N^2] - (\mathbb{E}[N])^2 = 1 - \frac{1}{q}.
+\]
+In particular the conjectured variance $2 - 1/q$ is false for every $q>1$.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:mean-one}, $\mathbb{E}[N] = M(q,d) = 1$. Hence, by
+Lemma~\ref{lem:second-moment},
+\[
+\operatorname{Var}(N) = \left(2-\frac1q\right) - 1^2 = 1 - \frac{1}{q}.
+\]
+For $q>1$ we have $1 - 1/q \ne 2 - 1/q$. Explicitly, $q=3,5,11$ give variances
+$2/3$, $4/5$, $10/11$, whereas the conjecture claims $5/3$, $9/5$, $21/11$.
+\end{proof}
+
+\begin{remark}
+The conjectured variance $2-1/q$ is exactly the second moment
+$\mathbb{E}[N^2]$ of Lemma~\ref{lem:second-moment}. Likewise, when $g=1$ the
+conjectured ``main term'' $1+(q-1)/q = 2-1/q$ is also exactly this second moment.
+So the conjecture has substituted the second moment both for the mean (up to the
+$g$-dependent factor) and for the variance.
+\end{remark}
+
+\section{The ``main term'' objection, and why it fails}
+
+A charitable reader might propose that $1 + (q-1)/q^{\gcd(d-1,q-1)}$ is asserted
+only ``as the main term'', i.e.\ as an asymptotic leading term rather than an exact
+finite value, so that Theorem~\ref{thm:mean-one} does not refute it. This reading
+does not save the conjecture.
+
+\begin{enumerate}
+\item \textbf{The statement is about finite $q$, and the correction is not
+negligible.} The definition fixes a single finite field $\mathbb{F}_q$, and the
+formula is asserted for that $q$. Even under a leading-term reading, the leading
+term of a quantity that is identically $1$ must be $1$. The proposed correction
+$(q-1)/q^{g}$ is not a lower-order error: when $g=1$ it equals $(q-1)/q > 1/2$ for
+all $q \ge 2$, which is $O(1)$ and cannot be absorbed into lower-order terms. An
+asymptotic claim with leading constant $1 + \Omega(1)$ is simply false for a
+quantity equal to $1$.
+\item \textbf{``Main term'' cannot reconcile two contradictory clauses.} The
+conjecture asserts both the value $1+(q-1)/q^{g}$ and, when $g=1$, that the mean
+``is exactly $1$''. At $q=5$, $d=2$ this reads $9/5$ versus $1$. No interpretation
+of ``main term'' makes one number simultaneously equal to $9/5$ and to $1$.
+\item \textbf{The variance clause is separately false.} Independent of any reading
+of ``main term'', the assertion ``the variance is $2-1/q$'' is plain arithmetic,
+and Corollary~\ref{cor:variance} shows the variance is $1-1/q \ne 2-1/q$ for every
+$q>1$.
+\end{enumerate}
+
+Therefore all three components fail: the exact mean is $1$, not
+$1+(q-1)/q^{g}$; for $g=1$ the value $1+(q-1)/q$ is the second moment, not the
+mean; and the variance is $1-1/q$, not $2-1/q$.
+
+\section*{Summary}
+
+For every prime power $q$ and every $d$: $M(q,d) = 1$;
+$\mathbb{E}[N^2] = 2 - 1/q$; $\operatorname{Var}(N) = 1 - 1/q$. The conjecture's
+main term, exact-mean clause, and variance clause are respectively wrong,
+internally contradictory, and wrong. Hence conjecture \texttt{00000001097} is
+\textbf{FALSE}.
+
+\end{document}
