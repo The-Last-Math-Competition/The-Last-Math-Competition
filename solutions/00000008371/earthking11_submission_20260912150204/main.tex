@@ -1,0 +1,228 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Disproof of conjecture \texttt{00000008371}}
+\author{earthking11}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000008371} as stated. The conjecture is a
+\emph{conjunction} of four laws about ``space trees''. A conjunction is false as
+soon as one conjunct is false, and here at least one conjunct fails for every
+admissible $n$: the asserted counting formula is not even an integer at $n = 3$,
+and it disagrees with the asserted Johnson-graph vertex count for $n \ge 3$. The
+refutation is elementary and unconditional; the Speyer--Sturmfels count
+$(2n-5)!!$ is cited only as context.
+
+\section{The conjecture}
+
+\begin{definition}[as stated]
+The \emph{Nielsen cells} of the tropical Grassmannian are the cells of the
+tropicalization of $\mathrm{Gr}(2,n)$ (the ``space trees''); let
+$\mathrm{space\_tree}$ denote their number.
+\end{definition}
+
+\begin{quote}
+\textbf{Conjecture.} $\mathrm{space\_tree}$ (the count of space trees) is the type
+count $(n-2)!\,(n-3)!/2$ (a type counting law); the mod-$2$ pattern of the count
+(parity) follows the power law $2^{n-3}$ (a power parity law); the adjacency graph
+of cells (shared faces of adjacent cells) is the Johnson graph $J(n,2)$ (a Johnson
+adjacency law); and the complete spectrum of the adjacency graph (eigenvalues) is a
+difference set (a difference set spectrum law).
+\end{quote}
+
+Thus the conjecture asserts the conjunction
+\[
+\underbrace{\mathrm{space\_tree} = \frac{(n-2)!\,(n-3)!}{2}}_{\text{(A) type count}}
+\;\wedge\;
+\underbrace{\text{parity} = 2^{n-3}}_{\text{(B) power parity}}
+\;\wedge\;
+\underbrace{\Gamma \cong J(n,2)}_{\text{(C) Johnson adjacency}}
+\;\wedge\;
+\underbrace{\operatorname{spec}(\Gamma)\text{ is a difference set}}_{\text{(D) spectrum}} .
+\]
+
+We write
+\[
+F(n) \;:=\; \frac{(n-2)!\,(n-3)!}{2},
+\qquad
+J_n \;:=\; \text{number of vertices of } J(n,2) \;=\; \binom{n}{2} \;=\; \frac{n(n-1)}{2}.
+\]
+
+\section{Failure 1: the formula is not a count at $n=3$}
+
+\begin{lemma}
+$F(3) = \dfrac{1!\,0!}{2} = \dfrac{1}{2}$.
+\end{lemma}
+
+\begin{proof}
+$3 - 2 = 1$ and $3 - 3 = 0$, so $(3-2)! = 1! = 1$ and $(3-3)! = 0! = 1$.
+Hence $F(3) = 1 \cdot 1 / 2 = 1/2$.
+\end{proof}
+
+\begin{theorem}
+$F(3)$ is not a non-negative integer. Consequently conjunct (A) fails at $n = 3$:
+a cardinality (a count of cells) cannot be $\tfrac12$.
+\end{theorem}
+
+\begin{proof}
+$1/2 \notin \mathbb{Z}_{\ge 0}$. The quantity $\mathrm{space\_tree}$ is by
+definition the number of cells of a cell complex, hence a non-negative integer.
+The conjecture identifies it with $F(3) = 1/2$, a contradiction.
+\end{proof}
+
+\begin{remark}
+The same objection makes conjunct (B) ill-defined at $n = 3$: a half-integer has
+no parity. This is a secondary observation; Failure 1 already refutes the
+conjunction on its own.
+\end{remark}
+
+The relevant values of $F$ are
+\[
+F(3) = \tfrac12,\qquad F(4) = 1,\qquad F(5) = 6,\qquad F(6) = 72 .
+\]
+
+\section{Failure 2: the formula never equals the Johnson vertex count}
+
+The Johnson graph $J(n,2)$ has as vertices the $2$-subsets of an $n$-set, so it has
+exactly $\binom{n}{2} = n(n-1)/2$ vertices:
+\[
+J_3 = 3,\quad J_4 = 6,\quad J_5 = 10,\quad J_6 = 15,\quad J_7 = 21,\quad J_8 = 28 .
+\]
+Conjunct (A) and conjunct (C) are mutually inconsistent.
+
+\begin{theorem}
+\label{thm:mismatch}
+$F(n) \neq \dbinom{n}{2}$ for every integer $n \ge 3$. Hence for every $n \ge 3$ at
+least one of the conjuncts (A), (C) is false.
+\end{theorem}
+
+\begin{proof}
+Split into three ranges.
+
+\emph{$n = 3,4,5$:} direct evaluation gives
+\[
+F(3) = \tfrac12 \neq 3 = \binom{3}{2},\qquad
+F(4) = 1 \neq 6 = \binom{4}{2},\qquad
+F(5) = 6 \neq 10 = \binom{5}{2}.
+\]
+
+\emph{$n = 6$:} $F(6) = 72 \neq 15 = \binom{6}{2}$.
+
+\emph{$n \ge 6$ (all remaining $n$):} we show $F(n) > \binom{n}{2}$ by induction on
+$n$. The base case $n = 6$ is $72 > 15$. For the step, note the recurrence
+\[
+F(n+1) = \frac{(n-1)!\,(n-2)!}{2}
+       = (n-1)(n-2) \cdot \frac{(n-2)!\,(n-3)!}{2}
+       = (n-1)(n-2)\,F(n).
+\]
+Assume $F(n) > \binom{n}{2}$. Since $(n-1)(n-2) > 0$,
+\[
+F(n+1) = (n-1)(n-2) F(n) > (n-1)(n-2)\binom{n}{2}
+       = (n-1)(n-2)\frac{n(n-1)}{2} = \frac{n(n-1)^2(n-2)}{2}.
+\]
+For $n \ge 6$ we have $(n-1)(n-2) \ge 5 \cdot 4 = 20$, hence
+\[
+F(n+1) > (n-1)(n-2)\binom{n}{2} \ge 20\binom{n}{2} = 10\,n(n-1)
+      > \frac{n(n+1)}{2} = \binom{n+1}{2},
+\]
+because $10n(n-1) > n(n+1)/2$ for $n \ge 6$. This closes the induction. Therefore
+$F(n) > \binom{n}{2}$, in particular $F(n) \neq \binom{n}{2}$, for every $n \ge 6$.
+\end{proof}
+
+\begin{remark}
+The theorem shows that (A) and (C) cannot both hold: if (A) held, the number of
+vertices of the adjacency graph would be $F(n)$, but (C) says it is $\binom{n}{2}$,
+and these differ for all $n \ge 3$. This argument is independent of the
+$n = 3$ integrality issue.
+\end{remark}
+
+\section{Failure 3: comparison with the known count (context)}
+
+It is a theorem of Speyer and Sturmfels \cite{SpeyerSturmfels} that the tropical
+Grassmannian $\mathrm{Trop}(\mathrm{Gr}(2,n))$ has exactly
+\[
+(2n-5)!! \;=\; 1 \cdot 3 \cdot 5 \cdots (2n-5)
+\]
+maximal cones; equivalently, the space of phylogenetic trees with $n$ leaves has
+$(2n-5)!!$ vertices / combinatorial types. These are the ``space trees'' the
+conjecture is about. The values are
+\[
+1,\ 3,\ 15,\ 105,\ 945 \qquad (n = 3,4,5,6,7),
+\]
+which must be compared with the conjecture's own assertions:
+
+\begin{center}
+\begin{tabular}{r|c|c|c}
+$n$ & $F(n) = (n-2)!(n-3)!/2$ & $J_n = \binom{n}{2}$ & $(2n-5)!!$ (known) \\
+\hline
+$3$ & $1/2$    & $3$  & $1$ \\
+$4$ & $1$      & $6$  & $3$ \\
+$5$ & $6$      & $10$ & $15$ \\
+$6$ & $72$     & $15$ & $105$ \\
+$7$ & $1440$   & $21$ & $945$ \\
+$8$ & $43200$  & $28$ & $10395$ \\
+\end{tabular}
+\end{center}
+
+Neither $F(n)$ nor $\binom{n}{2}$ agrees with the known count $(2n-5)!!$ for any
+$n \ge 3$. In particular the conjectured formula does not count the objects it names.
+This section is context only: Failures 1 and 2 already refute the conjunction
+without any input from tropical geometry.
+
+\section{The $n=3$ caveat, and why the refutation survives it}
+
+For $n = 3$ the Grassmannian $\mathrm{Gr}(2,3) \cong \mathbb{P}^2$ is a single cell
+and $\mathrm{Trop}(\mathrm{Gr}(2,3))$ is a single point, so $(2n-5)!! = 1$. If the
+author intended the conjecture only for $n \ge 4$, then the ``$\tfrac12$'' of
+Failure 1 does not occur (the formula would be evaluated only where it is an
+integer), and we say so honestly: \emph{Failure 1 alone is sensitive to the range}. 
+We therefore do not rest the disproof on it.
+
+The disproof is unaffected, because the other failures do not use $n = 3$:
+
+\begin{itemize}
+\item \textbf{Failure 2} holds at $n = 4, 5, 6$: $F(4) = 1 \neq 6 = \binom42$,
+$F(5) = 6 \neq 10 = \binom52$, $F(6) = 72 \neq 15 = \binom62$; and Theorem
+\ref{thm:mismatch} gives $F(n) > \binom{n}{2}$ for all $n \ge 6$. So for every
+$n \ge 4$ the conjuncts (A) and (C) are mutually inconsistent.
+\item \textbf{Failure 3} holds at $n = 4, 5, 6, 7$: $1 \neq 3$, $6 \neq 15$,
+$72 \neq 105$, $1440 \neq 945$, and $F$ grows far faster than $(2n-5)!!$
+super-exponentially, so agreement for larger $n$ is impossible.
+\end{itemize}
+
+Thus, whether or not one excludes $n = 3$, the conjunction is false for every
+admissible $n$: excluding $n = 3$ removes Failure 1 but leaves Failures 2 and 3.
+
+\section{Conclusion}
+
+The conjecture asserts the conjunction (A) $\wedge$ (B) $\wedge$ (C) $\wedge$ (D).
+At $n = 3$, conjunct (A) evaluates to $\tfrac12$, which is not a count (Failure 1);
+for every $n \ge 4$, conjunct (A) contradicts conjunct (C), whose vertex count is
+$\binom{n}{2}$ (Failure 2); and the formula disagrees with the established
+Speyer--Sturmfels count $(2n-5)!!$ (Failure 3). Every conjunct is a necessary part
+of the conjecture, so the conjecture is \textbf{FALSE}.
+
+\begin{thebibliography}{9}
+\bibitem{SpeyerSturmfels}
+D.~Speyer and B.~Sturmfels,
+\emph{The tropical Grassmannian},
+Advances in Geometry \textbf{4} (2004), no.~3, 389--411.
+\end{thebibliography}
+
+\end{document}
