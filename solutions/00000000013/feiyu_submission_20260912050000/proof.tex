@@ -1,45 +1,65 @@
 \documentclass[11pt]{article}
 \usepackage[a4paper,margin=1in]{geometry}
-\usepackage{amsmath,amssymb,booktabs}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
 \setlength{\emergencystretch}{3em}
 
-\title{A Counterexample to Conjecture 00000000013}
-\author{Feiyu}
-\date{2026-09-12}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
 
-\newcommand{\Composite}{\operatorname{Composite}}
+\title{A Counterexample to Conjecture 00000000013}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
 
 \begin{document}
 \maketitle
 
-\section*{Statement}
+\begin{abstract}
+Conjecture 00000000013 asserts that for every $n\ge3$ the interval
+$[2^n,2^{n+1})$ contains a prime with exactly three binary ones. It fails at
+$n=8$: all twenty-eight such integers are composite. The refutation is
+formalized in Lean~4 against Mathlib, with the conjecture itself stated in the
+formalization.
+\end{abstract}
 
-Conjecture 00000000013 claims that for every integer $n\geq 3$ there is a
-prime $p$ in the half-open interval
+\section{Statement}
+
+Conjecture 00000000013 claims that for every integer $n\ge3$ there is a prime
+$p$ with
 \[
-  2^n \leq p < 2^{n+1}
+  2^n\le p<2^{n+1}
 \]
-whose binary expansion contains exactly three $1$'s.
+whose binary expansion contains exactly three $1$'s. We disprove it by
+exhibiting $n=8$.
 
-We disprove the conjecture by taking $n=8$.
+\section{The counterexample}
 
-\section*{The counterexample}
+\begin{theorem}
+No prime $p$ with $2^8\le p<2^9$ has exactly three $1$'s in its binary
+expansion.
+\end{theorem}
 
-Every integer in $[2^8,2^9)$ with exactly three $1$'s in its binary
-expansion has the form
+\begin{proof}
+An integer of $[2^8,2^9)$ has its top bit at position $8$, so it has exactly
+three binary ones precisely when it is of the form
 \[
-  2^8+2^a+2^b,
-  \qquad 0\leq b<a<8.
+  2^8+2^a+2^b,\qquad 0\le b<a<8 .
 \]
-There are $\binom{8}{2}=28$ such numbers. They are listed below, together
-with a proper divisor. Thus every one is composite.
+There are $\binom82=28$ such integers. Each is composite, as witnessed by the
+proper divisor listed beside it:
 
 \begin{center}
 \begin{tabular}{rrrrrrrr}
 \toprule
-$n$ & divisor & $n$ & divisor & $n$ & divisor & $n$ & divisor\\
+$N$ & div & $N$ & div & $N$ & div & $N$ & div\\
 \midrule
 259 & 7  & 261 & 3  & 262 & 2  & 265 & 5\\
 266 & 2  & 268 & 2  & 273 & 3  & 274 & 2\\
@@ -52,31 +72,62 @@ $n$ & divisor & $n$ & divisor & $n$ & divisor & $n$ & divisor\\
 \end{tabular}
 \end{center}
 
-For completeness, the corresponding factorizations include
+Every entry in the second column is a divisor $d$ with $1<d<N$, so each $N$ is
+composite. Twenty-one of the twenty-eight are even and exceed $2$; the seven
+odd ones are
 \[
-\begin{aligned}
-259&=7\cdot37, & 261&=3\cdot87, & 262&=2\cdot131, & 265&=5\cdot53,\\
-266&=2\cdot133, & 268&=2\cdot134, & 273&=3\cdot91, & 274&=2\cdot137,\\
-276&=2\cdot138, & 280&=2\cdot140, & 289&=17^2, & 290&=2\cdot145,\\
-292&=2\cdot146, & 296&=2\cdot148, & 304&=2\cdot152, & 321&=3\cdot107,\\
-322&=2\cdot161, & 324&=2\cdot162, & 328&=2\cdot164, & 336&=2\cdot168,\\
-352&=2\cdot176, & 385&=5\cdot77, & 386&=2\cdot193, & 388&=2\cdot194,\\
-392&=2\cdot196, & 400&=2\cdot200, & 416&=2\cdot208, & 448&=2\cdot224.
-\end{aligned}
+  259=7\cdot37,\quad 261=3^2\cdot29,\quad 265=5\cdot53,\quad
+  273=3\cdot7\cdot13,
 \]
+\[
+  289=17^2,\quad 321=3\cdot107,\quad 385=5\cdot7\cdot11 .
+\]
+\end{proof}
 
-Hence there is no prime in $[2^8,2^9)$ whose binary expansion has exactly
-three $1$'s. Since the conjecture asserts this for every $n\geq3$, the
-single counterexample $n=8$ disproves it.
+Since the conjecture asserts the existence of such a prime for \emph{every}
+$n\ge3$, the single value $n=8$ refutes it.
 
-\section*{Formal verification}
+\begin{remark}
+$n=8$ is not isolated. A direct search finds that $n=25$ and $n=32$ also admit
+no such prime: of the $\binom{25}2=300$ and $\binom{32}2=496$ candidates in the
+respective intervals, none is prime. These were checked by computation and are
+not part of the Lean development, where a kernel-level decision procedure over
+intervals of that size is not practical.
+\end{remark}
 
-The accompanying Lean 4 project formalizes the same finite verification.
-It defines $\Composite(N)$ to mean that there is a divisor $d$ with
-$1<d<N$ and $d\mid N$. A finite computation verifies that every pair of
-exponents $0\leq b<a<8$ gives a composite number
-$2^8+2^a+2^b$. The final Lean theorem derives the negation of the
-conjecture's assertion at $n=8$. The project uses Lean 4.33.1 and only
-its standard library.
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes the refutation against Mathlib.
+
+\begin{itemize}
+  \item \texttt{ConjectureHolds} --- the conjecture itself:
+    \[
+      \forall n\ge3,\ \exists p,\
+      2^n\le p\ \wedge\ p<2^{n+1}\ \wedge\
+      \texttt{(Nat.bits }p\texttt{).count true}=3\ \wedge\ \texttt{Nat.Prime }p .
+    \]
+    The digit condition counts the \texttt{true} entries of the binary
+    expansion \texttt{Nat.bits}\,$p$ supplied by Mathlib, rather than a
+    parametrization assumed to describe it, and primality is Mathlib's
+    \texttt{Nat.Prime}.
+  \item \texttt{card\_candidates} --- the interval contains exactly $28$
+    integers with three binary ones, matching $\binom82$.
+  \item \texttt{no\_three\_one\_prime\_at\_eight} --- no such integer is prime,
+    decided by exhausting all $256$ integers of $[2^8,2^9)$.
+  \item \texttt{conjecture\_00000000013\_false} --- $\lnot$\,\texttt{ConjectureHolds},
+    by instantiating the conjecture at $n=8$.
+\end{itemize}
+
+Because the conjecture is stated in the formalization, the final theorem is a
+literal formalization of its negation rather than of facts that merely entail
+it.
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and
+introduces no axioms of its own:
+\texttt{\#print axioms conjecture\_00000000013\_false} reports exactly the
+three standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
 
 \end{document}
