@@ -1,0 +1,151 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{remark}{Remark}
+
+\title{A Disproof of Conjecture \texttt{00000001231}\\
+\large On the Jacobian order of the Johnson graph $J(n,k)$}
+\author{TLMC Submission}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture \texttt{00000001231} asserts that the order of the Jacobian (spanning-tree
+torsion group) of the Johnson graph $J(n,k)$ equals
+\[
+|\operatorname{Jac}(J(n,k))| \;=\; \binom{n-2}{k-1}^{\binom{n}{k}-1}\cdot \prod_i f(i),
+\qquad f(i) = (i^2-i+1)^{e_i},
+\]
+for some exponents $e_i$. We show that the stated formula is \emph{false as written}:
+every factor $i^2-i+1$ is odd, so the product term is always odd, whereas at the
+admissible point $(n,k)=(4,1)$ the true value of the Jacobian order is
+$\tau(K_4)=16$, which is even. The matrix-tree theorem itself is used as the measuring
+device and is not disputed.
+\end{abstract}
+
+\section{Setup}
+
+For a finite connected graph $G$, the \emph{Jacobian} (a.k.a.\ sandpile group) of $G$
+is a finite abelian group whose order equals the number $\tau(G)$ of spanning trees of
+$G$. By the \emph{matrix-tree theorem},
+\begin{equation}\label{eq:mtt}
+\tau(G) \;=\; \det L^{\circ},
+\end{equation}
+where $L$ is the graph Laplacian and $L^{\circ}$ is any $(|V|-1)\times(|V|-1)$ principal
+minor obtained by deleting one row and the corresponding column.
+
+The \emph{Johnson graph} $J(n,k)$ has as vertices the $k$-subsets of $\{1,\dots,n\}$,
+with two vertices adjacent exactly when their intersection has size $k-1$ (equivalently,
+their symmetric difference has size $2$).
+
+\begin{lemma}\label{lem:Jn1}
+$J(n,1)$ is the complete graph $K_n$.
+\end{lemma}
+\begin{proof}
+Every $1$-subset $\{x\}$ intersects every other $1$-subset $\{y\}$, $x \neq y$, in the
+empty set, which has size $1-1=0=k-1$; hence all pairs of distinct vertices are
+adjacent, and there are $\binom{n}{2}$ edges. This is exactly $K_n$.
+\end{proof}
+
+\section{The counterexample $(n,k)=(4,1)$}
+
+By Lemma~\ref{lem:Jn1}, $J(4,1) = K_4$. Its Laplacian and the relevant $3\times 3$
+principal minor are
+\[
+L(K_4) \;=\;
+\begin{pmatrix}
+ 3 & -1 & -1 & -1\\
+-1 &  3 & -1 & -1\\
+-1 & -1 &  3 & -1\\
+-1 & -1 & -1 &  3
+\end{pmatrix},
+\qquad
+L^{\circ} \;=\;
+\begin{pmatrix}
+ 3 & -1 & -1\\
+-1 &  3 & -1\\
+-1 & -1 &  3
+\end{pmatrix}.
+\]
+Expanding $\det L^{\circ}$ along the first row:
+\begin{align*}
+\det L^{\circ}
+ &= 3\cdot\det\begin{pmatrix}3&-1\\-1&3\end{pmatrix}
+   -(-1)\cdot\det\begin{pmatrix}-1&-1\\-1&3\end{pmatrix}
+   +(-1)\cdot\det\begin{pmatrix}-1&3\\-1&-1\end{pmatrix}\\[2pt]
+ &= 3\,(9-1) \;+\; 1\,(-3-1) \;-\; 1\,(1+3)\\
+ &= 24 \;-\; 4 \;-\; 4\\
+ &= 16.
+\end{align*}
+This agrees with the Cayley--Pr\"ufer value $\tau(K_n)=n^{n-2}=4^2=16$. Hence
+\begin{equation}\label{eq:tauK4}
+|\operatorname{Jac}(J(4,1))| \;=\; \tau(K_4) \;=\; 16 .
+\end{equation}
+
+\section{The parity obstruction}
+
+\begin{lemma}[Parity of the small factors]\label{lem:odd}
+For every integer $i$, the number $i^2 - i + 1$ is odd.
+\end{lemma}
+\begin{proof}
+$i^2 - i = i(i-1)$ is a product of two consecutive integers, one of which is even;
+hence $i^2-i$ is even and $i^2-i+1$ is odd.
+\end{proof}
+
+\begin{proposition}[The conjecture fails at $(4,1)$]\label{prop:main}
+There are no nonnegative integers $e_i$ such that
+\[
+\binom{2}{0}^{\binom{4}{1}-1}\cdot\prod_i (i^2-i+1)^{e_i} \;=\; 16 .
+\]
+\end{proposition}
+\begin{proof}
+The leading factor is $\binom{2}{0}^{3}=1$, so the conjecture asserts
+$\prod_i (i^2-i+1)^{e_i} = 16$. By Lemma~\ref{lem:odd} each factor $i^2-i+1$ is odd,
+and any product of odd integers is odd. But $16$ is even. Contradiction.
+\end{proof}
+
+\section{A second instance}
+
+$J(4,2)$ is the line graph $L(K_4)$, i.e.\ the octahedral graph, with $6$ vertices and
+$12$ edges. Deleting the first row and column of its Laplacian and evaluating the
+resulting $5\times5$ determinant (carried out exactly in the accompanying
+\texttt{reproduce.py}) gives
+$\tau(J(4,2)) = 384 = 2^7 \cdot 3$. The conjecture's leading factor at $(4,2)$ is
+$\binom{2}{1}^{\binom{4}{2}-1} = 2^5 = 32$, leaving a quotient $384/32 = 12$, which is
+again even --- impossible for a product of odd factors $i^2-i+1$. The parity obstruction
+is thus not an artifact of a single point.
+
+\section{Scope of the disproof}
+
+\begin{remark}
+We refute only the \emph{literal} formula of Conjecture \texttt{00000001231}, at the
+concrete admissible point $(n,k)=(4,1)$ (with corroboration at $(4,2)$). The
+matrix-tree theorem, invoked by the conjecture itself, is of course correct and is used
+here only as a tool. We make no claim about what corrected formula, if any, the author
+intended.
+\end{remark}
+
+\section{Machine verification}
+
+The directory \texttt{lean4/} contains a Lean~4 project (core only, toolchain
+\texttt{leanprover/lean4:v4.33.1}) that formally establishes, with zero axioms and no
+\texttt{sorry}:
+\begin{itemize}
+\item \texttt{Tlmc1231.tau\_K4}: the $3\times3$ integer determinant above equals $16$;
+\item \texttt{Tlmc1231.f\_odd}: $\forall\, i : \mathbb{N}$, $(i\cdot i - i + 1) \bmod 2 = 1$;
+\item \texttt{Tlmc1231.prod\_f4}: $\prod_{i<4}(i^2-i+1) = 21$, together with
+      \texttt{prod\_f4\_odd} and \texttt{sixteen\_even};
+\item \texttt{Tlmc1231.refute}: the parity-incompatible instance
+      $\neg\bigl(\prod_{i<4}(i^2-i+1) = 16 \wedge \tau = 16\bigr)$.
+\end{itemize}
+The script \texttt{reproduce.py} recomputes $\tau(K_4)=16$, $\tau(J(4,2))=384$, the
+leading factors $1$ and $32$, and the parity of $i^2-i+1$ for $0 \le i \le 100$.
+
+\end{document}
