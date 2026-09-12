@@ -1,0 +1,258 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Disproof of conjecture \texttt{00000000443}}
+\author{earthking11}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000000443} as stated. There are two
+\emph{independent} failures:
+
+\begin{itemize}
+\item[(A)] the asserted lower bound $\dim L_n \ge 2^{n-1} - 2^{\lceil n/2\rceil}$
+  is false for \emph{every} $n \ge 4$ (it first fails at $n = 4$);
+\item[(B)] the asserted prime-gap formula
+  ``the gap is exactly half of $2^{(n-1)/2}$'' is false at $n = 3, 7, 11$
+  (it happens to hold at $n = 5$, and is not even integral at $n = 2$).
+\end{itemize}
+
+Each failure alone falsifies the conjecture. The exact dimensions used below are
+the standard ones, given by Witt's formula; the disproof is pure arithmetic and
+requires no structure theory.
+
+\section{The conjecture}
+
+\begin{quote}
+\textbf{English.} Definition: The $n$-th homogeneous dimension of the free Lie
+algebra $L(V)$ is given by Witt's formula
+$\frac1n\sum_{d\mid n}\mu(d)k^{n/d}$. Conjecture: For $k = 2$ and all $n \ge 2$,
+$\dim L_n \ge 2^{n-1} - 2^{\lceil n/2\rceil}$, and for $n$ prime the gap between
+this bound and the exact value is exactly half of $2^{(n-1)/2}$.
+\end{quote}
+
+The statement as filed in \texttt{conjectures/00000000443.md} also carries a Chinese
+translation; it is reproduced in the accompanying \texttt{README.md}.
+
+Throughout, $L_n$ denotes the degree-$n$ homogeneous component of the free Lie
+algebra on two generators ($k = 2$), and $\mu$ is the Möbius function.
+
+\section{Witt's formula and the exact dimensions}
+
+\begin{theorem}[Witt]
+\label{thm:witt}
+For the free Lie algebra on $k$ generators, the homogeneous component of degree
+$n \ge 1$ has dimension
+\[
+\dim L_n \;=\; \frac1n \sum_{d \mid n} \mu(d)\, k^{\,n/d}.
+\]
+\end{theorem}
+
+We use the specialisation $k = 2$. The values for $n = 1,\dots,12$ are given in
+Table~\ref{tab:dim}. For example, at $n = 4$ the divisors are $1,2,4$ with
+$\mu(1)=1$, $\mu(2)=-1$, $\mu(4)=0$, so
+\[
+\dim L_4
+= \frac14\bigl(\mu(1)2^{4} + \mu(2)2^{2} + \mu(4)2^{1}\bigr)
+= \frac14(16 - 4 + 0)
+= \frac{12}{4}
+= 3 .
+\]
+
+\begin{table}[h]
+\centering
+\begin{tabular}{r|r|r|r|r|r|r|r|r|r|r|r|r}
+$n$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 \\
+\hline
+$\dim L_n$ & 2 & 1 & 2 & 3 & 6 & 9 & 18 & 30 & 56 & 99 & 186 & 335
+\end{tabular}
+\caption{Exact dimensions $\dim L_n$ for $k=2$, $n = 1,\dots,12$, from
+Witt's formula (Theorem~\ref{thm:witt}).}
+\label{tab:dim}
+\end{table}
+
+\section{The claimed bound}
+
+Write
+\[
+B(n) \;=\; 2^{\,n-1} - 2^{\lceil n/2\rceil},
+\]
+so the conjecture asserts $\dim L_n \ge B(n)$ for all $n \ge 2$.
+Table~\ref{tab:bound} compares $B(n)$ with $\dim L_n$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{r|r|r|c}
+$n$ & $\dim L_n$ & $B(n) = 2^{n-1} - 2^{\lceil n/2\rceil}$ & $\dim L_n \ge B(n)$? \\
+\hline
+1  & 2   & $2^{0}-2^{1} = -1$                    & yes \\
+2  & 1   & $2^{1}-2^{1} = 0$                     & yes \\
+3  & 2   & $2^{2}-2^{2} = 0$                     & yes \\
+4  & 3   & $2^{3}-2^{2} = 4$                     & \textbf{no} \\
+5  & 6   & $2^{4}-2^{3} = 8$                     & \textbf{no} \\
+6  & 9   & $2^{5}-2^{3} = 24$                    & \textbf{no} \\
+7  & 18  & $2^{6}-2^{4} = 48$                    & \textbf{no} \\
+8  & 30  & $2^{7}-2^{4} = 112$                   & \textbf{no} \\
+9  & 56  & $2^{8}-2^{5} = 224$                   & \textbf{no} \\
+10 & 99  & $2^{9}-2^{5} = 480$                   & \textbf{no} \\
+11 & 186 & $2^{10}-2^{6} = 960$                  & \textbf{no} \\
+12 & 335 & $2^{11}-2^{6} = 1984$                 & \textbf{no} \\
+\end{tabular}
+\caption{The claimed bound $B(n)$ against the exact dimension. The inequality
+holds only for $n = 2, 3$ and fails for every $4 \le n \le 12$. (At $n=1$ the
+formula gives a negative value, but the conjecture only ranges over $n \ge 2$.)}
+\label{tab:bound}
+\end{table}
+
+\section{Failure (A): the inequality is false for every $n \ge 4$}
+
+\begin{lemma}
+\label{lem:dim4}
+$\dim L_4 = 3$.
+\end{lemma}
+
+\begin{proof}
+By Theorem~\ref{thm:witt} with $k = 2$ and $n = 4$: the positive divisors of $4$
+are $1,2,4$, and $\mu(1)=1$, $\mu(2)=-1$, $\mu(4)=0$. Hence
+\[
+\dim L_4 = \frac14\bigl(1\cdot 2^{4} + (-1)\cdot 2^{2} + 0\cdot 2^{1}\bigr)
+= \frac14(16-4) = \frac{12}{4} = 3. \qedhere
+\]
+\end{proof}
+
+\begin{lemma}
+\label{lem:b4}
+$2^{\,3} - 2^{\,2} = 4$, i.e.\ $B(4) = 4$.
+\end{lemma}
+
+\begin{proof}
+$2^{3} = 8$ and $2^{2} = 4$, so $2^{3} - 2^{2} = 8 - 4 = 4$. Since
+$\lceil 4/2 \rceil = 2$, this is exactly $B(4)$.
+\end{proof}
+
+\begin{theorem}[failure of the inequality]
+\label{thm:Afails}
+$\dim L_4 = 3 < 4 = B(4)$. Consequently the conjecture's assertion
+``$\dim L_n \ge 2^{n-1} - 2^{\lceil n/2\rceil}$ for all $n \ge 2$'' is false.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:dim4}, $\dim L_4 = 3$. By Lemma~\ref{lem:b4}, $B(4) = 4$.
+Since $3 < 4$, the inequality fails at $n = 4$. A single counterexample refutes a
+universal statement. In fact Table~\ref{tab:bound} shows the inequality fails at
+every $n \in \{4,5,\dots,12\}$.
+\end{proof}
+
+\begin{corollary}
+The conjunction forming conjecture \texttt{00000000443} is false.
+\end{corollary}
+
+\begin{proof}
+The conjecture asserts a universally quantified inequality; Theorem~\ref{thm:Afails}
+exhibits $n = 4$ for which it fails. A conjunction containing a false conjunct is
+false.
+\end{proof}
+
+\section{Failure (B): the prime-gap formula is false}
+
+The conjecture further asserts that for prime $n$ the gap between the bound and the
+exact value is \emph{exactly} half of $2^{(n-1)/2}$, i.e.\ (taking the magnitude of
+the gap)
+\[
+\bigl|B(n) - \dim L_n\bigr| \;=\; \tfrac12 \cdot 2^{(n-1)/2}
+\qquad (n \ \text{prime}).
+\]
+This is a second, logically independent assertion. Table~\ref{tab:gap} evaluates
+both sides for the primes $n = 2,3,5,7,11$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{r|r|r|r|r|c}
+$n$ (prime) & $\dim L_n$ & $B(n)$ & $|B(n)-\dim L_n|$ &
+$\tfrac12 2^{(n-1)/2}$ & claim holds? \\
+\hline
+2  & 1   & 0   & 1   & (not an integer) & ill-defined \\
+3  & 2   & 0   & 2   & 1   & \textbf{no} \\
+5  & 6   & 8   & 2   & 2   & yes (coincidence) \\
+7  & 18  & 48  & 30  & 4   & \textbf{no} \\
+11 & 186 & 960 & 774 & 16  & \textbf{no} \\
+\end{tabular}
+\caption{The prime-gap assertion. It fails at $n = 3, 7, 11$, holds
+coincidentally at $n = 5$, and is not even an integer at $n = 2$.}
+\label{tab:gap}
+\end{table}
+
+\begin{theorem}[failure of the prime-gap formula]
+\label{thm:Bfails}
+The assertion ``for prime $n$ the gap is exactly half of $2^{(n-1)/2}$'' is false.
+Explicitly:
+\[
+n=3:\quad |B(3)-\dim L_3| = |0-2| = 2 \ne 1 = \tfrac12 2^{1},
+\]
+\[
+n=7:\quad |B(7)-\dim L_7| = |48-18| = 30 \ne 4 = \tfrac12 2^{3},
+\]
+\[
+n=11:\quad |B(11)-\dim L_{11}| = |960-186| = 774 \ne 16 = \tfrac12 2^{5}.
+\]
+\end{theorem}
+
+\begin{proof}
+The values $\dim L_3 = 2$, $\dim L_7 = 18$, $\dim L_{11} = 186$ are read from
+Table~\ref{tab:dim}; the bounds are
+$B(3) = 0$, $B(7) = 48$, $B(11) = 960$ from Table~\ref{tab:bound}. Each displayed
+inequality is then integer arithmetic. Since the claimed identity fails at three
+primes, it is false as a general statement.
+\end{proof}
+
+\begin{remark}
+At $n = 5$ we have $|B(5)-\dim L_5| = |8-6| = 2 = \tfrac12 2^{2}$, so the formula
+happens to be correct there; a single coincidence cannot support a claim quantified
+over all primes, and $n = 3, 7, 11$ already refute it. At $n = 2$ the quantity
+$\tfrac12 2^{(n-1)/2} = \tfrac12\sqrt2$ is irrational, while the gap is the integer
+$1$, so the phrase ``exactly half of $2^{(n-1)/2}$'' cannot hold at $n = 2$ under
+any reading either.
+\end{remark}
+
+\section{The two failures are independent}
+
+Failure (A) is a statement about the \emph{inequality} and is witnessed at the
+composite value $n = 4$ (and all $n \ge 4$ in the tested range). Failure (B) is a
+statement about the \emph{prime gap} and is witnessed at the primes $n = 3,7,11$.
+Either failure alone makes the conjecture false: the conjecture is the conjunction
+of (i) the universal inequality and (ii) the prime-gap identity, and a conjunction
+is false as soon as one conjunct is false. Accordingly, even a reader who doubted
+one of the two computations would still be forced to reject the conjecture by the
+other.
+
+\section{Reproducing the computation}
+
+The numerical content is reproduced by \texttt{reproduce.py}, which uses only the
+Python~3 standard library and implements the Möbius function by hand:
+
+\begin{verbatim}
+python3 reproduce.py
+\end{verbatim}
+
+It prints Tables~\ref{tab:dim}--\ref{tab:gap}, checks that
+$\dim L_n < B(n)$ for all $n \in [4,12]$, checks that the gap claim fails at
+$n = 3,7,11$ (and notes the coincidence at $n = 5$), and exits with status $0$
+(\texttt{PASS}) only if every check succeeds.
+
+\end{document}
