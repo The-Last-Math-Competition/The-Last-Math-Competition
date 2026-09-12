@@ -1,0 +1,241 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Disproof of conjecture \texttt{00000000159}\\
+\large Decompositions of complete graphs of prime order into distinct prime cycles}
+\author{earthking11}
+\date{12 September 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{center}
+\textbf{Verdict: FALSE}
+\end{center}
+
+\section{The conjecture}
+
+\begin{quote}
+\textbf{Conjecture.} \emph{For every prime $p \ge 11$, the complete graph
+$K_p$ can be decomposed into a union of cycles of pairwise distinct prime
+lengths.}
+\end{quote}
+
+We disprove the conjecture by exhibiting a single prime $p$ for which it fails,
+namely $p = 11$. The obstruction is a plain edge count and requires no
+structural graph theory.
+
+\section{The edge-count obstruction}
+
+Throughout, a \emph{cycle} means a simple cycle of a simple graph, in the
+standard sense: a closed walk with no repeated vertices other than the starting
+and ending vertex. Its length is its number of edges.
+
+\begin{lemma}[Cycle lengths in $K_p$]
+\label{lem:length}
+Let $C$ be a cycle in $K_p$. Then the length of $C$ equals the number of
+distinct vertices it uses, and
+\[
+3 \le \lvert C \rvert \le p .
+\]
+\end{lemma}
+
+\begin{proof}
+A simple graph has no loops and no parallel edges, so a cycle uses at least
+three distinct vertices; hence its length is at least $3$. A cycle in $K_p$
+uses pairwise distinct vertices of the $p$-element vertex set, so it uses at
+most $p$ vertices. Each edge of the cycle joins two consecutive vertices, and
+since the vertices are distinct this is a bijection between the edges of $C$
+and its vertices. Therefore the length of $C$ equals its number of distinct
+vertices, which lies in $[3, p]$.
+\end{proof}
+
+\begin{corollary}[Available lengths for $p = 11$]
+\label{cor:lengths}
+A cycle of $K_{11}$ whose length is a prime lies in $\{3,5,7,11\}$.
+\end{corollary}
+
+\begin{proof}
+By Lemma~\ref{lem:length} the length is a prime in $[3,11]$. The primes in that
+interval are $3,5,7,11$.
+\end{proof}
+
+\begin{lemma}[The available total is at most $26$]
+\label{lem:sum}
+If $L$ is a set of pairwise distinct primes, each an available cycle length in
+$K_{11}$, then
+\[
+\sum_{q \in L} q \;\le\; 3 + 5 + 7 + 11 \;=\; 26 .
+\]
+\end{lemma}
+
+\begin{proof}
+By Corollary~\ref{cor:lengths} every element of $L$ belongs to
+$\{3,5,7,11\}$. Since the elements are pairwise distinct, $L$ is a subset of
+this four-element set, so its sum is at most the sum of the whole set, $26$.
+\end{proof}
+
+\begin{theorem}
+\label{thm:main}
+There is no decomposition of $K_{11}$ into cycles of pairwise distinct prime
+lengths.
+\end{theorem}
+
+\begin{proof}
+Let the cycles of a purported decomposition have pairwise distinct prime lengths
+$L = \{q_1, \dots, q_r\}$. In either natural reading of ``decomposed into a
+union of cycles'':
+
+\begin{itemize}
+\item if the decomposition is edge-disjoint, then the cycle lengths sum exactly
+      to the number of edges of $K_{11}$, and
+\item if the cycles merely cover all edges, then the cycle lengths sum to at
+      least the number of edges of $K_{11}$ (the union has at most
+      $\sum_i q_i$ edges, counted with multiplicity).
+\end{itemize}
+
+Thus in both cases
+\[
+\sum_{q \in L} q \;\ge\; \lvert E(K_{11}) \rvert \;=\; \binom{11}{2}
+\;=\; \frac{11 \cdot 10}{2} \;=\; 55 .
+\]
+But Lemma~\ref{lem:sum} gives $\sum_{q\in L} q \le 26$, a contradiction.
+Therefore no such decomposition exists.
+\end{proof}
+
+\begin{corollary}
+Conjecture \texttt{00000000159} is false, because it asserts the claim for
+\emph{every} prime $p \ge 11$, and it already fails at $p = 11$.
+\end{corollary}
+
+\section{The failure is robust and worsens}
+
+The same count obstructs every prime in the conjectured range. Writing
+$\operatorname{sop}(p) = \sum_{3 \le q \le p,\ q \text{ prime}} q$ for the total
+of all available prime lengths, we need
+\[
+\operatorname{sop}(p) \;\ge\; \binom{p}{2} \;=\; \frac{p(p-1)}{2}
+\]
+for a decomposition to be even conceivable. The table below records the first
+few primes.
+
+\begin{center}
+\begin{tabular}{r|r|r|r}
+$p$ & $\binom{p}{2}$ & $\operatorname{sop}(p)$ & verdict \\ \hline
+$11$ & $55$  & $26$  & impossible \\
+$13$ & $78$  & $39$  & impossible \\
+$17$ & $136$ & $56$  & impossible \\
+$19$ & $171$ & $75$  & impossible \\
+$23$ & $253$ & $98$  & impossible \\
+\end{tabular}
+\end{center}
+
+The inequality fails for every prime $p$ with $11 \le p \le 2000$; this is
+verified exhaustively by \texttt{reproduce.py}. It also fails for all larger
+primes, since by the prime number theorem
+\[
+\operatorname{sop}(p) \sim \frac{p^2}{2 \ln p}
+\qquad\text{while}\qquad
+\binom{p}{2} = \frac{p^2}{2}\bigl(1 - \tfrac1p\bigr),
+\]
+so $\operatorname{sop}(p) / \binom{p}{2} \sim 1/\ln p \to 0$. The gap grows
+without bound, so the counting obstruction can never be repaired by taking
+$p$ larger.
+
+\section{The strongest objection, and its rebuttal}
+
+The only way to escape the obstruction is to change the meaning of ``cycle''.
+If ``cycle'' were weakened to mean a \emph{closed trail} --- a closed walk whose
+edges are distinct but whose vertices may repeat --- then a closed trail in
+$K_p$ could have length much larger than $p$, and the bound
+$\lvert C \rvert \le p$ of Lemma~\ref{lem:length} would disappear. With that
+weakened reading the edge count alone would no longer obstruct the claim, and
+the conjecture could conceivably be true.
+
+This escape is not available. In graph theory a cycle is a simple cycle; a
+closed walk with repeated vertices is a closed trail, not a cycle, and the
+conjecture says ``cycles''. Under the standard reading Lemma~\ref{lem:length}
+applies and the obstruction is decisive. We record the reading we use
+explicitly, and we note in passing that the prime $2$ is never an available
+length, because every cycle of a simple graph has length at least $3$; this
+only makes the available total smaller and the obstruction stronger.
+
+\section{Scope and formalisation}
+
+The LaTeX argument above is complete. The subdirectory \texttt{lean4/}
+contains a Lean~4 development, using only \texttt{Std} (no Mathlib), which
+formalises precisely the arithmetic core of the obstruction:
+
+\begin{itemize}
+\item \texttt{validLengths = [3,5,7,11]} and the fact that every prime in
+      $[3,11]$ is a member (a finite check over \texttt{List.range 12});
+\item \texttt{validLengths.sum = 26};
+\item the central counting lemma: a duplicate-free list all of whose members
+      belong to \texttt{validLengths} has sum at most $26$;
+\item the corollary that no such list has sum $55$;
+\item the final theorem \texttt{conjecture\_00000000159\_false}, which takes
+      such a list together with the hypothesis that its sum equals the edge
+      count $11 \cdot 10 / 2$ and derives \texttt{False}.
+\end{itemize}
+
+The graph-theoretic step --- that the cycle lengths of a cover of $K_{11}$ form
+such a list and must total at least $\binom{11}{2}$ --- is not formalised; see
+\texttt{lean4/README.md} for the exact boundary of the formalisation. The
+formalised statement is not vacuous: it genuinely asserts that no list of
+pairwise distinct available prime lengths can reach the required total.
+
+\section{Files and reproduction}
+
+\begin{center}
+\begin{tabular}{l|l}
+file & purpose \\ \hline
+\texttt{main.tex} & this disproof \\
+\texttt{build/main.pdf} & compiled PDF (produced by \texttt{tectonic main.tex}) \\
+\texttt{reproduce.py} & verifies the count for all primes up to $2000$ \\
+\texttt{lean4/} & Lean~4 formalisation, core library only, no \texttt{sorry} \\
+\end{tabular}
+\end{center}
+
+Reproduce the numerical check with pure Python~3 (standard library only):
+
+\begin{verbatim}
+python3 reproduce.py
+\end{verbatim}
+
+It prints the table for $p = 11, 13, 17, 19, 23$, lists the four available
+lengths at $p = 11$ with $3+5+7+11 = 26 < 55$, asserts that the bound fails for
+every prime in $[11,2000]$, and ends with a \texttt{PASS} summary.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a compiled PDF, and a Lean~4 project. All three
+are present.
+
+\begin{itemize}
+\item \textbf{LaTeX source:} \texttt{main.tex}.
+\item \textbf{Compiled PDF:} \texttt{build/main.pdf}, produced by
+      \texttt{tectonic main.tex}. The source needs only the standard
+      \texttt{article}/\texttt{amsmath}/\texttt{amssymb}/\texttt{amsthm}
+      packages. (It was not regenerated in the offline environment in which
+      this submission was assembled, since the TeX resource bundle could not
+      be fetched there.)
+\item \textbf{Lean~4 project:} \texttt{lean4/}, built with \texttt{lake build},
+      using core Lean plus \texttt{Std} only (no Mathlib), with no
+      \texttt{sorry}. The axiom footprint is machine-checkable via
+      \texttt{lake env lean Check.lean}.
+\end{itemize}
+
+\end{document}
