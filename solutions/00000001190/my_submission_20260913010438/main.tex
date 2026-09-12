@@ -1,0 +1,162 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+
+\newtheorem{claim}{Claim}
+\newtheorem{remark}{Remark}
+
+\title{A Double Counterexample to TLMC Conjecture 00000001190:\\
+Prime-Order Elements of $\mathrm{GL}_2(\mathbb{F}_7)$}
+\author{TLMC Submission --- Disproof of Conjecture 00000001190}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We refute Conjecture 00000001190, which asserts that the number $N_p$ of
+elements of prime order $p$ in $\mathrm{GL}_n(\mathbb{F}_q)$ equals
+$\sum_{r \mid n,\ r \text{ prime}} \Theta_r(q)$ with
+$\Theta_r(q) = q^{n^2-r}(q-1)^{-1}\prod_{i=1}^{r-1}(q^{n-i}-1)$,
+``with zero error.'' At the single parameter point $(n,q) = (2,7)$ the formula
+is wrong twice: it predicts $49$ elements of order $2$ where the truth is $57$,
+and it predicts $0$ elements of order $3$ where the truth is $170$. Every
+ground-truth number is a brute-force enumeration of all $7^4 = 2401$ matrices
+over $\mathbb{Z}/7\mathbb{Z}$, independently machine-verified in Python and by a
+zero-axiom Lean~4 kernel check.
+\end{abstract}
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition.} $N_p$ is the number of elements of prime order $p$ in
+$\mathrm{GL}_n(\mathbb{F}_q)$.
+
+\textit{Conjecture.} $N_p = \sum_{r \mid n,\ r \text{ prime}} \Theta_r(q)$,
+where
+\[
+\Theta_r(q) = q^{n^2-r}\,(q-1)^{-1}\prod_{i=1}^{r-1}\bigl(q^{n-i}-1\bigr);
+\]
+this formula covers all prime-order elements with zero error.
+\end{quote}
+
+\section{The formula side at $(n,q) = (2,7)$}
+
+Since $n = 2$, the only prime divisor of $n$ is $r = 2$. Hence the conjectured
+sum has exactly one term:
+\begin{align}
+N_2 &\overset{!}{=} \Theta_2(7)
+      = 7^{4-2}\cdot\frac{7^{2-1}-1}{7-1}
+      = 49 \cdot \frac{6}{6} = \boxed{49},\\
+N_3 &\overset{!}{=} 0 \quad (\text{the sum over prime } r \mid 2 \text{ contains no } r = 3,
+      \text{ so it is the empty sum}),\\
+N_p &\overset{!}{=} 0 \quad \text{for every prime } p \ge 3.
+\end{align}
+
+\section{Ground truth: enumeration of $\mathrm{GL}_2(\mathbb{F}_7)$}
+
+First,
+\[
+\bigl|\mathrm{GL}_2(\mathbb{F}_7)\bigr| = (7^2-1)(7^2-7) = 48 \cdot 42 = 2016.
+\]
+This was confirmed by enumerating all $7^4 = 2401$ matrices
+$\left(\begin{smallmatrix} a & b \\ c & d\end{smallmatrix}\right)$ with
+$a,b,c,d \in \mathbb{Z}/7\mathbb{Z}$ and keeping exactly those with
+$ad - bc \not\equiv 0 \pmod 7$; the count is $2016$. Elements of order exactly
+$k$ are then those $M$ with $M \ne I$, $M^k = I$ (and automatically $M^j \ne I$
+for $1 \le j < k$ since $k$ is prime). The exhaustive enumeration gives:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrr}
+\toprule
+quantity & brute-force enumeration & conjectured formula \\
+\midrule
+$|\mathrm{GL}_2(\mathbb{F}_7)|$                 & 2016 & --- \\
+elements of order exactly $2$ ($N_2$)           & \textbf{57}  & \textbf{49} \\
+elements of order exactly $3$ ($N_3$)           & \textbf{170} & \textbf{0} \\
+\bottomrule
+\end{tabular}
+\caption{The conjecture fails twice at $(n,q) = (2,7)$: $57 \ne 49$ and $170 \ne 0$.}
+\end{table}
+
+As a sanity check, the full order distribution of the $2016$ elements is
+$1{:}\,1$, $2{:}\,57$, $3{:}\,170$, $4{:}\,42$, $6{:}\,618$, $7{:}\,48$,
+$8{:}\,84$, $12{:}\,84$, $14{:}\,48$, $16{:}\,168$, $21{:}\,96$, $24{:}\,168$,
+$42{:}\,96$, $48{:}\,336$, which sums to $2016$.
+
+\section{Why the formula undercounts}
+
+\subsection{Order $2$: $\mathbf{57}$ against $\mathbf{49}$}
+
+Over $\mathbb{F}_7$, $x^2 - 1 = (x-1)(x+1)$ splits completely, so every
+involution is diagonalizable. The elements with eigenvalues $\{1,-1\}$
+($\ne \pm I$) form a single conjugacy class: the centralizer of such an element
+is the group of diagonal matrices, of order $(7-1)^2 = 36$, so the class has
+size $2016/36 = 56$. Together with the scalar matrix $-I$ (which also has order
+exactly $2$) this gives
+\[
+N_2 = 56 + 1 = 57 \ne 49 = \Theta_2(7).
+\]
+The term $\Theta_2(q) = q^{n^2-2}(q^1-1)/(q-1) = q^{n^2-2} = q^2$ counts the
+regular-semisimple split-torus contribution (pairs of distinct eigenvalues in
+$\mathbb{F}_q^\times$, modulo the multiplicative structure of the torus), but it
+accounts neither for the scalar involution $-I$ nor for the fact that a
+$2$-dimensional representation can realize order $2$ with eigenvalue set
+$\{1,-1\}$ embedded in the conjugation structure differently than the formula
+assumes.
+
+\subsection{Order $3$: $\mathbf{170}$ against $\mathbf{0}$}
+
+In $\mathbb{F}_7^\times$ (cyclic of order $6$) there are two primitive cube
+roots of unity: $x^3 - 1 = (x-1)(x-2)(x-4) \pmod 7$, indeed
+$2^3 = 8 \equiv 1$ and $4^3 = 64 \equiv 1 \pmod 7$. An element of order
+exactly $3$ is diagonalizable with eigenvalues in
+$\{1,2,4\}$, not both $1$. The three eigenvalue multisets
+$\{2,1\}$, $\{4,1\}$, $\{2,4\}$ give three conjugacy classes, each with
+centralizer of order $36$, i.e.\ $56$ elements each; plus the two scalar
+matrices $2I$ and $4I$. Hence
+\[
+N_3 = 3 \cdot 56 + 2 = 170 \ne 0.
+\]
+The conjecture's divisor condition ``$r \mid n$'' is blind to this: because
+$3 \mid (q-1) = 6$, the field $\mathbb{F}_7$ itself contains elements of order
+$3$, and scalars $\lambda I$ of order $3$ exist in \emph{every} dimension
+$n \ge 1$, as do diagonalizable ones for all $n \ge 2$. No sum of the form
+$\sum_{r \mid n} \Theta_r$ can ever count them unless every prime divisor of
+$q - 1$ happens to divide $n$.
+
+\section{Machine verification}
+
+All counts are verified by two independent, axiom-free computations:
+
+\begin{itemize}
+  \item \texttt{reproduce.py}: pure-Python enumeration of all $2401$ matrices;
+        prints and asserts $2016$, $57$, $170$, $49$, $0$.
+  \item \texttt{lean4/}: Lean~4 (toolchain \texttt{v4.33.1}) theorems proved by
+        \texttt{decide} over the same exhaustive enumeration:
+        \texttt{count\_order2 : \ldots = 57},
+        \texttt{count\_order3 : \ldots = 170},
+        \texttt{formula2 : $\Theta_2(7) = 49$}, and
+        \texttt{refute : $57 \ne 49 \wedge 170 \ne 0$}.
+        \texttt{\#print axioms} confirms every theorem
+        ``\texttt{does not depend on any axioms}'' (no \texttt{sorry}, no
+        \texttt{Classical.choice}, no gaps).
+\end{itemize}
+
+\section{Scope and boundaries}
+
+We refute only the literal, universal statement of Conjecture 00000001190 at
+the parameter point $(n,q) = (2,7)$, where it fails for two different primes
+$p$ simultaneously. We make no claim about the behaviour of the formula at
+other parameters; it may be exact or near-exact elsewhere (e.g.\ when
+$\gcd(n, q-1) = 1$ the scalar-matrix obstruction disappears, though the
+$57$-vs-$49$ discrepancy at $p = 2$ here suggests the semisimple counting in
+$\Theta_r$ itself also needs care). Fixing the conjecture would require at
+least (i) adding scalar contributions $\sum_{\lambda \in \mathbb{F}_q^\times,\
+\mathrm{ord}(\lambda) = p} 1$, and (ii) handling non-regular semisimple classes
+whenever $p \mid q - 1$, independently of any divisibility of $n$ by $p$.
+
+\end{document}
