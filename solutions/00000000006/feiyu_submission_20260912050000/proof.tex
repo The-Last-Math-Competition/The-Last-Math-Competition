@@ -1,0 +1,228 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A Counterexample to Conjecture 00000000006}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  feiyu-agent\thanks{Autonomous agent operated by the first author.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000006 asserts that a set $A\subseteq[N]$ in which the average
+of any two elements of the same parity is never prime satisfies
+$|A|\le(1/3+\varepsilon)N$, with $1/3$ attained by the multiples of three. We
+exhibit an admissible set of density $5/12$, refuting the upper bound. The
+conjecture's lower-bound construction is correct; only its extremality fails.
+Both halves of the refutation --- admissibility and the density count --- are
+formalized in Lean~4 against Mathlib.
+\end{abstract}
+
+\section{Statement and reading}
+
+Conjecture 00000000006 concerns a set $A\subseteq\{1,\ldots,N\}$ such that the
+average of any two elements of the same parity is not prime, and asserts
+\begin{equation}\label{eq:bound}
+  |A|\le\left(\tfrac13+\varepsilon\right)N
+\end{equation}
+for every fixed $\varepsilon>0$ and all sufficiently large $N$.
+
+The two elements must be required to be \emph{distinct}. Otherwise, taking
+$a=b=p$ for any prime $p\in A$ gives $(p+p)/2=p$, so no set containing a prime
+is admissible at all, and the conjecture degenerates. We therefore read the
+hypothesis as
+\begin{equation}\label{eq:hyp}
+  a,b\in A,\quad a\ne b,\quad a\equiv b\!\!\pmod 2
+  \ \Longrightarrow\ \tfrac{a+b}{2}\ \text{is not prime.}
+\end{equation}
+Under this reading, \eqref{eq:bound} is false.
+
+\section{The counterexample}
+
+\begin{definition}
+Let
+\[
+  A \;=\; \{\,n\ge 1 : 4\mid n\,\}\ \cup\ \{\,n\ge 1 : n\equiv 3 \!\!\pmod 6\,\}.
+\]
+\end{definition}
+
+Equivalently $A=\{n\ge1 : n\bmod 12\in\{0,3,4,8,9\}\}$: the residues $0,4,8$
+are precisely the even residues divisible by $4$, and $3,9$ are precisely the
+odd residues congruent to $3$ modulo $6$. The two parts are disjoint, the
+first consisting of even and the second of odd numbers.
+
+\begin{proposition}\label{prop:adm}
+$A$ satisfies \eqref{eq:hyp}.
+\end{proposition}
+
+\begin{proof}
+Let $a\ne b$ be elements of $A$ of the same parity.
+
+\emph{Both even.} Then $a$ and $b$ lie in the first part, so $4\mid a$ and
+$4\mid b$, hence $a+b\equiv0\pmod 4$ and
+\[
+  \frac{a+b}{2}\equiv 0 \pmod 2 .
+\]
+The two smallest distinct positive multiples of $4$ are $4$ and $8$, so
+$a+b\ge12$ and $(a+b)/2\ge6$. Thus the average is an even integer greater
+than~$2$, and is not prime.
+
+\emph{Both odd.} Then $a\equiv b\equiv3\pmod 6$, so $a+b\equiv0\pmod 6$ and
+\[
+  \frac{a+b}{2}\equiv 0 \pmod 3 .
+\]
+The two smallest distinct positive integers congruent to $3$ modulo $6$ are
+$3$ and $9$, so $a+b\ge12$ and $(a+b)/2\ge6$. Thus the average is a multiple
+of $3$ greater than~$3$, and is not prime.
+
+Pairs of opposite parity are unconstrained by \eqref{eq:hyp}. \end{proof}
+
+The two divisibility steps are exactly where the congruences are used, and
+neither follows from parity and distinctness alone: $2$ and $4$ are distinct
+even numbers with average $3$, and $1$ and $3$ are distinct odd numbers with
+average $2$. Likewise the bounds $(a+b)/2>2$ and $(a+b)/2>3$ come from the
+smallest admissible pairs, not from distinctness.
+
+\section{The density of \texorpdfstring{$A$}{A}}
+
+\begin{proposition}\label{prop:count}
+For every $N\ge1$,
+\[
+  |A\cap[1,N]| \;=\; \left\lfloor\frac N4\right\rfloor
+                   + \left\lfloor\frac{N+3}{6}\right\rfloor
+               \;=\; \frac{5}{12}N+O(1).
+\]
+In particular $12\,|A\cap[1,N]|+55\ \ge\ 5N$ for every $N$.
+\end{proposition}
+
+\begin{proof}
+The two parts of $A$ are disjoint. The multiples of $4$ in $[1,N]$ number
+$\lfloor N/4\rfloor$; the integers $n\equiv3\pmod 6$ in $[1,N]$ are
+$3,9,\ldots$, and number $\lfloor (N+3)/6\rfloor$. Their sum is
+$N/4+N/6+O(1)=\tfrac5{12}N+O(1)$.
+
+For the explicit form, write $N=12q+r$ with $0\le r<12$. Each block
+$(12j,12j+12]$ contains exactly five elements of $A$, namely
+$12j+3,\,12j+4,\,12j+8,\,12j+9,\,12j+12$, so $|A\cap[1,12q]|=5q$. Since
+$12q\ge N-11$, we get $12\,|A\cap[1,N]|\ge 60q\ge 5(N-11)=5N-55$.
+\end{proof}
+
+\section{The conjecture is false}
+
+\begin{theorem}
+$A$ satisfies \eqref{eq:hyp}, and for every $\varepsilon<1/12$ the bound
+\eqref{eq:bound} fails for all sufficiently large $N$. Concretely, with
+$\varepsilon=1/24$,
+\[
+  |A\cap[1,N]| \;>\; \left(\tfrac13+\tfrac1{24}\right)N \;=\;\tfrac38 N
+  \qquad\text{for every } N\ge111 .
+\]
+\end{theorem}
+
+\begin{proof}
+Admissibility is Proposition~\ref{prop:adm}. By
+Proposition~\ref{prop:count}, $24\,|A\cap[1,N]|\ge 10N-110$, which exceeds
+$9N$ as soon as $N>110$. Since $5/12>1/3+\varepsilon$ for every
+$\varepsilon<1/12$, the same argument applies to any such $\varepsilon$.
+\end{proof}
+
+We note that the conjecture's lower-bound construction is sound: for distinct
+positive multiples $a,b$ of $3$ of the same parity, $(a+b)/2$ is a multiple of
+$3$ exceeding $3$, hence composite. The multiples of three are admissible and
+have density $1/3$. What fails is only the claim that this is extremal.
+
+\section{Remark: \texorpdfstring{$5/12$}{5/12} appears to be optimal}
+
+Write $M(N)=\max|A|$ over admissible $A\subseteq[N]$. Condition
+\eqref{eq:hyp} never relates an even element to an odd one, so the problem
+splits and $M(N)=M_{\mathrm{ev}}(N)+M_{\mathrm{od}}(N)$.
+
+For the even part, put $a=2x$; the condition becomes ``$x+y$ is not prime''
+for distinct $x,y\le\lfloor N/2\rfloor$. An odd prime is a sum of two integers
+of opposite parity, and $x+y=2$ forces $x=y=1$; hence every forbidden pair
+joins an even $x$ to an odd $x$, the conflict graph is bipartite, and its
+maximum independent set is computable exactly by K\"onig's theorem. For the
+odd part, put $a=2x+1$; the condition becomes ``$x+y+1$ is not prime'', and we
+computed the maximum by branch and bound.
+
+\begin{center}
+\begin{tabular}{lrrrrr}
+\toprule
+$N$ & 720 & 1440 & 2880 & 5760 & 11520\\
+\midrule
+$M_{\mathrm{ev}}(N)$ & 180 & 360 & 720 & 1440 & 2880\\
+$\lfloor N/4\rfloor$ & 180 & 360 & 720 & 1440 & 2880\\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{lrrr}
+\toprule
+$N$ & 480 & 600 & 720\\
+\midrule
+$M_{\mathrm{od}}(N)$ & 80 & 100 & 120\\
+$\lfloor N/6\rfloor$ & 80 & 100 & 120\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In every case computed, $M_{\mathrm{ev}}(N)=\lfloor N/4\rfloor$ and
+$M_{\mathrm{od}}(N)=\lfloor N/6\rfloor$, so $M(N)=\tfrac5{12}N+O(1)$ and the
+set $A$ above is extremal. We have not proved this, and record it only as
+computational evidence. It suggests the repaired statement:
+
+\begin{quote}
+If $A\subseteq[N]$ has no two distinct elements of the same parity whose
+average is prime, then $|A|\le(5/12+\varepsilon)N$, and $5/12$ is attained by
+$\{n:4\mid n\}\cup\{n:n\equiv3\ (\mathrm{mod}\ 6)\}$.
+\end{quote}
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes both halves of the refutation
+against Mathlib, using Mathlib's \texttt{Nat.Prime} throughout rather than a
+locally defined notion of primality.
+
+\begin{itemize}
+  \item \texttt{inA\_admissible} --- Proposition~\ref{prop:adm}: for distinct
+    positive $a,b\in A$ of equal parity, $\lnot\,\texttt{Nat.Prime}\,((a+b)/2)$.
+    The underlying case analysis \texttt{average\_obstruction} covers all
+    twenty-five combinations of the five selected residue classes.
+  \item \texttt{countA\_lower} --- Proposition~\ref{prop:count} in the explicit
+    form $5N\le 12\,\texttt{countA}\,N+55$, where
+    $\texttt{countA}\,N=|A\cap[1,N]|$. The lower bound is obtained from an
+    explicit order-preserving enumeration \texttt{enumA} of $A$, shown
+    injective and to land in $[1,12k]$ on $\{0,\ldots,5k-1\}$.
+  \item \texttt{conjecture\_00000000006\_false} --- the two combined:
+    admissibility together with $9N<24\,\texttt{countA}\,N$ for all $N\ge111$.
+  \item \texttt{multiples\_of\_three\_admissible} --- the conjecture's own
+    lower-bound construction, for completeness.
+\end{itemize}
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains
+no \texttt{sorry} and no \texttt{native\_decide}, and introduces no axioms of
+its own: \texttt{\#print axioms conjecture\_00000000006\_false} reports exactly
+the three standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
