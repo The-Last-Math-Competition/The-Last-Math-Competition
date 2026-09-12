@@ -1,0 +1,260 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\newcommand{\conj}{\mathrel{\sim}}
+\newcommand{\id}{\mathrm{id}}
+
+\title{Disproof of Conjecture 00000005400:\\
+Orbit Distributions, Period Counts, and the Impossibility of\\
+a Conjugate Pair with Different Periods}
+\author{TLMC submission --- verdict: \textbf{FALSE}}
+\date{September 13, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000005400 asserts two things at once: (i) there exist two maps with
+identical orbit distribution limits but different periodic point counts, and
+(ii) the separation is realized by an explicit \emph{conjugate pair} with the
+same measure but different periods. We show that both layers fail in the literal
+discrete reading. First, on finite sets the periodic point count is a function of
+the orbit-length distribution, $P(f)=\sum_{l\ge1} l\,N_l(f)$, so layer (i) is
+self-contradictory. Second, exact conjugacy preserves pointwise periods,
+$\operatorname{per}_{\tau f\tau^{-1}}(\tau x)=\operatorname{per}_f(x)$, so the
+witness objects demanded by layer (ii) --- a conjugate pair with different
+periods --- \emph{do not exist}. We verify both identities by exhaustive machine
+enumeration: all $2304$ triples $(\tau,f,x)\in S_4\times S_4\times\{0,1,2,3\}$
+for conjugacy, and all $4^4=256$ self-maps of a $4$-point set for the counting
+identity. A Lean~4 development with zero axioms and zero \texttt{sorry}
+re-derives everything by kernel-checked computation.
+\end{abstract}
+
+\section{The conjecture}
+
+\begin{quote}
+\emph{Definition: Orbit distribution and period counting are two layers.
+Conjecture: There exist two maps with identical orbit distribution limits but
+different periodic point counts, and the separation is realized by an explicit
+conjugate pair with the same measure but different periods.}
+\end{quote}
+
+The conjecture treats ``orbit distribution'' and ``period counting'' as two
+independent layers that can come apart, and claims the coming-apart is exhibited
+by a conjugate pair. We refute both layers, in the natural discrete reading in
+which a \emph{map} is a self-map of a set, the orbit distribution records cycle
+lengths, and conjugacy means $g=\tau f\tau^{-1}$ for a bijection $\tau$.
+
+\section{Definitions}
+
+Let $X$ be a set and $f\colon X\to X$.
+
+\begin{definition}[orbit, periodic point, period]\label{def:period}
+For $x\in X$ write $f^0x=x$ and $f^{k+1}x=f(f^kx)$. The point $x$ is
+\emph{periodic} if $f^kx=x$ for some $k\ge 1$; the least such $k$ is the
+\emph{period} $\operatorname{per}_f(x)$. The \emph{periodic orbit} of a periodic
+point $x$ is $\mathcal{O}_f(x)=\{f^kx : k\ge 0\}$; all its elements are periodic
+with the same period, and $|\mathcal{O}_f(x)|=\operatorname{per}_f(x)$.
+\end{definition}
+
+\begin{definition}[orbit distribution, periodic point count]\label{def:profile}
+For $l\ge 1$ let $N_l(f)$ be the number of distinct periodic orbits of $f$ of
+length exactly $l$, and let $P(f)$ be the number of periodic points of $f$. The
+\emph{orbit distribution} of $f$ (its orbit profile) is the multiset
+$\{1^{N_1(f)},2^{N_2(f)},3^{N_3(f)},\dots\}$, equivalently the sorted list of
+cycle lengths.
+\end{definition}
+
+\begin{definition}[conjugacy]\label{def:conj}
+Two maps $f,g\colon X\to X$ are \emph{conjugate}, written $f\conj g$, if
+$g=\tau f\tau^{-1}$ for some bijection $\tau\colon X\to X$.
+\end{definition}
+
+\section{Layer 1 fails: the orbit distribution determines the periodic point count}
+
+\begin{proposition}[Identity I]\label{prop:I}
+For every self-map $f$ of a finite set,
+\begin{equation}
+P(f)\;=\;\sum_{l\ge 1} l\,N_l(f).
+\end{equation}
+Consequently, if $f$ and $g$ have the same orbit distribution then
+$P(f)=P(g)$. There are no two maps with identical orbit distribution but
+different periodic point counts.
+\end{proposition}
+
+\begin{proof}
+By Definition~\ref{def:period} the periodic points of $f$ are partitioned into
+the distinct periodic orbits $\mathcal{O}$ of $f$, and each orbit of length $l$
+contains exactly $l$ points, each of period $l$. Counting periodic points orbit
+by orbit, each orbit of length $l$ is counted exactly once as an orbit in $N_l$
+and contributes exactly $l$ points:
+\[
+P(f)=\Bigl|\bigsqcup_{\mathcal{O}\text{ orbit of }f}\mathcal{O}\Bigr|
+=\sum_{\mathcal{O}}|\mathcal{O}|=\sum_{l\ge1}\sum_{\substack{\mathcal{O}\\
+|\mathcal{O}|=l}}l=\sum_{l\ge1}l\,N_l(f).
+\]
+The right-hand side is a function of the orbit distribution alone, so equal
+distributions force equal counts.
+\end{proof}
+
+Identity I makes the first half of the conjecture self-contradictory: the two
+``layers'' are not independent; the second is a function of the first.
+
+\paragraph{Computational check.}
+Over all $4^4=256$ self-maps of $X=\{0,1,2,3\}$, the identity
+$P(f)=\sum l\,N_l(f)$ holds in all $256$ cases, and among the $11$ distinct
+orbit profiles no profile is realized with two different values of $P$
+(Table~\ref{tab:selfmaps}). The script \texttt{reproduce.py} (part~B) re-runs
+this audit.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrr}
+\toprule
+orbit profile & periodic count $P$ & number of maps\\
+\midrule
+$(1)$          & 1 & 64\\
+$(1,1)$        & 2 & 48\\
+$(1,1,1)$      & 3 & 12\\
+$(1,1,1,1)$    & 4 & 1\\
+$(1,1,2)$      & 4 & 6\\
+$(1,2)$        & 3 & 36\\
+$(1,3)$        & 4 & 8\\
+$(2)$          & 2 & 48\\
+$(2,2)$        & 4 & 3\\
+$(3)$          & 3 & 24\\
+$(4)$          & 4 & 6\\
+\bottomrule
+\end{tabular}
+\caption{All $256$ self-maps of $\{0,1,2,3\}$ grouped by orbit profile. Each of
+the $11$ profiles carries exactly one periodic point count: the profile
+determines $P(f)=\sum l\,N_l(f)$.}
+\label{tab:selfmaps}
+\end{table}
+
+\section{Layer 2 fails: conjugacy preserves periods, so the demanded witnesses do not exist}
+
+\begin{proposition}[Identity II]\label{prop:II}
+Let $\tau\colon X\to X$ be a bijection and $g=\tau f\tau^{-1}$. Then for every
+$x\in X$ and every $k\ge0$,
+$g^k(\tau x)=\tau(f^kx)$. In particular
+\begin{equation}
+\operatorname{per}_g(\tau x)=\operatorname{per}_f(x)\quad\text{for all }x\in X.
+\end{equation}
+So period is a conjugacy invariant, and no conjugate pair has different periods.
+\end{proposition}
+
+\begin{proof}
+Induction on $k$. For $k=0$ both sides equal $\tau x$. If
+$g^k(\tau x)=\tau(f^kx)$, then
+$g^{k+1}(\tau x)=g\bigl(g^k(\tau x)\bigr)=\tau f\tau^{-1}\bigl(\tau(f^kx)\bigr)
+=\tau\bigl(f(f^kx)\bigr)=\tau(f^{k+1}x)$,
+because $\tau^{-1}\tau=\id$. Now $g^k(\tau x)=\tau x$ iff $\tau(f^kx)=\tau x$,
+and since $\tau$ is injective this holds iff $f^kx=x$. Taking the least such
+$k\ge1$ on both sides gives $\operatorname{per}_g(\tau x)=\operatorname{per}_f(x)$.
+\end{proof}
+
+Proposition~\ref{prop:II} uses nothing about finiteness: for \emph{any} two
+conjugate maps, the number of points of each exact period agrees. Therefore the
+second half of the conjecture --- ``the separation is realized by an explicit
+conjugate pair \dots\ with different periods'' --- demands objects whose defining
+description is unsatisfiable. Whenever the first half could conceivably hold
+(non-conjugate maps sharing an orbit-distribution limit), the pair realizing it
+is, by that very clause, required to be conjugate --- and conjugate pairs cannot
+separate. The conjunction is false under every reading.
+
+\paragraph{Computational check.}
+On $X=\{0,1,2,3\}$ we enumerated all triples
+$(\tau,f,x)\in S_4\times S_4\times\{0,1,2,3\}$: all $2304$ satisfy
+$\operatorname{per}_{\tau f\tau^{-1}}(\tau x)=\operatorname{per}_f(x)$, zero
+violations. As an illustration, take $f=(0\,1)(2\,3)$, $\tau=(1\,2\,3)$,
+$g=\tau f\tau^{-1}=(0\,2)(1\,3)$; then every point of $f$ and of $g$ has period
+$2$, and the pointwise comparison agrees on all four points
+(Table~\ref{tab:pair}).
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{cccc}
+\toprule
+$x$ & $\operatorname{per}_f(x)$ & $\tau(x)$ &
+$\operatorname{per}_{\tau f\tau^{-1}}(\tau x)$\\
+\midrule
+0 & 2 & 0 & 2\\
+1 & 2 & 2 & 2\\
+2 & 2 & 3 & 2\\
+3 & 2 & 1 & 2\\
+\bottomrule
+\end{tabular}
+\caption{A concrete conjugate pair $f=(0\,1)(2\,3)$, $g=\tau f\tau^{-1}$ with
+$\tau=(1\,2\,3)$: pointwise periods are transported exactly.}
+\label{tab:pair}
+\end{table}
+
+For reference, the five cycle types of $S_4$ (partitions of $4$) all give
+$P=4$, as every point of a permutation is periodic:
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrrr}
+\toprule
+cycle type (profile) & $(1,1,1,1)$ & $(1,1,2)$ & $(1,3)$ & $(2,2)$ & $(4)$\\
+\midrule
+number of permutations & 1 & 6 & 8 & 3 & 6\\
+periodic points $P$    & 4 & 4 & 4 & 4 & 4\\
+\bottomrule
+\end{tabular}
+\caption{Cycle types of $S_4$: $24$ permutations, $5$ profiles, one periodic
+count each.}
+\label{tab:s4}
+\end{table}
+
+\section{Machine verification}
+
+The companion \texttt{lean4/} project (Lean $4.33.1$, no Mathlib, no classical
+axioms) formalizes the $4$-point case with permutation-valued and
+map-valued encodings:
+
+\begin{itemize}
+\item \texttt{conj\_preserves\_period} : Identity II, proved by \texttt{decide}
+over $24\times256\times4=24576$ configurations ($\tau$ over all permutations,
+$f$ over \emph{all} self-maps, $x$ over all points);
+\item \texttt{count\_from\_profile\_sum} : Identity I's bridge
+$P(f)=(\text{profile}(f)).\mathrm{sum}$, decided over all $256$ self-maps;
+\item \texttt{profile\_det\_count} : equal profiles force equal periodic counts,
+proved by rewriting with the bridge lemma;
+\item \texttt{permAtTable\_eq} : kernel-checked certificate that the indexed
+maps \texttt{permAt} enumerate exactly the $24$ permutations;
+\item \texttt{conjWitnessExists\_false} and \texttt{refute} : the complete
+search for a conjugate pair with a pointwise period difference evaluates to
+\texttt{false}, and the conjecture's existential is negated by pure logic from
+\texttt{conj\_preserves\_period}.
+\end{itemize}
+
+\texttt{Check.lean} prints \texttt{does not depend on any axioms} for every
+theorem: the development is axiom-free in the strongest sense --- not even
+\texttt{propext} or \texttt{Quot.sound} is used --- and \texttt{sorry}-free,
+with all enumeration performed by the kernel.
+
+\section{Conclusion}
+
+\begin{enumerate}
+\item[(a)] The periodic point count is determined by the orbit distribution
+(Proposition~\ref{prop:I}); the conjecture's first layer cannot separate.
+\item[(b)] Period is a conjugacy invariant (Proposition~\ref{prop:II}); the
+conjecture's second layer demands conjugate witnesses with different periods,
+which do not exist.
+\end{enumerate}
+
+The conjecture 00000005400 is therefore \textbf{false}: the alleged two-layer
+separation is internally inconsistent, and its realization by a conjugate pair is
+logically impossible.
+
+\end{document}
