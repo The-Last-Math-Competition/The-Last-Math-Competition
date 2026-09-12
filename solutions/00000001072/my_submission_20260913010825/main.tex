@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+
+\newtheorem*{claim}{Claim}
+
+\title{Disproof of Conjecture 00000001072:\\
+The Prime-Factor Spectrum Claims for the\\
+Gaussian-Binomial Counting Function}
+\author{TLMC submission}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+``Let $G(n,k,q)$ denote the number of $k$-dimensional planes of $\mathbb{F}_q^n$.
+Conjecture: The prime-factor spectrum of the Gaussian-binomial formula
+$G(n,k,q) = q^{(n-k)k}\cdot \binom{n}{k}_q$ consists exactly of the primes
+$\le q^n - 1$; every prime factor divides some $q^i - 1$ with $i \le n$, and
+conversely each such prime occurs for suitable $(n,k)$.''
+\end{quote}
+
+We refute the conjecture with two independent counterexamples. Verdict: \textbf{FALSE}.
+
+\section{Counterexample I: the ``every prime factor divides some $q^i-1$, $i\le n$'' claim fails}
+
+Take $(n,k,q) = (2,1,2)$. Then
+\[
+G(2,1,2) \;=\; 2^{(2-1)\cdot 1}\cdot\frac{2^2-1}{2-1} \;=\; 2\cdot 3 \;=\; 6,
+\]
+so the prime-factor spectrum of $G(2,1,2)$ is $\{2,3\}$. But
+\[
+q^1 - 1 = 2^1 - 1 = 1, \qquad q^2 - 1 = 2^2 - 1 = 3.
+\]
+The prime $2$ divides neither $1$ nor $3$; hence $2$ divides no number of the
+form $q^i - 1$ with $i \le n = 2$. Nevertheless $2 \mid 6 = G(2,1,2)$.
+The asserted inclusion of the spectrum in the prime divisors of
+$\{q^i-1 : i \le n\}$ therefore fails.
+
+\section{Counterexample II: the ``exactly the primes $\le q^n-1$'' claim fails}
+
+Take $(n,k,q) = (2,1,3)$. Then
+\[
+G(2,1,3) \;=\; 3^{(2-1)\cdot 1}\cdot\frac{3^2-1}{3-1} \;=\; 3\cdot 4 \;=\; 12,
+\]
+whose prime-factor spectrum is $\{2,3\}$. The primes $\le q^n - 1 = 3^2 - 1 = 8$ are
+\[
+\{2,3,5,7\}.
+\]
+Both $5 \le 8$ and $7 \le 8$, yet $5 \nmid 12$ and $7 \nmid 12$: the primes $5$
+and $7$ do not occur in the spectrum. Hence the spectrum is a \emph{proper
+subset} of $\{p \text{ prime} : p \le q^n-1\}$, and the word ``exactly'' fails.
+
+\subsection*{Supporting evidence}
+For $(n,k,q) = (3,1,2)$:
+\[
+G(3,1,2) = 2^{2\cdot 1}\cdot\frac{2^3-1}{2-1} = 4\cdot 7 = 28,
+\]
+with spectrum $\{2,7\}$, while the primes $\le 2^3-1 = 7$ are $\{2,3,5,7\}$:
+the primes $3$ and $5$ are missing.
+
+\section{Summary table}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{@{}lllll@{}}
+\toprule
+$(n,k,q)$ & $G(n,k,q)$ & spectrum & claimed set & violation \\
+\midrule
+$(2,1,2)$ & $6 = 2\cdot 3$ & $\{2,3\}$ &
+$\{\text{primes dividing some } q^i-1,\ i\le 2\} = \{3\}$ &
+$2$ divides no $q^i-1$ \\
+$(2,1,3)$ & $12 = 2^2\cdot 3$ & $\{2,3\}$ &
+$\{p \le 3^2-1\} = \{2,3,5,7\}$ &
+$5, 7$ missing \\
+$(3,1,2)$ & $28 = 2^2\cdot 7$ & $\{2,7\}$ &
+$\{p \le 2^3-1\} = \{2,3,5,7\}$ &
+$3, 5$ missing (supporting) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Verification}
+
+All arithmetic was independently recomputed. For $k=1$ the values $6$, $12$,
+$28$ were additionally confirmed by direct brute-force enumeration of the
+affine lines of $\mathbb{F}_q^n$ as sets of points, so the counterexamples are
+robust to the interpretation of ``$k$-dimensional planes''.
+A self-contained script (\texttt{reproduce.py}) and a zero-axiom Lean~4
+certificate (\texttt{lean4/}, core only, no Mathlib; all goals closed by
+\texttt{rfl}/\texttt{decide}) accompany this document.
+
+\section{Scope and boundaries}
+
+We refute only the two directional claims:
+\begin{enumerate}
+  \item ``every prime factor divides some $q^i-1$ with $i \le n$'' --- false at
+        $(2,1,2)$;
+  \item ``the spectrum consists exactly of the primes $\le q^n-1$'' --- false at
+        $(2,1,3)$.
+\end{enumerate}
+The Gaussian-binomial counting formula
+$G(n,k,q) = q^{(n-k)k}\cdot\binom{n}{k}_q$ itself is of course correct; it is
+the conjecture's own definition of $G$ and is used only as such. The third
+(``conversely'') clause is not adjudicated here.
+
+\end{document}
