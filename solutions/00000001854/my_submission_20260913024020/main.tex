@@ -1,0 +1,189 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.6cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue]{hyperref}
+
+\newtheorem{claim}{Claim}
+\newtheorem{counterexample}{Counterexample}
+\newcommand{\Fq}{\mathbb{F}_q}
+\newcommand{\Mat}{\operatorname{Mat}}
+
+\title{Disproof of TLMC Conjecture 00000001854:\\
+``Squarefree characteristic polynomial counting'' is not an exact closed form}
+\author{TLMC submission}
+\date{September 13, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We disprove the conjecture that
+\[
+\#\{M \in \Mat_n(\Fq) : \operatorname{charpoly}(M)\ \text{squarefree}\}
+\;=\;
+q^{n^2}\!\prod_i (1 - q^{-i^2})
+\]
+is an \emph{exact closed form}. At the minimal dimension $n = 1$ the true count
+is exactly $q$ (the characteristic polynomial of a $1 \times 1$ matrix is the
+degree-one polynomial $X - a$, which is always squarefree), whereas the
+conjectured expression evaluates to $q - 1$ when the product is read over
+$i = 1..n$, and to a quantity strictly smaller than $q$ when the product is read
+as an infinite product. A second, fully enumerated corroboration at $n = 2$,
+$q = 2$ shows a count of $8$ against a formula value of $15/2$, which is not
+even an integer.
+\end{abstract}
+
+\section{The conjecture}
+
+\begin{claim}[Conjecture 00000001854, literal statement]
+\label{conj}
+Counting random matrices over $\Fq$:
+\[
+\#\{M \in \Mat_n(\Fq) : \operatorname{charpoly}(M) \text{ squarefree}\}
+\;=\;
+q^{n^2}\cdot\prod_i\bigl(1 - q^{-i^2}\bigr)
+\]
+is an \emph{exact closed form} (squarefree char-poly counting).
+\end{claim}
+
+The statement does not specify the index range of the product. We therefore
+refute the literal ``exact'' assertion under \emph{both} natural readings:
+\begin{itemize}
+  \item \textbf{Reading A:} the product runs over $i = 1, \dots, n$ (matching
+  the degree of the characteristic polynomial);
+  \item \textbf{Reading B:} the product is the infinite product
+  $\prod_{i \ge 1}(1 - q^{-i^2})$.
+\end{itemize}
+
+\section{Counterexample: \texorpdfstring{$n = 1$}{n = 1}}
+
+\begin{counterexample}[minimal dimension]
+\label{ce:n1}
+Let $n = 1$. Every element of $\Mat_1(\Fq)$ is a matrix $[a]$ with $a \in \Fq$,
+and its characteristic polynomial is
+\[
+\operatorname{charpoly}([a]) \;=\; X - a .
+\]
+This is a polynomial of degree $1$. Over any field, a degree-one polynomial $f$
+has derivative $f' = 1$, whence
+\[
+\gcd(f, f') \;=\; \gcd(X - a,\, 1) \;=\; 1,
+\]
+so $f$ has no repeated irreducible factor, i.e.\ $f$ is squarefree.
+Therefore \emph{every} matrix of $\Mat_1(\Fq)$ is counted:
+\[
+\#\{M \in \Mat_1(\Fq) : \operatorname{charpoly}(M) \text{ squarefree}\} = |\Fq| = q .
+\]
+\end{counterexample}
+
+Against this, under Reading~A the conjectured formula gives
+\[
+q^{1}\cdot\Bigl(1 - q^{-1}\Bigr) \;=\; q - 1 \;\neq\; q ,
+\]
+so Claim~\ref{conj} fails for \emph{every} prime power $q \ge 2$ already at
+$n = 1$. Explicit values (all confirmed by the brute-force enumeration of the
+accompanying script \texttt{reproduce.py}, which implements polynomial
+arithmetic and the squarefreeness test $\gcd(f, f') = 1$ over $\Fq$ for prime
+$q$ and over $\mathbb{F}_4 = \mathbb{F}_2[\omega]/(\omega^2 + \omega + 1)$):
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lccc}
+\toprule
+$q$ & true count (enumerated) & Reading A: $q(1 - q^{-1})$ & Reading B: $q\prod_{i\ge1}(1-q^{-i^2})$ \\
+\midrule
+$2$ & $2$ & $1$   & $\approx 0.935655$ \\
+$3$ & $3$ & $2$   & $\approx 1.975208$ \\
+$4$ & $4$ & $3$   & $\approx 2.988270$ \\
+$5$ & $5$ & $4$   & $\approx 3.993598$ \\
+\bottomrule
+\end{tabular}
+\caption{The counterexample $n = 1$. Reading B is computed with exact
+rational arithmetic (truncated at $i \le 10$; the omitted tail is bounded by
+$q^{-121}$, far below any rounding effect).}
+\end{table}
+
+Under Reading~B the failure is structural: every factor $(1 - q^{-i^2})$ lies
+strictly between $0$ and $1$, so
+$q\prod_{i\ge1}(1 - q^{-i^2}) < q$, while the left-hand side is exactly $q$.
+Under either reading, the ``exact closed form'' is false at the smallest
+possible dimension.
+
+\section{Second corroboration: \texorpdfstring{$n = 2$, $q = 2$}{n = 2, q = 2}}
+
+We enumerated all $2^{2 \cdot 2} = 16$ matrices of $\Mat_2(\mathbb{F}_2)$,
+computed $\operatorname{charpoly}(M) = \det(XI - M)$ with exact polynomial
+arithmetic over $\mathbb{F}_2$, and tested squarefreeness via
+$\gcd(f, f')$ having degree $0$. The count of matrices with squarefree
+characteristic polynomial is
+\[
+\#\{M \in \Mat_2(\mathbb{F}_2) : \operatorname{charpoly}(M) \text{ squarefree}\} = 8 ,
+\]
+(the admissible characteristic polynomials being $X^2 + X = X(X+1)$, attained
+by $6$ matrices, and the irreducible $X^2 + X + 1$, attained by $2$ matrices;
+the remaining $8$ matrices have characteristic polynomial $X^2$ or
+$X^2 + 1 = (X+1)^2$, both non-squarefree).
+
+Reading A of the conjectured formula yields instead
+\[
+2^{4}\cdot\Bigl(1 - 2^{-1}\Bigr)\Bigl(1 - 2^{-4}\Bigr)
+= 16 \cdot \frac12 \cdot \frac{15}{16} = \frac{15}{2},
+\]
+which is \emph{not an integer} --- impossible for an exact count of a finite
+set. Reading B yields $\approx 7.485237 \neq 8$. This corroborates
+Counterexample~\ref{ce:n1} at the next dimension.
+
+\section{Boundary of the refutation}
+
+Because the index range of $\prod_i(1 - q^{-i^2})$ is unspecified in the
+original statement, some charity is required to read it at all. Our refutation
+targets the literal \emph{exactness} assertion and is insensitive to the
+choice between Readings A and B; both fail, and in both directions (too small
+by one at $n = 1$ under Reading A; strictly below the true count under
+Reading B; non-integral at $n = 2$ under Reading A). If the product was
+intended relative to some further, different normalization (for instance a
+probability $\prod_i (1 - q^{1 - i^2})$-type density), then the statement as
+written is ambiguous rather than exact; we refute the statement in the form
+quoted in Section~\ref{conj}. For reference, the classical exact count of
+\emph{monic squarefree polynomials} of degree $n \ge 2$ over $\Fq$ is
+$q^n - q^{n-1}$, a statement about polynomials rather than matrices, which
+does not coincide with the conjectured expression either.
+
+\section{Machine verification}
+
+The package accompanying this document contains:
+
+\begin{enumerate}
+  \item \texttt{reproduce.py}: a dependency-free Python script that
+  (i) implements $\Fq$ for prime $q \in \{2,3,5\}$ and
+  $\mathbb{F}_4 = \mathbb{F}_2[\omega]/(\omega^2+\omega+1)$, polynomial long
+  division, Euclidean $\gcd$, and the squarefreeness test
+  $\deg\gcd(f, f') = 0$; (ii) enumerates \emph{all} matrices of
+  $\Mat_1(\Fq)$ for $q = 2,3,4,5$ and of $\Mat_2(\mathbb{F}_2)$; and
+  (iii) asserts every inequality reported above, terminating successfully
+  only if the conjecture fails as described.
+  \item \texttt{lean4/}: a Lean~4 project (toolchain
+  \texttt{leanprover/lean4:v4.33.1}, no external dependencies) formalizing the
+  numeric content of the $n = 1$, $q = 2$ counterexample with
+  \emph{zero axioms and zero \texttt{sorry}}: the enumerated count $2$ and the
+  formula value $1$ (encoded as an exact fraction over kernel-computable
+  natural-number arithmetic, since core \texttt{Rat} does not reduce inside
+  the kernel) are computed by \texttt{rfl} and proved distinct by
+  \texttt{decide}. Since Lean core does not ship a polynomial library, the
+  squarefreeness of $X - a$ is encoded as the (mathematically justified, see
+  Counterexample~\ref{ce:n1}) statement that every $a \in \mathbb{F}_2$ passes
+  the squarefreeness predicate; the mathematical argument is the one of
+  Section~2 and is verified generically by \texttt{reproduce.py} via
+  $\gcd(f, f')$.
+\end{enumerate}
+
+\section{Conclusion}
+
+Conjecture 00000001854 is \textbf{false}: the expression
+$q^{n^2}\prod_i(1 - q^{-i^2})$ is not an exact closed form for the number of
+$n \times n$ matrices over $\Fq$ with squarefree characteristic polynomial.
+The correct value at $n = 1$ is $q$, not $q - 1$, and already at $n = 2$,
+$q = 2$ the formula produces the non-integer $15/2$ against the true count $8$.
+
+\end{document}
