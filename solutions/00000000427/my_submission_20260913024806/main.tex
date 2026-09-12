@@ -1,0 +1,183 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\title{Disproof of Conjecture 00000000427:\\
+Spin-Symmetric Plane Partitions in a Cubic Box at $t=1$}
+\author{TLMC submission}
+\date{September 13, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We disprove Conjecture 00000000427, which asserts that plane partitions in a
+cubic box that are symmetric under all diagonals and weighted by spin are
+counted, at $t=1$, by the closed form
+$2^{\lfloor n^2/4\rfloor}\prod_{i=1}^{n}(2i-1)!!/i!$.
+At $t=1$ the spin weight is identically $1$, so the claim is purely
+combinatorial.  Complete enumeration of the $n=1$ and $n=2$ cases --- under
+two natural readings of ``symmetric under all diagonals'' --- shows the true
+counts are $2$ and $5$, whereas the conjectured formula gives $1$ and $3$.
+The counterexamples are machine-certified in Lean~4 with zero axioms.
+\end{abstract}
+
+\section{Definitions}
+
+\begin{definition}[Plane partitions in a cubic box]
+A \emph{plane partition in an $n\times n\times n$ box} is an order ideal of
+the poset $[n]\times[n]\times[n]$.  Equivalently, writing the cells of the
+discrete cube as $\{0,\dots,n-1\}^3$, it is a monotone non-decreasing
+$\{0,1\}$-valued height function
+\[
+h:\{0,\dots,n-1\}^3\to\{0,1\},\qquad
+(i\le i')\wedge(j\le j')\wedge(k\le k')\ \Longrightarrow\ h(i,j,k)\le h(i',j',k').
+\]
+\end{definition}
+
+MacMahon's product formula counts \emph{all} plane partitions in the box:
+\[
+M(n)\;=\;\prod_{i,j,k=1}^{n}\frac{i+j+k-1}{i+j+k-2},
+\qquad M(1)=2,\quad M(2)=20 .
+\]
+
+\begin{definition}[Diagonal symmetry]\label{def:sym}
+Let $h$ be a height function on the cube.
+\begin{itemize}
+\item \textbf{Reading A (mirror).} $h$ is \emph{diagonally symmetric} if it is
+invariant under every transposition of coordinates:
+\[
+h(i,j,k)=h(j,i,k)=h(k,j,i)\qquad\text{for all cells }(i,j,k).
+\]
+\item \textbf{Reading B (cyclic).} $h$ is \emph{diagonally symmetric} if it is
+invariant under the cyclic permutation $(i\to j\to k\to i)$:
+\[
+h(i,j,k)=h(j,k,i)\qquad\text{for all cells }(i,j,k).
+\]
+\end{itemize}
+\end{definition}
+
+On the two-dimensional index set $\{0,1\}^3$ (the $n=2$ case) both readings
+generate the same partition of the cube into four orbits
+\[
+\{(0,0,0)\},\quad
+\{(1,0,0),(0,1,0),(0,0,1)\},\quad
+\{(1,1,0),(1,0,1),(0,1,1)\},\quad
+\{(1,1,1)\},
+\]
+so a diagonally symmetric height function is exactly one that is constant on
+these four orbits, and both readings yield identical counts.  We enumerate
+both anyway, so the disproof below is independent of which reading of
+``diagonal'' is intended.
+
+\begin{definition}[Spin weight at $t=1$]
+The conjecture weights symmetric plane partitions by a ``spin'' parameter
+$t$.  At $t=1$ every spin weight equals $1$, so spin does not affect any
+count; the conjecture becomes a purely enumerative statement about
+Definition~\ref{def:sym}.
+\end{definition}
+
+\section{The conjectured formula}
+
+Conjecture 00000000427 asserts
+\[
+S(n)\;=\;2^{\lfloor n^2/4\rfloor}\prod_{i=1}^{n}\frac{(2i-1)!!}{i!},
+\]
+where $S(n)$ is the number of diagonally symmetric plane partitions in the
+$n\times n\times n$ box at $t=1$.  Evaluating at small $n$:
+\[
+F(1)=2^{0}\cdot\frac{1!!}{1!}=1,
+\qquad
+F(2)=2^{1}\cdot\frac{1!!}{1!}\cdot\frac{3!!}{2!}=2\cdot1\cdot\frac{3}{2}=3 .
+\]
+
+\section{Enumeration}
+
+We enumerate \emph{all} $\{0,1\}$-valued functions on the cube
+($2^{n^3}$ of them: $2$ for $n=1$, $2^8=256$ for $n=2$), keep the monotone
+ones, and among those count the diagonally symmetric ones under each reading
+of Definition~\ref{def:sym}.  The enumeration is implemented in the
+accompanying script \texttt{reproduce.py} and independently re-verified in
+Lean~4 (kernel \texttt{decide}, zero axioms; see the \texttt{lean4/}
+directory).
+
+\begin{center}
+\begin{tabular}{cccccc}
+\toprule
+$n$ & all functions & monotone & mono.\ + mirror (A) & mono.\ + cyclic (B) & conjectured $F(n)$\\
+\midrule
+1 & $2$   & $\mathbf{2}$  & $\mathbf{2}$ & $\mathbf{2}$ & $1$\\
+2 & $256$ & $\mathbf{20}$ & $\mathbf{5}$ & $\mathbf{5}$ & $3$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The monotone counts reproduce MacMahon's totals $M(1)=2$ and $M(2)=20$
+exactly, confirming the encoding.  For $n=2$, a diagonally symmetric
+monotone height function is determined by its four orbit values
+$(a,b,c,d)=\bigl(h(0,0,0),h(1,0,0),h(1,1,0),h(1,1,1)\bigr)$, and monotonicity
+forces $a\le b\le c\le d$; the five possibilities are
+\[
+(0,0,0,0),\ (0,0,0,1),\ (0,0,1,1),\ (0,1,1,1),\ (1,1,1,1),
+\]
+i.e.\ exactly the non-decreasing $0$--$1$ quadruples.  The $n=1$ cube has a
+single cell and exactly two plane partitions (empty and full), both trivially
+symmetric.
+
+\section{Verdict}
+
+\begin{theorem}[Disproof of Conjecture 00000000427]
+The conjecture is \textbf{FALSE}.  Under either reading of ``symmetric under
+all diagonals'':
+\begin{align*}
+n=1:&\quad S(1)=2\neq 1=F(1),\\
+n=2:&\quad S(2)=5\neq 3=F(2).
+\end{align*}
+\end{theorem}
+
+\begin{remark}[Scope]
+MacMahon's product formula itself is correct and is not contested: our
+enumeration reproduces $M(1)=2$, $M(2)=20$.  What is refuted is the claimed
+closed form for the \emph{diagonal-symmetry} count at $t=1$, together with the
+claimed shape of its ratio to the unsymmetrized MacMahon formula (e.g.\ at
+$n=2$ the true ratio is $5/20=1/4$, not $3/20$).
+\end{remark}
+
+\begin{remark}[Robustness of the encoding]
+Under the alternative, non-standard convention in which the height function is
+$3$-valued, $h:\{0,1\}^3\to\{0,1,2\}$, the monotone functions number $168$
+(= plane partitions in a $2\times2\times2\times2$ box by MacMahon's formula)
+and the diagonally symmetric ones number $15$ under both readings --- again
+different from the conjectured value $3$.  The disproof is thus independent of
+that encoding choice as well.
+\end{remark}
+
+\section{Machine certification}
+
+The \texttt{lean4/} directory contains a Lean~4 project
+(toolchain \texttt{leanprover/lean4:v4.33.1}, library \texttt{Main}) proving:
+\begin{itemize}
+\item \texttt{macMahon2}: filtering the $2^8=256$ height functions of the
+  $2\times2\times2$ cube by monotonicity leaves exactly $20$;
+\item \texttt{symCount2}: monotone $+$ mirror-symmetric count $= 5$;
+\item \texttt{cycSymCount2}: monotone $+$ cyclic-symmetric count $= 5$;
+\item \texttt{formula2}: the conjectured value $2^1\cdot(1!!/1!)\cdot(3!!/2!)=3$
+  (stated as the exact cross-multiplied computation
+  $2^{\lfloor 4/4\rfloor}\cdot(1\cdot3)/(1\cdot2)=3$ over $\mathbb{N}$, since
+  core Lean's $\mathbb{Q}$ operations do not kernel-reduce);
+\item \texttt{refute2}: the conjunction of the above with
+  $\texttt{symCount2}\neq 3$ and $\texttt{cycSymCount2}\neq 3$;
+\item \texttt{macMahon1}, \texttt{symCount1}, \texttt{formula1},
+  \texttt{refute1}: the $n=1$ counterexample $2\neq 1$.
+\end{itemize}
+All proofs are by kernel \texttt{decide}/\texttt{rfl}; \texttt{Check.lean}
+prints \texttt{\#print axioms} for every theorem, each of which reports that it
+depends on \emph{no axioms}.  There is no \texttt{sorry} anywhere.
+
+\end{document}
