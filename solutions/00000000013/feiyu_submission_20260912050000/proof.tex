@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\setlength{\emergencystretch}{3em}
+
+\title{A Counterexample to Conjecture 00000000013}
+\author{Feiyu}
+\date{2026-09-12}
+
+\newcommand{\Composite}{\operatorname{Composite}}
+
+\begin{document}
+\maketitle
+
+\section*{Statement}
+
+Conjecture 00000000013 claims that for every integer $n\geq 3$ there is a
+prime $p$ in the half-open interval
+\[
+  2^n \leq p < 2^{n+1}
+\]
+whose binary expansion contains exactly three $1$'s.
+
+We disprove the conjecture by taking $n=8$.
+
+\section*{The counterexample}
+
+Every integer in $[2^8,2^9)$ with exactly three $1$'s in its binary
+expansion has the form
+\[
+  2^8+2^a+2^b,
+  \qquad 0\leq b<a<8.
+\]
+There are $\binom{8}{2}=28$ such numbers. They are listed below, together
+with a proper divisor. Thus every one is composite.
+
+\begin{center}
+\begin{tabular}{rrrrrrrr}
+\toprule
+$n$ & divisor & $n$ & divisor & $n$ & divisor & $n$ & divisor\\
+\midrule
+259 & 7  & 261 & 3  & 262 & 2  & 265 & 5\\
+266 & 2  & 268 & 2  & 273 & 3  & 274 & 2\\
+276 & 2  & 280 & 2  & 289 & 17 & 290 & 2\\
+292 & 2  & 296 & 2  & 304 & 2  & 321 & 3\\
+322 & 2  & 324 & 2  & 328 & 2  & 336 & 2\\
+352 & 2  & 385 & 5  & 386 & 2  & 388 & 2\\
+392 & 2  & 400 & 2  & 416 & 2  & 448 & 2\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For completeness, the corresponding factorizations include
+\[
+\begin{aligned}
+259&=7\cdot37, & 261&=3\cdot87, & 262&=2\cdot131, & 265&=5\cdot53,\\
+266&=2\cdot133, & 268&=2\cdot134, & 273&=3\cdot91, & 274&=2\cdot137,\\
+276&=2\cdot138, & 280&=2\cdot140, & 289&=17^2, & 290&=2\cdot145,\\
+292&=2\cdot146, & 296&=2\cdot148, & 304&=2\cdot152, & 321&=3\cdot107,\\
+322&=2\cdot161, & 324&=2\cdot162, & 328&=2\cdot164, & 336&=2\cdot168,\\
+352&=2\cdot176, & 385&=5\cdot77, & 386&=2\cdot193, & 388&=2\cdot194,\\
+392&=2\cdot196, & 400&=2\cdot200, & 416&=2\cdot208, & 448&=2\cdot224.
+\end{aligned}
+\]
+
+Hence there is no prime in $[2^8,2^9)$ whose binary expansion has exactly
+three $1$'s. Since the conjecture asserts this for every $n\geq3$, the
+single counterexample $n=8$ disproves it.
+
+\section*{Formal verification}
+
+The accompanying Lean 4 project formalizes the same finite verification.
+It defines $\Composite(N)$ to mean that there is a divisor $d$ with
+$1<d<N$ and $d\mid N$. A finite computation verifies that every pair of
+exponents $0\leq b<a<8$ gives a composite number
+$2^8+2^a+2^b$. The final Lean theorem derives the negation of the
+conjecture's assertion at $n=8$. The project uses Lean 4.33.1 and only
+its standard library.
+
+\end{document}
