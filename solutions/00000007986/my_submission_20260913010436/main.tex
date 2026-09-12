@@ -1,0 +1,208 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{counterexample}{Counterexample}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\title{Disproof of Conjecture 00000007986:\\
+The Covering-Distance Square-Root Law for\\
+Codes with 2-Transitive Automorphism Group}
+\author{TLMC submission --- branch \texttt{submission/00000007986}}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The main clause of Conjecture~00000007986 asserts the inequality
+$\rho(C) \le n - \sqrt{n\,d}$ for every code $C$ whose automorphism group is
+nontrivial and $2$-transitive. We disprove this by explicit counterexample:
+the binary repetition codes $C_4 = \{0000,1111\} \subset \mathbb{F}_2^4$ and
+$C_2 = \{00,11\} \subset \mathbb{F}_2^2$. Both satisfy the hypothesis (their
+automorphism groups contain $S_4$ resp.\ $S_2$ acting by coordinate
+permutations, which is nontrivial and $2$-transitive), yet
+$\rho(C_4) = 2 > 0 = 4-\sqrt{16}$ and $\rho(C_2) = 1 > 0 = 2-\sqrt{4}$.
+All numbers are verified by exhaustive enumeration
+(\texttt{reproduce.py}) and by a zero-axiom Lean~4 formalization (\texttt{lean4/}).
+\end{abstract}
+
+\section{Scope of the disproof}
+
+Conjecture~00000007986 contains a main inequality together with ancillary
+clauses (equality for Reed--Solomon type affine group codes, an
+orbit--rank correspondence, and a transitivity criterion for design
+strength). \textbf{We refute only the literal statement of the main
+inequality}
+\[
+\rho(C) \;\le\; n - \sqrt{n\,d},
+\]
+under its own hypothesis that $C$ has a nontrivial $2$-transitive
+automorphism group. The ancillary clauses are not the target of this
+disproof.
+
+\section{Definitions}
+
+\begin{definition}[Binary code]
+A \emph{code} of length $n$ is a subset $C \subseteq \mathbb{F}_2^n$.
+For $x, y \in \mathbb{F}_2^n$ the \emph{Hamming distance} is
+$d(x,y) = |\{\, i \in \{1,\dots,n\} : x_i \neq y_i \,\}|$.
+\end{definition}
+
+\begin{definition}[Minimum distance and covering radius]
+The \emph{minimum distance} of a code with $|C| \ge 2$ is
+$d = \min\{\, d(c_1, c_2) : c_1 \neq c_2 \in C \,\}$.
+The \emph{covering radius} is
+\[
+\rho(C) \;=\; \max_{x \in \mathbb{F}_2^n} \; \min_{c \in C} \; d(x, c).
+\]
+\end{definition}
+
+\begin{definition}[Automorphism group, 2-transitivity]
+A permutation $\sigma \in S_n$ \emph{acts} on $\mathbb{F}_2^n$ by
+$(\sigma \cdot x)_i = x_{\sigma(i)}$; this action preserves Hamming
+distance. The \emph{automorphism group} of $C$ is
+$\mathrm{Aut}(C) = \{\, \sigma \in S_n : \sigma \cdot C = C \,\}$,
+where $\sigma \cdot C = \{\sigma \cdot c : c \in C\}$.
+The group $\mathrm{Aut}(C)$ acts on the index set $\{1,\dots,n\}$ via the
+natural action of $S_n$; it is \emph{$2$-transitive} if this action is
+$2$-transitive, and it is \emph{nontrivial} if $\mathrm{Aut}(C) \neq
+\{\mathrm{id}\}$ (in particular $\mathrm{Aut}(C) \supseteq A_n$ or $S_n$ for
+our examples, which are $2$-transitive for $n \ge 2$).
+\end{definition}
+
+\section{The counterexamples}
+
+\begin{counterexample}[Primary: the repetition code $C_4$]
+\label{ex:c4}
+Let $C_4 = \{\, 0000,\ 1111 \,\} \subset \mathbb{F}_2^4$.
+\begin{itemize}
+\item $n = 4$ and $d = 4$ (the two distinct codewords differ in all
+four coordinates).
+\item \emph{Hypothesis holds.} Every $\sigma \in S_4$ fixes the all-zero
+word and maps $1111$ to $1111$, hence $\mathrm{Aut}(C_4) = S_4$
+(all $24$ coordinate permutations stabilize the code set).
+$S_4$ is nontrivial and $2$-transitive on $\{1,2,3,4\}$.
+\item \emph{Covering radius.} Enumerating all $16$ vectors of
+$\mathbb{F}_2^4$ (Table~\ref{tab:c4}) gives
+$\rho(C_4) = \max_x \min\big(d(x,0000),\, d(x,1111)\big) = 2$:
+a vector $x$ of weight $w$ has $d(x,0000) = w$ and $d(x,1111) = 4-w$, so
+$\min = \min(w, 4-w) \le 2$, with equality at $w = 2$ (e.g.\ $x = 0011$).
+\item \emph{Violation.} The conjectured bound is
+$4 - \sqrt{4 \cdot 4} = 4 - 4 = 0$, and the claim $\rho(C_4) \le 0$
+reads $2 \le 0$, which is false.
+\end{itemize}
+\end{counterexample}
+
+\begin{table}[ht]
+\centering
+\caption{Exhaustive enumeration of $\mathbb{F}_2^4$ for
+$C_4 = \{0000, 1111\}$.}
+\label{tab:c4}
+\begin{tabular}{llccc}
+\toprule
+weight $w$ & vectors $x$ (representatives of this class) & $d(x,0000)$ & $d(x,1111)$ & $\min$ \\
+\midrule
+$0$ & $0000$                          & $0$ & $4$ & $0$ \\
+$1$ & $0001$, $0010$, $0100$, $1000$  & $1$ & $3$ & $1$ \\
+$2$ & $0011$, $0101$, $0110$, $1001$, $1010$, $1100$ & $2$ & $2$ & $\mathbf{2}$ \\
+$3$ & $0111$, $1011$, $1101$, $1110$  & $3$ & $1$ & $1$ \\
+$4$ & $1111$                          & $4$ & $0$ & $0$ \\
+\bottomrule
+\end{tabular}
+
+\medskip
+$\rho(C_4) = \max = 2$. \quad RHS $= 4 - \sqrt{4\cdot 4} = 0$. \quad
+$2 \le 0$ is false.
+\end{table}
+
+\begin{counterexample}[Secondary: the repetition code $C_2$]
+\label{ex:c2}
+Let $C_2 = \{\, 00,\ 11 \,\} \subset \mathbb{F}_2^2$.
+\begin{itemize}
+\item $n = 2$, $d = 2$; $\mathrm{Aut}(C_2) = S_2$, which is nontrivial and
+$2$-transitive, so the hypothesis holds.
+\item Enumerating all $4$ vectors of $\mathbb{F}_2^2$:
+$x$ of weight $w$ has $\min(d(x,00), d(x,11)) = \min(w, 2-w) \le 1$,
+with equality at $w=1$ (e.g.\ $x = 01$). Hence $\rho(C_2) = 1$.
+\item The conjectured bound is $2 - \sqrt{2\cdot 2} = 0$, and the claim
+$1 \le 0$ is false.
+\end{itemize}
+\end{counterexample}
+
+\begin{table}[ht]
+\centering
+\caption{Exhaustive enumeration of $\mathbb{F}_2^2$ for
+$C_2 = \{00, 11\}$.}
+\label{tab:c2}
+\begin{tabular}{llccc}
+\toprule
+weight $w$ & vectors $x$ & $d(x,00)$ & $d(x,11)$ & $\min$ \\
+\midrule
+$0$ & $00$        & $0$ & $2$ & $0$ \\
+$1$ & $01$, $10$  & $1$ & $1$ & $\mathbf{1}$ \\
+$2$ & $11$        & $2$ & $0$ & $0$ \\
+\bottomrule
+\end{tabular}
+
+\medskip
+$\rho(C_2) = \max = 1$. \quad RHS $= 2 - \sqrt{2\cdot 2} = 0$. \quad
+$1 \le 0$ is false.
+\end{table}
+
+\section{Conclusion}
+
+\begin{theorem}[Disproof of Conjecture 00000007986, main clause]
+The inequality $\rho(C) \le n - \sqrt{n\,d}$ does not hold for all codes
+with nontrivial $2$-transitive automorphism group. Both
+$C_4 = \{0000,1111\} \subset \mathbb{F}_2^4$ and
+$C_2 = \{00,11\} \subset \mathbb{F}_2^2$ satisfy the hypothesis, yet
+$\rho(C_4) = 2 > 0 = 4-\sqrt{16}$ and $\rho(C_2) = 1 > 0 = 2-\sqrt{4}$.
+\end{theorem}
+
+\begin{proof}
+For a binary vector $x$ of weight $w$ and the repetition code
+$R_n = \{0^n, 1^n\}$ of length $n$, we have $d(x, 0^n) = w$ and
+$d(x, 1^n) = n - w$, hence
+$\min(w, n-w) \le \lfloor n/2 \rfloor$ with equality for
+$w = \lfloor n/2 \rfloor$ when $n$ is even. Thus
+$\rho(R_n) = n/2$ for even $n$, while the conjectured bound is
+$n - \sqrt{n \cdot n} = 0$. For $n = 4$: $\rho = 2 > 0$;
+for $n = 2$: $\rho = 1 > 0$. In both cases
+$\mathrm{Aut}(R_n) = S_n$ is nontrivial and $2$-transitive, so the
+hypothesis of the conjecture is satisfied and the inequality fails.
+\end{proof}
+
+\paragraph{Remark on the gap.}
+In both counterexamples the right-hand side is $0$ while the true covering
+radius is $n/2 > 0$, so no rounding convention or alternate reading of the
+square root rescues the inequality; the failure is unambiguous.
+
+\section{Machine verification}
+
+\begin{itemize}
+\item \texttt{reproduce.py} exhaustively enumerates all $16$ vectors of
+$\mathbb{F}_2^4$ and all $4$ vectors of $\mathbb{F}_2^2$, recomputes
+$\rho(C_4) = 2$, $\rho(C_2) = 1$ and the right-hand sides
+$4 - \sqrt{16} = 0$, $2 - \sqrt{4} = 0$ (exact integer arithmetic, since
+$nd$ is a perfect square), verifies the automorphism-group claim
+(all $24$ permutations of $S_4$ resp.\ both of $S_2$ stabilize the code),
+and asserts the violations.
+\item \texttt{lean4/} contains a Lean~4 (v4.33.1, core only) project whose
+theorems \texttt{rho\_C4 : coverRad4 = 2} and \texttt{rho\_C2 : coverRad2 = 1}
+evaluate the full 16-point (resp.\ 4-point) enumeration directly in the
+kernel via \texttt{rfl}, while the numeric refutations
+$\neg\, ((2{:}\mathrm{Int}) \le (4{:}\mathrm{Int}) - 4)$
+(\texttt{refute\_bound\_4}) and
+$\neg\, ((1{:}\mathrm{Int}) \le (2{:}\mathrm{Int}) - 2)$
+(\texttt{refute\_bound\_2}) --- the bound values $4-4=0$ resp.\ $2-2=0$ are
+exact integers, since $nd$ is a perfect square --- are proved by
+\texttt{decide}. \texttt{Check.lean} prints \texttt{\#print axioms} for each
+theorem: all four are axiom-free and no \texttt{sorry} is used.
+\end{itemize}
+
+\end{document}
