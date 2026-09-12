@@ -1,0 +1,195 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+\title{A Point-Transitive Kirkman Triple System of Order 9:\\
+Disproof of Conjecture 00000008420 (Transitive-KTS Clause)}
+\author{TLMC submission}
+\date{September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000008420 asserts, among other clauses, that ``the smallest order
+of a KTS with a transitive automorphism is the point-transitive type of order
+$15$''.  We exhibit an explicit counterexample: the line system of the affine
+plane $\mathrm{AG}(2,3)$ is a resolvable Steiner triple system of order $9$
+(a $\mathrm{KTS}(9)$) whose translation group $\mathbb{F}_3^2$ acts
+transitively on the points.  Since $9 < 15$, the clause is false.
+The construction is verified by independent enumeration
+(\texttt{reproduce.py}) and by an axiom-free Lean~4 formalization in which all
+statements are proved by \texttt{decide} over explicit finite enumerations.
+\end{abstract}
+
+\section{Scope of the disproof}
+
+The conjecture under attack is a conjunction of four clauses.  We refute only
+the third one:
+\begin{center}
+\emph{``the smallest order of a KTS with a transitive automorphism is the
+point-transitive type of order $15$''}.
+\end{center}
+The other clauses are consistent with our counterexample and no claim is made
+about them: the order $9 \equiv 3 \pmod 6$ (clause~1), and the number of
+parallel classes of the system below is exactly $4 = (9-1)/2$ (clause~2).
+Clause~4 (no KTS with cyclic automorphism group of prime order) is untouched.
+
+\section{Definitions}
+
+\begin{definition}[Steiner triple system]
+A \emph{Steiner triple system} $\mathrm{STS}(n)$ is a pair $(P,\mathcal{L})$
+where $P$ is a set of $n$ points and $\mathcal{L}$ is a collection of
+$3$-element subsets of $P$ (blocks) such that every pair of distinct points
+lies in exactly one block.
+\end{definition}
+
+\begin{definition}[Parallel class; resolvability]
+Let $(P,\mathcal{L})$ be an STS.  A \emph{parallel class} is a subset
+$\mathcal{C} \subseteq \mathcal{L}$ of pairwise disjoint blocks whose union is
+$P$.  The system is \emph{resolvable} if $\mathcal{L}$ is partitioned into
+parallel classes.  A \emph{Kirkman triple system} $\mathrm{KTS}(n)$ is a
+resolvable $\mathrm{STS}(n)$.
+\end{definition}
+
+\begin{definition}[Automorphism; point-transitivity]
+An \emph{automorphism} of $(P,\mathcal{L})$ is a bijection
+$\alpha : P \to P$ with $\alpha(\mathcal{L}) = \mathcal{L}$, i.e.\
+$\{ \alpha(B) : B \in \mathcal{L} \} = \mathcal{L}$.  The system is
+\emph{point-transitive} if its automorphism group acts transitively on $P$.
+\end{definition}
+
+\section{The construction: $\mathrm{KTS}(9)$ as the lines of $\mathrm{AG}(2,3)$}
+
+Let $\mathbb{F}_3 = \{0,1,2\}$ and let the point set be
+$P = \mathbb{F}_3^2$, so $|P| = 9$.  Define $12$ lines:
+\begin{itemize}
+\item for each slope $m \in \mathbb{F}_3$ and intercept $b \in \mathbb{F}_3$,
+\[
+L_{m,b} \;=\; \{\, (x,\; mx+b) : x \in \mathbb{F}_3 \,\},
+\]
+giving $9$ non-vertical lines;
+\item for each $c \in \mathbb{F}_3$, the vertical line
+\[
+V_c \;=\; \{\, (c, y) : y \in \mathbb{F}_3 \,\},
+\]
+giving $3$ further lines.
+\end{itemize}
+Table~\ref{tab:lines} lists all $12$ lines explicitly; the index $k$ used
+there ($k = 3m+b$ for the slope lines, $k = 9+c$ for the vertical lines) is
+the index used by the Lean formalization and the script.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{cccc}
+\toprule
+$k$ & type & points & parallel class \\
+\midrule
+0 & $m{=}0,\, b{=}0$ & $(0,0)\ (1,0)\ (2,0)$ & $C_0$ \\
+1 & $m{=}0,\, b{=}1$ & $(0,1)\ (1,1)\ (2,1)$ & $C_0$ \\
+2 & $m{=}0,\, b{=}2$ & $(0,2)\ (1,2)\ (2,2)$ & $C_0$ \\
+3 & $m{=}1,\, b{=}0$ & $(0,0)\ (1,1)\ (2,2)$ & $C_1$ \\
+4 & $m{=}1,\, b{=}1$ & $(0,1)\ (1,2)\ (2,0)$ & $C_1$ \\
+5 & $m{=}1,\, b{=}2$ & $(0,2)\ (1,0)\ (2,1)$ & $C_1$ \\
+6 & $m{=}2,\, b{=}0$ & $(0,0)\ (1,2)\ (2,1)$ & $C_2$ \\
+7 & $m{=}2,\, b{=}1$ & $(0,1)\ (1,0)\ (2,2)$ & $C_2$ \\
+8 & $m{=}2,\, b{=}2$ & $(0,2)\ (1,1)\ (2,0)$ & $C_2$ \\
+9 & vertical, $c{=}0$ & $(0,0)\ (0,1)\ (0,2)$ & $C_3$ \\
+10 & vertical, $c{=}1$ & $(1,0)\ (1,1)\ (1,2)$ & $C_3$ \\
+11 & vertical, $c{=}2$ & $(2,0)\ (2,1)\ (2,2)$ & $C_3$ \\
+\bottomrule
+\end{tabular}
+\caption{The $12$ lines of the system and the partition into parallel classes.}
+\label{tab:lines}
+\end{table}
+
+\section{Verification of the properties}
+
+Each property below was checked twice, independently: (i) by a
+dependency-free Python enumeration (\texttt{reproduce.py}) that builds the 12
+lines explicitly and enumerates all $36$ point-pairs, the $4$ parallel
+classes, the $9$ translations and all pairs of points; and (ii) by an
+axiom-free Lean~4 formalization (\texttt{lean4/Main.lean}, toolchain
+\texttt{leanprover/lean4:v4.33.1}) whose theorems \texttt{sts\_property},
+\texttt{resolvable}, \texttt{translation\_invariant}, \texttt{transitive} and
+\texttt{refute} are proved by \texttt{decide} over the explicit finite
+enumerations and depend on no axioms (no \texttt{sorryAx}, no
+\texttt{Classical.choice}, not even \texttt{propext}).
+
+\subsection{Steiner triple system}
+
+There are $\binom{9}{2} = 36$ unordered pairs of distinct points.  The 12
+lines contain $12 \cdot \binom{3}{2} = 36$ point-pairs in total, and the
+enumeration of Table~\ref{tab:lines} shows that no two lines share more than
+one point, i.e.\ all $36$ line-pairs are distinct.  Hence every pair of
+distinct points lies in exactly one line: $(P, \mathcal{L})$ is an
+$\mathrm{STS}(9)$.  (Equivalently: for each of the $81$ ordered pairs
+$(p,q)$ with $p \neq q$, exactly one line contains both; each point lies on
+exactly $4$ lines.)
+
+\subsection{Resolvability}
+
+The four parallel classes are
+\[
+C_0 = \{0,1,2\}, \qquad
+C_1 = \{3,4,5\}, \qquad
+C_2 = \{6,7,8\}, \qquad
+C_3 = \{9,10,11\},
+\]
+using the line indices of Table~\ref{tab:lines}.  Within each class the three
+lines are pairwise disjoint and their union is all of
+$\mathbb{F}_3^2$: this is the elementary fact that over $\mathbb{F}_3$ the
+lines of fixed slope $m$ (respectively the vertical lines) partition the
+plane.  The four classes are disjoint and cover all $12$ lines, so the system
+is resolvable: it is a $\mathrm{KTS}(9)$.  The number of parallel classes is
+$4 = (9-1)/2$, matching clause~2 of the conjecture.
+
+\subsection{Translations are automorphisms}
+
+For $v \in \mathbb{F}_3^2$ let $t_v(p) = p + v$ (addition in
+$\mathbb{F}_3^2$).  If $p$ lies on $L_{m,b}$ then $t_v(p)$ lies on
+$L_{m,\, b + m v_1 + v_2}$; if $p$ lies on $V_c$ then $t_v(p)$ lies on
+$V_{c + v_1}$.  Thus the image of a line under $t_v$ is again a line; since
+$t_v$ is a bijection of $P$, the map induced on the line set is a bijection
+of $\mathcal{L}$, i.e.\ $t_v$ is an automorphism.  This was verified by
+explicit enumeration for all $9$ translations and all $12$ lines (checking
+for each $(v,k)$ that a line $k'$ with
+$p \in L_k \Leftrightarrow t_v(p) \in L_{k'}$ for all $p$ exists).
+
+\subsection{Point-transitivity}
+
+For all $p, q \in \mathbb{F}_3^2$ the translation $t_{q-p}$ maps $p$ to $q$:
+\[
+t_{q-p}(p) = p + (q - p) = q.
+\]
+Hence the automorphism group contains the translation subgroup
+$\{t_v : v \in \mathbb{F}_3^2\} \cong \mathbb{F}_3^2$ of order $9$, which acts
+transitively on the $9$ points.  The system is point-transitive.
+
+\section{Conclusion}
+
+\begin{theorem}
+There exists a point-transitive Kirkman triple system of order $9$, namely
+the line system of $\mathrm{AG}(2,3)$.
+\end{theorem}
+
+\begin{theorem}[Disproof of clause 3 of conjecture 00000008420]
+The smallest order of a KTS with a transitive automorphism is at most $9$,
+and $9 < 15$.  Therefore the clause ``the smallest order of a KTS with a
+transitive automorphism is the point-transitive type of order $15$'' is
+false.
+\end{theorem}
+
+\begin{remark}
+The full automorphism group of $\mathrm{KTS}(9)$ as constructed is
+$\mathrm{AGL}(2,3)$, of order $9 \cdot 48 = 432$; only the transitivity of
+its translation subgroup is used above.
+\end{remark}
+
+\end{document}
