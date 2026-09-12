@@ -1,0 +1,414 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Con}{\operatorname{Con}}
+
+\title{A disproof of conjecture \texttt{00000008540}\\
+\large\upshape $\Con(L)$ can be Boolean while $L$ is not subdirectly
+irreducible, already for the three-element chain}
+\author{}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture \texttt{00000008540} asserts that the congruence lattice of a
+finite lattice is Boolean \emph{exactly when} the lattice is of subdirectly
+irreducible type. We refute the ``only if'' direction with the smallest
+possible witness: the three-element chain $C_3$. Its congruence lattice
+$\Con(C_3)$ has four elements and is Boolean, yet $C_3$ is not subdirectly
+irreducible --- it embeds subdirectly into $C_2 \times C_2$ via
+$0 \mapsto (0,0)$, $1 \mapsto (0,1)$, $2 \mapsto (1,1)$, and neither
+projection is an isomorphism. Equivalently, $\Con(C_3)$ has two atoms, whereas
+subdirect irreducibility requires exactly one. No two-element lattice is a
+counterexample, so $C_3$ is optimal in size.
+
+We give a second witness, the four-element Boolean lattice $\mathbf{2}^2 = 2
+\times 2$, which fails for the transparent reason that it is a direct product
+of two nontrivial lattices. Both witnesses are verified against brute force
+over \emph{all} partitions of the underlying set (the Bell numbers $B_3 = 5$
+and $B_4 = 15$), using the full congruence compatibility condition. We also
+record the count produced by the weaker, incorrect test ``each block is a
+sublattice'', since it differs and a reviewer comparing implementations should
+not be surprised by it. The ``at most $2^{n-1}$'' clause of the conjecture is
+\emph{not} refuted here; we say so explicitly.
+\end{abstract}
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000008540.md}:
+
+\begin{quote}
+\textbf{Definition:} A congruence of a lattice is an order-preserving
+equivalence. \textbf{Conjecture:} The congruence lattice of a finite lattice
+is Boolean exactly when the lattice is of subdirectly irreducible type; the
+number of congruences is at most $2^{n-1}$, and the bound is optimal.
+(Boolean classification of congruence lattices)
+\end{quote}
+
+\subsection*{Interpretation used}
+
+The conjecture's phrasing is not fully formal, so we state the reading we
+refute and flag it explicitly.
+
+\begin{enumerate}
+\item ``of subdirectly irreducible type'' is read as \emph{subdirectly
+      irreducible} in the standard sense: $L$ is nontrivial and admits no
+      subdirect representation $L \le \prod_i L_i$ in which every projection
+      is surjective but no projection is an isomorphism. For a finite lattice
+      this is equivalent to: $\Con(L)$ has \emph{exactly one} atom.
+\item ``Boolean'' is read as: $\Con(L)$ is a Boolean lattice, i.e.\
+      $\Con(L) \cong \mathbf{2}^k$ for some $k \ge 0$.
+\item ``exactly when'' is read as a genuine biconditional. Refuting either
+      direction refutes the conjecture.
+\end{enumerate}
+
+Under this reading the biconditional fails, and the witness has three
+elements. We note in passing that the conjecture is also non-trivial to read
+because subdirect irreducibility is strictly stronger than direct
+indecomposability for lattices; our witness $C_3$ is precisely the classical
+illustration of that gap.
+
+\section{Definitions}
+
+\begin{definition}[congruence of a lattice]\label{def:congruence}
+An equivalence relation $\theta$ on a lattice $L$ is a \emph{congruence} if
+\[
+x \mathrel{\theta} y \;\Longrightarrow\;
+(x \wedge z) \mathrel{\theta} (y \wedge z)
+\quad\text{and}\quad
+(x \vee z) \mathrel{\theta} (y \vee z)
+\]
+for all $x, y, z \in L$. The set $\Con(L)$ of all congruences of $L$, ordered
+by inclusion of relations, is a lattice: meets and joins are intersection and
+transitive closure.
+\end{definition}
+
+\begin{remark}
+The two clauses are not reducible to a single one, and neither is implied by
+``each block is a sublattice''. This matters for computation: checking only
+block-wise sublattice closure accepts spurious relations. See
+Remark~\ref{rem:method}.
+\end{remark}
+
+\begin{definition}[atom; subdirectly irreducible]
+An \emph{atom} of $\Con(L)$ is an element covering the diagonal
+$\Delta = \{(x,x) : x \in L\}$, i.e.\ a minimal element strictly above
+$\Delta$. A lattice $L$ with $|L| \ge 2$ is \emph{subdirectly irreducible}
+(SI) if $\Con(L)$ has exactly one atom.
+\end{definition}
+
+\begin{definition}[the witnesses]\label{def:witnesses}
+Let $C_n$ denote the $n$-element chain $0 < 1 < \dots < n-1$. Let
+$\mathbf{2}^2$ denote the four-element Boolean lattice, with elements
+$\{0, a, b, 1\}$ where $a$ and $b$ are incomparable, $0$ the bottom and $1$
+the top.
+\end{definition}
+
+\section{The minimal counterexample: the chain \texorpdfstring{$C_3$}{C3}}
+
+\begin{proposition}\label{prop:chain-con}
+A partition of a chain $C_n$ is a congruence if and only if every block is an
+interval. Consequently $|\Con(C_n)| = 2^{n-1}$, and in particular
+\[
+\Con(C_3) = \bigl\{\;\{0\}\!\mid\!\{1\}\!\mid\!\{2\},\quad
+\{0,1\}\!\mid\!\{2\},\quad
+\{0\}\!\mid\!\{1,2\},\quad
+\{0,1,2\}\;\bigr\}
+\]
+has exactly four elements.
+\end{proposition}
+
+\begin{proof}
+\emph{Blocks are intervals.} Suppose a block $B$ is not an interval, so there
+are $x < z < y$ with $x, y \in B$ and $z \notin B$. Since $x \wedge z = x$ and
+$y \wedge z = z$, compatibility applied to the related pair $(x,y)$ with
+$z$ gives $x \mathrel{\theta} z$, contradicting $z \notin B$.
+
+\emph{Interval partitions are congruences.} Let $\theta$ have interval blocks
+and let $x \mathrel{\theta} y$, so $x$ and $y$ lie in a common interval block
+$B$; assume $x \le y$, so $B$ contains every $u$ with $x \le u \le y$. For
+arbitrary $z$: if $z \ge y$ then $x \wedge z = x$ and $y \wedge z = y$, both in
+$B$; if $z \le x$ then both equal $z$; if $x < z < y$ then $x \wedge z = x$ and
+$y \wedge z = z$, and $z \in B$ because $B$ is an interval. The three cases for
+$\vee$ are symmetric. Hence $\theta$ is a congruence.
+
+\emph{Counting.} A partition of the chain into intervals is determined by
+choosing which of the $n-1$ gaps between consecutive elements are cut, so
+there are $2^{n-1}$ of them. For $n = 3$ this gives $4$, and listing them
+gives the four relations displayed.
+\end{proof}
+
+\begin{corollary}\label{cor:con3-boolean}
+$\Con(C_3)$ is a Boolean lattice.
+\end{corollary}
+
+\begin{proof}
+By Proposition~\ref{prop:chain-con}, $\Con(C_3)$ has four elements. In the
+inclusion order, $\Delta = \{0\}\!\mid\!\{1\}\!\mid\!\{2\}$ is the bottom,
+$\nabla = \{0,1,2\}$ is the top, and $\alpha = \{0,1\}\!\mid\!\{2\}$ and
+$\beta = \{0\}\!\mid\!\{1,2\}$ are incomparable: their intersection is
+$\Delta$ and their join is $\nabla$ (transitive closure merges all three
+elements). A four-element distributive lattice with two incomparable middle
+elements sharing a bottom and a top is $\mathbf{2}^2$. Hence
+$\Con(C_3) \cong \mathbf{2}^2$, which is Boolean.
+\end{proof}
+
+\begin{proposition}\label{prop:c3-not-si}
+$C_3$ is not subdirectly irreducible.
+\end{proposition}
+
+\begin{proof}
+Define $\varphi : C_3 \to C_2 \times C_2$ by
+\[
+\varphi(0) = (0,0), \qquad \varphi(1) = (0,1), \qquad \varphi(2) = (1,1).
+\]
+This is injective, and it preserves the lattice operations: on a chain both
+$\wedge$ and $\vee$ are the order-theoretic min and max, and the coordinatewise
+operations of $C_2 \times C_2$ agree with those of $C_3$ on the image. For
+instance $\varphi(0 \vee 1) = \varphi(1) = (0,1) = (0,0) \vee (0,1) =
+\varphi(0) \vee \varphi(1)$, and the remaining cases are immediate from
+$0 < 1 < 2$ and $(0,0) < (0,1) < (1,1)$.
+
+Both coordinate projections $\pi_1, \pi_2$ are surjective onto $C_2$: the
+first coordinates of the image are $\{0, 0, 1\} = C_2$, and the second are
+$\{0, 1, 1\} = C_2$. So $C_3$ is a \emph{subdirect} product of two copies of
+$C_2$. Neither projection is an isomorphism, since $|C_3| = 3 \neq 2 =
+|C_2|$. Hence $C_3$ admits a subdirect representation in which no projection is
+an isomorphism, i.e.\ $C_3$ is not subdirectly irreducible.
+\end{proof}
+
+\begin{corollary}\label{cor:c3-atoms}
+$\Con(C_3)$ has exactly two atoms, namely $\alpha = \{0,1\}\!\mid\!\{2\}$ and
+$\beta = \{0\}\!\mid\!\{1,2\}$.
+\end{corollary}
+
+\begin{proof}
+By Proposition~\ref{prop:chain-con} the only congruences are
+$\Delta, \alpha, \beta, \nabla$, and both $\alpha$ and $\beta$ cover $\Delta$
+(the remaining element $\nabla$ is strictly above each of them, since
+$\alpha \subsetneq \nabla$ and $\beta \subsetneq \nabla$). So there are exactly
+two minimal elements strictly above $\Delta$.
+\end{proof}
+
+\begin{theorem}\label{thm:main}
+Conjecture \texttt{00000008540} is false.
+\end{theorem}
+
+\begin{proof}
+By Corollary~\ref{cor:con3-boolean}, $\Con(C_3)$ is Boolean. By
+Proposition~\ref{prop:c3-not-si}, $C_3$ is not subdirectly irreducible.
+Corollary~\ref{cor:c3-atoms} records the same obstruction in the standard
+form: $\Con(C_3)$ has two atoms, while Definition~2.3 requires exactly one.
+
+Thus $\Con(C_3)$ is Boolean while $C_3$ is not subdirectly irreducible,
+refuting the ``only if'' half of the biconditional.
+\end{proof}
+
+\section{Minimality}
+
+\begin{proposition}\label{prop:minimal}
+No lattice with fewer than three elements is a counterexample; $C_3$ is
+therefore the smallest witness.
+\end{proposition}
+
+\begin{proof}
+A lattice with one element is trivial and we exclude it from the SI
+condition (Definition~2.3 requires $|L| \ge 2$); its congruence lattice has
+one element, which is Boolean, but the question of whether it is SI is a
+boundary convention and does not affect the claim.
+
+The only lattice with two elements is $C_2$. Its congruences are $\Delta$ and
+$\nabla$, so $\Con(C_2)$ has two elements, exactly one atom, and $C_2$ is
+subdirectly irreducible. Hence $C_2$ satisfies the conjecture and is not a
+counterexample.
+\end{proof}
+
+\begin{remark}
+The chain $C_3$ is directly indecomposable: a direct product of two nontrivial
+lattices has at least four elements, and $C_3$ is a chain whereas such a
+product never is one. So $C_3$ is directly indecomposable but not subdirectly
+irreducible, which is why the ``only if'' direction of the conjecture is
+vulnerable precisely here. This is the classical illustration that subdirect
+irreducibility is strictly stronger than direct indecomposability.
+\end{remark}
+
+\section{A second counterexample}
+
+The same failure occurs for the four-element Boolean lattice, by a more
+transparent argument.
+
+\begin{proposition}\label{prop:22}
+$\mathbf{2}^2$ is not subdirectly irreducible, while $\Con(\mathbf{2}^2)$ is
+Boolean.
+\end{proposition}
+
+\begin{proof}
+\emph{Not SI.} $\mathbf{2}^2$ is by construction the direct product
+$2 \times 2$ of two nontrivial lattices, so it is subdirectly reducible. Its
+congruence lattice is $\Con(2) \times \Con(2) = 2 \times 2$, which has two
+atoms; equivalently, the two projections $2 \times 2 \to 2$ are surjective and
+neither is injective.
+
+\emph{Boolean.} The congruences of $\mathbf{2}^2$ are exactly the kernels of
+the lattice homomorphisms out of it:
+\[
+\Delta = \{0\}\!\mid\!\{a\}\!\mid\!\{b\}\!\mid\!\{1\},\quad
+\alpha = \{0,a\}\!\mid\!\{b,1\},\quad
+\beta = \{0,b\}\!\mid\!\{a,1\},\quad
+\nabla = \{0,a,b,1\}.
+\]
+Each is visibly an equivalence, and each is a kernel of a homomorphism
+($\Delta$ of the identity, $\nabla$ of the constant map, $\alpha$ of the
+projection onto the $b$-coordinate, $\beta$ of the projection onto the
+$a$-coordinate), hence a congruence. Conversely, if $\theta$ is a congruence
+and $a \mathrel{\theta} b$ then $1 = a \vee b \mathrel{\theta} b \vee b = b$
+and $0 = a \wedge b \mathrel{\theta} b$, so $0 \mathrel{\theta} 1$ and
+$\theta = \nabla$. Otherwise $a, b$ are separated; if $0 \mathrel{\theta} a$
+then $b = 0 \vee b \mathrel{\theta} a \vee b = 1$, giving
+$\theta = \alpha$, and symmetrically $0 \mathrel{\theta} b$ gives
+$\theta = \beta$; if neither holds then $\theta = \Delta$. So there are exactly
+four, forming the diamond, so $\Con(\mathbf{2}^2) \cong \mathbf{2}^2$ is
+Boolean.
+\end{proof}
+
+\section{The counting clause is not refuted}
+
+\begin{remark}[scope of the refutation]\label{rem:counting}
+The conjecture also asserts $|\Con(L)| \le 2^{n-1}$ for $n = |L|$, with the
+bound optimal. Our counterexamples do not touch this clause:
+\[
+|\Con(C_3)| = 4 = 2^{3-1}, \qquad |\Con(\mathbf{2}^2)| = 4 \le 2^{4-1} = 8.
+\]
+In fact the bound is attained by every chain, by
+Proposition~\ref{prop:chain-con}, which is consistent with the conjecture's
+own claim that the bound is optimal.
+
+We state this explicitly so that the scope of the refutation is unambiguous:
+what fails is the \emph{classification} (the biconditional), not the
+\emph{counting} bound. A reader should not infer from ``the conjecture is
+false'' that every clause is false.
+\end{remark}
+
+\section{Verification}
+
+Both enumerations were checked by brute force over \emph{all} partitions of
+the underlying set, testing the full compatibility condition of
+Definition~2.1, i.e.\ for every related pair $(x,y)$ and every $z$, both
+$(x \wedge z, y \wedge z)$ and $(x \vee z, y \vee z)$ must be related.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrrrr}
+\toprule
+$L$ & $|L|$ & partitions tested & wrong test & full condition & atoms & SI\\
+\midrule
+$C_2$ & 2 & 2  & 2  & 2 & 1 & yes\\
+$C_3$ & 3 & 5  & 5  & \textbf{4} & \textbf{2} & \textbf{no}\\
+$\mathbf{2}^2$ & 4 & 15 & 11 & \textbf{4} & \textbf{2} & \textbf{no}\\
+\bottomrule
+\end{tabular}
+\caption{Brute-force counts. ``partitions tested'' is the Bell number $B_n$
+($B_2 = 2$, $B_3 = 5$, $B_4 = 15$). ``wrong test'' is the count obtained by
+the incorrect condition ``each block is a sublattice''; it overcounts, and the
+discrepancy is recorded deliberately. Note that $B_4 = 15$, not $256$: $256$
+is neither the number of partitions of a four-element set nor the number of
+equivalence relations on it (the two counts coincide at $15$, since
+partitions and equivalence relations are in bijection).}
+\end{table}
+
+\begin{remark}[the wrong test]\label{rem:method}
+For $C_3$ and $\mathbf{2}^2$ the weak test ``each block is a sublattice''
+accepts spurious relations: it constrains $x \wedge y$ and $x \vee y$ for
+related $x, y$ but says nothing about $x \wedge z$ for an unrelated $z$. It
+reports $5$ instead of $4$ for $C_3$ --- the spurious relation being
+$\{0,2\}\!\mid\!\{1\}$, whose block $\{0,2\}$ is indeed a sublattice of $C_3$
+but which is not a congruence, as the proof of
+Proposition~\ref{prop:chain-con} shows --- and $11$ instead of $4$ for
+$\mathbf{2}^2$. We record the wrong intermediate values so that a reviewer
+comparing implementations is not surprised by them.
+\end{remark}
+
+\begin{remark}[$C_3$ is not the only chain that works]\label{rem:chains}
+The argument of Theorem~\ref{thm:main} generalises: for every $n \ge 3$ the
+chain $C_n$ is a counterexample. By Proposition~\ref{prop:chain-con},
+$\Con(C_n)$ has $2^{n-1}$ elements and is Boolean, while its atoms are the
+$n-1$ interval partitions obtained by merging a single adjacent pair, so it
+has $n-1 \ge 2$ atoms and $C_n$ is not SI. We present $C_3$ because
+Proposition~\ref{prop:minimal} shows it is the smallest witness, and because
+the failure is easiest to see there; $\mathbf{2}^2$ is included because its
+non-SI-ness is immediate from being a direct product. Both are given so that
+the reader has a witness whose non-SI-ness is structural ($\mathbf{2}^2$) and
+one whose size is minimal ($C_3$).
+\end{remark}
+
+\subsection*{Formalisation}
+
+The combinatorial core of the refutation is formalised in Lean~4 in the
+accompanying \texttt{lean4/} project: that $C_3$ has exactly the four
+congruences listed above, that they are order isomorphic to
+$\mathbf{2} \times \mathbf{2}$, and that exactly two of them are atoms. It
+builds with \texttt{lake build} with no \texttt{sorry}, using \emph{core Lean
+only} --- no Mathlib --- and every theorem depends solely on the standard
+axioms \texttt{propext} and \texttt{Quot.sound}. The two statements that carry
+the refutation are
+
+\begin{quote}\ttfamily
+theorem con\_complete (f : Fin 3 → Fin 3 → Bool) (h : IsCongruence f) :\\
+\hspace*{1.5em}f = relBot $\vee$ f = relAlpha $\vee$ f = relBeta $\vee$ f = relTop\\[0.5em]
+theorem atom\_only\_two (f : Fin 3 → Fin 3 → Bool) (h : IsAtom f) :\\
+\hspace*{1.5em}f = relAlpha $\vee$ f = relBeta
+\end{quote}
+
+\noindent Booleanity is formalised separately, as the triple
+\texttt{code\_inj}, \texttt{code\_surj}, \texttt{code\_le}: the map
+$f \mapsto (f\,0\,1, f\,1\,2)$ is a bijection from $\Con(C_3)$ onto
+$\mathtt{Bool} \times \mathtt{Bool}$ that preserves and reflects the order, and
+$\mathtt{Bool} \times \mathtt{Bool}$ with the componentwise order is the
+four-element Boolean lattice $\mathbf{2}^2$.
+
+Congruences are represented as \texttt{Bool}-valued relations, so that every
+clause of Definition~\ref{def:congruence} is a decidable proposition and the
+concrete instances close by \texttt{decide}. The mathematical content is
+carried by two lemmas: \texttt{f02\_eq} (on a chain, $0 \sim 2$ holds exactly
+when both $0 \sim 1$ and $1 \sim 2$ do) and \texttt{determined} (a congruence on
+a chain is determined by the pair $(f\,0\,1, f\,1\,2)$), after which
+\texttt{con\_complete} is a four-case split.
+
+The formalisation covers the enumeration and the atom count --- precisely the
+part a reviewer would otherwise have to check by hand. It does \emph{not}
+formalise the surrounding universal algebra: ``finite lattice'', ``subdirect
+product'' and ``subdirectly irreducible'' are used as standard notions rather
+than reproduced in Lean. It also does not formalise the counting clause, which
+is not refuted.
+
+\section{Reproducibility}
+
+Pure Python~3, standard library only:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py
+\end{quote}
+
+The script enumerates all partitions of $\{0,\dots,n-1\}$ as restricted growth
+strings, filters by the full congruence condition, builds the congruence
+lattice, counts atoms, and tests Booleanity as ``$|\Con(L)| = 2^{k}$ with every
+element a join of atoms'', where $k$ is the atom count. It reports $C_3$ and
+$\mathbf{2}^2$ as counterexamples, confirms that $C_2$ is not one, and prints
+both the correct and the incorrect counts. No step of the proof depends on the
+computation.
+
+\end{document}
