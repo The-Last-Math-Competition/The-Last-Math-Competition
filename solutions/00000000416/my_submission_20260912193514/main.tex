@@ -1,0 +1,165 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1.15in]{geometry}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\title{Refutation of conjecture 00000000416\\[2mm]
+\large The orbit count of evacuation on tableaux of shape $(n,n)$ is inconsistent at $n=2$}
+\author{Submitted to The Last Math Competition}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+Conjecture 00000000416 asserts that, for the evacuation operator acting on the
+standard Young tableaux of two-row shape $(n,n)$, the number of orbits is
+$2^{n-1}$, every orbit length divides $2n$, and the number of orbits of length
+exactly $2$ is the Fibonacci number $F_{n-1}$. We show that the first and third
+assertions are jointly impossible already at $n=2$: they require at least three
+tableaux, whereas the shape $(2,2)$ carries exactly two. The argument uses
+nothing about evacuation beyond the fact that an orbit is nonempty; in
+particular it does not use that evacuation is an involution.
+\end{abstract}
+
+\section{The conjecture}
+
+The statement under consideration, verbatim from the corpus, is the following.
+
+\begin{quote}
+\emph{Definition: The evacuation operator $e$ acts on standard Young tableaux of
+two-row shape $(n,n)$; its orbits are the cycles of the iterates of $e$.
+Conjecture: The number of orbits is $2^{n-1}$, every orbit length divides $2n$,
+and the number of orbits of length exactly $2$ is the Fibonacci number
+$F_{n-1}$.}
+\end{quote}
+
+Write $T_n$ for the set of standard Young tableaux of shape $(n,n)$, and let
+\[
+  C_n \;=\; \frac{1}{n+1}\binom{2n}{n}
+\]
+denote the $n$-th Catalan number. It is classical that $|T_n| = C_n$: a standard
+tableau of shape $(n,n)$ is determined by the set of entries placed in the top
+row, and the ballot condition says exactly that this set encodes a Dyck path of
+semilength~$n$.
+
+The conjecture makes three simultaneous claims about the action of $e$ on
+$T_n$:
+\begin{align}
+  \#\{\text{orbits of } e\} &= 2^{n-1}, \label{eq:orbits}\\
+  \text{every orbit length} &\mid 2n, \label{eq:divides}\\
+  \#\{\text{orbits of length exactly } 2\} &= F_{n-1}. \label{eq:lengthtwo}
+\end{align}
+
+\section{The contradiction at $n=2$}
+
+\begin{lemma}\label{lem:shape22}
+The shape $(2,2)$ carries exactly two standard Young tableaux.
+\end{lemma}
+
+\begin{proof}
+The entries are $1,2,3,4$. The top-left cell is smaller than both its row
+neighbour and its column neighbour, and the bottom-right cell is larger than
+both its row neighbour and its column neighbour; since the top-left entry is
+below the bottom-right entry along the top row, the top-left entry is smaller
+than all three others, hence equals~$1$, and symmetrically the bottom-right
+entry equals~$4$. The remaining entries $2$ and $3$ fill the two off-diagonal
+cells, and each of the two placements is admissible. Explicitly,
+\[
+  \begin{array}{cc} 1 & 2 \\ 3 & 4 \end{array}
+  \qquad\text{and}\qquad
+  \begin{array}{cc} 1 & 3 \\ 2 & 4 \end{array}
+\]
+are the only possibilities. (Equivalently $|T_2| = C_2 = 2$.)
+\end{proof}
+
+\begin{theorem}\label{thm:main}
+Conjecture 00000000416 is false.
+\end{theorem}
+
+\begin{proof}
+Suppose the conjecture holds at $n=2$. By~\eqref{eq:orbits} there are
+$2^{2-1} = 2$ orbits in total. By~\eqref{eq:lengthtwo}, the number of orbits of
+length exactly $2$ is $F_{2-1} = F_1 = 1$.
+
+The orbits partition $T_2$. One orbit therefore contains exactly $2$ tableaux,
+and the second orbit is nonempty, so it contains at least $1$. Hence
+\[
+  |T_2| \;\ge\; 2 + 1 \;=\; 3.
+\]
+But $|T_2| = 2$ by Lemma~\ref{lem:shape22}. This is a contradiction.
+
+Therefore the conjunction of \eqref{eq:orbits} and \eqref{eq:lengthtwo} fails
+at $n=2$, and with it the conjecture.
+\end{proof}
+
+\section{What the argument does and does not use}
+
+The proof of Theorem~\ref{thm:main} uses exactly one property of evacuation:
+that its orbits are nonempty. It does \emph{not} use that $e$ is an involution,
+nor that orbit lengths are $1$ or $2$, nor any information about how $e$ acts on
+a particular tableau. This is deliberate --- it makes the refutation robust
+against any disagreement about the precise definition of evacuation, since any
+map whatsoever whose iterates partition $T_2$ into two orbits, one of size $2$,
+would require $|T_2| \ge 3$.
+
+\begin{remark}[A second, independent failure]
+If one additionally uses that evacuation is an involution, so that every orbit
+has length $1$ or $2$, then \eqref{eq:orbits} and \eqref{eq:lengthtwo} force
+\[
+  |T_n| \;=\; \bigl(2^{n-1} - F_{n-1}\bigr)\cdot 1 \;+\; F_{n-1}\cdot 2
+  \;=\; 2^{n-1} + F_{n-1}.
+\]
+For $n = 4$ the left side is $C_4 = 14$ while the right side is $8 + 2 = 10$, so
+the conjecture fails again, independently of the $n = 2$ case. (For $n = 3$ the
+identity $5 = 4 + 1$ does hold, and for $n = 1$ the identity $1 = 1 + 0$ holds
+as well; the failures begin at $n = 2$ and resume from $n = 4$.)
+\end{remark}
+
+\begin{remark}[On claim \eqref{eq:divides}]
+We make no assertion about \eqref{eq:divides}. It is consistent with the
+others: orbit lengths are at most $2$ when $e$ is an involution, and both $1$
+and $2$ divide $2n$ for $n \ge 1$. The refutation rests entirely on the
+joint inconsistency of \eqref{eq:orbits} and \eqref{eq:lengthtwo}.
+\end{remark}
+
+\section{Formalisation}
+
+The accompanying Lean~4 project formalises the argument in
+\texttt{lean4/Main.lean}. It contains:
+
+\begin{itemize}
+  \item an exhaustive enumeration of the $4^4 = 256$ fillings of the diagram
+        $(2,2)$ by the letters $0,1,2,3$, filtered to the standard ones. The
+        theorem \texttt{sols\_length} states that exactly two survive, and is
+        proved by \texttt{rfl}: the kernel performs the search and checks the
+        count, so the theorem depends on \emph{no} axioms at all;
+  \item the counting lemma \texttt{orbit\_bound}: if a list is split into two
+        nonempty parts and one part has at least two elements, the total is at
+        least~$3$;
+  \item \texttt{refutation\_at\_two}: no such splitting of the tableaux of shape
+        $(2,2)$ exists.
+\end{itemize}
+
+The project uses only the Lean~4 core (no Mathlib) and contains no
+\texttt{sorry}. The axioms used are \texttt{propext} and \texttt{Quot.sound},
+inherited from the standard treatment of lists.
+
+\section{Reproducing the enumeration}
+
+The accompanying \texttt{reproduce.py} (standard library only) enumerates the
+standard Young tableaux of shape $(n,n)$ for small $n$, reports $C_n$ alongside
+the quantity $2^{n-1} + F_{n-1}$ required by the conjecture, and prints the
+tableaux of shape $(2,2)$. Running it reproduces the numbers used above.
+
+\end{document}
