@@ -1,0 +1,181 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A disproof of conjecture \texttt{00000001243}\\
+\large\upshape The central column of rule 30 is not square-free}
+\author{}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture \texttt{00000001243} asserts that the central column of elementary
+cellular automaton rule 30 is square-free over every prefix of length $2^k$.
+We show the assertion is false for \emph{every} binary sequence and therefore
+carries no information about rule 30: any binary word of length $\ge 4$
+contains a square. The central column begins $1,1,\dots$, so the specific
+sequence is refuted by its first two terms.
+\end{abstract}
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000001243.md}:
+
+\begin{quote}
+\textbf{Definition:} The central column of Wolfram's rule 30 is the output
+sequence of column $0$ from a single $1$ as initial condition.
+\textbf{Conjecture:} This sequence is not eventually periodic, and among its
+factors of length $< 2^k$ none contains a square: the central column is
+square-free over all prefixes of length $2^k$; this rules out any short-period
+structure.
+\end{quote}
+
+We address the square-freeness claim. (The separate claim of
+non-eventual-periodicity is untouched here.)
+
+\section{Definitions}
+
+\begin{definition}[square]
+Let $w = w_0 w_1 \cdots w_{n-1}$ be a finite word over an alphabet $\Sigma$.
+A \emph{square} in $w$ is a factor of the form $uu$, that is, indices
+$0 \le s$ and $p \ge 1$ with $s + 2p \le n$ such that
+\[
+w_s w_{s+1} \cdots w_{s+p-1} \;=\; w_{s+p} w_{s+p+1} \cdots w_{s+2p-1}.
+\]
+The word $w$ is \emph{square-free} if it contains no square.
+\end{definition}
+
+\begin{definition}[rule 30 central column]
+Let $a^{(0)}_j = 1$ if $j = 0$ and $0$ otherwise. Define
+\[
+a^{(t+1)}_j \;=\; a^{(t)}_{j-1} \;\oplus\; \bigl(a^{(t)}_j \,\lor\, a^{(t)}_{j+1}\bigr),
+\]
+where $\oplus$ is exclusive or. The \emph{central column} is the sequence
+$s_t = a^{(t)}_0$ for $t \ge 0$.
+\end{definition}
+
+\section{The obstruction}
+
+\begin{lemma}\label{lem:four}
+Every binary word of length $\ge 4$ contains a square.
+\end{lemma}
+
+\begin{proof}
+Let $w = w_0 w_1 w_2 w_3$ be the first four letters of such a word. We argue by
+cases.
+
+\begin{itemize}
+\item If $w_0 = w_1$, then $w_0w_1$ is a square of period $1$.
+\item Otherwise $w_1 \neq w_0$. If $w_1 = w_2$, then $w_1w_2$ is a square.
+\item Otherwise $w_2 \neq w_1$, hence $w_2 = w_0$. If $w_2 = w_3$, then $w_2w_3$
+      is a square.
+\item Otherwise $w_3 \neq w_2$, hence $w_3 = w_1$. Then
+      \[
+      w_0w_1w_2w_3 = w_0w_1w_0w_1 = (w_0w_1)^2,
+      \]
+      a square of period $2$.
+\end{itemize}
+
+All four cases yield a square within the first four letters, so no binary word
+of length $\ge 4$ is square-free. (The bound is sharp: $010$ has length $3$ and
+is square-free.)
+\end{proof}
+
+\begin{corollary}\label{cor:all}
+No binary sequence is square-free over every prefix of length $2^k$ for
+$k \ge 2$.
+\end{corollary}
+
+\begin{proof}
+$2^k \ge 4$ for $k \ge 2$, so Lemma~\ref{lem:four} applies to the prefix of
+length $2^k$.
+\end{proof}
+
+\begin{theorem}
+Conjecture \texttt{00000001243} is false.
+\end{theorem}
+
+\begin{proof}
+The central column is a binary sequence by Definition~2.2. By
+Corollary~\ref{cor:all} no binary sequence is square-free over prefixes of
+length $2^k$ for $k \ge 2$. Moreover the specific sequence can be checked
+directly: the first eight terms are
+\[
+1,\;1,\;0,\;1,\;1,\;1,\;0,\;0,
+\]
+so $s_0 = s_1 = 1$ and $s_0s_1 = 11 = (1)^2$ is a square of period $1$
+occurring at position $0$. Hence the central column is not square-free, and the
+conjectured property fails already at $k = 1$.
+\end{proof}
+
+\section{Remarks}
+
+\begin{remark}\label{rem:scope}
+The refutation does not depend on any dynamical property of rule 30. Any
+binary sequence whatever --- chaotic, periodic, or constant --- fails the
+conjectured property. The conjecture therefore cannot serve the stated purpose
+of ``ruling out any short-period structure'', since it is satisfied by no
+binary sequence at all.
+\end{remark}
+
+\begin{remark}
+The first terms of the central column are OEIS \texttt{A051023}. The first
+thirty-two terms are
+\[
+\texttt{11011100110001011001001110101110}.
+\]
+The square \texttt{11} appears at positions $0$--$1$.
+\end{remark}
+
+\section{Reproducibility}
+
+The computation of the central column and the search for the earliest square
+are in \texttt{reproduce.py} (pure Python~3, standard library only):
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+...\\
+first 32 terms: 11011100110001011001001110101110\\
+earliest square: start=0, period=1, factor=[1, 1]\\
+...\\
+n = 4 .. 16: square-free binary words = 0\\
+\end{quote}
+
+The script also checks the lemma exhaustively: for every $n$ with
+$4 \le n \le 16$ it enumerates all $2^n$ binary words and confirms that none
+is square-free, and that the four-case proof always exhibits a genuine square.
+The bound is sharp at $n = 3$, where $010$ (and $101$) are square-free.
+
+No step of the argument requires computation: Lemma~\ref{lem:four} is a
+four-case check, and the specific counterexample is read off the first two
+terms.
+
+\subsection*{Formalisation}
+
+The argument is formalised in Lean~4 in the accompanying \texttt{lean4/}
+project. It builds with \texttt{lake build} with no \texttt{sorry}, using core
+Lean only (no Mathlib), and every theorem depends solely on the standard axiom
+\texttt{propext}. The main formal statement is
+
+\begin{quote}\ttfamily
+theorem conjecture\_00000001243\_false (f : Nat → Bool) :\\
+\hspace*{1.5em}¬ SquareFreeOverPow2Prefixes f
+\end{quote}
+
+\noindent which is deliberately quantified over an \emph{arbitrary} binary
+sequence, matching Remark~\ref{rem:scope}: the obstruction has nothing to do
+with rule~30. The four-case proof of Lemma~\ref{lem:four} is transcribed
+literally, and the final case (\texttt{c = a}, \texttt{d = b}) is discharged by
+case analysis on the three \texttt{Bool}s.
+
+\end{document}
