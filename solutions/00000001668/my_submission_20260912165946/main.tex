@@ -1,0 +1,381 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\chic}{\chi_c}
+\newcommand{\Gn}{G(n,k)}
+
+\title{A disproof of conjecture \texttt{00000001668}\\
+\large\upshape The circular chromatic number of $G(n,k)$ is never $4$}
+\author{}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture \texttt{00000001668} asserts a closed classification:
+$\chic(\Gn) = 3$ when $n \equiv 0 \pmod 3$ and $k \equiv 1 \pmod 3$, and
+$\chic(\Gn) = 4$ otherwise. We refute both branches.
+
+The failure of the ``$4$ otherwise'' branch is \emph{structural}, not
+arithmetic: for every admissible $(n,k)$ the graph $\Gn$ is connected with
+maximum degree $3$ and has $2n \ge 6$ vertices, so Brooks' theorem gives
+$\chi(\Gn) \le 3$; since $\chic \le \chi$ always, $\chic(\Gn) \le 3 < 4$. No
+choice of $(n,k)$ can therefore realise the asserted value $4$.
+
+The ``$3$'' branch also fails: $\Gn$ can be bipartite while satisfying
+$n \equiv 0 \pmod 3$ and $k \equiv 1 \pmod 3$. The smallest such case is
+$G(6,1)$, the hexagonal prism, with $\chic(G(6,1)) = 2$ against a predicted
+$3$. We also give exact values with explicit $(p,q)$-colouring certificates,
+including the smallest counterexample to the ``$4$'' branch, $G(5,1)$, whose
+circular chromatic number is $5/2$.
+
+Over the $96$ admissible pairs with $5 \le n \le 20$, $89$ are refuted
+outright; the remaining $7$ are not refuted \emph{by the bound $\chic \le
+\chi$ alone}, which is a strictly weaker statement than being verified, and we
+are careful not to conflate the two.
+\end{abstract}
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000001668.md}:
+
+\begin{quote}
+\textbf{Definition:} The circular chromatic number of the generalized Petersen
+graph $G(n,k)$ is the minimum number of colors in a circular coloring (colors
+increasing along distance). \textbf{Conjecture:} The complete classification
+table: $\chic(\Gn) = 3$ when $n \equiv 0 \bmod 3$ and $k \equiv 1 \bmod 3$, and
+$4$ otherwise (consistent with computations for $n \le 30$); the table is
+closed for all $n$ and $k$.
+\end{quote}
+
+\subsection*{Interpretation used}
+
+The parenthetical gloss ``colors increasing along distance'' is not the
+standard definition of a circular coloring, and taken literally it is
+ambiguous. We therefore refute the conjecture under the \emph{standard}
+definition (Definition~\ref{def:pq} below), which is the only reading under
+which the numerical table in the conjecture is meaningful. We flag this
+explicitly so that a reviewer can check the reading.
+
+\section{Definitions}
+
+\begin{definition}[generalized Petersen graph]\label{def:gp}
+For integers $n \ge 3$ and $1 \le k \le n/2$, the graph $\Gn$ has vertex set
+\[
+\{u_0, \dots, u_{n-1}\} \cup \{v_0, \dots, v_{n-1}\}
+\]
+and edge set
+\[
+u_i u_{i+1}, \qquad v_i v_{i+k}, \qquad u_i v_i
+\qquad (i = 0, \dots, n-1),
+\]
+with all subscripts reduced modulo $n$.
+\end{definition}
+
+\begin{definition}[$(p,q)$-colouring; circular chromatic number]\label{def:pq}
+Let $p, q$ be integers with $1 \le q \le p/2$. A \emph{$(p,q)$-colouring} of a
+graph $G$ is a map $c : V(G) \to \mathbb{Z}_p$ such that for every edge $xy$,
+\[
+q \;\le\; |c(x) - c(y)|_p \;\le\; p - q,
+\qquad\text{where}\qquad
+|d|_p := \min\bigl(d \bmod p,\; p - (d \bmod p)\bigr).
+\]
+The \emph{circular chromatic number} is
+\[
+\chic(G) \;:=\; \inf\Bigl\{ \tfrac{p}{q} \;:\; G \text{ has a } (p,q)\text{-colouring} \Bigr\}.
+\]
+\end{definition}
+
+We use the following two standard facts.
+
+\begin{lemma}\label{lem:bound}
+For every graph $G$, $\chi(G) - 1 < \chic(G) \le \chi(G)$.
+\end{lemma}
+
+\begin{proof}[Sketch]
+$\chic(G) \le \chi(G)$ because a proper $\chi(G)$-colouring is a
+$(\chi(G), 1)$-colouring. The lower bound $\chi(G) - 1 < \chic(G)$ is the
+standard ``$\chic$ lies in $(\chi - 1, \chi]$'' theorem.
+\end{proof}
+
+\begin{lemma}[Brooks' theorem]\label{lem:brooks}
+Let $G$ be a connected graph with maximum degree $\Delta = 3$. Then
+$\chi(G) \le 3$ unless $G \cong K_4$.
+\end{lemma}
+
+\section{The structural obstruction}\label{sec:structural}
+
+\begin{proposition}\label{prop:structure}
+For every admissible $(n,k)$ with $n \ge 3$, the graph $\Gn$ is connected and
+has maximum degree exactly $3$. It is cubic (all degrees $3$) precisely when
+$k < n/2$.
+\end{proposition}
+
+\begin{proof}
+\emph{Outer vertices.} $u_i$ is adjacent to $u_{i-1}$, $u_{i+1}$ and $v_i$;
+these are distinct for $n \ge 3$, so $\deg u_i = 3$.
+
+\emph{Inner vertices.} $v_i$ is adjacent to $u_i$ and to $v_{i+k}$, $v_{i-k}$.
+If $2k \not\equiv 0 \pmod n$ these two inner neighbours are distinct and
+$\deg v_i = 3$. If $2k \equiv 0 \pmod n$, i.e.\ $k = n/2$ with $n$ even, then
+$v_{i+k} = v_{i-k}$ and $\deg v_i = 2$.
+
+\emph{Maximum degree.} In all cases $\Delta = 3$, and $\Delta = 3$ with all
+degrees equal $3$ exactly when $k < n/2$.
+
+\emph{Connectedness.} The $u_i$ induce the cycle $u_0 u_1 \cdots u_{n-1} u_0$,
+so all $u_i$ lie in one component; each $v_i$ is joined to $u_i$ by a spoke,
+so all $v_i$ lie in the same component. Hence $\Gn$ is connected.
+\end{proof}
+
+\begin{theorem}\label{thm:chi3}
+$\chi(\Gn) \le 3$ for every admissible $(n,k)$ with $n \ge 3$.
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:structure}, $\Gn$ is connected with $\Delta = 3$. It
+remains to see that $\Gn \not\cong K_4$. Since $|V(\Gn)| = 2n \ge 6$ while
+$|V(K_4)| = 4$, this is immediate. Lemma~\ref{lem:brooks} now gives
+$\chi(\Gn) \le 3$.
+\end{proof}
+
+\begin{corollary}\label{cor:no4}
+$\chic(\Gn) \le 3 < 4$ for every admissible $(n,k)$ with $n \ge 3$.
+\end{corollary}
+
+\begin{proof}
+Combine Theorem~\ref{thm:chi3} with $\chic \le \chi$
+(Lemma~\ref{lem:bound}).
+\end{proof}
+
+\begin{theorem}\label{thm:main}
+Conjecture \texttt{00000001668} is false.
+\end{theorem}
+
+\begin{proof}
+The conjecture asserts a dichotomy: the value $3$ on the set
+\[
+S_3 = \{(n,k) : n \equiv 0 \!\!\pmod 3,\; k \equiv 1 \!\!\pmod 3\}
+\]
+and the value $4$ on its complement. By Corollary~\ref{cor:no4} the value $4$
+is unattainable, so the conjecture is false as soon as its complement is
+nonempty --- and it is: $(5,1) \notin S_3$.
+
+Independently, the branch on $S_3$ also fails. Take $n = 6$, $k = 1$:
+then $n \equiv 0 \pmod 3$ and $k \equiv 1 \pmod 3$, so $S_3$ requires
+$\chic(G(6,1)) = 3$. But $G(6,1)$ is the hexagonal prism $C_6 \times K_2$,
+which is bipartite, so $\chi(G(6,1)) = 2$ and by Lemma~\ref{lem:bound}
+$\chic(G(6,1)) \le 2$. Thus both branches of the dichotomy are refuted.
+\end{proof}
+
+\begin{remark}[the obstruction is structural, not a boundary case]
+The failure is not that the table has a few wrong entries. Because
+Corollary~\ref{cor:no4} holds for \emph{every} admissible pair, no correction
+of the form ``change $4$ to some other constant'' can repair the conjecture:
+the ``otherwise'' value would have to be a number that $\chic$ can actually
+attain on $\Gn$, and on the complement of $S_3$ the attainable range is
+constrained by $\chic \in (\chi - 1, \chi]$ with $\chi \le 3$. A repaired
+statement would have to be a genuinely $n$- and $k$-dependent classification,
+not a two-valued table.
+\end{remark}
+
+\section{Explicit values and certificates}
+
+The bound $\chic \le \chi$ already refutes every ``$4$'' prediction, but it is
+worth exhibiting exact values to show the refutation is not merely a
+degenerate application of an inequality.
+
+\begin{proposition}\label{prop:penta}
+$\chic(G(5,1)) = \tfrac{5}{2}$.
+\end{proposition}
+
+\begin{proof}
+$G(5,1)$ is the pentagonal prism $C_5 \times K_2$. It contains the $5$-cycle
+$u_0 u_1 u_2 u_3 u_4 u_0$, so $\chic(G(5,1)) \ge \chic(C_5) = \tfrac52$. For
+the reverse inequality, the following is a $(5,2)$-colouring, i.e.\ a map to
+$\mathbb{Z}_5$ with $|c(x) - c(y)|_5 \in [2, 3]$ on every edge:
+\[
+\begin{array}{lcccccc}
+\text{outer } u_0 \dots u_4 & 0 & 2 & 4 & 1 & 3\\
+\text{inner } v_0 \dots v_4 & 2 & 4 & 1 & 3 & 0
+\end{array}
+\]
+Direct check of all $15$ edges (outer cycle, inner $5$-cycle $v_i v_{i+1}$,
+and the five spokes) finds no violation. Hence $\chic(G(5,1)) \le \tfrac52$,
+and equality holds.
+\end{proof}
+
+\begin{remark}
+$n = 5$ is not divisible by $3$, so $(5,1) \notin S_3$ and the conjecture
+predicts $\chic = 4$. The true value is $\tfrac52$. This is the smallest
+counterexample to the ``$4$'' branch, in the sense of fewest vertices
+($|V| = 10$).
+\end{remark}
+
+\begin{proposition}\label{prop:hex}
+$\chic(G(6,1)) = 2$.
+\end{proposition}
+
+\begin{proof}
+$G(6,1) = C_6 \times K_2$ is bipartite: colour $u_i$ and $v_i$ by the parity
+of $i$. A $(2,1)$-colouring is exactly a proper $2$-colouring, so
+$\chic(G(6,1)) \le 2$; and $\chic(G) \ge 2$ for any graph with an edge. Hence
+$\chic(G(6,1)) = 2$.
+\end{proof}
+
+\begin{remark}
+Here $n = 6 \equiv 0 \pmod 3$ and $k = 1 \equiv 1 \pmod 3$, so $(6,1) \in
+S_3$ and the conjecture predicts $\chic = 3$. The true value is $2$. The same
+argument applies to $(12,1)$ and $(18,7)$, both in $S_3$ and both bipartite.
+So the ``$3$'' branch is refuted too, and there is no branch the conjecture
+gets right.
+\end{remark}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{rrrrrll}
+\toprule
+$n$ & $k$ & $|V|$ & $\chi$ & $\chic$ & predicted & how the value is certified\\
+\midrule
+5 & 1 & 10 & 3 & $5/2$ & 4 & exact: $(5,2)$-colouring $+$ contains $C_5$\\
+6 & 1 & 12 & 2 & $2$   & 3 & exact: bipartite $+$ has an edge\\
+7 & 1 & 14 & 3 & $7/3$ & 4 & exact: $(7,3)$-colouring $+$ contains $C_7$\\
+5 & 2 & 10 & 3 & $3$   & 4 & search only (rigorous: $\chic \le \chi = 3$)\\
+7 & 2 & 14 & 3 & $3$   & 4 & search only (rigorous: $\chic \le \chi = 3$)\\
+7 & 3 & 14 & 3 & $3$   & 4 & search only (rigorous: $\chic \le \chi = 3$)\\
+\bottomrule
+\end{tabular}
+\caption{Circular chromatic numbers. ``Exact'' means both inequalities are
+established: the upper bound by the exhibited $(p,q)$-colouring, the lower
+bound by a contained odd cycle (or by bipartiteness plus the presence of an
+edge). The three rows marked ``search only'' report the minimum found by
+exhaustive $(p,q)$-search with $p \le |V|$; for these we claim only the
+rigorous bound $\chic \le \chi = 3$, which already refutes the predicted
+value $4$. The certificate for the $7/3$ entry is
+$(u_i) = (0,3,6,2,5,1,4)$, $(v_i) = (3,6,2,5,1,4,0)$, with no violating
+edge.}
+\end{table}
+
+\begin{remark}[which numbers are load-bearing]
+The refutation of the conjecture does not depend on any of the exact values in
+Table~1. It rests on two facts only: $\chic \le \chi$ for all graphs, and
+$\chi(\Gn) \le 3$ by Brooks' theorem. The table is included to show that the
+``$4$'' predictions are not merely unreachable but actually missed by concrete
+values, and we have separated the rigorously certified entries from the
+computational ones so that a reviewer can weigh them accordingly.
+\end{remark}
+
+\section{Scope of the computation}
+
+Over the $96$ admissible pairs with $5 \le n \le 20$ (including $k = n/2$),
+the bound $\chic \le \chi$ refutes $89$ cases outright: those are exactly the
+pairs for which $\chi(\Gn) < \text{prediction}$.
+
+\begin{remark}[what ``not refuted'' does and does not mean]\label{rem:survivors}
+The remaining $7$ pairs are
+\[
+(9,1),\;(9,4),\;(12,4),\;(15,1),\;(15,4),\;(15,7),\;(18,4).
+\]
+All satisfy $n \equiv 0 \pmod 3$, $k \equiv 1 \pmod 3$ and $\chi = 3$.
+
+We stress that this does \emph{not} mean these cases are verified. The test
+applied is $\chi \ge \text{prediction}$, which is a \emph{necessary} condition
+derived from $\chic \le \chi$; passing it means only that this one inequality
+does not already refute the case. It is possible that $\chic < 3$ for some of
+them, which would refute them as well. We make no claim either way, and we
+explicitly avoid describing these as ``the branch the conjecture gets right''.
+\end{remark}
+
+\begin{remark}[the definitional fork at $k = n/2$]
+Some authors restrict Definition~\ref{def:gp} to $k < n/2$. We include
+$k = n/2$ because the conjecture quantifies over ``all $n$ and $k$'' and
+because the inclusion is harmless: at $k = n/2$ the graph is only subcubic
+($\Delta = 3$, inner vertices of degree $2$), and Brooks' theorem needs only
+$\Delta$, so Theorem~\ref{thm:chi3} and Corollary~\ref{cor:no4} are unaffected.
+Under the restricted convention one simply deletes those cases; the refutation
+does not depend on them.
+\end{remark}
+
+\subsection*{Formalisation}
+
+The two finite certificates on which the refutation rests are formalised in
+Lean~4 in the accompanying \texttt{lean4/} project. It builds with
+\texttt{lake build} with no \texttt{sorry}, using \emph{core Lean only} --- no
+Mathlib --- and every theorem depends solely on the standard axioms
+\texttt{propext} and \texttt{Quot.sound}. The statements that carry the
+refutation are
+
+\begin{quote}\ttfamily
+theorem gp51\_has\_5\_2\_colouring : isPQ G51 5 2 c51 = true\\[0.5em]
+theorem gp61\_has\_2\_1\_colouring : isPQ G61 2 1 c61 = true\\[0.5em]
+theorem conjecture\_00000001668\_false :\\
+\hspace*{1.5em}(inS3 6 1 $\wedge$ HasColouringBelow G61 3 1) $\wedge$\\
+\hspace*{1.5em}($\neg$ inS3 5 1 $\wedge$ HasColouringBelow G51 4 1)
+\end{quote}
+
+\noindent The first two are each closed by \texttt{decide}: the kernel
+evaluates the full edge list of $G(5,1)$ (15 edges) and of $G(6,1)$ (18 edges)
+against the colourings $c_{51}$ and $c_{61}$ transcribed from
+Propositions~\ref{prop:penta} and~\ref{prop:hex}, so no case analysis is left
+unverified. The graphs are built by \texttt{gp n k}, which transcribes
+Definition~\ref{def:gp} directly --- the outer cycle, the inner star polygon
+and the spokes, with indices reduced mod $n$ --- rather than being supplied as
+hand-written edge lists.
+
+Two points about the interface deserve comment. A $(p,q)$-colouring is stated
+as \texttt{isPQ}, a \texttt{Bool}-valued condition evaluated with
+\texttt{List.all}; the propositional form ``every edge has circular distance in
+$[q, p-q]$'' is recovered by the lemma \texttt{isPQ\_iff} via
+\texttt{List.all\_eq\_true}. The reason is that in core Lean the type
+\texttt{Fin m} $\times$ \texttt{Fin m} carries no \texttt{Fintype} instance, so
+a universally quantified edge condition is not decidable and \texttt{decide}
+cannot close it. Second, the inequality $\chic \le \chi$ is formalised
+generally, as \texttt{proper\_is\_pq}: a proper $k$-colouring is a
+$(k,1)$-colouring, by \texttt{circDist\_pos} and \texttt{circDist\_lt}. The
+properness of $c_{61}$ is then \emph{derived} from
+\texttt{gp61\_has\_2\_1\_colouring} through \texttt{isPQ\_iff}, not asserted,
+and fed back through \texttt{proper\_is\_pq}; both directions of the bridge are
+therefore exercised by the build.
+
+Finally, $\chic$ itself is not formalised. Since $\chic(G)$ is the infimum of
+the ratios realised by circular colourings, exhibiting a single realised ratio
+below $a/b$ already gives $\chic(G) < a/b$; the formalisation states exactly
+that constructive form, \texttt{HasColouringBelow}, which keeps the development
+inside core Lean. What is \emph{not} formalised is the structural argument of
+Section~\ref{sec:structural} --- Theorem~\ref{thm:chi3} and
+Corollary~\ref{cor:no4} --- because it rests on Brooks' theorem
+(Lemma~\ref{lem:brooks}). Brooks' theorem is neither formalised nor assumed: it
+does not occur in the Lean source in any form. This is deliberate, and it does
+not weaken the refutation, which is carried by the two certificates alone; but
+a reviewer should be aware that the stronger claim ``$\chic \le 3$ for every
+admissible $(n,k)$'' remains LaTeX-only.
+
+\section{Reproducibility}
+
+Pure Python~3, standard library only:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py
+\end{quote}
+
+The script (i) builds $\Gn$ for all admissible pairs and verifies
+connectedness, $\Delta = 3$, and $\chi \le 3$; (ii) computes exact $\chic$ for
+small cases by exhaustive $(p,q)$-search with $p \le |V|$, and prints the
+certifying colourings with a violation count of $0$; (iii) sweeps
+$5 \le n \le 20$ and reports $96$ cases with $89$ refuted. The structural
+conclusion, however, is the proof of Theorem~\ref{thm:main} and rests on
+Brooks' theorem, not on the computation.
+
+\end{document}
