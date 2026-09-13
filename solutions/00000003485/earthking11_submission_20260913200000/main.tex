@@ -1,0 +1,322 @@
+\documentclass[11pt]{article}
+\usepackage[UTF8, fontset=fandol, scheme=plain]{ctex}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cfive}{C_5}
+
+\title{Disproof of conjecture \texttt{00000003485}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000003485} as stated. The refutation is
+unconditional and elementary, and the witness is the smallest possible: the
+directed $5$-cycle. It has out-degree $1$ everywhere, directed girth $5$, and
+yet no kernel. The same failure occurs for every directed odd cycle, and the
+failure is stable under strongly connected blow-ups, so it is not an artefact of
+out-degree $1$.
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000003485.md}:
+
+\begin{quote}
+\textbf{Definition:} A kernel of a digraph is an independent out-stable set,
+with the existence criterion the core problem. \textbf{Conjecture:} Digraphs
+with bounded out-degree and girth at least five have kernels; the critical
+configuration of the condition is the directed odd cycle with a one-point
+source, and the bound is a tightening of Richardson's theorem. (kernel existence
+strengthened condition)
+\end{quote}
+
+\begin{quote}
+\textbf{定义：}有向图的核为独立外稳定集，其存在性判据是核心问题。\textbf{猜想：}出度有界且围长至少五的有向图存在核；条件的临界构型为有向奇圈加单点源且该界为
+Richardson 定理的紧化。（核存在强化条件）
+\end{quote}
+
+\begin{definition}[digraph]
+A digraph $D = (V, A)$ consists of a vertex set $V$ and an arc set
+$A \subseteq V \times V$.
+\end{definition}
+
+\begin{definition}[kernel]
+A \emph{kernel} of $D = (V, A)$ is a set $S \subseteq V$ that is
+\begin{enumerate}
+\item \emph{independent}: no arc joins two members of $S$ in either direction,
+      i.e.\ for all $u, v \in S$ neither $(u, v) \in A$ nor $(v, u) \in A$; and
+\item \emph{out-stable} (absorbing): every vertex outside $S$ has an arc into
+      $S$, i.e.\ for every $v \in V \setminus S$ there is $s \in S$ with
+      $(v, s) \in A$.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[out-degree, girth]
+The \emph{out-degree} of $v$ is $d^+(v) = |\{w : (v,w) \in A\}|$. The
+\emph{directed girth} is the length of the shortest directed cycle, i.e.\ the
+least $k \ge 1$ with a closed directed walk of length $k$; it is $+\infty$ for
+an acyclic digraph. The \emph{(underlying undirected) girth} is the length of
+the shortest cycle in the underlying undirected graph.
+\end{definition}
+
+The hypothesis ``bounded out-degree'' is read in its weakest useful form, as a
+global bound $d^+(v) \le B$ for a fixed constant $B$. A universal implication of
+the form ``every digraph with bounded out-degree and girth $\ge 5$ has a
+kernel'' is refuted by a single digraph satisfying both hypotheses and having no
+kernel.
+
+\section{The witness: the directed 5-cycle}
+
+\begin{definition}[$\Cfive$]
+Let $\Cfive$ be the digraph with vertex set $V = \{0, 1, 2, 3, 4\}$ and arc set
+\[
+A = \{\, (i,\; i + 1 \bmod 5) \;:\; i \in V \,\}.
+\]
+It is the directed cycle $0 \to 1 \to 2 \to 3 \to 4 \to 0$.
+\end{definition}
+
+\begin{lemma}[hypotheses hold]\label{lem:hyp}
+The digraph $\Cfive$ has out-degree $1$ at every vertex, hence bounded
+out-degree, and both its directed girth and its underlying undirected girth are
+equal to $5 \ge 5$.
+\end{lemma}
+
+\begin{proof}
+Every vertex has exactly one out-neighbour, its cyclic successor, so
+$d^+(v) = 1$ for all $v$; in particular the out-degree is bounded (take
+$B = 1$). The directed closed walk $0 \to 1 \to 2 \to 3 \to 4 \to 0$ has length
+$5$, so the directed girth is at most $5$. There is no closed directed walk of
+length $1, 2, 3$, or $4$: every arc moves the index up by exactly $1$ modulo
+$5$, so a closed walk of length $k$ would force $k \equiv 0 \pmod 5$, and no
+positive $k < 5$ satisfies this. Hence the directed girth is exactly $5$. The
+underlying undirected graph is the ordinary cycle $0$--$1$--$2$--$3$--$4$--$0$,
+whose girth is $5$.
+\end{proof}
+
+\section{$\Cfive$ has no kernel}
+
+\begin{theorem}\label{thm:no-kernel}
+The directed $5$-cycle $\Cfive$ has no kernel.
+\end{theorem}
+
+\begin{proof}
+We use two elementary facts about independence and absorption in $\Cfive$.
+
+\emph{Independence.} An independent set contains no two cyclically consecutive
+vertices, because $(i, i+1) \in A$ for every $i$. Hence an independent set is an
+independent set of the underlying undirected $5$-cycle, whose independence
+number is $2$; so $|S| \le 2$, and if $|S| = 2$ then $S = \{i, i+2\}$ for some
+$i$ (the only non-adjacent pairs are the pairs at cyclic distance $2$).
+
+\emph{Absorption.} If $v \notin S$, the unique arc leaving $v$ is
+$(v, v+1)$, so $v$ can have an arc into $S$ only if $v + 1 \in S$. Thus
+out-stability reads:
+\begin{equation}\label{eq:absorb}
+\text{for every } v \in V: \quad v \in S \;\text{ or }\; v + 1 \in S .
+\end{equation}
+
+Now let $S$ be independent, and consider its size.
+
+\begin{itemize}
+\item $|S| = 0$: then $0 \notin S$ and $0 + 1 = 1 \notin S$, violating
+      \eqref{eq:absorb}.
+\item $|S| = 1$, say $S = \{i\}$: the vertex $i+2$ lies outside $S$ and its
+      successor $i+3$ is not $i$, so $i + 3 \notin S$; \eqref{eq:absorb} fails at
+      $v = i+2$.
+\item $|S| = 2$, say $S = \{i, i+2\}$: the vertex $i + 3$ lies outside $S$ and
+      its successor $i+4$ is not $i$ or $i+2$, so $i+4 \notin S$;
+      \eqref{eq:absorb} fails at $v = i + 3$.
+\item $|S| \ge 3$: impossible, since the independence number is $2$.
+\end{itemize}
+
+Every candidate fails, so no subset $S \subseteq V$ is both independent and
+out-stable. Hence $\Cfive$ has no kernel.
+\end{proof}
+
+\begin{proof}[Independent check by exhaustive enumeration]
+There are $2^5 = 32$ subsets of $V$. Exactly $11$ of them are independent:
+$\emptyset$; the five singletons $\{0\}, \{1\}, \{2\}, \{3\}, \{4\}$; and the
+five non-adjacent pairs $\{0,2\}, \{1,3\}, \{2,4\}, \{0,3\}, \{1,4\}$. For each
+one, the table below exhibits a vertex that lies outside $S$ and has no arc into
+$S$, so none is out-stable; the remaining $21$ subsets are already not
+independent.
+
+\begin{center}
+\begin{tabular}{c|c}
+independent set $S$ & a vertex outside $S$ with no arc into $S$ \\
+\hline
+$\emptyset$      & $0$ (its arc goes to $1 \notin S$) \\
+$\{0\}$          & $2$ (its arc goes to $3 \notin S$) \\
+$\{1\}$          & $3$ (its arc goes to $4 \notin S$) \\
+$\{2\}$          & $4$ (its arc goes to $0 \notin S$) \\
+$\{3\}$          & $0$ (its arc goes to $1 \notin S$) \\
+$\{4\}$          & $1$ (its arc goes to $2 \notin S$) \\
+$\{0,2\}$        & $3$ (its arc goes to $4 \notin S$) \\
+$\{1,3\}$        & $4$ (its arc goes to $0 \notin S$) \\
+$\{2,4\}$        & $0$ (its arc goes to $1 \notin S$) \\
+$\{0,3\}$        & $1$ (its arc goes to $2 \notin S$) \\
+$\{1,4\}$        & $2$ (its arc goes to $3 \notin S$) \\
+\end{tabular}
+\end{center}
+
+Thus a brute force over all $32$ subsets finds $0$ kernels, confirming
+Theorem~\ref{thm:no-kernel}. The computation is reproduced by
+\texttt{reproduce.py} and formalised in \texttt{lean4/Main.lean}.
+\end{proof}
+
+The case analysis above is also the general phenomenon, which we record next.
+
+\section{The general odd-cycle obstruction}
+
+\begin{theorem}\label{thm:cycles}
+For $n \ge 3$, the directed $n$-cycle $C_n$ has a kernel if and only if $n$ is
+even. When $n$ is even it has exactly two kernels, the even-indexed and the
+odd-indexed vertices.
+\end{theorem}
+
+\begin{proof}
+Write the vertices as $\mathbb{Z}/n$ with arcs $i \to i+1$. Independence forbids
+two cyclically consecutive vertices from both lying in $S$; out-stability
+\eqref{eq:absorb} forbids two cyclically consecutive vertices from both lying
+outside $S$. Hence, for each $i$, exactly one of $i$ and $i+1$ lies in $S$.
+Starting from $i = 0$, this forces
+\[
+i \in S \iff i \equiv \varepsilon \pmod 2
+\]
+for a fixed $\varepsilon \in \{0, 1\}$. Consistency around the cycle requires
+$n \equiv 0 \pmod 2$, and then the two choices of $\varepsilon$ give the two
+stated kernels. For odd $n$ no set $S$ satisfies both conditions, so $C_n$ has
+no kernel.
+\end{proof}
+
+\begin{corollary}\label{cor:odd}
+$C_5$, $C_7$, and $C_9$ have no kernels; in particular the conjecture fails for
+every odd $n \ge 3$, with $n = 5$ the smallest value compatible with the
+conjectured girth bound.
+\end{corollary}
+
+\begin{remark}[Richardson's theorem]
+Richardson's theorem states that every digraph with no odd directed cycle has a
+kernel. The conjectured condition ``girth at least five'' does not imply the
+absence of odd directed cycles: the directed $5$-cycle is itself an odd directed
+cycle and has girth $5$. The condition is therefore not a valid strengthening of
+Richardson's theorem, and $\Cfive$ shows this directly.
+\end{remark}
+
+\section{Robustness: blow-ups, and either reading of girth}
+
+Fix $m \ge 1$. The \emph{$m$-blow-up} of $\Cfive$ is obtained by replacing each
+vertex $i$ by an independent part $P_i = \{(i,k) : 0 \le k < m\}$ of size $m$ and
+putting an arc from every vertex of $P_i$ to every vertex of $P_{i+1 \bmod 5}$.
+For $m = 1$ this is exactly $\Cfive$.
+
+\begin{theorem}\label{thm:blowup}
+For every $m \ge 1$, the $m$-blow-up of $\Cfive$ has out-degree $m$, directed
+girth $5$, and no kernel.
+\end{theorem}
+
+\begin{proof}
+Every vertex of a part $P_i$ has arcs to all $m$ vertices of $P_{i+1}$, and to no
+other part, so the out-degree is exactly $m$. Every directed cycle projects to a
+closed walk in $\Cfive$ that advances the part index by $1$ at each step, so its
+length is a positive multiple of $5$; the cycle through $P_0, \dots, P_4$ has
+length $5$. Hence the directed girth is $5$.
+
+For the kernel, write $S_i = S \cap P_i$ and let $b_i = 1$ if $S_i \ne
+\emptyset$ and $b_i = 0$ otherwise. If $b_i = b_{i+1} = 1$ then picking $u \in
+S_i$, $v \in S_{i+1}$ gives the arc $(u, v)$, contradicting independence; so no
+two consecutive $b$'s are both $1$. If $b_{i+1} = 0$ then, whenever some vertex
+of $P_i$ lies outside $S$ (that is, $S_i \ne P_i$), that vertex has all its
+out-arcs landing in $P_{i+1}$ and hence has no arc into $S$, contradicting
+out-stability. Consequently
+\begin{equation}\label{eq:blow}
+b_{i+1} = 0 \implies S_i = P_i .
+\end{equation}
+If all $b_i = 0$, then $S_0 = \emptyset \ne P_0$ while $b_1 = 0$, contradicting
+\eqref{eq:blow}. So some $b_i = 1$. Independence then forces $b_{i-1} = b_{i+1}
+= 0$. Apply \eqref{eq:blow} at $i+1$: $b_{i+1} = 0$ gives $S_{i+1} = P_{i+1}
+\neq \emptyset$, so $b_{i+2} = 1$. Continuing around the cycle, the $b$'s
+alternate $1, 0, 1, 0, \dots$, which is consistent only if the number of parts
+is even; but there are $5$ parts. Equivalently, $b_{i+5} = b_i$ would be forced
+to be both $1$ and $0$. Hence no $S$ is both independent and out-stable.
+\end{proof}
+
+\begin{remark}[robustness]
+Theorem~\ref{thm:blowup} shows the failure is not an artefact of out-degree $1$:
+every out-degree bound $m$ admits a kernel-free digraph of girth $5$. Since the
+underlying undirected graph of $\Cfive$ is a $5$-cycle whose girth is $5$ as
+well, the counterexample also refutes the conjecture under the undirected
+reading of ``girth''. Finally, the failure is unconditional in the sense that it
+uses no asymptotic or numerical coincidence: it is a structural parity
+obstruction.
+\end{remark}
+
+\section{Reproducibility}
+
+\texttt{reproduce.py} (pure Python~3, standard library only) brute-forces all
+$2^n$ subsets of the directed $n$-cycle for $n = 3, 5, 7, 9$, confirms that the
+number of kernels is $0$ in every case, verifies that $\Cfive$ has out-degree
+$1$ and directed and undirected girth $5$, and repeats the check for the
+blow-ups of $\Cfive$ with part sizes $m = 1, 2, 3$. It prints \texttt{PASS} and
+exits with status $0$ when every fact verifies, and exits non-zero otherwise.
+
+The document is built with \texttt{tectonic main.tex}; the PDF is
+\texttt{build/main.pdf}.
+
+\section{Formalisation}
+
+The refutation is formalised in Lean~4 in \texttt{lean4/}, using core Lean only
+(\texttt{import Std}, no Mathlib, no \texttt{sorry}). The digraph is the
+decidable arc predicate \texttt{arc5 i j := decide (j = i + 1)} on
+\texttt{Fin 5}; subsets are indicator functions \texttt{Fin 5 → Bool}; and the
+predicates \texttt{independent5}, \texttt{outStable5}, \texttt{kernel5} are
+\texttt{Bool}-valued. The main theorem
+\[
+\texttt{no\_kernel5} : \forall S : \texttt{Fin 5} \to \texttt{Bool},\;
+\texttt{kernel5 } S = \texttt{false}
+\]
+is proved by case analysis on the five values of $S$ --- an exhaustive split of
+the $32$ subsets --- with each closed case discharged by \texttt{decide}. The
+out-degree and girth facts are the theorems \texttt{outdeg5\_le\_one},
+\texttt{girth5\_ge\_five}, and \texttt{girth5\_le\_five}; the explicit
+$32$-subset brute force is \texttt{kernelMasks5\_nil}; and the odd cycles
+$C_3$, $C_7$ are covered by \texttt{no\_kernel3}, \texttt{no\_kernel7}. The
+combined statement \texttt{conjecture\_00000003485\_false} asserts that the
+hypotheses of the conjecture hold for $\Cfive$ while no kernel exists.
+
+\section{Status against the submission rules}
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- present (\texttt{main.tex}), a standalone
+      \texttt{article} using only \texttt{geometry}, \texttt{amsmath},
+      \texttt{amssymb}, \texttt{amsthm}, \texttt{array}, and \texttt{parskip},
+      designed to compile with \texttt{tectonic main.tex}.
+\item \textbf{PDF document} --- \texttt{build/main.pdf}, produced by
+      \texttt{tectonic main.tex}.
+\item \textbf{Lean 4 project} --- present under \texttt{lean4/}, with
+      \texttt{lean-toolchain} (pinned to \texttt{leanprover/lean4:v4.33.1}),
+      \texttt{lakefile.toml} (library \texttt{Main}, name \texttt{tlmc3485}),
+      \texttt{Main.lean}, \texttt{Check.lean}, and \texttt{README.md}. It
+      contains no \texttt{sorry} and no Mathlib dependency; \texttt{Check.lean}
+      reports the axioms of every theorem, and none reports \texttt{sorryAx}.
+\item \textbf{Reproduction} --- \texttt{reproduce.py} is dependency-free and
+      verifies all claims.
+\end{itemize}
+
+\end{document}
