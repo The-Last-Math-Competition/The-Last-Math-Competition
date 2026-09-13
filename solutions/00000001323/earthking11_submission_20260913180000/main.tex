@@ -1,0 +1,209 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Aut}{\operatorname{Aut}}
+\newcommand{\GL}{\operatorname{GL}}
+\newcommand{\SL}{\operatorname{SL}}
+\newcommand{\Jac}{\operatorname{Jac}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\ord}{\operatorname{ord}}
+
+\title{A disproof of conjecture 00000001323:\\ the period set in $\Aut(\C^2)$ is not $\{1,2,3,4,6\}$}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000001323 states that in the automorphism group $\Aut(\C^2)$ the
+set of possible periods of elements whose Jacobian is (identically) the constant
+$1$ is $\{1,2,3,4,6\}$. We show that the conjecture is false. For every positive
+integer $m$ the diagonal linear map
+$A_m=\diag(\zeta_m,\zeta_m^{-1})$, where $\zeta_m$ is a primitive $m$-th root of
+unity, is an element of $\Aut(\C^2)$ with $\det A_m=1$ and with order exactly
+$m$. Hence every $m$, and in particular $m=5$, occurs as a period, while
+$5\notin\{1,2,3,4,6\}$. We also explain the reading under which the statement
+would have been true (integer-coefficient automorphisms), and record a formal
+verification of the underlying finite-field witness in Lean~4.
+\end{abstract}
+
+\section{The conjecture and the counterexample}
+
+Throughout, an element of $\Aut(\C^2)$ means a polynomial automorphism of
+$\C^2$; its \emph{period} (order) is the least positive integer $n$ with
+$g^{\circ n}=\mathrm{id}$, whenever it exists. The Jacobian of a polynomial map
+$F=(F_1,F_2)$ is the matrix-valued function
+\[
+  \Jac F \;=\;
+  \begin{pmatrix}
+    \partial F_1/\partial x_1 & \partial F_1/\partial x_2\\
+    \partial F_2/\partial x_1 & \partial F_2/\partial x_2
+  \end{pmatrix}.
+\]
+Conjecture 00000001323 asserts:
+\begin{quote}
+In $\Aut(\C^2)$, the set of possible periods of elements with
+$\det \Jac F\equiv 1$ is $\{1,2,3,4,6\}$.
+\end{quote}
+
+For $m\ge 1$ let $\zeta_m=\exp(2\pi i/m)$ be a primitive $m$-th root of unity
+and consider the linear map
+\begin{equation}\label{eq:witness}
+  A_m=\diag\bigl(\zeta_m,\;\zeta_m^{-1}\bigr)
+  =\begin{pmatrix}\zeta_m&0\\0&\zeta_m^{-1}\end{pmatrix}.
+\end{equation}
+Since $A_m$ is linear, it is given by polynomial coordinate functions
+$A_m(x_1,x_2)=(\zeta_m x_1,\;\zeta_m^{-1}x_2)$, and it is invertible with inverse
+$\diag(\zeta_m^{-1},\zeta_m)$, so $A_m\in\GL_2(\C)\subseteq\Aut(\C^2)$.
+
+\begin{proposition}\label{prop:main}
+For every $m\ge 1$ the map $A_m$ of \eqref{eq:witness} satisfies
+\[
+  \det \Jac A_m \equiv 1
+  \qquad\text{and}\qquad
+  \ord(A_m)=m .
+\]
+\end{proposition}
+
+\begin{proof}
+The Jacobian of a linear map is the constant matrix of that linear map, so
+$\Jac A_m$ is the constant matrix $A_m$ and
+\[
+  \det \Jac A_m=\det A_m=\zeta_m\cdot\zeta_m^{-1}=1,
+\]
+which is identically $1$ as a function on $\C^2$. For the order, compute powers
+using that a diagonal matrix is raised to powers entrywise:
+\[
+  (A_m)^k
+  =\diag\bigl(\zeta_m^{\,k},\;\zeta_m^{-k}\bigr)
+  =\diag\bigl(e^{2\pi i k/m},\;e^{-2\pi i k/m}\bigr).
+\]
+This equals the identity $I=\diag(1,1)$ if and only if
+$\zeta_m^{\,k}=1$, i.e.\ if and only if $m\mid k$ (because $\zeta_m$ is primitive
+of order $m$). The least positive such $k$ is $k=m$. Hence $\ord(A_m)=m$.
+\end{proof}
+
+\begin{corollary}[Conjecture 00000001323 is false]
+\label{cor:false}
+Every positive integer occurs as the period of an element of $\Aut(\C^2)$ whose
+Jacobian is identically $1$. Consequently the period set is all of $\mathbb{N}_{>0}$,
+which strictly contains $\{1,2,3,4,6\}$.
+\end{corollary}
+
+\begin{proof}
+Immediate from Proposition~\ref{prop:main}, taking $m$ arbitrary. Already
+$m=5$ suffices: $\ord(A_5)=5$ and $\det\Jac A_5\equiv 1$, but
+$5\notin\{1,2,3,4,6\}$ (indeed $5\ne 1,2,3,4,6$).
+\end{proof}
+
+The counterexample is as concrete as possible: for $m=5$,
+\[
+  A_5=\diag\bigl(\zeta_5,\zeta_5^{-1}\bigr),
+  \qquad \zeta_5=e^{2\pi i/5},
+  \qquad \det A_5=1,\qquad \ord(A_5)=5 .
+\]
+
+\section{Non-linearity does not help}
+
+One might try to rescue the conjecture by insisting on \emph{non-linear}
+automorphisms, since the diagonal witnesses above are linear. This also fails.
+
+\begin{proposition}\label{prop:nonlinear}
+For every $m\ge 1$ there exists a non-linear polynomial automorphism
+$F\in\Aut(\C^2)$ with $\det\Jac F\equiv 1$ and $\ord(F)=m$.
+\end{proposition}
+
+\begin{proof}
+Let $H\in\Aut(\C^2)$ be any non-linear polynomial automorphism, for instance
+$H(x_1,x_2)=(x_1+x_2^2,\;x_2)$, and put $F=H\circ A_m\circ H^{-1}$, where $A_m$
+is the linear witness \eqref{eq:witness}. Then $F$ is a polynomial
+automorphism, it is non-linear (conjugation preserves linearity, and $F$ is
+linear only if $A_m$ is), and it has the same order as $A_m$, namely $m$, since
+conjugation is an isomorphism of groups. By the chain rule,
+\[
+  \Jac F = (\Jac H)\circ H^{-1}\cdot (\Jac A_m)\circ H^{-1}\cdot \Jac (H^{-1}),
+\]
+and at each point $u$ with $v=H^{-1}(u)$ the right-hand side equals
+$\Jac H(v)\cdot A_m\cdot (\Jac H(v))^{-1}$. Its determinant is
+\[
+  \det \Jac F(u)=\det A_m=1,
+\]
+using multiplicativity of the determinant and
+$\det(\Jac H(v))^{-1}=(\det \Jac H(v))^{-1}$; in particular $\det \Jac F$ is the
+constant function $1$ (it is independent of $u$). Thus $F$ is a non-linear
+counterexample of period $m$.
+\end{proof}
+
+\begin{remark}[Conjugating by a non-linear map]
+The construction even yields a polynomial automorphism of \emph{degree}
+$2\deg H$ exhibiting any prescribed period, so non-linearity imposes no
+restriction on the achievable periods in $\Aut(\C^2)$.
+\end{remark}
+
+\section{Why the claim \emph{would} be true with integer coefficients}
+
+We record honestly the reading under which the conjectured set
+$\{1,2,3,4,6\}$ is correct, so that the failure above is not misread as a
+failure of the well-known restriction it resembles.
+
+If one restricts to automorphisms with integer (or, equivalently for this
+purpose, rational) coefficients, the situation is different. The linear
+part then lies in $\GL_2(\Z)$, and an element of finite order in $\GL_2(\Z)$
+with determinant $1$ lies in the finite group $\SL_2(\Z)$; the finite-order
+elements of $\SL_2(\Z)$ have orders exactly
+\[
+  \{1,2,3,4,6\},
+\]
+realised by rotations of orders $1,2,3,4,6$ (equivalently by the cyclotomic
+polynomials $\Phi_n$ with $\varphi(n)\le 2$, namely $n=1,2,3,4,6$). This
+number-theoretic restriction comes from the rational/integral structure; it is
+\emph{not} a restriction valid over $\C$.
+
+The statement of conjecture 00000001323, however, is explicitly about
+$\Aut(\C^2)$ over the complex numbers, with no integrality hypothesis on the
+coefficients. The witness \eqref{eq:witness} uses the coefficient
+$\zeta_5\in\C\setminus\Z$, so it lies in the class the conjecture quantifies
+over, and it has period $5$. Hence the conjecture, as stated, is false.
+
+\begin{remark}[On the phrase ``Jacobian constant $1$'']
+The phrase could in principle be read in a weaker or a stronger sense:
+\begin{itemize}
+  \item \emph{``$\det\Jac F$ is the constant function $1$''} (the natural
+    reading, and the one used above). Under this reading every $m$ occurs, by
+    Proposition~\ref{prop:main}.
+  \item \emph{``$\Jac F$ is literally the identity matrix''}. Under this
+    reading the period set would be contained in $\{1\}$, since
+    $\Jac F=I$ forces $F$ to be a translation, and a nontrivial translation has
+    infinite order; so the only finite period would be $1$. This is even
+    further from $\{1,2,3,4,6\}$.
+\end{itemize}
+Either way the conjecture fails.
+\end{remark}
+
+\section{Machine verification}
+
+The algebraic core of the refutation is the order and determinant computation
+for $A_m$; it is coefficient-free and holds over any commutative ring in which a
+primitive $m$-th root of unity and its inverse exist. The accompanying Lean~4
+development (\texttt{lean4/}) formalises the algebraically identical finite-field
+model over $\F_{11}$: the element $3\in\F_{11}$ has multiplicative order exactly
+$5$ (as $5\mid 10=|\F_{11}^{\times}|$), and the diagonal map
+$\diag(3,3^{-1})=\diag(3,3^4)$ has determinant $1$ and order exactly $5$. This
+certifies the required determinant/order computation, which transfers verbatim
+to $\C$ with $\zeta_5=e^{2\pi i/5}$ because no field-specific property beyond
+commutativity of multiplication is used.
+
+\end{document}
