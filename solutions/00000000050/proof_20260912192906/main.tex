@@ -1,0 +1,203 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\DeclareMathOperator{\per}{per}
+
+\title{A Proof of Conjecture 00000000050}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000050 asserts that every prime is the permanent of a square
+matrix with entries in $\{0,1\}$. We prove it, and more: every natural number
+is, by an explicit $(n+1)\times(n+1)$ construction whose permanent is $n+1$.
+Primality plays no role. The proof is formalized in Lean~4 against Mathlib,
+using Mathlib's \texttt{Matrix.permanent}.
+\end{abstract}
+
+\section{Statement}
+
+For a square matrix $A=(a_{rc})$ over a commutative semiring, indexed by a
+finite set $I$, the permanent is
+\[
+  \per A=\sum_{\sigma\in\mathfrak S_I}\ \prod_{i\in I}a_{\sigma(i),\,i} ,
+\]
+the determinant without signs. Conjecture 00000000050 asserts that for every
+prime $p$ there is a square matrix with entries in $\{0,1\}$ whose permanent is
+exactly $p$.
+
+\section{The construction}
+
+\begin{definition}
+For $n\ge0$ let $W_n$ be the $(n+1)\times(n+1)$ matrix with rows and columns
+indexed by $\{0,1,\ldots,n\}$ and entries
+\[
+  (W_n)_{r,c}=
+  \begin{cases}
+    1,&\text{if }r=0\text{ or }c=0\text{ or }c=r,\\
+    0,&\text{otherwise.}
+  \end{cases}
+\]
+\end{definition}
+
+That is: the first row is all ones, and row $r\ne0$ has ones exactly in
+column $0$ and column $r$. For $n=4$,
+\[
+  W_4=
+  \begin{pmatrix}
+    1&1&1&1&1\\
+    1&1&0&0&0\\
+    1&0&1&0&0\\
+    1&0&0&1&0\\
+    1&0&0&0&1
+  \end{pmatrix}.
+\]
+Its entries lie in $\{0,1\}$ by construction.
+
+\begin{lemma}\label{lem:contrib}
+A permutation $\sigma$ of $\{0,\ldots,n\}$ satisfies
+$\prod_i (W_n)_{\sigma(i),i}=1$ if and only if
+\begin{equation}\label{eq:contrib}
+  \sigma(i)\in\{0,i\}\qquad\text{for every }i\ne0 ,
+\end{equation}
+and $\prod_i (W_n)_{\sigma(i),i}=0$ otherwise.
+\end{lemma}
+
+\begin{proof}
+All entries are $0$ or $1$, so the product is $1$ exactly when every factor is,
+and $0$ otherwise. The factor at index $i$ is $(W_n)_{\sigma(i),i}$, which is
+$1$ precisely when $\sigma(i)=0$ or $i=0$ or $i=\sigma(i)$. Requiring this for
+every $i$ is exactly \eqref{eq:contrib}, the index $i=0$ imposing nothing.
+\end{proof}
+
+\begin{lemma}\label{lem:swaps}
+The permutations satisfying \eqref{eq:contrib} are exactly the transpositions
+$\tau_k=(0\ k)$ for $k\in\{0,\ldots,n\}$, where $\tau_0$ is the identity. They
+are pairwise distinct, so there are $n+1$ of them.
+\end{lemma}
+
+\begin{proof}
+Each $\tau_k$ satisfies \eqref{eq:contrib}: for $i\ne0$ we have $\tau_k(i)=0$
+if $i=k$, and $\tau_k(i)=i$ otherwise.
+
+Conversely let $\sigma$ satisfy \eqref{eq:contrib} and put $k=\sigma(0)$; we
+claim $\sigma=\tau_k$. At $0$ both sides give $k$. Let $i\ne0$.
+
+If $\sigma(i)=i$, then $i\ne k$: otherwise $\sigma(0)=k=i=\sigma(i)$ would give
+$0=i$. Hence $\tau_k(i)=i=\sigma(i)$.
+
+If instead $\sigma(i)=0$, we show $i=k$. First $k\ne0$, since $k=0$ would give
+$\sigma(0)=0=\sigma(i)$ and so $i=0$. Applying \eqref{eq:contrib} at $k\ne0$
+gives $\sigma(k)\in\{0,k\}$; and $\sigma(k)=k$ is impossible, since with
+$\sigma(0)=k$ it would force $k=0$. So $\sigma(k)=0=\sigma(i)$, whence $i=k$
+and $\tau_k(i)=\tau_k(k)=0=\sigma(i)$.
+
+Finally $k\mapsto\tau_k$ is injective because $\tau_k(0)=k$.
+\end{proof}
+
+\begin{theorem}\label{thm:per}
+$\per W_n=n+1$ for every $n\ge0$.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:contrib} the sum defining $\per W_n$ counts the permutations
+satisfying \eqref{eq:contrib}, each contributing $1$; by Lemma~\ref{lem:swaps}
+there are $n+1$ of them.
+\end{proof}
+
+\section{The conjecture}
+
+\begin{corollary}\label{cor:all}
+Every natural number $m$ is the permanent of a square matrix with entries in
+$\{0,1\}$.
+\end{corollary}
+
+\begin{proof}
+For $m=0$ take the $1\times1$ zero matrix. For $m=k+1$ take $W_k$ and apply
+Theorem~\ref{thm:per}.
+\end{proof}
+
+\begin{corollary}
+Conjecture 00000000050 is true.
+\end{corollary}
+
+\begin{proof}
+A prime is a natural number; apply Corollary~\ref{cor:all}. Explicitly, for a
+prime $p$ the matrix $W_{p-1}$ is a $p\times p$ matrix with entries in
+$\{0,1\}$ and $\per W_{p-1}=p$.
+\end{proof}
+
+\begin{remark}
+The hypothesis that $p$ be prime is not used anywhere, and cannot be: the
+permanents of $\{0,1\}$ matrices are exactly the natural numbers, by
+Corollary~\ref{cor:all} in one direction and because a permanent of a
+nonnegative integer matrix is a nonnegative integer in the other. A
+conjecture restricted to primes is therefore a special case of a statement with
+no arithmetic content. Read as a question about the \emph{smallest} matrix with
+a given permanent --- the minimal $N$ for which some $N\times N$ $\{0,1\}$
+matrix has permanent $p$ --- it would not be vacuous; our construction gives
+$N\le p$, and we do not address minimality.
+\end{remark}
+
+\begin{remark}
+The construction has a transparent combinatorial reading: $\per A$ counts the
+perfect matchings of the bipartite graph with biadjacency matrix $A$. For
+$W_n$, rows $1,\ldots,n$ each see only columns $0$ and their own, so a perfect
+matching either matches every $r\ne0$ to column $r$ --- leaving row $0$ for
+column $0$ --- or matches a single $r\ne0$ to column $0$, forcing row $0$ to
+column $r$. That is $n+1$ matchings.
+\end{remark}
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes the proof against Mathlib. The
+conjecture is stated in the formalization, so the final theorem is a
+formalization of the conjecture itself. Permanents are Mathlib's
+\texttt{Matrix.permanent}, not a local redefinition.
+
+\begin{itemize}
+  \item \texttt{W}, \texttt{W\_apply}, \texttt{W\_zero\_or\_one} --- the matrix
+    and the fact that its entries lie in $\{0,1\}$.
+  \item \texttt{Contributes}, \texttt{prod\_W} --- Lemma~\ref{lem:contrib}: the
+    product over a permutation is $1$ or $0$ according to \eqref{eq:contrib}.
+  \item \texttt{contributes\_swap}, \texttt{eq\_swap\_of\_contributes},
+    \texttt{swap\_injective}, \texttt{filter\_contributes} ---
+    Lemma~\ref{lem:swaps}: the contributing permutations are exactly the
+    $n+1$ transpositions $(0\ k)$.
+  \item \texttt{permanent\_W} --- Theorem~\ref{thm:per}.
+  \item \texttt{exists\_zeroOne\_permanent} --- Corollary~\ref{cor:all}.
+  \item \texttt{ConjectureHolds}, \texttt{conjecture\_00000000050\_true} ---
+    the conjecture and its proof.
+\end{itemize}
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and
+introduces no axioms of its own:
+\texttt{\#print axioms conjecture\_00000000050\_true} reports exactly the three
+standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
