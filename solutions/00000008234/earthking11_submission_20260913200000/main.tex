@@ -1,0 +1,280 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\swapgraph}{\mathrm{swap\_graph}}
+\DeclareMathOperator{\dist}{dist}
+
+\title{Disproof of conjecture \texttt{00000008234}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000008234} as stated. The conjecture is a
+conjunction of several clauses, the first of which asserts that for an arbitrary
+number of agents dividing an arbitrary number of indivisible goods, the
+EF1 exchange graph is connected with diameter at most $m(n-1)$ under arbitrary
+monotone valuations. We exhibit an elementary counterexample with $n = 2$ agents,
+$m = 2$ goods and unit valuations: the EF1 exchange graph has exactly two
+vertices and \emph{no} edge, so it is disconnected and its diameter is infinite.
+The claimed bound $m(n-1) = 2$ therefore fails, and the first conjunct of the
+conjecture is false; hence the whole conjunction is false.
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000008234.md}:
+
+\begin{quote}
+\textbf{Definition:} The exchange graph $\swapgraph$ of envy-free-up-to-one-good
+allocations when $n$ agents divide $m$ indivisible goods: vertices are EF1
+allocations and edges are single-good transfers.
+\textbf{Conjecture:} Under arbitrary monotone valuations $\swapgraph$ is
+connected with diameter at most $m(n-1)$; an allocation that is simultaneously
+EF1 and Pareto optimal always exists and is reachable by a polynomial-time
+item-moving algorithm; and EFX allocations always exist for three agents, while
+a minimal counterexample, if one exists, must have exactly 4 agents and require a
+non-bimodal valuation profile.
+\end{quote}
+
+We refute the first conjunct. Throughout, $\swapgraph$ has as vertices the EF1
+allocations and as edges the unordered pairs of EF1 allocations that differ by a
+single-good transfer.
+
+\section{Allocations, unit valuations, and EF1}
+
+\begin{definition}[allocation]
+An allocation of $m$ indivisible goods to $n$ agents is a map
+$a : \{1,\dots,m\} \to \{1,\dots,n\}$ sending each good to its owner. The bundle
+of agent $i$ is $A_i = a^{-1}(i)$.
+\end{definition}
+
+\begin{definition}[unit additive valuation]
+The \emph{unit} valuation assigns every agent the same value $v_i(g) = 1$ to
+every good $g$, extended additively to bundles: $v_i(A) = |A \cap A_i|$ for the
+bundle $A_i$ of agent $i$. Unit valuations are additive, hence monotone: if
+$A \subseteq B$ then $v_i(A) \le v_i(B)$. Thus they are admissible under the
+conjecture's hypothesis of arbitrary monotone valuations.
+\end{definition}
+
+\begin{definition}[EF1]
+An allocation $a$ is \emph{envy-free up to one good} (EF1) if for every ordered
+pair of agents $(i,j)$ there is a good $g \in A_j$ such that
+\[
+v_i(A_j \setminus \{g\}) \;\le\; v_i(A_i).
+\]
+Equivalently, whenever $i$ envies $j$ (that is, $v_i(A_j) > v_i(A_i)$), the
+removal of a single suitable good from $A_j$ eliminates the envy.
+\end{definition}
+
+\begin{lemma}[unit-valuation characterisation]\label{lem:gap}
+Under unit valuations, an allocation $a$ is EF1 if and only if
+\[
+\max_i |A_i| - \min_i |A_i| \;\le\; 1 .
+\]
+\end{lemma}
+
+\begin{proof}
+Write $s_i = v_i(A_i) = |A_i|$.
+($\Leftarrow$) Let $i,j$ be agents. If $s_i \ge s_j$ then $i$ does not envy $j$,
+and the EF1 condition is satisfied. Otherwise $s_j \ge s_i + 1$. If
+$s_j = s_i + 1$ then $A_j \neq \emptyset$ and removing any $g \in A_j$ gives
+$v_i(A_j \setminus \{g\}) = s_j - 1 = s_i \le s_i$, so the condition holds. If
+$s_j \le s_i + 1$ for all $i,j$, one of these two cases applies to every ordered
+pair.
+($\Rightarrow$) Suppose $s_j \ge s_i + 2$ for some $i,j$. For every good
+$g \in A_j$ we have $v_i(A_j \setminus \{g\}) = s_j - 1 \ge s_i + 1 > s_i$, so
+no single removal eliminates the envy of $i$ towards $j$. Hence $a$ is not EF1.
+Contrapositively, EF1 forces $s_j \le s_i + 1$ for all ordered pairs, i.e.
+$\max_i s_i - \min_i s_i \le 1$.
+\end{proof}
+
+\section{The counterexample: $n = 2$ agents, $m = 2$ goods}
+
+Take goods $\{g_1,g_2\}$ and agents $\{0,1\}$ with unit valuations. There are
+$2^2 = 4$ allocations. By Lemma~\ref{lem:gap}, EF1 is equivalent to the bundle
+sizes differing by at most $1$. The complete table is:
+
+\begin{center}
+\begin{tabular}{c|c|c|c}
+allocation $a$ & bundles $(A_0, A_1)$ & sizes $(s_0, s_1)$ & EF1? \\
+\hline
+both goods to agent $0$ & $(\{g_1,g_2\},\ \emptyset)$ & $(2,0)$ & no \\
+$g_1 \mapsto 0,\ g_2 \mapsto 1$ & $(\{g_1\},\ \{g_2\})$ & $(1,1)$ & \textbf{yes} \\
+$g_1 \mapsto 1,\ g_2 \mapsto 0$ & $(\{g_2\},\ \{g_1\})$ & $(1,1)$ & \textbf{yes} \\
+both goods to agent $1$ & $(\emptyset,\ \{g_1,g_2\})$ & $(0,2)$ & no \\
+\end{tabular}
+\end{center}
+
+\begin{theorem}\label{thm:two-ef1}
+For $n = m = 2$ with unit valuations there are exactly two EF1 allocations,
+namely the two diagonal allocations
+\[
+a_{01} : g_1 \mapsto 0,\ g_2 \mapsto 1,
+\qquad
+a_{10} : g_1 \mapsto 1,\ g_2 \mapsto 0,
+\]
+and no others.
+\end{theorem}
+
+\begin{proof}
+By the table, the allocations with size vector $(2,0)$ and $(0,2)$ have a gap of
+$2$ and are not EF1 by Lemma~\ref{lem:gap}. The two allocations with size vector
+$(1,1)$ have gap $0 \le 1$ and are EF1. The four allocations are all of them,
+since each of the two goods has two possible owners. Hence exactly $a_{01}$ and
+$a_{10}$ are EF1.
+\end{proof}
+
+\begin{theorem}\label{thm:no-edge}
+In the above instance, $\swapgraph$ has no edge. Consequently $\swapgraph$ is
+disconnected and has infinite diameter; in particular the conjectured bound
+$m(n-1) = 2$ fails.
+\end{theorem}
+
+\begin{proof}
+The vertices of $\swapgraph$ are $a_{01}$ and $a_{10}$ by
+Theorem~\ref{thm:two-ef1}. They differ in both coordinates, so their Hamming
+distance is $2$; they are not related by a single-good transfer.
+
+It remains to check that a single-good transfer out of either vertex does not
+land on a vertex. Starting from $a_{01}$, transferring $g_1$ to agent $1$ yields
+the allocation with sizes $(0,2)$, and transferring $g_2$ to agent $0$ yields the
+allocation with sizes $(2,0)$; both have size gap $2$ and are not EF1 by
+Lemma~\ref{lem:gap}. The same two targets arise from $a_{10}$. Hence no
+single-good transfer has both endpoints EF1, i.e.\ $\swapgraph$ has no edge.
+
+A graph on two vertices with no edge has two connected components, so it is not
+connected, and its diameter is infinite (there is no path, so no finite bound on
+path lengths). Since the conjecture asserts connectivity with diameter at most
+$m(n-1) = 2$, its first conjunct is false.
+\end{proof}
+
+\begin{remark}
+The argument is even stronger than disconnection: \emph{every} single-good
+transfer out of an EF1 allocation leaves the EF1 set. Thus $\swapgraph$ is a
+totally disconnected graph on two vertices, and the same happens in every
+instance of the next section.
+\end{remark}
+
+\section{An infinite family: $n$ divides $m$}
+
+The phenomenon is not an artifact of the smallest instance.
+
+\begin{theorem}\label{thm:family}
+Let $n \ge 2$ and $m \ge n$ with $n \mid m$, and use unit valuations. Then every
+EF1 allocation is balanced, i.e.\ $|A_i| = m/n$ for every agent $i$. Consequently
+every single-good transfer produces an allocation that is not EF1, so
+$\swapgraph$ has no edges at all. Since there are at least two balanced
+allocations, $\swapgraph$ is disconnected and its diameter is infinite.
+\end{theorem}
+
+\begin{proof}
+Let $a$ be EF1 and put $s_i = |A_i|$. By Lemma~\ref{lem:gap},
+$\max_i s_i - \min_i s_i \le 1$, so there is an integer $k$ with
+$s_i \in \{k, k+1\}$ for all $i$. Let $r$ be the number of agents with
+$s_i = k+1$; then
+\[
+m = \sum_{i=1}^{n} s_i = nk + r, \qquad 0 \le r \le n .
+\]
+Since $n \mid m$, we have $r \equiv 0 \pmod n$, so $r = 0$ or $r = n$, and in
+both cases all $s_i$ are equal, with common value $m/n$. (Equivalently: an
+average that is an integer and all sizes within $1$ of one another forces all
+sizes to equal the average.)
+
+Now perform one single-good transfer: some agent $i$ loses a good and some agent
+$j$ gains one, so the new sizes are $m/n - 1$ for $i$ and $m/n + 1$ for $j$,
+while every other agent still has $m/n$. The gap is
+$(m/n + 1) - (m/n - 1) = 2 > 1$, so by Lemma~\ref{lem:gap} the new allocation is
+not EF1. As every EF1 allocation has every agent at exactly $m/n$ goods, no
+single-good transfer has both endpoints EF1, and $\swapgraph$ has no edges.
+
+Finally, the number of balanced allocations is the multinomial
+$m!/(\,(m/n)!\,^{n})$, which is at least $2$ when $n \ge 2$ and $m \ge n$
+(for $m = n$ it is $n! \ge 2$, and for $m/n \ge 2$ there are again at least two
+ways to choose one agent's share). With at least two vertices and no edge,
+$\swapgraph$ is disconnected.
+\end{proof}
+
+\begin{corollary}[$n = m = 3$]
+Three agents and three goods with unit valuations form a counterexample with
+three (not two) agents. The EF1 allocations are exactly the six permutations
+that give each agent one good; all pairwise Hamming distances are at least $2$,
+so $\swapgraph$ has no edges and is disconnected.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:family} with $n = m = 3$, every EF1 allocation assigns
+exactly $3/3 = 1$ good to each agent. There are $3! = 6$ such allocations. Two
+distinct permutations differ in at least two positions, so their Hamming
+distance is at least $2$; a single-good transfer moves exactly one good, landing
+on a size vector with a gap of $2$, which is not EF1. Hence no edge, and the six
+vertices split into six components.
+\end{proof}
+
+The following table records the disconnection for several members of the family
+(verified by exhaustive enumeration in \texttt{reproduce.py}):
+
+\begin{center}
+\begin{tabular}{c|c|c|c}
+$n$ & $m$ & \# EF1 allocations & \# edges \\
+\hline
+$2$ & $2$ & $2$ & $0$ \\
+$2$ & $4$ & $6$ & $0$ \\
+$2$ & $6$ & $20$ & $0$ \\
+$3$ & $3$ & $6$ & $0$ \\
+$4$ & $4$ & $24$ & $0$ \\
+\end{tabular}
+\end{center}
+
+\section{Conclusion}
+
+With $n = 2$ agents, $m = 2$ goods and unit (hence monotone, additive)
+valuations, the EF1 exchange graph $\swapgraph$ has exactly two vertices and no
+edges. It is disconnected, its diameter is infinite, and the conjectured bound
+$m(n-1) = 2$ fails. The same holds for every $n \mid m$ with $n \ge 2$. This
+refutes the first conjunct of conjecture \texttt{00000008234}, and therefore the
+conjecture as a conjunction.
+
+\section{Reproducibility and formalisation}
+
+The exhaustive enumeration, the literal EF1 predicate, the swap graph and its
+connected components are computed by \texttt{reproduce.py} (standard-library
+Python~3 only), which prints the tables above, asserts zero edges and
+disconnection, and ends with \texttt{PASS}.
+
+The $2 \times 2$ refutation is formalised in Lean~4 in the accompanying
+\texttt{lean4/} project, core Lean only (no Mathlib, no \texttt{sorry}). The main
+formal statements are
+
+\begin{quote}\ttfamily
+theorem exactly\_two\_ef1 : ef1 alloc01 \(\wedge\) ef1 alloc10 \(\wedge\) \dots\\
+theorem no\_adj\_ef1 : ef1 a \(\to\) ef1 b \(\to\) \(\neg\) Adj a b\\
+theorem not\_ef1\_connected : \(\neg\) EF1Connected\\
+theorem no\_path\_between\_diagonals : \(\neg\) (\(\exists\) k, ReachN alloc01 k alloc10)\\
+theorem claimed\_diameter\_bound\_fails : \(\neg\) SwapGraphDiameterAtMost 2
+\end{quote}
+
+\noindent Here \texttt{ef1} is the EF1 predicate transcribed literally (for
+every ordered pair of agents, some good can be removed from the envied bundle to
+remove the envy), \texttt{Adj} is Hamming distance $1$ (a single-good transfer),
+\texttt{ReachN} is reachability through EF1 vertices, and
+\texttt{SwapGraphDiameterAtMost} is the conjectured connectivity plus diameter
+bound. \texttt{Check.lean} prints the axioms of each theorem, confirming that
+only \texttt{propext} and \texttt{Quot.sound} are used and that \texttt{sorryAx}
+does not occur.
+
+\end{document}
