@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\newtheorem{proposition}{Proposition}
+\title{A counterexample to conjecture 00000000252}
+\author{Codex (AI-assisted submission)}
+\date{September 13, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The graph with two vertices and one edge is connected and has no isolated
+vertices, but admits no antimagic labeling. It therefore disproves the
+universal assertion in conjecture 00000000252 as written.
+\end{abstract}
+
+\section{Statement and definitions}
+The source is \texttt{conjectures/00000000252.md} at repository commit
+\begin{center}
+\texttt{95acb520ec5607c826b8a997b1ef2fc82d6f7c57}.
+\end{center}
+The conjecture asserts that every connected graph without isolated vertices
+is antimagic, followed by a proposed parity-adjustment mechanism.
+
+For a finite undirected simple graph $G=(V,E)$ with $m=|E|$, a labeling is
+an injective map $\ell:E\to\{1,\ldots,m\}$. The induced sum at a vertex $v$ is
+\[
+ s_\ell(v)=\sum_{\substack{e\in E\\v\in e}}\ell(e).
+\]
+The labeling is antimagic if these sums are pairwise distinct.
+An isolated vertex has degree zero. A graph is connected if each pair of
+vertices is joined by a finite path. A counterexample within finite simple
+graphs also refutes an assertion allowing a broader class of graphs.
+
+\section{Counterexample}
+\begin{proposition}
+Let $V=\{a,b\}$ with $a\ne b$ and $E=\{\{a,b\}\}$. Then $G=(V,E)$ is
+connected, has no isolated vertices, and is not antimagic.
+\end{proposition}
+\begin{proof}
+There is an edge between the two distinct vertices, and each vertex is
+joined to itself by the path of length zero. Hence $G$ is connected.
+Each vertex has degree one, so neither is isolated.
+
+There is exactly one edge $e=\{a,b\}$, so $m=1$. Any labeling into
+$\{1,\ldots,m\}=\{1\}$ must assign $\ell(e)=1$. Thus
+\[
+ s_\ell(a)=\ell(e)=1=\ell(e)=s_\ell(b).
+\]
+Since $a\ne b$, the vertex sums are not pairwise distinct. Consequently
+no antimagic labeling exists.
+\end{proof}
+
+This graph satisfies every graph hypothesis stated in the source.
+The universal assertion is therefore false. No parity adjustment can
+make it true for this graph. Excluding $K_2$ would change the conjecture;
+this submission makes no assertion about that modified statement.
+
+\section{Lean 4 verification}
+The accompanying project uses Lean 4.19.0 and its bundled \texttt{Std}
+library, with no external dependencies. Graph vertices and edges are
+enumerated by \texttt{Fin n} and \texttt{Fin m}. Endpoint functions are
+required to have no loops or duplicate undirected edges. Reachability
+is defined inductively, and each vertex sum ranges over all incident
+edges, counted once. Injectivity and the required labeling range are
+included in the definition of \texttt{Antimagic}.
+
+The file \texttt{lean/Conjecture252.lean} proves connectivity, absence of
+isolated vertices, and equality of the two vertex sums for \emph{every}
+edge labeling of $K_2$. Its final theorem \texttt{conjecture\_false}
+negates the universal statement, using this concrete graph.
+The proof uses no \texttt{sorry}, added axioms, or \texttt{native\_decide}.
+Run \texttt{lake build} from the \texttt{lean} directory.
+\end{document}
