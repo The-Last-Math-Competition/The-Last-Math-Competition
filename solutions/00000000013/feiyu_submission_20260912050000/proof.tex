@@ -1,0 +1,133 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A Counterexample to Conjecture 00000000013}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000013 asserts that for every $n\ge3$ the interval
+$[2^n,2^{n+1})$ contains a prime with exactly three binary ones. It fails at
+$n=8$: all twenty-eight such integers are composite. The refutation is
+formalized in Lean~4 against Mathlib, with the conjecture itself stated in the
+formalization.
+\end{abstract}
+
+\section{Statement}
+
+Conjecture 00000000013 claims that for every integer $n\ge3$ there is a prime
+$p$ with
+\[
+  2^n\le p<2^{n+1}
+\]
+whose binary expansion contains exactly three $1$'s. We disprove it by
+exhibiting $n=8$.
+
+\section{The counterexample}
+
+\begin{theorem}
+No prime $p$ with $2^8\le p<2^9$ has exactly three $1$'s in its binary
+expansion.
+\end{theorem}
+
+\begin{proof}
+An integer of $[2^8,2^9)$ has its top bit at position $8$, so it has exactly
+three binary ones precisely when it is of the form
+\[
+  2^8+2^a+2^b,\qquad 0\le b<a<8 .
+\]
+There are $\binom82=28$ such integers. Each is composite, as witnessed by the
+proper divisor listed beside it:
+
+\begin{center}
+\begin{tabular}{rrrrrrrr}
+\toprule
+$N$ & div & $N$ & div & $N$ & div & $N$ & div\\
+\midrule
+259 & 7  & 261 & 3  & 262 & 2  & 265 & 5\\
+266 & 2  & 268 & 2  & 273 & 3  & 274 & 2\\
+276 & 2  & 280 & 2  & 289 & 17 & 290 & 2\\
+292 & 2  & 296 & 2  & 304 & 2  & 321 & 3\\
+322 & 2  & 324 & 2  & 328 & 2  & 336 & 2\\
+352 & 2  & 385 & 5  & 386 & 2  & 388 & 2\\
+392 & 2  & 400 & 2  & 416 & 2  & 448 & 2\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Every entry in the second column is a divisor $d$ with $1<d<N$, so each $N$ is
+composite. Twenty-one of the twenty-eight are even and exceed $2$; the seven
+odd ones are
+\[
+  259=7\cdot37,\quad 261=3^2\cdot29,\quad 265=5\cdot53,\quad
+  273=3\cdot7\cdot13,
+\]
+\[
+  289=17^2,\quad 321=3\cdot107,\quad 385=5\cdot7\cdot11 .
+\]
+\end{proof}
+
+Since the conjecture asserts the existence of such a prime for \emph{every}
+$n\ge3$, the single value $n=8$ refutes it.
+
+\begin{remark}
+$n=8$ is not isolated. A direct search finds that $n=25$ and $n=32$ also admit
+no such prime: of the $\binom{25}2=300$ and $\binom{32}2=496$ candidates in the
+respective intervals, none is prime. These were checked by computation and are
+not part of the Lean development, where a kernel-level decision procedure over
+intervals of that size is not practical.
+\end{remark}
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes the refutation against Mathlib.
+
+\begin{itemize}
+  \item \texttt{ConjectureHolds} --- the conjecture itself:
+    \[
+      \forall n\ge3,\ \exists p,\
+      2^n\le p\ \wedge\ p<2^{n+1}\ \wedge\
+      \texttt{(Nat.bits }p\texttt{).count true}=3\ \wedge\ \texttt{Nat.Prime }p .
+    \]
+    The digit condition counts the \texttt{true} entries of the binary
+    expansion \texttt{Nat.bits}\,$p$ supplied by Mathlib, rather than a
+    parametrization assumed to describe it, and primality is Mathlib's
+    \texttt{Nat.Prime}.
+  \item \texttt{card\_candidates} --- the interval contains exactly $28$
+    integers with three binary ones, matching $\binom82$.
+  \item \texttt{no\_three\_one\_prime\_at\_eight} --- no such integer is prime,
+    decided by exhausting all $256$ integers of $[2^8,2^9)$.
+  \item \texttt{conjecture\_00000000013\_false} --- $\lnot$\,\texttt{ConjectureHolds},
+    by instantiating the conjecture at $n=8$.
+\end{itemize}
+
+Because the conjecture is stated in the formalization, the final theorem is a
+literal formalization of its negation rather than of facts that merely entail
+it.
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and
+introduces no axioms of its own:
+\texttt{\#print axioms conjecture\_00000000013\_false} reports exactly the
+three standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
