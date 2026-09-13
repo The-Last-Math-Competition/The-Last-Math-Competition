@@ -1,0 +1,190 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Refutation of Conjecture 00000001367:\\[2pt]
+The Borel Chromatic Number of the $\mathbb{Z}^2$ Grid is $2$, Not $5$}
+\author{}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We refute conjecture 00000001367, which asserts that the Borel chromatic number
+of the Cayley graph of $\mathbb{Z}^2$ with generators $\{\pm e_1,\pm e_2\}$ is
+exactly $5$ while its classical chromatic number is $4$, the Borel constraint
+allegedly forcing one extra color. The graph in question is the square grid,
+which is bipartite; hence its classical chromatic number is $2$, not $4$. Since
+$\mathbb{Z}^2$ is countable and carries the discrete $\sigma$-algebra, every
+subset of the vertex set is Borel, so the parity $2$-coloring is Borel; hence
+the Borel chromatic number is also $2$, not $5$. Both asserted values are wrong,
+and the Borel constraint forces no extra color here.
+\end{abstract}
+
+\section{The conjecture}
+
+The conjecture under consideration reads verbatim:
+
+\begin{quote}
+\emph{Definition: The Borel chromatic number of a Borel graph on a standard Borel
+space is the least number of colors in a Borel-measurable proper coloring.
+Conjecture: The Borel chromatic number of the Cayley graph of $\mathbb{Z}^2$
+(generators $\pm e_1,\pm e_2$) is exactly $5$; the classical chromatic number is
+$4$, but the Borel constraint forces one extra color.}
+\end{quote}
+
+We show that both numerical assertions ($4$ and $5$) are false.
+
+\section{The graph is the square grid}
+
+\begin{definition}[Cayley graph]
+Let $G$ be a group and $S\subseteq G$ a symmetric generating set (i.e.\
+$S=S^{-1}$ and $e\notin S$). The \emph{Cayley graph} $\operatorname{Cay}(G,S)$
+has vertex set $G$ and an (undirected) edge between $g$ and $h$ iff
+$h=gs$ for some $s\in S$.
+\end{definition}
+
+Take $G=\mathbb{Z}^2$ (written additively) and $S=\{\pm e_1,\pm e_2\}$, where
+$e_1=(1,0)$ and $e_2=(0,1)$. Since $G$ is abelian and $S=-S$, the edge relation
+becomes: $p,q\in\mathbb{Z}^2$ are adjacent iff
+\[
+q=p+e_1,\quad q=p-e_1,\quad q=p+e_2,\quad\text{or}\quad q=p-e_2.
+\]
+Equivalently, writing $p=(i,j)$ and $q=(i',j')$, two lattice points are adjacent
+iff $|i-i'|+|j-j'|=1$. This is precisely the \emph{square grid}.
+
+\section{Bipartiteness and the classical chromatic number}
+
+\begin{definition}[Proper coloring, chromatic number]
+A \emph{proper coloring} of a graph $G=(V,E)$ is a map $c\colon V\to C$ such
+that $c(p)\neq c(q)$ whenever $\{p,q\}\in E$. The \emph{chromatic number}
+$\chi(G)$ is the least cardinality $|C|$ for which a proper coloring exists.
+\end{definition}
+
+\begin{theorem}[Bipartiteness]
+\label{thm:bipartite}
+The square grid $G=\operatorname{Cay}(\mathbb{Z}^2,\{\pm e_1,\pm e_2\})$ is
+bipartite. Explicitly, the map
+\[
+c_0\colon \mathbb{Z}^2\to\{0,1\},\qquad c_0(i,j) := (i+j)\bmod 2,
+\]
+is a proper $2$-coloring.
+\end{theorem}
+
+\begin{proof}
+Let $p=(i,j)$ and let $q$ be adjacent to $p$. There are four cases.
+\begin{itemize}
+\item $q=(i+1,j)$: then $q_1+q_2 = i+j+1$, so
+$c_0(q)\equiv (i+j+1)\equiv c_0(p)+1 \pmod 2$.
+\item $q=(i-1,j)$: then $q_1+q_2 = i+j-1\equiv c_0(p)+1 \pmod 2$.
+\item $q=(i,j+1)$: then $q_1+q_2=i+j+1\equiv c_0(p)+1\pmod 2$.
+\item $q=(i,j-1)$: then $q_1+q_2=i+j-1\equiv c_0(p)+1\pmod 2$.
+\end{itemize}
+In every case $c_0(q)\equiv c_0(p)+1 \pmod 2$, hence $c_0(q)\neq c_0(p)$. Thus
+$c_0$ is proper, and the bipartition is given by the two parity classes of
+$i+j$.
+\end{proof}
+
+\begin{corollary}[Classical chromatic number]
+\label{cor:chi}
+$\chi(G)=2$. In particular $\chi(G)\neq 4$.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:bipartite}, $c_0$ is a proper $2$-coloring, so
+$\chi(G)\le 2$. On the other hand $G$ has at least one edge, for instance
+$(0,0)$--$(1,0)$; no graph with an edge admits a proper $1$-coloring, so
+$\chi(G)\ge 2$. Hence $\chi(G)=2$.
+\end{proof}
+
+\section{Countability and the Borel chromatic number}
+
+We recall the relevant definitions.
+
+\begin{definition}[Borel graph and Borel chromatic number]
+A \emph{Borel graph} on a standard Borel space $(X,\mathcal{B})$ is a pair
+$(X,E)$ where $E\subseteq X\times X$ is a symmetric, irreflexive Borel set. Its
+\emph{Borel chromatic number} $\chi_B(G)$ is the least cardinality of a standard
+Borel space $C$ admitting a Borel-measurable proper coloring $c\colon X\to C$.
+\end{definition}
+
+The vertex set $\mathbb{Z}^2$ is countable. We equip it with the discrete
+$\sigma$-algebra $\mathcal{B}=\mathcal{P}(\mathbb{Z}^2)$, i.e.\ every subset is
+measurable. The pair $(\mathbb{Z}^2,\mathcal{P}(\mathbb{Z}^2))$ is a standard
+Borel space: it is Borel-isomorphic to a countable discrete Polish space (for
+example, transport a bijection $\mathbb{Z}^2\to\mathbb{N}$). Because the space is
+discrete, the edge set is all of $E\subseteq V\times V$, a countable union of
+singletons, hence Borel, and $G$ is a Borel graph. The following lemma is the
+key point.
+
+\begin{lemma}[Every subset is Borel]
+\label{lem:all-borel}
+On the countable discrete space $\mathbb{Z}^2$, every subset is Borel. More
+generally, every map from $\mathbb{Z}^2$ to any standard Borel space is Borel
+measurable.
+\end{lemma}
+
+\begin{proof}
+For each $p\in\mathbb{Z}^2$ the singleton $\{p\}$ is measurable (discrete
+$\sigma$-algebra), and a countable union of measurable sets is measurable, so
+every $A=\bigcup_{p\in A}\{p\}$ is Borel. For measurability of a map
+$f\colon\mathbb{Z}^2\to Y$ with $Y$ standard Borel, it suffices that
+$f^{-1}(B)$ be Borel for every Borel $B\subseteq Y$; since every subset of
+$\mathbb{Z}^2$ is Borel, this holds trivially.
+\end{proof}
+
+\begin{theorem}[Borel chromatic number]
+\label{thm:borel}
+$\chi_B(G)=2$. In particular $\chi_B(G)\neq 5$.
+\end{theorem}
+
+\begin{proof}
+\emph{Upper bound.} By Lemma~\ref{lem:all-borel} the parity coloring
+$c_0\colon\mathbb{Z}^2\to\{0,1\}$ of Theorem~\ref{thm:bipartite} is Borel
+measurable (its codomain $\{0,1\}$ is a standard Borel space), and it is proper.
+Hence $\chi_B(G)\le 2$.
+
+\emph{Lower bound.} As in Corollary~\ref{cor:chi}, $G$ has an edge, and any
+proper coloring must assign distinct colors to the two endpoints of an edge, so
+no $1$-coloring is proper. Therefore $\chi_B(G)\ge 2$.
+
+Combining, $\chi_B(G)=2$.
+\end{proof}
+
+\begin{remark}[No extra color is forced]
+Since $\chi(G)=\chi_B(G)=2$, the Borel constraint does not force an additional
+color in this example. The phenomenon the conjecture invokes is real in other
+settings---for instance, Borel graphs of bounded degree can have finite Borel
+chromatic number strictly larger than their classical one---but it does not
+occur for the square grid, whose bipartition is already Borel because the space
+is countable and discrete.
+\end{remark}
+
+\section{Conclusion}
+
+Both values asserted by conjecture 00000001367 are false:
+\[
+\chi(G)=2\quad(\text{not }4),\qquad \chi_B(G)=2\quad(\text{not }5).
+\]
+The Cayley graph of $\mathbb{Z}^2$ with generators $\{\pm e_1,\pm e_2\}$ is the
+square grid, which is bipartite via the parity of $i+j$; and because
+$\mathbb{Z}^2$ is countable and discrete, every subset---in particular the
+parity classes---is Borel, so the very same $2$-coloring witnesses
+$\chi_B\le 2$. Hence the conjecture is false in both of its numerical
+assertions, and its explanation that ``the Borel constraint forces one extra
+color'' does not apply here. The combinatorial part of this refutation is
+mechanically verified in core Lean~4 (see \texttt{lean4/}); the Borel
+measurability step is the standard argument of Lemma~\ref{lem:all-borel} and is
+not formalised in Lean.
+
+\end{document}
