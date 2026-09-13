@@ -1,0 +1,333 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{parskip}
+% xeCJK is loaded only to typeset the verbatim Chinese statement of the
+% conjecture in the quotation below.  A macOS CJK font is used; the rest of the
+% document uses only standard LaTeX fonts.
+\usepackage{xeCJK}
+\setCJKmainfont{PingFang SC}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Fix}{\operatorname{Fix}}
+\newcommand{\wt}{\operatorname{wt}}
+
+\title{Disproof of conjecture \texttt{00000003837}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000003837} as stated. The refutation is
+unconditional and elementary. Its first clause fails in the smallest possible
+case, type $A_1$ with $\lambda = \omega_1$: the crystal $B(\omega_1)$ has two
+elements and the star involution has $0$ fixed points, which is even. Its second
+clause fails there too, because $0 < 3$; and in type $A_1$ the hypothesis
+$\lambda = -w_0\lambda$ holds for \emph{every} weight, while the fixed-point
+count over all of type $A_1$ is at most $1$.
+
+\section{The conjecture}
+
+The statement, quoted verbatim from \texttt{conjectures/00000003837.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The star involution $*$ denotes the crystal
+involution reversing all simple arrow directions, always existing in finite
+type. Conjecture: The number of fixed points of $*$ in $B(\lambda)$ is always
+odd, and when $\lambda = -w_0\lambda$ the number of fixed points is at least 3.
+(star fixed point parity)
+\end{quote}
+
+\begin{quote}
+\textbf{中文。} 定义：星对合 $*$ 指同时反转所有简单箭头方向所得的晶体对合，有限型上恒存在。猜想：$B(\lambda)$ 中 $*$ 的不动点个数恒为奇数，且当 $\lambda = -w_0\lambda$ 时不动点个数不少于 3。（星不动点奇偶）
+\end{quote}
+
+The claim has two clauses.
+
+\begin{enumerate}
+\item \textbf{Parity clause.} For every dominant integral weight $\lambda$ in
+  finite type, the star involution $*$ on $B(\lambda)$ has an odd number of
+  fixed points.
+\item \textbf{Three clause.} Whenever $\lambda = -w_0\lambda$, that number of
+  fixed points is at least $3$.
+\end{enumerate}
+
+Both are false, and both fail in the same minimal example.
+
+\section{The elementary parity lemma}
+
+\begin{lemma}[Parity lemma]\label{lem:parity}
+Let $\sigma$ be an involution of a finite set $X$. Then
+\[
+\#\Fix(\sigma) \;\equiv\; |X| \pmod 2 .
+\]
+\end{lemma}
+
+\begin{proof}
+For every $x \in X \setminus \Fix(\sigma)$ we have $\sigma(x) \ne x$, and
+$\sigma^2 = \mathrm{id}$ shows that $\sigma$ maps the two-element set
+$\{x, \sigma(x)\}$ to itself and exchanges its elements. These $2$-cycles
+partition $X \setminus \Fix(\sigma)$, so $|X| - \#\Fix(\sigma)$ is even. Hence
+$\#\Fix(\sigma) \equiv |X| \pmod 2$.
+\end{proof}
+
+Since $|B(\lambda)| = \dim V(\lambda)$, the lemma yields the correct general
+congruence
+\begin{equation}\label{eq:general}
+\#\Fix(*) \;\equiv\; |B(\lambda)| \;=\; \dim V(\lambda) \pmod 2 .
+\end{equation}
+In particular the parity clause can hold only for those $\lambda$ with
+$\dim V(\lambda)$ odd; as an unconditional assertion about all $\lambda$ it is
+false. Applied to $B(\omega_1)$, whose cardinality is $2$, the lemma already
+forces $\#\Fix(*)$ to be even.
+
+\section{The counterexample: type $A_1$, $\lambda = \omega_1$}
+
+\begin{definition}
+In type $A_1$ (that is, for $\mathfrak{sl}_2$) let $\lambda = \omega_1$. The
+crystal is the two-element set
+\[
+B(\omega_1) = \{\,u_+, u_-\,\}, \qquad
+\wt(u_+) = +1, \quad \wt(u_-) = -1,
+\]
+with a single arrow
+\[
+f_1(u_+) = u_-, \qquad f_1(u_-) = 0, \qquad
+e_1(u_-) = u_+, \qquad e_1(u_+) = 0 .
+\]
+The star involution $*$ reverses all arrows.
+\end{definition}
+
+\begin{theorem}\label{thm:counterexample}
+On $B(\omega_1)$ the arrow-reversing involution is forced to be the swap
+\[
+*(u_+) = u_-, \qquad *(u_-) = u_+,
+\]
+and it has no fixed point:
+\[
+\#\Fix(*) = 0 .
+\]
+Consequently $\#\Fix(*)$ is even, and $\#\Fix(*) < 3$.
+\end{theorem}
+
+\begin{proof}
+Reversing the unique arrow means $f_1 \circ * = * \circ e_1$ (with $*$ extended
+by $*(0) = 0$). Evaluating at the bottom element $u_-$, where $e_1(u_-) = u_+$
+and $f_1$ is defined, gives
+\[
+*(u_+) \;=\; *(e_1(u_-)) \;=\; f_1(*(u_-)) ,
+\]
+so $*(u_+)$ lies in the image of $f_1$, namely $\{u_-\}$. Hence $*(u_+) = u_-$;
+applying the involution law $*^2 = \mathrm{id}$ gives $*(u_-) = u_+$. Both
+elements are moved, so $\#\Fix(*) = 0$. As $0$ is even and $0 < 3$, both clauses
+fail.
+\end{proof}
+
+\begin{corollary}
+The hypothesis of the three clause holds at $\lambda = \omega_1$: in type $A_1$
+the longest element $w_0 = s_1$ acts on the weight lattice by $-1$, so $-w_0$
+acts as the identity and
+\[
+-w_0\,\omega_1 = \omega_1 .
+\]
+Nevertheless $\#\Fix(*) = 0 < 3$. Thus the three clause fails although its
+hypothesis is satisfied, and the parity clause fails at the same time.
+\end{corollary}
+
+\begin{remark}
+Nothing here is a boundary or degeneracy artefact. The weight $\omega_1$ is the
+simplest non-trivial dominant weight in the simplest finite type, and
+$B(\omega_1)$ is the simplest non-trivial crystal. Any faithful definition of
+the star involution must agree with the swap by
+Theorem~\ref{thm:uniqueness} below.
+\end{remark}
+
+\section{The general family $B(k\omega_1)$ and the table}
+
+For $k \ge 1$ the crystal $B(k\omega_1)$ is the $(k+1)$-element chain with
+weights
+\[
+k,\; k-2,\; \dots,\; -k .
+\]
+Index its elements by positions $0, 1, \dots, k$ from the top, so that $j$ has
+weight $k - 2j$. The involution $j \mapsto k - j$ is the unique arrow-reversing
+involution, and it negates weights. Its fixed points solve $j = k - j$, i.e.
+$2j = k$: there is exactly one when $k$ is even (the weight-$0$ element) and
+none when $k$ is odd. Therefore
+\begin{equation}\label{eq:closed}
+\#\Fix(*) \;=\;
+\begin{cases}
+1, & k \text{ even},\\[2pt]
+0, & k \text{ odd}.
+\end{cases}
+\end{equation}
+For $k = 1, \dots, 5$:
+
+\begin{center}
+\begin{tabular}{r l l c c c c}
+\toprule
+$k$ & $\lambda$ & weights of $B(k\omega_1)$ & $|B(k\omega_1)|$
+    & $\#\Fix(*)$ & parity & $\#\Fix(*) \ge 3$? \\
+\midrule
+$1$ & $\omega_1$  & $1,\,-1$                & $2$ & $0$ & even & no ($0<3$) \\
+$2$ & $2\omega_1$ & $2,\,0,\,-2$            & $3$ & $1$ & odd  & no ($1<3$) \\
+$3$ & $3\omega_1$ & $3,\,1,\,-1,\,-3$       & $4$ & $0$ & even & no ($0<3$) \\
+$4$ & $4\omega_1$ & $4,\,2,\,0,\,-2,\,-4$   & $5$ & $1$ & odd  & no ($1<3$) \\
+$5$ & $5\omega_1$ & $5,\,3,\,1,\,-1,\,-3,\,-5$ & $6$ & $0$ & even & no ($0<3$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In the $k = 2$ row the crystal has $3$ elements (odd cardinality) and the
+fixed-point count is $1$, consistent with \eqref{eq:general} and odd as the
+parity clause would demand --- but $1 < 3$. So the failure of the three clause
+is not a mere parity artefact either.
+
+\section{The clause ``$\#\Fix(*) \ge 3$'' fails for every $\lambda$ in type $A_1$}
+
+By \eqref{eq:closed}, over all $k \ge 1$ the fixed-point count of the star on
+$B(k\omega_1)$ is either $0$ or $1$; hence
+\[
+\max_{k \ge 1} \#\Fix\bigl(* \text{ on } B(k\omega_1)\bigr) \;=\; 1 \;<\; 3 .
+\]
+Since in type $A_1$ one has $-w_0 = \mathrm{id}$, so that
+$\lambda = -w_0\lambda$ for every dominant weight $\lambda$, the three clause
+\emph{fails for every $\lambda$ in type $A_1$}, not only for $\lambda =
+\omega_1$. The parity clause, meanwhile, holds exactly for the even $k$ (for
+which $\dim V(k\omega_1) = k+1$ is odd), in accordance with \eqref{eq:general};
+this is a tautology on the restricted set of $\lambda$ with $\dim V(\lambda)$
+odd, not the unconditional claim of the conjecture.
+
+\section{Convention robustness}
+
+One might try to rescue the conjecture by adopting a different convention for
+$*$ or for weights. This is impossible.
+
+\begin{theorem}\label{thm:involution}
+Every involution of a two-element set has $0$ or $2$ fixed points. In
+particular every involution $\sigma$ of $B(\omega_1)$ has even
+$\#\Fix(\sigma)$, and $\#\Fix(\sigma) < 3$.
+\end{theorem}
+
+\begin{proof}
+A two-element set is $\{a,b\}$. An involution either fixes both elements
+(identity, $2$ fixed points) or swaps them (no fixed points). Both counts, $0$
+and $2$, are even and less than $3$.
+\end{proof}
+
+\begin{theorem}[Uniqueness of the star]\label{thm:uniqueness}
+Let $\sigma : B(\omega_1) \to B(\omega_1)$ be an involution reversing the arrow,
+i.e. $f_1 \circ \sigma = \sigma \circ e_1$ (with $\sigma(0)=0$). Then $\sigma$
+is the swap of Theorem~\ref{thm:counterexample}. Hence any faithful convention
+for $*$ agrees with it, and $\#\Fix(*) = 0$ is convention-independent.
+\end{theorem}
+
+\begin{proof}
+Since $e_1(u_-) = u_+$ and $\sigma^2 = \mathrm{id}$,
+\[
+\sigma(u_+) = \sigma(e_1(u_-)) = f_1(\sigma(u_-)),
+\]
+so $\sigma(u_+) \in \{u_-\}$, i.e. $\sigma(u_+) = u_-$ and then
+$\sigma(u_-) = u_+$ by involutivity.
+\end{proof}
+
+\begin{proposition}\label{prop:no-weight-preserving}
+There is no involution of $B(\omega_1)$ that both reverses the arrow and
+preserves weights. The forced star negates weights, so the weight condition
+cannot be relaxed to manufacture a fixed point.
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:uniqueness} any arrow-reversing involution is the swap,
+which sends the top element $u_+$ of weight $+1$ to $u_-$ of weight $-1 \ne +1$.
+\end{proof}
+
+Thus the value $\#\Fix(*) = 0$ cannot be evaded by changing the definition of
+$*$: the arrow-reversing requirement pins it down, and no involution of
+$B(\omega_1)$ at all has an odd or $\ge 3$ fixed-point count.
+
+\section{Literature context}
+
+The genuine results surrounding the star involution are not parity theorems.
+The relevant theorem is Stembridge's and Berenstein--Kirillov's statement that
+the number of \emph{self-evacuating tableaux} of a shape equals the number of
+\emph{domino tableaux} of that shape (J.~R.~Stembridge, \emph{Duke Math.~J.}
+\textbf{82} (1996); A.~Berenstein and A.~Kirillov, \emph{Discrete Math.}
+\textbf{225} (2000), and references therein). This is a bijective
+equinumerosity statement joining evacuation and domino tableaux; it contains no
+assertion that $\#\Fix(*)$ is odd. The correct general congruence in this
+circle of ideas is the elementary \eqref{eq:general},
+\[
+\#\Fix(*) \equiv \dim V(\lambda) \pmod 2 ,
+\]
+which is a consequence of the $2$-cycle pairing of Lemma~\ref{lem:parity}. The
+conjecture appears to be a garbled rendering of these results: its parity clause
+conflates ``$\dim V(\lambda)$ is odd'' with ``always odd'', and its three clause
+has no counterpart in the literature. We state this only as context; the
+refutation above is self-contained and does not rely on it.
+
+\section{Reproducibility}
+
+The checks are carried out by \texttt{reproduce.py}, which uses the Python~3
+standard library only:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(the parity lemma, the } \(B(\omega_1)\) \textit{ computation, the
+table for } \(k = 1..10\),\textit{ and the robustness checks)}\\
+PASS: all checks verified; conjecture 00000003837 is FALSE.
+\end{quote}
+
+It models $B(k\omega_1)$ for $k = 1, \dots, 10$ as an $(k+1)$-element chain,
+verifies that $j \mapsto k-j$ is an arrow-reversing involution negating weights,
+counts its fixed points, asserts that the count is even for every odd $k$ (in
+particular that $k=1$ gives $0$), asserts $0 < 3$, verifies the parity lemma
+$\#\Fix \equiv |B(k\omega_1)| \pmod 2$, and exhaustively verifies that every
+involution of the two-element set has $0$ or $2$ fixed points and that the
+arrow-reversing involution of $B(\omega_1)$ is unique. It prints \texttt{PASS}
+and exits $0$ exactly when every check holds.
+
+\section{Formalisation}
+
+The counterexample is formalised in the accompanying Lean~4 project under
+\texttt{lean4/}. It builds with \texttt{lake build} and is audited by
+\texttt{lake env lean Check.lean}, using core Lean only (no Mathlib) and no
+\texttt{sorry}. The crystal $B(\omega_1)$ is modelled as \texttt{Fin 2} with
+explicit operators, and the main formal statements are
+
+\begin{quote}\ttfamily
+theorem star\_reverses\_f : \(\forall\) j, f1 (star j) = (e1 j).map star\\
+theorem wt\_star : \(\forall\) j, wt (star j) = - wt j\\
+theorem star\_fixedCount : fixedCount star = 0\\
+theorem conjecture\_00000003837\_false :\\
+\hspace*{2em}fixedCount star = 0 \(\wedge\) fixedCount star \% 2 = 0\\
+\hspace*{2em}\(\wedge\) fixedCount star < 3\\
+theorem involution\_fixedCount\_even (\(\sigma\)) (h\(\sigma\) : \(\forall\) x, \(\sigma\) (\(\sigma\) x) = x) :\\
+\hspace*{2em}fixedCount \(\sigma\) \% 2 = 0\\
+theorem arrow\_reversing\_involution\_eq\_star (\(\sigma\)) (h\(\sigma\)) (hf) : \(\sigma\) = star\\
+theorem no\_weight\_preserving\_arrow\_reversal :\\
+\hspace*{2em}\(\neg\) \(\exists\) \(\sigma\), (\(\forall\) x, \(\sigma\) (\(\sigma\) x) = x) \(\wedge\)
+  (\(\forall\) j, wt (\(\sigma\) j) = wt j)\\
+\hspace*{4em}\(\wedge\) (\(\forall\) j, f1 (\(\sigma\) j) = (e1 j).map \(\sigma\))
+\end{quote}
+
+\noindent Here \texttt{star} is the swap on \texttt{Fin 2}, \texttt{fixedCount}
+counts the fixed points over \texttt{List.finRange 2}, and the theorems
+\texttt{involution\_fixedCount\_even} and \texttt{arrow\_reversing\_involution\_eq\_star}
+formalise the convention-robustness argument. No \texttt{sorryAx} occurs; the
+only axioms reported are \texttt{propext} and \texttt{Quot.sound}. See
+\texttt{lean4/README.md} for the full statement table and the faithfulness note.
+
+\end{document}
