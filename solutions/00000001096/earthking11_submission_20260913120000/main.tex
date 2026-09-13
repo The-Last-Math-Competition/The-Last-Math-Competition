@@ -1,0 +1,211 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\DeclareMathOperator{\rank}{rank}
+
+\title{A counterexample to conjecture 00000001096:\\
+the VC dimension of degree-$\le d$ polynomials over $\F_q$ is not $n\cdot d$}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000001096 asserts that the VC dimension of polynomial functions
+of degree $\le d$ over $\F_q^n$ is exactly $n\cdot d$ when $d<q$. We refute
+this. For $n=2$, $d=2$, $q=5$ (so $d<q$) the six monomials
+$1,x,y,x^2,xy,y^2$ of degree $\le 2$ form a $6$-dimensional function space on
+$\F_5^2$, and six explicit points have an invertible evaluation matrix over
+$\F_5$ (determinant $\equiv 1 \bmod 5$). Hence all $5^6$ labellings of those
+six points are realisable in the natural generalised $\F_q$-valued sense, so
+the VC dimension is at least $6$ (in fact exactly $6$), whereas the conjecture
+predicts $n\cdot d=4$. The verdict is \textbf{FALSE}.
+\end{abstract}
+
+\section{The notion of VC dimension and the conjecture}
+
+The classical Vapnik--Chervonenkis dimension is defined for \emph{binary}
+function classes: a class $\mathcal{H}\subseteq\{0,1\}^X$ shatters a finite set
+$S\subseteq X$ if the restriction map
+$\mathcal{H}\to\{0,1\}^S$ is surjective, and the VC dimension is the largest
+size of a shattered set. Conjecture 00000001096 concerns polynomial functions
+with values in the finite field $\F_q$, which are not binary, so it must intend
+a generalised notion. We use the standard and natural one.
+
+\begin{definition}[generalised $\F_q$-valued VC dimension]
+Let $X$ be a set and let $\mathcal{H}\subseteq \F_q^{X}$ be a class of
+$\F_q$-valued functions. A finite set $S=\{s_1,\dots,s_m\}\subseteq X$ is
+\emph{shattered} by $\mathcal{H}$ if the evaluation map
+\[
+  \mathrm{ev}_S \colon \mathcal{H}\to \F_q^{m},\qquad
+  f\mapsto (f(s_1),\dots,f(s_m))
+\]
+is surjective; equivalently, if every one of the $q^{m}$ labellings in
+$\F_q^{S}$ is realised by some $f\in\mathcal{H}$. The VC dimension is the
+supremum of the sizes of shattered sets.
+\end{definition}
+
+\begin{remark}
+For binary classes one takes $\F_2=\{0,1\}$, and this definition reduces to the
+classical one, since surjectivity onto $\F_2^{m}$ means all $2^m$ binary
+patterns occur. We emphasise this choice because ``VC dimension'' is classically
+stated only for binary classes; the conjecture must be read through a
+generalised notion such as the above, and under that reading it fails.
+\end{remark}
+
+\begin{definition}[the function class]
+Fix $d\ge 0$ and $q=p^{r}$ prime power. Write
+$\mathcal{P}_{n,d}\subseteq\F_q^{\F_q^n}$ for the functions induced by
+polynomials of total degree $\le d$ in $n$ variables. These are exactly the
+$\F_q$-linear combinations of the monomials
+$x_1^{a_1}\cdots x_n^{a_n}$ with $a_1+\cdots+a_n\le d$, of which there are
+$\binom{n+d}{n}$.
+\end{definition}
+
+The conjecture under consideration is:
+\begin{equation}\label{eq:conj}
+  \dim_{\mathrm{VC}}\bigl(\mathcal{P}_{n,d}\bigr) \;=\; n\cdot d
+  \qquad\text{for } d<q .
+\end{equation}
+
+\section{The counterexample: $n=2$, $d=2$, $q=5$}
+
+Take $n=2$, $d=2$ and $q=5$; the hypothesis $d<q$ holds since $2<5$. The
+monomials of degree $\le 2$ in $x,y$ are
+\[
+  m_0=1,\quad m_1=x,\quad m_2=y,\quad m_3=x^2,\quad m_4=xy,\quad m_5=y^2 ,
+\]
+so $\dim_{\F_5}\mathcal{P}_{2,2}=6$ and the conjecture \eqref{eq:conj} predicts
+$n\cdot d=2\cdot 2=4$.
+
+Choose the six points of $\F_5^2$
+\[
+  p_0=(0,0),\quad p_1=(0,1),\quad p_2=(0,2),\quad
+  p_3=(1,0),\quad p_4=(1,1),\quad p_5=(2,0).
+\]
+Let $M\in\F_5^{6\times 6}$ be the evaluation matrix, $M_{ij}=m_j(p_i)$. The
+entries are integers reduced modulo $5$ (we write the representative in
+$\{0,\dots,4\}$):
+\begin{equation}\label{eq:M}
+  M=\begin{pmatrix}
+    1&0&0&0&0&0\\
+    1&0&1&0&0&1\\
+    1&0&2&0&0&4\\
+    1&1&0&1&0&0\\
+    1&1&1&1&1&1\\
+    1&2&0&4&0&0
+  \end{pmatrix}.
+\end{equation}
+
+\section{The determinant is a unit modulo $5$}
+
+\begin{proposition}\label{prop:det}
+  $\det M \equiv 1 \pmod 5$. In particular $M$ is invertible over $\F_5$.
+\end{proposition}
+
+\begin{proof}
+Expand by the Leibniz formula, $\det M=\sum_{\sigma\in S_6}
+\operatorname{sgn}(\sigma)\prod_{i=0}^{5}M_{i,\sigma(i)}$, and reduce each term
+modulo $5$ (using $\operatorname{sgn}(\sigma)\equiv \pm 1$). Summing the $6!=720$
+terms gives $\det M \equiv 1 \pmod 5$. This finite computation is checked
+independently by \texttt{reproduce.py} (Leibniz sum over all permutations) and
+formalised in Lean~4 in \texttt{lean4/Main.lean} as
+\texttt{det\_is\_one}. Since $1$ is a unit in $\F_5$, the matrix $M$ is
+invertible.
+\end{proof}
+
+For reference, the inverse of $M$ over $\F_5$ is
+\begin{equation}\label{eq:Minv}
+  M^{-1}=\begin{pmatrix}
+    1&0&0&0&0&0\\
+    1&0&0&2&0&2\\
+    1&2&2&0&0&0\\
+    3&0&0&4&0&3\\
+    1&4&0&4&1&0\\
+    3&4&3&0&0&0
+  \end{pmatrix}.
+\end{equation}
+
+\section{The six points are shattered}
+
+\begin{theorem}\label{thm:shatter}
+  Under the generalised $\F_q$-valued notion of Definition~1, the set
+  $S=\{p_0,\dots,p_5\}$ is shattered by $\mathcal{P}_{2,2}$. Consequently
+  \[
+    \dim_{\mathrm{VC}}\bigl(\mathcal{P}_{2,2}\bigr)\ge 6 \;>\; 4 = n\cdot d ,
+  \]
+  and conjecture \eqref{eq:conj} is false (verdict \textbf{FALSE}).
+\end{theorem}
+
+\begin{proof}
+A labelling is a vector $y=(y_0,\dots,y_5)\in\F_5^{6}$, recording the desired
+value $y_i$ at $p_i$. Since $M$ is invertible (Proposition~\ref{prop:det}),
+the coefficient vector
+\[
+  c := M^{-1}y \in \F_5^{6}
+\]
+is well defined for every $y$, and $M c = y$. Explicitly, with
+$c=(c_0,\dots,c_5)$ the coefficients of
+$c_0+c_1x+c_2y+c_3x^2+c_4xy+c_5y^2$, the inverse \eqref{eq:Minv} yields
+\[
+  \begin{aligned}
+    c_0&=y_0, & c_1&=y_0+2y_3+2y_5, & c_2&=y_0+2y_1+2y_2,\\
+    c_3&=3y_0+4y_3+3y_5, & c_4&=y_0+4y_1+4y_3+y_4, & c_5&=3y_0+4y_1+3y_2,
+  \end{aligned}
+\]
+all in $\F_5$. Then $M c=y$ says exactly that the polynomial
+$f_c=c_0+c_1x+c_2y+c_3x^2+c_4xy+c_5y^2\in\mathcal{P}_{2,2}$ satisfies
+$f_c(p_i)=y_i$ for all $i$. Hence the evaluation map
+$\mathrm{ev}_S\colon\mathcal{P}_{2,2}\to\F_5^{6}$ is surjective, i.e.\ every
+one of the $5^{6}=15625$ labellings of $S$ is realised, and $S$ is shattered.
+\end{proof}
+
+\begin{remark}
+The bound is tight for this example. The six monomials $1,x,y,x^2,xy,y^2$ are
+linearly independent as functions on $\F_5^2$ (their evaluation matrix
+\eqref{eq:M} is invertible), so $\mathcal{P}_{2,2}$ is a $6$-dimensional space
+of functions; evaluation at any $m>6$ points can never be surjective onto
+$\F_5^{m}$ for dimension reasons. Thus
+$\dim_{\mathrm{VC}}(\mathcal{P}_{2,2})=6$ exactly, not merely $\ge 6$.
+Moreover, even after removing the constant function, the five monomials
+$x,y,x^2,xy,y^2$ shatter the five points $p_1,\dots,p_5$: the corresponding
+$5\times 5$ minor also has determinant $\equiv 1 \pmod 5$. So the failure is not
+an artefact of counting the constant monomial.
+\end{remark}
+
+\begin{remark}
+The source of the failure is that the conjecture counts monomials
+$\binom{n+d}{n}$ for the case $n=2,d=2$: $\binom{4}{2}=6$, not $n\cdot d=4$.
+The polynomial ``degree'' bound constrains the \emph{total degree}, so
+polynomials of degree $\le d$ span the full space of monomials with
+$a_1+\cdots+a_n\le d$, whose dimension is $\binom{n+d}{n}$. In the regime
+$d<q$ distinct monomials do give distinct functions on $\F_q^n$, so the VC
+dimension (in the generalised $\F_q$-valued sense) equals this dimension
+whenever the corresponding evaluation matrix can be made invertible. For
+$n=2,d=2,q=5$ that value is $6$, contradicting $n\cdot d=4$.
+\end{remark}
+
+\section*{Reproducibility}
+
+\texttt{reproduce.py} (standard library only) builds the matrix \eqref{eq:M},
+computes $\det M \bmod 5=1$, verifies $\rank_{\F_5}M=6$, inverts $M$ over
+$\F_5$, and checks all $5^6=15625$ labellings explicitly; it prints
+\texttt{PASS} and exits $0$. The Lean~4 development in \texttt{lean4/} uses
+only core Lean plus \texttt{Std} (no Mathlib, no \texttt{sorry}, no
+\texttt{axiom}, no \texttt{native\_decide}) and formalises the determinant
+identity \texttt{det\_is\_one}, the exhaustive component-wise shattering check
+\texttt{shatters\_components} over all $5^6$ labellings, the function-level
+statement \texttt{eval\_map\_bijective}, and the assembled
+\texttt{conjecture\_00000001096\_false}.
+
+\end{document}
