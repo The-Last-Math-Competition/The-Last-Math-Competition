@@ -1,0 +1,170 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A Counterexample to Conjecture 00000000045}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000045 asserts that the prime-sum graph $G_n$ has a Hamilton
+cycle for all sufficiently large $n$. It does not: $G_n$ has a Hamilton cycle
+only when $n$ is even, so every odd $n\ge3$ is a counterexample and no
+threshold works. The refutation is formalized in Lean~4 against Mathlib.
+\end{abstract}
+
+\section{Statement}
+
+For $n\ge1$ let $G_n$ be the graph with vertex set $\{1,\ldots,n\}$ in which
+$i\sim j$ if and only if $i\ne j$ and $i+j$ is prime. Conjecture 00000000045
+asserts that $G_n$ contains a Hamilton cycle for all sufficiently large $n$.
+
+A Hamilton cycle of $G_n$ is a cyclic arrangement
+\[
+  v_0,v_1,\ldots,v_{n-1}
+\]
+of all $n$ vertices --- that is, $i\mapsto v_i$ is a bijection from
+$\mathbb Z/n\mathbb Z$ onto $\{1,\ldots,n\}$ --- such that $v_i\sim v_{i+1}$ for
+every $i$, indices read modulo $n$. We use this description throughout; it is
+the definition.
+
+\section{Parity obstruction}
+
+\begin{lemma}\label{lem:odd}
+Let $n\ge3$ and let $v_0,\ldots,v_{n-1}$ be a Hamilton cycle of $G_n$. Then
+$v_i+v_{i+1}$ is odd for every $i$.
+\end{lemma}
+
+\begin{proof}
+Since $n\ge3$, the positions $i$ and $i+1$ are distinct modulo $n$, so
+$v_i\ne v_{i+1}$. Both are at least $1$, hence $v_i+v_{i+1}\ge1+2=3$. By
+hypothesis $v_i+v_{i+1}$ is prime, and a prime greater than $2$ is odd.
+\end{proof}
+
+\begin{theorem}\label{thm:even}
+If $G_n$ has a Hamilton cycle and $n\ge3$, then $n$ is even.
+\end{theorem}
+
+\begin{proof}
+Sum the edge labels around the cycle. Since $i\mapsto i+1$ is a permutation of
+$\mathbb Z/n\mathbb Z$, we have $\sum_i v_{i+1}=\sum_i v_i$, and therefore
+\begin{equation}\label{eq:double}
+  \sum_{i\in\mathbb Z/n\mathbb Z}\bigl(v_i+v_{i+1}\bigr)
+  \;=\;2\sum_{i\in\mathbb Z/n\mathbb Z}v_i ,
+\end{equation}
+which is even. On the other hand the left-hand side is a sum of $n$ terms, each
+odd by Lemma~\ref{lem:odd}, so it is congruent to $n$ modulo $2$. Hence
+$n\equiv0\pmod 2$.
+\end{proof}
+
+\begin{corollary}
+Conjecture 00000000045 is false.
+\end{corollary}
+
+\begin{proof}
+Given any threshold $N$, the integer $n=2N+3$ is odd and satisfies $n\ge N$ and
+$n\ge3$. By Theorem~\ref{thm:even}, $G_n$ has no Hamilton cycle. So no
+threshold has the asserted property.
+\end{proof}
+
+\begin{remark}[the same obstruction, phrased as bipartiteness]
+If $i$ and $j$ have the same parity and $i\ne j$, then $i+j$ is even and at
+least $1+3=4$, hence not prime. So every edge of $G_n$ joins an odd vertex to
+an even vertex: $G_n$ is bipartite, with sides
+\[
+  O=\{\text{odd }i\le n\},\qquad E=\{\text{even }i\le n\},
+  \qquad |O|=\lceil n/2\rceil,\quad |E|=\lfloor n/2\rfloor .
+\]
+A Hamilton cycle in a bipartite graph alternates between the sides, so it
+requires $|O|=|E|$, which fails for every odd $n$. Theorem~\ref{thm:even} is
+this argument in a form convenient to formalize: the double count
+\eqref{eq:double} replaces the appeal to alternation.
+\end{remark}
+
+\section{What survives}
+
+The obstruction is exactly parity, and it says nothing for even $n$. A direct
+search finds a Hamilton cycle for every even $n$ in the range checked:
+
+\begin{center}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+$n$ & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11\\
+\midrule
+Hamilton cycle & no & yes & no & yes & no & yes & no & yes & no\\
+\bottomrule
+\end{tabular}
+
+\medskip
+
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+$n$ & 12 & 13 & 14 & 15 & 16 & 17 & 18 & 19 & 20\\
+\midrule
+Hamilton cycle & yes & no & yes & no & yes & no & yes & no & yes\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+So the natural repair is to restrict the conjecture to even $n$:
+
+\begin{quote}
+For every sufficiently large even $n$, $G_n$ has a Hamilton cycle.
+\end{quote}
+
+We do not address that statement, which is a well-studied question and, to our
+knowledge, open; it is closely tied to the existence of ``prime circles'' and
+is supported by extensive computation. The table above is computational
+evidence only and is not part of the Lean development.
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes the refutation against Mathlib. The
+conjecture is stated in the formalization, so the final theorem is a
+formalization of its negation rather than of facts that merely entail it.
+
+\begin{itemize}
+  \item \texttt{cycSucc} --- the cyclic successor on positions \texttt{Fin n},
+    with \texttt{cycSucc\_injective}, \texttt{cycSucc\_bijective} and
+    \texttt{cycSucc\_ne} (a position is never its own successor once $n\ge3$).
+  \item \texttt{HasPrimeHamiltonCycle} --- a Hamilton cycle of $G_n$, as the
+    cyclic arrangement described above: a permutation $\sigma$ of the positions,
+    the vertex at position $i$ being $\sigma(i)+1$, with
+    $\texttt{Nat.Prime}\bigl((\sigma i+1)+(\sigma(\texttt{cycSucc } i)+1)\bigr)$
+    for every $i$.
+  \item \texttt{ConjectureHolds} --- the conjecture.
+  \item \texttt{even\_of\_hasPrimeHamiltonCycle} --- Theorem~\ref{thm:even}.
+    The reindexing \eqref{eq:double} is Mathlib's
+    \texttt{Fintype.sum\_bijective} applied to \texttt{cycSucc}.
+  \item \texttt{conjecture\_00000000045\_false} ---
+    $\lnot$\,\texttt{ConjectureHolds}, by instantiating at $n=2N+3$.
+\end{itemize}
+
+Primality is Mathlib's \texttt{Nat.Prime} throughout. The project builds with
+\texttt{lake build} on \texttt{leanprover/lean4:v4.33.1} with Mathlib
+\texttt{v4.33.1}. It contains no \texttt{sorry}, no \texttt{admit} and no
+\texttt{native\_decide}, and introduces no axioms of its own:
+\texttt{\#print axioms conjecture\_00000000045\_false} reports exactly the
+three standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
