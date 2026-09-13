@@ -1,0 +1,256 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{ctex}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\PG}{\mathrm{PG}}
+\newcommand{\ov}{\mathcal{O}}
+
+\title{Disproof of conjecture \texttt{00000001006}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001006} as stated. The conjecture asserts
+that an $m$-ovoid of the parabolic quadric $Q(4,q)$ can exist only when
+$m \mid (q+1)$. At the smallest case $q=2$, $m=2$ the claim fails: $Q(4,2)$ has
+an ovoid (a $1$-ovoid), and the complement of that ovoid meets each of the
+$15$ generating lines in exactly $2$ points, so it is a $2$-ovoid. But
+$2 \nmid 3 = q+1$.
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000001006.md}:
+
+\begin{quote}
+\textbf{English.} Definition: An m-ovoid (meeting every generating line in
+exactly m points). Conjecture: m-ovoids of Q(4,q) exist only when
+m $\mid$ (q+1) (an existence criterion for m-ovoids).
+
+\textbf{中文。} 定义：m-ovoid(每条生成线恰交 m 点)。猜想：Q(4, q) 的
+m-ovoid 仅在 m $\mid$ (q+1) 存在(m-ovoid 存在判据)。
+\end{quote}
+
+The wording is identical in both languages, and the relation is written with the
+divisibility symbol ``$\mid$''. We therefore refute the literal reading:
+
+\begin{definition}[$m$-ovoid]\label{def:m-ovoid}
+Let $q$ be a prime power and let $Q(4,q)$ be the parabolic quadric in
+$\PG(4,q)$, regarded as a generalized quadrangle whose \emph{generating lines}
+are its lines. An \emph{$m$-ovoid} is a set of points of $Q(4,q)$ that meets
+every generating line in exactly $m$ points. A $1$-ovoid is simply called an
+\emph{ovoid}.
+\end{definition}
+
+The claim to be refuted is thus the necessary condition
+\[
+\text{``an $m$-ovoid of $Q(4,q)$ exists''} \;\Longrightarrow\; m \mid (q+1).
+\tag{$\ast$}
+\]
+
+\section{The quadric $Q(4,2)$}
+
+For $q=2$ we use the standard vector model of $Q(4,2)$, which is the quadric in
+$\PG(4,2)$ with quadratic form and polar form
+\[
+Q(x) \;=\; x_0 + x_1 x_2 + x_3 x_4, \qquad
+B(a,b) \;=\; a_1 b_2 + a_2 b_1 + a_3 b_4 + a_4 b_3
+\]
+over $\F_2$ (here $x_i \in \F_2$ and $x_0^2 = x_0$). Thus
+\[
+Q(a+b) \;=\; Q(a) + Q(b) + B(a,b).
+\]
+
+\begin{definition}[points and lines of $Q(4,2)$]\label{def:q42}
+The \emph{points} of $Q(4,2)$ are the nonzero vectors $x \in \F_2^5$ with
+$Q(x)=0$. Its \emph{generating lines} are the triples
+\[
+\{a,\; b,\; a+b\}
+\]
+where $a,b$ are distinct points with $B(a,b)=0$ (equivalently, $a+b$ is again a
+point).
+\end{definition}
+
+A direct enumeration gives the following well-known parameters.
+
+\begin{proposition}\label{prop:params}
+$Q(4,2)$ has exactly $15$ points and $15$ lines; every line contains exactly
+$q+1 = 3$ points, and every point lies on exactly $q+1 = 3$ lines.
+\end{proposition}
+
+\begin{proof}
+Enumeration over the $2^5 = 32$ vectors of $\F_2^5$. The number of nonzero
+$Q$-isotropic vectors is $2^4 - 1 = 15$; each of the $15$ points is joined to
+the other points $b$ with $B(a,b)=0$, giving $3$ lines per point and
+$15 \cdot 3 / 3 = 15$ lines. See \texttt{reproduce.py} for the exact
+computation and \texttt{lean4/Main.lean} for the formal verification.
+\end{proof}
+
+\section{An ovoid and its complement}
+
+An ovoid of $Q(4,2)$ has $q^2+1 = 5$ points. The following is one.
+
+\begin{theorem}\label{thm:main}
+In the model of Definition~\ref{def:q42}, the set
+\[
+\ov \;=\; \bigl\{\, (0,1,0,0,0),\; (0,0,1,0,0),\; (1,1,1,1,0),\;
+(1,1,1,0,1),\; (0,1,1,1,1) \,\bigr\}
+\]
+is an ovoid of $Q(4,2)$: it has $5$ points and meets each of the $15$ generating
+lines in exactly $1$ point. Moreover:
+\begin{enumerate}
+\item every line of $Q(4,2)$ meets the complement $\ov^{c}$ in exactly
+      $3 - 1 = 2$ points, so $\ov^{c}$ is a $2$-ovoid;
+\item $|\ov^{c}| = 15 - 5 = 10 = q^2 + q$;
+\item $m = 2$ does not divide $q+1 = 3$.
+\end{enumerate}
+Consequently the necessary condition $(\ast)$ is false, and with it conjecture
+\texttt{00000001006}.
+\end{theorem}
+
+\begin{proof}
+This is a finite verification. The five listed vectors are nonzero with
+$Q=0$; enumerating the $15$ lines of Proposition~\ref{prop:params} gives exactly
+one line through each pair of them (and no line containing two of them), so the
+hit count is $1$ on every line. Since each line has exactly $3$ points and
+$\ov$ occupies exactly one of them, the complement occupies exactly the
+remaining $2$; the complement therefore consists of $15-5 = 10$ points and meets
+every line in exactly $2$ points, i.e.\ it is a $2$-ovoid. Finally
+$3 = 2 \cdot 1 + 1$, so $2 \nmid 3$. All counts are tabulated in
+Section~\ref{sec:table} and checked exactly by \texttt{reproduce.py} and by
+\texttt{lean4/Main.lean}.
+\end{proof}
+
+\begin{corollary}
+Conjecture \texttt{00000001006} is false. The quadric $Q(4,2)$ possesses a
+$2$-ovoid although $2 \nmid (2+1)$.
+\end{corollary}
+
+\begin{remark}[the general complement construction]
+The argument is not special to $q=2$. If $Q(4,q)$ has an ovoid $\ov$, then
+$|\ov| = q^2+1$ and the complement $\ov^{c}$ has $(q+1)(q^2+1) - (q^2+1) =
+q(q^2+1)$ points; every line has $q+1$ points and meets $\ov$ once, hence meets
+$\ov^{c}$ exactly $q$ times. So $\ov^{c}$ is a $q$-ovoid, while $q \nmid q+1$
+for every $q \ge 2$. Ovoids of $Q(4,q)$ are known to exist for every prime
+power $q$ (for $q=2$ the ovoid $\ov$ above is explicit), so the criterion
+$(\ast)$ fails for \emph{every} $q \ge 2$ by taking $m = q$. This submission
+formalises the smallest instance $q=2$; the general statement is recorded here
+as context.
+\end{remark}
+
+\section{All $15$ lines and their hit counts}
+\label{sec:table}
+
+Each line of $Q(4,2)$ is listed as $\{a,b,a+b\}$ in coordinates
+$(x_0,x_1,x_2,x_3,x_4)$; the last two columns give the number of points of the
+line lying in $\ov$ and in $\ov^{c}$.
+
+\begin{center}
+\footnotesize
+\begin{tabular}{llcc}
+\toprule
+\multicolumn{2}{c}{generating line} & $|\ell \cap \ov|$ & $|\ell \cap \ov^{c}|$ \\
+\midrule
+$\{(0,1,0,0,0),(0,0,0,1,0),(0,1,0,1,0)\}$ & & 1 & 2 \\
+$\{(0,1,0,0,0),(0,0,0,0,1),(0,1,0,0,1)\}$ & & 1 & 2 \\
+$\{(0,1,0,0,0),(1,0,0,1,1),(1,1,0,1,1)\}$ & & 1 & 2 \\
+$\{(0,0,1,0,0),(0,0,0,1,0),(0,0,1,1,0)\}$ & & 1 & 2 \\
+$\{(0,0,1,0,0),(0,0,0,0,1),(0,0,1,0,1)\}$ & & 1 & 2 \\
+$\{(0,0,1,0,0),(1,0,0,1,1),(1,0,1,1,1)\}$ & & 1 & 2 \\
+$\{(1,1,1,0,0),(0,0,0,1,0),(1,1,1,1,0)\}$ & & 1 & 2 \\
+$\{(1,1,1,0,0),(0,0,0,0,1),(1,1,1,0,1)\}$ & & 1 & 2 \\
+$\{(1,1,1,0,0),(1,0,0,1,1),(0,1,1,1,1)\}$ & & 1 & 2 \\
+$\{(0,1,0,1,0),(0,0,1,0,1),(0,1,1,1,1)\}$ & & 1 & 2 \\
+$\{(0,1,0,1,0),(1,1,1,0,1),(1,0,1,1,1)\}$ & & 1 & 2 \\
+$\{(0,0,1,1,0),(0,1,0,0,1),(0,1,1,1,1)\}$ & & 1 & 2 \\
+$\{(0,0,1,1,0),(1,1,1,0,1),(1,1,0,1,1)\}$ & & 1 & 2 \\
+$\{(1,1,1,1,0),(0,1,0,0,1),(1,0,1,1,1)\}$ & & 1 & 2 \\
+$\{(1,1,1,1,0),(0,0,1,0,1),(1,1,0,1,1)\}$ & & 1 & 2 \\
+\midrule
+\multicolumn{2}{r}{total over all lines} & $15$ & $30$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Every row has hit counts $1$ and $2$, so $\ov$ is an ovoid and $\ov^{c}$ is a
+$2$-ovoid. (The $15$ lines above are exactly the whole line set; this
+completeness is verified by enumeration in \texttt{reproduce.py} and by
+\texttt{lines15\_is\_all\_lines} in \texttt{lean4/Main.lean}.)
+
+\section{The divisibility failure}
+
+The only arithmetic ingredient is
+\[
+q+1 = 3, \qquad m = 2, \qquad 3 = 2 \cdot 1 + 1 \;\Longrightarrow\; 2 \nmid 3 .
+\]
+So an $m$-ovoid exists for $m=2$, but $m$ fails to divide $q+1$. This
+contradicts $(\ast)$ directly.
+
+\section{Caveats and the exact reading}
+
+\begin{itemize}
+\item \textbf{The literal reading is the divisibility one.} Both the English and
+      the Chinese statements write ``$m \mid (q+1)$'', i.e.\ ``$m$ divides
+      $q+1$''. The counterexample above refutes precisely this reading.
+\item \textbf{Weaker readings.} If a reader were to replace ``$m \mid (q+1)$''
+      by ``$m \le q+1$'', then $m=2 \le 3$ would be compatible with the claim
+      and the witness would not apply. But that is not what the filed statement
+      says; the file contains no inequality and no other condition. We record
+      this only to make the reading explicit.
+\item \textbf{Only ``only when'' is used.} The statement is one-directional
+      (a necessary condition), which is exactly what $(\ast)$ formalises; the
+      counterexample violates that necessary condition, so it refutes the
+      conjecture under either the one-directional or the biconditional reading.
+\item \textbf{No algorithmic subtlety.} The ovoid $\ov$ and its complement are
+      given by explicit vectors; every claim is a finite, exact computation
+      with no search heuristics or probabilistic steps.
+\item \textbf{Relation to the literature.} $Q(4,q)$ is a classical generalized
+      quadrangle of order $(q,q)$; its ovoids (respectively, the $m$-ovoids it
+      is known to admit) are a standard topic. Nothing in this note depends on
+      any unpublished result: the $q=2$ instance is fully explicit.
+\end{itemize}
+
+\section{Formalisation and reproducibility}
+
+The Lean~4 project under \texttt{lean4/} (core Lean only, \texttt{import Std},
+no Mathlib, no \texttt{sorry}) models points as \texttt{Fin 5 → Bool}, defines
+$Q$, $B$ and the line relation, hardcodes the ovoid $\ov$, and closes by
+\texttt{decide}:
+\begin{quote}\ttfamily
+theorem O\_is\_ovoid : IsMOvoid 1 O = true\\
+theorem Ocomp\_is\_2ovoid : IsMOvoid 2 Ocomp = true\\
+theorem two\_not\_dvd\_three : \(\neg\) (2 \(\mid\) 3)\\
+theorem two\_ovoid\_exists : \(\exists\) S, IsMOvoid 2 S = true\\
+theorem lines15\_is\_all\_lines : allLinesE = lines15
+\end{quote}
+The axiom audit \texttt{lake env lean Check.lean} reports no \texttt{sorryAx}
+(the finite facts depend at most on \texttt{propext}). The script
+\texttt{reproduce.py} (Python~3 standard library only) rebuilds $Q(4,2)$,
+enumerates all six ovoids, verifies the hit counts of $\ov$ and $\ov^{c}$, and
+exits non-zero on any failure.
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... PASS: Q(4,2) has a 2-ovoid ... conjecture 00000001006 is FALSE.\\
+\$ cd lean4 \&\& lake build \&\& lake env lean Check.lean\\
+\$ tectonic main.tex --outdir build
+\end{quote}
+
+\end{document}
