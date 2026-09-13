@@ -1,0 +1,295 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\DeclareMathOperator{\F}{\mathbb{F}}
+\newcommand{\Zp}{\mathbb{Z}_p}
+\newcommand{\Z}{\mathbb{Z}}
+
+\title{Disproof of conjecture \texttt{00000000747}}
+\author{Submission \texttt{earthking11\_submission\_20260913120000}}
+\date{13 September 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Conjecture \texttt{00000000747} asserts that for every prime $p\ge 5$ the fixed
+points of $x\mapsto x^{p}$ in the $p$-adic integers $\Zp$ are only $0$ and $1$.
+We show that the fixed points of $x\mapsto x^{p}$ on $\Zp$ are exactly the roots
+of $f(x)=x^{p}-x$. By Fermat's little theorem every residue modulo $p$ is a root;
+since $f'(x)=p x^{p-1}-1\equiv -1 \pmod p$ is a unit, Hensel's lemma lifts each of
+the $p$ residue classes to exactly one root in $\Zp$. Hence there are exactly $p$
+fixed points, namely $\{0\}\cup\mu_{p-1}$ (the Teichm\"uller roots). For $p\ge 5$
+that is at least $5$ fixed points, not $2$. The same conclusion holds under the
+alternative reading ``$\Zp=\Z/p\Z$'', where $x^{p}=x$ has all $p$ residues as
+roots in $\F_p$. Conjecture \texttt{00000000747} is therefore false.
+\end{abstract}
+
+\section{The conjecture}
+
+\begin{quote}
+\textbf{Conjecture \texttt{00000000747}.} For $p\ge 5$, the iterative fixed
+points of $x\mapsto x^{p}$ in $\Zp$ are only $0$ and $1$ (rigidity of
+superattracting orbits).
+\end{quote}
+
+A fixed point of the map $x\mapsto x^{p}$ on $\Zp$ is a solution of
+$x^{p}=x$; that is what is analysed below. The word ``iterative'' and the phrase
+``superattracting orbits'' are discussed in
+Section~\ref{sec:language}, where we note that no natural reading rescues the
+claim.
+
+\section{Fixed points are the roots of $f(x)=x^{p}-x$}
+
+\begin{definition}\label{def:f}
+Let $p$ be prime and let
+\[
+  f(x) \;=\; x^{p}-x \;\in\; \Z[x].
+\]
+Write $\Zp$ for the ring of $p$-adic integers and $\F_p=\Z/p\Z$ for the residue
+field.
+\end{definition}
+
+\begin{proposition}\label{prop:roots}
+For $x\in\Zp$ one has $x^{p}=x$ if and only if $f(x)=0$. Consequently the fixed
+points of $x\mapsto x^{p}$ in $\Zp$ are exactly the roots of $f$ in $\Zp$, and the
+fixed points modulo $p$ are exactly the roots of $\bar f(x)=x^{p}-x$ in $\F_p$.
+\end{proposition}
+
+\begin{proof}
+Immediate from the definition of $f$ and reduction modulo $p$.
+\end{proof}
+
+\section{Fermat: every residue is a root modulo $p$}
+
+\begin{theorem}[Fermat's little theorem]\label{thm:fermat}
+For every $a\in\F_p$ one has $a^{p}=a$. Equivalently,
+\[
+  a^{p}-a\equiv 0 \pmod p \qquad\text{for all } a\in\Z .
+\]
+\end{theorem}
+
+\begin{proof}
+The multiplicative group $\F_p^{\times}$ has order $p-1$, so $a^{p-1}=1$ for
+every $a\ne 0$, and multiplying by $a$ gives $a^{p}=a$; the case $a=0$ is
+immediate. The integer form follows by reducing $a$ modulo $p$.
+\end{proof}
+
+\begin{corollary}\label{cor:allres}
+The polynomial $f(x)=x^{p}-x$ has all $p$ elements of $\F_p$ as roots, and
+\[
+  f(x)=x^{p}-x=\prod_{a\in\F_p}(x-a) \quad\text{in }\F_p[x].
+\]
+In particular, for $p\ge 5$ there are at least $5$ roots modulo $p$ --- already
+more than $0$ and $1$.
+\end{corollary}
+
+\begin{proof}
+The first statement is Theorem~\ref{thm:fermat}. The displayed factorisation
+follows because both sides are monic of degree $p$ and the left side vanishes at
+all $p$ roots $a\in\F_p$, whose number equals the degree; equivalently, $x^{p}-x$
+is the product of the distinct linear factors $x-a$.
+\end{proof}
+
+\section{The derivative and Hensel lifting}
+
+\begin{lemma}[Derivative computation]\label{lem:deriv}
+For $f(x)=x^{p}-x$ one has
+\[
+  f'(x) \;=\; p\,x^{p-1}-1 \;\equiv\; -1 \pmod p .
+\]
+Hence $f'(a)\not\equiv 0\pmod p$ for every $a\in\F_p$: all roots of $f$ modulo
+$p$ are \emph{simple}, and $f'(a)$ is a unit in $\Zp$.
+\end{lemma}
+
+\begin{proof}
+Differentiate $x^{p}-x$ termwise. Since $p\equiv 0\pmod p$, the term
+$p x^{p-1}$ vanishes modulo $p$, leaving $-1$, which is a unit of $\F_p$ and of
+$\Zp$.
+\end{proof}
+
+\begin{lemma}[Hensel, simple-root form]\label{lem:hensel}
+Let $g\in\Z[x]$ and let $a\in\Z$ satisfy $g(a)\equiv 0\pmod p$ and
+$g'(a)\not\equiv 0\pmod p$. Then there is a unique $\alpha\in\Zp$ with
+\[
+  \alpha\equiv a \pmod p, \qquad g(\alpha)=0 .
+\]
+Equivalently, each residue class $a\in\F_p$ that is a simple root of $\bar g$
+contains exactly one root of $g$ in $\Zp$.
+\end{lemma}
+
+\begin{proof}
+This is the standard simple-root case of Hensel's lemma. Briefly, given a root
+$a_k$ modulo $p^{k}$ one seeks $a_{k+1}=a_k+t\,p^{k}$ with $t\in\{0,\dots,p-1\}$
+and $g(a_{k+1})\equiv 0\pmod{p^{k+1}}$. Expanding,
+\[
+  g(a_k+t\,p^{k}) \;\equiv\; g(a_k) + t\,p^{k} g'(a_k) \pmod{p^{k+1}},
+\]
+and since $g(a_k)=c\,p^{k}$ for some $c\in\Z$ while $g'(a_k)\equiv g'(a)\not\equiv
+0\pmod p$ is invertible, the congruence $c+t\,g'(a_k)\equiv 0\pmod p$ determines
+$t$ uniquely modulo $p$. The resulting compatible sequence $(a_k)_{k\ge 1}$
+converges in the complete ring $\Zp$ to the unique root $\alpha$ with
+$\alpha\equiv a\pmod p$ (and $\alpha\equiv a_k\pmod{p^{k}}$ for every $k$).
+\end{proof}
+
+\begin{theorem}[Main count]\label{thm:count}
+Let $p$ be prime. The fixed points of $x\mapsto x^{p}$ in $\Zp$ are exactly
+\[
+  \{\,x\in\Zp : x^{p}=x\,\} \;=\; \{0\}\cup\mu_{p-1},
+\]
+where $\mu_{p-1}=\{\zeta\in\Zp:\zeta^{p-1}=1\}$ is the group of
+$(p-1)$-st roots of unity (the Teichm\"uller roots). There are exactly $p$ of
+them: one in each residue class modulo $p$.
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:roots} the fixed points are the roots of
+$f(x)=x^{p}-x=x\,(x^{p-1}-1)$, so $x=0$ or $x^{p-1}=1$; this gives the
+description $\{0\}\cup\mu_{p-1}$. Corollary~\ref{cor:allres} and
+Lemma~\ref{lem:deriv} show that every one of the $p$ residue classes modulo $p$
+is a simple root of $f$ modulo $p$. Applying Lemma~\ref{lem:hensel} to each
+class produces exactly one root in $\Zp$ per class, and these are all the roots
+because any root reduces to some class. Hence the root set has exactly $p$
+elements, namely $0$ together with the $p-1$ elements of $\mu_{p-1}$
+(equivalently, the Teichm\"uller lifts of $\F_p^{\times}$).
+\end{proof}
+
+\begin{corollary}\label{cor:false}
+For every prime $p\ge 5$ the fixed point set of $x\mapsto x^{p}$ in $\Zp$ has
+exactly $p\ge 5$ elements. In particular it is \emph{not} contained in
+$\{0,1\}$, and conjecture \texttt{00000000747} is false.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:count} the fixed point set has $p$ elements. For $p\ge 5$
+we have $p\ge 5>2$, while $\{0,1\}$ has two elements; the nonzero elements of
+$\mu_{p-1}$ other than $1$ are additional fixed points. Hence the fixed points
+are not only $0$ and $1$.
+\end{proof}
+
+\section{The explicit example $p=5$}\label{sec:p5}
+
+Take $p=5$, so $f(x)=x^{5}-x$ and $f'(x)=5x^{4}-1\equiv -1\pmod 5$. Every
+residue class modulo $5$ is a simple root of $f$ modulo $5$, and each lifts
+uniquely to a root in $\Z_5$.
+
+\medskip
+\noindent\textbf{The lift of the class $2 \bmod 5$.}
+Iterating the Hensel step from $a_1=2$ gives the compatible sequence
+\[
+  2,\; 7,\; 57,\; 182,\; 2057,\; 14557,\; 45807,\; 280182
+  \qquad (\text{mod } 5,\;5^{2},\;\dots,\;5^{8}),
+\]
+i.e.\ the unique root of $f$ in $\Z_5$ with $x\equiv 2\pmod 5$ is
+\[
+  \alpha \;=\; 280182 \pmod{5^{8}},
+\]
+and indeed
+\[
+  280182^{5} \;\equiv\; 280182 \pmod{5^{8}=390625}.
+\]
+This is neither $0$ nor $1$: it is $\equiv 2\pmod 5$, whereas $0\equiv 0$ and
+$1\equiv 1\pmod 5$, and a congruence modulo $5^{8}$ would imply the same
+congruence modulo $5$.
+
+\medskip
+\noindent\textbf{A second explicit non-trivial root.} The integer $110443$
+satisfies
+\[
+  110443^{5} \;\equiv\; 110443 \pmod{5^{8}}, \qquad
+  110443 \not\equiv 0,1 \pmod{5^{8}},
+\]
+so $110443 \bmod 5^{8}$ is a further non-trivial root. Its residue modulo $5$ is
+$110443\equiv 3\pmod 5$; thus $110443$ is the Hensel lift of the class
+$3\bmod 5$ (the lift of class $2$ being $280182$ above). Either value already
+contradicts ``only $0$ and $1$''.
+
+\medskip
+In summary, modulo $5^{8}$ the roots of $x^{5}=x$ include $0$, $1$, $280182$ and
+$110443$, and there are exactly $5$ roots in all, one in each class modulo $5$:
+\[
+  \{0\}\cup\mu_4, \qquad |\mu_4|=4 .
+\]
+There is no way to single out $\{0,1\}$.
+
+\section{The alternative reading $\Zp=\Z/p\Z$}
+
+If instead ``$\Zp$'' is read as the finite ring $\Z/p\Z=\F_p$, then the
+fixed points of $x\mapsto x^{p}$ in $\F_p$ are the roots of $x^{p}-x$, which by
+Theorem~\ref{thm:fermat} are \emph{all} $p$ residues. For $p\ge 5$ there are at
+least $5$ fixed points, again not only $0$ and $1$. Thus the conjecture fails
+under its finite reading as well.
+
+\section{On the iterative and superattracting language}\label{sec:language}
+
+The conjecture speaks of ``iterative fixed points'' and of ``rigidity of
+superattracting orbits''. We record that no natural reading rescues the claim.
+
+\begin{remark}[Iterates]
+If ``iterative fixed points of $x\mapsto x^{p}$'' is read as the periodic points
+fixed by the $n$-th iterate $x\mapsto x^{p^{n}}$, the fixed point equation becomes
+$x^{p^{n}}=x$, whose roots in $\Zp$ are $x=0$ together with the roots of
+$x^{p^{n}-1}=1$. Since $\gcd(p,p^{n}-1)=1$, the group of roots of unity of order
+dividing $p^{n}-1$ sits inside $\Zp^{\times}$ and has $p^{n}-1$ elements, so
+there are $p^{n}$ such points, again one per residue class modulo $p$. This set
+is even larger than the fixed point set, so the claim fails a fortiori.
+\end{remark}
+
+\begin{remark}[Superattracting]
+The map under iteration is $g(x)=x^{p}$, whose multiplier at a fixed point $x$
+is
+\[
+  g'(x) \;=\; p\,x^{p-1}.
+\]
+At $x=0$ this is $0$, so $0$ is indeed superattracting. At any $x\in\mu_{p-1}$
+one has $x^{p-1}=1$, hence $g'(x)=p$ with $|p|_p=p^{-1}<1$: such a point is
+\emph{attracting but not superattracting}. Thus ``superattracting'' selects only
+$0$ among the fixed points and does not single out the pair $\{0,1\}$; in
+particular it cannot justify the claim that $1$ is the only other fixed point
+(or any other restriction). The dynamical vocabulary does not change the
+algebraic count of $p$ fixed points.
+\end{remark}
+
+\section{Formal verification}
+
+The full statement that the fixed point set has exactly $p$ elements relies on
+Hensel's lemma. Core Lean 4 does not provide the $p$-adic integers, so the Lean
+development in \texttt{lean4/} formalises the \emph{finite residue shadow} of
+the argument:
+\begin{itemize}
+  \item \texttt{fermat\_five} and \texttt{roots\_mod\_5}: all five residues
+  modulo $5$ satisfy $x^{5}=x$ (Theorem~\ref{thm:fermat});
+  \item \texttt{nontrivial\_root\_mod\_5\_pow\_8}: the explicit root
+  $110443^{5}\equiv 110443\pmod{5^{8}}$, neither $0$ nor $1$;
+  \item \texttt{hensel\_step\_k1}: one concrete Hensel lifting step
+  ($k=1\to k=2$ at $p=5$), the finite instance of Lemma~\ref{lem:hensel};
+  \item \texttt{conjecture\_00000000747\_false}: the packaged finite
+  disproof.
+\end{itemize}
+The general Hensel step and its consequence for $\Zp$ are proved above and are
+additionally verified numerically by \texttt{reproduce.py}, which counts exactly
+$p=5,7,11$ roots modulo $p^{k}$ for all $k\le 8$. See \texttt{lean4/README.md}
+for the precise scope.
+
+\section{Conclusion}
+
+The fixed points of $x\mapsto x^{p}$ on $\Zp$ are the roots of $x^{p}-x$.
+Modulo $p$ all $p$ residue classes are simple roots by Fermat's little theorem,
+and Hensel's lemma lifts each class to exactly one root in $\Zp$. Hence the
+fixed point set is $\{0\}\cup\mu_{p-1}$ and has exactly $p$ elements. For
+$p\ge 5$ this is at least $5$, not the two points $0$ and $1$ claimed. The same
+count refutes the modulo-$p$ reading. Conjecture \texttt{00000000747} is
+therefore \textbf{false}.
+
+\end{document}
