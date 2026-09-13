@@ -1,0 +1,202 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\DeclareMathOperator{\dist}{dist}
+\newcommand{\grid}{\,P_n \mathbin{\square} P_n\,}
+\newcommand{\gridmn}{\,P_m \mathbin{\square} P_n\,}
+
+\title{A counterexample to the claimed closed form for grid burning numbers}
+\author{Rule-3 disproof submission for conjecture \texttt{00000003949}}
+\date{13 September 2026}
+
+\begin{document}
+\maketitle
+
+\section{The conjecture and the burning number}
+
+\begin{definition}[Graph burning]
+The \emph{burning number} $b(G)$ of a finite graph $G$ is the least number of
+rounds needed so that every vertex is covered by a fire source in some round.
+In round $i$ a new source is placed on a vertex, and after being placed a fire
+spreads one step per round.  Equivalently, writing $B(v,r)$ for the closed
+ball of radius $r$ around $v$,
+\begin{equation}\label{eq:burn}
+  b(G) = \min\Bigl\{\, k \;\Bigm|\; \exists\, v_1,\dots,v_k \in V(G):\
+  \bigcup_{i=1}^{k} B(v_i,\,k-i) = V(G) \,\Bigr\}.
+\end{equation}
+Thus for $k$ rounds the radii are exactly $k-1,k-2,\dots,0$, assigned in that
+order to the chosen centres.
+\end{definition}
+
+The conjecture under consideration asserts:
+\begin{quote}
+\emph{The burning number of the $n \times n$ square grid $P_n \mathbin{\square} P_n$
+is exactly $\lceil 2\sqrt{n}-1\rceil$, and for a general $m \times n$ grid with
+$m \le n$ it is given by an explicit piecewise correction of this formula.}
+\end{quote}
+
+The word ``exactly'' is essential: the claim is an identity for every $n$, not
+an asymptotic statement.  We show that the identity already fails at $n = 4$.
+
+\section{The claimed value at $n=4$ is wrong}
+
+For $n = 4$ the formula gives
+\[
+  \bigl\lceil 2\sqrt{4}-1 \bigr\rceil = \lceil 4-1\rceil = 3 .
+\]
+We prove that no $3$-round cover of the $4 \times 4$ grid exists, and then
+exhibit a $4$-round cover.
+
+Throughout, identify the $16$ cells of the $4 \times 4$ grid with pairs
+$(i,j) \in \{0,1,2,3\}^2$, where $i$ is the row and $j$ the column, and use the
+Manhattan distance
+\[
+  \dist\bigl((i,j),(i',j')\bigr) = |i-i'| + |j-j'| .
+\]
+For a centre $c$ and radius $r$, $B(c,r)$ denotes the set of cells at distance
+at most $r$ from $c$.
+
+\begin{proposition}\label{prop:no3}
+There do not exist three cells $c_0,c_1,c_2$ with
+\[
+  B(c_0,2) \cup B(c_1,1) \cup B(c_2,0) = V(P_4 \mathbin{\square} P_4).
+\]
+\end{proposition}
+
+\begin{proof}
+By \eqref{eq:burn} with $k=3$ the radii are forced to be $2,1,0$, in that
+order, so it suffices to rule out every ordered triple
+$(c_0,c_1,c_2)$ of cells, each lying in $\{0,1,2,3\}^2$, of which there are
+$16^3 = 4096$.
+We checked all $4096$ triples exhaustively by computer: for each triple we
+formed the bitmask of $B(c_0,2) \cup B(c_1,1) \cup B(c_2,0)$ and compared it
+with the full $16$-bit mask $2^{16}-1$; no triple produced the full mask.
+The computation is purely combinatorial (no search heuristics), so it is a
+complete proof of the proposition.  It is reproduced by
+\texttt{reproduce.py}, and formalised in Lean~4 in \texttt{lean4/Main.lean}
+(\texttt{theorem\ no\_three\_cover}, proved by exhaustive \texttt{decide} over
+all $4096$ cases).
+\end{proof}
+
+\begin{remark}
+One can also see the obstruction by hand.  A ball of radius $2$ covering a
+corner cell can be assumed, up to the symmetries of the square, to be centred
+at a corner; the resulting reduced case analysis still leaves a nonempty
+residue that a radius-$1$ and a radius-$0$ ball cannot cover.  The exhaustive
+enumeration above avoids any appeal to such a symmetry reduction.
+\end{remark}
+
+\begin{proposition}[A 4-round cover]\label{prop:four}
+The four balls
+\[
+  B\bigl((0,0),3\bigr),\quad
+  B\bigl((0,2),2\bigr),\quad
+  B\bigl((3,2),1\bigr),\quad
+  B\bigl((2,3),0\bigr)
+\]
+cover all $16$ cells of the $4 \times 4$ grid.
+\end{proposition}
+
+\begin{proof}
+Direct verification.  The covered cells, with the index of the round at which
+each cell is first covered, are
+\[
+\begin{array}{cccc}
+1 & 1 & 1 & 1\\
+1 & 1 & 1 & 2\\
+1 & 1 & 2 & 4\\
+1 & 3 & 3 & 3
+\end{array}
+\]
+so every one of the $16$ cells is covered.  For example $B((0,0),3)$ alone
+covers the ten cells with $\dist((i,j),(0,0)) \le 3$: the four cells of row
+$0$, the three cells $(1,0),(1,1),(1,2)$ of row $1$, the two cells
+$(2,0),(2,1)$ of row $2$, and $(3,0)$.  Round $2$'s ball then covers the
+remaining cells of the upper part including $(1,3)$ and $(2,2)$, round $3$'s
+ball covers $(3,1),(3,2),(3,3)$, and round $4$'s single source covers
+$(2,3)$.
+\end{proof}
+
+\begin{corollary}
+$b(P_4 \mathbin{\square} P_4) = 4$, whereas the conjectured formula gives $3$.
+Hence
+\[
+  b(P_4 \mathbin{\square} P_4) = 4 \neq 3 = \bigl\lceil 2\sqrt{4}-1\bigr\rceil .
+\]
+In particular the conjecture is false as stated.
+\end{corollary}
+
+\section{The failure is not an isolated accident: $n=6$}
+
+For $n = 6$ the formula gives
+\[
+  \bigl\lceil 2\sqrt{6}-1 \bigr\rceil = \lceil 4.8989\ldots-1\rceil
+  = \lceil 3.8989\ldots \rceil = 4 .
+\]
+A $4$-round cover would require four cells $c_0,c_1,c_2,c_3$ with
+\[
+  B(c_0,3)\cup B(c_1,2)\cup B(c_2,1)\cup B(c_3,0) = V(P_6 \mathbin{\square} P_6).
+\]
+An exhaustive check of all $36^4 = 1{,}679{,}616$ ordered quadruples of
+centres shows that no such cover exists.  Therefore
+\[
+  b(P_6 \mathbin{\square} P_6) \ge 5 > 4 = \bigl\lceil 2\sqrt{6}-1\bigr\rceil,
+\]
+so the closed form fails again.  This is reproduced by \texttt{reproduce.py}
+(running time well under a second).
+
+\section{Where the formula does hold}
+
+To be fair to the conjecture, the closed form is correct for the small values
+$n = 1,2,3,5$.  An exhaustive computation of $b(P_n \mathbin{\square} P_n)$
+for $n \le 5$ gives:
+\[
+\begin{array}{c|ccccc}
+  n & 1 & 2 & 3 & 4 & 5\\ \hline
+  b(P_n \mathbin{\square} P_n) & 1 & 2 & 3 & 4 & 4\\
+  \lceil 2\sqrt{n}-1\rceil & 1 & 2 & 3 & 3 & 4\\
+  \text{match?} & \checkmark & \checkmark & \checkmark & \times & \checkmark
+\end{array}
+\]
+Thus the formula happens to hold at $n=1,2,3,5$ but fails at $n=4$ and $n=6$.
+The statement of the conjecture uses the phrase ``is exactly'', so it asserts
+an identity for all $n$; a large-$n$ or asymptotic reading is not what the text
+says, and would in any case not rescue the claim at $n=4$ and $n=6$.  The
+conjecture is therefore \textbf{refuted}.
+
+\section{Formal and computational verification}
+
+\begin{itemize}
+  \item \texttt{lean4/Main.lean} formalises the refutation in core Lean~4
+        (only \texttt{import Std}, no Mathlib, no \texttt{sorry}, no
+        \texttt{axiom}, no \texttt{native\_decide}).  It represents the $4\times4$
+        grid as $\mathrm{Fin}\,4 \times \mathrm{Fin}\,4$, encodes a set of cells
+        as a $16$-bit \texttt{Nat} bitmask, and defines a Boolean predicate
+        \texttt{covers} on a list of centres and a list of radii.  The theorem
+        \texttt{no\_three\_cover} states that the number of ordered triples
+        $(c_0,c_1,c_2)$ whose balls of radii $2,1,0$ cover all $16$ cells is
+        $0$, and is proved by exhaustive \texttt{decide} over the $4096$ cases.
+        \texttt{four\_cover\_exists} gives the explicit witness above, and
+        \texttt{conjecture\_00000003949\_false} collects the formula value $3$,
+        the non-existence of a $3$-round cover, the existence of a $4$-round
+        cover, and $3 \neq 4$.  \texttt{lean4/Check.lean} audits the axioms of
+        all three theorems.
+  \item \texttt{reproduce.py} (standard library only) brute-forces
+        $b(P_n \mathbin{\square} P_n)$ for $n=1,\dots,5$, checks that no
+        $4$-round cover of the $6\times6$ grid exists, prints the comparison
+        with $\lceil 2\sqrt{n}-1\rceil$, and prints the explicit $4$-source
+        witness together with the covered cells.
+\end{itemize}
+
+\end{document}
