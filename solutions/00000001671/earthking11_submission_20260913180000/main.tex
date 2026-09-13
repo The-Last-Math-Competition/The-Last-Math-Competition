@@ -1,0 +1,319 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{enumitem}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\setlength{\emergencystretch}{3em}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Kn}{K_n}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+
+\title{Refutation of conjecture 00000001671:\\
+the basis number of $\Kn$ is \emph{not} $\ceil{(n+3)/2}$}
+\author{Submission \texttt{earthking11\_submission\_20260913180000}}
+\date{13 September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000001671 asserts that the basis number of the complete graph
+$\Kn$ equals $\ceil{(n+3)/2}$. We show this is false. The true values for
+$n=3,4,5,6$ are $1,2,3,3$ respectively, whereas the formula predicts
+$3,4,4,5$. All four cases are verified by exact computation; the cases $n=3$
+and $n=4$ are additionally verified in core Lean~4 with no axioms. We also
+observe that the claim fails under the alternative reading in which ``basis
+number'' means the edge multiplicity of a fixed canonical basis.
+\end{abstract}
+
+\section{Definitions and the claim}
+
+Throughout, $G=(V,E)$ is a finite connected graph and all linear algebra is
+over the field $\F_2$ with two elements. We identify an edge subset $S\subseteq
+E$ with its characteristic vector in $\F_2^{E}$; the \emph{cycle space}
+$\mathcal{C}(G)\subseteq \F_2^{E}$ is the kernel of the incidence map, i.e.\
+the set of edge subsets in which every vertex has even degree. It is
+well known that $\dim \mathcal{C}(G) = |E|-|V|+1$ when $G$ is connected, and
+that an edge subset is a cycle in this sense exactly when it is a disjoint
+union of (edge sets of) cycles of $G$.
+
+\begin{definition}[cycle basis]\label{def:cb}
+A \emph{cycle basis} of $G$ is a set $\mathcal{B}\subseteq \mathcal{C}(G)$ of
+linearly independent elements that spans $\mathcal{C}(G)$; equivalently,
+$|\mathcal{B}| = \dim \mathcal{C}(G)$ and $\operatorname{span}\mathcal{B} =
+\mathcal{C}(G)$.
+\end{definition}
+
+\begin{definition}[$k$-fold basis; basis number]\label{def:basis-number}
+A cycle basis $\mathcal{B}$ is \emph{$k$-fold} if every edge of $G$ lies in at
+most $k$ of the cycles in $\mathcal{B}$. The \emph{basis number} $b(G)$ is the
+least $k$ for which a $k$-fold cycle basis exists.
+\end{definition}
+
+\begin{definition}[the conjecture]\label{def:conj}
+Conjecture 00000001671 states that
+\begin{equation}\label{eq:claim}
+  b(\Kn) = \ceil{\tfrac{n+3}{2}} \qquad (n\ge 3).
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Verdict]\label{thm:verdict}
+The claim \eqref{eq:claim} is false. The true basis numbers are
+\begin{equation}\label{eq:table}
+\begin{array}{c|cccc}
+ n & 3 & 4 & 5 & 6\\ \hline
+ b(\Kn) & 1 & 2 & 3 & 3\\
+ \ceil{(n+3)/2} & 3 & 4 & 4 & 5
+\end{array}
+\end{equation}
+In particular \eqref{eq:claim} fails for every $n\in\{3,4,5,6\}$.
+\end{theorem}
+
+The remainder of the paper proves \eqref{eq:table} case by case and then
+discusses the strongest alternative reading of the conjecture.
+
+\begin{remark}[two elementary counting bounds]
+\label{rem:counting}
+Let $d = \dim\mathcal{C}(G) = |E|-|V|+1$ and let $\mathcal{B}$ be a $k$-fold
+cycle basis.
+\begin{enumerate}[label=(\roman*)]
+\item Every cycle of a simple graph has at least $3$ edges, so
+  $3d \le \sum_{C\in\mathcal{B}} |C| \le k\,|E|$ and hence
+  $k \ge \ceil{3d/|E|}$.
+\item If $G$ is simple, the sum $\sum_{C\in\mathcal{B}}|C|$ counts each edge
+  with multiplicity at most $k$; when equality
+  $\sum_{C\in\mathcal{B}}|C| = k\,|E|$ holds, \emph{every} edge is used
+  \emph{exactly} $k$ times.
+\end{enumerate}
+\end{remark}
+
+\section{$K_3$: the basis number is $1$, not $3$}
+
+Here $|V|=3$, $|E|=3$, so $d = 3-3+1 = 1$. The cycle space consists of
+$\varnothing$ and the single triangle $C = \{01,02,12\}$; this is the unique
+nonzero cycle, and $\{C\}$ is a cycle basis. Each of the three edges lies in
+exactly one basis cycle, so $\{C\}$ is \emph{$1$-fold} and $b(K_3)\le 1$. The
+value $0$ is impossible because a $0$-fold basis would have to consist of
+cycles using no edge at all, which cannot span the nonzero cycle space. Hence
+\[
+  b(K_3)=1 \neq 3 = \ceil{\tfrac{3+3}{2}}.
+\]
+This already refutes \eqref{eq:claim}. It also shows that the assertion in the
+conjecture that ``the known lower bound matches'' is inaccurate: the
+elementary lower bound of Remark~\ref{rem:counting}(i) is
+$\ceil{3\cdot 1/3}=1$, and it is tight here, not equal to $3$.
+
+\section{$K_4$: the basis number is $2$, not $4$}
+
+Now $|V|=4$, $|E|=6$, so $d = 6-4+1 = 3$.
+
+\paragraph{No $1$-fold basis.}
+A $1$-fold basis $\mathcal{B}$ of three independent cycles would satisfy
+\[
+  9 = 3d \le \sum_{C\in\mathcal{B}}|C| \le 1\cdot |E| = 6,
+\]
+an impossibility.
+
+\paragraph{A $2$-fold basis.}
+Consider the three triangles (written as vertex sets)
+\[
+  T_1=\{0,1,2\},\qquad T_2=\{0,1,3\},\qquad T_3=\{0,2,3\}.
+\]
+Their edge sets are
+\[
+  E(T_1)=\{01,02,12\},\quad
+  E(T_2)=\{01,03,13\},\quad
+  E(T_3)=\{02,03,23\}.
+\]
+They are linearly independent over $\F_2$: the edge $12$ lies only in
+$T_1$, the edge $13$ only in $T_2$, and the edge $23$ only in $T_3$, so any
+linear relation has all coefficients zero. Since $d=3$, they form a basis. Edge
+multiplicities are:
+\[
+  \begin{array}{c|cccccc}
+    \text{edge} & 01 & 02 & 03 & 12 & 13 & 23\\ \hline
+    \#\{\text{basis cycles containing it}\} & 2 & 2 & 2 & 1 & 1 & 1
+  \end{array}
+\]
+Hence every edge lies in \emph{at most} two of the basis cycles, so this is a
+$2$-fold basis and $b(K_4)\le 2$. Combined with the previous paragraph,
+$b(K_4)=2$.
+
+\begin{remark}[a caution about the witness]\label{rem:caution}
+It is \emph{not} true that every edge of $K_4$ lies in exactly two of the three
+triangles $T_1,T_2,T_3$: the edges $12,13,23$ of the omitted triangle
+$\{1,2,3\}$ lie in only one of them. The correct statement is that every edge
+lies in \emph{at most} two, which is precisely what is needed for the value
+$k=2$. (If instead one took all four triangles, edge $01$ would lie in three of
+them, and the set would not even be independent.)
+\end{remark}
+
+Therefore
+\[
+  b(K_4)=2 \neq 4 = \ceil{\tfrac{4+3}{2}}.
+\]
+
+\section{$K_5$: the basis number is $3$, not $4$}
+
+Here $|V|=5$, $|E|=10$, so $d=10-5+1=6$.
+
+\paragraph{No $1$-fold or $2$-fold basis.}
+For $k=1$, Remark~\ref{rem:counting}(i) gives
+$k\ge \ceil{3\cdot 6/10} = 2$, so no $1$-fold basis exists.
+
+For $k=2$ the total-length budget is $k|E| = 20$, while $3d=18$; so
+\[
+  \sum_{C\in\mathcal{B}}\bigl(|C|-3\bigr) \le 20-18 = 2 .
+\]
+Every cycle has length at least $3$, and a cycle of length $\ge 6$ would
+already force the sum to be at least $6+5\cdot 3 = 21>20$. Hence a
+hypothetical $2$-fold basis would consist of cycles of lengths $3,4,5$ only,
+with at most two units of ``excess'' $\sum(|C|-3)$. Since $K_5$ has
+$\binom{5}{3}=10$ triangles, $\binom{5}{4}\cdot 3 = 15$ four-cycles, and
+$\binom{5}{5}\cdot(5-1)!/2 = 12$ five-cycles, the number of candidate
+$6$-element cycle sets of total length at most $20$ is exactly
+\[
+  \underbrace{\binom{10}{6}}_{210}
+  +\underbrace{\binom{10}{5}\cdot 15}_{3780}
+  +\underbrace{\binom{10}{5}\cdot 12}_{3024}
+  +\underbrace{\binom{10}{4}\binom{15}{2}}_{22050}
+  = 29\,064 .
+\]
+Exhaustive check of these $29\,064$ sets shows that none is linearly
+independent with every edge occurring at most twice. (The check is reproduced
+by the accompanying \texttt{reproduce.py}; the same run also performs a
+brute-force check of all bases for $K_3$ and $K_4$.) Thus no $2$-fold basis
+exists.
+
+\paragraph{A $3$-fold basis.}
+Fix the vertex $0$ as a centre and take, for each pair $1\le i<j\le 4$, the
+triangle $C_{ij}=\{0,i,j\}$. There are $\binom{4}{2}=6$ of them, equal to
+$d$, and they are independent (the edge $ij$ occurs only in $C_{ij}$). The
+spokes $0i$ occur in the three triangles $C_{ij}$ with $j\ne i$, and the edges
+$ij$ occur once; hence every edge occurs in at most $3$ cycles. So
+$b(K_5)\le 3$, and with the previous paragraph,
+\[
+  b(K_5)=3 \neq 4 = \ceil{\tfrac{5+3}{2}}.
+\]
+
+\section{$K_6$: the basis number is $3$, not $5$}
+
+Here $|V|=6$, $|E|=15$, so $d=15-6+1=10$.
+
+\paragraph{No $1$-fold or $2$-fold basis.}
+For $k=1$, Remark~\ref{rem:counting}(i) gives
+$k\ge\ceil{3\cdot 10/15}=2$, so no $1$-fold basis exists.
+
+For $k=2$, the budget is $k|E|=30$ and $3d=30$ are equal. By
+Remark~\ref{rem:counting}(ii), a $2$-fold basis would consist of $10$
+triangles in which \emph{every} edge of $K_6$ occurs exactly twice. Such a
+family is a Steiner triple system on $6$ points: a set of triples in which
+every unordered pair of points lies in exactly one triple. But in a Steiner
+triple system on $v$ points each point lies in
+\[
+  \frac{v-1}{2} = \frac{6-1}{2} = \frac{5}{2}
+\]
+triples, which is not an integer. Contradiction. Hence no $2$-fold basis
+exists.
+
+\paragraph{A $3$-fold basis.}
+The following ten triangles (vertex sets) of $K_6$ form a $3$-fold basis:
+\[
+\begin{gathered}
+\{0,1,2\},\ \{0,1,3\},\ \{0,1,4\},\ \{0,2,3\},\ \{0,2,4\},\\
+\{0,3,5\},\ \{0,4,5\},\ \{1,2,5\},\ \{1,3,4\},\ \{1,3,5\}.
+\end{gathered}
+\]
+They are linearly independent (their span has dimension $10=d$), and a direct
+count gives the edge multiplicities
+\[
+  \begin{array}{c|ccccccccccccccc}
+    \text{edge} & 01&02&03&04&05&12&13&14&15&23&24&25&34&35&45\\ \hline
+    \text{mult.} & 3&3&3&3&2&2&3&2&2&1&1&1&1&2&1
+  \end{array}
+\]
+so every edge occurs at most three times. Therefore $b(K_6)\le 3$, and with the
+previous paragraph,
+\[
+  b(K_6)=3 \neq 5 = \ceil{\tfrac{6+3}{2}}.
+\]
+
+This completes the proof of Theorem~\ref{thm:verdict}.
+
+\section{The strongest objection: a fixed canonical basis}
+
+A possible defence of the conjecture is to change the meaning of ``basis
+number'' from Definition~\ref{def:basis-number} to the maximum edge
+multiplicity of some \emph{specific} canonical cycle basis, for instance the
+standard \emph{star basis} of $K_n$.
+
+Fix a vertex $0$ and let $T$ be the star with centre $0$, i.e.\ the spanning
+tree with edges $0i$ for $1\le i\le n-1$. The non-tree edges are the pairs
+$ij$ with $1\le i<j\le n-1$, of which there are
+$\binom{n-1}{2}=d$. The corresponding fundamental cycles are the triangles
+$0\!-\!i\!-\!j\!-\!0$, and they form the star basis. In this basis the spoke
+$0i$ lies in one triangle for every $j\in\{1,\dots,n-1\}\setminus\{i\}$, i.e.\
+in exactly $n-2$ basis cycles, while every edge $ij$ lies in exactly one. The
+maximum edge multiplicity of the star basis is therefore
+\begin{equation}\label{eq:star}
+  n-2,
+\end{equation}
+and the star basis is optimal among fundamental bases of a star.
+
+Under this alternative reading, the predicted value for $K_n$ would be
+$n-2$; for $n=4,5,6$ this is $2,3,4$. The conjectured formula
+$\ceil{(n+3)/2}$ gives $4,4,5$ for the same values of $n$. Hence
+\begin{equation}\label{eq:star-mismatch}
+  n-2 \neq \ceil{\tfrac{n+3}{2}} \qquad (n=4,5,6),
+\end{equation}
+so the formula is wrong under this reading as well. In other words, the claim
+is false both for the least-$k$ definition (Definition~\ref{def:basis-number},
+which is the definition stated in the conjecture) and for the fixed-canonical-basis
+reading. The two readings only happen to agree at $n=3$, where both give $1$,
+and even there the formula $\ceil{(3+3)/2}=3$ is wrong.
+
+\begin{remark}
+The star basis does give the optimal value $b(K_4)=2$ and $b(K_5)=3$, which is
+presumably the source of the conjecture's ``upper bound''. It fails to be
+optimal already for $K_6$, where $n-2=4$ while the true value is $3$
+(Section~6); the ten-triangle basis above is strictly better than the star
+basis.
+\end{remark}
+
+\section{Machine verification}
+
+All statements of Theorem~\ref{thm:verdict} are verified by exact computation.
+
+\begin{itemize}
+\item \texttt{reproduce.py} (Python standard library only) enumerates the cycle
+  space of $K_n$ over $\F_2$, and decides the existence of a $k$-fold basis by
+  an exact backtracking search using the length budget of
+  Remark~\ref{rem:counting}. It prints the table \eqref{eq:table} against the
+  formula and exits $0$ on \texttt{PASS}. For $K_3,K_4$ it independently
+  re-derives the values by exhaustive enumeration of \emph{all} bases.
+\item \texttt{lean4/} contains a core-Lean~4 development (no Mathlib, no
+  \texttt{sorry}, no \texttt{axiom}, no \texttt{native\_decide}) in which edge
+  subsets are bitmasks and the cycle space, the predicate
+  \texttt{IsKFoldBasis}, and \texttt{minBasisNumber} are straight structural
+  recursions, so that the kernel itself evaluates them. It proves
+  \texttt{minBasisNumber 3 = 1} and \texttt{minBasisNumber 4 = 2} by
+  \texttt{by decide}, together with the mismatches against
+  $\ceil{(n+3)/2}$. The axiom audit reports that none of these theorems
+  depends on any axiom.
+\end{itemize}
+
+\end{document}
