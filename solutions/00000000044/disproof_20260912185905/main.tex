@@ -1,0 +1,189 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A Counterexample to Conjecture 00000000044}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000044 asserts that every positive rational is a finite sum of
+reciprocals of distinct primes, and that a greedy algorithm over prime
+denominators always terminates. Both fail. If $q=\sum_{p\in S}1/p$ over a
+finite set $S$ of distinct primes, then every prime dividing the reduced
+denominator of $q$ lies in $S$; consequently $1/n$ is representable only when
+$n=1$ or $n$ is prime, and $1/4$ is the smallest counterexample. The refutation
+is formalized in Lean~4 against Mathlib.
+\end{abstract}
+
+\section{Statement}
+
+Conjecture 00000000044 asks two questions and asserts a positive answer to
+each:
+\begin{enumerate}
+  \item[(i)] every positive rational number is a finite sum of reciprocals of
+    distinct primes;
+  \item[(ii)] the greedy algorithm restricted to prime denominators always
+    terminates in finitely many steps.
+\end{enumerate}
+Write
+\[
+  \mathcal R=\Bigl\{\textstyle\sum_{p\in S}\tfrac1p\;:\;S\subseteq\mathbb P
+  \text{ finite}\Bigr\}
+\]
+for the set of values representable as in~(i), where $\mathbb P$ is the set of
+primes and the elements of $S$ are distinct by virtue of $S$ being a set. For
+$q\in\mathbb Q$ let $\operatorname{den}(q)$ denote the denominator of $q$ in
+lowest terms.
+
+\section{Two obstructions}
+
+\begin{proposition}\label{prop:dvd}
+Let $S\subseteq\mathbb P$ be finite and $q=\sum_{p\in S}1/p$. Then
+\[
+  \operatorname{den}(q)\ \Bigm|\ \prod_{p\in S}p .
+\]
+\end{proposition}
+
+\begin{proof}
+Induction on $S$. For $S=\varnothing$ the sum is $0$, whose denominator is $1$.
+For the step, let $a\in\mathbb P$ and $a\notin S$. The denominator of a sum
+divides the product of the denominators, so
+\[
+  \operatorname{den}\Bigl(\tfrac1a+\sum_{p\in S}\tfrac1p\Bigr)
+  \;\Bigm|\;
+  \operatorname{den}\bigl(\tfrac1a\bigr)\cdot
+  \operatorname{den}\Bigl(\sum_{p\in S}\tfrac1p\Bigr)
+  \;=\;a\cdot\operatorname{den}\Bigl(\sum_{p\in S}\tfrac1p\Bigr),
+\]
+using $\operatorname{den}(1/a)=a$ for $a$ prime. By the inductive hypothesis
+this divides $a\prod_{p\in S}p$, which is the product over $S\cup\{a\}$.
+\end{proof}
+
+\begin{corollary}\label{cor:sqfree}
+If $q\in\mathcal R$ then $\operatorname{den}(q)$ is squarefree.
+\end{corollary}
+
+\begin{proof}
+A product of distinct primes is squarefree, and a divisor of a squarefree
+number is squarefree.
+\end{proof}
+
+Corollary~\ref{cor:sqfree} already refutes (i): $\operatorname{den}(1/4)=4$ is
+not squarefree, so $1/4\notin\mathcal R$. The next observation is sharper and
+shows that the failure is not isolated.
+
+\begin{proposition}\label{prop:mem}
+Let $S\subseteq\mathbb P$ be finite and $q=\sum_{p\in S}1/p$. Then every prime
+dividing $\operatorname{den}(q)$ belongs to $S$. Consequently
+\begin{equation}\label{eq:lb}
+  q\;\ge\sum_{\substack{r\ \mathrm{prime}\\ r\,\mid\,\operatorname{den}(q)}}\frac1r .
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Let $r$ be a prime dividing $\operatorname{den}(q)$. By
+Proposition~\ref{prop:dvd}, $r\mid\prod_{p\in S}p$, so $r$ divides some
+$p\in S$; as both are prime, $r=p\in S$. Thus the set of prime divisors of
+$\operatorname{den}(q)$ is a subset of $S$, and \eqref{eq:lb} follows because
+all the omitted terms $1/p$ are positive.
+\end{proof}
+
+\section{The conjecture is false}
+
+\begin{theorem}\label{thm:main}
+For $n\ge2$, if $1/n\in\mathcal R$ then $n$ is prime. In particular
+$1/n\notin\mathcal R$ for every composite $n$, and the smallest counterexample
+to (i) is
+\[
+  q=\tfrac14 .
+\]
+\end{theorem}
+
+\begin{proof}
+Let $n\ge2$ be composite and suppose $1/n\in\mathcal R$. We have
+$\operatorname{den}(1/n)=n$. Let $r$ be the least prime factor of $n$. Since
+$n$ is composite, $r<n$. By \eqref{eq:lb},
+\[
+  \frac1n\;\ge\sum_{\substack{s\ \mathrm{prime}\\ s\,\mid\,n}}\frac1s\;\ge\;\frac1r\;>\;\frac1n,
+\]
+a contradiction. (For $n$ prime the same inequality reads $1/n\ge1/n$ and is no
+obstruction; indeed $1/n=\sum_{p\in\{n\}}1/p$.)
+\end{proof}
+
+So (i) fails for $1/4,\ 1/6,\ 1/8,\ 1/9,\ 1/10,\ 1/12,\dots$ --- for every
+composite $n$. Statement (i) of the conjecture is false.
+
+\begin{corollary}
+Statement (ii) is false as well.
+\end{corollary}
+
+\begin{proof}
+A terminating run of a procedure that repeatedly subtracts reciprocals of
+distinct primes from a positive rational and stops at $0$ exhibits the starting
+value as a finite sum of reciprocals of distinct primes, that is, as an element
+of $\mathcal R$. Since $1/4\notin\mathcal R$, no such procedure terminates on
+$1/4$ --- whatever rule it uses to choose the next prime, greedy or otherwise.
+\end{proof}
+
+\begin{remark}
+The two obstructions are necessary conditions only, and we do not determine
+$\mathcal R$. Corollary~\ref{cor:sqfree} and Proposition~\ref{prop:mem} say
+nothing about, for instance, whether $1\in\mathcal R$: the denominator $1$ is
+squarefree and has no prime divisors, so \eqref{eq:lb} is vacuous there. A
+repaired conjecture would at minimum have to restrict to rationals $q$ with
+$\operatorname{den}(q)$ squarefree satisfying \eqref{eq:lb}.
+\end{remark}
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes the refutation against Mathlib. The
+conjecture is stated in the formalization, so the final theorem is a
+formalization of its negation rather than of facts that merely entail it.
+
+\begin{itemize}
+  \item \texttt{IsPrimeReciprocalSum}, \texttt{ConjectureHolds} --- membership
+    in $\mathcal R$, and statement (i).
+  \item \texttt{den\_dvd\_prod} --- Proposition~\ref{prop:dvd}, by induction on
+    the finite set using Mathlib's \texttt{Rat.add\_den\_dvd}.
+  \item \texttt{prod\_primes\_squarefree},
+    \texttt{squarefree\_den\_of\_isPrimeReciprocalSum} ---
+    Corollary~\ref{cor:sqfree}, with \texttt{Squarefree} Mathlib's notion.
+  \item \texttt{primeFactors\_den\_subset}, \texttt{sum\_primeFactors\_den\_le}
+    --- Proposition~\ref{prop:mem} and the inequality \eqref{eq:lb}.
+  \item \texttt{not\_isPrimeReciprocalSum\_one\_div\_composite} ---
+    Theorem~\ref{thm:main}.
+  \item \texttt{conjecture\_00000000044\_false} ---
+    $\lnot$\,\texttt{ConjectureHolds}, by instantiating at $q=1/4$.
+  \item \texttt{no\_prime\_greedy\_terminates\_at\_one\_div\_four} --- the
+    corollary for (ii), in the rule-independent form stated above.
+\end{itemize}
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and
+introduces no axioms of its own:
+\texttt{\#print axioms conjecture\_00000000044\_false} reports exactly the
+three standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
