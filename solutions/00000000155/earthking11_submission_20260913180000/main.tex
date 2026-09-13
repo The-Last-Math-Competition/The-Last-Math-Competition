@@ -1,0 +1,142 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\title{A Disproof of Conjecture 00000000155:\\
+There Are More Bell Primes Than $B_2$ and $B_3$}
+\author{earthking11}
+\date{September 13, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000155 asserts that the only Bell primes are $B_2 = 2$ and
+$B_3 = 5$. We refute it: in the same $0$-indexed convention used by the
+conjecture file, $B_7 = 877$ and $B_{13} = 27644437$ are both prime, and
+neither equals $2$ or $5$. The claim is therefore false. The computation is
+formalized in core Lean~4 (\texttt{import Std}, no Mathlib) and reproduced
+with an independent Python script.
+\end{abstract}
+
+\section{The Bell numbers}
+
+The Bell number $B_n$ counts the partitions of an $n$-element set, with
+$B_0 = B_1 = 1$. The conjecture file fixes the convention by writing
+$B_2 = 2$ and $B_3 = 5$; this is the standard $0$-indexed sequence
+OEIS A000110. The first values, computed with the Bell triangle
+(Aitken's array),
+\[
+a_{0,0} = 1,\qquad
+a_{n,0} = a_{n-1,n-1},\qquad
+a_{n,k} = a_{n,k-1} + a_{n-1,k-1},
+\]
+and $B_n = a_{n,0}$, are:
+
+\begin{center}
+\begin{tabular}{cc}
+\toprule
+$n$ & $B_n$ \\
+\midrule
+$0$  & $1$ \\
+$1$  & $1$ \\
+$2$  & $2$ \quad (prime) \\
+$3$  & $5$ \quad (prime) \\
+$4$  & $15$ \\
+$5$  & $52$ \\
+$6$  & $203$ \\
+$7$  & $877$ \quad (prime) \\
+$8$  & $4140$ \\
+$9$  & $21147$ \\
+$10$ & $115975$ \\
+$11$ & $678570$ \\
+$12$ & $4213597$ \\
+$13$ & $27644437$ \quad (prime) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Primality certificates}
+
+\begin{lemma}
+$877$ is prime.
+\end{lemma}
+
+\begin{proof}
+Since $\sqrt{877} < 30$, it suffices to rule out the ten primes
+$2,3,5,7,11,13,17,19,23,29$. Direct division gives the nonzero remainders
+\[
+\begin{aligned}
+877 \bmod 2 = 1, &\qquad
+877 \bmod 3 = 1, &\qquad
+877 \bmod 5 = 2,\\
+877 \bmod 7 = 2, &\qquad
+877 \bmod 11 = 8, &\qquad
+877 \bmod 13 = 6,\\
+877 \bmod 17 = 10, &\qquad
+877 \bmod 19 = 3, &\qquad
+877 \bmod 23 = 3,\\
+877 \bmod 29 = 7. &&
+\end{aligned}
+\]
+No prime $p \le 29$ divides $877$, so $877$ is prime.
+\end{proof}
+
+\begin{lemma}
+$27644437$ is prime.
+\end{lemma}
+
+\begin{proof}
+Here $\sqrt{27644437} < 5258$, since $5257^2 = 27636049 \le 27644437 <
+27646564 = 5258^2$.  It therefore suffices to check that no odd
+$d$ with $3 \le d \le 5257$ divides $27644437$ (the even cases are excluded
+because the number is odd).  An exhaustive trial division, performed exactly
+in integer arithmetic, finds no divisor; equivalently, the Lean function
+\texttt{isPrimeB} returns \texttt{true} on this input, and the Python
+reproduction script confirms the same.  The formal trial-division loop stops
+as soon as $d^2 > n$, so it examines only $d = 3, 5, \dots, 5257$, a finite
+check of $2628$ candidates.
+\end{proof}
+
+\section{Refutation}
+
+\begin{theorem}
+The only Bell primes are not $B_2 = 2$ and $B_3 = 5$.
+\end{theorem}
+
+\begin{proof}
+By the table, $B_7 = 877$ and $B_{13} = 27644437$, and by the two lemmas
+both are prime. Since $877 \notin \{2, 5\}$ and
+$27644437 \notin \{2, 5\}$, the set of Bell primes contains at least
+$\{2, 5, 877, 27644437\}$, which is strictly larger than $\{2, 5\}$.
+Hence the conjecture is false. Formally, in \texttt{Main.lean} we prove
+\[
+\texttt{bell } 2 = 2 \;\wedge\; \texttt{bell } 3 = 5 \;\wedge\;
+\texttt{isPrimeB }(\texttt{bell } 7) = \texttt{true} \;\wedge\;
+\texttt{isPrimeB }(\texttt{bell } 13) = \texttt{true},
+\]
+together with $\texttt{bell } 7 \ne \texttt{bell } 2$ and
+$\texttt{bell } 7 \ne \texttt{bell } 3$, all by kernel reduction with
+\texttt{decide} (no \texttt{sorry}, no \texttt{axiom}, no
+\texttt{native\_decide}).
+\end{proof}
+
+\begin{conjecture}[00000000155, refuted]
+The only Bell primes are $B_2 = 2$ and $B_3 = 5$.
+\end{conjecture}
+
+\begin{corollary}
+The list of Bell primes begins $2, 5, 877, 27644437, \dots$; in particular
+the conjecture is incomplete.  We verify the range $0 \le n \le 20$ here;
+larger Bell primes are reported in the literature, but are not needed for
+the refutation.
+\end{corollary}
+
+\end{document}
