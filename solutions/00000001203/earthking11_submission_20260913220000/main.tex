@@ -1,0 +1,368 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\emergencystretch=3em
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\mex}{\operatorname{mex}}
+
+\title{Disproof of conjecture \texttt{00000001203}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001203} as stated. The refutation is
+unconditional and elementary: for the move set $S = \{1,3\}$ with $k = 3$, the
+Sprague--Grundy (SG) sequence is $0,1,0,1,\dots$, whose least period is $2$. Since
+$k = 3 \in S$, the conjecture demands period exactly $k+1 = 4$; it is $2$.
+Moreover $\max(S) = 3 = k$, so the two possible readings of the parameter $k$
+coincide and the refutation is interpretation-free. Corroborating witnesses
+($S = \{2\}$, $k = 2$, and the clause-1 witness $S = \{1,2\}$) show that the
+failure is not caused by our choice of witness.
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000001203.md}:
+
+\begin{quote}
+\textbf{Definition:} An addition-subtraction game is a subtraction game whose
+legal moves are the fixed values in a set $S$; the SG period is the least
+positive period of $g(n)$. \textbf{Conjecture:} If $S \subset \{1,\dots,k\}$,
+then the period of $g$ divides $2^k-1$ if and only if $S$ is nonempty and does
+not contain $k$; when $k \in S$ the period is exactly $k+1$.
+\end{quote}
+
+\noindent (The conjecture is filed bilingually; the Chinese original is quoted
+in \texttt{README.md}.) The statement has two clauses:
+
+\begin{enumerate}
+\item[(C1)] \emph{(the ``if and only if'')} the least period of $g$ divides
+  $2^k - 1$ \quad $\Longleftrightarrow$ \quad $S$ is nonempty and $k \notin S$;
+\item[(C2)] \emph{(the special case)} if $k \in S$, the least period is exactly
+  $k + 1$.
+\end{enumerate}
+
+Both clauses are refuted below. The primary witness fails (C2); the witness
+$S=\{1,2\}$ fails (C1) under every reading of $k$.
+
+\section{Subtraction games and the SG recursion}
+
+\begin{definition}[SG sequence]
+For a finite set $S \subset \mathbb{N}_{>0}$ of legal moves (an
+\emph{addition-subtraction game}), the SG sequence $g \colon \mathbb{N} \to
+\mathbb{N}$ is
+\[
+g(0) = 0, \qquad g(n) = \mex\{\, g(n-s) \;:\; s \in S,\ s \le n \,\} \quad (n \ge 1),
+\]
+where $\mex(T)$ is the least non-negative integer not in $T$.
+\end{definition}
+
+\begin{definition}[SG period]
+The \emph{SG period} is the least positive $p$ with $g(n+p) = g(n)$ for all
+$n \ge 0$.
+\end{definition}
+
+\section{The primary witness: $S = \{1,3\}$, $k = 3$}
+
+\begin{theorem}\label{thm:primary}
+Let $S = \{1,3\}$ and $k = 3$. Then the SG sequence is
+\[
+g(0), g(1), g(2), g(3), g(4), g(5), \dots \;=\; 0, 1, 0, 1, 0, 1, \dots
+\]
+and $g(n) = n \bmod 2$ for all $n$. Its least period is $2$.
+\end{theorem}
+
+\begin{proof}
+The recursion reads
+\[
+g(0)=0,\quad
+g(1)=\mex\{g(0)\},\quad
+g(2)=\mex\{g(1)\},\quad
+g(n)=\mex\{g(n-3),\,g(n-1)\}\ \ (n \ge 3).
+\]
+We prove $g(n) = n \bmod 2$ by strong induction. The first terms are
+\[
+g(0)=\mex\varnothing=0,\quad
+g(1)=\mex\{0\}=1,\quad
+g(2)=\mex\{1\}=0 .
+\]
+For $n \ge 3$, both predecessors $n-3$ and $n-1$ have the same parity as
+$n-1$, so by induction $g(n-3) = g(n-1) = (n-1) \bmod 2 =: a \in \{0,1\}$.
+Hence
+\[
+g(n) = \mex\{a, a\} = \mex\{a\} = 1 - a = 1 - \bigl((n-1) \bmod 2\bigr) = n \bmod 2 .
+\]
+Thus $g(n+2) = g(n)$ for all $n$, so $2$ is a period, while $g(1) = 1 \ne 0 =
+g(0)$ excludes period $1$. Therefore the least period is exactly $2$.
+\end{proof}
+
+\begin{corollary}\label{cor:primary}
+The primary witness refutes conjecture \texttt{00000001203}. Here
+$k = 3 \in S$, so clause (C2) demands least period $k+1 = 4$; the actual least
+period is $2 \ne 4$. Equivalently, there is no way for the period to be both
+$4$ and the least period, because $2$ already is.
+\end{corollary}
+
+\begin{remark}
+For this witness clause (C1) happens to be \emph{satisfied}: $k = 3 \in S$ makes
+the right-hand side false, and $2 \nmid 2^3 - 1 = 7$ makes the left-hand side
+false as well, so the biconditional is true. It is clause (C2) that fails. This
+is exactly why we also exhibit a clause-(C1) witness in
+Section~\ref{sec:corroborating}.
+\end{remark}
+
+\section{The reading of the parameter $k$ is ambiguous --- and the primary
+witness is immune}
+
+The conjecture says ``if $S \subset \{1,\dots,k\}$'', which admits two natural
+readings of $k$:
+
+\begin{itemize}
+\item[(A)] \emph{Ambient bound.} $k$ is the bound in $\{1,\dots,k\}$, so the
+  hypothesis is $S \subseteq \{1,\dots,k\}$ for a $k$ that may strictly exceed
+  $\max(S)$. This reading is supported by the wording: ``does not contain $k$''
+  is a genuine, non-vacuous condition only when $k$ can lie outside $S$.
+\item[(B)] \emph{Charitable / tight reading.} $k = \max(S)$.
+\end{itemize}
+
+Under reading (B) the condition ``$k \notin S$'' is never satisfiable (because
+$\max(S) \in S$ by definition whenever $S \neq \varnothing$), so the ``if and
+only if'' degenerates. We therefore treat both readings explicitly.
+
+\begin{proposition}\label{prop:immune}
+The primary witness $S = \{1,3\}$, $k=3$ refutes clause (C2) under
+\emph{both} readings (A) and (B): under (A) the ambient bound is $k = 3$; under
+(B) we have $\max(S) = 3$, so again $k = 3$. Since the two values agree and
+$k \in S$, clause (C2) demands period $k+1 = 4$ in either case, while the least
+period is $2$.
+\end{proposition}
+
+Thus the disproof does not depend on resolving the ambiguity. By contrast, the
+earlier candidate $S = \{1\}$ with $k = 3$ is fragile: under reading (B) one has
+$k = 1$ and the period $2 = k+1$ satisfies clause (C2), so that witness refutes
+the conjecture only under reading (A). We do not rely on it.
+
+\section{Corroborating witnesses}
+\label{sec:corroborating}
+
+\subsection*{Second-clause witness: $S = \{2\}$, $k = 2$}
+
+\begin{theorem}\label{thm:secondary}
+Let $S = \{2\}$. Then
+\[
+g = 0, 0, 1, 1, 0, 0, 1, 1, \dots, \qquad g(n) = \Bigl\lfloor \frac{n}{2}
+\Bigr\rfloor \bmod 2,
+\]
+with least period $4$. Since $k = 2 \in S$, clause (C2) demands least period
+$k+1 = 3$; but the least period is $4 \ne 3$. Again $\max(S) = 2 = k$, so the
+witness is interpretation-free.
+\end{theorem}
+
+\begin{proof}
+Here $g(n) = \mex\{g(n-2)\}$ for $n \ge 2$, with $g(0)=g(1)=0$ (for $n=1$ the
+only move, $2$, is illegal). Since $\mex\{0\}=1$ and $\mex\{1\}=0$, the
+sequence alternates $0,1,0,1,\dots$ starting from $g(2)$ but with the initial
+double $g(0)=g(1)=0$; hence $g(n) = \lfloor n/2 \rfloor \bmod 2$, which has
+least period $4$. (The values are $0,0,1,1$ repeating, so no smaller positive
+period works.)
+\end{proof}
+
+\subsection*{First-clause witness: $S = \{1,2\}$}
+
+\begin{theorem}\label{thm:clause1}
+Let $S = \{1,2\}$. Then $g = 0,1,2,0,1,2,\dots$, i.e.\ $g(n) = n \bmod 3$, and
+the least period is $3$. Moreover $3 \mid 2^2 - 1 = 3$.
+\end{theorem}
+
+\begin{proof}
+$g(0)=0$, $g(1)=\mex\{g(0)\}=1$, and for $n \ge 2$,
+$g(n)=\mex\{g(n-2),g(n-1)\}$. The first values are $0,1,2,0,1,2,\dots$: from
+$\{0,1,2\}$ the mex of the two preceding distinct residues is the third, and
+the pattern repeats cyclically. Hence $g(n) = n \bmod 3$ and the least period is
+$3$ (the values $0,1,2$ are pairwise distinct, so periods $1$ and $2$ are
+impossible). Finally $2^2 - 1 = 3$ and $3 \mid 3$.
+\end{proof}
+
+\begin{corollary}\label{cor:clause1}
+Clause (C1) fails for $S = \{1,2\}$ under both readings of $k$.
+
+\emph{Charitable reading (B):} $k = \max(S) = 2$. Since $k \in S$, the
+right-hand side \emph{``$S$ is nonempty and $k \notin S$''} is false; clause
+(C1) therefore requires the period \emph{not} to divide $2^k - 1 = 3$. But the
+period is $3$ and $3 \mid 3$, so the required divisibility holds and the
+biconditional fails.
+
+\emph{Ambient reading (A):} take $k = 3$; then $S = \{1,2\}$ is a
+\emph{proper} subset of $\{1,2,3\}$, the right-hand side is true ($3 \notin S$),
+so clause (C1) requires $3 \mid 2^3 - 1 = 7$; but $3 \nmid 7$, and the
+biconditional fails again.
+\end{corollary}
+
+\begin{remark}[On the only conceivable escape]
+One might try to rescue the conjecture by restricting clause (C2) to the full
+sets $\{1,\dots,k\}$ (the only move sets for which $k = \max(S)$ and
+$S = \{1,\dots,k\}$ coincide). The text does not state such a restriction, and
+it would not help anyway: clause (C1) is refuted by $S = \{1,2\}$
+(Corollary~\ref{cor:clause1}), which for ambient $k=3$ is a proper subset and
+for the charitable reading has $S \subsetneq \{1,\dots,k\}$ as well.
+We also emphasise that the exact reading of $k$ is genuinely ambiguous in the
+conjecture text (ambient bound versus $\max(S)$); we have deliberately chosen
+the primary witness so that the ambiguity is immaterial.
+\end{remark}
+
+\section{Least periods for $k = 2, 3, 4$}
+
+Table~\ref{tab:periods} lists the least period of $g$ for every nonempty
+$S \subseteq \{1,\dots,k\}$, together with the conjecture's prediction under
+both readings of $k$: reading (A) with ambient bound $k$, reading (B) with
+$k = \max(S)$. A ``fails'' entry means that one of the clauses (C1), (C2) is
+violated by that row.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{c l c c c}
+\toprule
+$k$ & $S$ & least period & reading (A): ambient $k$ & reading (B): $k=\max(S)$ \\
+\midrule
+$2$ & $\{1\}$       & $2$ & fails & holds \\
+$2$ & $\{2\}$       & $4$ & fails & fails \\
+$2$ & $\{1,2\}$     & $3$ & fails & fails \\
+\midrule
+$3$ & $\{1\}$       & $2$ & fails & holds \\
+$3$ & $\{2\}$       & $4$ & fails & fails \\
+$3$ & $\{3\}$       & $6$ & fails & fails \\
+$3$ & $\{1,2\}$     & $3$ & fails & fails \\
+$3$ & $\{1,3\}$     & $2$ & fails & fails \\
+$3$ & $\{2,3\}$     & $5$ & fails & fails \\
+$3$ & $\{1,2,3\}$   & $4$ & holds & holds \\
+\midrule
+$4$ & $\{1\}$       & $2$ & fails & holds \\
+$4$ & $\{2\}$       & $4$ & fails & fails \\
+$4$ & $\{3\}$       & $6$ & fails & fails \\
+$4$ & $\{4\}$       & $8$ & fails & fails \\
+$4$ & $\{1,2\}$     & $3$ & holds & fails \\
+$4$ & $\{1,3\}$     & $2$ & fails & fails \\
+$4$ & $\{1,4\}$     & $5$ & fails & fails \\
+$4$ & $\{2,3\}$     & $5$ & holds & fails \\
+$4$ & $\{2,4\}$     & $6$ & fails & fails \\
+$4$ & $\{3,4\}$     & $7$ & fails & fails \\
+$4$ & $\{1,2,3\}$   & $4$ & fails & holds \\
+$4$ & $\{1,2,4\}$   & $3$ & fails & fails \\
+$4$ & $\{1,3,4\}$   & $7$ & fails & fails \\
+$4$ & $\{2,3,4\}$   & $6$ & fails & fails \\
+$4$ & $\{1,2,3,4\}$ & $5$ & fails & fails \\
+\bottomrule
+\end{tabular}
+\caption{Least periods of the SG sequence for every nonempty $S \subseteq
+\{1,\dots,k\}$, $k = 2,3,4$, and whether conjecture \texttt{00000001203} holds
+for that row under each reading of $k$. The primary witness is the row
+$k=3$, $S=\{1,3\}$ (period $2$ versus the demanded $2k+1$); the secondary
+witness is $k=2$, $S=\{2\}$; the clause-1 witness is $S=\{1,2\}$. Note that
+$S=\{1\}$ is the fragile case: it ``holds'' under reading (B) because then
+$k=1$ and the period $2 = k+1$.}
+\label{tab:periods}
+\end{table}
+
+\begin{remark}
+Reading (A) is violated in $3$ of $3$ rows for $k=2$, $6$ of $7$ rows for
+$k=3$, and $13$ of $15$ rows for $k=4$. Reading (B) is violated in $2, 5, 13$
+of those rows respectively. In particular each table contains violating rows
+under either reading, so the conjecture is false no matter how $k$ is read.
+\end{remark}
+
+\section{Reproducibility}
+
+The finite computations are carried out by \texttt{reproduce.py}, which uses
+only the Python~3 standard library:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(witnesses, all periods, and the violations tables)}\\
+PASS: all checks verified; conjecture 00000001203 is FALSE.
+\end{quote}
+
+It computes $g$ by the mex recursion for all nonempty $S \subseteq \{1,\dots,k\}$
+with $k = 2,3,4$ over $600$ terms and extracts the least period by direct
+search. It verifies in particular:
+
+\begin{itemize}
+\item $S=\{1,3\}$: $g(n) = n \bmod 2$ for the first $600$ terms, least period
+  $2$, whereas the conjecture (as $3 \in S$) demands $k+1 = 4$;
+\item $S=\{2\}$: least period $4 \ne 3 = k+1$;
+\item $S=\{1,2\}$: least period $3$ with $3 \mid 2^2 - 1$ (clause (C1) fails
+  under the charitable reading), and $3 \nmid 2^3 - 1 = 7$ for ambient $k=3$
+  with $S$ a proper subset (clause (C1) fails under the ambient reading).
+\end{itemize}
+
+It prints \texttt{PASS} and exits $0$ exactly when every check holds, and exits
+non-zero otherwise.
+
+\section{Formal verification}
+
+The refutation is also formalised in core Lean~4 (no Mathlib, no \texttt{sorry})
+under \texttt{lean4/}. The primary witness is the well-founded recursion
+
+\begin{quote}\ttfamily
+def g : Nat $\to$ Nat\\
+\hspace*{2em}| 0 => 0\\
+\hspace*{2em}| 1 => mex [g 0]\\
+\hspace*{2em}| 2 => mex [g 1]\\
+\hspace*{2em}| n+3 => mex [g (n+2), g n]
+\end{quote}
+
+\noindent with the closed form \texttt{g\_eq : g n = n \% 2} proved by
+\texttt{Nat.strongRecOn}, the least-period predicate \texttt{IsLeastPeriod},
+and the two key theorems
+
+\begin{quote}\ttfamily
+theorem least\_period\_two : IsLeastPeriod 2\\
+theorem not\_least\_period\_four : $\lnot$ IsLeastPeriod (3 + 1)
+\end{quote}
+
+\begin{sloppypar}
+\noindent The clause-1 witness is formalised as \texttt{g12} with
+\texttt{least\_period\_three\_12 : IsLeastPeriod12 3} and
+\texttt{three\_dvd\_two\_sq\_sub\_one : 3 $\mid$ 2\textasciicircum2 - 1}. All of
+these are collected in \texttt{conjecture\_00000001203\_false}. The axiom audit
+\texttt{lake env lean Check.lean} reports only \texttt{[propext, Quot.sound]}
+and no \texttt{sorryAx}.
+\end{sloppypar}
+
+\section{Status against the submission rules}
+
+Rule 3 requires each submission to contain the LaTeX source code, a PDF
+document, and a Lean 4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- present (\texttt{main.tex}), a standalone
+  \texttt{article} that uses only \texttt{geometry}, \texttt{amsmath},
+  \texttt{amssymb}, \texttt{amsthm}, \texttt{array}, \texttt{parskip}, and
+  \texttt{booktabs}, and compiles with \texttt{tectonic main.tex}.
+\item \textbf{PDF document} --- present at \texttt{build/main.pdf}, produced by
+  \texttt{tectonic main.tex} and moved into \texttt{build/}.
+\item \textbf{Lean 4 project} --- present under \texttt{lean4/}, pinned to
+  \texttt{leanprover/lean4:v4.33.1} with library \texttt{tlmc1203}; builds with
+  \texttt{lake build}; the audit \texttt{lake env lean Check.lean} shows no
+  \texttt{sorryAx} and no Mathlib dependency.
+\item \textbf{Reproduction} --- \texttt{python3 reproduce.py} prints
+  \texttt{PASS} and exits $0$.
+\end{itemize}
+
+\end{document}
