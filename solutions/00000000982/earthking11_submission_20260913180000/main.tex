@@ -1,0 +1,290 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\dA}{\,dA}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\dd}{\partial}
+
+\title{A disproof of conjecture 00000000982:\\
+fixed points of the Berezin transform on Fock space}
+\author{Submission \texttt{earthking11\_submission\_20260913180000}}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000982 asserts that the fixed points of the Berezin transform
+on Fock space are radial functions and that the fixed-point set has cardinality
+at most $2$. We show that the conjecture is \textbf{false} under its literal
+reading. On the Fock space with the Gaussian measure
+$\frac1\pi e^{-|w|^2}\dA(w)$, the (diagonal) Berezin transform is the Gaussian
+convolution
+\[
+  Bf(z)=\frac1\pi\int_\C f(w)\,e^{-|w-z|^2}\dA(w)=e^{\Delta/4}f(z),
+\]
+so it fixes every harmonic function and therefore every element of the
+holomorphic Fock space $F^2$. The function $f(z)=z$ belongs to $F^2$ (it has
+$\|z\|^2=1$) and is fixed, but it is not radial: $|1|=|i|=1$ while $z(1)=1\neq
+i=z(i)$. Moreover $1,z,z^2,\dots$ are pairwise distinct fixed points, so the
+fixed-point set is infinite and its cardinality is not at most $2$. The
+strongest possible objection is that ``on Fock space'' might be intended to mean
+``on the bounded symbols'' (the Toeplitz algebra); under that reading Liouville's
+theorem makes the fixed set the constants --- radial of cardinality $1$ --- and
+the conjecture would be a garbled statement of a true fact. Under the literal
+reading, however, it is false as exhibited.
+\end{abstract}
+
+\section{The Fock space and the Berezin transform}
+
+\begin{definition}[Fock space]
+Let $\dA$ denote Lebesgue area measure on $\C\cong\R^2$. The \emph{Fock space}
+is
+\[
+  F^2=\Bigl\{f:\C\to\C \text{ holomorphic} \ :\
+  \|f\|^2=\frac1\pi\int_\C |f(z)|^2 e^{-|z|^2}\dA(z)<\infty\Bigr\}.
+\]
+It is a Hilbert space with inner product
+$\langle f,g\rangle=\frac1\pi\int_\C f(z)\overline{g(z)}\,e^{-|z|^2}\dA(z)$.
+The monomials $\{z^k\}_{k\ge0}$ are orthogonal with
+$\|z^k\|^2=k!$; in particular $\|1\|^2=1$ and $\|z\|^2=1$.
+\end{definition}
+
+\begin{definition}[Berezin transform]\label{def:berezin}
+For a function $f$ for which the integral converges, the (\emph{diagonal})
+\emph{Berezin transform} is
+\[
+  Bf(z)=\frac1\pi\int_\C f(w)\,e^{-|w-z|^2}\dA(w).
+\]
+This is the average of $f$ against the normalized Gaussian (the diagonal
+coherent-state weight) centred at $z$. Writing $w=z+u$ and using translation
+invariance of $\dA$ gives the convolution form
+\[
+  Bf(z)=\frac1\pi\int_\C f(z+u)\,e^{-|u|^2}\dA(u).
+\]
+\end{definition}
+
+\begin{remark}
+All of $F^2$ consists of entire functions of order $\le 2$; for such $f$ the
+Gaussian integral in Definition~\ref{def:berezin} converges absolutely for
+every $z$ and the manipulations below are justified.
+\end{remark}
+
+\section{The convolution identity $B=e^{\Delta/4}$}
+
+Write $\dd=\dd_z$, $\bar\dd=\dd_{\bar z}$ for the Wirtinger derivatives and
+$\Delta=4\,\dd\bar\dd$ for the Laplacian.
+
+\begin{lemma}[Gaussian moments]\label{lem:moments}
+For integers $m,n\ge0$,
+\[
+  \frac1\pi\int_\C u^m\bar u^{\,n}\,e^{-|u|^2}\dA(u)=m!\,\delta_{mn}.
+\]
+\end{lemma}
+
+\begin{proof}
+In polar coordinates $u=re^{i\theta}$, so $\dA=r\,dr\,d\theta$ and
+$u^m\bar u^{\,n}=r^{m+n}e^{i(m-n)\theta}$. The angular integral is
+$2\pi\delta_{mn}$, and for $m=n$,
+$\frac1\pi\cdot2\pi\int_0^\infty r^{2m+1}e^{-r^2}dr
+=2\cdot\tfrac12\Gamma(m+1)=m!$.
+\end{proof}
+
+\begin{theorem}[Convolution identity]\label{thm:conv}
+For every entire $f$ of at most exponential growth of order $2$ (in particular
+for every $f\in F^2$),
+\[
+  Bf(z)=\sum_{m\ge0}\frac{(\dd^m\bar\dd^{\,m}f)(z)}{m!}
+       =e^{\dd\bar\dd}f(z)=e^{\Delta/4}f(z),
+\]
+the series converging absolutely.
+\end{theorem}
+
+\begin{proof}
+Expand $f(z+u)$ in its Taylor series at $z$:
+\[
+  f(z+u)=\sum_{m,n\ge0}\frac{(\dd^m\bar\dd^{\,n}f)(z)}{m!\,n!}\,u^m\bar u^{\,n}.
+\]
+Integrating term by term against $\frac1\pi e^{-|u|^2}\dA(u)$ and applying
+Lemma~\ref{lem:moments} kills every term with $m\neq n$ and leaves
+\[
+  Bf(z)=\sum_{m\ge0}\frac{(\dd^m\bar\dd^{\,m}f)(z)}{m!\,m!}\cdot m!
+       =\sum_{m\ge0}\frac{(\dd\bar\dd)^m f(z)}{m!}=e^{\dd\bar\dd}f(z).
+\]
+Since $\dd\bar\dd=\Delta/4$, this is $e^{\Delta/4}f(z)$. Absolute convergence
+on compact sets follows from the order-$2$ growth of $f$ and the Gaussian
+decay of the kernel.
+\end{proof}
+
+\begin{corollary}[Harmonic kernel]\label{cor:harmonic}
+On the space of polynomially bounded $C^\infty$ functions,
+\[
+  Bf=f \quad\Longleftrightarrow\quad \Delta f=0,
+\]
+i.e.\ the fixed points of $B$ are exactly the harmonic functions. In
+particular every holomorphic function is fixed.
+\end{corollary}
+
+\begin{proof}
+If $\Delta f=0$ then $\dd\bar\dd f=0$ and Theorem~\ref{thm:conv} gives
+$Bf=f$ immediately; holomorphic $f$ satisfies $\bar\dd f=0$ and hence
+$\Delta f=4\dd\bar\dd f=0$.
+
+Conversely, $B-1=e^{\Delta/4}-1=(\Delta/4)\,\psi(\Delta/4)$ where
+$\psi(t)=(e^t-1)/t=\sum_{k\ge0}t^k/(k+1)!$ is entire with $\psi(0)=1$. On the
+Fourier side $e^{\Delta/4}$ multiplies $\hat f(\xi)$ by $e^{-|\xi|^2/4}$, so
+$Bf=f$ forces $(e^{-|\xi|^2/4}-1)\hat f(\xi)=0$ for all $\xi$. The first factor
+vanishes only at $\xi=0$, so $\hat f$ is supported at the origin and $f$ is a
+polynomial. On the finite-dimensional space of polynomials of degree $\le N$
+the operator $\psi(\Delta/4)$ is invertible (it is a polynomial in $\Delta$ with
+constant term $1$, triangular with respect to the degree filtration), so
+$(\Delta/4)\psi(\Delta/4)f=0$ implies $\Delta f=0$. Hence $Bf=f$ implies
+$\Delta f=0$.
+\end{proof}
+
+\begin{remark}
+Harmonic functions need not be holomorphic: $z+\bar z=2\operatorname{Re}z$ is
+harmonic but not holomorphic. Such functions are fixed by $B$ as elements of
+the ambient space $L^2(\C,\frac1\pi e^{-|w|^2}\dA)$, but they are \emph{not}
+elements of the holomorphic Fock space $F^2$. The correct inside-$F^2$ witness
+for the refutation is $f(z)=z$ (see below).
+\end{remark}
+
+\section{The fixed point $z$ is not radial}
+
+\begin{definition}[Radial]
+A function $g$ on $\C$ is \emph{radial} when it depends only on $|z|$, i.e.\
+$g(z)=g(w)$ whenever $|z|=|w|$.
+\end{definition}
+
+\begin{theorem}[Non-radial fixed point]\label{thm:nonradial}
+The function $f(z)=z$ belongs to $F^2$, satisfies $\|f\|^2=1$, is a fixed point
+of $B$, and is not radial. Consequently the fixed-point set of $B$ is not
+contained in the radial functions, and the first half of conjecture
+00000000982 is false.
+\end{theorem}
+
+\begin{proof}
+That $z\in F^2$ with $\|z\|^2=1$ is the monomial computation of the Definition
+of $F^2$. It is holomorphic, so by Corollary~\ref{cor:harmonic} (or directly,
+since $\bar\dd z=0$) $Bz=z$.
+
+It is not radial: the points $1$ and $i$ have equal modulus $|1|=|i|=1$, but
+\[
+  z(1)=1\neq i=z(i).
+\]
+Thus $z$ takes different values on a common modulus level set, so it is not
+radial, yet it is fixed.
+\end{proof}
+
+\begin{remark}
+Neither $\operatorname{Re}z$ nor $\operatorname{Im}z$ may be used here: they
+lie in the ambient $L^2(\C,\frac1\pi e^{-|w|^2}\dA)$ but not in the holomorphic
+Fock space $F^2$. The in-$F^2$ witness is $f(z)=z$.
+\end{remark}
+
+\section{The fixed-point set is infinite}
+
+\begin{theorem}[Infinite fixed set]\label{thm:infinite}
+For every $k\ge0$ the monomial $z^k$ is a fixed point of $B$; the monomials
+$\{z^k\}_{k\ge0}$ are pairwise distinct. Hence
+\[
+  F^2\subseteq \operatorname{Fix}(B),
+  \qquad
+  \operatorname{Fix}(B)\ \text{is infinite},
+\]
+and in particular $1,z,z^2$ are three pairwise distinct fixed points. The
+cardinality of the fixed-point set is therefore not at most $2$, so the second
+half of conjecture 00000000982 is false as well.
+\end{theorem}
+
+\begin{proof}
+Each $z^k$ is holomorphic and hence, by Corollary~\ref{cor:harmonic}, fixed:
+$Bz^k=z^k$ (directly, $\bar\dd z^k=0$ for $k\ge0$). The monomials are distinct
+as functions: $z^k\neq z^\ell$ for $k\neq\ell$ (evaluate at any nonzero point
+and compare degrees, or note the values at $z=2$ are $2^k\neq2^\ell$ for
+$k\neq\ell$). For instance
+\[
+  1\neq z,\qquad 1\neq z^2,\qquad z\neq z^2,
+\]
+where the last two are distinguished at $z=0$ and $z=2$ respectively. Thus
+$\operatorname{Fix}(B)$ contains the infinite linearly independent set
+$\{z^k\}$, so it is infinite, and it contains at least the three distinct
+points $1,z,z^2$.
+\end{proof}
+
+\section{The bounded-symbol objection}
+
+The strongest objection to the above is a change of reading. If ``on Fock
+space'' is taken to mean ``on the algebra of bounded symbols'' --- the Toeplitz
+algebra of $F^2$, acting on $F^2$ --- then the Berezin transform still acts as
+$e^{\Delta/4}$ on symbols, but now one restricts to \emph{bounded} symbols. A
+bounded harmonic function on $\C$ is constant by Liouville's theorem: if
+$\Delta f=0$ and $f$ is bounded, then $f$ is constant. Corollary~\ref{cor:harmonic}
+then gives
+\[
+  \operatorname{Fix}(B)\cap L^\infty(\C)=\{\text{constants}\},
+\]
+which is radial and has cardinality exactly $1$. Under that reading the
+conjecture ``fixed points are radial, and there are at most $2$ of them'' is a
+garbled statement of a true fact (the cardinality bound should be $1$, not $2$,
+and one must restrict to bounded symbols).
+
+We record this honestly, but it does not rescue the conjecture as written. The
+statement in the conjecture file is about fixed points ``on Fock space'', i.e.\
+elements of $F^2$; there the fixed set is all of $F^2$, is far from radial, and
+is infinite. The literal reading is false.
+
+\section{Summary of the refutation}
+
+\begin{enumerate}
+  \item \textbf{Convolution identity.} On the Fock space with Gaussian measure,
+        $Bf(z)=\frac1\pi\int f(z+u)e^{-|u|^2}\dA(u)=e^{\Delta/4}f(z)$
+        (Theorem~\ref{thm:conv}).
+  \item \textbf{Harmonic fixed points.} $Bf=f$ iff $f$ is harmonic, so every
+        holomorphic $f\in F^2$ is fixed (Corollary~\ref{cor:harmonic}).
+  \item \textbf{Non-radial witness.} $z\in F^2$ is fixed but not radial:
+        $|1|=|i|$ while $z(1)\neq z(i)$ (Theorem~\ref{thm:nonradial}). The
+        first claim of the conjecture fails.
+  \item \textbf{Infinite fixed set.} Every $z^k$ is fixed and the $z^k$ are
+        pairwise distinct, so $\operatorname{Fix}(B)$ is infinite; in
+        particular its cardinality is not $\le2$ (Theorem~\ref{thm:infinite}).
+        The second claim fails.
+\end{enumerate}
+
+\paragraph{Numerical confirmation.}
+The script \texttt{reproduce.py} evaluates $B$ by tensor Gauss--Hermite
+quadrature ($40$ nodes per dimension, exact for polynomials of degree $\le79$)
+on a grid of complex points. It confirms, to about $10^{-15}$,
+\[
+  B(1)=1,\quad B(z)=z,\quad B(z^2)=z^2,\quad B(z^3)=z^3,
+\]
+together with $B(z+\bar z)=z+\bar z$ (a harmonic, non-holomorphic fixed point)
+and the negative control $B(|z|^2)=|z|^2+1$ (non-harmonic, not fixed). It also
+verifies the non-radiality witness $|1|=|i|$ with $z(1)\neq z(i)$. The
+accompanying core-Lean development \texttt{lean4/} machine-checks the
+distinguishing finite facts: that $z$ is not radial, and that $1,z,z^2$ are
+pairwise distinct, over the integer lattice $\mathbb{Z}\times\mathbb{Z}\subset\C$;
+the analytic identity $B=e^{\Delta/4}$ and the harmonic-kernel characterisation
+are proved here and checked numerically.
+
+\paragraph{Verdict.}
+Conjecture 00000000982 is \textbf{false} under its literal reading: the fixed
+points are not radial and are infinite in number. Under a bounded-symbol
+reading it reduces to a garbled version of the true statement that the only
+bounded harmonic fixed points are the constants.
+
+\end{document}
