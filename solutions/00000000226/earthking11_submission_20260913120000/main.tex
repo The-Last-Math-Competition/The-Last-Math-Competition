@@ -1,0 +1,317 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cul}{C}
+\newcommand{\Woo}{W}
+\newcommand{\Z}{\mathbb{Z}}
+\DeclareMathOperator{\lpf}{lpf}
+
+\title{Disproof of conjecture \texttt{00000000226}\\
+\large Cullen and Woodall numbers do not have complementary proportions\\
+with least prime factor \(3\)}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The conjecture asserts that the proportion of Cullen numbers \(C_n=n2^n+1\)
+with least prime factor \(3\) is an explicit rational, and that the
+corresponding proportions for the Cullen and Woodall numbers
+\(\Woo_n=n2^n-1\) sum to \(1\) (``complementary symmetry mod \(3\)'').
+We refute the second claim unconditionally and elementarily. Both sequences
+are odd, so ``least prime factor \(3\)'' is equivalent to ``divisible by
+\(3\)''. Reducing modulo \(3\) with period \(6\), we prove
+\[
+3\mid C_n \iff n\equiv 1,2 \pmod 6,
+\qquad
+3\mid \Woo_n \iff n\equiv 4,5 \pmod 6 .
+\]
+Each proportion is therefore \(2/6=1/3\), and their sum is
+\(1/3+1/3=2/3\neq 1\). The asserted complementary symmetry fails. The result
+is formalised in core Lean~4 and verified numerically for all \(n\le 2000\).
+\end{abstract}
+
+\section{The conjecture}
+
+\begin{definition}
+For \(n\ge 1\), the \emph{Cullen numbers} and \emph{Woodall numbers} are
+\[
+\Cul_n = n\cdot 2^n + 1,
+\qquad
+\Woo_n = n\cdot 2^n - 1 .
+\]
+\end{definition}
+
+The conjecture, as filed in \texttt{conjectures/00000000226.md}, states
+(translating the definition and the second claim):
+
+\begin{quote}
+\itshape
+The count of Cullen primes is asymptotically \(x/\log^2 x\) times an explicit
+sieve constant; the proportion of Cullen numbers with least prime factor \(3\)
+is an explicit rational, and the corresponding proportions for Cullen and
+Woodall numbers sum to \(1\) (complementary symmetry mod \(3\)).
+\end{quote}
+
+We do not address the asymptotic prime-counting claim. We refute the claim
+about the proportions: the Cullen proportion is exactly \(1/3\), the Woodall
+proportion is exactly \(1/3\), and \(1/3+1/3=2/3\neq 1\). Hence the asserted
+complementary symmetry modulo \(3\) is false.
+
+\section{Parity: ``least prime factor \(3\)'' means ``divisible by \(3\)''}
+
+\begin{lemma}\label{lem:odd}
+For every \(n\ge 1\), \(\Cul_n\) and \(\Woo_n\) are odd.
+\end{lemma}
+
+\begin{proof}
+Since \(n\ge 1\), the term \(n\cdot 2^n\) is divisible by \(2\) and hence
+even. Adding \(1\) gives an odd number, and subtracting \(1\) from an even
+number gives an odd number:
+\[
+\Cul_n = \underbrace{n2^n}_{\text{even}} + 1 \equiv 1 \pmod 2,
+\qquad
+\Woo_n = \underbrace{n2^n}_{\text{even}} - 1 \equiv 1 \pmod 2. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}\label{cor:lpf}
+For \(n\ge 1\), the least prime factor of \(\Cul_n\) equals \(3\) if and only
+if \(3\mid \Cul_n\). The same holds for \(\Woo_n\).
+\end{corollary}
+
+\begin{proof}
+By Lemma~\ref{lem:odd} the number \(N\in\{\Cul_n,\Woo_n\}\) is odd, so \(2\) is
+not a prime factor of \(N\). If \(3\mid N\), then among the prime factors of
+\(N\) the smallest is the smallest prime divisor, and since \(2\) is excluded
+and \(3\) divides \(N\), that smallest divisor is \(3\). Conversely, if the
+least prime factor is \(3\), then \(3\mid N\) by definition.
+\end{proof}
+
+Thus, for both sequences, counting numbers with least prime factor \(3\) is the
+same as counting numbers divisible by \(3\).
+
+\section{Reduction modulo \(3\) and the residue table}
+
+We work modulo \(3\). Since \(2\equiv -1\pmod 3\),
+\begin{equation}\label{eq:twopow}
+2^n \equiv (-1)^n \pmod 3
+=
+\begin{cases}
+1, & n \text{ even},\\
+2, & n \text{ odd}.
+\end{cases}
+\end{equation}
+The map \(n\mapsto (n \bmod 3,\, n \bmod 2)\) has combined period
+\(\operatorname{lcm}(3,2)=6\). Equivalently, \(n\bmod 6\) determines both
+\(n\bmod 3\) and the parity of \(n\). Therefore both sequences are periodic
+modulo \(3\) with period dividing \(6\), and the truth value of
+\(3\mid \Cul_n\) and of \(3\mid \Woo_n\) depends only on \(n\bmod 6\).
+
+The following table records, for each residue class \(n\equiv r\pmod 6\), the
+value of \(2^n\bmod 3\), of \(\Cul_n\bmod 3\), and of \(\Woo_n\bmod 3\).
+
+\begin{center}
+\begin{tabular}{c c c c}
+\toprule
+\(r = n\bmod 6\) & \(2^n \bmod 3\) & \(\Cul_n \bmod 3\) & \(\Woo_n \bmod 3\) \\
+\midrule
+0 & 1 & \(0\cdot 1+1 = 1\) & \(0\cdot 1-1 = -1\equiv 2\) \\
+1 & 2 & \(1\cdot 2+1 = 3\equiv 0\) & \(1\cdot 2-1 = 1\) \\
+2 & 1 & \(2\cdot 1+1 = 3\equiv 0\) & \(2\cdot 1-1 = 1\) \\
+3 & 2 & \(0\cdot 2+1 = 1\) & \(0\cdot 2-1 = -1\equiv 2\) \\
+4 & 1 & \(1\cdot 1+1 = 2\) & \(1\cdot 1-1 = 0\) \\
+5 & 2 & \(2\cdot 2+1 = 5\equiv 2\) & \(2\cdot 2-1 = 3\equiv 0\) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+An equivalent compact form of the table is
+\[
+\begin{array}{c|cccccc}
+n\bmod 6 & 0&1&2&3&4&5\\ \hline
+2^n \bmod 3 & 1&2&1&2&1&2\\
+\Cul_n \bmod 3 & 1&0&0&1&2&2\\
+\Woo_n \bmod 3 & 2&1&1&2&0&0
+\end{array}
+\]
+
+\section{The two equivalences}
+
+\begin{theorem}[Cullen]\label{thm:cullen}
+For every \(n\ge 1\),
+\[
+3\mid \Cul_n = n2^n+1
+\iff
+n\equiv 1 \text{ or } 2 \pmod 6 .
+\]
+Consequently the proportion of Cullen numbers divisible by \(3\) (equivalently,
+with least prime factor \(3\)) is exactly
+\[
+\frac{2}{6}=\frac13 .
+\]
+\end{theorem}
+
+\begin{proof}
+By the residue table, \(\Cul_n \bmod 3 = 0\) exactly in the rows
+\(r=n\bmod 6\in\{1,2\}\):
+\begin{itemize}
+\item \(r=1\): \(\Cul_n\equiv 1\cdot 2+1 = 3\equiv 0\pmod 3\);
+\item \(r=2\): \(\Cul_n\equiv 2\cdot 1+1 = 3\equiv 0\pmod 3\);
+\end{itemize}
+while in the remaining rows
+\[
+\Cul_n\equiv 1,1,2,2 \pmod 3
+\qquad (r=0,3,4,5),
+\]
+none of which is \(0\). This proves the equivalence. Among the six residue
+classes modulo \(6\), exactly two satisfy it, so the proportion is
+\(2/6=1/3\).
+\end{proof}
+
+\begin{theorem}[Woodall]\label{thm:woodall}
+For every \(n\ge 1\),
+\[
+3\mid \Woo_n = n2^n-1
+\iff
+n\equiv 4 \text{ or } 5 \pmod 6 .
+\]
+Consequently the proportion of Woodall numbers divisible by \(3\) (equivalently,
+with least prime factor \(3\)) is exactly
+\[
+\frac{2}{6}=\frac13 .
+\]
+\end{theorem}
+
+\begin{proof}
+By the residue table, \(\Woo_n \bmod 3 = 0\) exactly in the rows
+\(r=n\bmod 6\in\{4,5\}\):
+\begin{itemize}
+\item \(r=4\): \(\Woo_n\equiv 1\cdot 1-1 = 0\pmod 3\);
+\item \(r=5\): \(\Woo_n\equiv 2\cdot 2-1 = 3\equiv 0\pmod 3\);
+\end{itemize}
+while in the remaining rows
+\[
+\Woo_n\equiv 2,1,1,2 \pmod 3
+\qquad (r=0,1,2,3),
+\]
+none of which is \(0\). This proves the equivalence. Among the six residue
+classes modulo \(6\), exactly two satisfy it, so the proportion is
+\(2/6=1/3\).
+\end{proof}
+
+Observe that the two sets of residues are disjoint and complementary
+\emph{within the six residue classes}:
+\[
+\{1,2\}\ \dot\cup\ \{4,5\} \subsetneq \{0,1,2,3,4,5\},
+\]
+the two classes \(r=0\) and \(r=3\) being divisible by \(3\) in neither
+sequence. This is precisely why the proportions do not complete to \(1\).
+
+\section{The proportions do not sum to \(1\)}
+
+\begin{theorem}[Refutation]\label{thm:refute}
+Let
+\[
+p_{\Cul} = \lim_{N\to\infty}\frac{\#\{1\le n\le N : 3\mid \Cul_n\}}{N},
+\qquad
+p_{\Woo} = \lim_{N\to\infty}\frac{\#\{1\le n\le N : 3\mid \Woo_n\}}{N}
+\]
+be the densities of Cullen and Woodall numbers divisible by \(3\). Then
+\[
+p_{\Cul} = \frac13, \qquad p_{\Woo} = \frac13, \qquad
+p_{\Cul}+p_{\Woo} = \frac23 \neq 1 .
+\]
+Hence the conjectured complementary symmetry modulo \(3\) is false.
+\end{theorem}
+
+\begin{proof}
+Because divisibility by \(3\) is periodic in \(n\) with period \(6\), the
+density of each set is the fraction of residue classes modulo \(6\) it
+occupies. By Theorems~\ref{thm:cullen} and \ref{thm:woodall},
+\[
+p_{\Cul} = \frac{|\{1,2\}|}{6} = \frac{2}{6} = \frac13,
+\qquad
+p_{\Woo} = \frac{|\{4,5\}|}{6} = \frac{2}{6} = \frac13 .
+\]
+Therefore
+\[
+p_{\Cul}+p_{\Woo} = \frac13+\frac13 = \frac23,
+\]
+and \(\tfrac23\neq 1\). Equivalently, over the common denominator \(6\) the
+two numerators \(2,2\) sum to \(4\), and \(4/6 \neq 6/6\) because
+\(4\neq 6\). The refutation is unconditional.
+\end{proof}
+
+\begin{remark}
+The refutation does not depend on the asymptotic count of Cullen primes, nor
+on any unproved hypothesis. It is a finite computation on the six residue
+classes modulo \(6\). Numerically, over all \(n\le 60000\) one finds densities
+\(0.3333\) for each sequence, with the divisible residues exactly \(\{1,2\}\)
+for Cullen and \(\{4,5\}\) for Woodall, in agreement with
+Theorems~\ref{thm:cullen} and~\ref{thm:woodall}.
+\end{remark}
+
+\section{Formal and computational verification}
+
+\paragraph{Lean~4.}
+The file \texttt{lean4/Main.lean} formalises the argument in core Lean
+(\texttt{import Std}, no Mathlib, no \texttt{sorry}, no \texttt{axiom}, no
+\texttt{native\_decide}). It proves the period-\(6\) identities
+\begin{align*}
+2^n \bmod 3 &= 2^{\,n\bmod 6} \bmod 3,\\
+(n2^n+1)\bmod 3 &= ((n\bmod 6)\,2^{\,n\bmod 6}+1)\bmod 3,\\
+(n2^n+2)\bmod 3 &= ((n\bmod 6)\,2^{\,n\bmod 6}+2)\bmod 3,
+\end{align*}
+then the equivalences
+\begin{align*}
+\texttt{cullen\_div3\_iff} &: (n2^n+1)\bmod 3 = 0 \iff n\bmod 6\in\{1,2\},\\
+\texttt{woodall\_div3\_iff} &: (n2^n+2)\bmod 3 = 0 \iff n\bmod 6\in\{4,5\},
+\end{align*}
+the sequence form \texttt{woodall\_W\_div3\_iff} for
+\(\Woo_n=n2^n-1\) with \(n\ge 1\), the parity lemmas
+\texttt{cullen\_odd} and \texttt{woodall\_odd}, the residue table
+\texttt{residue\_table}, the non-sum statement \texttt{proportions\_sum}
+(\(2+2=4\) and \(4\neq 6\) over the common denominator \(6\)), and the
+collected theorem \texttt{conjecture\_00000000226\_false}. The axiom audit in
+\texttt{lean4/Check.lean} reports only \texttt{propext} and
+\texttt{Quot.sound}, with no \texttt{sorryAx} and no
+\texttt{Lean.ofReduceBool}.
+
+\paragraph{Python.}
+The script \texttt{reproduce.py} (standard library only) verifies both iff
+statements for all \(1\le n\le 2000\), prints the residue table, checks the
+parity of both sequences, and asserts exactly that
+\(\frac13+\frac13=\frac23\neq 1\). It prints \texttt{PASS} and exits with
+status \(0\).
+
+\begin{thebibliography}{9}
+\bibitem{cun}
+J. M. Cullen, \emph{Question 15897}, The Educational Times \textbf{23}
+(1905), 534.
+\bibitem{woo}
+A. J. C. Cunningham and H. J. Woodall, \emph{Factorisation of
+\(y^n\mp 1\), \(y=2,3,5,6,7,10,11,12\) up to high powers},
+Messenger of Mathematics \textbf{48} (1917), 237--240.
+\bibitem{conj}
+Conjecture \texttt{00000000226}, \texttt{conjectures/00000000226.md},
+this repository.
+\end{thebibliography}
+
+\end{document}
