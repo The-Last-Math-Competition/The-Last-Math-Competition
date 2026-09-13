@@ -1,0 +1,160 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+% The catalogue entry is bilingual; xeCJK is loaded only so that the Chinese
+% half of the verbatim quote can be typeset. Replace the font below with any
+% CJK-capable font available on your system if PingFang SC is absent.
+\usepackage{xeCJK}
+\setCJKmainfont{PingFang SC}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A rule-3 disproof submission for conjecture \texttt{00000007121}\\
+       \large The Hirsch bound and its alleged ``high-dimensional double configuration''}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture \texttt{00000007121} asserts, in a single sentence, that the
+Hirsch conjecture's diameter bound \emph{holds} \emph{and} that a
+\emph{counterexample} to that bound is the ``high-dimensional double
+configuration''. Read literally, the statement conjoins a claim with its own
+negation, and is therefore contradictory. Independently, the Hirsch bound is
+known to be false: Santos (2012) constructed a $43$-dimensional polytope with
+$86$ facets and diameter $44 > 86 - 43 = 43$. We give both grounds, formalise
+the logical content, and state prominently the caveat that the entry may be a
+catalogue-style garbling rather than a substantive mathematical assertion.
+\end{abstract}
+
+\section{The statement, quoted exactly}
+
+The catalogue entry \texttt{conjectures/00000007121.md} reads, verbatim:
+
+\begin{quote}
+\textbf{English.} Definition: Convex polytopes as geometric bodies of finite
+halfspace intersections. Conjecture: The Hirsch conjecture's diameter upper
+bound of face count minus dimension holds, and the counterexample to the bound
+is the high-dimensional double configuration. (high-dimensional counterexample
+to the Hirsch bound)
+
+\textbf{中文。} 定义：凸多面体：有限半空间交的几何体。猜想：Hirsch 猜想：图直径的上界为面数减维数且界的反例为高维双重构型。（Hirsch 反例高维双构型直径上界）
+\end{quote}
+
+Let $d$ denote the dimension, $f$ the number of facets, and $\operatorname{diam}$
+the graph diameter of a convex polytope. The Hirsch conjecture asserts
+\begin{equation}\label{eq:hirsch}
+  \operatorname{diam} \;\le\; f - d .
+\end{equation}
+Write
+\[
+  A \;:=\; \bigl(\forall\, d\, f\, \operatorname{diam},\;
+        \operatorname{diam} \le f - d\bigr),
+  \qquad
+  B \;:=\; \bigl(\exists\, d\, f\, \operatorname{diam},\;
+        f - d < \operatorname{diam}\bigr).
+\]
+The entry states $A \land B$ (with the second conjunct further naming the
+``high-dimensional double configuration'').
+
+\section{Ground 1: the statement as written is self-contradictory}
+
+Over $\mathbb{N}$ with truncating subtraction, $f - d < \operatorname{diam}$
+is the negation of $\operatorname{diam} \le f - d$ (Lean's
+\texttt{Nat.not\_le}). Hence
+\[
+  B \;\Longleftrightarrow\; \lnot A ,
+\]
+and the statement as written is $A \land \lnot A$. This is a statement-level
+(logical) refutation, and it is fully formalisable in core Lean~4; see
+\texttt{lean4/Main.lean}, where the headline result is
+\[
+  \texttt{hirsch\_as\_written\_false}:\;
+  \lnot\bigl(A \land B\bigr),
+\]
+proved by a kernel-checkable \texttt{intro}/\texttt{exact} argument over
+\texttt{Nat}, together with the pure propositional fact
+$\lnot(P \land \lnot P)$ and its instantiation.
+
+\begin{proposition}\label{prop:logic}
+The two conjuncts of conjecture \texttt{00000007121} cannot both hold:
+\[
+  \lnot\bigl(A \land B\bigr).
+\]
+Moreover any witness to $B$ entails $\lnot A$.
+\end{proposition}
+
+\begin{proof}
+For the first claim, suppose $A \land B$. From $B$ obtain
+$d, f, \operatorname{diam}$ with $f - d < \operatorname{diam}$. From $A$
+obtain $\operatorname{diam} \le f - d$ for the same triple. Since natural
+subtraction yields $\lnot(\operatorname{diam} \le f - d)$ from
+$f - d < \operatorname{diam}$, we reach a contradiction. The second claim is
+the same argument without the appeal to $A$. Both are formalised in
+\texttt{lean4/Main.lean} (\texttt{counterexample\_refutes\_bound},
+\texttt{hirsch\_as\_written\_false},
+\texttt{conjecture\_00000007121\_false}).
+\end{proof}
+
+\section{Ground 2: the Hirsch bound is genuinely false (literature)}
+
+Independently of the phrasing issue, \eqref{eq:hirsch} is false. Santos
+\cite{Santos2012} constructed a convex polytope of dimension $43$ with $86$
+facets whose graph diameter is $44$. Since
+\[
+  86 - 43 = 43 \;<\; 44,
+\]
+this violates \eqref{eq:hirsch} and disproves the Hirsch conjecture. The
+polynomial Hirsch conjecture remains open.
+
+\begin{remark}
+This is a published literature result. It cannot be reproduced locally, and
+this submission does not attempt to do so. The file \texttt{reproduce.py}
+checks only the arithmetic $86 - 43 = 43 < 44$ and states explicitly that
+Santos's construction itself is not reproduced. The Lean development does
+\emph{not} formalise Santos's polytope; it formalises only the logical
+inconsistency of the statement as written.
+\end{remark}
+
+\section{Caveat: the entry may be a catalogue artefact}
+
+We state this prominently and do not overstate the logical reading.
+
+\begin{itemize}
+  \item The sentence names a conjecture and an alleged disproof of it in one
+    breath. This is characteristic of an automatically assembled catalogue
+    entry that has concatenated a statement with a ``counterexample'' tag,
+    rather than a deliberate mathematical assertion.
+  \item ``High-dimensional double configuration'' is \textbf{not} the standard
+    name for Santos's object. The standard terminology is \emph{Hirsch
+    polytopes}, \emph{spindles}, and the \emph{Klee--Walkup} and
+    \emph{Santos} constructions. The phrase appears to be a non-standard or
+    garbled label.
+  \item Consequently the ``self-contradiction'' of Ground 1 is arguably a
+    \emph{phrasing artefact} rather than a substantive mathematical
+    falsehood, even though it is a genuine consequence of the text as
+    written.
+\end{itemize}
+
+We therefore present both grounds---the literal logical inconsistency and the
+independently known mathematical falsity---and leave the maintainer to judge
+which reading of the entry is intended.
+
+\begin{thebibliography}{9}
+\bibitem{Santos2012}
+F.~Santos.
+\newblock A counterexample to the Hirsch conjecture.
+\newblock \emph{Annals of Mathematics} \textbf{176} (2012), no.~1, 383--412.
+\end{thebibliography}
+
+\end{document}
