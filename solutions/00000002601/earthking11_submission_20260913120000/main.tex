@@ -1,0 +1,239 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\Fix}{\operatorname{Fix}}
+\newcommand{\id}{\mathrm{id}}
+
+\title{A disproof of conjecture 00000002601:\\
+the maximum number of fixed points of a monotone self-map\\
+of a finite lattice is the lattice size, not the chain length}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000002601 asserts that the maximum number of fixed points of a
+monotone self-map of an $n$-element finite lattice equals the length of a
+maximal chain, that this maximum is attained on distributive lattices, and
+that on non-distributive lattices the maximum drops strictly, the drop being
+the minimal number of embedded $N_5$ sublattices. We show the conjecture is
+false. The identity map is monotone and fixes all $n$ elements, so the maximum
+is exactly $n$ --- the trivial upper bound --- on every finite lattice. On the
+four-element distributive lattice $B_2$ the maximum is $4$, while a maximal
+chain $\bot < a < \top$ has $3$ elements (equivalently $2$ edges). The claimed
+equality therefore fails already on a distributive lattice, and it fails under
+both readings of ``chain length''. The strict drop on non-distributive
+lattices is likewise false: on $N_5$ the identity still fixes all $5$
+elements, so the drop is $0$. All claims are verified by exhaustive
+enumeration and, independently, in core Lean~4.
+\end{abstract}
+
+\section{The conjecture and its refutation}
+
+\begin{definition}[monotone self-map, fixed-point count]
+Let $L$ be a finite lattice with order $\le$. A self-map $f \colon L \to L$ is
+\emph{monotone} (order-preserving) if $x \le y$ implies $f(x) \le f(y)$ for all
+$x,y \in L$. Its fixed-point set is $\Fix(f) = \{x \in L : f(x) = x\}$.
+\end{definition}
+
+The conjecture under consideration is the following.
+
+\begin{quote}
+\textbf{Conjecture 00000002601.} \emph{The maximum number of fixed points of a
+monotone map on an $n$-element finite lattice equals the length of a maximal
+chain, attained on distributive lattices; the maximum drops strictly on
+non-distributive lattices, the drop being the minimal number of embedded $N_5$
+sublattices.}
+\end{quote}
+
+The length of a chain admits two conventions: the number of its elements, or
+the number of its edges (covering pairs). The conjecture is ambiguous between
+them; we refute it under both. The main observation is utterly elementary.
+
+\begin{theorem}[identity bound]
+\label{thm:identity}
+For every finite lattice $L$ with $|L| = n$, the identity map $\id_L$ is
+monotone and satisfies $\Fix(\id_L) = L$, so $|\Fix(\id_L)| = n$. Since no
+self-map of $L$ can fix more than $n$ elements, the maximum number of fixed
+points over all monotone self-maps of $L$ is exactly $n$, the trivial upper
+bound.
+\end{theorem}
+
+\begin{proof}
+For $x \le y$ we have $\id_L(x) = x \le y = \id_L(y)$, so $\id_L$ is monotone.
+Every element is fixed, hence $|\Fix(\id_L)| = n$. The number of fixed points
+of any self-map is at most $|L| = n$. Therefore the maximum equals $n$.
+\end{proof}
+
+Consequently the quantity the conjecture tries to compute is trivially $n$ on
+\emph{every} finite lattice, distributive or not. The conjectured equality
+with the length of a maximal chain can only hold when a maximal chain has $n$
+elements (equivalently $n-1$ edges), i.e.\ when the lattice is itself a chain.
+As soon as $L$ is not a chain, some element lies off every maximal chain and
+the equality fails. This already happens for the simplest non-chain
+distributive lattice.
+
+\begin{corollary}
+\label{cor:general}
+Let $L$ be a finite lattice of size $n$ that is not a chain. Then the maximum
+number of fixed points of a monotone self-map of $L$ is $n$, which is strictly
+larger than the number of elements of a maximal chain and strictly larger than
+its number of edges. In particular Conjecture 00000002601 is false for every
+finite lattice that is not a chain, and its ``attained on distributive
+lattices'' rider does not rescue it.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:identity} the maximum is $n$. A maximal chain of $L$ has
+at most $n-1$ elements, since $L$ is not a chain, and therefore at most $n-2$
+edges; both are strictly less than $n$.
+\end{proof}
+
+\section{The explicit counterexample $B_2$}
+
+Let $B_2 = \{0, a, b, 1\}$ be the Boolean lattice on two atoms, i.e.\ the
+four-element distributive lattice with $0$ bottom, $1$ top, and $a, b$
+incomparable. Its Hasse diagram is the square $0 < a < 1$, $0 < b < 1$.
+
+\begin{example}
+\label{ex:b2}
+On $B_2$:
+\begin{itemize}
+\item the identity map is monotone and has $4$ fixed points;
+\item a maximal chain is $0 < a < 1$, which has $3$ elements ($2$ edges);
+\item hence the maximum number of fixed points ($4$) differs from the maximal
+chain length under either convention: $4 \neq 3$ and $4 \neq 2$.
+\end{itemize}
+\end{example}
+
+The seven non-identity elements of the lattice of all $36$ monotone self-maps
+of $B_2$ fix at most $3$ elements, so the maximum $4$ is genuinely attained by
+the identity and not by an accident of a degenerate map. In particular the
+failure of the conjectured equality is not repaired by excluding the identity:
+on $B_3$ (below) a non-identity monotone map still fixes $7$ elements, which
+exceeds the maximal chain length $4$.
+
+\section{Exhaustive computations}
+
+We verified the relevant maxima by brute force. For completeness we record the
+exact counts; all of them are reproduced by \texttt{reproduce.py} and, for
+$B_2$, by the Lean development in \texttt{lean4/}.
+
+\subsection{$B_2$: all $4^4 = 256$ self-maps}
+
+Enumerating all $256$ self-maps of $B_2$ and retaining the monotone ones gives
+exactly $36$ monotone maps. The maximum of $|\Fix(f)|$ over them is $4$,
+attained by the identity; the maximum over non-identity monotone maps is $3$.
+The maximal chain has $3$ elements and $2$ edges. Hence
+\[
+  4 = \max_f |\Fix(f)| \;\neq\; 3 = \#\{\text{elements of a maximal chain}\},
+\]
+and likewise $4 \neq 2$ for the edge count.
+
+\subsection{$B_3$: all $8^8 = 16\,777\,216$ self-maps, enumerated by pruning}
+
+Let $B_3$ be the Boolean lattice on three atoms, of size $8$. A naive scan of
+all $8^8 = 16\,777\,216$ self-maps is possible in principle but wasteful; the
+script instead enumerates the monotone maps directly by depth-first search,
+assigning the image of each element in a topological order and pruning any
+partial assignment that violates monotonicity. This enumerates exactly the
+monotone self-maps and finds
+\[
+  \#\{\text{monotone self-maps of } B_3\} = 8000,
+\]
+with maximum fixed-point count $8$ (the identity) and maximum over
+non-identity monotone maps $7$. A maximal chain of $B_3$ has $4$ elements
+($3$ edges). Thus $8 \neq 4$ and $8 \neq 3$.
+
+\begin{remark}[non-identity maps]
+\label{rem:nonid}
+On $B_3$, the monotone map that sends one coatom to the top element and fixes
+everything else is not the identity and fixes $7$ elements. Since $7 > 4$ and
+$7 > 3$, excluding the identity does not restore the conjecture.
+\end{remark}
+
+\section{The non-distributive lattice $N_5$}
+
+Let $N_5$ be the five-element non-distributive lattice with bottom $0$, top
+$1$, and middle elements $a, b, c$ satisfying
+\[
+  0 < a < b < 1, \qquad 0 < a < c < 1,
+\]
+with $b$ and $c$ incomparable. The identity is monotone and fixes all $5$
+elements, so the maximum number of fixed points is $5$, while a maximal chain
+$0 < a < b < 1$ has $4$ elements ($3$ edges). Consequently
+\[
+  \max_f |\Fix(f)| = 5 \neq 4 \quad\text{and}\quad 5 \neq 3 .
+\]
+
+More importantly for the second half of the conjecture: the maximum on $N_5$
+is $5 = |N_5|$, exactly the same trivial value as on \emph{any} five-element
+lattice, distributive or not. So the maximum does \emph{not} drop strictly on
+the non-distributive lattice $N_5$; the drop is $0$. Any clause tying a strict
+drop to non-distributivity, or to the number of embedded $N_5$ sublattices, is
+therefore false as stated: the conjectured quantity is blind to
+distributivity. (For reference, exhaustive enumeration shows $N_5$ has $133$
+monotone self-maps, the maximum among non-identity ones being $4$; but the
+identity alone already realizes the true maximum $5$.)
+
+\section{The elements-versus-edges ambiguity}
+
+The conjecture says ``the length of a maximal chain'' without specifying
+whether a chain of $k$ elements has length $k$ or $k-1$. We stress that the
+refutation is independent of this choice:
+\begin{center}
+\begin{tabular}{lcccc}
+\hline
+Lattice & $\max_f |\Fix(f)|$ & chain elements & chain edges & refuted? \\
+\hline
+$B_2$ (distr., $n=4$) & $4$ & $3$ & $2$ & yes (both) \\
+$B_3$ (distr., $n=8$) & $8$ & $4$ & $3$ & yes (both) \\
+$N_5$ (non-distr., $n=5$) & $5$ & $4$ & $3$ & yes (both) \\
+\hline
+\end{tabular}
+\end{center}
+In every case the maximum number of fixed points equals the lattice size $n$
+(Theorem~\ref{thm:identity}) and is strictly larger than both candidate chain
+lengths. The conjectured equality fails on the distributive lattices $B_2$ and
+$B_3$ as well, so the ``attained on distributive lattices'' part is false too.
+
+\section{Formal verification}
+
+The file \texttt{lean4/Main.lean} formalizes the $B_2$ refutation in core Lean~4
+(\texttt{import Std}, no Mathlib, no \texttt{sorry}, no \texttt{axiom}, no
+\texttt{native\_decide}). It encodes $B_2$ as $\mathrm{Fin}\,4$, defines
+monotonicity, proves that the identity is monotone and fixes all four elements,
+and proves by exhaustive computation over the $256$ functions that
+\[
+  \texttt{maxFixedPoints} = 4, \qquad
+  \texttt{maxChainLen} = 3, \qquad
+  4 > 3,
+\]
+culminating in \texttt{conjecture\_00000002601\_false}. A companion
+\texttt{Check.lean} prints the axioms of every theorem; none depends on
+\texttt{sorryAx} or \texttt{ofReduceBool}. The script \texttt{reproduce.py}
+independently reproduces all numerical claims above (including $B_3$ and
+$N_5$) using only the Python standard library.
+
+\begin{thebibliography}{9}
+\bibitem{tarski}
+A.~Tarski, \emph{A lattice-theoretical fixpoint theorem and its applications},
+Pacific J. Math. \textbf{5} (1955), 285--309.
+\bibitem{grätzer}
+G.~Grätzer, \emph{Lattice Theory: Foundation}, Birkhäuser, 2011.
+\end{thebibliography}
+
+\end{document}
