@@ -1,0 +1,295 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\TM}{\mathrm{TM}}
+\newcommand{\code}[1]{\texttt{#1}}
+
+\emergencystretch=3em
+
+\title{Disproof of conjecture \texttt{00000001260}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001260} as stated. The conjecture asserts a
+\emph{universal} upper bound, $p(n) \le n+2$, for the factor complexity of
+every primitive substitution in the ``purely substitutive class''. The
+Thue--Morse word, the fixed point of the primitive substitution
+$0 \mapsto 01$, $1 \mapsto 10$, already violates this bound at $n = 3$, where
+$p(3) = 6 > 5 = 3+2$. The failure is not an isolated accident: the celebrated
+Tribonacci word named in the conjecture itself satisfies $p(n) = 2n+1 > n+2$
+for every $n \ge 2$, so it too refutes the stated bound.
+
+\section{The conjecture}
+
+Quoted from \code{conjectures/00000001260.md}:
+
+\begin{quote}
+\textbf{Definition:} The factor complexity $p(n)$ of a primitive substitution
+counts distinct factors of length $n$. \textbf{Conjecture:} The optimal upper
+bound is $p(n) \le n+2$ within the purely substitutive class, attained by
+three-letter substitution families beyond the Tribonacci word; $p(n) = n+1$
+occurs only for Sturmian words.
+\end{quote}
+
+The filed statement consists of a \emph{definition} (factor complexity), a
+\emph{universal bound} ($p(n) \le n+2$ over the class), an \emph{attainment}
+claim (three-letter families attain it), and a \emph{classification} claim
+($p(n)=n+1$ only for Sturmian words). The universal bound is the load-bearing
+part; we refute it, and thereby the conjecture. The second clause,
+$p(n)=n+1$ for Sturmian words, is true and we confirm it below.
+
+\section{Definitions}
+
+\begin{definition}[Substitution and fixed point]
+A \emph{substitution} is a morphism $\sigma$ on words over a finite alphabet.
+A word $w$ is a \emph{fixed point} of $\sigma$ if $\sigma(w)=w$ and $w$ begins
+with $\sigma(w_0)$; the fixed point is obtained as
+$\lim_{k\to\infty}\sigma^k(0)$ when $\sigma(0)$ begins with $0$.
+\end{definition}
+
+\begin{definition}[Factor complexity]
+For an infinite word $w$, the \emph{factor complexity} $p(n)$ is the number of
+distinct finite words of length $n$ (its \emph{factors}) occurring as a
+contiguous block in $w$.
+\end{definition}
+
+\begin{definition}[Primitive substitution]
+A substitution $\sigma$ on a $d$-letter alphabet is \emph{primitive} if there
+is $k \ge 1$ such that every entry of the incidence matrix $M^k$ is strictly
+positive, where $M_{ij}$ is the number of occurrences of letter $j$ in
+$\sigma(i)$.
+\end{definition}
+
+\begin{definition}[Thue--Morse word]
+The Thue--Morse substitution on $\{0,1\}$ is
+\[
+\sigma_{\TM}\colon\quad 0 \mapsto 01,\qquad 1 \mapsto 10 .
+\]
+Its fixed point starting with $0$ is the \emph{Thue--Morse word}
+$\TM = 0110100110010110\cdots$. Equivalently, the $n$-th letter of $\TM$
+is the parity of the binary digit sum of $n$.
+\end{definition}
+
+\section{The Thue--Morse counterexample}
+
+\begin{proposition}[Primitivity]
+$\sigma_{\TM}$ is primitive. Its incidence matrix is
+$M = \begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix}$, every entry of which is
+positive; hence $M^k$ is positive for every $k \ge 1$, so the defining
+condition holds already with $k=1$.
+\end{proposition}
+
+\begin{proof}
+Immediate from the definition: $\sigma_{\TM}(0) = 01$ contains one $0$ and one
+$1$, and likewise $\sigma_{\TM}(1) = 10$. Thus $M$ has all entries $1>0$.
+\end{proof}
+
+The Thue--Morse word is standardly \emph{purely substitutive}: it is the fixed
+point of an actual substitution, and this substitution is primitive. It is a
+constant-length (of length $2$) substitution, and the filed conjecture text
+imposes no restriction excluding constant-length substitutions and no
+restriction on the size of the alphabet.
+
+\begin{theorem}[The bound fails at $n=3$]\label{thm:main}
+The Thue--Morse word has at least six distinct factors of length $3$; indeed
+\[
+p_{\TM}(3) = 6 > 5 = 3 + 2 .
+\]
+Consequently the asserted universal bound $p(n) \le n+2$ is false within the
+purely substitutive class.
+\end{theorem}
+
+\begin{proof}
+The six blocks
+\[
+011,\quad 110,\quad 101,\quad 010,\quad 100,\quad 001
+\]
+each occur in $\TM$ as a length-$3$ factor: they start at positions
+$0,1,2,3,4,5$ of the prefix $0110100110010110\cdots$, respectively. They are
+pairwise distinct, so $p_{\TM}(3) \ge 6$. A direct enumeration over the prefix
+of length $2^{18}$ gives exactly $6$ distinct length-$3$ factors, so
+$p_{\TM}(3)=6$. Since $6 > 5$, the bound $p(n) \le n+2$ fails at $n=3$.
+\end{proof}
+
+\begin{corollary}
+Conjecture \texttt{00000001260} is false: its universal upper bound is
+violated by a primitive, purely substitutive word.
+\end{corollary}
+
+\begin{remark}[Only a lower bound is needed]
+To refute a universal \emph{upper} bound it suffices to exhibit, for a single
+word, a single $n$ and a \emph{lower} bound $p(n) > n+2$. Each of the six
+blocks above is a genuine factor by construction (it starts at an explicit
+position), so the count $6$ is a lower bound on $p_{\TM}(3)$; no completeness
+argument (no proof that there are \emph{at most} six) is required. This is
+exactly what the Lean formalisation records.
+\end{remark}
+
+\section{The complexity table for $n = 1,\dots,15$}
+
+Counting distinct factors of $\TM$ over the prefix of length $2^{18}$:
+
+\begin{center}
+\begin{tabular}{rrrrrrrrrrrrrrrr}
+\toprule
+$n$   & 1 & 2 & 3 & 4  & 5  & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 & 14 & 15\\
+\midrule
+$p(n)$ & 2 & 4 & 6 & 10 & 12 & 16 & 20 & 22 & 24 & 28 & 32 & 36 & 40 & 42 & 44\\
+$n+2$  & 3 & 4 & 5 & 6  & 7  & 8  & 9  & 10 & 11 & 12 & 13 & 14 & 15 & 16 & 17\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The bound $p(n) \le n+2$ holds only at $n = 2$ (where $p(2) = 4 = 2+2$) and
+fails for every $n \ge 3$, the first failure being $p(3) = 6 > 5$. Numerical
+verification confirms $p(n) > n+2$ for every $n \in [3,300]$.
+
+\section{Bonus counterexamples}
+
+\subsection{The Tribonacci word (the word the conjecture names)}
+
+The Tribonacci word is the fixed point of the primitive substitution
+\[
+0 \mapsto 01,\qquad 1 \mapsto 02,\qquad 2 \mapsto 0 .
+\]
+It is a three-letter substitution, and it is precisely the ``Tribonacci word''
+the conjecture refers to. Its factor complexity is known to be exactly linear,
+\[
+p(n) = 2n+1 \qquad \text{for all } n \ge 1 .
+\]
+Hence $p(n) = 2n+1 > n+2$ for every $n \ge 2$. So the very word named in the
+conjecture violates the asserted universal bound, not merely some exotic
+example. Computation over a prefix of length $223317$ reproduces
+$p(1..15) = 3,5,7,9,11,13,15,17,19,21,23,25,27,29,31$, matching $2n+1$.
+
+\subsection{The period-doubling word}
+
+The period-doubling word is the fixed point of
+\[
+0 \mapsto 01,\qquad 1 \mapsto 00 .
+\]
+Computing over a prefix of length $65536$ gives
+\[
+p(1),p(2),p(3),p(4),p(5),\dots = 2,3,5,6,8,\dots
+\]
+so the bound $p(n) \le n+2$ first fails at $n = 5$, where $p(5) = 8 > 7$.
+
+\subsection{Sturmian words confirm the second clause}
+
+The Fibonacci word, fixed point of $0 \mapsto 01$, $1 \mapsto 0$, is the
+archetypal Sturmian word, and it satisfies $p(n) = n+1$ for all $n \ge 1$.
+Computation over a prefix of length $131072$ gives
+$p(1..14) = 2,3,4,\dots,15$, exactly $n+1$. Thus the conjecture's
+classification clause ($p(n)=n+1$ only for Sturmian words) is consistent with
+our data; it is the universal bound that fails.
+
+\section{Reading caveat (honesty statement)}
+
+The refutation above targets the \emph{literal universal reading} of the filed
+text: ``the optimal upper bound is $p(n) \le n+2$ within the purely
+substitutive class'', with no alphabet restriction and no exclusion of
+constant-length substitutions.
+
+\begin{itemize}
+\item If ``purely substitutive'' were silently restricted to \emph{three-letter}
+substitutions, or to \emph{Pisot-type} substitutions, the Thue--Morse
+counterexample (a two-letter, constant-length substitution) would be excluded
+and the refutation would not apply. \emph{No such restriction appears in the
+filed text.}
+\item If the conjecture were reinterpreted as a statement about the
+\emph{minimal growth rate over the class} rather than a universal upper bound,
+then the Thue--Morse word would again be irrelevant. Again, \emph{no such
+reinterpretation is present in the text}: the sentence plainly asserts a bound
+$p(n) \le n+2$ holding within the class.
+\item The sentence itself is garbled: it mixes a universal bound
+($p(n) \le n+2$ ``within the class'') with an \emph{attainment} claim
+(``attained by three-letter substitution families beyond the Tribonacci
+word''), which are statements of different logical type. It is not a precise
+mathematical claim, and no repaired reading is supplied by the text.
+\end{itemize}
+
+\noindent Under the literal reading there is no ambiguity: the bound is false.
+
+\section{Reproducibility}
+
+The checks are carried out by \code{reproduce.py}, which uses the Python~3
+standard library only. It builds the Thue--Morse prefix of length $2^{18}$ by
+iterated substitution, counts distinct length-$n$ factors for $n=1,\dots,300$,
+verifies $p(3)=6$ and $p(n) > n+2$ for all $n \in [3,300]$, and likewise
+computes the period-doubling, Tribonacci, and Fibonacci complexities:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(tables and checks)}\\
+PASS: conjecture 00000001260 is FALSE.
+\end{quote}
+
+It prints \code{PASS} and exits $0$ exactly when every check holds.
+
+\section{Formalisation}
+
+The core of the disproof is formalised in the accompanying Lean~4 project
+under \code{lean4/}, built with \code{lake build} and audited by
+\code{lake env lean Check.lean}. It uses core Lean only (\code{import Std}, no
+Mathlib) and no \code{sorry}. The Thue--Morse word is defined by a structural
+recursion so that the concrete computation reduces under \code{decide}, and
+the key statements are:
+
+\begin{quote}\ttfamily
+theorem tm\_p3\_ge\_6 : 6 \(\le\) fac3.eraseDups.length\\
+theorem tm\_p3\_eq\_6 : fac3.eraseDups.length = 6\\
+theorem tm\_refutes\_bound : fac3.eraseDups.length \(>\) 3 + 2\\
+theorem tm\_prefix\_agrees : (List.range 64).map tm = gen 6\\
+theorem incidence\_positive : \(\forall\) r \(\in\) incidence, \(\forall\) c \(\in\) r, 0 \(<\) c\\
+theorem conjecture\_00000001260\_false :\\
+\hspace*{2em}fac3.eraseDups.length = 6 \(\wedge\) \(\neg\) (fac3.eraseDups.length \(\le\) 3 + 2)
+\end{quote}
+
+\noindent The formalisation records exactly the lower bound $p(3) \ge 6$:
+\code{fac3} is the list of length-$3$ blocks starting at explicit positions
+$0,\dots,61$, so each of its entries is a genuine factor, and
+\code{fac3.eraseDups.length} is therefore a lower bound for $p(3)$. The
+consistency check \code{tm\_prefix\_agrees} ties the closed-form definition of
+$\TM$ to the substitution-generated prefix, and \code{incidence\_positive}
+witnesses primitivity of $0 \mapsto 01$, $1 \mapsto 10$.
+
+\begin{sloppypar}
+\code{Check.lean} prints \code{\#print axioms} for every theorem and reports
+\code{propext} only; \code{incidence\_positive} depends on no axioms at all.
+In particular it reports neither \code{sorryAx} nor
+\code{Lean.ofReduceBool}; no Mathlib is involved.
+\end{sloppypar}
+
+\section*{Files}
+
+\begin{tabular}{@{}p{0.26\textwidth}p{0.70\textwidth}@{}}
+\toprule
+File & Description\\
+\midrule
+\code{README.md} & Verdict, bilingual quote, definitions, tables, caveat, status.\\
+\code{main.tex} & This source; standalone \code{article}, \code{tectonic --outdir build main.tex}.\\
+\code{build/main.pdf} & Compiled PDF.\\
+\code{reproduce.py} & Stdlib-only reproduction; prints \code{PASS}/\code{FAIL}.\\
+\code{lean4/} & Lean 4 project: \code{Main.lean}, \code{Check.lean}, \code{lakefile.toml}, \code{lean-toolchain}, \code{README.md}.\\
+\bottomrule
+\end{tabular}
+
+\end{document}
