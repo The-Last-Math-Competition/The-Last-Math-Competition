@@ -1,0 +1,325 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Pn}{\mathcal{P}}
+\newcommand{\isect}[1]{\bigcap_{i\in #1}}
+
+\title{Disproof of conjecture \texttt{00000002175}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000002175} as stated. The refutation is
+unconditional and elementary, and is already complete on a four-element ground
+set: there is a 3-wise odd-intersecting family of size $4$, whereas the
+conjecture asserts the maximum is $2^{n-3} = 2$. Computations of the exact
+maxima for $n \le 7$ contradict the claimed formula in both directions, and an
+exhaustive check of all affine cosets shows that no affine coset is an extremal
+family, so the characterisation clause is false as well.
+
+\section{The conjecture}
+
+\begin{definition}[3-wise odd-intersecting]
+A family $\mathcal{F} \subseteq \Pn([n])$ of subsets of an $n$-element ground
+set $[n] = \{1, \dots, n\}$ is \emph{3-wise odd-intersecting} if for every three
+\emph{distinct} members $A, B, C \in \mathcal{F}$ the intersection $A \cap B
+\cap C$ has odd cardinality.
+\end{definition}
+
+Quoted from \texttt{conjectures/00000002175.md}:
+
+\begin{quote}
+\textbf{Definition:} A 3-wise odd-intersecting family is one where the
+intersection of any three members is odd. \textbf{Conjecture:} The maximal size
+is always $2^{n-3}$; and the extremal families consist of indicator functions of
+3-dimensional affine subspaces. (3-wise odd-intersection affine extremal)
+\end{quote}
+
+The original statement is filed in English and Chinese; the Chinese text reads
+(the conjecture-file version is reproduced verbatim in \texttt{README.md}).
+The size claim (the maximum is always $2^{n-3}$) and the characterisation claim
+(the extremal families are the indicator functions of 3-dimensional affine
+subspaces) both fail.
+
+\section{The counterexample at $n = 4$}
+
+\begin{theorem}\label{thm:witness}
+On the ground set $\{1,2,3,4\}$, the four-member family
+\[
+F \;=\; \bigl\{\, \{1,2\},\ \{1,3\},\ \{1,4\},\ \{1,2,3,4\}\,\bigr\}
+\]
+is 3-wise odd-intersecting, yet $|F| = 4 > 2 = 2^{4-3}$.
+\end{theorem}
+
+\begin{proof}
+There are $\binom{4}{3} = 4$ triples of distinct members, and each meets in
+exactly $\{1\}$, of odd size $1$:
+\[
+\begin{array}{llll}
+\{1,2\}\cap\{1,3\}\cap\{1,4\} &= \{1\}, & \{1,2\}\cap\{1,3\}\cap\{1,2,3,4\} &= \{1\},\\[2pt]
+\{1,2\}\cap\{1,4\}\cap\{1,2,3,4\} &= \{1\}, & \{1,3\}\cap\{1,4\}\cap\{1,2,3,4\} &= \{1\}.
+\end{array}
+\]
+Indeed, every one of the four members contains $1$ (so every intersection
+contains $1$), and no other point lies in all three members of any triple. Hence
+$F$ is 3-wise odd-intersecting. Since $|F| = 4$ while $2^{4-3} = 2$, the size
+claim of the conjecture fails.
+\end{proof}
+
+\begin{corollary}
+The true maximum at $n = 4$ is at least $5$, so the conjecture's value
+$2^{4-3} = 2$ is too small by at least $3$. A $5$-element witness is
+\[
+\bigl\{\, \{1\},\ \{1,2\},\ \{1,3\},\ \{1,4\},\ \{1,2,3\}\,\bigr\},
+\]
+in which every triple of distinct members meets in $\{1\}$ (a triple containing
+$\{1\}$ always meets in $\{1\}$; among the remaining four sets, which all
+contain $1$, any three have intersection exactly $\{1\}$).
+\end{corollary}
+
+The conjecture is thus refuted by the four-member family alone; the five-member
+family shows the failure is even larger than the witness indicates.
+
+\section{The true maxima versus $2^{n-3}$}
+
+The exact maximum $M(n)$ was computed in two independent ways (both implemented
+in \texttt{reproduce.py}):
+
+\begin{itemize}
+\item \emph{Exhaustive search} over all $2^{2^n}$ subfamilies of $\Pn([n])$ for
+$n \le 4$, with a cardinality prune.
+\item \emph{Branch and bound} for the maximum independent set of the $3$-uniform
+hypergraph on the $2^n$ subsets whose hyperedges are the triples with
+\emph{even} intersection, for $n = 5, 6, 7$. The bound greedily packs
+vertex-disjoint forbidden triples (each permits at most $2$ of its three
+vertices); vertices are ordered by conflict degree and the conflict structure is
+precomputed from a parity table, so the $n = 7$ search runs in about ten seconds.
+\end{itemize}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{r r r l}
+\toprule
+$n$ & true maximum $M(n)$ & claim $2^{n-3}$ & comparison \\
+\midrule
+$0$ & $1$ & --- (undefined) & --- \\
+$1$ & $2$ & --- (undefined) & --- \\
+$2$ & $2$ & --- (undefined) & --- \\
+$3$ & $4$ & $1$  & claim too \textbf{small} by $3$ \\
+$4$ & $5$ & $2$  & claim too \textbf{small} by $3$ \\
+$5$ & $7$ & $4$  & claim too \textbf{small} by $3$ \\
+$6$ & $8$ & $8$  & equal (coincidence only) \\
+$7$ & $10$& $16$ & claim too \textbf{large} by $6$ \\
+\bottomrule
+\end{tabular}
+\caption{True maxima $M(n)$ for $n = 0, \dots, 7$ versus the claim $2^{n-3}$.}
+\end{table}
+
+Equivalently,
+\[
+M(n) \;=\; 1,\, 2,\, 2,\, 4,\, 5,\, 7,\, 8,\, 10
+\qquad (n = 0, 1, \dots, 7).
+\]
+The claim is too small at $n = 3, 4, 5$, too large at $n = 7$ (there is no
+family of size $16$; the maximum is $10$), and agrees at $n = 6$ only by
+coincidence. Hence $2^{n-3}$ is not the truth.
+
+\section{The construction}
+
+The extremal families for $n = 3, \dots, 7$ have the following shape. Fix a
+point $x$ and let $Y = [n] \setminus \{x\}$. Put
+\[
+G \;=\; \{\emptyset\} \;\cup\; \bigl\{\{y\} : y \in Y\bigr\} \;\cup\;
+\bigl\{\text{the edges of a matching on } Y\bigr\},
+\qquad
+F \;=\; \bigl\{\{x\} \cup g : g \in G\bigr\}.
+\]
+
+\begin{theorem}\label{thm:construction}
+The family $F$ above is 3-wise odd-intersecting and has
+\[
+|F| \;=\; 1 + (n-1) + \Bigl\lfloor \frac{n-1}{2} \Bigr\rfloor
+       \;=\; n + \Bigl\lfloor \frac{n-1}{2} \Bigr\rfloor .
+\]
+For $n = 3, 4, 5, 6, 7$ this equals $4, 5, 7, 8, 10$, i.e.\ $M(n)$.
+\end{theorem}
+
+\begin{proof}
+Any three distinct members have the form $\{x\} \cup g_1$, $\{x\} \cup g_2$,
+$\{x\} \cup g_3$ with distinct $g_i \in G$, and
+\[
+(\{x\}\cup g_1)\cap(\{x\}\cup g_2)\cap(\{x\}\cup g_3)
+\;=\; \{x\} \cup (g_1 \cap g_2 \cap g_3).
+\]
+We claim $g_1 \cap g_2 \cap g_3 = \emptyset$. If some $g_i = \emptyset$ this is
+clear. Otherwise each $g_i$ is a singleton $\{y\}$ or a matching edge. A
+singleton $\{y\}$ equals at most one other $g_j$, and at most one matching edge
+contains $y$; since $g_1, g_2, g_3$ are pairwise distinct, no point $y$ can
+belong to all three. Two distinct matching edges are disjoint by definition of a
+matching. Hence the intersection is empty and every triple meets in $\{x\}$, of
+odd size $1$. The cardinality is $1 + |Y| + \lfloor |Y|/2 \rfloor$ with
+$|Y| = n-1$.
+\end{proof}
+
+Thus the extremal families have a ``fixed point plus an even-intersecting family
+on the remainder'' shape, not the affine-subspace shape the conjecture proposes.
+
+\begin{remark}[Asymptotic lower bound]
+Partitioning $Y$ into pairs and taking $G$ to be \emph{all} unions of these
+pairs, the intersection $g_1 \cap g_2 \cap g_3$ is again a union of pairs (hence
+of even size), so every triple still meets in $\{x\} \cup (\text{a union of
+pairs})$, of odd size, and
+\[
+|F| \;=\; 2^{\lfloor (n-1)/2 \rfloor} \;\approx\; 2^{n/2}.
+\]
+This is an infinite family, so $M(n) \ge 2^{\lfloor (n-1)/2 \rfloor}$: the
+maximum grows at least like $2^{n/2}$, an exponential of rate $n/2$ rather than
+$n-3$. (The computed values $M(6) = 8 = 2^3$ and $M(7) = 10$ are consistent
+with growth of that order. The lower bound alone does not determine $M(n)$ for
+large $n$; what is decisive for the conjecture is the table of Section~4, which
+refutes $2^{n-3}$ in both directions.)
+\end{remark}
+
+\section{The affine-subspace characterisation is false}
+
+The phrase ``indicator functions of 3-dimensional affine subspaces'' admits two
+readings. Identify a subset of $[n]$ with its indicator vector in $\F_2^n$, so
+that a family of indicator vectors is a set of points of $\F_2^n$. Both readings
+were tested by enumerating \emph{all} affine cosets of \emph{all} dimensions in
+$\F_2^n$ for $n = 4, 5, 6, 7$.
+
+\paragraph{Literal reading: a 3-dimensional affine subspace.}
+Such a coset has $2^3 = 8$ members. Enumerating all $3$-dimensional subspaces
+and all their cosets:
+
+\begin{center}
+\begin{tabular}{r r r r}
+\toprule
+$n$ & $3$-dim.\ subspaces & cosets & cosets that are 3-wise odd \\
+\midrule
+$4$ & $15$   & $30$    & $0$ \\
+$5$ & $155$  & $620$   & $0$ \\
+$6$ & $1395$ & $11160$ & $0$ \\
+$7$ & $11811$& $188976$& $105$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For $n = 4, 5, 6$ there is \emph{no} 3-dimensional affine coset that is
+3-wise odd-intersecting. For $n = 7$ there are $105$ such cosets, but every one
+has size $8 < M(7) = 10$, so none is extremal.
+
+\paragraph{Codimension-3 reading: a coset of size $2^{n-3}$.}
+Here $n = 4$: cosets of size $2$, all vacuously 3-wise odd, but $2 < M(4) = 5$;
+$n = 5$: cosets of size $4$, of which $460$ are 3-wise odd, but
+$4 < M(5) = 7$; $n = 6$: cosets of size $8$, and \emph{none} is 3-wise odd;
+$n = 7$: such a coset would have size $16 > M(7) = 10$, impossible.
+
+\begin{corollary}
+No affine coset of any dimension is an extremal family for $n = 4, 5, 6, 7$. If
+$n \in \{4,5,7\}$ then $M(n) = 5, 7, 10$ is not a power of two, while every
+affine coset has power-of-two size, so no coset can even have $M(n)$ members. At
+$n = 6$, where $M(6) = 8 = 2^3$ is a power of two, the only cosets of size $8$
+are $3$-dimensional, and none of them is 3-wise odd-intersecting.
+\end{corollary}
+
+\begin{remark}[Ambiguity note]
+``Indicator functions of 3-dimensional affine subspaces'' is garbled: a
+3-dimensional affine subspace has $2^3 = 8$ points, whereas $2^{n-3}$ is the
+size of a codimension-3 coset. Each indicator function of a 3-dimensional
+affine subspace is a \emph{member} of the proposed extremal family, while
+$2^{n-3}$ is a \emph{number of members}; the two readings are different
+statements, and neither yields valid extremal families.
+\end{remark}
+
+\begin{remark}
+The $n = 4$ witness is itself an affine coset, but of dimension $2$: its
+indicator vectors satisfy
+$F = \{1100, 1010, 1001, 1111\} = 1100 + \{0000, 0110, 0101, 0011\}$,
+a coset of the span of $0110$ and $0101$. Its size is $2^2 = 4$, its dimension
+is $2$ (not $3$), and it is not extremal because $M(4) = 5$. So being an affine
+coset is neither sufficient nor, at the claimed dimension, possible.
+\end{remark}
+
+\section{Formalisation}
+
+The $n = 4$ witness is formalised in the accompanying Lean~4 project under
+\texttt{lean4/}, using core Lean only (\texttt{import Std}, no Mathlib, no
+\texttt{sorry}). Members are represented as indicator vectors of type
+\texttt{List Bool}. The main statements are
+
+\begin{quote}\ttfamily
+def interSize (a b c : List Bool) : Nat\\
+def TripleOdd (F : List (List Bool)) : Prop\\
+def F : List (List Bool) :=\\
+\hspace*{2em}[[true,true,false,false], [true,false,true,false],\\
+\hspace*{2em} [true,false,false,true], [true,true,true,true]]\\[2pt]
+theorem witness\_oddTriples : TripleOdd F\\
+theorem triple\_123 : interSize m12 m13 m14 = 1\\
+theorem triple\_124 : interSize m12 m13 m1234 = 1\\
+theorem triple\_134 : interSize m12 m14 m1234 = 1\\
+theorem triple\_234 : interSize m13 m14 m1234 = 1\\
+theorem witness\_length : F.length = 4\\
+theorem witness\_breaks\_bound : F.length > 2 \^{} (4 - 3 : Nat)\\
+theorem witness\_check : checkFamily F = true\\
+theorem n4\_max\_at\_least\_five :\\
+\hspace*{2em}TripleOdd G5 \(\wedge\) G5.length = 5 \(\wedge\) G5.length > 2 \^{} (4 - 3 : Nat)
+\end{quote}
+
+\noindent Here \texttt{TripleOdd} is the conjecture's property, \texttt{F} is
+the four-member witness, and \texttt{G5} is the five-member family of
+Corollary~3.1. The four triple-intersection theorems are the explicit check
+that the witness meets the property; \texttt{witness\_breaks\_bound} is the
+inequality $4 > 2$. Building and auditing:
+
+\begin{quote}\ttfamily
+\$ cd lean4\\
+\$ lake build\\
+\$ lake env lean Check.lean
+\end{quote}
+
+\noindent The audit reports no \texttt{sorryAx}; the concrete computational
+theorems depend on no axioms at all, and the quantified ones use only
+\texttt{propext} and \texttt{Quot.sound}. The exact maxima $M(n)$ and the
+affine-coset enumeration are finite computations carried out by
+\texttt{reproduce.py}; they are not needed for the refutation, which is already
+complete at $n = 4$. See \texttt{lean4/README.md} for the full statement table
+and scope.
+
+\section{Reproducibility}
+
+The checks are carried out by \texttt{reproduce.py}, which uses the Python~3
+standard library only:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(the witness, the maxima, the constructions, the affine cosets)}\\
+PASS: all checks verified; conjecture 00000002175 is FALSE.
+\end{quote}
+
+It verifies the witness's four triple intersections (each equal to $\{1\}$),
+computes $M(0..4)$ exhaustively and $M(5..7)$ by branch and bound (cross-checking
+the two methods at $n = 4$), checks the constructions of Section~5, and tests
+every affine coset for $n = 4, \dots, 7$. It prints \texttt{PASS} and exits $0$
+exactly when every check holds. The document itself is built with
+\texttt{tectonic --outdir build main.tex}.
+
+\end{document}
