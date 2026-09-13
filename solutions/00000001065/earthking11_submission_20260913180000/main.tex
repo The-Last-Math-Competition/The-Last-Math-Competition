@@ -1,0 +1,234 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{example}{Example}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\title{Refutation of Conjecture 00000001065:\\
+the Nikodym--Kakeya difference in $\mathbb{F}_q^2$}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000001065 asserts that, in the plane over the finite field
+$\mathbb{F}_q$, the minimal size of a Nikodym set exceeds the minimal size of
+a Kakeya set by exactly $q-1$. Under the definitions recorded in the
+conjecture itself, this is false already for $q=2$, and in fact the difference
+is not $q-1$ for $q=2,3,4$. We give an exhaustive verification for
+$q=2,3,4$ together with a complete machine-checked proof of the decisive
+$q=2$ case in core Lean~4.
+\end{abstract}
+
+\section{Definitions}
+
+Let $q$ be a prime power and let $\mathbb{F}_q$ be the field with $q$
+elements. A \emph{line} in the affine plane $\mathbb{F}_q^2$ has exactly $q$
+points. The plane has $q(q+1)$ lines, partitioned into $q+1$ \emph{directions}
+(the points of the projective line $\mathbb{P}^1(\mathbb{F}_q)$), each
+direction containing $q$ parallel lines.
+
+\begin{definition}[Kakeya set]\label{def:kakeya}
+A subset $K\subseteq \mathbb{F}_q^2$ is a \emph{Kakeya set} if for every one of
+the $q+1$ directions there is a line of that direction that is fully contained
+in $K$.
+\end{definition}
+
+\begin{definition}[Nikodym set]\label{def:nikodym}
+A subset $N\subseteq \mathbb{F}_q^2$ is a \emph{Nikodym set} if for every point
+$p\in \mathbb{F}_q^2$ there is a line $L$ through $p$ such that
+\[
+  L\setminus\{p\}\subseteq N .
+\]
+In words: through every point there is a line whose \emph{other} points all lie
+in $N$; the point $p$ itself is allowed to be exceptional.
+\end{definition}
+
+These are the definitions stated in Conjecture 00000001065 (``a Nikodym set:
+through each point, a line almost all of whose points lie in the set''). Note
+that in Definition~\ref{def:nikodym} the quantifier runs over \emph{all} points
+of the plane, including those outside $N$.
+
+\begin{definition}[Nikodym--Kakeya difference]
+Write $\kappa(q)$ for the minimal cardinality of a Kakeya set in
+$\mathbb{F}_q^2$ and $\nu(q)$ for the minimal cardinality of a Nikodym set.
+The \emph{Nikodym--Kakeya difference} is $\nu(q)-\kappa(q)$.
+\end{definition}
+
+\begin{quote}
+\textbf{Conjecture 00000001065.} \emph{The minimal size of a Nikodym set
+exceeds that of a Kakeya set by exactly $q-1$; that is,
+$\nu(q)-\kappa(q)=q-1$.}
+\end{quote}
+
+\section{The conjecture is false}
+
+\begin{theorem}\label{thm:main}
+Under Definitions~\ref{def:kakeya} and~\ref{def:nikodym},
+\[
+  \nu(2)=2,\qquad \kappa(2)=3,\qquad \nu(2)-\kappa(2)=-1\neq 1=q-1 .
+\]
+Consequently Conjecture 00000001065 is false.
+\end{theorem}
+
+The rest of the paper records the exhaustive computations that establish this
+and the analogous failures for $q=3,4$, and discusses the strongest possible
+objection.
+
+\section{Exhaustive computation}\label{sec:computation}
+
+For each $q\in\{2,3,4\}$ we enumerated \emph{all} $2^{q^2}$ subsets of
+$\mathbb{F}_q^2$ ($16$, $512$, and $65\,536$ subsets respectively), tested
+Definition~\ref{def:kakeya} and Definition~\ref{def:nikodym} directly, and
+recorded the least cardinality at which each property occurs. Arithmetic in
+$\mathbb{F}_4$ was carried out with the irreducible polynomial $x^2+x+1$, so
+that the four elements are $0,1,x,x+1$ with $x^2=x+1$.
+
+\subsection{The case $q=2$}
+
+Index the four points of $\mathbb{F}_2^2$ row-major as
+\[
+  (0,0)\to 0,\quad (0,1)\to 1,\quad (1,0)\to 2,\quad (1,1)\to 3 .
+\]
+The six lines are
+\[
+  \{0,2\},\ \{1,3\} \quad(\text{horizontal}),\qquad
+  \{0,1\},\ \{2,3\} \quad(\text{vertical}),\qquad
+  \{0,3\},\ \{1,2\} \quad(\text{diagonal}),
+\]
+one pair for each of the $3=q+1$ directions.
+
+\begin{itemize}
+\item \textbf{Kakeya minimum is $3$.} No set with fewer than three points can
+meet all three directions: a set of at most two points lies on at most one
+line, hence realises at most one direction. A triangle such as
+$\{(0,0),(0,1),(1,0)\}$ contains the horizontal line $\{0,2\}$, the vertical
+line $\{0,1\}$ and the diagonal line $\{1,2\}$, so it is Kakeya. Hence
+$\kappa(2)=3$.
+\item \textbf{Nikodym minimum is $2$.} The two-point set
+$N=\{(0,0),(0,1)\}$ is Nikodym. Indeed, for the point $(0,0)$ the vertical line
+$\{(0,0),(0,1)\}$ has its other point in $N$; for $(0,1)$ the same line works;
+for $(1,0)$ the diagonal line $\{(1,0),(0,1)\}$ has its other point in $N$; and
+for $(1,1)$ the horizontal line $\{(1,1),(0,1)\}$ has its other point in $N$.
+A set of size $0$ or $1$ is never Nikodym, since for a point $p$ outside $N$ (or
+for $p$ the unique point of $N$) every line through $p$ has an other point
+outside $N$. Hence $\nu(2)=2$.
+\end{itemize}
+
+Therefore $\nu(2)-\kappa(2)=2-3=-1$, whereas $q-1=1$.
+
+\subsection{The case $q=3$}
+
+There are $4=q+1$ directions and $9$ points, hence $12$ lines. Exhaustive
+enumeration of the $512$ subsets gives
+\[
+  \kappa(3)=7,\qquad \nu(3)=5,\qquad \nu(3)-\kappa(3)=-2\neq 2=q-1 .
+\]
+
+\subsection{The case $q=4$}
+
+Here $q=4$ is a genuine prime power, not a prime; we used the field
+$\mathbb{F}_4=\{0,1,x,x+1\}$ with $x^2=x+1$. There are $5$ directions and $20$
+lines. Exhaustive enumeration of all $65\,536$ subsets gives
+\[
+  \kappa(4)=10,\qquad \nu(4)=10,\qquad \nu(4)-\kappa(4)=0\neq 3=q-1 .
+\]
+
+\section{Results}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{cccccc}
+\toprule
+$q$ & $\min$ Kakeya $\kappa(q)$ & $\min$ Nikodym $\nu(q)$ &
+$\nu(q)-\kappa(q)$ & claimed $q-1$ & verdict \\
+\midrule
+$2$ & $3$  & $2$  & $-1$ & $1$ & differs \\
+$3$ & $7$  & $5$  & $-2$ & $2$ & differs \\
+$4$ & $10$ & $10$ & $0$  & $3$ & differs \\
+\bottomrule
+\end{tabular}
+\caption{Exhaustive minima in $\mathbb{F}_q^2$. The difference is negative
+(and for $q=4$ zero), never $q-1$; the conjecture fails in every computed
+case.}
+\label{tab:results}
+\end{table}
+
+The differences are negative or zero, not $q-1$: the Nikodym minimum is
+\emph{below} the Kakeya minimum for $q=2,3$ and equal to it for $q=4$.
+
+\section{Sanity checks}
+
+The computed Kakeya minima agree with the known formula
+\[
+  \kappa(q)=
+  \begin{cases}
+    \dfrac{q(q+1)}{2}, & q \text{ even},\\[2mm]
+    \dfrac{q(q+1)}{2}+\dfrac{q-1}{2}, & q \text{ odd},
+  \end{cases}
+\]
+giving $\kappa(2)=3$, $\kappa(3)=7$, $\kappa(4)=10$, which match the
+enumeration. This validates the search independently of the Nikodym
+computation.
+
+\section{The strongest objection: the ``whole line'' reading}
+\label{sec:whole-line}
+
+The definition of a Nikodym set is often strengthened by replacing ``almost
+all'' by ``all'': one demands a \emph{whole} line through every point contained
+in $N$, i.e.\ for every $p$ there is a line $L$ through $p$ with
+$L\subseteq N$. Under this reading the minimum jumps to $q^2$: if $p\notin N$,
+then the line $L$ through $p$ guaranteed by the definition satisfies
+$p\in L\subseteq N$, a contradiction; hence no point can lie outside $N$, so
+$N=\mathbb{F}_q^2$ and $\min = q^2$.
+
+It is worth noting where the claimed formula $q-1$ may have come from. Under
+the strengthened reading one has
+\[
+  q^2-\kappa(q) = \tfrac{q(q+1)}{2} - \tfrac{q-1}{2}\ \text{or}\ \tfrac{q(q+1)}{2}
+\]
+and this coincidentally equals $q-1$ for the two smallest cases:
+\[
+  q=2:\quad 4-3=1=q-1,\qquad q=3:\quad 9-7=2=q-1 .
+\]
+But the coincidence already fails at the very next case:
+\[
+  q=4:\quad 16-10=6\neq 3=q-1 .
+\]
+So even under the strengthened ``whole line'' reading the formula $q-1$
+survives only for $q=2,3$ and fails from $q=4$ onward. Under the wording
+actually stated in Conjecture 00000001065, where the distinguished point is
+allowed to be exceptional, the refutation is immediate and holds already at
+$q=2$.
+
+\begin{remark}
+The value $q^2$ is the trivial upper bound for a Nikodym set under the
+strengthened reading; the point of the computation above is only that the
+numerical coincidence $q^2-\kappa(q)=q-1$ at $q=2,3$ does not persist.
+\end{remark}
+
+\section{Conclusion}
+
+Under the definitions stated in Conjecture 00000001065, the Nikodym--Kakeya
+difference is \emph{not} $q-1$: for $q=2$ it is $-1$, for $q=3$ it is $-2$,
+and for $q=4$ it is $0$. The smallest witness is the two-point set
+$\{(0,0),(0,1)\}\subseteq\mathbb{F}_2^2$, which is Nikodym, while every Kakeya
+set in $\mathbb{F}_2^2$ needs at least three points. The conjecture is
+therefore \textbf{false}. The machine-checked Lean~4 development accompanying
+this note formalises the $q=2$ disproof completely.
+
+\end{document}
