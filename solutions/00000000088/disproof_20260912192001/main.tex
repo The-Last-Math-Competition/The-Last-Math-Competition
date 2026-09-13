@@ -1,0 +1,574 @@
+\documentclass[11pt]{article}
+
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\conjid}{00000000088}
+\newcommand{\Fu}{\mathcal{F}^{u}}
+\newcommand{\Fs}{\mathcal{F}^{s}}
+\newcommand{\HH}{H^{1}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+
+\title{No pseudo-Anosov stretch factor is rational\\[0.4em]
+\large The Last Math Competition, Conjecture \conjid}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture \conjid{} asserts that every prime $p\ge2$ is the stretch factor of a
+pseudo-Anosov element of some mapping class group. It is false --- and false for
+every prime at once, because of a statement that is stronger and cleaner than the
+negation: \emph{no pseudo-Anosov stretch factor is rational.} A stretch factor
+$\lambda$ is an eigenvalue of the action of a homeomorphism on the first
+cohomology of the double cover that orients the invariant foliations; that action
+is an automorphism of a lattice, so its characteristic polynomial is monic with
+constant term $\pm1$ and $\lambda$ is an algebraic unit. A rational algebraic unit
+is $\pm1$, whereas $\lambda>1$. We give the argument in full, and we explain why
+the Perron--Frobenius candidate matrix recorded in the research notes for this
+conjecture cannot be repaired: the obstruction is not the determinant of a
+transition matrix, and no choice of matrix, train track or surface avoids it. The
+arithmetic half of the proof is formalized in Lean~4 against Mathlib; the
+geometric half, which needs measured foliations, is classical and is given here by
+hand.
+\end{abstract}
+
+\section{The conjecture as stated}
+
+The text of conjecture \conjid{} reads:
+
+\begin{quote}
+\textbf{English.} Conjecture: For every prime $p \ge 2$ there exists a
+pseudo-Anosov element in some mapping class group whose stretch factor is exactly
+the integer $p$.
+\end{quote}
+
+\noindent
+(The file \texttt{conjectures/\conjid.md} gives the same statement in Chinese; we
+quote the English text only, so that this document compiles without a CJK font.)
+
+\section{Reading of the statement}
+
+The statement is unambiguous once three conventions are fixed. We fix them in the
+way that is most generous to the conjecture: every reading we could give it is
+refuted below.
+
+\subsection{Surfaces and mapping classes}
+
+Let $S$ be a surface of finite type: a closed surface with finitely many points
+removed (punctures) or marked, possibly with finitely many boundary components.
+$\mathrm{MCG}(S)$ is the group of isotopy classes of homeomorphisms of $S$
+preserving the set of punctures and the boundary setwise. ``Some mapping class
+group'' means $\mathrm{MCG}(S)$ for some such $S$; we allow $S$ to be orientable
+or non-orientable, closed or not, and we place no bound on its genus or on the
+number of punctures. Infinite-type surfaces are excluded, as they must be: the
+Nielsen--Thurston classification, and with it the notion of a stretch factor, is a
+finite-type statement.
+
+\subsection{Pseudo-Anosov maps and stretch factors}
+
+\begin{definition}\label{def:pa}
+A homeomorphism $\varphi\colon S\to S$ is \emph{pseudo-Anosov} if there are two
+transverse measured foliations $(\Fu,\mu^{u})$, $(\Fs,\mu^{s})$ on $S$ and a real
+number $\lambda>1$ with
+\[
+  \varphi\cdot(\Fu,\mu^{u})=(\Fu,\lambda\mu^{u}),
+  \qquad
+  \varphi\cdot(\Fs,\mu^{s})=(\Fs,\lambda^{-1}\mu^{s}).
+\]
+The number $\lambda=\lambda(\varphi)$ is the \emph{stretch factor} (also
+\emph{dilatation}) of $\varphi$. A mapping class is pseudo-Anosov if it has a
+pseudo-Anosov representative; the stretch factor depends only on the class
+\cite{FLP,FM}.
+\end{definition}
+
+Singularities are allowed: $\Fu$ and $\Fs$ have finitely many singular points with
+$k\ge3$ prongs, and $k\ge1$ prongs at punctures and boundary components. This is
+the definition in \cite{FLP,FM,Thurston88}, and the one under which the
+Nielsen--Thurston classification is stated.
+
+\subsection{Which number is ``the stretch factor''}\label{sec:convention}
+
+Two normalizations appear in the literature: the stretch factor $\lambda$ of
+Definition~\ref{def:pa}, which is $e^{\ell}$ for $\ell$ the translation length of
+$\varphi$ on Teichmüller space; and the quasiconformal dilatation $K=\lambda^{2}$
+of the Teichmüller representative. The conjecture is refuted under both, and more
+generally under any convention that names $\lambda^{k}$ for a fixed integer
+$k\ge1$: see Remark~\ref{rem:convention}. We work with $\lambda$.
+
+\section{Result}
+
+\begin{theorem}[Stretch factors are algebraic units]\label{thm:unit}
+Let $\varphi$ be a pseudo-Anosov homeomorphism of a finite-type surface,
+orientable or not. Then $\lambda(\varphi)$ is an algebraic unit: it is an
+algebraic integer, and so is $\lambda(\varphi)^{-1}$.
+\end{theorem}
+
+This is classical --- it is the ``unit'' half of Fried's theorem that stretch
+factors are bi-Perron algebraic units \cite{Fried}, and it is used as standard
+equipment in the literature (e.g.\ \cite[\S5]{LeiningerReid}). We give a complete
+proof in \S\ref{sec:proof} because it is what the refutation rests on.
+
+\begin{theorem}[No rational stretch factors]\label{thm:irrational}
+No pseudo-Anosov stretch factor is a rational number. In particular no integer
+$n\ge2$ is a stretch factor.
+\end{theorem}
+
+\begin{corollary}\label{cor:main}
+Conjecture \conjid{} is false, and it fails for \emph{every} prime $p\ge2$: for no
+prime $p$ does any mapping class group contain a pseudo-Anosov element of stretch
+factor $p$.
+\end{corollary}
+
+So the conjecture is not false by an exceptional prime or in a boundary case: the
+class of numbers it asks for is disjoint from the class of numbers that can occur.
+The arithmetic content of Theorems~\ref{thm:unit} and~\ref{thm:irrational} --- an
+eigenvalue of a unimodular integer matrix that is rational equals $\pm1$ --- is
+formalized in Lean~4 against Mathlib in \texttt{lean/Submission/Basic.lean}; see
+\S\ref{sec:formal} for exactly what is and is not machine-checked.
+
+\section{Proof}\label{sec:proof}
+
+\subsection{The classical input}\label{sec:input}
+
+We use four standard facts. Throughout, $\Sigma$ denotes the closed surface
+underlying $S$, obtained by collapsing each boundary component to a puncture and
+then filling in all punctures; a homeomorphism of $S$ induces a homeomorphism of
+$\Sigma$ permuting the filled points.
+
+\begin{itemize}
+\item[(F1)] \textbf{(Orienting double cover.)} Let $\varphi$ be pseudo-Anosov on
+$S$ with invariant foliations $\Fu,\Fs$. There is a double cover
+$\pi\colon\widehat S\to S$, branched exactly over the singularities with an odd
+number of prongs, such that $\pi^{*}\Fu$ and $\pi^{*}\Fs$ are orientable, and
+$\varphi$ lifts to a homeomorphism $\widehat\varphi$ of $\widehat S$. The lift is
+pseudo-Anosov with invariant foliations $\pi^{*}\Fu,\pi^{*}\Fs$ and
+\[
+  \lambda(\widehat\varphi)=\lambda(\varphi).
+\]
+(The cover is the one associated with the orientation character
+$w\colon\pi_{1}(S\smallsetminus\mathrm{Sing})\to\ZZ/2$ of the tangent line field
+of $\Fu$. Since $\varphi$ preserves $\Fu$, it preserves $w$, hence preserves
+$\ker w$ --- a subgroup of index $2$, so normal, so unaffected by the basepoint
+ambiguity of $\varphi_{*}$ --- and therefore lifts. The transverse measures pull
+back, and $\pi\circ\widehat\varphi=\varphi\circ\pi$ gives
+$\widehat\varphi\cdot\pi^{*}\mu^{u}=\pi^{*}(\varphi\cdot\mu^{u})
+=\lambda\,\pi^{*}\mu^{u}$.) In the flat-geometry language this is the abelian
+double cover on which the invariant quadratic differential becomes the square of
+an abelian differential; see \cite[\S2]{Zorich}, \cite[Exp.~5, 9]{FLP},
+\cite{Strenner}.
+
+\item[(F2)] \textbf{(Oriented foliations are closed $1$-forms.)} An orientable
+measured foliation on a closed surface $\Sigma$, together with a choice of leafwise
+orientation, is the kernel foliation of a closed $1$-form $\omega$ with
+$|\omega|=\mu$, vanishing exactly at the singularities; it therefore has a
+well-defined class $[\mu]:=[\omega]\in\HH(\Sigma;\RR)$, and for every
+homeomorphism $\psi$ of $\Sigma$,
+\[
+  [\psi\cdot\mu]=(\psi^{-1})^{*}[\mu].
+\]
+Note that orientability forces every singularity to have an even number of prongs,
+so the foliation and the form extend across filled punctures and the passage from
+$S$ to $\Sigma$ is harmless. See \cite[\S2]{Zorich}, \cite{FLP}.
+
+\item[(F3)] \textbf{(Nondegeneracy.)} If $\Fu,\Fs$ is the transverse pair of a
+pseudo-Anosov map and both are orientable, then the $1$-forms of (F2) satisfy
+\[
+  \int_{\Sigma}\omega^{u}\wedge\omega^{s}=\mathrm{Area}>0 ,
+\]
+because $\omega^{u}+i\,\omega^{s}$ is an abelian differential whose horizontal and
+vertical foliations are $\Fu$ and $\Fs$ and $\omega^{u}\wedge\omega^{s}$ is its
+area form. Hence $[\mu^{u}]\smile[\mu^{s}]\ne0$ in $H^{2}(\Sigma;\RR)$, and in
+particular
+\[
+  [\mu^{u}]\ne0 .
+\]
+
+\item[(F4)] \textbf{(Homological actions are unimodular.)} For a closed surface
+$\Sigma$, $\HH(\Sigma;\ZZ)\cong\ZZ^{m}$ with $m=2g$, and a homeomorphism $\psi$
+acts on it by a group automorphism. In a basis, $\psi^{*}$ is a matrix
+$M\in\mathrm{GL}_{m}(\ZZ)$, so $\det M=\pm1$.
+\end{itemize}
+
+\subsection{Orientable foliations}
+
+\begin{proposition}\label{prop:orientable}
+Let $\varphi$ be a pseudo-Anosov homeomorphism of a finite-type orientable surface
+$S$ whose invariant foliations are orientable, and let $\Sigma$ be the closed
+surface obtained by filling the punctures. Then there are $M\in
+\mathrm{GL}_{m}(\ZZ)$ and $\varepsilon\in\{\pm1\}$ such that $\varepsilon\lambda$
+is an eigenvalue of $M$, where $\lambda=\lambda(\varphi)$.
+\end{proposition}
+
+\begin{proof}
+Fix a leafwise orientation of $\Fu$ and let $\omega^{u}$ be the closed $1$-form of
+(F2), so that $[\mu^{u}]=[\omega^{u}]\in\HH(\Sigma;\RR)$. The homeomorphism
+$\varphi$ either preserves or reverses the chosen orientation; write
+$\varepsilon=+1$ in the first case and $\varepsilon=-1$ in the second. Applying
+(F2) to $\psi=\varphi$ and using $\varphi\cdot\mu^{u}=\lambda\mu^{u}$,
+\[
+  (\varphi^{-1})^{*}[\mu^{u}]
+  =[\varphi\cdot\mu^{u}]
+  =\varepsilon\lambda\,[\mu^{u}] .
+\]
+By (F3), $[\mu^{u}]\ne0$, so $\varepsilon\lambda$ is an eigenvalue of the
+$\RR$-linear map $(\varphi^{-1})^{*}$ on $\HH(\Sigma;\RR)$. That map preserves the
+lattice $\HH(\Sigma;\ZZ)$ and is invertible on it, so by (F4) its matrix $M$ in an
+integral basis lies in $\mathrm{GL}_{m}(\ZZ)$, and
+$\HH(\Sigma;\RR)=\HH(\Sigma;\ZZ)\otimes\RR$ identifies the two actions.
+\end{proof}
+
+\subsection{The general case}\label{sec:general}
+
+\begin{proposition}\label{prop:general}
+Let $\varphi$ be a pseudo-Anosov homeomorphism of any finite-type surface,
+orientable or not, and $\lambda=\lambda(\varphi)$. Then there are
+$M\in\mathrm{GL}_{m}(\ZZ)$ and $\varepsilon\in\{\pm1\}$ such that
+$\varepsilon\lambda$ is an eigenvalue of $M$.
+\end{proposition}
+
+\begin{proof}
+First let $S$ be orientable. By (F1) pass to the orienting double cover: we obtain
+a pseudo-Anosov $\widehat\varphi$ on the finite-type orientable surface $\widehat
+S$ with orientable invariant foliations and
+$\lambda(\widehat\varphi)=\lambda(\varphi)=\lambda$. Proposition
+\ref{prop:orientable} applied to $\widehat\varphi$ gives the claim.
+
+If $S$ is non-orientable, let $\rho\colon\widetilde S\to S$ be its orientation
+double cover. It is canonical, so every homeomorphism of $S$ lifts; the lift
+$\widetilde\varphi$ of $\varphi$ preserves the pulled-back measured foliations and
+scales their measures by the same factors, so $\widetilde\varphi$ is
+pseudo-Anosov on the orientable surface $\widetilde S$ with
+$\lambda(\widetilde\varphi)=\lambda$ (see \cite{Strenner}). The orientable case
+just proved applies to $\widetilde\varphi$.
+\end{proof}
+
+\begin{remark}
+The torus needs no special treatment. If one admits the Anosov elements of
+$\mathrm{MCG}(T^{2})\cong\mathrm{SL}_{2}(\ZZ)$ as ``pseudo-Anosov'', their stretch
+factors are by definition eigenvalues of matrices in $\mathrm{SL}_{2}(\ZZ)$, so the
+conclusion of Proposition~\ref{prop:general} holds for them verbatim, and
+everything below applies.
+\end{remark}
+
+\subsection{Eigenvalues of unimodular integer matrices}
+
+\begin{lemma}\label{lem:unit}
+Let $M\in\mathrm{GL}_{m}(\ZZ)$ and let $\alpha\in\CC$ be an eigenvalue of $M$.
+Then $\alpha$ is an algebraic unit.
+\end{lemma}
+
+\begin{proof}
+Let $\chi(X)=X^{m}+c_{m-1}X^{m-1}+\dots+c_{1}X+c_{0}\in\ZZ[X]$ be the
+characteristic polynomial of $M$; it is monic, and
+$c_{0}=\chi(0)=\det(-M)=(-1)^{m}\det M=\pm1$. Thus $\alpha$ is an algebraic
+integer. Moreover $\chi(\alpha)=0$ gives, after dividing by $\alpha\ne0$,
+\[
+  \alpha^{-1}
+  =-c_{0}^{-1}\bigl(\alpha^{m-1}+c_{m-1}\alpha^{m-2}+\dots+c_{1}\bigr)
+  =\mp\bigl(\alpha^{m-1}+c_{m-1}\alpha^{m-2}+\dots+c_{1}\bigr),
+\]
+a $\ZZ$-polynomial expression in the algebraic integer $\alpha$; hence
+$\alpha^{-1}$ is an algebraic integer as well.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:unit}]
+By Proposition~\ref{prop:general}, $\varepsilon\lambda$ is an eigenvalue of some
+$M\in\mathrm{GL}_{m}(\ZZ)$, so $\varepsilon\lambda$ is an algebraic unit by
+Lemma~\ref{lem:unit}. Algebraic units are closed under negation, so $\lambda$ is
+one.
+\end{proof}
+
+\subsection{Arithmetic}
+
+\begin{lemma}\label{lem:rational}
+A rational algebraic unit is $1$ or $-1$.
+\end{lemma}
+
+\begin{proof}
+Let $\alpha\in\QQ$ be an algebraic unit. An algebraic integer in $\QQ$ is in $\ZZ$
+($\ZZ$ is integrally closed in $\QQ$), so $\alpha\in\ZZ$ and $\alpha^{-1}\in\ZZ$.
+Then $\alpha\cdot\alpha^{-1}=1$ with both factors integers, so $\alpha$ divides
+$1$ in $\ZZ$, i.e.\ $\alpha=\pm1$.
+\end{proof}
+
+Equivalently, and this is the form that is formalized: if $\alpha\in\ZZ$ is a root
+of a monic $\chi\in\ZZ[X]$, then $\alpha\mid\chi(\alpha)-\chi(0)$, so
+$\alpha\mid\chi(0)=\pm1$.
+
+\begin{proof}[Proof of Theorem~\ref{thm:irrational}]
+Suppose $\lambda=\lambda(\varphi)\in\QQ$ for some pseudo-Anosov $\varphi$. By
+Theorem~\ref{thm:unit}, $\lambda$ is an algebraic unit, so $\lambda=\pm1$ by
+Lemma~\ref{lem:rational}. But $\lambda>1$ by Definition~\ref{def:pa}. This is a
+contradiction, so no stretch factor is rational; integers $n\ge2$ are in
+particular rational.
+\end{proof}
+
+\begin{proof}[Proof of Corollary~\ref{cor:main}]
+A prime $p\ge2$ is an integer $\ge2$, hence is not a stretch factor by
+Theorem~\ref{thm:irrational}. Since $p$ was an arbitrary prime, the conjecture
+fails for every one of them.
+\end{proof}
+
+\begin{remark}[the refutation does not depend on the convention]
+\label{rem:convention}
+Suppose ``stretch factor'' is read as $\lambda^{k}$ for some fixed integer $k\ge1$
+--- for instance $k=2$, the quasiconformal dilatation $K=\lambda^{2}$ of the
+Teichmüller representative. If $\lambda$ is an algebraic unit then so is
+$\lambda^{k}$, and $\lambda^{k}>1$; so by Lemma~\ref{lem:rational} the number
+$\lambda^{k}$ is again never rational. Every reading of the conjecture of this
+shape is false. Likewise, asking for $\lambda=\sqrt p$ (so that $K=p$) fails: the
+minimal polynomial of $\sqrt p$ is $X^{2}-p$, whose constant term is not $\pm1$, so
+$\sqrt{p}$ is not a unit.
+\end{remark}
+
+\begin{remark}[what the conjecture asks for, in one line]
+The stretch factors of pseudo-Anosov maps are contained in the bi-Perron algebraic
+units \cite{Fried}. A prime $p$ is bi-Perron --- trivially, having no other
+conjugates --- but it is not a unit. That single missing condition is what the
+conjecture overlooks, and it is fatal.
+\end{remark}
+
+\section{Why the Perron--Frobenius candidate cannot be repaired}
+\label{sec:candidate}
+
+The research notes accompanying this conjecture propose, for each prime $p\ge3$,
+the positive integer matrix
+\[
+  M_{p}=\begin{pmatrix}2&1\\p-2&p-1\end{pmatrix},
+  \qquad
+  \chi_{M_{p}}(X)=X^{2}-(p+1)X+p=(X-p)(X-1),
+\]
+which is primitive with Perron--Frobenius eigenvalue exactly $p$, and observe that
+the associated two-edge substitution $e_{1}\mapsto e_{1}^{2}e_{2}^{p-2}$,
+$e_{2}\mapsto e_{1}e_{2}^{p-1}$ induces $M_{p}$ on the first homology of the
+rank-two graph, where $\det M_{p}=p\ne\pm1$ rules out a homotopy equivalence. Both
+computations are correct; they are re-checked formally in the Lean development
+(\texttt{cand\_charpoly}, \texttt{cand\_det}). Three comments place them in
+context.
+
+\smallskip
+\noindent\textbf{1. The Perron--Frobenius side has no obstruction at all.} By
+Lind's theorem \cite{Lind}, the spectral radii of primitive non-negative integer
+matrices are exactly the Perron numbers, and every integer $p\ge2$ is a Perron
+number. Matrices with Perron root $p$ therefore exist in every sufficiently large
+size and in great abundance; $M_{p}$ is one of infinitely many. A search over transition matrices therefore never
+fails for arithmetic reasons --- and, by Theorem~\ref{thm:unit}, never succeeds
+for geometric ones.
+
+\smallskip
+\noindent\textbf{2. The notes' determinant obstruction does not generalize by
+itself.} A transition matrix of an invariant train track \cite{BH} counts, entry by
+entry, how many times the image of one branch runs over another ---
+\emph{unsigned} crossing numbers.
+The homological action counts them with signs. The two matrices agree only when no
+cancellation occurs, which is what happens for the positive substitution above and
+is why the argument in the notes is valid there. In general the transition matrix
+is not the homological matrix, and unimodularity is a constraint on the latter, not
+the former. So the obstruction found in the notes is genuine for that candidate but
+is not the general mechanism, and one cannot conclude from it that higher-rank
+train tracks are barred.
+
+\smallskip
+\noindent\textbf{3. The general mechanism is Theorem~\ref{thm:unit}, and it closes
+the problem.} Whatever the transition matrix, a pseudo-Anosov map has, after the
+orienting double cover, a \emph{homological} action that is unimodular and has
+$\pm\lambda$ among its eigenvalues. So the conclusion of the notes --- ``no such
+realization has been established here'' --- can be strengthened to: no such
+realization exists, for any train track of any size on any surface, for any prime
+$p$. The correct reading of the notes' determinant computation is that it is the
+shadow, in the simplest case, of an obstruction that lives one level up.
+
+\section{Formalization}\label{sec:formal}
+
+The accompanying Lean~4 project (\texttt{lean/}, namespace
+\texttt{Conjecture00000000088}, Mathlib \texttt{v4.33.1}) formalizes the
+arithmetic half of the proof --- everything from
+Proposition~\ref{prop:general} onwards. Measured foliations, train tracks and
+Teichmüller theory are not in Mathlib, so \S\ref{sec:input}--\S\ref{sec:general}
+(the facts (F1)--(F4) and Propositions~\ref{prop:orientable},
+\ref{prop:general}) are \emph{not} machine-checked; they are classical, and are
+proved above from standard references. We state this division plainly rather than
+formalizing a restatement of the conjecture that would hide it.
+
+The interface between the two halves is the predicate
+\begin{quote}
+\texttt{IsUnimodularEigenvalue lam} $:=$ there are $m$, an integer matrix
+$A\in\ZZ^{m\times m}$ with \texttt{IsUnit A.det}, and a nonzero real vector $v$
+with $A v=\texttt{lam}\cdot v$,
+\end{quote}
+which is exactly the conclusion of Proposition~\ref{prop:general} (up to the sign
+$\varepsilon$, which is immaterial: $M$ may be replaced by $-M$, still
+unimodular). What is proved in Lean:
+
+\begin{itemize}
+  \item \texttt{int\_root\_dvd\_coeff\_zero} --- an integer root of an integer
+    polynomial divides its constant coefficient.
+  \item \texttt{isUnit\_charpoly\_coeff\_zero} --- for a unimodular integer
+    matrix, $\chi(0)=\pm\det$ is a unit (Mathlib's
+    \texttt{Matrix.det\_eq\_sign\_charpoly\_coeff}).
+  \item \texttt{eq\_one\_or\_neg\_one\_of\_charpoly\_eval} --- an integer
+    eigenvalue of a unimodular integer matrix is $\pm1$; this is
+    Lemma~\ref{lem:unit} plus Lemma~\ref{lem:rational} in the integral case.
+  \item \texttt{exists\_charpoly\_map\_eval\_eq\_zero} --- a real eigenvector for
+    \texttt{lam} makes the characteristic polynomial vanish at \texttt{lam}
+    (Mathlib's \texttt{Matrix.exists\_mulVec\_eq\_zero\_iff} and
+    \texttt{Matrix.eval\_charpoly}).
+  \item \texttt{rat\_eq\_one\_or\_neg\_one} --- a \emph{rational} number
+    satisfying \texttt{IsUnimodularEigenvalue} is $1$ or $-1$. The descent from
+    $\RR$ to $\QQ$ to $\ZZ$ uses that $\ZZ$ is integrally closed in $\QQ$
+    (\texttt{IsIntegrallyClosed.isIntegral\_iff}), the characteristic polynomial
+    being monic.
+  \item \texttt{irrational\_of\_isUnimodularEigenvalue} --- hence any such number
+    $>1$ is irrational: Theorem~\ref{thm:irrational}, modulo the geometry.
+  \item \texttt{prime\_not\_isUnimodularEigenvalue} --- hence no prime satisfies
+    the predicate: Corollary~\ref{cor:main}, modulo the geometry.
+  \item \texttt{goldenRatio\_isUnimodularEigenvalue} --- the golden ratio does
+    satisfy it, via $\bigl(\begin{smallmatrix}1&1\\1&0\end{smallmatrix}\bigr)$. The
+    theorems above are therefore not vacuous: what they exclude is rationality and
+    nothing more.
+  \item \texttt{cand\_charpoly}, \texttt{cand\_det},
+    \texttt{cand\_not\_unimodular} --- the two computations of the research notes
+    for $M_{p}$, and the conclusion that $M_{p}$ is not unimodular for $p\ge2$.
+  \item \texttt{repaired\_det}, \texttt{repaired\_charpoly},
+    \texttt{repaired\_isUnimodularEigenvalue} --- the repaired candidate $M_{p}'$
+    of \S\ref{sec:repair}: it is unimodular, its characteristic polynomial is
+    $X^{2}-pX+1$, and its larger root passes, for every integer $p\ge2$, the test
+    that $p$ itself fails.
+\end{itemize}
+
+Primality is Mathlib's \texttt{Nat.Prime} and irrationality is Mathlib's
+\texttt{Irrational}; no standard notion is redefined. The project builds with
+\texttt{lake build} on \texttt{leanprover/lean4:v4.33.1}. It contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and introduces no
+axioms of its own: \texttt{\#print axioms} reports exactly \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound} for each theorem above.
+
+\section{What is true instead}
+
+\subsection{The nearest true statement}\label{sec:repair}
+
+The obstruction is exactly unimodularity, so the natural repair keeps the integer
+$p$ but moves it from the eigenvalue to the trace. Consider
+\[
+  M_{p}'=\begin{pmatrix}1&1\\p-2&p-1\end{pmatrix}
+  \qquad\text{(the notes' } M_{p}\text{ with its top-left entry lowered by }1),
+\]
+so that $\det M_{p}'=(p-1)-(p-2)=1$ and $\operatorname{tr}M_{p}'=p$, whence
+$\chi_{M_{p}'}(X)=X^{2}-pX+1$ and
+\[
+  \lambda_{p}=\frac{p+\sqrt{p^{2}-4}}{2},\qquad \lambda_{p}+\lambda_{p}^{-1}=p .
+\]
+For $p\ge3$ this matrix is hyperbolic, and under the isomorphism
+$\mathrm{MCG}(S_{1,1})\cong\mathrm{SL}_{2}(\ZZ)$ it is a pseudo-Anosov mapping
+class of the once-punctured torus with stretch factor $\lambda_{p}$
+\cite[\S13.1]{FM}; equivalently it is an Anosov diffeomorphism of $T^{2}$. Thus:
+
+\begin{quote}
+For every prime $p\ge3$ there is a pseudo-Anosov mapping class whose stretch
+factor $\lambda$ satisfies $\lambda+\lambda^{-1}=p$.
+\end{quote}
+
+This is true, elementary, and is what the conjecture should have asked. It also
+shows the price of unimodularity precisely: for $p=3$ one gets
+$\lambda=(3+\sqrt5)/2\approx2.618$ rather than $3$. The prime $p=2$ is genuinely
+exceptional even for the repaired statement --- $\operatorname{tr}=2$ is parabolic,
+$\lambda=1$, the mapping class is a Dehn twist and is reducible, not pseudo-Anosov.
+
+\subsection{Where the boundary of the possible lies}
+
+Fried \cite{Fried} proved that stretch factors are bi-Perron algebraic units and
+conjectured the converse: that every bi-Perron algebraic unit has a power that is a
+stretch factor. That conjecture remains open, and recent work suggests it is
+false in a strong quantitative sense --- asymptotically almost all bi-Perron units
+of degree at most $2n$ are not stretch factors on a closed genus-$n$ surface
+\cite{BRW}. So the exact set of stretch factors is not known; what is known, and
+all that is needed here, is that it contains no rational number.
+
+\subsection{The contrast that makes the conjecture tempting}
+
+Integer growth rates are perfectly common one dimension down. By Lind's theorem
+\cite{Lind} every Perron number, $p$ included, is the spectral radius of a
+primitive non-negative integer matrix; and by Thurston's classification of
+one-dimensional entropies \cite{ThurstonEntropy}, $\log p$ is the topological
+entropy of a postcritically finite interval map. What fails for surfaces is not the
+Perron--Frobenius arithmetic but the extra rigidity a surface imposes: the
+transverse measure of an invariant foliation is a cohomology class of the surface,
+and a homeomorphism moves cohomology by a unimodular integer matrix.
+
+\begin{thebibliography}{99}
+
+\bibitem{BRW} H.~Baik, A.~Rafiqi, C.~Wu,
+\emph{Is a typical bi-Perron algebraic unit a pseudo-Anosov dilatation?},
+arXiv:1612.03084.
+
+\bibitem{BH} M.~Bestvina, M.~Handel,
+\emph{Train-tracks for surface homeomorphisms},
+Topology \textbf{34} (1995), 109--140.
+
+\bibitem{FM} B.~Farb, D.~Margalit,
+\emph{A Primer on Mapping Class Groups},
+Princeton Mathematical Series \textbf{49}, Princeton University Press, 2012.
+
+\bibitem{FLP} A.~Fathi, F.~Laudenbach, V.~Poénaru,
+\emph{Travaux de Thurston sur les surfaces},
+Astérisque \textbf{66--67} (1979);
+English translation: \emph{Thurston's Work on Surfaces},
+Mathematical Notes \textbf{48}, Princeton University Press, 2012.
+
+\bibitem{Fried} D.~Fried,
+\emph{Growth rate of surface homeomorphisms and flow equivalence},
+Ergodic Theory Dynam. Systems \textbf{5} (1985), 539--563.
+
+\bibitem{LeiningerReid} C.~J.~Leininger, A.~W.~Reid,
+\emph{Pseudo-Anosov homeomorphisms not arising from branched covers},
+Groups Geom. Dyn. \textbf{14} (2020), 151--175.
+
+\bibitem{Lind} D.~A.~Lind,
+\emph{The entropies of topological Markov shifts and a related class of algebraic
+integers},
+Ergodic Theory Dynam. Systems \textbf{4} (1984), 283--300.
+
+\bibitem{Strenner} B.~Strenner,
+\emph{Lifts of pseudo-Anosov homeomorphisms of nonorientable surfaces have
+vanishing SAF invariant},
+Math. Res. Lett. \textbf{25} (2018), 677--685.
+
+\bibitem{Thurston88} W.~P.~Thurston,
+\emph{On the geometry and dynamics of diffeomorphisms of surfaces},
+Bull. Amer. Math. Soc. (N.S.) \textbf{19} (1988), 417--431.
+
+\bibitem{ThurstonEntropy} W.~P.~Thurston,
+\emph{Entropy in dimension one}, in:
+Frontiers in Complex Dynamics, Princeton University Press, 2014, 339--384.
+
+\bibitem{Zorich} A.~Zorich,
+\emph{Flat surfaces}, in:
+Frontiers in Number Theory, Physics and Geometry I, Springer, 2006, 437--583.
+
+\end{thebibliography}
+
+\end{document}
