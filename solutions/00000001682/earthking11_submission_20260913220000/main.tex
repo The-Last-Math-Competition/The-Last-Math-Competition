@@ -1,0 +1,301 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{xeCJK}
+\setCJKmainfont{PingFang SC}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\GP}{\operatorname{GP}}
+\newcommand{\Nbr}{\operatorname{N}}
+
+\title{Disproof of conjecture \texttt{00000001682}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001682} as stated. The parenthetical claim of
+the conjecture --- that the generalized Petersen graph $G(n,2)$ is pancyclic for
+all $n \ge 11$ --- fails already at $n = 11$: the graph $G(11,2)$ is
+\emph{triangle-free}, hence cannot be pancyclic because it has $22$ vertices and
+pancyclicity would require a cycle of length $3$. The refutation is
+unconditional, elementary, and machine-checked (see
+\texttt{reproduce.py} and the Lean~4 project under \texttt{lean4/}).
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000001682.md}:
+
+\begin{quote}
+\textbf{English.} Conjecture: The pancyclicity threshold of generalized Petersen
+graphs $G(n, 2)$ has a complete classification for $n \ge 11$ ($G(n,2)$
+pancyclic).
+
+\textbf{中文。} 猜想：广义 Petersen 图 $G(n, 2)$ 的满圈泛环性(pancyclic)阈值为
+$n \ge 11$ 的完全分类($G(n,2)$ 泛环)。
+\end{quote}
+
+We first fix the two objects appearing in the statement.
+
+\begin{definition}[Generalized Petersen graph]\label{def:gp}
+For integers $n \ge 3$ and $1 \le k \le (n-1)/2$, the generalized Petersen graph
+$\GP(n,k)$ has vertex set
+\[
+V \;=\; \{\,u_0, u_1, \dots, u_{n-1}\,\} \;\cup\; \{\,v_0, v_1, \dots, v_{n-1}\,\},
+\qquad |V| = 2n,
+\]
+and edge set
+\[
+E \;=\; \{\,u_i u_{i+1}\,\} \;\cup\; \{\,u_i v_i\,\} \;\cup\; \{\,v_i v_{i+k}\,\},
+\]
+where all subscripts are read modulo $n$. The edges $u_i u_{i+1}$ are the
+\emph{outer} edges, the edges $u_i v_i$ the \emph{spokes}, and the edges
+$v_i v_{i+k}$ the \emph{inner} edges. The conjecture concerns the case $k = 2$.
+\end{definition}
+
+\begin{definition}[Pancyclic]\label{def:pancyclic}
+A graph $G$ is \emph{pancyclic} if it contains a simple cycle of every length
+$L$ with $3 \le L \le |V(G)|$. Thus $\GP(n,2)$ is pancyclic exactly when it has
+a cycle of each length $3, 4, \dots, 2n$.
+\end{definition}
+
+The conjecture therefore asserts that $\GP(n,2)$ is pancyclic for every
+$n \ge 11$. It is this assertion that we refute.
+
+\section{The witness $G(11,2)$ is triangle-free}
+
+\subsection{Proof by the neighbourhood structure}
+
+Indices are taken modulo $n$. From Definition~\ref{def:gp} with $k=2$, the
+neighbourhoods in $\GP(n,2)$ are
+\begin{equation}\label{eq:nbrs}
+\Nbr(u_i) \;=\; \{\,u_{i-1},\; u_{i+1},\; v_i\,\},
+\qquad
+\Nbr(v_i) \;=\; \{\,v_{i-2},\; v_{i+2},\; u_i\,\}.
+\end{equation}
+
+\begin{theorem}\label{thm:trifree}
+The graph $\GP(11,2)$ contains no triangle.
+\end{theorem}
+
+\begin{proof}
+Let $U = \{u_0,\dots,u_{10}\}$ and $W = \{v_0,\dots,v_{10}\}$.
+
+\emph{No triangle inside $U$.} By \eqref{eq:nbrs}, on $U$ the graph is the cycle
+$u_0 u_1 \cdots u_{10} u_0$ of length $11$. A cycle of length $11$ is triangle-free
+(as $11 \ge 4$).
+
+\emph{No triangle inside $W$.} By \eqref{eq:nbrs}, on $W$ the graph joins $v_i$
+to $v_{i\pm 2}$. Since $\gcd(11,2) = 1$, the map $i \mapsto 2i$ is a bijection of
+$\mathbb{Z}_{11}$, so the inner graph is a single cycle
+$v_0 v_2 v_4 \cdots v_{9} v_{11} v_0$ (all subscripts mod $11$) of length $11$,
+hence triangle-free.
+
+\emph{No mixed triangle.} A triangle meeting both $U$ and $W$ either contains a
+vertex $v_i \in W$ together with two distinct vertices of $U$, or contains a
+vertex $u_i \in U$ together with two distinct vertices of $W$ (a triangle has
+three vertices and only two classes, so some class occurs twice). In the first
+case $v_i$ would need two neighbours in $U$, but \eqref{eq:nbrs} gives
+$|\Nbr(v_i) \cap U| = 1$, namely $u_i$. In the second case $u_i$ would need two
+neighbours in $W$, but $|\Nbr(u_i) \cap W| = 1$, namely $v_i$. Both are
+impossible.
+
+Every triangle of $\GP(11,2)$ is therefore monochromatic (all three vertices in
+$U$, or all three in $W$), and neither case occurs. Hence $\GP(11,2)$ is
+triangle-free.
+\end{proof}
+
+A completely explicit variant: evaluating \eqref{eq:nbrs} for all
+$\binom{22}{3} = 1540$ vertex triples of $\GP(11,2)$ yields zero triangles. This
+finite enumeration is carried out by \texttt{reproduce.py} and is certified by
+the kernel-reduction theorem \texttt{gp11\_triangle\_count} in the Lean~4
+formalisation.
+
+\subsection{Why $n = 11$ is special: triangles occur only for $n=6$}
+
+The same argument classifies all triangles of $\GP(n,2)$.
+
+\begin{proposition}\label{prop:triangle}
+Let $n \ge 4$. Then $\GP(n,2)$ contains a triangle if and only if $n = 6$. In
+particular $\GP(n,2)$ has a triangle precisely when $6$ is divisible by $n$
+among $\{1,2,3,6\}$, i.e.\ the triangle exists only for the degenerate
+$n \in \{1,2,3\}$ and for $n = 6$.
+\end{proposition}
+
+\begin{proof}
+As in the proof of Theorem~\ref{thm:trifree}, no triangle can be mixed:
+$v_i$ has exactly one neighbour $u_i$ in the outer layer and $u_i$ has exactly
+one neighbour $v_i$ in the inner layer, by \eqref{eq:nbrs}. So a triangle is
+either fully outer or fully inner.
+
+\emph{Outer triangles.} The outer layer is the cycle $C_n$; it has a triangle
+iff $n = 3$.
+
+\emph{Inner triangles.} The inner layer joins $v_i$ to $v_{i\pm2}$. If $n$ is
+odd then $\gcd(n,2)=1$ and it is a single cycle $C_n$, which has a triangle iff
+$n=3$. If $n$ is even then it is the disjoint union of two cycles $C_{n/2}$,
+which has a triangle iff $n/2 = 3$, i.e.\ $n = 6$.
+
+Combining, for $n \ge 4$ the only possible triangle occurs in the inner layer at
+$n = 6$. There the inner layer is two triangles, so $\GP(6,2)$ has exactly two
+triangles. The brute force confirms both facts: the triangle counts for
+$n = 5,6,12$ are $0,2,0$ respectively.
+\end{proof}
+
+\begin{remark}
+In particular $\GP(11,2)$ is triangle-free, as are $\GP(n,2)$ for all
+$n \ge 4$ with $n \ne 6$. Thus for every $n \ge 7$ the graph $\GP(n,2)$ is
+automatically \emph{not} pancyclic, regardless of its other cycle lengths.
+\end{remark}
+
+\section{The witness is not pancyclic, so the conjecture is false}
+
+\begin{corollary}\label{cor:notpan}
+The graph $\GP(11,2)$ is not pancyclic.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:trifree} it has no $3$-cycle. Since $|V(\GP(11,2))| = 22$,
+pancyclicity would require a cycle of length $3$ (Definition~\ref{def:pancyclic}),
+which does not exist.
+\end{proof}
+
+\begin{corollary}
+Conjecture \texttt{00000001682} is false. Its parenthetical claim
+``$\GP(n,2)$ pancyclic'' for $n \ge 11$ fails at $n = 11$.
+\end{corollary}
+
+Indeed an exhaustive search shows that $\GP(11,2)$ is missing the cycle lengths
+\[
+3,\; 4,\; 6,\; 7,\; 22
+\]
+and possesses cycles of all of the other lengths $5, 8, 9, \dots, 21$. The two
+smallest missing lengths $3$ and $4$ already rule out pancyclicity. The absence
+of a Hamiltonian ($22$-)cycle is consistent with the fact that
+$\GP(11,2)$ is hypohamiltonian: $11 \equiv 5 \pmod 6$, and the known
+classification for these graphs is a \emph{Hamiltonicity} classification, not a
+pancyclicity one (see Section~\ref{sec:remark}).
+
+\section{The claim fails for every $n = 5, \dots, 16$}
+
+We computed, by exhaustive search, the exact set of lengths $L \in \{3,\dots,2n\}$
+for which $\GP(n,2)$ has no cycle. Every one of these graphs misses at least one
+length, so none is pancyclic.
+
+\begin{center}
+\begin{tabular}{r r r l}
+\toprule
+$n$ & $|V| = 2n$ & triangles & missing cycle lengths \\
+\midrule
+$5$  & $10$ & $0$ & $3, 4, 7, 10$ \\
+$6$  & $12$ & $2$ & $4$ \\
+$7$  & $14$ & $0$ & $3, 4$ \\
+$8$  & $16$ & $0$ & $3, 6$ \\
+$9$  & $18$ & $0$ & $3, 4, 6$ \\
+$10$ & $20$ & $0$ & $3, 4, 6, 7, 19$ \\
+$11$ & $22$ & $0$ & $3, 4, 6, 7, 22$ \\
+$12$ & $24$ & $0$ & $3, 4, 7$ \\
+$13$ & $26$ & $0$ & $3, 4, 6, 7$ \\
+$14$ & $28$ & $0$ & $3, 4, 6$ \\
+$15$ & $30$ & $0$ & $3, 4, 6, 7$ \\
+$16$ & $32$ & $0$ & $3, 4, 6, 7, 31$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{corollary}
+$\GP(n,2)$ is not pancyclic for any $n \in \{5, 6, \dots, 16\}$. In particular
+the asserted threshold ``pancyclic for $n \ge 11$'' is false, and no
+classification of a pancyclicity threshold of the stated form can hold.
+\end{corollary}
+
+For $n = 5$ the graph is the Petersen graph, which is well known to be
+non-Hamiltonian and to lack cycles of length $3$ and $4$; the table adds the
+missing length $7$ and the Hamiltonian length $10$. For $n = 11$ the missing
+Hamiltonian length $22$ reflects hypohamiltonicity.
+
+\section{The structural reason, and what the true classification is}
+\label{sec:remark}
+
+The example is not an isolated accident: for every $n \ge 7$, $\GP(n,2)$ is
+triangle-free by Proposition~\ref{prop:triangle} and therefore not pancyclic.
+The property that actually undergoes a threshold-type classification for
+$\GP(n,2)$ is \emph{Hamiltonicity}, not pancyclicity:
+\begin{itemize}
+\item $\GP(n,2)$ is hypohamiltonian (non-Hamiltonian, but deleting any vertex
+leaves a Hamiltonian graph) for $n \equiv 5 \pmod 6$, e.g.\ for $n = 5, 11$;
+\item $\GP(n,2)$ is Hamiltonian for the other values of $n$ in the range we
+tested, e.g.\ for $n = 6, 7, 8, 9, 10$ and for $12 \le n \le 16$.
+\end{itemize}
+This is consistent with the exhaustive data: the only tested graphs without a
+Hamiltonian cycle are $n = 5$ and $n = 11$, both $\equiv 5 \pmod 6$. The
+conjecture under consideration appears to be a garbled version of that
+Hamiltonicity classification, transported to the wrong graph property
+(pancyclicity, which fails for trivial girth reasons).
+
+\section{Reproducibility}
+
+The brute-force checks use only the Python~3 standard library:
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... (per-$n$ table of missing cycle lengths, witness checks)\\
+PASS: all checks verified; conjecture 00000001682 is FALSE.
+\end{quote}
+The script constructs $\GP(n,2)$ for $n = 5,\dots,16$, counts triangles over all
+$\binom{2n}{3}$ triples, and decides cycle existence for every length
+$L = 3,\dots,2n$ by two exhaustive methods: enumeration of all $\binom{2n}{L}$
+vertex subsets (for small $L$, testing Hamiltonicity of the induced subgraph)
+and a pruned DFS cycle search (for larger $L$). It asserts that $\GP(11,2)$ has
+no triangle, prints the table, and exits non-zero on any failure. The LaTeX
+document compiles with \texttt{tectonic main.tex}; the PDF is
+\texttt{build/main.pdf}.
+
+\section{Formalisation}
+
+The witness is formalised in the accompanying Lean~4 project under
+\texttt{lean4/} (core Lean only, \texttt{import Std}, no Mathlib, no
+\texttt{sorry}). Vertices of $\GP(11,2)$ are modelled as
+$\mathrm{Fin}\,2 \times \mathrm{Fin}\,11$ with $u_i = (0,i)$ and $v_i = (1,i)$;
+the adjacency relation is a decidable \texttt{Bool} predicate implementing
+Definition~\ref{def:gp} with all indices modulo $11$; a triangle is three
+pairwise adjacent vertices; and a cycle of length $L$ is an injective closed
+walk with $L$ vertices, giving
+\[
+\texttt{HasCycleOfLength}\ G\ L,
+\qquad
+\texttt{Pancyclic}\ G \;:=\; \forall L,\; 3 \le L \to L \le 22 \to
+\texttt{HasCycleOfLength}\ G\ L .
+\]
+The main statements are
+\begin{quote}\ttfamily
+theorem gp11\_triangle\_free (a b c : Fin 2) (i j k : Fin 11) :\\
+\hspace*{2em}$\neg$ Triangle (gp 11 2) (a, i) (b, j) (c, k)\\
+theorem gp11\_triangle\_count : triangleCount 11 2 = 0\\
+theorem gp11\_no\_3cycle : $\neg$ HasCycleOfLength (gp 11 2) 3\\
+theorem gp11\_not\_pancyclic : $\neg$ Pancyclic (gp 11 2)\\
+theorem conjecture\_00000001682\_false :\\
+\hspace*{2em}$(\forall$ x y z, $\neg$ Triangle (gp 11 2) x y z$)$ $\wedge$ $\neg$ Pancyclic (gp 11 2)
+\end{quote}
+Triangle-freeness is discharged by kernel reduction over all
+$2 \cdot 2 \cdot 2 \cdot 11 \cdot 11 \cdot 11$ layer/index choices, and
+independently by the exhaustive count \texttt{gp11\_triangle\_count = 0}. From
+\texttt{Pancyclic} one extracts a $3$-cycle, which is a triangle, contradicting
+triangle-freeness. The axiom audit (\texttt{lake env lean Check.lean}) reports no
+\texttt{sorryAx}; the proofs depend only on the core axioms \texttt{propext} and
+\texttt{Quot.sound}.
+
+\end{document}
