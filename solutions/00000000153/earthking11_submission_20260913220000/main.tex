@@ -1,0 +1,353 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\orb}[1]{\{#1\}}
+
+\title{Disproof of conjecture \texttt{00000000153}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000000153} as stated. The refutation is
+unconditional and elementary: the finite discrete system
+$X = \Z/4 = \{0,1,2,3\}$ with $Tx = x+1$ is minimal, yet for $x = 0$ the
+prime-index orbit $\{T^{p_n}x : n \ge 1\}$ is $\{1,2,3\}$, whose closure in the
+discrete topology is itself and is therefore not all of $X$. In fact the
+conclusion fails for \emph{every} $x \in X$.
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000000153.md}:
+
+\begin{quote}
+\textbf{English.} Conjecture: Minimal transitivity of prime orbits: in any
+minimal topological dynamical system $(X, T)$, for every $x \in X$ the orbit
+closure $\{T^{p_n}x : n \ge 1\}$ equals $X$.
+\end{quote}
+
+\noindent The Chinese statement filed with the conjecture is reproduced
+verbatim in \texttt{README.md} (together with this English text). It is not
+typeset here, so that \texttt{main.tex} has no CJK font requirement and
+compiles with a plain \texttt{tectonic main.tex}. The two formulations are
+translations of one another, and both leave the quantifier over $x$ and the
+class of systems unrestricted; the refutation therefore applies to either
+reading.
+
+The statement leaves the following definitions implicit; we fix the standard
+ones, so that the refutation cannot be dismissed as a misreading.
+
+\begin{definition}[Topological dynamical system]
+A topological dynamical system is a topological space $X$ together with a
+continuous map $T : X \to X$. (In the standard setting of topological dynamics
+one usually assumes $X$ compact Hausdorff; the witness below is compact
+Hausdorff, so it satisfies that convention.)
+\end{definition}
+
+\begin{definition}[Minimal system]
+$(X,T)$ is \emph{minimal} if every orbit is dense in $X$; equivalently, the
+only closed $T$-invariant subset of $X$ is $X$ itself. In a minimal system the
+full orbit $\{T^n x : n \ge 0\}$ is dense for every $x \in X$.
+\end{definition}
+
+\begin{definition}[Orbit closure and the prime sequence]
+$\overline{A}$ denotes the closure of $A \subseteq X$. The sequence
+$(p_n)_{n\ge 1} = (2, 3, 5, 7, 11, \dots)$ is the sequence of primes in
+increasing order, so $p_1 = 2$ and $p_n$ is the $n$-th prime. The
+\emph{prime-index orbit} of $x$ is the set
+\[
+P(x) \;=\; \{T^{p_n}x : n \ge 1\} \;=\; \{T^{p}x : p \text{ prime}\},
+\]
+the two descriptions agreeing because $n \mapsto p_n$ is a bijection onto the
+set of primes. The conjecture asserts $\overline{P(x)} = X$ for every $x$.
+\end{definition}
+
+\section{The witness: $X = \Z/4$ with the shift}
+
+\begin{definition}[The system]
+Let $X = \Z/4 = \{0,1,2,3\}$ with the discrete topology, and let
+\[
+T : X \to X, \qquad T x = x + 1 \pmod 4 .
+\]
+$X$ is finite, hence compact, and discrete, hence Hausdorff and metric: it is
+a compact metric space. $T$ is continuous (every map on a discrete space is),
+so $(X,T)$ is a topological dynamical system in the strictest sense.
+\end{definition}
+
+The dynamics is a single cycle:
+\[
+0 \;\xrightarrow{\;T\;}\; 1 \;\xrightarrow{\;T\;}\; 2
+\;\xrightarrow{\;T\;}\; 3 \;\xrightarrow{\;T\;}\; 0 .
+\]
+
+\begin{lemma}[$T$ is a $4$-cycle, hence $(X,T)$ is minimal]
+\label{lem:minimal}
+For every $x \in X$ the full orbit $\{T^n x : n \ge 0\}$ equals $X$.
+Consequently $(X,T)$ is minimal.
+\end{lemma}
+
+\begin{proof}
+Iterating, $T^n x = x + n \pmod 4$ for all $n \ge 0$. For fixed $x$, as $n$
+runs over $\{0,1,2,3\}$ the values $x+n \bmod 4$ run over all four residues
+$x, x+1, x+2, x+3$, i.e.\ over $X$; and $T^4 x = x$. Hence
+$\{T^n x : n \ge 0\} = X$. Every orbit is therefore dense (indeed equal to
+$X$), which is minimality.
+\end{proof}
+
+\begin{remark}
+The full orbit of every point is \emph{exactly} $X$, not merely dense. So the
+alternative reading of the conjecture that replaces $P(x)$ by the full orbit
+$\{T^{p_n}x\}$ with ``$p_n = n$'' is trivially true here; but that is a
+different, degenerate statement (see Section~\ref{sec:caveat}).
+\end{remark}
+
+\section{No prime is divisible by $4$}
+
+\begin{lemma}[$4 \nmid p$ for every prime $p$]
+\label{lem:four}
+If $p$ is prime, then $4 \nmid p$.
+\end{lemma}
+
+\begin{proof}
+Suppose $4 \mid p$. Then $p = 4k$ for some $k \in \Z$, so $p$ is even, i.e.\
+$2 \mid p$. Since $p$ is prime and $2 \mid p$, the divisor $2$ of $p$ must
+satisfy $2 = 1$ or $2 = p$; the first is false, so $p = 2$. But then
+$4 \mid 2$ would be required, which is false. Hence $4 \nmid p$.
+\end{proof}
+
+Equivalently: the only even prime is $2$, and $4 \nmid 2$. Therefore for every
+prime $p$,
+\[
+p \bmod 4 \;\in\; \{1, 2, 3\},
+\]
+and the value $0$ is never attained. The value set is exactly $\{1,2,3\}$,
+witnessed by
+\[
+2 \bmod 4 = 2, \qquad 3 \bmod 4 = 3, \qquad 5 \bmod 4 = 1 .
+\]
+
+\section{The prime-index orbit omits its base point}
+
+\begin{theorem}[Prime orbit of $x$]
+\label{thm:prime}
+For every $x \in X$,
+\[
+P(x) \;=\; \{T^p x : p \text{ prime}\} \;=\; X \setminus \{x\}.
+\]
+In particular $P(0) = \{1,2,3\}$, and $\overline{P(0)} = \{1,2,3\} \neq X$ in
+the discrete topology.
+\end{theorem}
+
+\begin{proof}
+Since $T^n x = x + n \pmod 4$, for a prime $p$ we have
+\[
+T^p x \;=\; x + p \pmod 4 \;=\; x + (p \bmod 4) \pmod 4 .
+\]
+By Lemma~\ref{lem:four}, $p \bmod 4 \in \{1,2,3\}$, so
+$T^p x \neq x \pmod 4$: the base point $x$ is never in $P(x)$.
+
+Conversely, fix $y \in X$ with $y \neq x$, and let $d = y - x \bmod 4 \in
+\{1,2,3\}$. Choose a prime $p \equiv d \pmod 4$:
+\[
+d = 1 \Rightarrow p = 5, \qquad d = 2 \Rightarrow p = 2, \qquad
+d = 3 \Rightarrow p = 3 .
+\]
+Then $T^p x = x + d = y \pmod 4$, so $y \in P(x)$. Hence
+$P(x) = X \setminus \{x\}$.
+
+For $x = 0$ this is $P(0) = \{1,2,3\}$. Because $X$ is discrete, every subset
+is closed, so $\overline{P(0)} = P(0) = \{1,2,3\}$, which omits $0$ and is a
+proper subset of $X = \{0,1,2,3\}$.
+\end{proof}
+
+\begin{corollary}[Refutation]
+\label{cor:refute}
+$(X,T)$ is a minimal topological dynamical system, but the conjecture's
+conclusion
+\[
+\forall x \in X,\quad \overline{\{T^{p_n}x : n \ge 1\}} = X
+\]
+is false. Indeed, for every $x \in X$,
+\[
+\overline{P(x)} \;=\; X \setminus \{x\} \;\subsetneq\; X ,
+\]
+so the conclusion fails at every single point $x$; a fortiori it fails at the
+point $x = 0$ exhibited in the conjecture's own quantifier.
+\end{corollary}
+
+\begin{proof}
+Minimality is Lemma~\ref{lem:minimal}. The closure computation is
+Theorem~\ref{thm:prime} together with discreteness. A proper subset of $X$ is
+not equal to $X$, so the asserted equality fails for each $x$.
+\end{proof}
+
+\section{Caveat: scope of the refutation}
+\label{sec:caveat}
+
+\noindent\textbf{This caveat is part of the result and should be read
+together with it.}
+
+\begin{enumerate}
+\item \textbf{The witness has isolated points, and is finite.} $X = \Z/4$ is a
+finite discrete space, so every point is isolated. Some authors in topological
+dynamics study only minimal systems on compact metric spaces \emph{without
+isolated points} (or simply \emph{infinite} spaces). $X = \Z/4$ falls outside
+that additional, \emph{unstated} hypothesis. If one adds such a hypothesis ---
+``$X$ is a compact metric space with no isolated points'', or just ``$X$ is
+infinite'' --- then the conjecture as modified is not touched by this
+counterexample, and its status remains open here.
+
+\item \textbf{But the file states no such hypothesis.} The statement in
+\texttt{conjectures/00000000153.md} says ``in any minimal topological dynamical
+system $(X,T)$'', with no cardinality or perfectness restriction, and the
+quantification is explicitly ``for every $x \in X$''. Under the literal
+statement, $(\Z/4, +1)$ is an admissible minimal system and $x = 0$ is an
+admissible point, so the literal statement is refuted. The finite case is not
+a technicality outside the intended domain unless the domain is restricted in
+writing; it is a minimal topological dynamical system in the standard sense.
+
+\item \textbf{If instead ``orbit closure'' is read as the closure of the full
+orbit, the conjecture collapses rather than being rescued.} In a minimal system
+the full orbit $\{T^n x : n \ge 0\}$ is dense by definition, so
+$\overline{\{T^n x : n \ge 0\}} = X$ holds for every $x$ \emph{by definition}
+of minimality. Reading the ambiguous notation $\{T^{p_n}x : n \ge 1\}$ as
+the full orbit (i.e.\ $p_n = n$) makes the assertion a tautology for every
+minimal system. That is a collapse of the statement to its definition, not a
+substantive theorem and not a repair of the prime-index claim: the file's
+notation $p_n$ is the standard one for the $n$-th prime, and the conjecture is
+titled ``prime orbits''.
+\end{enumerate}
+
+In short: the literal conjecture is false, the refutation is elementary and
+rigorous, and the only way to avoid it is to add a hypothesis (infiniteness /
+no isolated points) that the file does not state. The sharpness note is that
+under that added hypothesis the witness is excluded and the conjecture is
+\emph{untouched} --- which is precisely why the statement as written is
+defective.
+
+\begin{remark}[On the role of $p_1 = 2$]
+The prime sequence starts at $p_1 = 2$, and $p = 2$ is included in $P(x)$. This
+does not change the conclusion: $2 \bmod 4 = 2 \neq 0$, so even the even prime
+contributes a nonzero residue and $P(x)$ still omits $x$.
+\end{remark}
+
+\section{Formalisation}
+
+The refutation is formalised in the Lean~4 project under \texttt{lean4/}
+(core Lean only --- no Mathlib, no \texttt{sorry}). The system is
+$X = \texttt{Fin}\ 4$, the shift is $\texttt{T}\ x = x+1$, the iterate is
+\texttt{iter}, and primality is defined directly because core Lean has no
+\texttt{Nat.Prime}. The main formal statements are
+
+\begin{quote}\ttfamily
+theorem minimal (x y : Fin 4) : FullOrbit x y\\
+theorem four\_not\_dvd\_of\_isPrime (hp : IsPrime p) : not (4 | p)\\
+theorem primeOrbitAt\_not\_self (x : Fin 4) : not (PrimeOrbitAt x x)\\
+theorem primeOrbitClosure\_not\_univ (x : Fin 4) :\\
+\hspace*{2em}not (forall y : Fin 4, PrimeOrbitClosure x y)\\
+theorem conjecture\_00000000153\_false :\\
+\hspace*{2em}IsMinimal and forall x : Fin 4, not (forall y : Fin 4, PrimeOrbitClosure x y)
+\end{quote}
+
+\noindent Here \texttt{FullOrbit} is the full-orbit reachability relation (its
+totality is minimality), \texttt{PrimeOrbitAt} is the prime-index orbit, and
+\texttt{PrimeOrbitClosure} is the prime-index orbit with the closure modelled
+by the set itself, which is correct because $X$ is finite and discrete. The
+project also has \texttt{conjecture\_00000000153\_false\_at\_zero}, the same
+statement specialised to $x = 0$. The axiom audit
+(\texttt{lake env lean Check.lean}) reports only \texttt{propext} and
+\texttt{Quot.sound} for every theorem, and no \texttt{sorryAx}. See
+\texttt{lean4/README.md} for the full statement table and scope note.
+
+\section{Reproducibility}
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... (enumerates all primes p < 1e6; checks the residue set,\\
+... the 4-cycle, minimality, and each prime orbit)\\
+PASS: all checks verified; conjecture 00000000153 is FALSE.
+\end{quote}
+
+\texttt{reproduce.py} uses only the Python~3 standard library. It sieves all
+$78498$ primes $p < 10^6$, verifies that no such prime is divisible by $4$ and
+that the residue set $\{p \bmod 4\}$ is exactly $\{1,2,3\}$; verifies that $T$
+is a $4$-cycle and that the full orbit of every $x$ is $X$ (minimality); and
+verifies that for each $x \in \{0,1,2,3\}$ the prime-index orbit is exactly
+$X \setminus \{x\}$, so its closure is a proper subset of $X$. It prints
+\texttt{PASS} and exits $0$ exactly when every check holds, and exits non-zero
+otherwise.
+
+The Lean project is built and audited by
+
+\begin{quote}\ttfamily
+cd lean4\\
+lake build\\
+lake env lean Check.lean
+\end{quote}
+
+The document is compiled by
+
+\begin{quote}\ttfamily
+tectonic main.tex\\
+(equivalently: tectonic --outdir build main.tex)
+\end{quote}
+
+\noindent producing \texttt{build/main.pdf} (with \texttt{tectonic main.tex}
+the file is written to \texttt{main.pdf} in the submission root and then placed
+at \texttt{build/main.pdf}, the same location as the template submission).
+
+\section{Numerical vantage point}
+
+\begin{center}
+\begin{tabular}{r l l l c}
+\toprule
+$x$ & full orbit $\{T^n x\}$ & prime orbit $P(x)$ & omitted & $\overline{P(x)} = X$? \\
+\midrule
+$0$ & $\{0,1,2,3\}$ & $\{1,2,3\}$     & $0$ & no \\
+$1$ & $\{0,1,2,3\}$ & $\{0,2,3\}$     & $1$ & no \\
+$2$ & $\{0,1,2,3\}$ & $\{0,1,3\}$     & $2$ & no \\
+$3$ & $\{0,1,2,3\}$ & $\{0,1,2\}$     & $3$ & no \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Every full orbit is $X$ (the system is minimal), yet every prime-index orbit
+omits exactly one point (its base point), so no prime-index orbit closure equals
+$X$. The conjecture fails at all four points of the minimal system.
+
+\section{Status against the submission rules}
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- present (\texttt{main.tex}), a standalone
+\texttt{article} using only \texttt{geometry}, \texttt{amsmath},
+\texttt{amssymb}, \texttt{amsthm}, \texttt{parskip}, and \texttt{booktabs}; it
+compiles with \texttt{tectonic main.tex}.
+\item \textbf{PDF document} --- present at \texttt{build/main.pdf}, produced by
+\texttt{tectonic main.tex}.
+\item \textbf{Lean 4 project} --- present under \texttt{lean4/}, with
+\texttt{lean-toolchain} (pinned to \texttt{leanprover/lean4:v4.33.1}),
+\texttt{lakefile.toml} (library \texttt{Main}, project \texttt{tlmc153}),
+\texttt{Main.lean} (core Lean only, no \texttt{sorry}), \texttt{Check.lean}
+(\texttt{\#print axioms} audit), and \texttt{README.md}. The audit reports only
+\texttt{[propext, Quot.sound]} and no \texttt{sorryAx}.
+\item \textbf{Reproduction} --- \texttt{python3 reproduce.py} passes with exit
+code $0$ and prints \texttt{PASS}.
+\end{itemize}
+
+\end{document}
