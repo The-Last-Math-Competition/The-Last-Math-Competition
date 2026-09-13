@@ -1,0 +1,215 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\T}{\mathsf{T}}
+\newcommand{\Z}{\mathbb{Z}}
+
+\title{A Disproof of Conjecture 00000001299:\\
+Ducci Cycle Lengths Need Not Be Odd Factors of $n$}
+\author{earthking11}
+\date{September 13, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000001299 asserts that for $n$ a power of two the Ducci sequence
+reaches zero, that for non-powers of two nontrivial cycles exist, \emph{and that
+the minimal cycle length is an odd factor of $n$}. We refute the last clause.
+For $n = 5$ the seed $(0,0,0,1,1)$ lies on a cycle of minimal non-trivial length
+$15$; the number $15$ is odd but $15 \nmid 5$. In particular the minimal cycle
+length is \emph{not} an odd factor of $n$. For $n = 10$ the minimal non-trivial
+period is again $15$, and $15 \nmid 10$. The first clause (the classical Ducci
+zero criterion) is not in dispute and is stated here only for context. The
+counterexample is verified by direct iteration, formalized in core Lean~4, and
+reproduced by an independent Python script.
+\end{abstract}
+
+\section{The Ducci map and the conjecture}
+
+Fix an integer $n \ge 2$. The \emph{Ducci map} acts on integer $n$-tuples by
+taking cyclic absolute differences,
+\begin{equation}\label{eq:ducci}
+  \T(x_0, x_1, \dots, x_{n-1})_i
+  \;=\; \lvert x_i - x_{i+1} \rvert,
+  \qquad i \in \Z/n\Z ,
+\end{equation}
+and a \emph{Ducci sequence} is the orbit $x, \T x, \T^2 x, \dots$ of some seed.
+The conjecture file \texttt{00000001299.md} states (verbatim):
+
+\begin{quote}
+``For $n$ a power of two the sequence reaches zero in finitely many steps, while
+for non-powers of two nontrivial cycles exist; and the minimal cycle length is
+an odd factor of $n$.''
+
+\noindent (The file also gives an equivalent Chinese statement. We quote the
+English version, which is the operative wording.)
+\end{quote}
+
+The classical part of this statement is the \emph{Ducci zero criterion}: the
+sequence reaches $(0,\dots,0)$ for every seed \emph{iff} $n$ is a power of two;
+for $n$ not a power of two nonzero cycles exist. That part is true and is
+\emph{not} refuted below. Our counterexample concerns only the final clause,
+``the minimal cycle length is an odd factor of $n$.''
+
+\section{The counterexample: a $15$-cycle for $n=5$}
+
+Take $n = 5$ and the seed
+\[
+  s \;=\; (0,0,0,1,1).
+\]
+Iterating \eqref{eq:ducci}, the orbit of $s$ is
+\[
+\begin{array}{lll}
+\toprule
+\T^{0}s=(0,0,0,1,1) & \T^{1}s=(0,0,1,0,1) & \T^{2}s=(0,1,1,1,1)\\
+\T^{3}s=(1,0,0,0,1) & \T^{4}s=(1,0,0,1,0) & \T^{5}s=(1,0,1,1,1)\\
+\T^{6}s=(1,1,0,0,0) & \T^{7}s=(0,1,0,0,1) & \T^{8}s=(1,1,0,1,1)\\
+\T^{9}s=(0,1,1,0,0) & \T^{10}s=(1,0,1,0,0) & \T^{11}s=(1,1,1,0,1)\\
+\T^{12}s=(0,0,1,1,0) & \T^{13}s=(0,1,0,1,0) & \T^{14}s=(1,1,1,1,0)\\
+\bottomrule
+\end{array}
+\]
+The $15$ displayed states are pairwise distinct, and closing the cycle,
+\[
+  \T^{15}s \;=\; \T(1,1,1,1,0) \;=\; (0,0,0,1,1) \;=\; s .
+\]
+Hence $s$ lies on a cycle of length $15$. Since no $\T^k s$ with
+$1 \le k \le 14$ equals $s$, the \emph{minimal} non-trivial period of $s$ is
+exactly $15$.
+
+\begin{theorem}\label{thm:main}
+The minimal non-trivial Ducci cycle length for $n = 5$ is not an odd factor
+of $n$.
+\end{theorem}
+
+\begin{proof}
+For the seed $s = (0,0,0,1,1)$ the orbit is periodic with minimal non-trivial
+period $15$, as just computed. The integer $15$ is odd, but it is larger than
+$n = 5$, so it cannot divide $5$: indeed a divisor of $5$ is at most $5$.
+Thus the minimal non-trivial cycle length $15$ is not an odd factor of $n = 5$,
+contradicting the final clause of the conjecture.
+\end{proof}
+
+\section{Exhaustive and randomized period data}
+
+The claim that $15$ is the minimal non-trivial period for $n=5$ is not an
+artifact of one seed. Table~\ref{tab:periods} reports the complete set of
+eventual periods observed by exhaustive enumeration and by random sampling.
+For $n = 5$, exhaustive iteration over all $10^5$ seeds in $\{0,\dots,9\}^5$
+yields the period set $\{1, 15\}$; the value $1$ is the trivial fixed point
+$(0,\dots,0)$, so the minimal non-trivial period is $15$. The same minimal
+period $15$ occurs for $n = 10$, where exhaustive iteration over all
+$4^{10} = 1{,}048{,}576$ seeds in $\{0,\dots,3\}^{10}$ yields the period set
+$\{1, 15, 30\}$.
+
+\begin{table}[h]
+\centering
+\caption{Eventual Ducci periods. ``min.\ non-triv.'' omits the trivial fixed
+point of period $1$. Every listed minimal non-trivial period is odd; none of the
+ones in boldface divides its $n$.}
+\label{tab:periods}
+\begin{tabular}{clll}
+\toprule
+$n$ & seeds tested & period set & min.\ non-triv. \\
+\midrule
+$5$  & exhaustive $\{0,\dots,9\}^5$ ($10^5$) & $\{1, 15\}$ & $\mathbf{15}$ \\
+$5$  & random, values $\le 10^6$ ($2000$) & $\{15\}$ & $\mathbf{15}$ \\
+$10$ & exhaustive $\{0,\dots,3\}^{10}$ ($4^{10}$) & $\{1, 15, 30\}$ & $\mathbf{15}$ \\
+$10$ & random, values $\le 10^6$ ($300$) & $\{15, 30\}$ & $\mathbf{15}$ \\
+$11$ & exhaustive $\{0,1,2\}^{11}$ ($3^{11}$) & $\{1, 341\}$ & $\mathbf{341}$ \\
+$13$ & random, values $\le 50$ ($20000$) & $\{819\}$ & $\mathbf{819}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In every case the minimal non-trivial period fails to divide $n$:
+\[
+  15 \nmid 5, \qquad 15 \nmid 10, \qquad 341 \nmid 11, \qquad 819 \nmid 13 .
+\]
+For $n = 5$ and $n = 10$ this is immediate because the period exceeds $n$; in
+fact $15 > 5$ and $15 > 10$.
+
+\section{The classical zero criterion (context, not disputed)}
+
+The first two clauses of the conjecture are a well-known theorem: every Ducci
+sequence reaches the zero tuple exactly when $n$ is a power of two, and for
+every other $n$ there exists a seed whose orbit is a nontrivial cycle. Our
+$n = 5$ and $n = 10$ examples are non-powers of two, consistent with that
+criterion; the refutation is directed solely at the assertion that the
+\emph{minimal} cycle length is an odd factor of $n$. In other words, the
+conjecture conflates a correct existence statement (nontrivial cycles for
+non-powers of two) with an incorrect arithmetic description of their lengths.
+
+\begin{conjecture}[00000001299, refuted]
+For non-powers of two the minimal Ducci cycle length is an odd factor of $n$.
+\end{conjecture}
+
+\section{Honest notes and caveats}
+
+\begin{remark}[A non-rigorous argument we do \emph{not} use]
+An earlier attempt at a proof ran as follows: ``the mod-$2$ reduction of the
+Ducci map on $n=5$ has periods $\{1,15\}$, hence every integer cycle length must
+be divisible by $15$; in particular $15 \nmid 5$ refutes the conjecture.''
+This argument is \textbf{not} rigorous and is not used here. The reduction
+modulo $2$ does not control the period of the integer orbit: in one sample of
+$300$ random seeds for $n=5$, $16$ seeds have integer period $15$ while their
+mod-$2$ reduction has period $1$ (the count is random-sample dependent; the
+phenomenon is robust). Reductions of a map can merge or collapse orbits, so
+periods of a reduction need not divide or be divided by periods in the original
+system. Our conclusion rests instead on direct iteration of \eqref{eq:ducci},
+which is finite and exact (and is formalized below).
+\end{remark}
+
+\begin{remark}[The strongest objection: a vacuous reading]
+A sceptic could try to rescue the conjecture by reading ``minimal cycle length''
+as including the trivial fixed point $(0,\dots,0)$ of length $1$. Then $1$ is an
+odd factor of every $n$, and the final clause becomes vacuous for all $n$ ---
+which cannot be the intended content, since the conjecture explicitly contrasts
+``nontrivial cycles'' with the zero tuple. Under the natural reading (the
+minimal length of a \emph{nontrivial} cycle), the clause is false at $n=5$. We
+note that the $n=9$ case happens to satisfy the clause (its minimal non-trivial
+period is $3 = 9/3$), but a single counterexample at $n=5$ is enough to refute a
+universal claim; the clause is simply not a valid general description of Ducci
+cycle lengths.
+\end{remark}
+
+\begin{remark}[A possible garbling: $2^k-1$ rather than ``factor of $n$'']
+The number $15 = 2^4 - 1$ is not a factor of $5$, but it \emph{does} fit a
+different familiar pattern: for $n = 5$ the minimal non-trivial period is
+$2^{\operatorname{ord}} - 1$ with $\operatorname{ord} = 4$. It is plausible that
+``an odd factor of $n$'' is a garbling of ``an odd divisor of $2^k - 1$ for some
+$k$,'' or of the statement that Ducci periods are odd. But neither reading is
+the literal wording of the conjecture file, and neither rescues it: $15$ is not
+an odd factor of $5$, which is exactly what the file claims. We therefore record
+the verdict as \textbf{FALSE} under the stated wording, while flagging that the
+intended mathematical content may have been something else.
+\end{remark}
+
+\section{Formalization and reproduction}
+
+The counterexample is machine-checked in core Lean~4 (toolchain
+\texttt{leanprover/lean4:v4.33.1}, \texttt{import Std} only; no Mathlib, no
+\texttt{sorry}, no \texttt{axiom}, no \texttt{native\_decide}). The file
+\texttt{lean4/Main.lean} defines $\T$ on \texttt{Fin 5 -> Nat} via truncated
+subtraction, the seed $s$, and the iterate \texttt{iter}; it proves that
+\texttt{iter 15 = s} and that no positive iterate below $15$ returns to $s$,
+hence the minimal non-trivial period is $15$, and finally \texttt{not (15 | 5)}.
+The axiom audit (\texttt{lean4/Check.lean}) reports only \texttt{propext} and
+\texttt{Quot.sound}, with no \texttt{sorryAx} and no \texttt{Lean.ofReduceBool}.
+
+The Python script \texttt{reproduce.py} (standard library only) iterates
+\eqref{eq:ducci} independently, prints the explicit $15$-cycle, the period sets
+of Table~\ref{tab:periods}, and the divisibility failures, and reports
+\texttt{PASS}.
+
+\end{document}
