@@ -1,0 +1,224 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Disproof of conjecture 00000001070:\\
+the three-fold sum threshold in $\mathbb{F}_p$}
+\author{Submission for conjecture 00000001070}
+\date{2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000001070 asserts that the smallest cardinality $|A|$ of a set
+$A \subseteq \mathbb{F}_p$ with three-fold sum $3A = \mathbb{F}_p$ equals
+$\lceil (p+1)/3 \rceil + 1$. We show that this is \textbf{false}. The
+three-element set $A = \{0,1,3\} \subseteq \mathbb{F}_7$ already satisfies
+$3A = \mathbb{F}_7$, while the conjectured expression evaluates to
+$\lceil 8/3 \rceil + 1 = 4 \neq 3$. We also explain the arithmetic slip: the
+value $\lceil (p+2)/3 \rceil$, obtained from Cauchy--Davenport, is the
+\textbf{universal} threshold (every $k$-element set covers $\mathbb{F}_p$ when
+$k \ge \lceil (p+2)/3 \rceil$), not the \textbf{existential} minimum stated in
+the conjecture; the latter is far smaller and is known only through additive
+basis theory. The conjecture is wrong under either reading.
+\end{abstract}
+
+\section{The conjecture}
+
+\begin{definition}[Three-fold sumset]
+Let $p$ be prime and let $A \subseteq \mathbb{F}_p$ be nonempty. The
+\emph{three-fold sumset} is
+\[
+  3A \;=\; A + A + A \;=\; \{\, a + b + c : a, b, c \in A \,\},
+\]
+where repetitions of summands are allowed, and addition is in
+$\mathbb{F}_p = \mathbb{Z}/p\mathbb{Z}$.
+\end{definition}
+
+\begin{conjecture}[as filed]\label{conj}
+The smallest $|A|$ with $3A = \mathbb{F}_p$ is
+\[
+  \Bigl\lceil \frac{p+1}{3} \Bigr\rceil + 1 .
+\]
+\end{conjecture}
+
+\section{The counterexample at $p=7$}
+
+\begin{theorem}\label{thm:main}
+Conjecture~\ref{conj} is false. Explicitly,
+\[
+  A = \{0,1,3\} \subseteq \mathbb{F}_7,
+  \qquad |A| = 3,
+  \qquad 3A = \mathbb{F}_7,
+\]
+while
+\[
+  \Bigl\lceil \frac{7+1}{3} \Bigr\rceil + 1 = \lceil 8/3 \rceil + 1 = 3 + 1 = 4 \neq 3 .
+\]
+Thus the conjectured expression overestimates the smallest $|A|$ already at
+$p = 7$.
+\end{theorem}
+
+\begin{proof}
+The set $A$ has three distinct elements. Enumerating the $3 \times 3 \times 3 =
+27$ ordered triples, the distinct three-fold sums are
+\[
+\begin{array}{c|c}
+y & \text{representation as } a+b+c \\ \hline
+0 & 0+0+0 \\
+1 & 0+0+1 \\
+2 & 0+1+1 \\
+3 & 0+0+3 \\
+4 & 0+1+3 \\
+5 & 1+1+3 \\
+6 & 0+3+3
+\end{array}
+\]
+so $3A = \{0,1,2,3,4,5,6\} = \mathbb{F}_7$. The arithmetic value of the
+conjectured formula is $4$, and $3 < 4$.
+\end{proof}
+
+\begin{remark}
+No two-element subset of $\mathbb{F}_7$ has three-fold sum $\mathbb{F}_7$;
+the $21 = \binom{7}{2}$ two-element subsets each produce at most $4$ distinct
+sums. Hence the true minimum at $p=7$ is exactly $3$, and the conjectured
+value $4$ is not merely unattained but strictly larger than the truth.
+\end{remark}
+
+\section{Why the formula is wrong: two different thresholds}
+
+The conjectured expression is motivated by Cauchy--Davenport, but it answers a
+different question from the one that is stated. We separate the two.
+
+\subsection{The universal threshold}
+
+\begin{theorem}[Cauchy--Davenport]\label{thm:cd}
+For nonempty $A, B \subseteq \mathbb{F}_p$ with $p$ prime,
+\[
+  |A + B| \;\ge\; \min\bigl(p,\; |A| + |B| - 1\bigr).
+\]
+\end{theorem}
+
+Iterating Theorem~\ref{thm:cd} twice gives $|3A| \ge \min(p,\, 3|A| - 2)$:
+\begin{align*}
+  |2A| &\ge \min(p,\, 2|A| - 1), \\
+  |3A| = |A + 2A| &\ge \min\bigl(p,\, |A| + \min(p, 2|A|-1) - 1\bigr)
+                    \;\ge\; \min(p,\, 3|A| - 2).
+\end{align*}
+Consequently, if $3|A| - 2 \ge p$ then $|3A| \ge p$, so $3A = \mathbb{F}_p$
+for \emph{every} set $A$ of that size. Writing $k = |A|$, the least $k$ with
+$3k - 2 \ge p$ is
+\[
+  k_{\mathrm{univ}}(p) \;=\; \Bigl\lceil \frac{p+2}{3} \Bigr\rceil .
+\]
+This is sharp for the universal statement: for $k < \lceil (p+2)/3 \rceil$ the
+interval $A = \{0,1,\dots,k-1\}$ has $3A = \{0,1,\dots,3k-3\}$ of size
+$3k - 2 < p$, hence does not cover $\mathbb{F}_p$.
+
+\begin{proposition}\label{prop:conj-vs-univ}
+The conjectured value $\lceil (p+1)/3 \rceil + 1$ equals the universal
+threshold $\lceil (p+2)/3 \rceil$ if and only if $p \equiv 2 \pmod 3$. It is
+too large by exactly $1$ for $p = 3$ and for every prime $p \equiv 1 \pmod 3$;
+for $p \le 30$ these are
+\[
+  p = 3,\ 7,\ 13,\ 19 .
+\]
+\end{proposition}
+
+\begin{proof}
+Write the remainder of $p$ modulo $3$. If $p = 3m + 2$, then
+$\lceil (p+1)/3 \rceil + 1 = m + 2 = \lceil (p+2)/3 \rceil$. If $p = 3m+1$,
+then $\lceil (p+1)/3 \rceil + 1 = m + 2$ while $\lceil (p+2)/3 \rceil = m+1$,
+a difference of $1$. If $p = 3$ then $\lceil 4/3 \rceil + 1 = 3$ while
+$\lceil 5/3 \rceil = 2$, again a difference of $1$.
+\end{proof}
+
+So even if the intended quantity were the universal threshold, the conjecture
+would be wrong at $p = 3$ and at every prime $p \equiv 1 \pmod 3$.
+
+\subsection{The existential minimum stated in the conjecture}
+
+Conjecture~\ref{conj} literally asks for the \emph{smallest} $|A|$ for which
+\emph{some} $A$ covers $\mathbb{F}_p$. This existential minimum is much
+smaller than the universal threshold, because a $k$-element set can produce
+\[
+  \Bigl|\{\,a+b+c : a,b,c \in A\,\}\Bigr| \;\le\; \binom{k+2}{3}
+  \;=\; \frac{k(k+1)(k+2)}{6}
+\]
+distinct sums (choosing an unordered multiset of three summands). Covering all
+$p$ residues therefore forces $\binom{k+2}{3} \ge p$, so
+$k \gtrsim (6p)^{1/3}$; the true threshold grows like $p^{1/3}$, not linearly
+in $p$. Exhaustive search for all primes $p \le 30$ gives the following
+values, where ``true'' is the smallest $|A|$ with some $3A = \mathbb{F}_p$.
+
+\begin{center}
+\begin{tabular}{r|r|r|r}
+$p$ & true (existential) & $\lceil (p+1)/3 \rceil + 1$ (conjecture)
+    & $\lceil (p+2)/3 \rceil$ (universal) \\ \hline
+ 2 & 2 &  2 &  2 \\
+ 3 & 2 &  3 &  2 \\
+ 5 & 3 &  3 &  3 \\
+ 7 & 3 &  4 &  3 \\
+11 & 4 &  5 &  5 \\
+13 & 4 &  6 &  5 \\
+17 & 5 &  7 &  7 \\
+19 & 5 &  8 &  7 \\
+23 & 5 &  9 &  9 \\
+29 & 6 & 11 & 11
+\end{tabular}
+\end{center}
+
+\begin{remark}
+For $p \le 30$ the conjectured value matches the true existential minimum only
+at $p = 2$ and $p = 5$; at $p = 3, 7, 11, 13, 17, 19, 23, 29$ it is strictly
+too large. The universal threshold likewise fails to be the existential
+minimum from $p = 11$ onward (for instance $A = \{0,1,2,4\}$ of size $4$
+covers $\mathbb{F}_{11}$, while $\lceil 13/3 \rceil = 5$). Thus the
+conjectured formula is not the answer to either question.
+\end{remark}
+
+\section{Formal verification}
+
+The counterexample of Theorem~\ref{thm:main} is machine-checked in the
+accompanying Lean~4 project (\texttt{lean4/}). The field $\mathbb{F}_7$ is
+modelled as \texttt{Fin 7} with its cyclic addition; the three-fold sum is a
+decidable predicate
+\[
+  \texttt{IsThreefoldSum}\ A\ y \;:\Longleftrightarrow\;
+  \exists a\,b\,c : \texttt{Fin }7,\ a \in A \wedge b \in A \wedge c \in A
+  \wedge a + b + c = y ,
+\]
+and the project proves
+\[
+  \forall y : \texttt{Fin }7,\ \texttt{IsThreefoldSum}\ \{0,1,3\}\ y,
+  \qquad |\{0,1,3\}| = 3,
+  \qquad \lceil 8/3 \rceil + 1 = 4 \neq 3 .
+\]
+Only core Lean (\texttt{import Std}, no Mathlib, no \texttt{ZMod}, no
+\texttt{sorry}) is used.
+
+\section{Conclusion}
+
+Conjecture 00000001070 is \textbf{false}. The set $A = \{0,1,3\}$ shows
+$3A = \mathbb{F}_7$ with $|A| = 3$, whereas the conjectured formula returns
+$4$. The underlying identity $\lceil (p+2)/3 \rceil = \lceil (p+1)/3 \rceil +
+1$ has the wrong parity of rounding: the two sides agree only when
+$p \equiv 2 \pmod 3$, and differ by one at $p = 3$ and all primes
+$p \equiv 1 \pmod 3$. Moreover, neither expression is the existential minimum
+that the conjecture states; that minimum grows like $p^{1/3}$.
+
+\end{document}
