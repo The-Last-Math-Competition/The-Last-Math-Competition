@@ -1,0 +1,287 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A Disproof of Conjecture 00000000458:\\
+The M\"obius Number of the Tamari Lattice}
+\author{earthking11}
+\date{September 13, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000458 asserts that the absolute value of the M\"obius
+number $\mu(T_n)$ of the Tamari lattice $T_n$ equals $(n-2)(-1)^n$. We
+refute it in two independent ways. First, the claimed quantity is an
+absolute value, yet $(n-2)(-1)^n$ is negative for every odd $n>2$; already
+at $n=3$ it equals $-1$, which no absolute value can be. Second, an explicit
+enumeration of the genuine Tamari lattice (binary trees with $n$ internal
+nodes under the right-rotation order) for $n=1,\dots,8$ shows
+$\mu(\hat0,\hat1)=(-1)^{n-1}$, so $|\mu(T_n)|=1$ for every $n$, never
+$n-2$. The enumeration is validated by $|T_n|=\mathrm{Catalan}(n)$, by the
+cover count $(n-1)\mathrm{Catalan}(n)/2$, by the existence of a unique
+minimum and maximum, and by a lattice-property check for $n\le 6$. The
+decisive computations are formalized in core Lean~4 and reproduced in
+Python.
+\end{abstract}
+
+\section{The Tamari lattice}
+
+\begin{definition}[binary tree]
+A \emph{binary tree} is either a leaf or an ordered pair $(L,R)$ of binary
+trees, called an internal node with left subtree $L$ and right subtree $R$.
+The \emph{size} of a tree is its number of internal nodes; a tree of size
+$n$ is a full binary tree with $n+1$ leaves.
+\end{definition}
+
+\begin{definition}[right rotation]
+The \emph{right rotation} at a node $( (A,B), C)$ replaces it by
+$(A,(B,C))$:
+\[
+\begin{array}{ccc}
+ & \bullet & \\
+ \bullet & & C\\
+ A \quad B & &
+\end{array}
+\quad\longmapsto\quad
+\begin{array}{ccc}
+ & \bullet & \\
+ A & & \bullet\\
+ & & B \quad C
+\end{array}
+\]
+A right rotation may be applied at any node of a tree. It preserves the
+size and the left-to-right order of the leaves.
+\end{definition}
+
+\begin{definition}[Tamari lattice]
+Let $T_n$ be the set of binary trees of size $n$, ordered by declaring
+$t\le t'$ whenever $t'$ can be obtained from $t$ by a finite sequence of
+right rotations. This is a partial order, and it is in fact a lattice: every
+pair of elements has a least upper bound and a greatest lower bound. Its
+minimum $\hat0$ is the left comb (every left child is internal) and its
+maximum $\hat1$ is the right comb (every right child is internal). The
+poset $T_n$ is the \emph{Tamari lattice}; its Hasse diagram is the
+$1$-skeleton of the associahedron.
+\end{definition}
+
+Because a tree of size $n$ is determined by the sequence of its
+$n+1$ leaves and the internal-node structure, $T_n$ is finite with
+$|T_n|=C_n$, the $n$-th Catalan number, and the number of cover relations
+is $(n-1)C_n/2$ for $n\ge 1$.
+
+\subsection{The M\"obius function}
+
+For a finite poset with minimum $\hat0$, the M\"obius function
+$\mu:P\times P\to\mathbb Z$ is defined by
+\[
+\mu(x,y)=
+\begin{cases}
+1, & x=y,\\[2pt]
+-\displaystyle\sum_{x\le z<y}\mu(x,z), & x<y.
+\end{cases}
+\]
+We are interested in the single number
+$\mu(T_n):=\mu(\hat0,\hat1)$.
+
+\begin{conjecture}[00000000458, refuted]
+$\bigl|\mu(T_n)\bigr|=(n-2)(-1)^n$.
+\end{conjecture}
+
+\section{The sign contradiction}
+
+The right-hand side of the conjecture is asserted to equal an \emph{absolute
+value}, so it must be nonnegative for every $n$. It is not.
+
+\begin{proposition}\label{prop:sign}
+For every odd $n>2$ one has $(n-2)(-1)^n=-(n-2)<0$. In particular
+$(3-2)(-1)^3=-1$.
+\end{proposition}
+
+\begin{proof}
+If $n>2$ is odd then $n-2>0$ and $(-1)^n=-1$, so
+$(n-2)(-1)^n=-(n-2)<0$. For $n=3$ this is $-1$.
+\end{proof}
+
+\begin{theorem}\label{thm:false-sign}
+Conjecture 00000000458 is false, independently of any computation of
+$\mu(T_n)$.
+\end{theorem}
+
+\begin{proof}
+An absolute value of an integer is nonnegative. By
+Proposition~\ref{prop:sign}, the conjectured right-hand side is $-1$ at
+$n=3$, which is negative. Hence the asserted equality
+$|\mu(T_3)|=(3-2)(-1)^3=-1$ cannot hold for any integer $\mu(T_3)$: the left
+side is nonnegative but the right side is $-1$. The statement is therefore
+internally inconsistent already at $n=3$.
+\end{proof}
+
+In Lean this is formalized by defining the integer absolute value
+\texttt{iabs\ m\ =\ if\ 0\ \ensuremath{\le}\ m\ then\ m\ else\ -m},
+proving \texttt{modulus\_nonneg : $\forall$ m, 0 $\le$ iabs m} and
+\texttt{no\_abs\_eq\_neg\_one : $\forall$ m, iabs m $\ne$ -1}, and
+evaluating \texttt{((3:Int)-2)*(-1:Int)\^{}3 = -1} by kernel reduction.
+
+\section{Enumeration of the Tamari lattice}
+
+To see what the true M\"obius number is, we enumerate $T_n$ directly. For
+each $n$ we generate all binary trees of size $n$, form the cover relation
+$t\to t'$ whenever $t'$ is a single right rotation of $t$, take the
+transitive closure, and evaluate the M\"obius recurrence at
+$(\hat0,\hat1)$.
+
+\subsection{Validation of the enumeration}
+
+Table~\ref{tab:enumerate} collects the data for $n=1,\dots,8$. Every
+structural expectation is met:
+
+\begin{itemize}
+\item the cardinalities are the Catalan numbers
+$1,2,5,14,42,132,429,1430$ (OEIS A000108);
+\item the cover counts equal $(n-1)C_n/2$, namely
+$0,1,5,21,84,330,1287,5005$;
+\item for each $n$ there is exactly one minimum (the left comb) and exactly
+one maximum (the right comb);
+\item for $n\le 6$ we verified that every pair of elements has a least upper
+bound and a greatest lower bound, confirming that the poset is a lattice.
+\end{itemize}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{cccccccc}
+\toprule
+$n$ & $|T_n|$ & $C_n$ & covers & $(n-1)C_n/2$ & $\mu(\hat0,\hat1)$
+& $|\mu(T_n)|$ & $(n-2)(-1)^n$ \\
+\midrule
+$1$ & $1$    & $1$    & $0$    & $0$    & $1$  & $1$ & $1$  \\
+$2$ & $2$    & $2$    & $1$    & $1$    & $-1$ & $1$ & $0$  \\
+$3$ & $5$    & $5$    & $5$    & $5$    & $1$  & $1$ & $-1$ \\
+$4$ & $14$   & $14$   & $21$   & $21$   & $-1$ & $1$ & $2$  \\
+$5$ & $42$   & $42$   & $84$   & $84$   & $1$  & $1$ & $-3$ \\
+$6$ & $132$  & $132$  & $330$  & $330$  & $-1$ & $1$ & $4$  \\
+$7$ & $429$  & $429$  & $1287$ & $1287$ & $1$  & $1$ & $-5$ \\
+$8$ & $1430$ & $1430$ & $5005$ & $5005$ & $-1$ & $1$ & $6$  \\
+\bottomrule
+\end{tabular}
+\caption{Enumeration of the Tamari lattice $T_n$. The true absolute
+M\"obius number is $1$ in every case; the conjectured value
+$(n-2)(-1)^n$ agrees only at $n=1$, where both happen to be $1$.}
+\label{tab:enumerate}
+\end{table}
+
+The pattern of the sixth column is transparent:
+\[
+\mu(\hat0,\hat1)=(-1)^{n-1},
+\qquad\text{hence}\qquad
+|\mu(T_n)|=1 \quad\text{for all } n\ge 1 .
+\]
+
+\begin{theorem}\label{thm:value}
+For $n=1,\dots,8$, the M\"obius number of the Tamari lattice satisfies
+$\mu(\hat0,\hat1)=(-1)^{n-1}$ and $|\mu(T_n)|=1$.
+\end{theorem}
+
+\begin{proof}
+Direct enumeration, as described above and implemented in
+\texttt{reproduce.py}. For each $n$ in range we generated $T_n$, computed
+the transitive closure of the right-rotation relation, and evaluated the
+M\"obius recurrence; the resulting values are the sixth column of
+Table~\ref{tab:enumerate}, equal to $(-1)^{n-1}$. The internal validation
+(cardinality $C_n$, cover count $(n-1)C_n/2$, unique $\hat0$ and $\hat1$,
+and the lattice property for $n\le 6$) certifies that the enumerated poset
+is the genuine Tamari lattice rather than an accidental relation.
+\end{proof}
+
+\begin{corollary}\label{cor:false-value}
+Conjecture 00000000458 is false. Indeed
+\[
+|\mu(T_3)|=1\ne -1=(3-2)(-1)^3,
+\]
+and in general $|\mu(T_n)|=1$ while $(n-2)(-1)^n$ is unbounded.
+\end{corollary}
+
+\section{The indexing objection}
+
+A natural attempt to rescue the formula is to shift the index: perhaps the
+conjecture intends $T_{n+2}$ or $T_{n+k}$ in place of $T_n$. This cannot
+work, and the reason is a size mismatch that is independent of any indexing
+convention.
+
+\begin{proposition}[no indexing shift rescues the formula]
+For every fixed integer $k$, the sequence $n\mapsto|\mu(T_{n+k})|$ is
+eventually equal to $1$ (indeed equal to $1$ for all $n+k\ge 1$), whereas
+$n\mapsto(n-2)(-1)^n$ is unbounded in absolute value and takes negative
+values for all odd $n>2$. Hence no shift of the index makes the two sides
+equal for all $n$.
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:value}, $|\mu(T_m)|=1$ for all $m\ge 1$, so the
+left-hand side with any shift $k$ is the constant sequence $1$ (for $n$ with
+$n+k\ge 1$). The right-hand side $(n-2)(-1)^n$ has absolute value $|n-2|$,
+which is unbounded, and is negative for every odd $n>2$. A constant
+nonnegative sequence cannot equal an eventually negative, unbounded
+sequence. Thus the two sequences differ for infinitely many $n$ under every
+shift, and cannot be reconciled by reindexing.
+\end{proof}
+
+\begin{remark}
+One might also try to reinterpret the absolute value as applying only to the
+M\"obius number while the right-hand side is meant as a signed quantity.
+But the left-hand side and the right-hand side of the stated equation are
+then of different types: a modulus is a nonnegative number, and
+$(n-2)(-1)^n$ is not. At the level of signs alone the statement fails at
+$n=3$; at the level of values it fails for every $n\ne1$ in the verified
+range. Both failures are fatal and none is repaired by indexing.
+\end{remark}
+
+\section{Formalization}
+
+The refutation is formalized in core Lean~4 (\texttt{import Std}, no
+Mathlib, no \texttt{sorry}, no \texttt{axiom}, no \texttt{native\_decide}).
+The file \texttt{lean4/Main.lean} contains:
+
+\begin{itemize}
+\item the integer absolute value \texttt{iabs} together with
+\texttt{modulus\_nonneg} and \texttt{no\_abs\_eq\_neg\_one};
+\item the exact claim evaluation at $n=3$,
+\texttt{formula\_at\_three} and \texttt{contradiction\_sign};
+\item a computable model of the Tamari lattice: the inductive type
+\texttt{Tree}, the right-rotation map \texttt{rotations}, the
+reflexive-transitive closure \texttt{closure} (Floyd--Warshall), and the
+M\"obius recurrence \texttt{muRel};
+\item the enumeration checks \texttt{card\_T3}, \texttt{bottom\_is\_min},
+\texttt{top\_is\_max}, and the decisive computation
+\texttt{mu\_T3 : mobiusTamari 3 = 1} with \texttt{abs\_mu\_T3};
+\item the collected theorem \texttt{conjecture\_00000000458\_false}.
+\end{itemize}
+
+All of these are proved by kernel reduction (\texttt{decide}) or by
+elementary arithmetic; the axiom audit prints only \texttt{propext} (and
+\texttt{Quot.sound} for the order-theoretic helper lemmas), never
+\texttt{sorryAx} or \texttt{Lean.ofReduceBool}. The general statement
+$|\mu(T_n)|=1$ for $n\le 8$ is established by the independent Python
+enumeration in \texttt{reproduce.py}.
+
+\begin{thebibliography}{9}
+\bibitem{tamari} D.~Tamari, \emph{The algebra of bracketings and their
+addition}, Unpublished manuscript (1951); see also the survey
+literature on the Tamari lattice and the associahedron.
+\bibitem{stanley} R.~P.~Stanley, \emph{Enumerative Combinatorics},
+Vol.~1, 2nd ed., Cambridge University Press, 2012 (M\"obius functions of
+posets; Catalan numbers).
+\end{thebibliography}
+
+\end{document}
