@@ -1,0 +1,431 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{xeCJK}
+% Chinese quotes need a CJK font.  Prefer the macOS Songti bundle; otherwise
+% fall back to a Noto CJK font, and finally compile without CJK glyphs rather
+% than failing outright.
+\IfFileExists{/System/Library/Fonts/Supplemental/Songti.ttc}{%
+  \setCJKmainfont[Path=/System/Library/Fonts/Supplemental/,FontIndex=0]{Songti.ttc}%
+}{%
+  \IfFontExistsTF{Noto Serif CJK SC}{%
+    \setCJKmainfont{Noto Serif CJK SC}%
+  }{%
+    \IfFontExistsTF{Noto Sans CJK SC}{%
+      \setCJKmainfont{Noto Sans CJK SC}%
+    }{%
+      \PackageWarning{main}{No CJK font found; the Chinese quote may be omitted}%
+    }%
+  }%
+}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\fh}{\widehat{f}}
+
+\title{Disproof of conjecture \texttt{00000001075}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001075} as stated. Over the field $\F_5$
+the function
+\[
+f \;=\; \delta_0-\delta_1 \;=\; (1,-1,0,0,0)
+\]
+satisfies $\#\supp(f)+\#\supp(\fh)=6=q+1$, so it is an equality
+configuration; but its support pair is $(2,4)$, not the claimed $(q,1)=(5,1)$,
+and $f$ is not a Fourier translate of any affine function $a\cdot x+b$. An
+exhaustive enumeration of all $3^5=243$ functions $\F_5\to\{0,\pm1\}$ shows
+that there are exactly $32$ equality configurations, $20$ of which have
+support pair $(2,4)$ and none of which is an affine Fourier translate. Hence
+both the parenthetical ``(support pairs of $q$ and $1$)'' and the clause ``no
+other equality configurations exist'' fail.
+
+\section{The conjecture}
+
+\begin{definition}[entropic uncertainty for the finite-field DFT]
+For a prime power $q$ and $f:\F_q\to\mathbb{C}$ write
+\[
+\fh(\xi) \;=\; \sum_{x\in\F_q} f(x)\,\omega^{\xi x},
+\qquad \omega = e^{2\pi i/q},
+\]
+for its finite-field Fourier transform, and let $\supp(f)$ denote the set of
+points at which $f$ is nonzero. The entropic uncertainty principle asserts
+\begin{equation}\label{eq:unc}
+\#\supp(f) + \#\supp(\fh) \;\ge\; q+1 .
+\end{equation}
+\end{definition}
+
+The conjecture under test adds an exact classification of the equality cases.
+
+Quoted verbatim from \texttt{conjectures/00000001075.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The entropic uncertainty principle for the
+finite-field Fourier transform states $\#\supp(f) + \#\supp(\fh) \ge q+1$.
+Conjecture: Equality holds exactly for Fourier translates of affine functions
+$a\cdot x + b$ (support pairs of $q$ and $1$), and no other equality
+configurations exist.
+\end{quote}
+
+\begin{quote}
+\textbf{中文。} 定义：有限域傅里叶变换 $\fh$ 的熵不确定原理指
+$\#\supp(f)+\#\supp(\fh) \ge q+1$。猜想：等号成立的函数恰为仿射函数
+$a\cdot x+b$ 的 Fourier 平移（即支撑为 $q$ 与 $1$ 的对），不存在其他等号构型。
+\end{quote}
+
+The conjecture therefore makes two assertions: (i) every equality
+configuration is a Fourier translate of an affine function and has support
+pair $(q,1)$ (equivalently $(1,q)$), and (ii) there are no other equality
+configurations. Both are refuted below, over the prime $q=5$.
+
+\section{Exact arithmetic in $\Z[\omega]$}
+
+Throughout we take $q=5$ and fix a primitive fifth root of unity $\omega$, so
+that $\omega^5=1$ and
+\[
+1+\omega+\omega^2+\omega^3+\omega^4=0 .
+\]
+The minimal polynomial of $\omega$ is $\Phi_5(x)=x^4+x^3+x^2+x+1$, which is
+irreducible over $\mathbb{Q}$; hence
+\[
+\Z[\omega]\;=\;\Z[x]/(x^4+x^3+x^2+x+1),
+\]
+and $1,\omega,\omega^2,\omega^3$ form a $\Z$-basis. Every quantity below is
+computed exactly in this ring: elements are integer $4$-tuples
+$(c_0,c_1,c_2,c_3)$ standing for $c_0+c_1\omega+c_2\omega^2+c_3\omega^3$,
+and the relation $\omega^4=-(1+\omega+\omega^2+\omega^3)$ reduces products.
+No floating-point arithmetic is used anywhere, in this document or in the
+accompanying programs. In particular, ``$\fh(\xi)=0$'' always means exact
+vanishing in $\Z[\omega]$, and all equalities of transform values are ring
+equalities in $\Z[\omega]$.
+
+\section{The witness and its exact transform}
+
+\begin{definition}[the witness]
+Let $f:\F_5\to\Z\subseteq\Z[\omega]$ be
+\[
+f \;=\; \delta_0-\delta_1, \qquad
+f(0)=1,\quad f(1)=-1,\quad f(2)=f(3)=f(4)=0 .
+\]
+\end{definition}
+
+\begin{lemma}[support]\label{lem:supp-f}
+$\#\supp(f)=2$, and $\supp(f)=\{0,1\}$.
+\end{lemma}
+\begin{proof}
+Immediate: $f$ is nonzero exactly at $x=0$ and $x=1$.
+\end{proof}
+
+\begin{theorem}[exact transform]\label{thm:fhat}
+For every $\xi\in\F_5$,
+\[
+\fh(\xi) \;=\; \sum_{x=0}^{4} f(x)\,\omega^{\xi x}
+\;=\; \omega^{0}- \omega^{\xi}
+\;=\; 1-\omega^{\xi}.
+\]
+Consequently $\fh(\xi)=0$ if and only if $\xi=0$, and $\#\supp(\fh)=4$.
+\end{theorem}
+
+\begin{proof}
+Only $x=0$ and $x=1$ contribute to the sum:
+\[
+\fh(\xi)=f(0)\omega^{0}+f(1)\omega^{\xi}=1-\omega^{\xi}.
+\]
+If $\xi=0$ then $\fh(0)=1-1=0$. Conversely suppose $\fh(\xi)=0$, i.e.
+$\omega^{\xi}=1$. Since $\omega^5=1$, write $\xi\in\{1,2,3,4\}$; then $\omega$
+is a root of both $x^5-1$ and $x^{\xi}-1$, hence a root of
+$x^{\gcd(5,\xi)}-1=x-1$ (as $5$ is prime and $1\le\xi\le4$), so $\omega=1$.
+But $\omega=1$ is not a root of $\Phi_5(x)=x^4+x^3+x^2+x+1$, since
+$\Phi_5(1)=5\ne0$; equivalently $1+\omega+\omega^2+\omega^3+\omega^4=0$ would
+give $5=0$ in $\Z[\omega]$. Hence $\fh(\xi)\ne0$ exactly for
+$\xi\in\{1,2,3,4\}$, and $\#\supp(\fh)=4$.
+\end{proof}
+
+The transform values, written out in the exact basis of $\Z[\omega]$, are
+\[
+\begin{array}{c|c}
+\xi & \fh(\xi) \\ \hline
+0 & 0 \\
+1 & 1-\omega \;=\; (1,-1,0,0) \\
+2 & 1-\omega^2 \;=\; (1,0,-1,0) \\
+3 & 1-\omega^3 \;=\; (1,0,0,-1) \\
+4 & 1-\omega^4 \;=\; 2+\omega+\omega^2+\omega^3 \;=\; (2,1,1,1)
+\end{array}
+\]
+using $\omega^4=-(1+\omega+\omega^2+\omega^3)$. Exactly one of the five
+values is $0$ and four are nonzero.
+
+\begin{corollary}[the witness is an equality configuration]\label{cor:eq}
+\[
+\#\supp(f)+\#\supp(\fh) \;=\; 2+4 \;=\; 6 \;=\; 5+1 \;=\; q+1 .
+\]
+So $f$ attains equality in \eqref{eq:unc}, and its support pair is
+\[
+\bigl(\#\supp(f),\#\supp(\fh)\bigr)=(2,4),
+\]
+not the claimed $(q,1)=(5,1)$.
+\end{corollary}
+
+\begin{remark}
+The value $\fh(4)=1-\omega^4$ shows that $\fh$ is \emph{not} integer-valued:
+its $\omega$-coefficient is $1$. This is why the exact $\Z[\omega]$ model is
+needed and why no floating-point approximation can certify the support.
+\end{remark}
+
+\section{$f$ is not a Fourier translate of an affine function}
+
+For $h:\F_5\to\Z[\omega]$ and $\alpha,\beta\in\F_5$ define the
+\emph{time--frequency translate}
+\begin{equation}\label{eq:tf}
+(T_{\alpha,\beta}h)(x) \;=\; \omega^{\beta x}\,h(x+\alpha).
+\end{equation}
+These are the ``Fourier translates'' of the conjecture: translation moves the
+argument and modulation multiplies by the character $\omega^{\beta x}$.
+
+\begin{lemma}[zero sets of affine functions]\label{lem:zeros}
+For $a,b\in\F_5$ let $g_{a,b}(x)=ax+b$. Then
+\[
+\#\{\,x : g_{a,b}(x)=0\,\} \;=\;
+\begin{cases}
+5, & a=b=0 \quad(\text{the zero function}),\\
+0, & a=0,\ b\ne 0 \quad(\text{a nonzero constant}),\\
+1, & a\ne 0 \quad(\text{exactly } x=-b\,a^{-1}).
+\end{cases}
+\]
+\end{lemma}
+\begin{proof}
+If $a=0$ the map is constant, equal to $b$; it vanishes everywhere when
+$b=0$ and nowhere otherwise. If $a\ne0$ it is a bijection of $\F_5$, so it has
+exactly one zero, namely $x=-b\,a^{-1}$.
+\end{proof}
+
+\begin{lemma}[translates preserve the zero set up to a shift]\label{lem:zero-tf}
+For any $h$ and any $\alpha,\beta$,
+\[
+\{\,x : (T_{\alpha,\beta}h)(x)=0\,\}
+\;=\;
+\{\,x : h(x)=0\,\}-\alpha ,
+\]
+so the number of zeros is invariant under $T_{\alpha,\beta}$.
+\end{lemma}
+\begin{proof}
+$\omega^{\beta x}\ne0$ in $\Z[\omega]$ for every $x$ (it is a unit), so
+$\omega^{\beta x}h(x+\alpha)=0$ iff $h(x+\alpha)=0$ iff $x+\alpha$ is a zero
+of $h$; substituting $y=x+\alpha$ gives the claim.
+\end{proof}
+
+\begin{theorem}[non-membership]\label{thm:not-affine}
+The witness $f=(1,-1,0,0,0)$ is not a time--frequency translate of any affine
+function $g_{a,b}$. Equivalently, there are no
+$a,b,\alpha,\beta\in\F_5$ with
+\[
+\forall x\in\F_5:\quad \omega^{\beta x}\,g_{a,b}(x+\alpha) \;=\; f(x)
+\qquad\text{in }\Z[\omega].
+\]
+\end{theorem}
+
+\begin{proof}
+The zero set of the witness is $\{x : f(x)=0\}=\{2,3,4\}$, of size $3$. By
+Lemma~\ref{lem:zeros}, an affine function $g_{a,b}$ has $5$, $0$, or $1$ zeros
+according as it is the zero function, a nonzero constant, or has $a\ne0$. By
+Lemma~\ref{lem:zero-tf} every time--frequency translate $T_{\alpha,\beta}
+g_{a,b}$ has the same number of zeros, i.e.\ one of $5,0,1$; none of these is
+$3$. Hence $T_{\alpha,\beta}g_{a,b}\ne f$.
+
+The same conclusion follows from support sizes: a nonzero affine function has
+support $4$ (when $a\ne0$) or $5$ (when $a=0$, $b\ne0$), the zero function has
+support $0$, and $T_{\alpha,\beta}$ preserves the support size; but
+$\#\supp(f)=2$. An exhaustive machine check over all $5^4=625$ tuples
+$(a,b,\alpha,\beta)$ confirms this with exact $\Z[\omega]$ arithmetic (see
+\texttt{reproduce.py} and the Lean development).
+\end{proof}
+
+\begin{remark}
+If one reads ``Fourier translate'' as allowing the transform of a translate
+rather than a translate itself, the conclusion is unchanged: for $a\ne0$ the
+transform of $T_{\alpha,\beta}g_{a,b}$ has non-integer $\omega$-coefficients,
+and for $a=0$ it is a nonzero multiple of $\delta_0$, so in neither case can it
+equal the integer-valued witness $(1,-1,0,0,0)$. This is also checked
+exhaustively.
+\end{remark}
+
+\begin{remark}[why $\F_3$ is not enough]
+Over $\F_3$ the analogue of the witness would be $(1,-1,0)$. That function is
+\emph{not} a valid counterexample: as a function $\F_3\to\F_3$ it equals
+$x\mapsto x+1$ (since $-1\equiv2$ and $0+1,1+1,2+1=0$ give values $1,2,0$),
+i.e.\ it is a translate of an affine function. Over $\F_5$, by contrast,
+$(1,-1,0,0,0)$ has three zeros while no affine function has three zeros. This
+is why the counterexample is taken over $\F_5$.
+\end{remark}
+
+\section{Enumeration of all equality configurations on $\F_5$}
+
+To quantify how badly the classification fails we enumerate every function
+$f:\F_5\to\{0,\pm1\}$, of which there are $3^5=243$. For each we compute
+$\fh$ exactly in $\Z[\omega]$ and test the equality case
+$\#\supp(f)+\#\supp(\fh)=6$.
+
+\begin{theorem}[the equality configurations]\label{thm:enum}
+Among the $243$ functions $\F_5\to\{0,\pm1\}$ there are exactly $32$ equality
+configurations $\#\supp(f)+\#\supp(\fh)=6$, distributed by support pair as
+follows:
+\begin{center}
+\begin{tabular}{c|l|r}
+$\#\supp(f)$ & description & count \\ \hline
+$1$ & the ten functions $\pm\delta_p$, $p\in\F_5$ & $10$ \\
+$2$ & the twenty functions $\pm(\delta_p-\delta_q)$, $p\ne q$ & $20$ \\
+$5$ & the two nonzero constants $\pm1$ & $2$ \\ \hline
+& total & $32$
+\end{tabular}
+\end{center}
+Every one of the $20$ functions of type $(2,4)$ is an equality configuration
+and is not a time--frequency translate of an affine function. Moreover, over
+the $242$ nonzero functions the bound \eqref{eq:unc} holds with equality
+attained, the minimum of $\#\supp(f)+\#\supp(\fh)$ being $6$.
+\end{theorem}
+
+\begin{proof}
+This is a finite computation over $243$ cases with exact $\Z[\omega]$
+arithmetic, carried out by \texttt{reproduce.py}. The script builds $\fh$ from
+the definitions using the reduction $\omega^4=-1-\omega-\omega^2-\omega^3$,
+counts supports, and verifies:
+\begin{itemize}
+\item exactly $32$ functions attain the bound, with pairs
+$(1,5)$: $10$, $(2,4)$: $20$, $(5,1)$: $2$;
+\item the $20$ functions of type $(2,4)$ are exactly
+$\pm(\delta_p-\delta_q)$ for the ten unordered pairs $\{p,q\}$, two signs each;
+\item none of those $20$ is a time--frequency translate of any affine
+function, and none is the transform of one.
+\end{itemize}
+The count $32=10+20+2$ coincides with the directly identifiable families: the
+$\pm\delta_p$ have transforms of support $5$, and the nonzero constants have
+transforms of support $1$ (a nonzero multiple of $\delta_0$). The remaining
+$20$ have no affine description.
+\end{proof}
+
+\begin{corollary}[the conjecture is false]
+Conjecture \texttt{00000001075} fails on both counts:
+\begin{enumerate}
+\item The witness $f=(1,-1,0,0,0)$ is an equality configuration (Corollary
+\ref{cor:eq}) that is not a Fourier translate of an affine function (Theorem
+\ref{thm:not-affine}); its support pair is $(2,4)$, falsifying the
+parenthetical ``support pairs of $q$ and $1$'' as an exact description of the
+equality cases.
+\item There are $20$ further equality configurations of type $(2,4)$
+(Theorem \ref{thm:enum}) that are likewise not affine Fourier translates,
+falsifying ``no other equality configurations exist''.
+\end{enumerate}
+\end{corollary}
+
+\section{Context: the premise is not a general theorem}
+
+The inequality \eqref{eq:unc} is not true for arbitrary $q$; only its
+prime-field case is used above. Concretely, let $q=p^k$ with $k\ge2$ and let
+$H\le\F_q$ be the subgroup of size $p^{k-1}$ (the kernel of the trace form
+$\F_q\to\F_p$); the additive group of $\F_q$ is a $\F_p$-vector space of
+dimension $k$, and $H$ is a hyperplane. Its Fourier transform is supported on
+the annihilator $H^\perp$, another hyperplane. With $f=\mathbf{1}_H$ one gets
+\[
+\#\supp(f)+\#\supp(\fh) \;=\; p^{k-1}+p \;<\; p^k+1 \;=\; q+1
+\qquad(k\ge2),
+\]
+so \eqref{eq:unc} fails. For example, over $\F_4$ the subgroup
+$\{0,1\}$ and its annihilator both have size $2$, giving $2+2=4<5$; this is
+verified in \texttt{reproduce.py} with the explicit model
+$\F_4=\F_2[t]/(t^2+t+1)$ and its additive characters in $\{\pm1\}$. For prime
+$q$ the bound does hold for nonzero $f$, as the enumeration at $q=5$ confirms
+(minimum $6$ over the $242$ nonzero functions of shape $\{0,\pm1\}$).
+Choosing the prime $q=5$ keeps the counterexample inside the regime where the
+premise is true, so the refutation is not an artifact of a false hypothesis.
+
+\section{Reproducibility}
+
+The exact computations are carried out by \texttt{reproduce.py} (pure
+Python~3, standard library only, no \texttt{sympy}, no floating point):
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+...\\
+PASS: the witness disproves conjecture 00000001075 as stated.
+\end{quote}
+It prints the witness transform, the exhaustive non-membership checks over
+$625$ tuples, and the $243$-function enumeration with the $10/20/2$ split, and
+exits non-zero if any check fails.
+
+The LaTeX document is built with
+\begin{quote}\ttfamily
+\$ tectonic main.tex
+\end{quote}
+and the Lean development with
+\begin{quote}\ttfamily
+\$ cd lean4 \&\& lake build\\
+\$ cd lean4 \&\& lake env lean Check.lean
+\end{quote}
+
+\section{Formalisation}
+
+The refutation is formalised in Lean~4 in \texttt{lean4/}, core Lean only
+(\texttt{import Std}, no Mathlib, no \texttt{sorry}), with
+$\Z[\omega]=\Z[x]/(x^4+x^3+x^2+x+1)$ represented as integer $4$-tuples and
+multiplication given by the exact reduction
+$\omega^4=-(1+\omega+\omega^2+\omega^3)$. All proofs are closed by
+\texttt{decide}/\texttt{rw}. The main formal statements are
+\begin{quote}\ttfamily\raggedright
+theorem witness\_supp : suppInt witness = 2\\
+theorem witness\_fhat\_supp : suppQ (dft witness) = 4\\
+theorem witness\_equality : suppInt witness + suppQ (dft witness) = 6\\
+theorem witness\_fhat\_values : dft witness 0 = 0 \(\wedge\) ...\\[0.4em]
+theorem not\_tfTrans\_affine :\\
+\hspace*{1em}\(\forall\) (a b \(\alpha\) \(\beta\) : Fin 5), \(\neg\) (\(\forall\) x : Fin 5,\\
+\hspace*{2em}tfTrans (affineVec a b) \(\alpha\) \(\beta\) x = scalar (witness x))\\[0.4em]
+theorem not\_tfTrans\_affine\_dft : ...\\
+theorem conjecture\_00000001075\_refuted : ...
+\end{quote}
+\texttt{Check.lean} prints \texttt{\#print axioms} for every theorem; the
+audit shows that each depends only on \texttt{propext}, with no
+\texttt{sorryAx} and no \texttt{Lean.ofReduceBool}. See
+\texttt{lean4/README.md} for the statement table.
+
+\section*{Status against the submission rules}
+\addcontentsline{toc}{section}{Status against the submission rules}
+
+Rule 3 requires each submission to contain the LaTeX source code, a PDF
+document, and a Lean 4 project.
+
+\begin{itemize}\sloppy
+\item \textbf{LaTeX source} --- present (\texttt{main.tex}), a standalone
+\texttt{article} using only \texttt{geometry}, \texttt{amsmath},
+\texttt{amssymb}, \texttt{amsthm}, \texttt{array}, \texttt{parskip}, and
+\texttt{xeCJK}, designed to compile with \texttt{tectonic main.tex}.
+\item \textbf{PDF document} --- \texttt{build/main.pdf} is produced by the
+Tectonic build; the source is self-contained and uses no external figures or
+non-standard packages.
+\item \textbf{Lean 4 project} --- present under \texttt{lean4/}, with
+\texttt{lean-toolchain} (\texttt{leanprover\allowbreak/lean4\allowbreak:v4.33.1}),
+\texttt{lakefile.toml} (library \texttt{Main}), \texttt{Main.lean},
+\texttt{Check.lean}, and \texttt{lean4/README.md}. It formalises the witness's
+support values, the equality $\#\supp(f)+\#\supp(\fh)=6$, and the
+non-membership of the witness among time--frequency translates of affine
+functions. It is core Lean only and contains no \texttt{sorry}.
+\item \textbf{Reproduction} --- \texttt{reproduce.py} is pure standard-library
+Python~3 and verifies all numerical claims exactly.
+\end{itemize}
+
+\end{document}
