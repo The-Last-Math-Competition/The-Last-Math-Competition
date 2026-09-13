@@ -1,0 +1,258 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+
+\title{Disproof of conjecture \texttt{00000002048}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000002048} as stated. The refutation is
+unconditional and elementary: the conjecture's main claim already fails at the
+smallest non-trivial prime, $p = 5$, for the two-element set $A = \{0,1\}$. A
+general family shows that the failure is not an isolated accident.
+
+\section{The conjecture}
+
+\begin{definition}[3-fold sum]
+For a prime $p$ and a set $A \subseteq \F_p$, the \emph{3-fold sum} of $A$ is
+\[
+3A \;=\; \{\,x+y+z \bmod p \;:\; x, y, z \in A\,\} \;\subseteq\; \F_p .
+\]
+\end{definition}
+
+Quoted verbatim from \texttt{conjectures/00000002048.md}:
+
+\begin{quote}
+\textbf{Definition:} The 3-fold sum of $\F_p$ is the coverage of
+$\{x+y+z : x, y, z \in A\}$. \textbf{Conjecture:} For $|A| > (p-1)/3$, the
+3-fold sum covers $\F_p \setminus \{0\}$ (the threshold is exact); the threshold
+is optimal (attained critically by the cubic-residue set at the threshold).
+\end{quote}
+
+The claim consists of two parts: a \emph{coverage claim} ($3A \supseteq
+\F_p \setminus \{0\}$ whenever $|A| > (p-1)/3$) and an \emph{optimality claim}
+(the constant $(p-1)/3$ is exact, with the cubic-residue set attaining it
+critically). Both fail; the coverage claim fails first.
+
+\section{The counterexample at $p = 5$}
+
+\begin{theorem}\label{thm:witness}
+Let $p = 5$ and $A = \{0, 1\} \subseteq \F_5$. Then
+\[
+|A| = 2 \;>\; \tfrac{4}{3} = \tfrac{p-1}{3},
+\qquad
+3A = \{0, 1, 2, 3\},
+\qquad
+4 \notin 3A .
+\]
+In particular $3A$ does not contain the nonzero element $4$ of $\F_5$, so $3A
+\not\supseteq \F_5 \setminus \{0\}$.
+\end{theorem}
+
+\begin{proof}
+The set $A$ has two elements, and $2 > 4/3$ since $3 \cdot 2 = 6 > 4 = p-1$.
+The 3-fold sum is computed by enumerating the $2^3 = 8$ triples
+$(x,y,z) \in \{0,1\}^3$: the sum $x+y+z$ ranges over $\{0,1,2,3\}$. No
+wraparound occurs because $3 < 5$, so
+\[
+3A = \{0+0+0,\; 0+0+1,\; 0+1+1,\; 1+1+1\} = \{0,1,2,3\}
+\]
+as a subset of $\F_5$. The residue $4$ is not in this set: it is not the image
+of any of the eight triples. Since $4 \ne 0$ in $\F_5$, the element $4$ lies in
+$\F_5 \setminus \{0\}$ but not in $3A$.
+\end{proof}
+
+\begin{corollary}
+Conjecture \texttt{00000002048} is false. At $p = 5$ the hypothesis
+$|A| > (p-1)/3$ holds strictly for $A = \{0,1\}$, yet the conclusion fails.
+\end{corollary}
+
+\begin{remark}
+The threshold is far from exact. At $p = 5$ the hypothesis already holds for
+$|A| = 2$, and the conclusion fails; a set of size exactly $(p-1)/3 = 4/3$ does
+not even exist. Nothing here depends on the structure of $A$ beyond its size
+and its image under sums.
+\end{remark}
+
+\section{The general family $p \equiv 2 \pmod 3$}
+
+The witness is the first member of an infinite family.
+
+\begin{theorem}\label{thm:family}
+Let $p$ be a prime with $p \equiv 2 \pmod 3$, and let
+\[
+A \;=\; \Bigl\{\,0, 1, \dots, \frac{p-2}{3}\,\Bigr\} \;\subseteq\; \F_p .
+\]
+Then
+\[
+|A| \;=\; \frac{p+1}{3} \;>\; \frac{p-1}{3},
+\qquad
+3A \;=\; \{0, 1, \dots, p-2\},
+\qquad
+p - 1 \notin 3A .
+\]
+Consequently the conjecture's coverage claim fails for every such prime.
+\end{theorem}
+
+\begin{proof}
+Write $p = 3k + 2$ with $k \ge 0$, so that $(p-2)/3 = k$ and $A = \{0, \dots,
+k\}$. Then $|A| = k+1 = (p+1)/3$, and
+\[
+|A| = \frac{p+1}{3} > \frac{p-1}{3}
+\]
+because $p+1 > p-1$. This is the hypothesis of the conjecture.
+
+For the sum: every $x \in A$ satisfies $0 \le x \le k$, hence every triple
+$x,y,z \in A$ satisfies
+\[
+0 \;\le\; x + y + z \;\le\; 3k \;=\; p - 2 \;<\; p .
+\]
+As all sums lie strictly below $p$, no reduction modulo $p$ occurs, and
+\[
+3A \;=\; \{\,x+y+z \;:\; x,y,z \in \{0,\dots,k\}\,\}.
+\]
+Every integer between $0$ and $3k = p-2$ is a sum of three elements of
+$\{0,\dots,k\}$: for $t \in \{0,\dots,p-2\}$ take
+$a = \min(t, k)$, $b = \min(t-a, k)$ and $c = t-a-b$, so that $a,b,c \in
+\{0,\dots,k\}$ and $a+b+c = t$ (if $t \le k$ then $a = t$ and $b = c = 0$; if
+$t > k$ then $a = k$ and the remainder $t - k \le 2k$ is split between $b$ and
+$c$, each at most $k$). Hence
+\[
+3A = \{0, 1, \dots, p-2\}.
+\]
+In particular $p-1 \notin 3A$. Since $p-1 \ne 0$ in $\F_p$ (as $p \ge 2$), the
+element $p-1 \in \F_p \setminus \{0\}$ is not covered. So $3A \not\supseteq
+\F_p \setminus \{0\}$.
+\end{proof}
+
+\begin{remark}
+For $p = 5$ the family gives $k = 1$, $A = \{0,1\}$: exactly the witness of
+Theorem~\ref{thm:witness}, with $3A = \{0,1,2,3\}$ and $p-1 = 4$ missing.
+\end{remark}
+
+\begin{corollary}
+The coverage claim of conjecture \texttt{00000002048} is false for every prime
+$p \equiv 2 \pmod 3$, in particular for
+\[
+p = 5,\, 11,\, 17,\, 23,\, 29,\, 41,\, 47,\, 53,\, 59,\, 71,\, 83,\, 89.
+\]
+(Brute force in \texttt{reproduce.py} confirms each of these, and indeed every
+prime $p \le 100$ with $p \equiv 2 \pmod 3$.)
+\end{corollary}
+
+\section{Cauchy--Davenport does not save the claim}
+
+The natural response is that an additive-combinatorial lower bound might force
+$3A$ to be everything. It does not. Cauchy--Davenport states that for
+$A, B \subseteq \F_p$,
+\[
+|A + B| \;\ge\; \min\bigl(p,\; |A| + |B| - 1\bigr).
+\]
+Applying it twice to $A + A + A$ gives
+\[
+|3A| \;\ge\; \min\bigl(p,\; 3|A| - 2\bigr).
+\]
+
+\begin{proposition}\label{prop:cd}
+Let $p \equiv 2 \pmod 3$ and $|A| = (p+1)/3$. Then
+\[
+\min\bigl(p,\; 3|A| - 2\bigr) \;=\; p - 1 \;<\; p .
+\]
+\end{proposition}
+
+\begin{proof}
+With $p = 3k+2$ and $|A| = k+1$ we get $3|A| - 2 = 3k + 1 = p - 1 < p$, so the
+minimum is $p - 1$.
+\end{proof}
+
+Thus at the relevant size Cauchy--Davenport certifies only $|3A| \ge p-1$; it
+leaves room for exactly one missing residue, and for the family of
+Theorem~\ref{thm:family} the missing residue is $p-1$. The bound is sharp but
+strictly weaker than full coverage, so it cannot rescue the conjecture. In
+particular the conjecture cannot be repaired by appealing to
+Cauchy--Davenport at the threshold.
+
+\section{Numerical table}
+
+\begin{center}
+\begin{tabular}{r r r l l}
+\toprule
+$p$ & $|A|$ & $(p-1)/3$ & $3A$ & missing \\
+\midrule
+$5$  & $2$  & $4/3$    & $\{0,1,2,3\}$ & $4$ \\
+$11$ & $4$  & $10/3$   & $\{0,1,\dots,9\}$ & $10$ \\
+$17$ & $6$  & $16/3$   & $\{0,1,\dots,15\}$ & $16$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In each row $|A| > (p-1)/3$ and yet $3A = \{0, 1, \dots, p-2\}$ misses the
+nonzero residue $p-1$, so the coverage claim fails.
+
+\section{Reproducibility}
+
+The brute-force checks are carried out by \texttt{reproduce.py}, which uses the
+Python~3 standard library only:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(witness } p = 5 \textit{, the family table, and the checks)}\\
+PASS: all checks verified; conjecture 00000002048 is FALSE.
+\end{quote}
+
+It computes $3A$ for $A = \{0,1\} \subset \F_5$ by enumerating all eight
+triples, asserts $4 \notin 3A$ and $|A| = 2 > 4/3$, and repeats the check for
+the general family $A = \{0,\dots,(p-2)/3\}$ for every prime $p \le 100$ with
+$p \equiv 2 \pmod 3$, verifying in each case $3|A| > p-1$, $3A =
+\{0,\dots,p-2\}$ and $p - 1 \notin 3A$. It prints \texttt{PASS} and exits $0$
+exactly when every check holds.
+
+\section{Formalisation}
+
+The counterexample and the general family are formalised in the accompanying
+Lean~4 project under \texttt{lean4/}. It builds with \texttt{lake build} and is
+audited by \texttt{lake env lean Check.lean}, using core Lean only (no Mathlib)
+and no \texttt{sorry}. The 3-fold sum is defined concretely on residues of
+$\F_5$ represented as naturals reduced modulo $5$, and the main formal
+statements are
+
+\begin{quote}\ttfamily
+theorem witness\_sum3 : sum3 5 witnessA = [0,1,2,3]\\
+theorem witness\_misses\_four : (sum3 5 witnessA).contains 4 = false\\
+theorem conjecture\_00000002048\_false : coversNonzero 5 witnessA = false\\
+theorem family\_not\_cover (p) (hp : 2 \(\le\) p) :\\
+\hspace*{2em}coversNonzero p (familyA p) = false\\
+theorem family\_threshold (p) (hp : p \% 3 = 2) :\\
+\hspace*{2em}3 * (familyA p).length > p - 1
+\end{quote}
+
+\noindent Here \texttt{witnessA} is $A = \{0,1\}$ and \texttt{coversNonzero}
+is the conjecture's coverage predicate. The general theorem
+\texttt{family\_not\_cover} shows that for every $p \ge 2$ the residue $p-1$ is
+absent from the 3-fold sum of $\{0,\dots,(p-2)/3\}$, and \texttt{family\_threshold}
+shows that this set satisfies the conjecture's size hypothesis when $p \equiv 2
+\pmod 3$. The finite statements are discharged by \texttt{decide}; the general
+ones use the bound $x+y+z \le 3\,(p-2)/3 \le p-2 < p$ so that no reduction
+modulo $p$ occurs. See \texttt{lean4/README.md} for the full statement table and
+scope.
+
+\end{document}
