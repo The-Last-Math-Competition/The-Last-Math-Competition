@@ -1,0 +1,236 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newcommand{\mex}{\operatorname{mex}}
+\newcommand{\Sg}{g}
+
+\title{A disproof of conjecture 00000001202\\[2pt]
+  \large Octal game \texttt{0.07} is not eventually $(12,4)$-periodic}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000001202 asserts that the Sprague--Grundy sequence of the
+octal game \texttt{0.07} is eventually periodic with period $12$ and
+pre-period length $4$, i.e.\ that $\Sg(n+12)=\Sg(n)$ for all
+$n\ge 4$. We show the conjecture is \emph{false} under both natural
+readings of the definition. Under the standard octal reading
+($d_1=0$, $d_2=7$; a move removes exactly two tokens) the game is
+Dawson's Kayles and the identity already fails at $n=4$:
+$\Sg(4)=2$ whereas $\Sg(16)=5$. The true eventual period is $34$ with
+pre-period $53$. Under the conjecture's own prose reading (``a move
+removes $1$ or $2$ tokens'', i.e.\ octal \texttt{0.77}, Kayles) the
+period $12$ is correct but the pre-period is $71$, not $4$; the identity
+fails first at $n=10$, where $\Sg(10)=2$ but $\Sg(22)=6$. In both cases
+the asserted universality from $n\ge 4$ is refuted. The counterexample
+is formalised in core Lean~4 and reproduced by a standalone Python
+script.
+\end{abstract}
+
+\section{Octal games and Sprague--Grundy values}
+
+An \emph{octal game} is played on heaps of tokens. A move chooses a heap
+of size $n$, removes exactly $k\ge 1$ tokens from it, and splits the
+resulting $n-k$ tokens into some number of heaps. The game is encoded by
+a sequence of octal digits $d_1d_2d_3\dots$, where the binary expansion
+of $d_k$ records which splits of the remainder are legal (bit
+$j$ corresponds to splitting the remainder into $j$ heaps). The
+Sprague--Grundy (SG) value $\Sg(n)$ of a single heap of size $n$ is
+\begin{equation}\label{eq:sg}
+  \Sg(n)=\mex\bigl\{\,\Sg(a)\oplus\Sg(b)\;:\;\text{legal move to heaps }
+  a,b\,\bigr\},
+\end{equation}
+where $\oplus$ is the bitwise XOR (nim-sum), and
+$\mex S=\min(\mathbb{N}\setminus S)$.
+
+The conjecture fixes the game ``\texttt{0.07}'' and offers two prose
+descriptions, which unfortunately determine different games.
+
+\subsection{Reading A: standard octal \texttt{0.07} (Dawson's Kayles)}
+
+Here $d_1=0$ and $d_2=7=111_2$. Thus \emph{no} move may remove a single
+token, while a move may remove exactly two tokens and may split the
+remaining $n-2$ tokens into $0$, $1$, or $2$ heaps (all three splits are
+legal). Taking $a,b\ge 0$ as the resulting heap sizes, \eqref{eq:sg}
+becomes, for $n\ge 2$,
+\begin{equation}\label{eq:007}
+  \boxed{\;\Sg(n)=\mex\bigl\{\,\Sg(a)\oplus\Sg(b)\;:\;a+b=n-2\,\bigr\},}
+\end{equation}
+with no legal move for $n<2$ (so $\Sg(0)=\Sg(1)=0$). This is
+\emph{Dawson's Kayles}.
+
+\subsection{Reading B: the prose ``removes $1$ or $2$ tokens'' (octal \texttt{0.77})}
+
+If one instead allows removal of either one or two tokens, both with all
+three splits of the remainder, the game is \texttt{0.77}
+($d_1=d_2=7$), i.e.\ \emph{Kayles}, and \eqref{eq:sg} becomes
+\begin{equation}\label{eq:077}
+  \Sg(n)=\mex\Bigl(
+    \bigl\{\Sg(a)\oplus\Sg(b):a+b=n-1\bigr\}
+    \;\cup\;
+    \bigl\{\Sg(a)\oplus\Sg(b):a+b=n-2\bigr\}
+  \Bigr).
+\end{equation}
+So \texttt{0.07} is \emph{not} literally ``remove $1$ or $2$ tokens'':
+the two descriptions in the conjecture are inconsistent.
+
+\section{The conjectured statement}
+
+The conjecture claims
+\begin{equation}\label{eq:claim}
+  \Sg(n+12)=\Sg(n)\qquad\text{for all }n\ge 4,
+\end{equation}
+i.e.\ eventual period $12$ with pre-period length $4$ (the values
+$\Sg(0),\dots,\Sg(3)$ being the exceptional pre-period). We refute
+\eqref{eq:claim} under both readings.
+
+\section{Reading A: the identity fails at $n=4$}
+
+Iterating \eqref{eq:007} gives the following initial values.
+
+\begin{center}
+\begin{tabular}{c|cccccccccccccccccc}
+$n$      & 0&1&2&3&4&5&6&7&8&9&10&11&12&13&14&15&16&17\\
+\hline
+$\Sg(n)$ & 0&0&1&1&2&0&3&1&1&0&3&3&2&2&4&0&5&2
+\end{tabular}
+\end{center}
+
+In particular
+\[
+  \Sg(4)=2,\qquad \Sg(16)=5 .
+\]
+Since $16=4+12$, the conjectured identity \eqref{eq:claim} would force
+$\Sg(16)=\Sg(4)$; instead $\Sg(16)=5\ne 2=\Sg(4)$. And $n=4$ is the
+\emph{first} index at which \eqref{eq:claim} fails, so the failure is as
+early as possible.
+
+\begin{theorem}[Refutation at $n=4$]\label{thm:main}
+Under reading A, $\Sg(4)\ne\Sg(16)$; indeed $\Sg(4)=2$ and
+$\Sg(16)=5$. Consequently \eqref{eq:claim} is false.
+\end{theorem}
+\begin{proof}
+Direct evaluation of \eqref{eq:007}. The reachable nim-sums for $n=4$
+are $\Sg(0)\oplus\Sg(2)=0\oplus1=1$, $\Sg(1)\oplus\Sg(1)=0$, and
+$\Sg(2)\oplus\Sg(0)=1$, so $\mex\{0,1\}=2$. For $n=16$ the values are
+$\Sg(0..14)=(0,0,1,1,2,0,3,1,1,0,3,3,2,2,4)$; the reachable set is
+$\{0,1,2,3,4\}$ and hence $\Sg(16)=\mex\{0,1,2,3,4\}=5$. These
+computations are reproduced exactly by the Lean formalisation
+(Theorem \texttt{period12\_fails\_at\_4} in \texttt{lean4/Main.lean})
+and by \texttt{reproduce.py}.
+\end{proof}
+
+\section{Reading A: the true eventual period is $34$, pre-period $53$}
+
+Exhaustive computation of \eqref{eq:007} shows that the sequence
+eventually has period $34$, and $53$ is the smallest index from which
+that period holds. That is,
+\[
+  \Sg(n+34)=\Sg(n)\qquad\text{for all }n\ge 53,
+\]
+and no smaller period works from any smaller index. In particular the
+conjectured ``period $12$, pre-period $4$'' is wrong on both counts
+(the statement's own table of values already contradicts it at $n=4$).
+We verified this to $n=1000$ with \texttt{reproduce.py}; the value
+$\Sg(53+d)$ is confirmed to agree with $\Sg(53+34+d)$ throughout the
+computed range $d=0,\dots,913$.
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+object & value \\
+\hline
+claimed period & $12$ \\
+claimed pre-period & $4$ \\
+true eventual period of \texttt{0.07} & $\mathbf{34}$ \\
+true pre-period of \texttt{0.07} & $\mathbf{53}$ \\
+first failure of $\Sg(n+12)=\Sg(n)$ for $n\ge4$ & $n=4$ \\
+witness & $\Sg(4)=2\ne5=\Sg(16)$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Reading B: period $12$ is right, but the pre-period is $71$}
+
+For the prose reading, i.e.\ octal \texttt{0.77} and recurrence
+\eqref{eq:077}, the initial values are
+\begin{center}
+\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{c|cccccccccccccccccccccccc}
+$n$      & 0&1&2&3&4&5&6&7&8&9&10&11&12&13&14&15&16&17&18&19&20&21&22&23\\
+\hline
+$\Sg(n)$ & 0&1&2&3&1&4&3&2&1&4&2&6&4&1&2&7&1&4&3&2&1&4&6&7
+\end{tabular}
+\end{center}
+Here the eventual period really is $12$, but the pre-period is $71$, not
+$4$. Consequently \eqref{eq:claim} still fails: the first index
+$n\ge4$ with $\Sg(n+12)\ne\Sg(n)$ is
+\[
+  n=10,\qquad \Sg(10)=2,\qquad \Sg(22)=6 .
+\]
+Thus even granting the prose reading, the claimed universality from
+$n\ge4$ is false.
+
+\begin{center}
+\begin{tabular}{ll}
+\hline
+object & value \\
+\hline
+claimed pre-period & $4$ \\
+true eventual period of \texttt{0.77} & $12$ \\
+true pre-period of \texttt{0.77} & $\mathbf{71}$ \\
+first failure of $\Sg(n+12)=\Sg(n)$ for $n\ge4$ & $n=10$ \\
+witness & $\Sg(10)=2\ne6=\Sg(22)$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Numerical and formal verification}
+
+\paragraph{Numerical.} \texttt{reproduce.py} (standard library only)
+implements both recurrences \eqref{eq:007} and \eqref{eq:077}, computes
+$\Sg(n)$ for $0\le n\le1000$ ($\ge 800$, as required), finds the first
+$n\ge4$ violating $\Sg(n+12)=\Sg(n)$, and searches for the true eventual
+period and minimal pre-period with a confirmation window of hundreds of
+terms. It prints value tables and PASS/FAIL lines and exits with
+status~$0$. For \texttt{0.07} it reports first failure $n=4$
+($2$ vs.\ $5$), period $34$, pre-period $53$; for \texttt{0.77} it
+reports first failure $n=10$ ($2$ vs.\ $6$), period $12$, pre-period
+$71$.
+
+\paragraph{Formal.} The Lean~4 development in \texttt{lean4/} uses core
+Lean only (\texttt{import Std}, no Mathlib, no \texttt{sorry}, no
+\texttt{axiom}, no \texttt{native\_decide}). It defines the fueled
+$\mex$ and the computable recurrence \eqref{eq:007} by structural
+recursion, then proves by kernel evaluation
+\[
+  \Sg(4)=2,\qquad \Sg(16)=5,\qquad \Sg(4)\ne\Sg(16),
+\]
+and packages them as \texttt{conjecture\_00000001202\_false}. The
+eventual period $34$ / pre-period $53$ (and the reading-B data) are
+established numerically, not in Lean; the formalisation deliberately
+covers the concrete refuting instance $n=4$.
+
+\section{Conclusion}
+
+Conjecture 00000001202 is \textbf{false}. Under the standard reading of
+octal \texttt{0.07} (Dawson's Kayles) the claimed identity
+$\Sg(n+12)=\Sg(n)$ for all $n\ge4$ fails immediately at $n=4$, where
+$\Sg(4)=2$ but $\Sg(16)=5$; the true eventual period and pre-period are
+$34$ and $53$. Under the conjecture's own prose reading (octal
+\texttt{0.77}, Kayles) the period $12$ is correct but the pre-period is
+$71$, so the identity still fails (first at $n=10$, $\Sg(10)=2$ vs.\
+$\Sg(22)=6$). The counterexample is reproduced by \texttt{reproduce.py}
+and formalised in \texttt{lean4/}.
+
+\end{document}
