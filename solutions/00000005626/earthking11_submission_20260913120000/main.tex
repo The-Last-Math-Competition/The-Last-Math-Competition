@@ -1,0 +1,223 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\title{Conjecture 00000005626 is False:\\ a Six-Point Set in General Position with No Empty Pentagon}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We refute conjecture 00000005626, which asserts that every $6$-point subset
+of the plane in general position contains an empty pentagon.  We exhibit an
+explicit six-point set in general position whose number of empty pentagons
+is zero.  The example is a convex pentagon with one strictly interior point,
+with all coordinates integral so that every verification is exact.  We also
+note that the conjecture's additional clause about a ``unique Horton-type
+counterexample family'' is incoherent, and recall that the correct threshold
+for the empty-pentagon problem is $10$ points ($9$-point Horton sets are
+extremal).
+\end{abstract}
+
+\section{The conjecture}
+
+Conjecture 00000005626 (translated) concerns the empty-polygon spectrum of
+Horton-type recursive constructions and includes the following two claims:
+
+\begin{enumerate}
+\item[(C1)] every $6$-point subset of the plane in general position contains
+an empty pentagon;
+\item[(C2)] Horton type is the unique counterexample family.
+\end{enumerate}
+
+We show that (C1) is false by producing a six-point set in general position
+that contains no empty pentagon.
+
+\section{Empty pentagons}
+
+\begin{definition}[empty pentagon]
+A $5$-element subset $S$ of a finite point set $X$ is an \emph{empty
+pentagon} if
+\begin{enumerate}
+\item[(i)] $S$ is in \emph{strictly convex position}, i.e.\ every one of its
+five points is an extreme point of $\operatorname{conv}(S)$; and
+\item[(ii)] $\operatorname{conv}(S)$ contains no other point of $X$.
+\end{enumerate}
+\end{definition}
+
+Thus a $5$-subset fails to be an empty pentagon if some of its points is
+interior to the hull of the other four (or lies on an edge, so is not an
+extreme point), or if the one omitted point of $X$ lies in
+$\operatorname{conv}(S)$.
+
+\section{The counterexample}
+
+Let
+\begin{equation}
+P_1=(0,0),\quad P_2=(4,0),\quad P_3=(5,2),\quad P_4=(2,4),\quad P_5=(-1,2),
+\end{equation}
+and let
+\begin{equation}
+C=(2,1).
+\end{equation}
+Let $X=\{P_1,\dots,P_5,C\}$.
+
+For points $o,a,b\in\mathbb{Z}^2$ define the oriented cross product
+\begin{equation}
+\operatorname{cross}(o,a,b)
+  =(a_1-o_1)(b_2-o_2)-(a_2-o_2)(b_1-o_1)\in\mathbb{Z}.
+\end{equation}
+It is positive when $o\to a\to b$ is a left turn, negative for a right turn,
+and zero when the three points are collinear.
+
+\begin{remark}[why not the obvious centre $(2,2)$]
+The lattice point $(2,2)$ is collinear with $P_3=(5,2)$ and $P_5=(-1,2)$,
+since all three have second coordinate $2$.  Hence $\{P_1,\dots,P_5,(2,2)\}$
+is \emph{not} in general position, and cannot serve as a counterexample to
+(C1).  Among all lattice points strictly interior to the pentagon,
+$C=(2,1)$ is the unique one that is strictly inside the hull of every four
+of the five outer vertices and keeps the six-point set in general position;
+this was verified by exhaustive finite search (see \texttt{reproduce.py}).
+\end{remark}
+
+\section{Verification}
+
+\subsection{General position}
+
+\begin{lemma}
+No three points of $X$ are collinear, i.e.\ $X$ is in general position.
+\end{lemma}
+
+\begin{proof}
+There are $\binom{6}{3}=20$ triples.  Direct exact integer computation gives
+$\operatorname{cross}\neq 0$ for all of them.  Equivalently, the Lean theorem
+\texttt{general\_position} proves this by kernel evaluation.
+\end{proof}
+
+\subsection{The outer five points are strictly convex}
+
+The five consecutive cross products of the outer pentagon are
+\begin{equation}
+\begin{aligned}
+\operatorname{cross}(P_1,P_2,P_3)&=8, &
+\operatorname{cross}(P_2,P_3,P_4)&=8, &
+\operatorname{cross}(P_3,P_4,P_5)&=12,\\
+\operatorname{cross}(P_4,P_5,P_1)&=8, &
+\operatorname{cross}(P_5,P_1,P_2)&=8. &&
+\end{aligned}
+\end{equation}
+All are strictly positive, so $P_1P_2P_3P_4P_5$ is a strictly convex
+counter-clockwise pentagon.
+
+\subsection{The centre is strictly interior}
+
+For a counter-clockwise convex polygon, a point lies strictly inside iff it
+is strictly to the left of every directed edge.  For $C=(2,1)$ we obtain
+\begin{equation}
+\operatorname{cross}(P_1,P_2,C)=4,\quad
+\operatorname{cross}(P_2,P_3,C)=5,\quad
+\operatorname{cross}(P_3,P_4,C)=9,
+\end{equation}
+\begin{equation}
+\operatorname{cross}(P_4,P_5,C)=9,\quad
+\operatorname{cross}(P_5,P_1,C)=5.
+\end{equation}
+All are strictly positive, so $C$ is strictly inside
+$\operatorname{conv}(P_1,\dots,P_5)$.  In fact, checking the four edges of
+each of the five quadrilaterals obtained by deleting one outer vertex shows
+that $C$ is strictly inside the hull of \emph{every} four of the five outer
+vertices.
+
+\subsection{There is no empty pentagon}
+
+The six $5$-subsets of $X$ are as follows.
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+$5$-subset & omitted & why it is not an empty pentagon\\
+\midrule
+$\{P_1,P_2,P_3,P_4,P_5\}$ & $C$ & strictly convex, but $C\in\operatorname{conv}(\cdot)$\\
+$\{P_2,P_3,P_4,P_5,C\}$ & $P_1$ & $C$ non-extreme, not convex position\\
+$\{P_1,P_3,P_4,P_5,C\}$ & $P_2$ & $C$ non-extreme, not convex position\\
+$\{P_1,P_2,P_4,P_5,C\}$ & $P_3$ & $C$ non-extreme, not convex position\\
+$\{P_1,P_2,P_3,P_5,C\}$ & $P_4$ & $C$ non-extreme, not convex position\\
+$\{P_1,P_2,P_3,P_4,C\}$ & $P_5$ & $C$ non-extreme, not convex position\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Indeed, in the first subset the hull of the five outer points contains the
+interior point $C$, so condition (ii) fails.  In each of the remaining five
+subsets the point $C$ lies strictly inside the hull of the four outer
+vertices present, hence is not an extreme point; condition (i) fails.
+
+\begin{theorem}
+The set $X$ is in general position and contains zero empty pentagons.
+Consequently claim (C1) of conjecture 00000005626 is false.
+\end{theorem}
+
+\begin{proof}
+Immediate from the three lemmas above: enumerate the six $5$-subsets as in
+the table.  For each, either strict convexity or emptiness fails.  Hence the
+number of empty pentagons is $0$.
+\end{proof}
+
+This generalises: an $(n-1)$-point strictly convex polygon together with a
+single strictly interior point has no empty $n$-gon, because the interior
+point lies in the hull of every $n$-subset omitting it, while in any
+$n$-subset containing it, it is non-extreme.
+
+\section{The second clause is incoherent}
+
+Clause (C2) says that Horton type is the unique counterexample family.  But
+(C1) asserts that \emph{every} general-position $6$-point set contains an
+empty pentagon.  If (C1) were true there would be no counterexample family
+at all, so no ``unique counterexample family'' could exist.  The two clauses
+cannot both be meaningful.  Our counterexample is not of Horton type: it is
+a convex pentagon with one interior point.
+
+\section{The correct threshold is $10$}
+
+The empty-pentagon problem has sharp threshold $10$: there exist
+$9$-point sets in general position with no empty pentagon, the classical
+extremal examples being nine-point \emph{Horton sets}, while every
+$10$-point set in general position in the plane contains an empty pentagon.
+Thus the threshold asserted implicitly by (C1) (namely $6$) is far too low;
+our six-point example is a small explicit witness.
+
+\section{Formal and computational verification}
+
+All claims above were checked mechanically.
+
+\begin{itemize}
+\item \texttt{lean4/} contains a Lean~4 formalisation on toolchain
+\texttt{leanprover/lean4:v4.33.1}, using only core Lean and \texttt{Std}
+(no Mathlib, no $\mathbb{R}$, no \texttt{sorry}, no \texttt{axiom}, no
+\texttt{native\_decide}).  Points are integer pairs; all geometry is exact
+\texttt{Int} arithmetic; all proofs are by kernel \texttt{decide}.  The
+theorems \texttt{general\_position}, \texttt{pentagon\_strictly\_convex},
+\texttt{centre\_strictly\_inside}, \texttt{no\_empty\_pentagon}, and
+\texttt{conjecture\_00000005626\_false} each depend on \emph{no axioms}.
+\item \texttt{reproduce.py} (standard library only) verifies general
+position, strict convexity, strict interiority, and that the empty-pentagon
+count over all $\binom{6}{5}=6$ subsets is $0$, using exact integer
+arithmetic; it also repeats the count for a regular pentagon plus its centre
+using \texttt{sympy} when available.  It prints \texttt{PASS} and exits $0$.
+\end{itemize}
+
+\end{document}
