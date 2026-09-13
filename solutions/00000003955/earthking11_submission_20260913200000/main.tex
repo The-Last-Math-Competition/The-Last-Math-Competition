@@ -1,0 +1,372 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+% CJK support for the bilingual quotation of the conjecture.  The main CJK
+% font is chosen from the fonts available on the building machine; if none is
+% present the document still compiles (with missing-glyph warnings for the
+% Chinese quotation only).
+\usepackage{xeCJK}
+\IfFontExistsTF{FandolSong-Regular}{\setCJKmainfont{FandolSong-Regular}}{%
+  \IfFontExistsTF{Noto Serif CJK SC}{\setCJKmainfont{Noto Serif CJK SC}}{%
+    \IfFontExistsTF{PingFang SC}{\setCJKmainfont{PingFang SC}}{%
+      \IfFontExistsTF{Songti SC}{\setCJKmainfont{Songti SC}}{%
+        \IfFontExistsTF{STSong}{\setCJKmainfont{STSong}}{}}}}}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\rw}{\operatorname{rw}}
+\newcommand{\tw}{\operatorname{tw}}
+\DeclareMathOperator{\cutrk}{cutrk}
+\DeclareMathOperator{\rank}{rank}
+
+\title{Disproof of conjecture \texttt{00000003955}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000003955} as stated. The conjecture is built
+on the assertion that rank-width $r$ and treewidth $t$ always satisfy the
+``classical inequality''
+\begin{equation}\label{eq:conj-ineq}
+t \;\le\; 3r - 1 .
+\end{equation}
+That inequality is already false, and it fails at the smallest non-trivial
+complete graph: $K_4$ has rank-width $1$ and treewidth $3$, so
+\[
+t \;=\; 3 \;>\; 2 \;=\; 3\cdot 1 - 1 \;=\; 3r - 1 .
+\]
+Because the claimed inequality is false, the follow-up assertions of the
+conjecture (that the constant $3$ is optimal, and that a family of rank-width
+$r$ and treewidth exactly $3r-1$ exists) cannot be established on the stated
+basis. In fact the situation is far worse than a wrong constant: we show that
+\[
+\rw(K_n) = 1, \qquad \tw(K_n) = n - 1 \qquad (n \ge 2),
+\]
+so the treewidth of a graph is \emph{not bounded by any function of its
+rank-width}. The constant $3$ is therefore neither optimal nor even meaningful:
+no inequality of the form $t \le f(r)$ can hold. The smallest counterexample is
+$K_4$; the inequality $t \le 3r-1$ happens to hold for $K_2$ ($1 \le 2$) and is
+saturated at $K_3$ ($2 = 3\cdot 1 - 1$), but fails for every $K_n$ with
+$n \ge 4$.
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000003955.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The rank-width is a width parameter satisfying,
+with treewidth $t$, the classical inequality $t \le 3r - 1$. Conjecture: The
+constant $3$ in the inequality $t \le 3r - 1$ is optimal, with an explicit
+family of graphs of rank-width $r$ and treewidth exactly $3r - 1$; moreover the
+kernelization kernel size for distance-hereditary graphs is constant. (optimal
+rank-width-treewidth constant)
+\end{quote}
+
+\begin{quote}
+\textbf{中文。} 定义：rank-width 指宽度参数，与树宽满足 $t \le 3r - 1$ 的经典不等式。
+猜想：不等式 $t \le 3r - 1$ 中的常数 $3$ 最优，存在秩宽 $r$ 树宽恰 $3r - 1$ 的显式图族；
+且距离遗传图的核化核尺寸为常数。（秩宽-树宽常数最优）
+\end{quote}
+
+The conjecture contains a definitional premise, namely \eqref{eq:conj-ineq}, and
+two claims resting on it. Refuting the premise refutes the conjecture: a
+conjecture whose stated definition is false cannot be correct. We therefore
+concentrate on \eqref{eq:conj-ineq}.
+
+\section{Definitions}
+
+\begin{definition}[Cut-rank over $\mathrm{GF}(2)$]\label{def:cutrank}
+Let $G = (V,E)$ be a finite simple graph and let $(X, Y)$ be a bipartition of
+$V$ (so $X \cap Y = \emptyset$ and $X \cup Y = V$). The \emph{cut matrix} of
+$(X,Y)$ is the $|X| \times |Y|$ matrix $A = A(G, X, Y)$ over
+$\mathrm{GF}(2)$ with
+\[
+A_{xy} \;=\;
+\begin{cases}
+1 & \text{if } xy \in E,\\
+0 & \text{otherwise,}
+\end{cases}
+\qquad x \in X,\ y \in Y .
+\]
+The \emph{cut-rank} of $(X,Y)$ is
+$\cutrk_G(X,Y) = \rank_{\mathrm{GF}(2)} A(G,X,Y)$.
+\end{definition}
+
+\begin{definition}[Rank-width \cite{oum2005,oum2009}]\label{def:rw}
+A \emph{rank-decomposition} of $G$ is a pair $(T,\tau)$ where $T$ is a binary
+tree with $|V|$ leaves and $\tau \colon V \to L(T)$ is a bijection from the
+vertices to the leaves. For an edge $e$ of $T$, deleting $e$ splits the leaves
+into two classes $X_e, Y_e$, and hence splits $V$ into a bipartition $(X_e,
+Y_e)$. The \emph{width} of $(T,\tau)$ is
+\[
+\max_{e \in E(T)} \cutrk_G(X_e, Y_e),
+\]
+and the \emph{rank-width} of $G$ is
+\[
+\rw(G) \;=\; \min_{(T,\tau)} \ \max_{e \in E(T)} \cutrk_G(X_e, Y_e),
+\]
+the minimum being over all rank-decompositions of $G$.
+\end{definition}
+
+\begin{definition}[Tree decomposition and treewidth]\label{def:tw}
+A \emph{tree decomposition} of $G=(V,E)$ is a pair $\bigl(T, \{B_t\}_{t \in
+V(T)}\bigr)$, where $T$ is a tree and each \emph{bag} $B_t$ is a subset of $V$,
+such that:
+\begin{enumerate}
+\item[(i)] $\bigcup_{t} B_t = V$;
+\item[(ii)] for every edge $uv \in E$ there is a node $t$ with
+$u, v \in B_t$;
+\item[(iii)] for every $v \in V$, the set $\{t : v \in B_t\}$ induces a
+connected subtree of $T$.
+\end{enumerate}
+The \emph{width} of the decomposition is $\max_t |B_t| - 1$, and the
+\emph{treewidth} $\tw(G)$ is the minimum width over all tree decompositions
+of $G$.
+\end{definition}
+
+\begin{remark}
+The two parameters are of very different natures. Rank-width is a
+\emph{min-max} parameter over all bipartitions arising in rank-decompositions,
+while treewidth is a min-max parameter over tree decompositions. That the two
+can be arbitrarily far apart is exactly what the complete graphs exhibit.
+\end{remark}
+
+\section{Rank-width of $K_4$ is $1$}
+
+Let $K_4$ have vertex set $V = \{0,1,2,3\}$, with $ij \in E$ for all distinct
+$i,j$.
+
+\begin{lemma}[Cuts of a complete graph]\label{lem:cut-kn}
+Let $n \ge 2$ and let $(X,Y)$ be a bipartition of $V(K_n)$ with $X, Y \ne
+\emptyset$. Then every entry of the cut matrix $A(K_n, X, Y)$ equals $1$, and
+\[
+\rank_{\mathrm{GF}(2)} A(K_n, X, Y) \;=\; 1 .
+\]
+\end{lemma}
+
+\begin{proof}
+For $x \in X$ and $y \in Y$ we have $x \ne y$ because $X$ and $Y$ are
+disjoint, hence $xy \in E(K_n)$; therefore $A_{xy} = 1$ for every pair
+$(x,y)$. Write $\mathbf{1}_X \in \mathrm{GF}(2)^{|X|}$ and $\mathbf{1}_Y \in
+\mathrm{GF}(2)^{|Y|}$ for the all-ones column vectors. Then $A =
+\mathbf{1}_X \mathbf{1}_Y^{\!\top}$ is an outer product, so
+$\rank A \le 1$. Since $A \ne 0$ (both sides are nonempty, so $A$ has at least
+one entry, and that entry is $1$), $\rank A \ge 1$. Hence $\rank A = 1$.
+\end{proof}
+
+\begin{proposition}\label{prop:rw-k4}
+$\rw(K_4) = 1$.
+\end{proposition}
+
+\begin{proof}
+\emph{Upper bound $\rw(K_4) \le 1$.} The seven bipartitions of a four-element
+set, up to swapping the two sides, are
+\[
+\{0\}|\{1,2,3\},\quad \{1\}|\{0,2,3\},\quad \{2\}|\{0,1,3\},\quad
+\{3\}|\{0,1,2\},
+\]
+\[
+\{0,1\}|\{2,3\},\quad \{0,2\}|\{1,3\},\quad \{0,3\}|\{1,2\}.
+\]
+By Lemma~\ref{lem:cut-kn}, every one of these has cut-rank $1$. Now take the
+\emph{caterpillar} rank-decomposition of $K_4$ that splits off one vertex at a
+time. Its internal edges induce precisely the cuts
+\[
+\{0\} \mid \{1,2,3\}, \qquad \{1\} \mid \{2,3\}, \qquad \{2\} \mid \{3\},
+\]
+each of cut-rank $1$ by Lemma~\ref{lem:cut-kn}. Hence this
+rank-decomposition has width $1$, so $\rw(K_4) \le 1$.
+
+\emph{Lower bound $\rw(K_4) \ge 1$.} Let $(T,\tau)$ be any rank-decomposition
+of $K_4$. Its root edge splits $V$ into two nonempty classes $X, Y$ (a binary
+tree with $|V| \ge 2$ leaves has a nontrivial root split), and this
+bipartition is one of the seven above, so by Lemma~\ref{lem:cut-kn} it has
+cut-rank $1$. Therefore the width of $(T,\tau)$ is at least $1$; since
+$(T,\tau)$ was arbitrary, $\rw(K_4) \ge 1$.
+
+Combining, $\rw(K_4) = 1$.
+\end{proof}
+
+\begin{remark}
+The same argument gives $\rw(K_n) \le 1$ for every $n \ge 2$ (split off one
+vertex at a time; every cut is a complete bipartite cut, of rank $1$) and
+$\rw(K_n) \ge 1$ because $K_n$ has an edge and a rank-decomposition of width
+$0$ would force every cut matrix to vanish, i.e.\ an edgeless graph. Hence
+$\rw(K_n) = 1$ for all $n \ge 2$.
+\end{remark}
+
+\section{Treewidth of $K_4$ is $3$}
+
+\begin{lemma}[Minimum-degree bound]\label{lem:min-degree}
+Let $G$ be a graph with at least one vertex and $\tw(G) \le w$. Then $G$ has a
+vertex of degree at most $w$.
+\end{lemma}
+
+\begin{proof}
+Let $\bigl(T, \{B_t\}\bigr)$ be a tree decomposition of $G$ of width at most
+$w$. We first reduce the decomposition so that no leaf bag is contained in its
+neighbour's bag. If $t$ is a leaf of $T$ and $B_t \subseteq B_{t'}$ for its
+unique neighbour $t'$, delete $t$ from $T$: conditions (i) and (ii) of
+Definition~\ref{def:tw} remain true because every vertex of $B_t$ is also in
+$B_{t'}$, and condition (iii) remains true because removing a leaf from a
+connected subtree leaves it connected; the width does not increase. Repeating
+this finitely many times (each step removes a node) yields a decomposition of
+width at most $w$ in which no leaf bag is contained in its neighbour's bag
+(and in the base case where $T$ has a single node, the argument below applies
+directly).
+
+If $T$ has a single node $t$, then $B_t = V$ by condition (i), so for any
+vertex $v$ all its neighbours lie in $B_t$ and $\deg(v) \le |B_t| - 1 \le w$.
+
+Otherwise $T$ has at least two nodes. Let $t$ be a leaf and $t'$ its
+neighbour. By the reduction, $B_t \not\subseteq B_{t'}$, so choose $v \in B_t
+\setminus B_{t'}$. We claim $v$ lies in no other bag: by condition (iii) the
+bags containing $v$ form a connected subtree $T_v$ of $T$ containing the leaf
+$t$; a connected subtree containing a leaf either is the singleton $\{t\}$ or
+contains the neighbour $t'$. The second alternative is impossible because
+$v \notin B_{t'}$. Hence $T_v = \{t\}$. Now let $u$ be any neighbour of $v$;
+by condition (ii) some bag contains both $u$ and $v$, and since the only bag
+containing $v$ is $B_t$, we get $u \in B_t$. Thus every neighbour of $v$ lies
+in $B_t$, so
+\[
+\deg(v) \;\le\; |B_t| - 1 \;\le\; w . \qedhere
+\]
+\end{proof}
+
+\begin{corollary}\label{cor:delta}
+For every graph $G$ with at least one vertex, $\tw(G) \ge \delta(G)$, where
+$\delta(G)$ is the minimum degree of $G$.
+\end{corollary}
+
+\begin{proof}
+If $\tw(G) \le w$ then by Lemma~\ref{lem:min-degree} some vertex has degree
+$\le w$; in particular $w \ge \delta(G)$. Taking $w = \tw(G)$ gives
+$\tw(G) \ge \delta(G)$.
+\end{proof}
+
+\begin{proposition}\label{prop:tw-k4}
+$\tw(K_4) = 3$.
+\end{proposition}
+
+\begin{proof}
+\emph{Upper bound $\tw(K_4) \le 3$.} The tree $T$ with a single node $t$ and
+the single bag $B_t = \{0,1,2,3\}$ is a tree decomposition: (i) holds since
+$B_t = V$; (ii) holds since both endpoints of every edge lie in $B_t$; (iii)
+holds trivially. Its width is $|B_t| - 1 = 3$. Hence $\tw(K_4) \le 3$.
+
+\emph{Lower bound $\tw(K_4) \ge 3$.} Every vertex of $K_4$ is adjacent to the
+other three, so $\delta(K_4) = 3$. By Corollary~\ref{cor:delta}, $\tw(K_4) \ge
+\delta(K_4) = 3$.
+
+Combining, $\tw(K_4) = 3$.
+\end{proof}
+
+\section{The inequality $t \le 3r-1$ fails}
+
+\begin{theorem}\label{thm:main}
+Conjecture \texttt{00000003955} is false. The graph $K_4$ has rank-width
+$r = \rw(K_4) = 1$ and treewidth $t = \tw(K_4) = 3$, and
+\[
+t \;=\; 3 \;>\; 2 \;=\; 3 \cdot 1 - 1 \;=\; 3r - 1 .
+\]
+Thus the stated ``classical inequality'' $t \le 3r-1$ is false, and with it
+the conjecture that rests on it.
+\end{theorem}
+
+\begin{proof}
+Combine Proposition~\ref{prop:rw-k4} ($r=1$), Proposition~\ref{prop:tw-k4}
+($t=3$), and $3 > 3\cdot 1 - 1 = 2$.
+\end{proof}
+
+\begin{theorem}[No function bounds treewidth by rank-width]\label{thm:no-function}
+For every $n \ge 2$,
+\[
+\rw(K_n) = 1, \qquad \tw(K_n) = n - 1 .
+\]
+Consequently there is no function $f \colon \mathbb{N} \to \mathbb{N}$ such that
+$\tw(G) \le f(\rw(G))$ for all graphs $G$.
+\end{theorem}
+
+\begin{proof}
+The rank-width statement is the remark following
+Proposition~\ref{prop:rw-k4}. For the treewidth: the single bag $\{0,\dots,n-1\}$
+gives $\tw(K_n) \le n-1$, while every vertex has degree $n-1$, so
+Corollary~\ref{cor:delta} gives $\tw(K_n) \ge n-1$; hence $\tw(K_n) = n-1$.
+Now let $f$ be any function and choose $n > f(1) + 1$. Then $\rw(K_n) = 1$ and
+$\tw(K_n) = n - 1 > f(1) = f(\rw(K_n))$. So no such $f$ exists.
+\end{proof}
+
+\begin{corollary}[Smallest counterexample and saturation]\label{cor:boundary}
+The inequality $t \le 3r-1$ holds at $K_2$ ($1 \le 2$) and is saturated at
+$K_3$ ($2 = 3\cdot 1 - 1$), and fails for every $K_n$ with $n \ge 4$. In
+particular $K_4$ is the smallest counterexample to the stated inequality.
+\end{corollary}
+
+\begin{proof}
+For $K_n$ we have $r = 1$ and $t = n-1$, so the inequality reads $n - 1 \le 2$,
+i.e.\ $n \le 3$. It holds exactly for $n \in \{2,3\}$ (with equality at
+$n=3$) and fails for all $n \ge 4$.
+\end{proof}
+
+\begin{remark}
+The conjecture's final clause, ``the kernelization kernel size for
+distance-hereditary graphs is constant'', is not needed for the refutation: the
+conjecture asserts the false inequality \eqref{eq:conj-ineq} as part of its
+definition, so it is false as stated irrespective of that clause. We make no
+claim about the kernelization clause here.
+\end{remark}
+
+\section{Verification and reproducibility}
+
+The finite claims are checked by a dependency-free Python~3 program
+\texttt{reproduce.py} (standard library only). For $n = 2, \dots, 7$ it:
+\begin{itemize}
+\item enumerates all $2^{n-1}-1$ bipartitions of $K_n$, forms each cut matrix
+over $\mathrm{GF}(2)$, computes its rank by Gaussian elimination, and reports
+the maximum (equal to $1$; for $K_4$ all seven bipartitions have rank $1$);
+\item verifies that the caterpillar rank-decomposition has all cuts of rank
+$1$, witnessing $\rw(K_n) \le 1$, together with the lower bound $\rw(K_n) \ge 1$;
+\item computes $\tw(K_n)$ exactly as the minimum elimination width over all
+$n!$ elimination orders (the standard elimination-game characterisation of
+treewidth), verifies the minimum-degree bound $\tw \ge \delta$, and exhibits
+the width-$(n-1)$ decomposition;
+\item tabulates $t$ against $3r-1$, asserts that the inequality fails for every
+$n \ge 4$, and prints \texttt{PASS}/\texttt{FAIL} with a non-zero exit status on
+failure.
+\end{itemize}
+For $K_4$ it reports $r=1$, $t=3$, $3r-1=2$, and $3 > 2$.
+
+A Lean~4 formalisation accompanies this document in \texttt{lean4/}. It is
+written in core Lean only (\texttt{import Std}, no Mathlib) and contains no
+\texttt{sorry}. It formalises a computable $\mathrm{GF}(2)$ rank of a matrix
+given by bit-mask rows, the cut matrix of a bipartition of $K_4$, the fact
+that all seven bipartitions of $K_4$ have cut-rank $1$, a lightweight treewidth
+model on the vertex type \texttt{Fin 4} (the elimination-order
+characterisation), the minimum-degree lemma, the explicit width-$3$
+decomposition of $K_4$, the computed value $\tw(K_4)=3$, and the conclusion
+$\tw(K_4) > 3\cdot\rw(K_4) - 1$. See \texttt{lean4/README.md} for the precise
+scope of the formalisation.
+
+\begin{thebibliography}{9}
+\bibitem{oum2005} S.~Oum and P.~Seymour.
+\emph{Approximating clique-width and branch-width.}
+J. Combin. Theory Ser. B \textbf{96} (2006), 514--528.
+\bibitem{oum2009} S.~Oum.
+\emph{Rank-width and tree-width of claw-free graphs.}
+Discrete Math.\ \textbf{309} (2009), 2887--2889.
+\end{thebibliography}
+
+\end{document}
