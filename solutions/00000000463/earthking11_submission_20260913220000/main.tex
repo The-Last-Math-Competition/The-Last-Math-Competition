@@ -1,0 +1,250 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+
+\title{Disproof of conjecture \texttt{00000000463}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000000463} as stated. The refutation is
+unconditional and completely elementary: for every $n \ge 4$ the integer
+$n^{\,n-2}$ fails to be squarefree, so the counting function on the left is
+bounded, whereas $c\,N/\sqrt{\log N}$ tends to infinity for every $c>0$. The
+claimed asymptotic equivalence cannot hold.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000000463.md}:
+
+\begin{quote}
+\textbf{English.} Definition: $\tau(K_n) = n^{n-2}$. Conjecture:
+$\#\{n \le N : n^{n-2} \text{ squarefree}\} \sim c\cdot N/\sqrt{\log N}$
+(a density compatible with abc).
+\end{quote}
+
+The conjecture is filed in both English and Chinese; the Chinese original is
+reproduced verbatim (in Unicode) in \texttt{README.md}, and the two versions are
+identical in content. The PDF font does not embed CJK glyphs, so the Chinese is
+kept in the markdown copy rather than duplicated here.
+
+Here $\tau(K_n) = n^{n-2}$ is Cayley's formula for the number of spanning trees
+of the complete graph $K_n$. The conjecture asserts that the set of $n \le N$
+for which this tree count is squarefree has asymptotic size
+$c\,N/\sqrt{\log N}$ for some constant $c$.
+
+\section{Conventions}
+
+The statement is informal at three points; we fix the conventions explicitly and
+show that the verdict is the same under every reasonable choice.
+
+\begin{enumerate}
+\item \textbf{Domain of $n$.} We take $n \in \{1,2,3,\dots\}$, as the notation
+  $\#\{n \le N\}$ suggests.
+\item \textbf{The exponent $n-2$ at $n=1$.} $1^{\,1-2} = 1^{-1}$ is not defined
+  in $\N$ (negative exponents leave $\N$); it is $1$ in $\Z$ or $\mathbb{Q}$.
+  We therefore \emph{exclude} $n=1$ from the main count and record separately
+  that including it (with the value $1^{-1} := 1$) adds exactly one index.
+\item \textbf{Is $1$ squarefree?} Yes, by the standard convention: an integer is
+  squarefree when no prime square divides it, and no prime divides $1$
+  (equivalently, its factorisation is empty). Thus $2^0 = 1$ and, under the
+  convention of item 2, $1^{-1}=1$ are squarefree, while $0$ is not.
+\item \textbf{Meaning of $\sim$.} The standard meaning in analytic number
+  theory: $f(N) \sim g(N)$ means $f(N)/g(N) \to 1$ as $N \to \infty$. In
+  particular $g$ must be unbounded when $f$ is.
+\end{enumerate}
+
+\section{The argument}
+
+\begin{theorem}\label{thm:main}
+For every integer $n \ge 4$, $n^{\,n-2}$ is not squarefree. Consequently
+\[
+\#\{\,n \le N \;:\; n^{\,n-2} \text{ squarefree}\,\} =
+\begin{cases}
+2, & N \ge 3 \text{ (counting } n \ge 2\text{)},\\
+3, & N \ge 3 \text{ (counting } n \ge 1 \text{ with } 1^{-1} := 1\text{)},
+\end{cases}
+\]
+a bounded function of $N$.
+\end{theorem}
+
+\begin{proof}
+Let $n \ge 4$ and let $p$ be any prime divisor of $n$; such a $p$ exists because
+$n \ge 2$. Write $v_p(\cdot)$ for the $p$-adic valuation. Since
+$n^{\,n-2} = \prod_{q} q^{\,(n-2)\,v_q(n)}$, we get
+\[
+v_p\!\left(n^{\,n-2}\right) = (n-2)\,v_p(n) \ge 2 \cdot 1 = 2 .
+\]
+Hence $p^2 \mid n^{\,n-2}$: a prime square divides $n^{\,n-2}$, so it is not
+squarefree.
+
+For the count: for $n \ge 4$ nothing contributes. For $n = 2$ we have
+$2^{0} = 1$, which is squarefree; for $n=3$ we have $3^{1} = 3$, which is
+squarefree. Under the convention $1^{-1} := 1$ the value $n=1$ is squarefree as
+well. No other $n$ contributes, so the count is $2$ for $N \ge 3$ when
+$n \ge 2$, and $3$ when $n \ge 1$ is included with that convention.
+\end{proof}
+
+\begin{corollary}\label{cor:unbounded}
+For every real $c > 0$, $\#\{n \le N : n^{\,n-2} \text{ squarefree}\}$ is
+\emph{not} asymptotic to $c\,N/\sqrt{\log N}$.
+\end{corollary}
+
+\begin{proof}
+The left-hand side is bounded by $3$ for all $N$ (Theorem~\ref{thm:main}) while
+$c\,N/\sqrt{\log N} \to \infty$ for every $c>0$. Therefore
+\[
+\frac{\#\{\cdots\}}{c\,N/\sqrt{\log N}} \;\le\; \frac{3\sqrt{\log N}}{c\,N}
+\;\longrightarrow\; 0 \;\neq\; 1 ,
+\]
+so the defining ratio for $\sim$ does not tend to $1$. (If $c=0$ no
+asymptotic equivalence is defined, and the parenthetical ``a density compatible
+with abc'' clearly intends $c>0$.)
+\end{proof}
+
+\begin{remark}
+The failure is not a matter of the constant $c$: no choice of $c$ can make a
+bounded sequence asymptotic to a sequence that diverges. It is also not a
+matter of the domain of $n$; see Section~\ref{sec:readings}.
+\end{remark}
+
+\section{The count table}\label{sec:table}
+
+The table compares the true count with the conjectured main term; we use $c=1$,
+and note that any $c>0$ only changes the right-hand column by the fixed factor
+$c$. Both normalisations of the count (with and without $n=1$) are shown.
+
+\begin{center}
+\begin{tabular}{r r r r}
+\toprule
+$N$ & $\#\{n\le N:\ n\ge 2,\ n^{\,n-2}\text{ sqfree}\}$ &
+    $\#\{n\le N:\ n\ge 1,\ n^{\,n-2}\text{ sqfree}\}$ &
+    $N/\sqrt{\log N}$ \\
+\midrule
+$10$        & $2$ & $3$ & $6.59$ \\
+$10^{2}$    & $2$ & $3$ & $46.60$ \\
+$10^{3}$    & $2$ & $3$ & $380.48$ \\
+$10^{4}$    & $2$ & $3$ & $3295.05$ \\
+$10^{5}$    & $2$ & $3$ & $29471.83$ \\
+$10^{6}$    & $2$ & $3$ & $269039.80$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The only squarefree values among $2 \le n \le 3000$ are
+\[
+n = 2:\ 2^{0} = 1, \qquad n = 3:\ 3^{1} = 3 ,
+\]
+verified by exact trial division / factorisation. The left columns are
+constant, the right column grows without bound.
+
+\section{Alternative readings}\label{sec:readings}
+
+We tried to save the conjecture by changing each convention; none succeeds.
+
+\begin{center}
+\begin{tabular}{p{0.40\textwidth} p{0.50\textwidth}}
+\toprule
+Reading & Outcome \\
+\midrule
+$n$ starts at $2$ & count is exactly $2$ for all $N \ge 3$; still bounded,
+  still refuted. \\
+$n$ starts at $1$ with $1^{-1} := 1$ and $1$ squarefree & count is $3$ for all
+  $N\ge 3$; still bounded, still refuted. \\
+``squarefree'' excludes $1$ & then $n=2$ ($2^0=1$) is also excluded and the
+  count is $1$; even more bounded. \\
+Domain restricted to primes $n$ & for prime $n \ge 5$,
+  $v_n(n^{\,n-2}) = n-2 \ge 3$, so not squarefree; only $n=2,3$ survive, count
+  $2$; refuted. \\
+Read ``$n^{\,n-2}$ squarefree'' as ``$n$ squarefree'' & then the count is
+  $\sim (6/\pi^2)N$, whose ratio to $c\,N/\sqrt{\log N}$ is
+  $\sim (6/(\pi^2 c))\sqrt{\log N}\to\infty$, so no constant $c$ works;
+  refuted. \\
+Read ``$\sim$'' as ``$\ll$'' (big-$O$) & a bounded count \emph{is}
+  $O(N/\sqrt{\log N})$, but this is a different (weaker) claim and contradicts
+  both the standard meaning of $\sim$ and the phrase ``a density compatible
+  with abc''. Under the literal, standard reading the claim is false. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Only the last line changes the meaning of a symbol rather than a convention on
+the domain; it does not express the conjecture as filed, so the refutation
+stands. We record it as a caveat, not as an ambiguity.
+
+\section{Reproducibility}
+
+The exhaustive check is carried out by \texttt{reproduce.py} using the Python~3
+standard library only (no \texttt{sympy}):
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(exact factorisation of the base $n$, exhaustive for $2 \le n \le 3000$,
+the count table, and the checks)}\\
+PASS: all checks verified; conjecture 00000000463 is FALSE.
+\end{quote}
+
+It factors each base $n$ by trial division and uses the exact identity
+$v_p(n^{\,n-2}) = (n-2)v_p(n)$; for $n \le 12$ it additionally factors
+$n^{\,n-2}$ directly by trial division and confirms agreement. It prints
+\texttt{PASS} and exits $0$ exactly when every check holds.
+
+\section{Formalisation}
+
+The refutation is formalised in the Lean~4 project under \texttt{lean4/}
+(core Lean only, \texttt{import Std}, no Mathlib, no \texttt{sorry}). The main
+statements are
+\begin{quote}\ttfamily
+theorem not\_squarefree\_pow (n : Nat) (h : 4 \(\le\) n) :\\
+\hspace*{2em}\(\neg\) Squarefree (n \^{} (n - 2))\\
+theorem squarefree\_one : Squarefree 1\\
+theorem squarefree\_two\_pow : Squarefree (2 \^{} (2 - 2))\\
+theorem squarefree\_three\_pow : Squarefree (3 \^{} (3 - 2))\\
+theorem sqfreeCount\_le\_three (N : Nat) : sqfreeCount N \(\le\) 3
+\end{quote}
+where \texttt{Squarefree m} is \texttt{\(\forall\) p, Prime p \(\to\) \(\neg\) (p*p \(\mid\) m)} and
+\texttt{Prime} is primality as a \texttt{Prop} (since \texttt{Nat.Prime} is not
+available in \texttt{import Std}). The proof of \texttt{not\_squarefree\_pow}
+uses the existence of a prime divisor of $n$ (proved by strong induction) and
+the divisibility step $p \mid n \Rightarrow p^2 \mid n^{\,n-2}$. The count
+function is proved to be $\min N 3$. See \texttt{lean4/README.md} for the full
+statement table, the axiom audit, and the scope note.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (library \texttt{Main}, no dependencies), \texttt{Main.lean},
+  \texttt{Check.lean} (\texttt{\#print axioms}), and \texttt{lean4/README.md}.
+  \texttt{lake build} exits $0$ and the audit reports no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
