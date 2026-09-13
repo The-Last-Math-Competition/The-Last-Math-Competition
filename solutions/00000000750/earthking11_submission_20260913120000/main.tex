@@ -1,0 +1,205 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Zp}{\mathbb{Z}_p}
+\newcommand{\D}{\Delta}
+\newcommand{\vpp}{\nu_p}
+
+\title{A disproof of conjecture 00000000750:\\
+the exact eventual period of the reduced Mahler coefficient\\
+sequence is not $p^{k-1}(p-1)$}
+\author{earthking11}
+\date{13 September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We refute conjecture 00000000750. The conjecture asserts that for the
+$\bmod\,p^k$ reduction of a $1$-Lipschitz map on $\Zp$, the Mahler coefficient
+sequence $(a_n \bmod p^k)$ is eventually periodic with \emph{exact} period
+$p^{k-1}(p-1)$, ``which cannot be shortened''. We exhibit the map
+$f(x)=x+1$, which is an isometry of $\Zp$ (hence $1$-Lipschitz), is
+Haar-measure-preserving, and is minimal. Its Mahler coefficient sequence is
+\[
+(a_n)_{n\ge 0} = (1,1,0,0,0,\dots).
+\]
+Reduced modulo $p^k$ this sequence is eventually constant $0$, so its minimal
+eventual period is $1$. For the test pairs $(p,k) \in \{(2,2),(2,3),(3,1),
+(3,2),(5,1),(5,2)\}$ the conjectured value $p^{k-1}(p-1)$ is respectively
+$2,4,2,6,4,20$, never $1$. Hence the conjecture is false. We also record that
+the conjecture's quotation of Anashin's criterion appears to be misstated: the
+correct divisibility condition is $p^{\vpp(n!)} \mid a_n$, not
+$p^n \mid a_n$; the quoted form already fails for $f(x)=x+1$ because
+$p \nmid a_1 = 1$ whenever $p>1$.
+\end{abstract}
+
+\section{Setup: Mahler coefficients}
+
+Let $p$ be a prime and let $f:\Zp \to \Zp$ be continuous. Every such function
+has a unique Mahler expansion
+\begin{equation}\label{eq:mahler}
+  f(x) = \sum_{n\ge 0} a_n \binom{x}{n},
+  \qquad
+  a_n = (\D^n f)(0) = \sum_{i=0}^{n} (-1)^{n-i}\binom{n}{i} f(i),
+\end{equation}
+where $\D$ is the forward difference operator
+\[
+  (\D f)(x) = f(x+1) - f(x),
+  \qquad
+  (\D^{n+1} f) = \D(\D^n f).
+\]
+The numbers $a_n \in \Zp$ are the \emph{Mahler coefficients} of $f$.
+
+\begin{remark}[Anashin's criterion]\label{rem:anashin}
+A standard form of Anashin's criterion states that a continuous
+$f:\Zp\to\Zp$ is $1$-Lipschitz (equivalently, the coefficients satisfy the
+compatibility needed for the expansion to converge) precisely when
+\begin{equation}\label{eq:anashin}
+  p^{\vpp(n!)} \mid a_n \quad \text{for all } n \ge 0,
+\end{equation}
+where $\vpp(n!) = \sum_{j\ge 1}\lfloor n/p^j\rfloor$. The conjecture under
+consideration quotes this condition as ``$p^n \mid a_n$''. That quoted form is
+not equivalent to \eqref{eq:anashin}: for $f(x)=x+1$ one has $a_1 = 1$, so
+$p \mid a_1$ fails for every $p>1$, even though $f$ is an isometry and
+certainly $1$-Lipschitz. This is a supporting observation about the wording of
+the conjecture; the refutation below does not rely on it.
+\end{remark}
+
+\section{The counterexample $f(x)=x+1$}
+
+Work with $f(x) = x+1$ on $\Zp$.
+
+\begin{lemma}\label{lem:properties}
+The map $f(x)=x+1$ has the following properties.
+\begin{enumerate}
+  \item It is an isometry of $\Zp$: $|f(x)-f(y)|_p = |x-y|_p$ for all
+        $x,y \in \Zp$. In particular it is $1$-Lipschitz.
+  \item It preserves Haar measure (translation is measure-preserving).
+  \item It is minimal: the orbit $\{f^{\circ n}(0) : n \ge 0\} = \mathbb{N}
+        = \{0,1,2,\dots\}$ is dense in $\Zp$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) $f(x)-f(y) = x-y$, so the $p$-adic absolute values agree. (2) $f$ is a
+translation, and Haar measure on the locally compact group $\Zp$ is translation
+invariant. (3) $f^{\circ n}(0) = n$, and the natural numbers are dense in
+$\Zp$ (the residues $\bmod\,p^m$ exhaust every ball).
+\end{proof}
+
+\begin{proposition}[Mahler coefficients]\label{prop:coeffs}
+For $f(x)=x+1$ the Mahler coefficient sequence is
+\[
+  (a_0,a_1,a_2,a_3,\dots) = (1,1,0,0,0,\dots).
+\]
+Equivalently, $(\D^n f)(0) = 0$ for every $n \ge 2$.
+\end{proposition}
+
+\begin{proof}
+First, $\D(x+1) = 1$ is the constant function $1$:
+\[
+  (\D f)(x) = f(x+1)-f(x) = (x+2)-(x+1) = 1 .
+\]
+Hence $\D^n(x+1) = 0$ for every $n \ge 1$ applied to this constant, i.e.
+$\D^2 f = \D 1 = 0$ and all higher differences vanish. Evaluating at $x=0$:
+\[
+  a_0 = f(0) = 1, \qquad a_1 = (\D f)(0) = 1, \qquad
+  a_n = (\D^n f)(0) = 0 \ \ (n\ge 2).
+\]
+Equivalently, the Mahler expansion of $f$ terminates:
+$x+1 = \binom{x}{0} + \binom{x}{1}$, matching $a_0=a_1=1$ and $a_n=0$ for
+$n\ge 2$.
+\end{proof}
+
+\section{Periodicity modulo $p^k$}
+
+Fix a prime $p$ and an integer $k \ge 1$, and reduce the sequence
+$(a_n)$ modulo $p^k$.
+
+\begin{theorem}\label{thm:period}
+The reduced sequence $(a_n \bmod p^k)_{n\ge 0}$ is
+\[
+  (1,1,0,0,0,\dots) \bmod p^k ,
+\]
+which is eventually constant (equal to $0$). Consequently its minimal eventual
+period is
+\[
+  T_{\mathrm{actual}} = 1 .
+\]
+\end{theorem}
+
+\begin{proof}
+Since $p^k \ge 2$, we have $1 \bmod p^k = 1 \ne 0$, so the first two terms
+remain $1,1$. By Proposition~\ref{prop:coeffs}, $a_n = 0$ for all $n \ge 2$,
+so $a_n \bmod p^k = 0$ for all $n\ge 2$; the tail is constant, and the smallest
+positive eventual period of a constant tail is $1$.
+\end{proof}
+
+\begin{theorem}[Refutation of conjecture 00000000750]\label{thm:refute}
+The conjectured exact period is
+\[
+  T_{\mathrm{claimed}} = p^{k-1}(p-1).
+\]
+For the test pairs
+\[
+  (p,k) \in \{(2,2),(2,3),(3,1),(3,2),(5,1),(5,2)\}
+\]
+the claimed value equals
+\[
+  2,\ 4,\ 2,\ 6,\ 4,\ 20
+\]
+respectively, whereas the actual minimal eventual period is $1$ in every case.
+More generally, for $p>1$ and $k\ge 1$ one has $p^{k-1}(p-1) = 1$ only for
+$(p,k)=(2,1)$, so for every pair with $(p,k)\ne(2,1)$ the claimed period
+differs from the actual period $1$. Therefore the assertion that the exact
+period is $p^{k-1}(p-1)$ and ``cannot be shortened'' fails.
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:period} the actual period is $1$. The listed values of
+$p^{k-1}(p-1)$ are obtained by direct computation:
+$2^1\cdot1=2$, $2^2\cdot1=4$, $3^0\cdot2=2$, $3^1\cdot2=6$,
+$5^0\cdot4=4$, $5^1\cdot4=20$. None equals $1$. For the general claim:
+$p^{k-1}\ge 1$ and $p-1\ge 1$ for $p>1$, so $p^{k-1}(p-1)\ge p-1 \ge 1$; if
+$p\ge 3$ then $p-1\ge 2$, and if $p=2$ then $p-1=1$ and $p^{k-1}(p-1)=2^{k-1}$,
+which equals $1$ exactly when $k-1=0$, i.e.\ $k=1$. Thus the unique solution of
+$p^{k-1}(p-1)=1$ with $p>1$, $k\ge1$ is $(2,1)$.
+\end{proof}
+
+\begin{remark}
+The hypotheses of the conjecture are satisfied by the counterexample: by
+Lemma~\ref{lem:properties}, $f(x)=x+1$ is $1$-Lipschitz, Haar-measure
+preserving, and minimal. The conjecture asserts that the exact period is
+attained ``simultaneously with the measure-preserving property of minimal
+maps''; $f$ is such a map, yet its coefficient sequence has eventual period
+$1$. Hence the universal claim is false.
+\end{remark}
+
+\section*{Verification summary}
+\begin{itemize}
+  \item \texttt{lean4/Main.lean} formalises the finite-difference core in core
+        Lean (only \texttt{Int}/\texttt{Nat}, \texttt{import Std}, no Mathlib):
+        the first difference of $x+1$ is the constant $1$, the second and all
+        higher differences vanish, hence the Mahler coefficients are
+        $(1,1,0,0,\dots)$; it also proves by \texttt{decide} that
+        $p^{k-1}(p-1)\ne 1$ for the listed pairs.
+  \item \texttt{reproduce.py} computes the Mahler coefficients by finite
+        differences and compares the exact eventual period with the claimed
+        value for the listed $(p,k)$; it prints \texttt{PASS}.
+  \item \texttt{lean4/Check.lean} prints the axiom dependencies of each
+        theorem.
+\end{itemize}
+
+\end{document}
