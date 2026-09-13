@@ -1,0 +1,205 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{parskip}
+
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{proposition}{Proposition}
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\newcommand{\GL}{\mathrm{GL}}
+\newcommand{\Fq}{\mathbb{F}_q}
+\newcommand{\LC}{\mathrm{LC}}
+\DeclareMathOperator{\rad}{rad}
+
+\title{Disproof of Conjecture 00000001192\\[2pt]
+\large The stated leading coefficient is not an integer}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{conjecture}[as filed]\label{conj}
+Let $c(n,q)$ denote the number of subgroups of $\GL_n(\Fq)$ whose order equals
+that of the commutator (derived) subgroup. Then $c(n,q)$ is an
+\emph{integer-coefficient} polynomial in $q$ of degree $n^2-n$ with leading
+coefficient
+\begin{equation}\label{eq:LC}
+  \LC(n) \;=\; \frac{\prod_{p \mid n} p}{n!\, n^{n}} .
+\end{equation}
+\end{conjecture}
+
+\medskip
+\noindent\textbf{Verdict: FALSE.} The two structural assertions in
+Conjecture~\ref{conj} --- that the polynomial has \emph{integer coefficients}
+and that its leading coefficient is $\LC(n)$ as in \eqref{eq:LC} --- are
+mutually inconsistent. We make no claim about the actual value of $c(n,q)$;
+the refutation concerns only the stated kind of polynomial and the stated
+leading coefficient.
+
+\section{The claimed leading coefficient}
+
+Reducing \eqref{eq:LC} to lowest terms, write $\LC(n) = a_n / b_n$. Since
+$\rad(n) := \prod_{p\mid n} p$ divides $n$, and $n \mid n^n \mid n!\,n^n$, we
+always have $\rad(n) \mid n!\,n^n$; hence $a_n = 1$ and
+$b_n = n!\,n^n / \rad(n)$ for every $n \ge 1$ (with $\rad(1)=1$). The first
+values are recorded in Table~\ref{tab:lc}.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+$n$ & degree $d=n^2-n$ & $\LC(n)$ & integer?\\
+\midrule
+$1$ & $0$  & $1$              & yes\\
+$2$ & $2$  & $1/4$            & no\\
+$3$ & $6$  & $1/54$           & no\\
+$4$ & $12$ & $1/3072$         & no\\
+$5$ & $20$ & $1/75000$        & no\\
+$6$ & $30$ & $1/5598720$      & no\\
+\bottomrule
+\end{tabular}
+\caption{The claimed leading coefficient $\LC(n)$, exactly. For every $n\ge2$
+the reduced numerator is $1$ and the reduced denominator exceeds $1$, so
+$\LC(n)$ is a non-integer rational. The degree $d=n^2-n\ge2$ for all $n\ge2$.}
+\label{tab:lc}
+\end{table}
+
+For instance,
+\[
+\LC(2)=\frac{2}{2!\cdot 2^{2}}=\frac{2}{8}=\frac14,\qquad
+\LC(3)=\frac{3}{3!\cdot 3^{3}}=\frac{3}{162}=\frac{1}{54},\qquad
+\LC(4)=\frac{2}{4!\cdot 4^{4}}=\frac{2}{6144}=\frac{1}{3072}.
+\]
+
+\begin{proposition}\label{prop:nonint}
+For every integer $n\ge 2$, $\LC(n)$ is not an integer.
+\end{proposition}
+
+\begin{proof}
+As noted, $\rad(n)\mid n$, so $\rad(n)\mid n^n$, and therefore
+$\rad(n) \mid n!\,n^n$. Thus the reduced numerator of
+$\LC(n)=\rad(n)/(n!\,n^n)$ is $1$, while the reduced denominator is
+$n!\,n^n/\rad(n)$. For $n\ge 2$ we have $\rad(n)\le n$, hence
+\[
+\frac{n!\,n^n}{\rad(n)} \;\ge\; \frac{n!\,n^n}{n} \;=\; n!\,n^{\,n-1}
+\;\ge\; 2\cdot 1 \;=\; 2 \;>\; 1,
+\]
+using $n!\ge 2$ and $n^{n-1}\ge 1$. A rational with reduced numerator $1$ and
+reduced denominator $>1$ is not an integer.
+\end{proof}
+
+\section{Why this refutes the conjecture}
+
+\subsection{The integer-coefficient reading}
+
+Suppose, as Conjecture~\ref{conj} asserts, that $c(n,q)$ is a polynomial
+\[
+c(n,q) = a_d q^d + a_{d-1}q^{d-1} + \dots + a_0,\qquad a_j\in\mathbb{Z},
+\]
+of degree $d=n^2-n$. The leading coefficient $a_d$ is then an integer, because
+it is one of the integer coefficients of the polynomial. But the conjecture also
+identifies $a_d$ with $\LC(n)$. Taking $n=2$ (so $d=2$ and $\LC(2)=1/4$), this
+would require the integer $a_2$ to equal $1/4$, i.e.\ there would have to exist
+$a\in\mathbb{Z}$ with
+\[
+4a = 1 .
+\]
+No such integer exists. The same contradiction occurs at $n=3$ ($a_6=1/54$),
+$n=4$ ($a_{12}=1/3072$), and in fact at every $n\ge2$ by
+Proposition~\ref{prop:nonint}. Consequently no polynomial with integer
+coefficients of the stated degree has the stated leading coefficient:
+Conjecture~\ref{conj} is false as written.
+
+\subsection{The charitable ``integer-valued'' reading}
+
+One might weaken ``integer-coefficient'' to ``integer-valued'' (i.e.\
+$c(n,q)\in\mathbb{Z}$ for all integers $q$), since a PORC formula often only
+needs to take integer values. This does not rescue the conjecture. A classical
+fact about integer-valued polynomials is:
+
+\begin{proposition}\label{prop:fact}
+If $P\in\mathbb{Q}[x]$ is integer-valued and has degree $d$, then
+$d!\,\cdot\,(\text{leading coefficient of }P)\in\mathbb{Z}$.
+\end{proposition}
+
+\begin{proof}[Sketch]
+The binomial polynomials $\binom{x}{k}$ ($k=0,\dots,d$) form a $\mathbb{Z}$-basis
+of the integer-valued polynomials of degree $\le d$. In this basis
+$P=\sum_{k=0}^d b_k\binom{x}{k}$ with $b_k\in\mathbb{Z}$, and
+$\binom{x}{k}$ has leading coefficient $1/k!$. Hence the leading coefficient of
+$P$ is $b_d/d!$, so $d!$ times it is $b_d\in\mathbb{Z}$.
+\end{proof}
+
+Applying Proposition~\ref{prop:fact} to the conjectured degree $d=n^2-n$:
+\begin{itemize}
+  \item $n=2$: $d=2$ and
+    $\displaystyle 2!\,\LC(2)=2\cdot\frac14=\frac12\notin\mathbb{Z}$;
+  \item $n=3$: $d=6$ and
+    $\displaystyle 6!\,\LC(3)=720\cdot\frac{1}{54}=\frac{720}{54}=\frac{40}{3}\notin\mathbb{Z}$.
+\end{itemize}
+So even under the weaker integer-valued reading, the claimed leading coefficient
+is impossible at the two smallest cases $n=2$ and $n=3$. The ambiguity between
+the two readings does not rescue the conjecture.
+
+\subsection{Arithmetic content, in divisibility form}
+
+The two obstructions used above are exactly the following elementary facts,
+which are the ones formalised in the accompanying Lean development:
+\[
+\nexists\, m\in\mathbb{N}\ \bigl(m\cdot 4 = 1\bigr),\qquad
+\nexists\, m\in\mathbb{N}\ \bigl(m\cdot 2 = 1\bigr),\qquad
+\nexists\, a\in\mathbb{Z}\ \bigl(4a=1\bigr),
+\]
+and, for the integer-valued reading at $n=3$,
+\[
+\nexists\, m\in\mathbb{N}\ \bigl(m\cdot 54=720\bigr)
+\qquad\Bigl(\tfrac{720}{54}=\tfrac{40}{3}\Bigr).
+\]
+
+\section{Scope, and the PORC caveat}
+
+The quantity $c(n,q)$ itself --- the number of subgroups of $\GL_n(\Fq)$ whose
+order equals that of the derived subgroup --- is not otherwise analysed in this
+submission. The refutation is entirely about the \emph{stated leading
+coefficient} being arithmetically impossible for the \emph{stated kind of
+polynomial} (integer-coefficient, degree $n^2-n$). This is a self-contained
+inconsistency in the text of the conjecture, independent of any group theory.
+
+If the author intended a PORC description, in which the coefficient is a
+constituent depending on $q=p^f$ or on the residue class of $q$, or intended a
+different normalisation (for example, a degree-$0$ or lower-degree polynomial,
+or a coefficient such as $\rad(n)/(n!\,n^n)$ viewed only after multiplication by
+a further factor), then the formula as written is still self-inconsistent: as
+written it demands an integer-coefficient polynomial whose leading coefficient
+is the non-integer rational $\LC(n)$. To make the statement consistent one must
+change at least one of: the class of polynomials (allowing rational
+coefficients), the degree, or the normalisation of the leading coefficient. No
+such qualification appears in the conjecture as filed.
+
+\begin{remark}
+Because the contradiction already occurs at $n=2$ (degree $2$), the refutation
+does not depend on any subtlety of Higman's PORC phenomenon or on the actual
+count $c(n,q)$; it is a statement about rational arithmetic.
+\end{remark}
+
+\section*{Reproducing}
+
+The exact values of $\LC(n)$ for $n=1,\dots,12$ (and the $d!\,\LC(n)$
+integer-valued test) are produced by
+\begin{center}
+\texttt{python3 reproduce.py}
+\end{center}
+which exits $0$ on \textsc{pass}. The finite arithmetic facts above are
+formalised in core Lean~4 under \texttt{lean4/} (no Mathlib, no \texttt{sorry});
+build with \texttt{lake build} and audit with \texttt{lake env lean Check.lean}.
+
+\end{document}
