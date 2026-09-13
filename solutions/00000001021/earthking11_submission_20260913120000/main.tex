@@ -1,0 +1,242 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\Ball}{B}
+
+\title{Disproof of Conjecture 00000001021:\\
+The Minimum Order of a $(3,6)$-Regular Girth-$12$ Tanner Graph Is Not $132$}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The conjecture asserts that the minimum number of vertices of a
+$(3,6)$-regular Tanner graph of girth $12$ is $132$, and is described as
+``computationally verifiable''. We show this is false. A Tanner graph is
+bipartite with a degree-$3$ vertex class (variable nodes) and a degree-$6$
+vertex class (check nodes). If the girth is at least $12$, then two distinct
+paths of lengths $i,j\le 5$ from a fixed variable node cannot end at the same
+vertex, since they would close a cycle of length $i+j\le 10<12$; hence the
+radius-$5$ ball around any variable node is a tree. Its BFS layers are forced
+to be
+\[
+1,\ 3,\ 15,\ 30,\ 150,\ 300,
+\]
+whose sum is $499$. Therefore every such graph has at least $499$ vertices,
+and in particular none has $132$. Imposing the balance relation $3V=6C$ of a
+$(3,6)$-regular bipartite graph strengthens the bound to $999$. Inspecting the
+whole $(d_v,d_c)\in[2,8]^2$, even-girth-$4$--$16$ parameter family, no
+Moore-type bound equals $132$; the girth-$12$ lower bound is either $499$
+(tree-ball) or $999$ (balanced), both far above $132$.
+\end{abstract}
+
+\section{Definitions}
+
+\begin{definition}[Tanner graph]
+A \emph{Tanner graph} is a finite bipartite graph $G=(X\cup Y,E)$ in which
+every edge joins a \emph{variable node} in $X$ to a \emph{check node} in $Y$.
+It is \emph{$(d_v,d_c)$-regular} if every vertex of $X$ has degree $d_v$ and
+every vertex of $Y$ has degree $d_c$. Thus a $(3,6)$-regular Tanner graph has
+variable nodes of degree $3$ and check nodes of degree $6$.
+\end{definition}
+
+\begin{definition}[Girth]
+The \emph{girth} of $G$ is the length of a shortest cycle in $G$. Since $G$ is
+bipartite, all cycles have even length.
+\end{definition}
+
+We write $V=|X|$, $C=|Y|$, and $N=V+C$ for the total number of vertices.
+Because $G$ is $(3,6)$-regular, double counting the edges gives
+\begin{equation}\label{eq:balance}
+    3V=6C, \qquad\text{equivalently}\qquad V=2C,\qquad N=3C=\tfrac32 V.
+\end{equation}
+
+\section{The collision lemma}
+
+Fix a variable node $v\in X$ and let $\dist(v,\cdot)$ be graph distance in $G$.
+Let $\Ball(v,r)=\{w : \dist(v,w)\le r\}$.
+
+\begin{lemma}[No collisions up to radius $5$]\label{lem:collision}
+Let $G$ be a Tanner graph of girth $g\ge 12$ and let $v$ be any vertex. Write
+$r=\lfloor (g-1)/2\rfloor$. Then the ball $\Ball(v,r)$ is a tree. In
+particular, for $g=12$, distinct paths from $v$ of lengths $i,j\le 5$ have
+distinct endpoints.
+\end{lemma}
+
+\begin{proof}
+Suppose two distinct paths $P_1,P_2$ from $v$ of lengths $i$ and $j$ share
+their terminal vertex $w$. Walking along $P_1$ from $v$ to $w$ and back along
+$P_2$ from $w$ to $v$ yields a closed walk of length $i+j$. If $P_1,P_2$ are
+distinct, this closed walk contains a cycle; its length is at most $i+j$ and,
+being a cycle in a bipartite graph, it is even and hence at least $2$. More
+precisely, the symmetric difference of the two paths contains a cycle of
+length $\le i+j$. If $i,j\le 5$ then $i+j\le 10<12\le g$, contradicting the
+definition of girth. Hence no two such paths collide.
+
+It remains to see that the whole ball, not just its endpoints, is a tree.
+\begin{enumerate}
+\item \emph{No edges inside a layer.} In a bipartite graph an edge joining two
+vertices at the same distance from $v$ would create an odd cycle, impossible.
+\item \emph{No two layers meet.} Distance is single-valued: a vertex cannot
+have two different distances from $v$.
+\item \emph{No cross edges.} An edge between a vertex at depth $d$ and a
+vertex at depth $d'$ with $|d-d'|\neq 1$ would shortcut the BFS, forcing
+$\dist(v,\cdot)\le\min(d,d')+1<\max(d,d')$, contradicting single-valuedness of
+the other depth.
+\end{enumerate}
+Combining these facts, the edges of $\Ball(v,r)$ are exactly the tree edges
+of BFS, with no extra edge possible among depths $0,\dots,r$ when
+$r\le g/2-1$. For $g\ge 12$ we have $\lfloor (g-1)/2\rfloor\ge 5$, so the
+radius-$5$ ball is a tree.
+\end{proof}
+
+\begin{remark}
+The same argument shows that $\Ball(v,5)$ is a subgraph of $G$ with $499$
+distinct vertices; it need not be an induced subgraph, but the collision
+argument above already rules out every extra edge that could occur inside the
+ball at these depths.
+\end{remark}
+
+\section{Forced BFS layers and the $499$ bound}
+
+Let $G$ be $(3,6)$-regular of girth $g\ge 12$ and let $v$ be a variable node.
+By Lemma~\ref{lem:collision}, the radius-$5$ ball around $v$ is a tree, so the
+BFS layers are forced by the degrees, with one edge from each non-root vertex
+used by its parent.
+
+\begin{center}
+\begin{tabular}{c l c c c}
+\toprule
+depth $d$ & vertex class at depth $d$ & children per vertex & layer size & cumulative\\
+\midrule
+$0$ & variable (root, no parent)          & $3$   & $1$   & $1$\\
+$1$ & check ($6$ neighbours, $1$ parent)  & $5$   & $3$   & $4$\\
+$2$ & variable ($3$ neighbours, $1$ parent)& $2$   & $15$  & $19$\\
+$3$ & check                               & $5$   & $30$  & $49$\\
+$4$ & variable                            & $2$   & $150$ & $199$\\
+$5$ & check                               & ---   & $300$ & $499$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The layer sizes are obtained by the recurrence
+\[
+\begin{aligned}
+\ell_0&=1, &\quad \ell_1&=3\ell_0=3, &\quad \ell_2&=5\ell_1=15,\\
+\ell_3&=2\ell_2=30, &\quad \ell_4&=5\ell_3=150, &\quad \ell_5&=2\ell_4=300.
+\end{aligned}
+\]
+
+\begin{theorem}\label{thm:499}
+Every $(3,6)$-regular Tanner graph of girth $12$ has at least $499$ vertices:
+\[
+|\Ball(v,5)|=1+3+15+30+150+300=499\le N .
+\]
+Consequently the minimum number of vertices of such a graph is not $132$, and
+indeed no such graph has $132$ vertices.
+\end{theorem}
+\begin{proof}
+Lemma~\ref{lem:collision} makes the six layers pairwise disjoint, and the
+layer sizes are forced as above. Their sum is $499$, all inside $G$. Since
+$132<499$, the claimed value cannot occur.
+\end{proof}
+
+Note that $499$ is only a lower bound on the true minimum; the disproof needs
+nothing more.
+
+\section{The balanced variant: $999$}
+
+The count above ignores the balance relation~\eqref{eq:balance}, which a
+Tanner graph must satisfy. Splitting the forced ball by vertex class: the
+variable nodes at even depth number $1+15+150=166$, and the check nodes at odd
+depth number $3+30+300=333$. Hence
+\[
+V\ge 166,\qquad C\ge 333 .
+\]
+By~\eqref{eq:balance}, $V=2C$, so $C\ge 333$ already gives $V\ge 666$ and
+\[
+N=V+C=3C\ge 3\cdot 333=999 .
+\]
+Equivalently, among the $333$ forced check nodes each is adjacent only to
+variable nodes, and a $(3,6)$-regular graph needs twice as many variable as
+check nodes; the check-side count is the binding constraint.
+
+\begin{theorem}
+Every $(3,6)$-regular Tanner graph of girth $12$ has at least $999$ vertices.
+\end{theorem}
+
+Both bounds ($499$ from the tree-ball alone, $999$ after balancing) are far
+from $132$.
+
+\section{No convention in the parameter family yields $132$}
+
+For general $(d_v,d_c)$-regular Tanner graphs of even girth $2r$, the same
+argument forces the BFS layers
+\[
+\ell_0=1,\qquad \ell_{i+1}=\ell_i\, b_i,
+\]
+where the branching is
+\[
+b_0=d_v,\qquad b_i=d_c-1\ \ (i\ \text{odd}),\qquad
+b_i=d_v-1\ \ (i>0\ \text{even}).
+\]
+The tree-ball lower bound is $\sum_{i=0}^{r}\ell_i$. Combining it with the
+balance relation $d_vV=d_cC$ gives a balanced lower bound on
+$N=V+C$, obtained by requiring
+$V\ge\sum_{i\ \text{even}}\ell_i$ and
+$C=\tfrac{d_v}{d_c}V\ge\sum_{i\ \text{odd}}\ell_i$.
+
+Scanning all $2\le d_v,d_c\le 8$ and all even girths
+$4,6,\dots,16$ (the verification is in \texttt{reproduce.py}) yields
+\emph{no} parameter choice whose tree-ball or balanced bound equals $132$.
+
+For the specific family $(d_v,d_c)=(3,6)$ the rigorous balanced bounds are:
+\begin{center}
+\begin{tabular}{c c c}
+\toprule
+girth & tree-ball lower bound & balanced lower bound \\
+\midrule
+$4$  & $4$   & $9$\\
+$6$  & $19$  & $24$\\
+$8$  & $49$  & $99$\\
+$10$ & $199$ & $249$\\
+$12$ & $499$ & $999$\\
+$14$ & $1999$ & $2499$\\
+$16$ & $4999$ & $9999$\\
+\bottomrule
+\end{tabular}
+\end{center}
+The value $132$ matches none of these: the rigorous bounds are $24$ for girth
+$6$, $99$ for girth $8$, $249$ for girth $10$, and $999$ for girth $12$.
+Even the raw tree-ball bound for girth $12$ is $499$. There is therefore no
+reading of ``girth $12$'' under which $132$ is the minimum: $132$ is simply
+too small, and the claimed ``minimal graph counting'' is incorrect.
+
+\section{Conclusion}
+
+Conjecture 00000001021 is false. The radius-$5$ ball around a degree-$3$
+variable node in a $(3,6)$-regular girth-$12$ Tanner graph is a tree with
+$1+3+15+30+150+300=499$ vertices, so every such graph has at least $499$
+vertices; the balanced bound is $999$. No $(d_v,d_c)$-regular girth-$12$
+graph, and no member of the scanned parameter family, can have only $132$
+vertices.
+
+\end{document}
