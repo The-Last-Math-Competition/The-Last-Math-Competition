@@ -1,0 +1,331 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A Proof of Conjecture 00000000049}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000049 asserts, of point sets in the plane all of whose
+pairwise distances are prime, that the maximal size is $4$ and that a set of
+size $4$ exists. Both hold. A set of size $4$ is $\{0,2,5,7\}$ on a line, with
+distances $2,5,7,3,5,2$. For the bound we show that any four such points are
+\emph{collinear}, whence five would be collinear too, which a parity argument
+on the gaps forbids.
+\end{abstract}
+
+\section{Statement and conventions}
+
+We identify the Euclidean plane with $\mathbb C$. Call a finite set
+$S\subset\mathbb C$ a \emph{prime-distance set} if $|P-Q|$ is a prime integer
+for all distinct $P,Q\in S$. Conjecture 00000000049 asserts
+\begin{enumerate}
+  \item[(a)] every prime-distance set has at most $4$ elements;
+  \item[(b)] some prime-distance set has $4$ elements.
+\end{enumerate}
+
+Throughout, ``prime'' means a rational prime $2,3,5,7,\ldots$; note that $2$ is
+allowed, and it is the only even one. This is what makes the problem differ
+from the classical question about odd integral distances.
+
+\section{Part (b)}
+
+\begin{proposition}\label{prop:b}
+$S=\{0,2,5,7\}\subset\mathbb R\subset\mathbb C$ is a prime-distance set of size
+$4$.
+\end{proposition}
+
+\begin{proof}
+The six distances are
+\[
+  |0-2|=2,\quad |0-5|=5,\quad |0-7|=7,\quad
+  |2-5|=3,\quad |2-7|=5,\quad |5-7|=2,
+\]
+all prime. \end{proof}
+
+\section{Part (a)}
+
+\subsection{A determinant identity}
+
+Let $P_0,P_1,P_2,P_3$ be four points of the plane, write $v_i=P_i-P_0$, and put
+\[
+  a_i=|v_i|=|P_iP_0|,\qquad c_{ij}=|v_i-v_j|=|P_iP_j| .
+\]
+The Gram matrix $G=(v_i\cdot v_j)_{1\le i,j\le3}$ is singular, because
+$v_1,v_2,v_3$ lie in a $2$-dimensional space. Since
+$2\,v_i\cdot v_j=a_i^2+a_j^2-c_{ij}^2$ for $i\ne j$ and $2\,v_i\cdot v_i=2a_i^2$,
+setting
+\[
+  x_{ij}=a_i^2+a_j^2-c_{ij}^2
+\]
+and expanding $\det(2G)=0$ gives, after dividing by $2$,
+\begin{equation}\label{eq:E}
+  E:=4a_1^2a_2^2a_3^2+x_{12}x_{13}x_{23}
+     -a_1^2x_{23}^2-a_2^2x_{13}^2-a_3^2x_{12}^2=0 .
+\end{equation}
+
+We use \eqref{eq:E} modulo $8$. Recall that an odd square is $\equiv1\pmod8$,
+while $2^2=4$.
+
+\subsection{The distance-two graph}
+
+Let $S$ be a prime-distance set and let $H$ be the graph on $S$ whose edges are
+the pairs at distance exactly $2$.
+
+\begin{lemma}\label{lem:deg}
+Every vertex of $H$ has degree at most $2$.
+\end{lemma}
+
+\begin{proof}
+Suppose $B,C,D$ all lie at distance $2$ from $A$. They are distinct points of
+the circle of radius $2$ about $A$, so their pairwise distances are at most the
+diameter $4$ and are prime, hence lie in $\{2,3\}$. A triangle with sides
+$a,b,c$ has circumradius $R=abc/(4K)$ with $16K^2=2a^2b^2+2b^2c^2+2c^2a^2
+-a^4-b^4-c^4$, so $R=2$ would require $(abc)^2=4\cdot16K^2$. For the four
+possibilities this reads
+\[
+  (2,2,2):\ 64\ne192,\quad
+  (2,2,3):\ 144\ne 4\cdot 63,\quad
+  (2,3,3):\ 324\ne 4\cdot 128,\quad
+  (3,3,3):\ 729\ne 4\cdot 243,
+\]
+so the circumradius is $2/\sqrt3,\,4/\sqrt7,\,9\sqrt2/8,\,\sqrt3$ respectively,
+never $2$. \end{proof}
+
+\begin{lemma}\label{lem:c4}
+$H$ contains no $4$-cycle.
+\end{lemma}
+
+\begin{proof}
+Suppose $|AB|=|BC|=|CD|=|DA|=2$. Both $B$ and $D$ lie on the perpendicular
+bisector of $AC$; writing $e=|AC|$ and $M$ for the midpoint of $AC$ we get
+$|MB|=|MD|=\sqrt{4-e^2/4}$, so $B$ and $D$ are symmetric about $M$ and
+$f=|BD|=2\sqrt{4-e^2/4}$, that is
+\[
+  e^2+f^2=16 .
+\]
+No two primes satisfy this: $2^2+2^2=8$, $2^2+3^2=13$, $3^2+3^2=18$, and any
+prime $\ge5$ already has square $>16$. \end{proof}
+
+By Lemmas~\ref{lem:deg} and~\ref{lem:c4}, on four points $H$ is a disjoint union
+of paths and triangles. Up to isomorphism the possibilities are: no edge, one
+edge, two adjacent edges, two disjoint edges, a path $P_4$, and a triangle plus
+an isolated vertex.
+
+\subsection{The cases settled by \texorpdfstring{\eqref{eq:E}}{(E)}}
+
+\begin{lemma}\label{lem:mod8}
+A prime-distance set of size $4$ has at least two edges in $H$, and they are not
+adjacent.
+\end{lemma}
+
+\begin{proof}
+In each case choose the base point $P_0$ as indicated and reduce \eqref{eq:E}
+modulo $8$, using $a^2\equiv1$ for odd $a$ and $2^2=4$.
+
+\emph{No edge} (all six distances odd). Then $x_{ij}\equiv1+1-1=1$ and
+$x_{ij}^2\equiv1$, so
+\[
+  E\equiv 4+1-1-1-1=2\pmod 8 .
+\]
+
+\emph{One edge.} Take $P_0$ outside that edge, so the edge is $c_{12}=2$. Then
+$x_{12}\equiv1+1-4\equiv6$, $x_{12}^2\equiv4$, while $x_{13},x_{23}\equiv1$, so
+\[
+  E\equiv4+6-1-1-4=4\pmod 8 .
+\]
+
+\emph{Two adjacent edges.} Say $|AB|=|AC|=2$; take $P_0=D$, so $c_{12}=c_{13}=2$.
+Then $x_{12},x_{13}\equiv6$ with squares $\equiv4$, and $x_{23}\equiv1$, so
+\[
+  E\equiv4+36-1-4-4\equiv 4+4-1-4-4=-1\equiv7\pmod 8 .
+\]
+
+In all three cases $E\not\equiv0$, contradicting \eqref{eq:E}. \end{proof}
+
+\subsection{The remaining configurations}
+
+\begin{lemma}\label{lem:p4}
+$H$ is not a path on four vertices.
+\end{lemma}
+
+\begin{proof}
+Suppose $|AB|=|BC|=|CD|=2$ and these are the only edges of $H$. Since $A$ and
+$C$ both lie at distance $2$ from $B$, $|AC|\le4$ is prime and is not $2$, so
+$|AC|=3$; likewise $|BD|=3$. Place $B=(0,0)$, $C=(2,0)$. From $|AB|=2$,
+$|AC|=3$ we get $A=(-\tfrac14,\pm\tfrac{\sqrt{63}}4)$, and from $|CD|=2$,
+$|BD|=3$ we get $D=(\tfrac94,\pm\tfrac{\sqrt{63}}4)$. Hence
+\[
+  |AD|^2=\Bigl(\tfrac{10}4\Bigr)^2+\bigl(\pm\tfrac{\sqrt{63}}4\mp\tfrac{\sqrt{63}}4\bigr)^2
+  =\frac{25}4\quad\text{or}\quad\frac{25}4+\frac{63}4=22 ,
+\]
+so $|AD|=\tfrac52$ or $\sqrt{22}$, neither an integer. \end{proof}
+
+\begin{lemma}\label{lem:c3}
+$H$ is not a triangle together with an isolated vertex.
+\end{lemma}
+
+\begin{proof}
+Let $A,B,C$ be equilateral of side $2$ and let $D$ have odd prime distances
+$p=|DA|$, $q=|DB|$, $r=|DC|$. Place $A=(0,0)$, $B=(2,0)$, $C=(1,\sqrt3)$ and
+$D=(x,y)$. From $|DA|,|DB|$,
+\[
+  x=\frac{p^2-q^2+4}{4} ,
+\]
+and $p^2-q^2\equiv0\pmod 8$, so $x$ is an \emph{odd} integer; then
+$y^2=p^2-x^2\equiv1-1=0\pmod 8$. The third distance gives
+$p^2-2x+4-r^2=2\sqrt3\,y$, hence
+\[
+  N^2=12y^2,\qquad N:=p^2-2x+4-r^2 .
+\]
+Now $p^2-r^2\equiv0\pmod8$ and $2x\equiv2$ or $6\pmod 8$, so $N\equiv2$ or
+$6\pmod8$; in particular $N\equiv2\pmod4$, say $N=2m$ with $m$ odd, whence
+$N^2=4m^2\equiv4\pmod{32}$. On the other side $8\mid y^2$ gives
+$12y^2\equiv0\pmod{32}$. So $4\equiv0\pmod{32}$, absurd. \end{proof}
+
+\begin{lemma}\label{lem:2disj}
+If $H$ consists of two disjoint edges, the four points are collinear.
+\end{lemma}
+
+\begin{proof}
+Say $|AB|=2=|CD|$ and the other four distances are odd primes. Place
+$A=(-1,0)$, $B=(1,0)$. For any point $P=(x,y)$ with $|AP|,|BP|$ odd,
+\[
+  x=\frac{|AP|^2-|BP|^2}{4}
+\]
+is an even integer, because $|AP|^2-|BP|^2\equiv0\pmod 8$; and
+$y^2=|AP|^2-(x+1)^2\equiv1-1=0\pmod 8$. Apply this to $C=(x_C,y_C)$ and
+$D=(x_D,y_D)$.
+
+From $|CD|^2=4$ and $x_C-x_D$ even we get $(x_C-x_D)^2\in\{0,4\}$.
+
+If $x_C=x_D$ then $(y_C-y_D)^2=4$, so $2y_Cy_D=y_C^2+y_D^2-4\equiv4\pmod8$; thus
+$y_Cy_D$ is an integer $\equiv2\pmod4$ and $(y_Cy_D)^2\equiv4\pmod{32}$. But
+$(y_Cy_D)^2=y_C^2y_D^2\equiv0\pmod{64}$. Contradiction.
+
+So $|x_C-x_D|=2$ and $y_C=y_D=:y$. Relabelling, write $C=(x,y)$, $D=(x+2,y)$ and
+put $p=|AC|$, $q=|AD|$, $r=|BC|$; then $|BD|=|AC|=p$ and
+\[
+  q^2+r^2=2p^2+8,\qquad x=\frac{p^2-r^2}{4},\qquad y^2=p^2-(x+1)^2 .
+\]
+Now $y^2\ge0$ forces $(p-2)^2\le r^2\le(p+2)^2$, i.e. $p-2\le r\le p+2$; as $p,r$
+are odd, $r\in\{p-2,p,p+2\}$. If $r=p$ then $q^2=p^2+8$, so $(q-p)(q+p)=8$ with
+both factors even, forcing $q-p=2$, $q+p=4$ and $p=1$, not prime. Hence
+$r=p\pm2$, which gives $x+1=\pm p$ and $y^2=0$: the four points lie on the
+$x$-axis. \end{proof}
+
+\begin{theorem}\label{thm:coll}
+Every prime-distance set of size $4$ is collinear.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:mod8} the graph $H$ has at least two, pairwise non-adjacent,
+edges; with Lemmas~\ref{lem:deg} and~\ref{lem:c4} the only remaining
+possibilities on four vertices are two disjoint edges, a path $P_4$, or a
+triangle plus an isolated vertex --- and the last two are excluded by
+Lemmas~\ref{lem:p4} and~\ref{lem:c3}. So $H$ is two disjoint edges, and
+Lemma~\ref{lem:2disj} applies. \end{proof}
+
+\subsection{No five points}
+
+\begin{lemma}\label{lem:5coll}
+No five collinear points form a prime-distance set.
+\end{lemma}
+
+\begin{proof}
+Let the points be $x_0<\cdots<x_4$ with consecutive gaps
+$g_i=x_i-x_{i-1}$, $i=1,\ldots,4$. Every $g_i$ is prime, and so is every sum of
+consecutive gaps. Two adjacent odd gaps would give an even sum $\ge6$, not
+prime; two adjacent gaps equal to $2$ would give the sum $4$, not prime. So of
+each adjacent pair exactly one equals $2$, and the pattern alternates:
+\[
+  (2,\text{odd},2,\text{odd})\qquad\text{or}\qquad(\text{odd},2,\text{odd},2).
+\]
+In both cases the total span $g_1+g_2+g_3+g_4$ is $4$ plus two odd primes, hence
+even and at least $10$ --- not prime. But the span is $x_4-x_0$, which must be
+prime. \end{proof}
+
+\begin{theorem}
+Every prime-distance set has at most $4$ elements.
+\end{theorem}
+
+\begin{proof}
+Suppose $S$ is a prime-distance set with $|S|\ge5$ and pick five points of it.
+Every four of them form a prime-distance set, hence are collinear by
+Theorem~\ref{thm:coll}. Fix four of them; they lie on a line $L$. Any fifth
+point $P$, together with three of those four, forms a collinear quadruple; as
+three distinct points of $L$ determine $L$, we get $P\in L$. So all five lie on
+$L$, contradicting Lemma~\ref{lem:5coll}. \end{proof}
+
+Together with Proposition~\ref{prop:b}, Conjecture 00000000049 holds.
+
+\section{Computational corroboration}
+
+Four points are planar exactly when their $5\times5$ Cayley--Menger determinant
+vanishes; with prime squared distances this is an exact integer test. Over all
+$6$-tuples of primes below $120$ satisfying the triangle inequalities --- about
+$4.4\cdot10^6$ configurations --- the only solutions are degenerate, and every
+one of them is $\{0,2,5,7\}$ up to relabelling and reflection. This agrees with
+Theorem~\ref{thm:coll}. The search is corroboration, not part of the proof.
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes, against Mathlib:
+
+\begin{itemize}
+  \item \texttt{IsPrimeDistanceSet}, \texttt{ConjectureHolds} --- the notion and
+    the conjecture, both parts, with the plane modeled as $\mathbb C$;
+  \item \texttt{witness}, \texttt{dTable\_prime}, \texttt{conjecture\_part\_b}
+    --- Proposition~\ref{prop:b}, that is \textbf{part (b) in full};
+  \item \texttt{not\_prime\_add\_of\_ne\_two}, \texttt{eq\_two\_of\_add\_prime},
+    \texttt{no\_five\_collinear} --- Lemma~\ref{lem:5coll} in full, the last
+    step of part (a);
+  \item \texttt{no\_prime\_sq\_add\_sq\_eq\_sixteen} (Lemma~\ref{lem:c4}),
+    \texttt{no\_prime\_sq\_eq\_sq\_add\_eight} (the $r=p$ branch of
+    Lemma~\ref{lem:2disj}), \texttt{circumradius\_ne\_two}
+    (Lemma~\ref{lem:deg}) --- the arithmetic obstructions on which the case
+    analysis turns.
+\end{itemize}
+
+\paragraph{Scope.} Part (b) is formalized completely. Part (a) is
+\emph{not}: the Gram identity \eqref{eq:E} and its reductions modulo $8$
+(Lemma~\ref{lem:mod8}), the coordinate computations of Lemmas~\ref{lem:p4},
+\ref{lem:c3} and~\ref{lem:2disj}, and the passage from
+Theorem~\ref{thm:coll} to the five-point bound are carried out in this paper
+only. What the Lean development contributes to part (a) is its final collinear
+step together with the three arithmetic facts the case analysis appeals to. We
+record this explicitly rather than leave the coverage to be inferred; a full
+formalization would require developing the plane-geometric apparatus above in
+Lean and is a substantially larger undertaking than the present one.
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and
+introduces no axioms of its own: \texttt{\#print axioms conjecture\_part\_b}
+and \texttt{\#print axioms no\_five\_collinear} report exactly the three
+standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
