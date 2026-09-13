@@ -1,0 +1,189 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\dcut}{\delta_{\square}}
+
+\title{A Counterexample to Conjecture 00000000046}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000046 asserts that the prime-sum graphs $G_n$ converge, in cut
+distance, to the constant graphon $W\equiv1/2$. They do not, and not merely
+slowly: every $G_n$ is triangle-free, so its triangle density is $0$ while that
+of $W$ is $1/8$, and the counting lemma puts $\dcut(W_{G_n},W)\ge1/24$ for
+\emph{every} $n$. The edge density fails too, tending to $0$ rather than $1/2$.
+The sequence does converge --- to the zero graphon.
+\end{abstract}
+
+\section{Statement}
+
+For $n\ge1$ let $G_n$ be the graph on $\{1,\ldots,n\}$ with $i\sim j$ if and
+only if $i\ne j$ and $i+j$ is prime. Let $W_{G_n}$ denote the step graphon
+associated with $G_n$, let $\dcut$ be the cut distance, and for a finite simple
+graph $F$ let $t(F,\cdot)$ be homomorphism density. Conjecture 00000000046
+asserts
+\[
+  \dcut\bigl(W_{G_n},\,\tfrac12\bigr)\longrightarrow0 ,
+\]
+where $\tfrac12$ denotes the constant graphon $W\equiv1/2$.
+
+\section{\texorpdfstring{$G_n$}{Gn} is bipartite, hence triangle-free}
+
+\begin{lemma}\label{lem:bip}
+Let $i\ne j$ be positive integers of the same parity. Then $i\sim j$ fails in
+every $G_n$.
+\end{lemma}
+
+\begin{proof}
+$i+j$ is even. Being distinct positive integers, $i+j\ge1+3=4$ when both are
+odd and $i+j\ge2+4=6$ when both are even; in either case $i+j>2$. An even
+number greater than $2$ is not prime.
+\end{proof}
+
+So every edge of $G_n$ joins an odd vertex to an even one: $G_n$ is bipartite
+with sides the odd and the even vertices.
+
+\begin{theorem}\label{thm:tri}
+$G_n$ is triangle-free for every $n$.
+\end{theorem}
+
+\begin{proof}
+Among any three vertices, two have the same parity; by Lemma~\ref{lem:bip}
+they are not adjacent.
+\end{proof}
+
+\section{The conjecture is false, quantitatively}
+
+\begin{theorem}\label{thm:main}
+For every $n$,
+\[
+  \dcut\bigl(W_{G_n},\tfrac12\bigr)\;\ge\;\frac1{24} .
+\]
+In particular $\dcut(W_{G_n},\tfrac12)\not\to0$ and Conjecture 00000000046 is
+false.
+\end{theorem}
+
+\begin{proof}
+Since $G_n$ has no loops, every homomorphism $K_3\to G_n$ is injective, so
+$t(K_3,W_{G_n})=6\cdot\#\{\text{triangles of }G_n\}/n^3$, which is $0$ by
+Theorem~\ref{thm:tri}. For the constant graphon,
+$t(K_3,\tfrac12)=(\tfrac12)^3=\tfrac18$. The counting lemma states
+\[
+  \bigl|t(F,U)-t(F,U')\bigr|\;\le\;e(F)\,\dcut(U,U')
+\]
+for graphons $U,U'$ and finite simple $F$. Taking $F=K_3$, so $e(F)=3$,
+\[
+  \tfrac18=\bigl|t(K_3,\tfrac12)-t(K_3,W_{G_n})\bigr|\le3\,\dcut\bigl(W_{G_n},\tfrac12\bigr),
+\]
+which is the claim.
+\end{proof}
+
+\section{The edge density fails as well}
+
+Triangle-freeness already settles the conjecture. The first moment fails too,
+and in the opposite direction from what $W\equiv1/2$ would require.
+
+\begin{proposition}\label{prop:dens}
+Let $d(G_n)=e(G_n)\big/\binom n2$. Then
+\[
+  d(G_n)\;\le\;\frac{n+5}{3(n-1)}+\frac{2}{n(n-1)}\;=\;\frac13+O\!\left(\frac1n\right).
+\]
+\end{proposition}
+
+\begin{proof}
+Let $i<j\le n$ with $i+j$ prime. By Lemma~\ref{lem:bip}, $i+j$ is odd. If
+$3\mid i+j$ then $i+j$, being prime, equals $3$, which happens only for the
+single pair $\{1,2\}$. Every other edge therefore has
+$i+j\equiv1$ or $5\pmod6$. For fixed $i$ and a fixed residue $r$, the number of
+$j\le n$ with $i+j\equiv r\pmod 6$ is at most $\lceil n/6\rceil\le(n+5)/6$; two
+residues give at most $(n+5)/3$. Summing over $i\le n$ counts each edge twice,
+so $e(G_n)\le n(n+5)/6+1$, and dividing by $\binom n2=n(n-1)/2$ gives the
+bound.
+\end{proof}
+
+In fact $d(G_n)\to0$: each prime $p\le2n$ arises as $i+j$ for at most $n/2$
+pairs $i<j\le n$, so $e(G_n)\le n\pi(2n)/2$ and
+$d(G_n)\le n\pi(2n)/\bigl(n(n-1)\bigr)=O(1/\log n)$ by the prime number
+theorem. The computed values agree:
+
+\begin{center}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+$n$ & 10 & 20 & 50 & 100 & 200 & 400 & 800 & 1600\\
+\midrule
+$e(G_n)$ & 18 & 56 & 295 & 1044 & 3676 & 13239 & 47811 & 174317\\
+$d(G_n)$ & .400 & .295 & .241 & .211 & .185 & .166 & .150 & .136\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}[what the sequence does converge to]
+Since $W_{G_n}\ge0$, the cut norm is at most the $L^1$ norm, so
+\[
+  \dcut\bigl(W_{G_n},0\bigr)\le\int W_{G_n}=d(G_n)+O(1/n)\longrightarrow0 .
+\]
+Thus $G_n$ converges in cut distance to the \emph{zero} graphon $W\equiv0$, not
+to $W\equiv1/2$. A sequence of graphs converges to a constant graphon $c$ only
+if its edge density tends to $c$; here that forces $c=0$. The conjecture would
+be correct only for a sequence of density $1/2$, which $G_n$ is not, and the
+triangle obstruction of Theorem~\ref{thm:main} rules out $W\equiv1/2$ on its
+own.
+\end{remark}
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes the combinatorial core against
+Mathlib:
+
+\begin{itemize}
+  \item \texttt{Adj} --- adjacency in the prime-sum graph, $i\ne j$ and
+    $i+j$ prime, with primality Mathlib's \texttt{Nat.Prime}.
+  \item \texttt{not\_adj\_of\_same\_parity}, \texttt{parity\_ne\_of\_adj} ---
+    Lemma~\ref{lem:bip}: same-parity vertices are never adjacent, so $G_n$ is
+    bipartite between odds and evens.
+  \item \texttt{no\_triangle} --- Theorem~\ref{thm:tri}: no three vertices are
+    pairwise adjacent.
+  \item \texttt{triangleCount}, \texttt{triangleCount\_eq\_zero} --- the
+    triangle count of $G_n$, over increasing triples of $\{1,\ldots,n\}$, is
+    $0$ for every $n$.
+\end{itemize}
+
+\paragraph{Scope.} Mathlib contains no graph-limit theory: there are no
+graphons, no cut norm or cut distance, and no homomorphism densities. The step
+from Theorem~\ref{thm:tri} to Theorem~\ref{thm:main} --- the counting lemma
+--- is therefore carried out in this paper and is \emph{not} part of the Lean
+development, which establishes the input to it. We state this explicitly rather
+than leave the coverage of the formalization to be inferred. Building the
+missing theory is a substantial project in its own right and is not attempted
+here.
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and
+introduces no axioms of its own:
+\texttt{\#print axioms triangleCount\_eq\_zero} reports exactly the three
+standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
