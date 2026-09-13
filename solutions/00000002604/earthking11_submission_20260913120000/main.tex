@@ -1,0 +1,257 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{proposition}[definition]{Proposition}
+\newtheorem{lemma}[definition]{Lemma}
+\newtheorem{corollary}[definition]{Corollary}
+\newtheorem{conjecture}[definition]{Conjecture}
+\theoremstyle{remark}
+\newtheorem{remark}[definition]{Remark}
+
+\title{A counterexample to distributive-lattice layer-thickness rigidity}
+\author{earthking11}
+\date{13 September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We refute the conjecture that a finite distributive lattice is determined, up to
+isomorphism, by its layer-count vector.  Since a finite distributive lattice is
+isomorphic to the ideal lattice $J(P)$ of a finite poset $P$ (Birkhoff's theorem),
+the layer-count vector is the rank-size vector of $J(P)$, namely the numbers of
+order ideals of $P$ of each cardinality.  We exhibit non-isomorphic posets with
+equal ideal-count vectors on $4$ elements, and in fact already on $4$ elements;
+exhaustive enumeration shows that $4$ is the minimal size.  The natural reading of
+the conjecture is therefore false.  We also record the corresponding collision on
+$5$ elements.
+\end{abstract}
+
+\section{Setup and the conjecture}
+
+Throughout, a \emph{poset} is a finite set $P$ with a partial order $\le$.  A
+subset $I \subseteq P$ is an \emph{order ideal} (down-set) if $x \in I$ and
+$y \le x$ imply $y \in I$.  The set $J(P)$ of order ideals, ordered by inclusion,
+is a distributive lattice, and by Birkhoff's representation theorem every finite
+distributive lattice arises this way, uniquely up to isomorphism: $J(P) \cong J(Q)$
+if and only if $P \cong Q$.
+
+\begin{definition}[Layer-count vector]
+Let $L$ be a finite distributive lattice, and let $P$ be a poset with
+$L \cong J(P)$.  The \emph{layer-count vector} of $L$ is
+\[
+  v(L) \;=\; \bigl(v_0, v_1, \dots, v_n\bigr), \qquad
+  v_s \;=\; \#\{\, I \in J(P) : |I| = s \,\},
+\]
+where $n = |P|$.  Equivalently, $v_s$ is the number of elements of rank $s$ in
+$L \cong J(P)$.
+\end{definition}
+
+The parameter name ``coatoum-layer thicknesses'' in the original statement is
+garbled; the surrounding language (``layer-count vector'', ``Kruskal--Katona type
+inequalities'', ``distributive lattice layer thickness rigidity'') describes the
+rank-size statistics of the ideal lattice, which is the reading above.
+
+\begin{conjecture}[Layer-thickness rigidity --- refuted]
+\label{conj}
+Finite distributive lattices with the same layer-count vector are isomorphic.
+Equivalently, for finite posets $P, Q$: if $v(J(P)) = v(J(Q))$, then
+$P \cong Q$.
+\end{conjecture}
+
+\begin{remark}
+The conjecture is a statement about the map
+$P \mapsto v(J(P))$.  It asserts that this invariant is complete on isomorphism
+classes of finite posets.
+\end{remark}
+
+\section{A collision on $4$ elements}
+\label{sec:4}
+
+\begin{definition}[The two posets]
+Let $P$ and $Q$ be the posets on $\{0,1,2,3\}$ whose strict order relations are
+\[
+  P:\quad 0 < 1 < 2, \quad 3 \text{ isolated};
+  \qquad
+  Q:\quad 0 < 2, \quad 0 < 3, \quad 1 < 2,
+\]
+each closed reflexively and transitively.  Explicitly, the nontrivial
+comparabilities are
+\[
+  P:\; 0<1,\;0<2,\;1<2;
+  \qquad
+  Q:\; 0<2,\;0<3,\;1<2 .
+\]
+\end{definition}
+
+\begin{proposition}[Equal layer-count vectors]
+\label{prop:equal4}
+$v(J(P)) = v(J(Q)) = (1,2,2,2,1)$.
+\end{proposition}
+
+\begin{proof}
+We list the order ideals by cardinality.
+
+\smallskip
+\noindent\emph{Poset $P$ (chain $0<1<2$, isolated $3$).}
+\[
+\begin{array}{c|l}
+s & \text{ideals of size } s \\ \hline
+0 & \varnothing \\
+1 & \{0\},\ \{3\} \\
+2 & \{0,1\},\ \{0,3\} \\
+3 & \{0,1,2\},\ \{0,1,3\} \\
+4 & \{0,1,2,3\}
+\end{array}
+\]
+giving $(1,2,2,2,1)$.
+
+\smallskip
+\noindent\emph{Poset $Q$ ($0<2$, $0<3$, $1<2$).}
+\[
+\begin{array}{c|l}
+s & \text{ideals of size } s \\ \hline
+0 & \varnothing \\
+1 & \{0\},\ \{1\} \\
+2 & \{0,1\},\ \{0,3\} \\
+3 & \{0,1,2\},\ \{0,1,3\} \\
+4 & \{0,1,2,3\}
+\end{array}
+\]
+giving $(1,2,2,2,1)$ as well.
+\end{proof}
+
+\begin{lemma}[Non-isomorphism certificate]
+\label{lem:noniso4}
+$P \not\cong Q$.
+\end{lemma}
+
+\begin{proof}
+The element $3$ of $P$ is isolated: it is comparable to no other element of $P$.
+An order isomorphism preserves the property of being isolated (it is defined by the
+order relation alone, and is transported by any bijection that preserves and
+reflects $\le$).  On the other hand $Q$ has no isolated element: every element of
+$Q$ is comparable to a distinct element ($0<2$, $0<3$, $1<2$, and dually
+$2>0$, $3>0$, $2>1$).  Hence no bijection $\{0,1,2,3\} \to \{0,1,2,3\}$ is an
+order isomorphism.
+
+For completeness, one may also check directly: a direct computer enumeration of
+all $4! = 24$ bijections confirms that none satisfies
+$\bigl(a \le_P b \iff \sigma(a) \le_Q \sigma(b)\bigr)$ for all $a,b$.  This
+computation is formalised in \texttt{lean4/Main.lean} as the theorem
+\texttt{not\_isomorphic}, and reproduced in \texttt{reproduce.py}.
+\end{proof}
+
+\begin{corollary}
+Conjecture~\ref{conj} is false.  The distributive lattices $J(P)$ and $J(Q)$ are
+non-isomorphic yet have the same layer-count vector $(1,2,2,2,1)$.
+\end{corollary}
+
+\begin{proof}
+By Birkhoff's theorem, $J(P) \cong J(Q)$ iff $P \cong Q$; Lemma~\ref{lem:noniso4}
+gives $P \not\cong Q$, hence $J(P) \not\cong J(Q)$.  By
+Proposition~\ref{prop:equal4} their layer-count vectors coincide.
+\end{proof}
+
+\section{A collision on $5$ elements}
+
+The same phenomenon occurs with two posets whose layer-counts are spread less
+evenly.
+
+\begin{definition}
+Let $A$ and $B$ be the posets on $\{0,1,2,3,4\}$ with strict relations
+\[
+  A:\; 0<1,\ 0<2,\ 0<3,\ 1<3,\ 2<3, \quad 4 \text{ isolated};
+  \qquad
+  B:\; 1<2,\ 2<3,\ 0<4 .
+\]
+\end{definition}
+
+\begin{proposition}
+\label{prop:equal5}
+$v(J(A)) = v(J(B)) = (1,2,3,3,2,1)$.
+\end{proposition}
+
+\begin{proof}
+Direct enumeration of the $2^5 = 32$ subsets of each poset and selection of the
+down-closed ones.  For $A$ the ideal counts by size are $1,2,3,3,2,1$; for $B$ the
+same.  The enumeration is carried out in \texttt{reproduce.py} and, up to the
+sizes needed, in \texttt{lean4/Main.lean}.
+\end{proof}
+
+\begin{lemma}
+\label{lem:noniso5}
+$A \not\cong B$.
+\end{lemma}
+
+\begin{proof}
+$A$ has an isolated element ($4$), while $B$ has none: $0<4$, $1<2<3$ make every
+element of $B$ comparable to another.  Since the number of isolated elements is
+an isomorphism invariant, $A \not\cong B$.  Equivalently, $A$ has $5$ nontrivial
+comparabilities and $B$ has $3$ (after transitive closure), another isomorphism
+invariant that distinguishes them.  A brute-force check of all $5! = 120$
+bijections confirms this.
+\end{proof}
+
+\begin{corollary}
+$J(A)$ and $J(B)$ are non-isomorphic finite distributive lattices with equal
+layer-count vector $(1,2,3,3,2,1)$.
+\end{corollary}
+
+\section{Minimality: the smallest collision is on $4$ elements}
+
+\begin{proposition}
+\label{prop:minimal}
+There is no pair of non-isomorphic posets on at most $3$ elements with equal
+layer-count vectors.  The collision of Section~\ref{sec:4} on $4$ elements is
+therefore minimal.
+\end{proposition}
+
+\begin{proof}
+Exhaustive enumeration of all labelled reflexive, transitive, antisymmetric
+relations on $n$ elements for $n = 1,2,3,4$, grouping by ideal-count vector and
+testing every pair in a group for isomorphism by brute force over all $n!$
+bijections, yields:
+\[
+\begin{array}{c|c|c|c}
+n & \#\text{labelled posets} & \#\text{distinct vectors} & \#\text{non-isomorphic colliding pairs}\\ \hline
+1 & 1   & 1  & 0 \\
+2 & 3   & 2  & 0 \\
+3 & 19  & 5  & 0 \\
+4 & 219 & 15 & 576
+\end{array}
+\]
+For $n \le 3$ every group of posets sharing an ideal-count vector is a single
+isomorphism class, so the invariant is complete there.  For $n = 4$ there are
+$576$ non-isomorphic colliding pairs, the pair $\{P,Q\}$ of Section~\ref{sec:4}
+being one.  The enumeration is reproduced by \texttt{reproduce.py};
+the collision on $4$ elements is formalised in \texttt{lean4/Main.lean}.
+\end{proof}
+
+\begin{remark}
+The count of labelled posets $1, 3, 19, 219$ is the classical sequence of posets
+on $n$ labelled points, a useful sanity check on the enumeration.
+\end{remark}
+
+\section{On the reading of ``layer-count vector''}
+
+The refutation above targets the reading implicit in the statement's own language:
+the layer-count vector records the number of elements of each rank of the
+distributive lattice, equivalently the number of order ideals of each size in the
+associated poset.  Under this reading the invariant is plainly not complete, as
+the two examples show.
+
+If instead ``layer-count vector'' were replaced by a richer invariant that already
+determines the poset up to isomorphism --- for instance the isomorphism type of the
+subposet of join-irreducible elements of the lattice, which by Birkhoff's theorem
+recovers $P$ --- then the assertion ``same invariant $\Rightarrow$ isomorphic''
+would be trivially true.  That is a different, tautological statement.  The
+conjecture as written, with its reference to layer counts and Kruskal--Katona type
+inequalities on those counts, is the rank-statistics reading, and it is false.
+
+\end{document}
