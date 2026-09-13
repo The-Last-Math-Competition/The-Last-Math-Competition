@@ -1,0 +1,281 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\dperp}{d^{\perp}}
+
+\title{Disproof of conjecture \texttt{00000008419}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000008419} as stated. The refutation is
+unconditional and finite: the binary $[5,2,3]$ code has dual distance
+$\dperp = 2$, and at $t = 1$ its two minimum-weight codewords have supports
+$\{2,3,5\}$ and $\{1,4,5\}$, which are not a $1$-design. Since the
+conjecture's hypothesis $\dperp \ge t+1$ holds ($2 \ge 2$) while its conclusion
+fails, the first clause of the conjecture is false. The same code also
+falsifies the later clause ``the minimal failure of the converse occurs at
+$\dperp = 5$'': the failure occurs already at $\dperp = 2$.
+
+\section{The conjecture and its exact wording}
+
+The statement as filed in \texttt{conjectures/00000008419.md} is a compound,
+partly garbled conjecture. The English text reads:
+
+\begin{quote}
+\textbf{Definition:} The correspondence between covering radius and design
+strength of codes: the supports of dual codewords of weight $w$ form
+$t$-designs. \textbf{Conjecture:} For a code with dual distance d-perp at least
+$t+1$, all minimal codewords form $t$-$(n,w,\lambda)$ designs; the converse of
+the Assmus--Mattson theorem holds at weight $4$, and the minimal failure of the
+converse occurs at d-perp $= 5$. (converse of the Assmus--Mattson theorem)
+\end{quote}
+
+The Chinese text is equivalent; the bilingual original is reproduced verbatim
+in \texttt{README.md}. (It is not typeset here, to avoid shipping a PDF with
+missing CJK glyphs: this document deliberately uses no CJK package.)
+
+The statement contains three separable assertions:
+
+\begin{enumerate}
+\item[(C1)] \emph{(main clause)} If a binary linear code has dual distance
+      $\dperp \ge t+1$, then all minimum-weight codewords of the code form
+      $t$-$(n,w,\lambda)$ designs.
+\item[(C2)] The converse of the Assmus--Mattson theorem holds at weight $w=4$.
+\item[(C3)] The minimal failure of the converse occurs at $\dperp = 5$.
+\end{enumerate}
+
+Clause (C1) is false, and it is false already for $t=1$ and $\dperp = 2$. Since
+(C3) asserts that no failure occurs below $\dperp = 5$, our witness at
+$\dperp = 2$ also falsifies (C3). Because the conjecture is the conjunction of
+its clauses, exhibiting one false clause refutes it as filed.
+
+\begin{remark}[on ``minimal codewords'']
+Two readings of ``minimal codewords'' are natural: the \emph{minimum-weight}
+codewords, and the codewords whose support is minimal under inclusion. Both
+readings are falsified by the witness below; see
+Section~\ref{sec:robust}. We take the minimum-weight reading in the main
+argument, since only then do all blocks have a common size $w$ and the phrase
+``$t$-$(n,w,\lambda)$ design'' is well defined.
+\end{remark}
+
+\section{Background: the Assmus--Mattson theorem}
+
+The Assmus--Mattson theorem is \emph{not} contradicted by the witness; it is
+the conjectured converse that fails. For reference, the theorem (binary case)
+states: let $C$ be an $[n,k,d]$ code over $\F_2$ with dual distance $\dperp$,
+and let $t$ be an integer with $1 \le t \le \dperp - 1$ such that the number of
+weights of $C^{\perp}$ in $\{1,\dots,n-t\}$ is at most $d-t$. Then, for every
+$w$, the supports of the codewords of $C$ of weight $w$ form a $t$-design.
+
+The extra hypothesis --- few dual weights in a short interval --- cannot be
+dropped. For our witness $C$ we have $d = 3$, $\dperp = 2$, and the nonzero
+weights of $C^{\perp}$ are $\{2,3,4\}$. For $t = 1$ the AM condition would
+require $\#\{w \in \{1,\dots,4\} : w \text{ a weight of } C^{\perp}\} \le d-t$,
+i.e.\ $3 \le 2$, which fails. So the AM theorem simply does not apply to this
+code, exactly because its weight-count condition is violated. Clause (C1)
+proposes to replace that condition by the much weaker hypothesis
+$\dperp \ge t+1$, and it is this strengthening that is false.
+
+\section{The main witness: the binary $[5,2,3]$ code}
+
+\paragraph{Convention.} Coordinates are $1,\dots,5$, and a word is written as a
+string $b_1b_2b_3b_4b_5$ whose $i$-th character is the entry at coordinate $i$.
+
+\begin{definition}[The code $C$]
+Let
+\[
+C \;=\; \operatorname{span}_{\F_2}\{\,01101,\; 10011\,\}
+\;=\; \{\,00000,\; 01101,\; 10011,\; 11110\,\}.
+\]
+Its two generators have weight $3$ and their sum $11110$ has weight $4$.
+\end{definition}
+
+\begin{theorem}\label{thm:main}
+For the code $C$ above:
+\begin{enumerate}
+\item[(i)] the minimum distance is $d = 3$;
+\item[(ii)] the dual distance is $\dperp = 2$ (the word $01100$, of weight $2$,
+      lies in $C^{\perp}$, and $C^{\perp}$ has no word of weight $1$);
+\item[(iii)] the minimum-weight codewords are exactly $01101$ (support
+      $\{2,3,5\}$) and $10011$ (support $\{1,4,5\}$).
+\end{enumerate}
+Taking $t = 1$, the conjecture's hypothesis $\dperp \ge t+1$ holds, since
+$2 \ge 2$. Nevertheless the two supports are \emph{not} a $1$-$(5,3,\lambda)$
+design: coordinate $5$ belongs to both blocks while each of the coordinates
+$1,2,3,4$ belongs to exactly one.
+\end{theorem}
+
+\begin{proof}
+Direct computation. The nonzero codewords are $01101$, $10011$ and
+$11110$, of weights $3$, $3$ and $4$; hence $d = 3$. The generators and their
+sum give the orthogonality conditions for $C^{\perp}$:
+\[
+y \in C^{\perp} \iff
+\begin{cases}
+y_2 + y_3 + y_5 = 0,\\
+y_1 + y_4 + y_5 = 0.
+\end{cases}
+\]
+The word $01100$ satisfies both (it meets the supports of $01101$, $10011$ and
+$11110$ in $2$, $0$ and $2$ positions respectively), so $d^{\perp} \le 2$. No
+unit vector $e_i$ is orthogonal to all three nonzero codewords (each coordinate
+is non-zero on at least one of them), so $C^{\perp}$ has no word of weight $1$;
+hence $\dperp = 2$. The weight-$3$ codewords are exactly the two generators, so
+their supports are $\{2,3,5\}$ and $\{1,4,5\}$.
+
+For the design claim observe that the multiset of point multiplicities is
+\[
+\bigl(\mu_1,\dots,\mu_5\bigr) = (1,1,1,1,2),
+\]
+so the multiplicity of coordinate $5$ is $2$ while that of coordinates
+$1$--$4$ is $1$; a $1$-design requires a constant multiplicity $\lambda$. (In
+fact $\lambda$ would have to equal $bw/n = 2\cdot 3/5 = 6/5 \notin \mathbb{Z}$,
+which is already impossible.)
+\end{proof}
+
+\begin{corollary}
+Conjecture \texttt{00000008419} is false: at $(t, \dperp) = (1,2)$ clause (C1)
+fails, and the failure occurs at $\dperp = 2 < 5$, so clause (C3) fails too.
+\end{corollary}
+
+\begin{remark}[relation to the proposed counterexample]
+The refutation proposed in the task statement lists the same code as
+$\{\,00000, 01111, 10110, 11001\,\}$ with minimum-weight supports
+$\{2,3,5\}$ and $\{1,4,5\}$. That listing reads each binary string with the
+\emph{last} character as coordinate $1$; reversing every word
+($i \mapsto 6-i$) turns it into the present listing
+$\{00000, 01101, 10011, 11110\}$ with the same supports and the same
+multiplicities. The two descriptions are the same code up to coordinate
+reversal, so the proposal's conclusion is correct. We use the coordinate-first
+convention throughout for consistency with the tables and the Lean artifact.
+\end{remark}
+
+\section{Robustness: further witnesses and alternative readings}
+\label{sec:robust}
+
+The failure does not depend on the minimum weight $3$, on $t = 1$, or on
+$\dperp = 2$. Table~\ref{tab:witnesses} records four witnesses and one control;
+all quantities are computed by \texttt{reproduce.py} from the generator
+matrices over $\F_2$.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{l l c c c l}
+\toprule
+& generator rows & $d$ & $\dperp$ & $t$ & design property of the \\
+& & & & & minimum-weight codewords \\
+\midrule
+W1 & $01101,\ 10011$ & $3$ & $2$ & $1$ & \textbf{not} a $1$-design; multiplicities $(1,1,1,1,2)$ \\
+W2 & $1110001,\ 1001110$ & $4$ & $2$ & $1$ & \textbf{not} a $1$-design; multiplicities $(2,1,1,1,1,1,1)$ \\
+W3 & Hamming $[7,4,3]$ & $3$ & $4$ & $3$ & $1$- and $2$-designs, but \textbf{not} a $3$-design \\
+W4 & $110001,\ 101010,\ 011100$ & $3$ & $3$ & $2$ & $1$-design, but \textbf{not} a $2$-design \\
+\midrule
+W5 & extended Hamming $[8,4,4]$ & $4$ & $4$ & $3$ & \emph{is} a $3$-design (control) \\
+\bottomrule
+\end{tabular}
+\caption{Four witnesses (W1--W4) to the failure of clause (C1), and one control
+(W5) on which the design property does hold. Every $t$ in the table satisfies
+the conjecture's hypothesis $\dperp \ge t+1$.}
+\label{tab:witnesses}
+\end{table}
+
+\paragraph{Reading (a): $\dperp \ge t+1$ for the $t$ at which the design is
+claimed.} This is the reading used above; W1 (with $t=1$) refutes it.
+
+\paragraph{Reading (b): ``minimal codewords'' = minimal-support codewords.}
+For W1 all three nonzero codewords have supports minimal under inclusion: the
+two weight-$3$ supports $\{2,3,5\}$, $\{1,4,5\}$ and the weight-$4$ support
+$\{1,2,3,4\}$; no one contains another. Grouping by weight, the weight-$3$
+minimal codewords are again the two generators and are still not a $1$-design.
+For W2 no support contains another either, so all three nonzero words (weights
+$4,4,6$) are minimal-support; grouped by weight, the weight-$4$ minimal-support
+codewords are $1001110$ and $1110001$, with supports $\{1,4,5,6\}$ and
+$\{1,2,3,7\}$, which again fail the $1$-design property. So this reading is
+false as well.
+
+\paragraph{Reading (c): restrict to weight $4$.} W2 has minimum distance
+$d = 4$, $\dperp = 2$, and its two weight-$4$ codewords have supports
+$\{1,4,5,6\}$ and $\{1,2,3,7\}$: coordinate $1$ has multiplicity $2$ and the
+others multiplicity $1$, so they are not a $1$-design. Hence even a reading that
+confines clause (C1) to weight $4$ is false. The control W5 shows that this is
+not a defect of the design test: the extended Hamming $[8,4,4]$ code has
+$d = \dperp = 4$ and its $14$ weight-$4$ codewords \emph{do} form a
+$3$-$(8,4,1)$ design.
+
+\paragraph{Reading (d): $t \ge 2$.} W4 has $\dperp = 3$, so $t = 2$ is
+permitted, and its four minimum-weight codewords form a $1$-design but not a
+$2$-design. W3 has $\dperp = 4$ and fails at $t = 3$.
+
+No reading of ``$\dperp$ at least $t+1$'' that keeps the phrase
+``all minimal codewords form $t$-$(n,w,\lambda)$ designs'' leaves the statement
+true: each of the readings above has an explicit counterexample.
+
+\section{Reproducibility}
+
+\texttt{reproduce.py} (Python~3 standard library only) builds each code from
+its generator matrix over $\F_2$ using integer bitsets, computes the minimum
+and dual distances, enumerates the minimum-weight codewords and their supports,
+and tests the $t$-design property (all $t$-subsets contained in the same number
+of blocks). It prints \texttt{PASS} and exits $0$ if and only if every check
+holds; in particular it verifies
+
+\begin{quote}\ttfamily
+W1: d = 3, d\^{}perp = 2, supports \{2,3,5\}, \{1,4,5\},\\
+\hspace*{1.2em} multiplicities (1,1,1,1,2), 1-design = False;\\
+W1 violates the AM weight condition (3 > 2 for t = 1),\\
+W2: minimum weight 4 and d\^{}perp = 2, 1-design = False,\\
+W3: d\^{}perp = 4, 3-design = False,\\
+W4: d\^{}perp = 3, 2-design = False,\\
+W5: control, 3-design = True.
+\end{quote}
+
+\section{Formalisation}
+
+The witness W1 is formalised in the accompanying Lean~4 project under
+\texttt{lean4/}. It uses core Lean only (\texttt{import Std}, no Mathlib) and
+contains no \texttt{sorry}. Words are \texttt{List Bool} of length $5$; XOR is a
+hand-written Boolean XOR so that the kernel reducer can evaluate it (rather than
+the opaque \texttt{Nat.xor}); the design predicate counts, for every $t$-subset
+of the five coordinates, how many blocks contain it, and tests that all counts
+agree. The project proves, among others,
+
+\begin{quote}\ttfamily
+theorem minWeight\_eq\_three : minWeight = 3\\
+theorem dualDistance\_eq\_two : dualDistance = 2\\
+theorem support\_gA : (List.finRange 5).filter (support5 gA) = [1,2,4]\\
+theorem support\_gB : (List.finRange 5).filter (support5 gB) = [0,3,4]\\
+theorem multiplicity\_five : countBlocks blocks [4] = 2\\
+theorem multiplicity\_one : countBlocks blocks [0] = 1\\
+theorem isTDesign\_one\_false : isTDesign 1 blocks = false\\
+theorem conjecture\_00000008419\_false :\\
+\hspace*{2em} dualDistance = 2 \(\wedge\) minWeight = 3 \(\wedge\) isTDesign 1 blocks = false\\
+\hspace*{2em} \(\wedge\) countBlocks blocks [4] = 2 \(\wedge\) countBlocks blocks [0] = 1
+\end{quote}
+
+\noindent Here \texttt{support5 gA = [1,2,4]} encodes the support
+$\{2,3,5\}$ and \texttt{support5 gB = [0,3,4]} encodes $\{1,4,5\}$ (the lists
+contain zero-based coordinate indices). \texttt{Check.lean} prints
+\texttt{\#print axioms} for every theorem; the audit reports at most
+\texttt{propext} and never \texttt{sorryAx}.
+
+\end{document}
