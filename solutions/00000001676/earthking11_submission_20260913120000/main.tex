@@ -1,0 +1,164 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A counterexample to conjecture 00000001676:\\ the isoperimetric profile of the torus grid}
+\author{Submission \texttt{earthking11\_submission\_20260913120000}}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000001676 asserts that the isoperimetric profile of the
+$n\times n$ torus grid $C_n \mathbin{\square} C_n$ is
+$\operatorname{ip}(m)=\lceil 4\sqrt{nm-m^2}\rceil$ for all $m\le n^2/2$.
+We refute the conjecture. It has two independent defects. First, on part of
+its stated range the radicand $nm-m^2$ is negative, so the formula is not even
+real: for $n=3$, $m=4$ one has $m\le n^2/2=4.5$ but $nm-m^2=-4$. Second,
+wherever it is defined the formula is wrong. The cleanest counterexample is
+$(n,m)=(3,3)$: the formula gives $\lceil 4\sqrt{9-9}\rceil=0$, whereas the true
+minimum edge boundary is $6$.
+\end{abstract}
+
+\section{Definitions}
+
+\begin{definition}[Torus grid]
+Let $C_n$ be the cycle graph on $n$ vertices. The \emph{$n\times n$ torus grid}
+is the Cartesian product $C_n \mathbin{\square} C_n$. Its vertex set is
+$\mathbb{Z}_n\times\mathbb{Z}_n$, and two vertices are adjacent when they differ
+in exactly one coordinate, differences being taken modulo $n$ (the torus
+wrap-around). The graph is $4$-regular and has $n^2$ vertices and $2n^2$ edges.
+\end{definition}
+
+\begin{definition}[Edge boundary and isoperimetric profile]
+For $S\subseteq V(C_n\mathbin{\square} C_n)$ the \emph{edge boundary} is
+\[
+  \partial S \;=\; \bigl\{\, \{u,v\}\in E : |\{u,v\}\cap S|=1 \,\bigr\},
+  \qquad
+  |\partial S|
+  = \sum_{v\in S}\bigl(4-|N(v)\cap S|\bigr).
+\]
+The \emph{isoperimetric profile} is
+$\operatorname{ip}(m)=\min\{\,|\partial S| : S\subseteq V,\ |S|=m\,\}$.
+\end{definition}
+
+\begin{definition}[Conjectured formula]\label{def:formula}
+\emph{(Conjecture 00000001676.)} For all $m\le n^2/2$,
+\[
+  \operatorname{ip}(m) \;=\; \Bigl\lceil 4\sqrt{\,nm-m^{2}\,}\Bigr\rceil ,
+\]
+attained by diagonal cuts, with no other minimizing configuration.
+\end{definition}
+
+\section{Exhaustive computation of the true profile}
+
+For $n=3$ and $n=4$ we computed $\operatorname{ip}(m)$ by brute force: enumerate
+every $m$-vertex subset of the $n^2$ vertices, evaluate $|\partial S|$, and take
+the minimum. Subsets were encoded as bitmasks and $\partial S$ was evaluated as
+$\sum_{v\in S}\#\{w\in N(v): w\notin S\}$, which counts every crossing edge once.
+For $C_3\mathbin{\square} C_3$ there are $2^9=512$ masks; for
+$C_4\mathbin{\square} C_4$, $2^{16}=65536$ masks. The results are in
+Table~\ref{tab:results}. (The script \texttt{reproduce.py} regenerates them; the
+Lean development in \texttt{lean4/} verifies the decisive finite cases by kernel
+evaluation over the $512$ masks.)
+
+\begin{table}[htbp]
+\centering
+\begin{tabular}{c|c|c|c|l}
+\multicolumn{5}{c}{\textbf{$C_3\mathbin{\square} C_3$, stated range $m\le 9/2$, i.e.\ $m=1,\dots,4$}}\\[2pt]
+$m$ & $\operatorname{ip}(m)$ true & formula & $nm-m^2$ & status\\ \hline
+$1$ & $4$ & $\lceil 4\sqrt2\rceil=6$ & $2$  & formula wrong\\
+$2$ & $6$ & $6$                 & $2$  & agrees\\
+$3$ & $6$ & $\lceil 4\sqrt0\rceil=0$ & $0$ & \textbf{formula wrong}\\
+$4$ & $8$ & undefined           & $-4$ & \textbf{not real}\\
+\end{tabular}
+
+\vspace{1.2em}
+
+\begin{tabular}{c|c|c|c|l}
+\multicolumn{5}{c}{\textbf{$C_4\mathbin{\square} C_4$, stated range $m\le 8$}}\\[2pt]
+$m$ & $\operatorname{ip}(m)$ true & formula & $nm-m^2$ & status\\ \hline
+$1$ & $4$  & $\lceil 4\sqrt3\rceil=7$  & $3$   & formula wrong\\
+$2$ & $6$  & $8$                      & $4$   & formula wrong\\
+$3$ & $8$  & $7$                      & $3$   & formula wrong\\
+$4$ & $8$  & $\lceil 4\sqrt0\rceil=0$  & $0$   & formula wrong\\
+$5$ & $10$ & undefined                & $-5$  & not real\\
+$6$ & $10$ & undefined                & $-12$ & not real\\
+$7$ & $10$ & undefined                & $-21$ & not real\\
+$8$ & $8$  & undefined                & $-32$ & not real\\
+\end{tabular}
+\caption{True minimum edge boundary versus the conjectured formula.}
+\label{tab:results}
+\end{table}
+
+\section{The counterexample}
+
+\begin{theorem}[Cleanest counterexample]\label{thm:main}
+For the torus grid $C_3\mathbin{\square} C_3$ and $m=3$, the conjectured formula
+of Definition~\ref{def:formula} gives $0$, but the true minimum edge boundary is
+$6$. Hence the conjecture is false.
+\end{theorem}
+
+\begin{proof}
+Here $n=m=3$, so $nm-m^2=9-9=0$ and the formula gives
+$\lceil 4\sqrt{0}\rceil=0$.
+
+A full row $\{(i,0),(i,1),(i,2)\}$ of the torus has $3$ vertices. Each of its
+vertices has its two horizontal neighbours inside the row and its two vertical
+neighbours outside the row, so the induced subgraph has $3$ edges and
+\[
+  |\partial S| = 3\cdot 4 - 2\cdot 3 = 12-6 = 6 .
+\]
+The exhaustive search over all $\binom{9}{3}=84$ triples (Table~\ref{tab:results})
+shows no triple has a smaller boundary, so $\operatorname{ip}(3)=6$. Thus the
+conjecture predicts $0$ where the truth is $6$.
+\end{proof}
+
+\begin{proposition}[Further defined-range failures]
+The formula is also wrong at $(n,m)=(3,1)$: it gives
+$\lceil 4\sqrt{2}\rceil=6$, while a single vertex has boundary $4$. More
+generally Table~\ref{tab:results} exhibits six distinct defined values of
+$(n,m)$ in the stated range at which the formula disagrees with the true
+profile.
+\end{proposition}
+
+\section{Ill-posedness of the stated range}
+
+The conjecture quantifies over all $m\le n^2/2$. But the radicand $nm-m^2
+= m(n-m)$ is negative precisely when $m>n$. Together with the upper bound
+$m\le n^2/2$ this is non-empty for every $n\ge 3$: choose any integer $m$ with
+$n<m\le n^2/2$ (for $n=3$, $m=4$; for $n=4$, $m=5,6,7,8$; in general such an
+$m$ exists because $n^2/2\ge n+1$ for $n\ge 3$). At those points the formula is
+not a real number, so the conjecture is not even well posed on its stated
+domain.
+
+\begin{remark}
+For $n=3$, $m=4$: $nm-m^2=12-16=-4<0$, while $m=4\le n^2/2=4.5$. For $n=4$,
+$m=8$: $nm-m^2=32-64=-32<0$, while $m=8=n^2/2$. Thus the defect occurs within
+the stated range, not merely beyond a boundary convention.
+\end{remark}
+
+\section{Verdict}
+
+The conjecture is \textbf{false}, on two independent grounds:
+\begin{enumerate}
+  \item \textbf{Ill-posed on part of its range.} For $n<m\le n^2/2$ the
+        radicand $nm-m^2$ is negative (e.g.\ $n=3$, $m=4$), so the formula is
+        not real.
+  \item \textbf{Wrong wherever defined.} The cleanest instance is
+        $(n,m)=(3,3)$: the formula gives $0$ while the true minimum edge
+        boundary is $6$. Other defined-range failures include $(n,m)=(3,1)$
+        and $(4,1),(4,2),(4,3),(4,4)$.
+\end{enumerate}
+
+\end{document}
