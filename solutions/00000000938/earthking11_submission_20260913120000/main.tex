@@ -1,0 +1,208 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{claim}[theorem]{Claim}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+\newcommand{\linf}{\ell_\infty}
+\newcommand{\lone}{\ell_1}
+\newcommand{\ltwo}{\ell_2}
+
+\title{A rule-3 disproof of conjecture 00000000938:\\
+the Banach--Mazur distance $d(\lone^n,\linf^n)$ is not $\sqrt n$}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000938 asserts, among other things, that the Banach--Mazur
+distance between $\lone^n$ and $\linf^n$ ``is exactly $\sqrt n$ (the Goldstine
+ratio)''. We refute this statement as written: already at $n=2$ the linear map
+$T(x_1,x_2)=(x_1+x_2,\,x_1-x_2)$ is a bijective isometry from $\lone^2$ onto
+$\linf^2$, so $d(\lone^2,\linf^2)=1\neq\sqrt2\approx1.41421$. Moreover,
+$\sqrt n$ is not merely off by a constant: $\sqrt n$ is the correct value of
+$d(\lone^n,\ltwo^n)=d(\ltwo^n,\linf^n)$, whereas $d(\lone^n,\linf^n)$ is of
+order $n$. The claim therefore fails at $n=2$ and is the wrong quantity in
+general.
+\end{abstract}
+
+\section{Definition}
+
+\begin{definition}[Banach--Mazur distance]
+Let $E,F$ be isomorphic $n$-dimensional real Banach spaces. Their
+\emph{Banach--Mazur distance} is
+\[
+  d(E,F) \;=\; \inf\{\,\norm{T}\cdot\norm{T^{-1}} \;:\; T:E\to F
+  \text{ an isomorphism}\,\},
+\]
+where $\norm{T}=\sup_{\norm{x}_E\le 1}\norm{Tx}_F$ is the operator norm.
+Equivalently, $d(E,F)$ is the infimum of $\lambda\ge1$ such that there is an
+isomorphism $T$ with $\lambda^{-1}\norm{x}_E\le\norm{Tx}_F\le\lambda\norm{x}_E$
+for all $x\in E$. In particular $d(E,F)\ge1$, with equality if and only if
+$E$ and $F$ are isometrically isomorphic.
+\end{definition}
+
+For $1\le p\le\infty$ we write $\ell_p^n=(\R^n,\norm{\cdot}_p)$, where
+$\norm{x}_p=(\sum_{i=1}^n|x_i|^p)^{1/p}$ for $p<\infty$ and
+$\norm{x}_\infty=\max_i|x_i|$. Thus the unit ball of $\lone^2$ is the diamond
+with vertices $(\pm1,0),(0,\pm1)$, while the unit ball of $\linf^2$ is the
+square with corners $(\pm1,\pm1)$.
+
+The claim under test is the following sentence from conjecture 00000000938:
+\begin{quote}
+``the distance between $\lone^n$ and $\linf^n$ is exactly $\sqrt n$ (the
+Goldstine ratio)''.
+\end{quote}
+The text places no restriction on $n$ and gives no asymptotic qualifier, so the
+assertion is to be read as an identity valid for all $n$. We show it is false
+already for $n=2$.
+
+\section{The key isometry identity}
+
+\begin{lemma}[Isometry identity]\label{lem:identity}
+For all real $a,b$,
+\[
+  \max\bigl(|a+b|,\;|a-b|\bigr) \;=\; |a|+|b|.
+\]
+\end{lemma}
+
+\begin{proof}
+By the triangle inequality, $|a+b|\le|a|+|b|$ and $|a-b|\le|a|+|b|$, hence
+$\max(|a+b|,|a-b|)\le|a|+|b|$. For the reverse inequality, split according to
+the relative signs of $a$ and $b$.
+\begin{itemize}
+\item If $a\ge0$ and $b\ge0$, then $|a+b|=a+b=|a|+|b|$.
+\item If $a\le0$ and $b\le0$, then $a+b\le0$ and $|a+b|=-(a+b)=|a|+|b|$.
+\item If $a\ge0\ge b$, then $a-b\ge0$ and $|a-b|=a-b=|a|+|b|$.
+\item If $a\le0\le b$, then $a-b\le0$ and $|a-b|=-(a-b)=|a|+|b|$.
+\end{itemize}
+In each case one of $|a+b|,|a-b|$ equals $|a|+|b|$, so
+$\max(|a+b|,|a-b|)\ge|a|+|b|$. This proves the identity.
+\end{proof}
+
+\begin{proposition}\label{prop:isometry}
+Define $T:\R^2\to\R^2$ by $T(x_1,x_2)=(x_1+x_2,\;x_1-x_2)$. Then
+\[
+  \norm{Tx}_\infty=\max\bigl(|x_1+x_2|,|x_1-x_2|\bigr)=|x_1|+|x_2|=\norm{x}_1
+  \qquad\text{for all }x\in\R^2 .
+\]
+Consequently $T$ is an isometry from $\lone^2$ onto $\linf^2$.
+\end{proposition}
+
+\begin{proof}
+The displayed identity is Lemma~\ref{lem:identity} with $a=x_1$, $b=x_2$. In
+particular $T$ preserves norms, hence is injective; and $T$ is surjective with
+inverse
+\[
+  T^{-1}(y_1,y_2)=\Bigl(\tfrac{y_1+y_2}{2},\;\tfrac{y_1-y_2}{2}\Bigr),
+\]
+so $T$ is a linear isometry of $\lone^2$ onto $\linf^2$.
+\end{proof}
+
+Geometrically, $T$ maps the four vertices of the $\lone^2$ unit ball to the
+four corners of the $\linf^2$ unit ball:
+\[
+  (1,0)\mapsto(1,1),\quad
+  (-1,0)\mapsto(-1,-1),\quad
+  (0,1)\mapsto(1,-1),\quad
+  (0,-1)\mapsto(-1,1).
+\]
+Since $T$ is linear and the diamond is the convex hull of its vertices, $T$
+carries the diamond onto the square.
+
+\section{The counterexample at $n=2$}
+
+\begin{theorem}\label{thm:main}
+$d(\lone^2,\linf^2)=1$. In particular $d(\lone^2,\linf^2)\neq\sqrt2$.
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:isometry}, $T$ is a bijective linear isometry from
+$\lone^2$ onto $\linf^2$, and its inverse $T^{-1}$ is a bijective linear
+isometry from $\linf^2$ onto $\lone^2$. Hence, for the operator norms defining
+the distance,
+\[
+  \norm{T}_{\lone^2\to\linf^2}
+  =\sup_{x\neq0}\frac{\norm{Tx}_\infty}{\norm{x}_1}=1,
+  \qquad
+  \norm{T^{-1}}_{\linf^2\to\lone^2}
+  =\sup_{y\neq0}\frac{\norm{T^{-1}y}_1}{\norm{y}_\infty}=1.
+\]
+Therefore $d(\lone^2,\linf^2)\le\norm{T}\norm{T^{-1}}=1$. Since
+$d(E,F)\ge1$ always (as $T^{-1}T=\mathrm{id}$ forces
+$1=\norm{\mathrm{id}}\le\norm{T}\norm{T^{-1}}$), we conclude
+$d(\lone^2,\linf^2)=1$. Finally $1^2=1\neq2=(\sqrt2)^2$ and both numbers are
+positive, so $1\neq\sqrt2\approx1.41421$.
+\end{proof}
+
+\begin{corollary}
+The sentence ``the distance between $\lone^n$ and $\linf^n$ is exactly
+$\sqrt n$'' is false. It fails at $n=2$, where the true distance is $1$.
+\end{corollary}
+
+\begin{proof}
+Immediate from Theorem~\ref{thm:main}: the asserted value for $n=2$ is
+$\sqrt2$, but the actual distance is $1$.
+\end{proof}
+
+\begin{remark}[Why this is the wrong quantity, not a rounding error]
+It is a standard fact that
+\[
+  d(\lone^n,\ltwo^n)=\sqrt n,
+  \qquad
+  d(\ltwo^n,\linf^n)=\sqrt n ,
+\]
+the ``Goldstine ratio''. This is the source of the $\sqrt n$ appearing in the
+conjecture. However, the pair $(\lone^n,\linf^n)$ is different: since
+$(\lone^n)^*=\linf^n$, duality gives $d(\lone^n,\linf^n)=d(\linf^n,\lone^n)$,
+and the identity map already shows $d(\lone^n,\linf^n)\le n$. More
+importantly, the distance between $\lone^n$ and $\linf^n$ is of order $n$, not
+of order $\sqrt n$: there are absolute constants $c,C>0$ with
+\[
+  c\,n \;\le\; d(\lone^n,\linf^n) \;\le\; C\,n .
+\]
+This is the endpoint $p=1$, $q=\infty$ of the classical two-sided estimate
+$d(\ell_p^n,\ell_q^n)\asymp n^{1/p-1/q}$ for $1\le p\le q\le\infty$; here
+$1/p-1/q=1$. Thus $\sqrt n$ is asymptotically the wrong order of magnitude,
+not an off-by-a-small-constant error, and replacing it by any multiple of
+$\sqrt n$ cannot repair the statement. The decomposition
+$d(\lone^n,\linf^n)\le d(\lone^n,\ltwo^n)\,d(\ltwo^n,\linf^n)=n$ and the
+matching order-$n$ lower bound are the correct context.
+\end{remark}
+
+\begin{remark}[On the asymptotic reading]
+The conjecture's surrounding discussion concerns the asymptotic diameter
+$d_n$ of $n$-dimensional Banach spaces and the limit $d_n/n\to1$. The specific
+sentence we refute, however, is stated with ``exactly $\sqrt n$'' and carries
+no ``asymptotically'' / ``as $n\to\infty$'' qualifier. Reading it as an exact
+identity for every $n$ makes it false at $n=2$; reading it as merely asymptotic
+is not what the text says, and even under that reading $\sqrt n$ is the wrong
+order since the true distance grows like $n$. We therefore mark the
+$\lone^n$--$\linf^n$ sub-claim of conjecture 00000000938 as \textbf{false},
+independently of the conjecture's remaining claims about $d_n$.
+\end{remark}
+
+\section{Formal verification}
+
+The identity of Lemma~\ref{lem:identity}, the isometry property of $T$, the
+vertex correspondence, and the arithmetic fact $1^2\neq2$ are formalised in
+core Lean~4 (toolchain \texttt{leanprover/lean4:v4.33.1}, only
+\texttt{import Std}, no Mathlib, no \texttt{sorry}). See \texttt{lean4/}. A
+standalone numerical reproduction over all integer vectors in $[-25,25]^2$ is
+provided in \texttt{reproduce.py}.
+
+\end{document}
