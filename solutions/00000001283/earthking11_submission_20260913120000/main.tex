@@ -1,0 +1,248 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\xor}{\oplus}
+\newcommand{\abs}[1]{\lvert #1 \rvert}
+\setlength{\emergencystretch}{3em}
+
+\title{Refutation of Conjecture 00000001283:\\
+the nim-equation $x \xor y = x \cdot y$ has no solutions with $x, y \ge 1$}
+\author{earthking11}
+\date{13 September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We disprove Conjecture 00000001283.  In the stated domain $x, y \ge 1$ the
+nim-equation $x \xor y = x \cdot y$ (with $\xor$ the carry-free binary
+addition, i.e.\ bitwise XOR) has \emph{no} solutions at all.  Moreover the
+pair $(2,2)$ that the conjecture lists as a solution is not one, because
+$2 \xor 2 = 0 \ne 4 = 2 \cdot 2$, and the second clause of the conjecture --
+that for all other pairs $x, y > 2$ the difference $x \xor y - x \cdot y$ is a
+sign flip of a power of two -- fails already at $(3,3)$, where the difference
+is $-9$.  Over the box $x, y \in [3, 499]$ exactly $39$ of the $247\,009$
+pairs satisfy that clause; the remaining $246\,970$ violate it.  All three
+facts are verified by exhaustive computation and, independently, in Lean~4.
+\end{abstract}
+
+\section{The conjecture under test}\label{sec:conjecture}
+
+From \texttt{conjectures/00000001283.md}:
+
+\begin{quote}
+\textbf{Conjecture 00000001283.} \emph{A nim-equation is an integer solution
+of $x \xor y = x \cdot y$ with $x, y \ge 1$, where $\xor$ is binary addition
+without carry.  Conjecture: the only solutions are $(2,2)$ and $(0,0)$; for
+all other candidate pairs with $x, y > 2$, the difference between the
+nim-sum and the product is a sign flip of a power of two.}
+\end{quote}
+
+Here ``binary addition without carry'' is bitwise XOR: writing $x$ and $y$ in
+base~$2$, one adds each bit column independently and discards carries.  The
+claim has two clauses:
+
+\begin{enumerate}
+  \item[(C1)] the solution set of $x \xor y = x \cdot y$ over non-negative
+    integers is exactly $\{(2,2), (0,0)\}$;
+  \item[(C2)] for every other pair with $x, y > 2$ one has
+    $x \xor y - x \cdot y = \pm 2^{j}$ for some $j \ge 0$.
+\end{enumerate}
+
+We show that the statement is false as written, and in fact that it is false
+in a stronger sense than the wording suggests.
+
+\section{Part 1: $(2,2)$ is not a solution}\label{sec:twotwo}
+
+In binary, $2 = 10_{2}$, so
+\[
+  2 \xor 2 = 10_{2} \xor 10_{2} = 00_{2} = 0 ,
+\]
+whereas the ordinary product is $2 \cdot 2 = 4$.  Hence
+\[
+  2 \xor 2 = 0 \ne 4 = 2 \cdot 2 ,
+\]
+so $(2,2)$ does \emph{not} satisfy the nim-equation.  Clause (C1) explicitly
+lists $(2,2)$ as a solution, so (C1) is literally false.  The other listed
+pair, $(0,0)$, is a genuine solution ($0 \xor 0 = 0 = 0 \cdot 0$) but lies
+outside the stated domain $x, y \ge 1$; every theorem below concerns that
+domain.
+
+\begin{remark}
+A charitable reading of ``the only solutions are $(2,2)$ and $(0,0)$'' is
+``there are no solutions \emph{besides} these two,'' which would not, by
+itself, assert that $(2,2)$ is a solution.  But the sentence as written says
+that the only solutions \emph{are} $(2,2)$ and $(0,0)$, i.e.\ it asserts
+membership; that assertion is false.  In any case Section~\ref{sec:none}
+shows there are no solutions with $x, y \ge 1$, so even the charitable
+reading leaves the conjecture with an empty (and hence vacuous) true half and
+a false second half.
+\end{remark}
+
+\section{Part 2: there are no solutions with $x, y \ge 1$}\label{sec:none}
+
+We prove the stronger statement announced in the abstract.
+
+\begin{theorem}\label{thm:none}
+There is no pair of integers $(x, y)$ with $x, y \ge 1$ such that
+$x \xor y = x \cdot y$.
+\end{theorem}
+
+\begin{proof}
+Let $x, y \ge 1$ and suppose $x \xor y = x \cdot y$.
+
+\emph{Case $x = 1$ (or, symmetrically, $y = 1$).}  Adding $1$ to an integer
+without carry changes only the lowest bit: it toggles that bit.  Hence for
+$y \ge 1$,
+\[
+  1 \xor y =
+  \begin{cases}
+    y + 1, & y \text{ even},\\
+    y - 1, & y \text{ odd},
+  \end{cases}
+\]
+so $1 \xor y = y \pm 1$, which is never equal to $1 \cdot y = y$ because
+$\pm 1 \ne 0$.  Thus $x = 1$ gives no solution, and by symmetry neither does
+$y = 1$.
+
+\emph{Case $x, y \ge 2$.}  For the XOR we use the standard identity
+\[
+  x + y = (x \xor y) + 2\,(x \mathbin{\&} y),
+\]
+which holds because addition decomposes into the carry-free sum and twice the
+carry bits.  Since $x \mathbin{\&} y \ge 0$,
+\begin{equation}\label{eq:xorle}
+  x \xor y = x + y - 2\,(x \mathbin{\&} y) \le x + y .
+\end{equation}
+On the other hand, for $x, y \ge 2$,
+\[
+  x \cdot y - (x + y) = (x - 1)(y - 1) - 1 \ge 1 \cdot 1 - 1 = 0 ,
+\]
+with equality if and only if $(x - 1)(y - 1) = 1$, i.e.\ $x = y = 2$.  Hence
+\begin{equation}\label{eq:prodge}
+  x \cdot y \ge x + y ,
+\end{equation}
+and combining \eqref{eq:xorle} and \eqref{eq:prodge},
+\[
+  x \xor y \le x + y \le x \cdot y .
+\]
+If $x \xor y = x \cdot y$ then both inequalities are equalities.  Equality in
+\eqref{eq:prodge} forces $x = y = 2$, but then equality in \eqref{eq:xorle}
+would require $x \xor y = x + y$, whereas $2 \xor 2 = 0 \ne 4 = 2 + 2$.  So
+the case $x, y \ge 2$ yields no solution either.
+
+Both cases being impossible, there is no solution with $x, y \ge 1$.
+\end{proof}
+
+\begin{corollary}
+Over the non-negative integers the solution set of $x \xor y = x \cdot y$ is
+exactly $\{(0,0)\}$.
+\end{corollary}
+
+\begin{proof}
+$0 \xor 0 = 0 = 0 \cdot 0$ is a solution.  Conversely, if $x, y \ge 0$ solve
+the equation and $(x, y) \ne (0,0)$, then either $x = 0$ or $y = 0$ (the
+``boundary'' cases $x, y \ge 1$ being impossible by
+Theorem~\ref{thm:none}).  If $x = 0$ then $x \xor y = y$ but
+$x \cdot y = 0$, so $y = 0$; symmetrically for $y = 0$.  Hence the only
+non-negative solution is $(0,0)$.
+\end{proof}
+
+This is confirmed by exhaustive search: over $0 \le x, y < 500$ the solution
+set is $\{(0,0)\}$, and over $1 \le x, y < 500$ it is empty
+(\texttt{reproduce.py}, checks~[2] and~[2b]; the same bounded search is
+formalised in \texttt{lean4/Main.lean} for the box $0 \le x, y < 200$).
+
+\section{Part 3: the second clause fails at $(3,3)$}\label{sec:clause2}
+
+For a pair $(x, y)$ write
+\[
+  \Delta(x, y) = (x \xor y) - x \cdot y .
+\]
+Clause (C2) asserts that $\Delta(x, y) \in \{\, \pm 2^{j} : j \ge 0 \,\}$ for
+every pair with $x, y > 2$ and $(x, y) \notin \{(2,2), (0,0)\}$.  This is
+false.  At $(3,3)$,
+\[
+  3 \xor 3 = 11_{2} \xor 11_{2} = 00_{2} = 0,
+  \qquad 3 \cdot 3 = 9,
+  \qquad \Delta(3,3) = 0 - 9 = -9 .
+\]
+The number $9$ is not a power of two.  Indeed the powers of two are
+$2^{0} = 1$, $2^{1} = 2$, $2^{2} = 4$, $2^{3} = 8$, $2^{4} = 16$, and
+$2^{j}$ is strictly increasing in $j$: for $j \le 3$ we have $2^{j} \le 8 < 9$,
+while for $j \ge 4$ we have $2^{j} \ge 16 > 9$.  Hence $2^{j} \ne 9$ for every
+$j \ge 0$, so $-9 = -2^{j}$ is impossible as well; equivalently
+$\Delta(3,3) = -9 \notin \{\pm 2^{j}\}$.  Clause (C2) therefore fails.
+
+The failure is not an isolated coincidence.  Iterating over the full box
+$x, y \in [3, 499]$ (that is $497^{2} = 247\,009$ pairs) in
+\texttt{reproduce.py}, check~[3], we find:
+\[
+  \#\{\, (x, y) : \Delta(x, y) = \pm 2^{j} \text{ for some } j \,\} = 39,
+  \qquad
+  \#\{\, (x, y) : \Delta(x, y) \ne \pm 2^{j} \text{ for all } j \,\}
+  = 246\,970 .
+\]
+So $246\,970$ of $247\,009$ pairs -- more than $99.98\%$ -- violate the
+clause.  Besides $(3,3)$ with $\Delta = -9$, small explicit violators include
+$(3,4)$ with $3 \xor 4 = 7$, $3 \cdot 4 = 12$, $\Delta = -5$, and $(3,6)$ with
+$3 \xor 6 = 5$, $3 \cdot 6 = 18$, $\Delta = -13$; neither $-5$ nor $-13$ is
+$\pm 2^{j}$.
+
+\begin{remark}
+Since by Theorem~\ref{thm:none} there are no solutions with $x, y \ge 1$, the
+set of ``other candidate pairs'' in (C2) is the entire box $x, y > 2$; the
+clause is not saved by excluding solutions, because there are none to exclude.
+\end{remark}
+
+\section{Formal verification in Lean~4}\label{sec:lean}
+
+The three refutations are formalised in core Lean~4 (toolchain
+\texttt{leanprover/lean4:v4.33.1}, \texttt{import Std}, no Mathlib, no
+\texttt{sorry}, no custom \texttt{axiom}, no \texttt{native\_decide}); see
+\texttt{lean4/Main.lean} and the axiom audit \texttt{lean4/Check.lean}.
+
+\begin{itemize}
+  \item \texttt{two\_nim\_two} : $(2 : \mathbb{N}) \xor 2 = 0 \wedge
+    2 \cdot 2 = 4$, and \texttt{not\_a\_solution} :
+    $\neg\,(2 \xor 2 = 2 \cdot 2)$, both by \texttt{decide}.  This is
+    Section~\ref{sec:twotwo}.
+  \item \texttt{solutionsUpTo}, \texttt{only\_zero\_solution} : the bounded
+    search over $0 \le x, y < 200$ equals $[(0,0)]$, and
+    \texttt{no\_pos\_solutions} : the search over $1 \le x, y < 200$ is empty.
+    This is the computational shadow of Theorem~\ref{thm:none}
+    (Section~\ref{sec:none}).
+  \item \texttt{nine\_not\_pow}, \texttt{nine\_not\_pow\_neg} :
+    $\neg \exists j,\ (-9 = 2^{j})$ and $\neg \exists j,\ (-9 = -2^{j})$, and
+    \texttt{clause2\_fails\_at\_3\_3}, which records $3 \xor 3 = 0$,
+    $3 \cdot 3 = 9$ and both non-representability facts.  This is
+    Section~\ref{sec:clause2}.
+  \item \texttt{conjecture\_00000001283\_false} collects all of the above.
+\end{itemize}
+
+The axiom audit reports that every theorem depends only on the core axioms
+\texttt{propext} and \texttt{Quot.sound} (never \texttt{sorryAx} or
+\texttt{Lean.ofReduceBool}).
+
+\section{Conclusion}
+
+Conjecture 00000001283 is \textbf{false}.  The pair $(2,2)$ it lists as a
+solution is not one ($2 \xor 2 = 0 \ne 4$); there is in fact no solution with
+$x, y \ge 1$ whatsoever (Theorem~\ref{thm:none}); and the second clause
+fails already at $(3,3)$, where the difference is $-9$, with $246\,970$ of the
+$247\,009$ pairs in $[3,499]^{2}$ violating it.  These are three independent
+defects, any one of which suffices to refute the statement as written.
+
+\end{document}
