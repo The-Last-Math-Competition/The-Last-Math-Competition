@@ -1,0 +1,304 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Disproof of conjecture \texttt{00000008422}\\ \large the $\lambda$-spectrum of block designs}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000008422} as stated. Two witnesses are
+discussed.
+
+\begin{itemize}
+\item The small case $(v,k)=(6,3)$ shows that the criterion
+``$\lambda\binom{v}{t}/\binom{k}{t}$ is an integer with $t=k-1$, and
+$\lambda\le\binom{v-2}{k-2}$'' is \emph{not sufficient}: it predicts
+$\lambda\in\{1,2,3,4\}$, whereas the attainable set is $\{2,4\}$. However, this
+produces only $2$ exceptions, and $2\le k^{2}=9$. Since the conjecture itself
+allows ``a finite explicit exceptional set with at most $k^{2}$ exceptions,''
+the $(6,3)$ witness is \emph{absorbed} by that clause: it refutes only the
+strict ``if and only if / the spectrum is complete'' reading, not the
+exception-clause reading.
+\item The case $(v,k)=(22,3)$ is decisive. The criterion predicts
+\emph{every} $\lambda\in\{1,\dots,\binom{20}{1}\}=\{1,\dots,20\}$, but the
+necessary replication condition $r=\lambda(v-1)/(k-1)=21\lambda/2$ forces
+$\lambda$ to be even. The ten odd values in $\{1,\dots,20\}$ are therefore
+unattainable although predicted, and $10>k^{2}=9$. This violates the exception
+clause itself, so the conjecture fails under \emph{both} readings.
+\end{itemize}
+
+\section{The conjecture, quoted}
+
+\begin{definition}[$\lambda$-spectrum]
+For given $(v,k)$, the \emph{$\lambda$-spectrum} is the set of realizable
+$\lambda$ for which a $2$-$(v,k,\lambda)$ design exists.
+\end{definition}
+
+Quoted verbatim from \texttt{conjectures/00000008422.md}:
+
+\begin{quote}
+\textbf{Definition:} The lambda spectrum of block designs: the set of realizable
+lambda values for given (v,k). \textbf{Conjecture:} lambda is attainable if and
+only if lambda $\binom{v}{t}/\binom{k}{t}$ is an integer (with $t=k-1$) and
+lambda is at most $\binom{v-2}{k-2}$, so the spectrum is complete; the
+complement of the spectrum is a finite explicit exceptional set with at most
+$k^{2}$ exceptions. (complete characterization of design lambda spectrum)
+\end{quote}
+
+Thus the criterion set is
+\begin{equation}\label{eq:criterion}
+\mathcal C(v,k)=\Bigl\{\lambda\in\mathbb Z_{>0}:\
+\lambda\tfrac{\binom{v}{t}}{\binom{k}{t}}\in\mathbb Z,\ t=k-1,\
+\lambda\le \tbinom{v-2}{k-2}\Bigr\},
+\end{equation}
+and the conjecture asserts, up to a ``finite exceptional set with at most
+$k^{2}$ exceptions,'' that the spectrum equals $\mathcal C(v,k)$. We take the
+exception clause at face value: the number of criterion-predicted values that
+are \emph{not} attainable is at most $k^{2}$. We show this fails at
+$(22,3)$. The $(6,3)$ case is included first because it is the smallest and
+because it shows the mechanism.
+
+Throughout, a $2$-$(v,k,\lambda)$ design has block count and replication number
+\begin{equation}\label{eq:bk}
+b=\frac{\lambda v(v-1)}{k(k-1)},\qquad r=\frac{\lambda(v-1)}{k-1}.
+\end{equation}
+
+\section{The divisibility argument}
+
+\begin{lemma}[replication identity]\label{lem:rep}
+In a $2$-$(v,k,\lambda)$ design, for every point $p$ the number $r$ of blocks
+through $p$ satisfies
+\begin{equation}\label{eq:rep}
+(k-1)\,r=(v-1)\,\lambda .
+\end{equation}
+Consequently $(k-1)\mid (v-1)\lambda$, and $2$-$r=(v-1)\lambda$ when $k=3$.
+\end{lemma}
+
+\begin{proof}
+Count the flags ``(block $B$ through $p$, a second point $q\in B\setminus\{p\}$)''
+in two ways.
+
+\emph{By block.} There are $r$ blocks through $p$, and each contains exactly
+$k-1$ further points, giving $(k-1)r$ flags.
+
+\emph{By pair.} Group by $q$. For each of the $v-1$ points $q\neq p$, the pair
+$\{p,q\}$ lies in exactly $\lambda$ blocks, so it contributes $\lambda$ flags,
+for a total of $(v-1)\lambda$.
+
+Both counts count the same set, so $(k-1)r=(v-1)\lambda$; since $r$ is an
+integer, $(k-1)\mid(v-1)\lambda$.
+\end{proof}
+
+\begin{corollary}\label{cor:parity}
+For $k=3$: if $2\nmid (v-1)$, then $\lambda$ is even. In particular
+$(6,3)$ forces $\lambda$ even, and $(22,3)$ forces $\lambda$ even.
+\end{corollary}
+
+\begin{proof}
+$2r=(v-1)\lambda$ with $v-1$ odd gives $2\mid\lambda$ (as $2$
+is prime and does not divide $v-1$).
+\end{proof}
+
+\section{The small witness $(v,k)=(6,3)$}
+
+For $(6,3)$ we have $t=k-1=2$ and
+\[
+\frac{\binom{6}{2}}{\binom{3}{2}}=\frac{15}{3}=5,\qquad
+\binom{4}{1}=4 .
+\]
+Hence $\lambda\cdot 5$ is an integer for \emph{every} $\lambda$, and the bound
+is $\lambda\le 4$. The criterion \eqref{eq:criterion} therefore predicts
+\[
+\mathcal C(6,3)=\{1,2,3,4\}.
+\]
+By Lemma~\ref{lem:rep} a design needs $r=5\lambda/2\in\mathbb Z$, i.e.
+$\lambda$ even, so a design can exist only for $\lambda\in\{2,4\}$. Both do
+exist.
+
+\begin{theorem}\label{thm:sixthree}
+The attainable set at $(v,k)=(6,3)$ is exactly $\{2,4\}$; in particular
+\[
+\mathcal C(6,3)=\{1,2,3,4\}\ \neq\ \{2,4\}.
+\]
+So the criterion is not sufficient, and the ``spectrum is complete'' statement
+is false at $(6,3)$.
+\end{theorem}
+
+\begin{proof}
+The divisibility argument excludes $\lambda=1$ and $\lambda=3$. For the two
+remaining values we exhibit designs (a block $\{a,b,c\}$ is written $abc$).
+
+\emph{$\lambda=2$.} The ten triples
+\[
+\begin{gathered}
+012,\ 013,\ 024,\ 035,\ 045,\\
+125,\ 134,\ 145,\ 234,\ 235
+\end{gathered}
+\]
+cover every one of the $\binom{6}{2}=15$ pairs exactly twice; this is verified
+by direct enumeration in \texttt{reproduce.py}. The block count is
+$b=2\cdot 6\cdot 5/(3\cdot 2)=10$, as required.
+
+\emph{$\lambda=4$.} The complete design, consisting of all $\binom{6}{3}=20$
+triples, has each pair in $\binom{4}{1}=4$ triples; the block count is
+$b=4\cdot 6\cdot 5/(3\cdot 2)=20$.
+
+\emph{Exhaustive confirmation.} An exhaustive search over all $\binom{20}{5}=
+15504$ five-element sublists of the twenty triples finds \emph{no}
+$2$-$(6,3,1)$ design, and over all $\binom{20}{15}=15504$ fifteen-element
+sublists finds \emph{no} $2$-$(6,3,3)$ design. Equivalently, a
+$2$-$(6,3,3)$ design is the complement (inside the twenty triples) of a
+$2$-$(6,3,1)$ design, because the complete design has $\lambda=4$; the same
+enumeration rules it out. The search is carried out in \texttt{reproduce.py}
+and independently in Lean (\texttt{no\_design\_1}, \texttt{no\_design\_3}).
+\end{proof}
+
+\begin{remark}[why $(6,3)$ alone is not decisive]
+The criterion predicts four values and two are unattainable: exactly $2$
+exceptions. The conjecture allows up to $k^{2}=9$ exceptions, so at $(6,3)$ the
+data are \emph{consistent} with the exception-clause reading. A decisive
+witness must therefore produce more than $k^{2}$ exceptions. This is what
+$(22,3)$ does.
+\end{remark}
+
+\section{The decisive witness $(v,k)=(22,3)$}
+
+For $(22,3)$ we again have $t=k-1=2$ and
+\[
+\frac{\binom{22}{2}}{\binom{3}{2}}=\frac{231}{3}=77,
+\qquad
+\binom{20}{1}=20 .
+\]
+Hence $\lambda\cdot 77$ is an integer for every $\lambda$, and the bound is
+$\lambda\le 20$. The criterion predicts all of
+\[
+\mathcal C(22,3)=\{1,2,3,\dots,20\},\qquad |\mathcal C(22,3)|=20 .
+\]
+By Lemma~\ref{lem:rep}, a $2$-$(22,3,\lambda)$ design requires
+\[
+2r=21\lambda,
+\]
+so $\lambda$ must be even (Corollary~\ref{cor:parity}, since $21$ is odd).
+
+\begin{theorem}\label{thm:twentytwo}
+At $(v,k)=(22,3)$, the ten odd values
+\[
+1,\ 3,\ 5,\ 7,\ 9,\ 11,\ 13,\ 15,\ 17,\ 19
+\]
+satisfy the criterion (they lie in $\mathcal C(22,3)$) but are \emph{not}
+attainable. Consequently the number of criterion-predicted but unattainable
+values is at least $10$, while the conjecture's exception budget is
+$k^{2}=3^{2}=9$. Therefore
+\[
+10 \;>\; 9,
+\]
+and the exception clause itself fails. Conjecture \texttt{00000008422} is
+false under both the strict ``if and only if'' reading and the ``at most $k^{2}$
+exceptions'' reading.
+\end{theorem}
+
+\begin{proof}
+Each odd $\lambda$ fails the necessary condition $2r=21\lambda$: the right-hand
+side is odd while the left-hand side is even, so no integer replication number
+$r$ exists and no design (simple or with repeated blocks) can exist. Since all
+twenty values in $\mathcal C(22,3)$ are predicted and ten of them are odd, the
+number of exceptions is at least $10>9=k^{2}$. No enumeration of designs is
+needed: non-attainability is forced by a necessary condition, so the count is a
+lower bound that holds whatever the full spectrum is.
+\end{proof}
+
+\begin{remark}
+The same phenomenon recurs for every even $v$ with $v\equiv 0$ or $2\pmod 3$
+large enough that the criterion admits more than $k^{2}$ odd values. Already
+$(24,3)$ gives $\binom{24}{2}/\binom{3}{2}=276/3=92$ and bound
+$\binom{22}{1}=22$, with $11>9$ odd values forced out. The smallest decisive
+case is $(22,3)$.
+\end{remark}
+
+\section{Numerical summary}
+
+\begin{center}
+\begin{tabular}{r r r r r r r r}
+\toprule
+$(v,k)$ & $t$ & $\binom{v}{t}$ & $\binom{k}{t}$ & ratio & bound
+$\binom{v-2}{k-2}$ & $|\mathcal C|$ & forced out \\
+\midrule
+$(6,3)$  & $2$ & $15$  & $3$ & $5$  & $4$  & $4$  & $2$ \\
+$(7,3)$  & $2$ & $21$  & $3$ & $7$  & $5$  & $5$  & $0$ \\
+$(8,3)$  & $2$ & $28$  & $3$ & $9$  & $6$  & $2$  & $1$ \\
+$(10,3)$ & $2$ & $45$  & $3$ & $15$ & $8$  & $8$  & $4$ \\
+$(22,3)$ & $2$ & $231$ & $3$ & $77$ & $20$ & $20$ & $\mathbf{10}>9$ \\
+$(24,3)$ & $2$ & $276$ & $3$ & $92$ & $22$ & $22$ & $\mathbf{11}>9$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+``Forced out'' counts the values in $\mathcal C(v,k)$ that violate the
+necessary condition $(k-1)\mid\lambda(v-1)$; these are certainly unattainable,
+so it is a lower bound on the true number of exceptions. At $(22,3)$ and
+$(24,3)$ it already exceeds $k^{2}=9$.
+
+\section{Reproducibility}
+
+\texttt{reproduce.py} (Python 3 standard library only) performs the exhaustive
+$(6,3)$ search, exhibits the $\lambda=2$ and $\lambda=4$ designs, checks the
+divisibility argument, and computes the criterion table above. It prints
+\texttt{PASS} and exits $0$ exactly when every check holds:
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+...\\
+PASS: all checks verified.\\
+The conjecture 00000008422 is FALSE.
+\end{quote}
+
+\section{Formalisation}
+
+The accompanying Lean~4 project under \texttt{lean4/} (core Lean only,
+\texttt{import Std}, no Mathlib, no \texttt{sorry}) formalises the $(6,3)$
+computations and the arithmetic kernel of the divisibility argument:
+
+\begin{quote}\small\ttfamily
+theorem design2\_is : isDesign design2 2 = true\\
+theorem design4\_is : isDesign triples 4 = true\\
+theorem no\_design\_1 :\\
+\hspace*{2em}(sublistsLen 5 triples).all (fun c => !(isDesign c 1)) = true\\
+theorem no\_design\_3 :\\
+\hspace*{2em}(sublistsLen 5 triples).all\\
+\hspace*{4em}(fun c => !(isDesign (complement c) 3)) = true\\
+theorem parity\_22\_3 (r lam : Nat) (h : 2 * r = 21 * lam) : 2 | lam\\
+theorem decisive\_22\_3 : ... 3 \textasciicircum 2 < 10
+\end{quote}
+
+The general counting identity \eqref{eq:rep} of Lemma~\ref{lem:rep} is proved
+above on paper; Lean keeps it as the explicit hypothesis of
+\texttt{parity\_6\_3} and \texttt{parity\_22\_3}. The exhaustive $(6,3)$ search
+is run in the kernel by \texttt{decide} over all $\binom{20}{5}=15504$
+candidates. See \texttt{lean4/README.md} for the full statement table and scope
+note.
+
+\begin{thebibliography}{9}
+\bibitem{design}
+D.~R. Stinson, \emph{Combinatorial Designs: Constructions and Analysis},
+Springer, 2004. (Existence criteria \eqref{eq:bk}, the replication identity
+\eqref{eq:rep}, and the nonexistence of a Steiner triple system on $6$ points,
+since $\mathrm{STS}(v)$ exists iff $v\equiv 1,3\pmod 6$.)
+\end{thebibliography}
+
+\end{document}
