@@ -1,0 +1,179 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A Local-Obstruction Counterexample to Conjecture 00000000008}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5)\thanks{Anthropic.}%
+}
+\date{2026-09-12}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000008 asserts that the prime-value count of a square-free
+integer-coefficient quadratic $f$ admits a lower bound $c_f\,x/\log x$ with
+$c_f>0$. As stated it omits the condition that no prime divides every value of
+$f$, and it is false: $f(n)=n^2+n+2$ is irreducible over $\mathbb Q$, hence
+square-free, yet every value is even and its only prime value is $f(0)=2$. The
+refutation is formalized in Lean~4 against Mathlib.
+\end{abstract}
+
+\section{Statement}
+
+Conjecture 00000000008 concerns the number of prime values of a square-free
+integer-coefficient quadratic polynomial $f$, and asserts that there is a
+constant $c_f>0$ with
+\begin{equation}\label{eq:bound}
+  \Pi_f(x)\;\ge\;c_f\,\frac{x}{\log x}
+\end{equation}
+for all large $x$, where $\Pi_f(x)=\#\{n\le x:f(n)\text{ is prime}\}$.
+
+The conditions imposed are that $f$ be quadratic, have integer coefficients,
+and be square-free. What is \emph{not} imposed --- and what the classical
+Bunyakovsky and Hardy--Littlewood formulations do impose --- is that no prime
+divide every value of $f$. Without it the assertion is false.
+
+\section{The counterexample}
+
+\begin{proposition}\label{prop:hyp}
+Let
+\[
+  f(n)=n^2+n+2 .
+\]
+Then $f$ is the value function of the integer quadratic
+\[
+  F=X^2+X+2,
+\]
+which
+\begin{enumerate}
+  \item has integer coefficients $1,1,2$ and degree $2$;
+  \item has discriminant $1^2-4\cdot1\cdot2=-7\ne0$, so no repeated root;
+  \item is irreducible over $\mathbb Q$, hence square-free;
+  \item has positive leading coefficient.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Only irreducibility needs an argument. For every $x\in\mathbb Q$,
+\[
+  4\left(x^2+x+2\right)=(2x+1)^2+7\;\ge\;7\;>\;0,
+\]
+so $F$ has no rational root. A polynomial of degree two over a field with no
+root in that field is irreducible; and an irreducible element is square-free.
+\end{proof}
+
+So $f$ meets every condition the conjecture states, and the classical positivity
+and non-degeneracy conditions besides.
+
+\begin{theorem}\label{thm:main}
+$f(0)=2$ is the only prime value of $f$. Consequently $\Pi_f(x)=1$ for every
+$x\ge0$, and no constant $c_f>0$ satisfies \eqref{eq:bound}.
+\end{theorem}
+
+\begin{proof}
+Write $f(n)=n(n+1)+2$. One of $n$, $n+1$ is even, so $n(n+1)$ is even and
+$f(n)$ is even for every $n$. For $n\ge1$ we have $n\le n^2$, hence
+\[
+  f(n)=n^2+n+2\;\ge\;4 .
+\]
+So for $n\ge1$ the value $f(n)$ is an even integer greater than $2$, therefore
+composite. At $n=0$ we get $f(0)=2$, which is prime. Hence
+$\Pi_f(x)=1$ for every $x\ge0$.
+
+Suppose \eqref{eq:bound} held with some $c_f>0$ for all $x\ge N$. In the
+equivalent division-free form this says
+\[
+  c_f\,x\;\le\;\Pi_f(x)\log x\;=\;\log x
+  \qquad (x\ge N).
+\]
+But $\log x=o(x)$, so $\log x\le\tfrac{c_f}2x$ for all sufficiently large $x$.
+Choosing $x$ at least $N$, at least $1$, and large enough for that estimate
+gives $c_f x\le\tfrac{c_f}2x$, hence $c_f x\le 0$, contradicting $c_f>0$ and
+$x\ge1$.
+\end{proof}
+
+\section{What the counterexample shows}
+
+The obstruction is local, at the prime $2$:
+\[
+  f(n)\equiv0\pmod2\qquad\text{for every integer }n .
+\]
+It is worth being precise about which hypothesis fails, because $f$ satisfies
+all the others. It is quadratic, has integer coefficients, has nonzero
+discriminant, is irreducible over $\mathbb Q$ --- so it is square-free under
+either reading of that word --- and has positive leading coefficient. The sole
+failure is the fixed prime divisor $2$.
+
+A repaired conjecture must therefore add the Bunyakovsky condition: the values
+$f(n)$, $n\in\mathbb N$, have greatest common divisor $1$. Under that condition
+the assertion becomes the quadratic case of the Bunyakovsky conjecture, which
+is open --- it is not known that any irreducible quadratic takes infinitely
+many prime values.
+
+\begin{remark}
+Squarefreeness is not what is doing the work here, and cannot be made to do it:
+one can fail the conjecture with a polynomial that is irreducible, which is
+strictly stronger than square-free. Nor is reducibility needed; $n(n+1)$ would
+also give a counterexample, but it is reducible and so a referee could object
+that ``square-free'' was meant to exclude it. The polynomial above forecloses
+that objection.
+\end{remark}
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes the refutation against Mathlib. The
+conditions the conjecture places on $f$ are established \emph{about $f$}, not
+as side computations on literals: \texttt{F\_eval} identifies $f$ with the
+value function of the polynomial \texttt{F}, and every subsequent fact about
+\texttt{F} therefore speaks about $f$.
+
+\begin{itemize}
+  \item \texttt{F\_eval} --- $\texttt{F.eval}\,n=f(n)$ for every $n$, where
+    $\texttt{F}=X^2+X+2$ over $\mathbb Q$.
+  \item \texttt{F\_natDegree}, \texttt{F\_coeff\_zero/one/two},
+    \texttt{F\_discriminant} --- degree $2$, coefficients $2,1,1$, and
+    discriminant $-7$.
+  \item \texttt{F\_irreducible}, \texttt{F\_squarefree} --- irreducibility via
+    Mathlib's \texttt{irreducible\_of\_degree\_le\_three\_of\_not\_isRoot},
+    and \texttt{Squarefree F} is Mathlib's \texttt{Squarefree}, not a
+    re-definition.
+  \item \texttt{f\_even}, \texttt{f\_ge\_four}, \texttt{f\_not\_prime} --- the
+    elementary facts, with primality Mathlib's \texttt{Nat.Prime}.
+  \item \texttt{f\_prime\_iff} --- $\texttt{Nat.Prime}(f\,n)\iff n=0$, the
+    complete description of the prime values.
+  \item \texttt{primeValueCount\_eq\_one} --- $\Pi_f(x)=1$ for every $x$, the
+    count taken over all $n\le x$ including $n=0$.
+  \item \texttt{conjecture\_00000000008\_false} ---
+    $\lnot\,\texttt{LowerBoundHolds}$, where \texttt{LowerBoundHolds} states
+    \eqref{eq:bound} in its division-free form. The proof uses Mathlib's
+    \texttt{Real.isLittleO\_log\_id\_atTop}.
+\end{itemize}
+
+Because the conjectured lower bound is itself stated in the formalization, the
+final theorem is a formalization of its negation rather than of facts that
+merely entail it.
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and
+introduces no axioms of its own:
+\texttt{\#print axioms conjecture\_00000000008\_false} reports exactly the
+three standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
