@@ -1,0 +1,322 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{xeCJK}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\DeclareMathOperator{\cont}{content}
+\DeclareMathOperator{\SYT}{SYT}
+\DeclareMathOperator{\SSYT}{SSYT}
+
+\title{Disproof of conjecture \texttt{00000000418}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000000418} as stated. The conjecture is refuted
+already at weight $\lambda=(2,1)$, $n=3$, and it is refuted under \emph{each} of
+the two readings of ``lattice word'' that the conjecture itself supplies. The
+two readings even disagree with each other: the parenthetical
+``Yamanouchi (lattice)'' makes the two notions synonyms, whereas the second
+clause defines a lattice word as the reading word of a standard tableau, and
+reading words are permutations. Since $K_{\lambda,\lambda}=1$ for every
+$\lambda$, the conjectured value collapses to $f^\lambda/n!$, while the
+proportion of lattice words among Yamanouchi words is identically $1$ under the
+synonym reading; and under the strict reading a word has to be a permutation,
+so the only weights with nonzero proportions are the one-column rectangles
+$(1^n)$.
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000000418.md}:
+
+\begin{quote}
+\textbf{English.} Definition: A Yamanouchi (lattice) word of weight $\lambda$
+is a word in which, in every prefix, the occurrence counts of each letter form
+a partition; a lattice word is one appearing as the reading word of a standard
+tableau. Conjecture: The proportion of lattice words of weight $\lambda$ among
+Yamanouchi words is exactly $f^\lambda/n! \cdot K^{-1}_{\lambda,\lambda}$, and
+this ratio attains its maximum $1/2^{n-1}$ when $\lambda$ is a rectangle.
+\end{quote}
+
+\begin{quote}\itshape
+中文。定义：权 $\lambda$ 的 Yamanouchi(格子)词指每个前缀中字母 $i$
+的出现次数构成分拆的词;格子词指出现在某标准表读词中的词。猜想：权
+$\lambda$ 的格子词在 Yamanouchi 词中的比例恰为 $f^\lambda/n!\cdot
+K^{-1}_{\lambda,\lambda}$,且该比值在 $\lambda$ 取方框形状时达到最大值
+$1/2^{n-1}$。
+\end{quote}
+
+\section{Conventions}
+
+\begin{definition}[word, content, Yamanouchi word]
+A \emph{word} $w=w_1w_2\cdots w_n$ is a finite sequence of positive integers.
+Its \emph{content} is the vector $\cont(w)=(c_1,c_2,\dots)$, where $c_i$ is the
+number of occurrences of the letter $i$. A \emph{Yamanouchi word of weight
+$\lambda$} is a word $w$ with $\cont(w)=\lambda$ such that for every prefix
+$w_1\cdots w_m$ $(0\le m\le n)$ the vector of counts
+$\bigl(c_1(m),c_2(m),\dots\bigr)$ is a partition, i.e.
+$c_1(m)\ge c_2(m)\ge\cdots$.
+\end{definition}
+
+Write $n=|\lambda|=\sum_i\lambda_i$, and write $f^\lambda$ for the number of
+standard Young tableaux (SYT) of shape $\lambda$ and $K_{\lambda,\mu}$ for the
+Kostka number, i.e.\ the number of semistandard Young tableaux (SSYT) of shape
+$\lambda$ and content $\mu$.
+
+The classical fact on which both readings turn is the standard bijection
+\[
+\bigl\{\SYT\text{ of shape }\lambda\bigr\}
+\;\longleftrightarrow\;
+\bigl\{\text{Yamanouchi words of weight }\lambda\bigr\},
+\]
+assigning to an SYT $T$ the word $w(T)$ whose $i$-th letter is the index of the
+row containing the entry $i$. For example, for $\lambda=(2,1)$ the two SYT
+\[
+T_1=\begin{array}{|c|c|}\hline 1&2\\\hline 3&\phantom{x}\\\hline\end{array},
+\qquad
+T_2=\begin{array}{|c|c|}\hline 1&3\\\hline 2&\phantom{x}\\\hline\end{array}
+\]
+give $w(T_1)=112$ and $w(T_2)=121$. In particular the number of Yamanouchi
+words of weight $\lambda$ is $f^\lambda$.
+
+\section{Kostka numbers on the diagonal are all $1$}
+
+\begin{lemma}\label{lem:Kdiag}
+For every partition $\lambda$ one has $K_{\lambda,\lambda}=1$. The unique SSYT
+of shape $\lambda$ and content $\lambda$ is the \emph{superstandard} tableau,
+in which every cell of row $i$ contains the entry $i$.
+\end{lemma}
+
+\begin{proof}
+Let $T$ be an SSYT of shape $\lambda$ and content $\lambda$. We show by
+induction on the row index $i$ that row $i$ of $T$ consists entirely of $i$'s.
+For $i=1$: suppose some cell of a row $r\ge 2$ contained a $1$. Row $r$ is
+weakly increasing, so every cell of row $r$ weakly to the left of that cell
+also contains a $1$; in particular the cell $(r-1,j)$ directly above some cell
+$(r,j)$ containing $1$ exists (since $T$ has shape $\lambda$) and satisfies
+$T(r-1,j)<T(r,j)=1$ by column strictness, which is impossible because all
+entries are positive. Hence all $1$'s lie in the first row. There are exactly
+$\lambda_1$ of them, and the first row has exactly $\lambda_1$ cells, so it is
+filled with $1$'s. For the induction step, delete the first row; the remaining
+array is an SSYT of shape $(\lambda_2,\lambda_3,\dots)$ and content
+$(\lambda_2,\lambda_3,\dots)$ with all entries at least $2$; subtracting $1$
+from every entry and applying the same argument shows that its first row is
+constant equal to $2$, and so on. The superstandard tableau clearly has the
+required shape, content and semistandardness, so it is the unique one.
+\end{proof}
+
+\begin{corollary}\label{cor:collapse}
+The conjectured proportion equals
+\[
+\frac{f^\lambda}{n!\cdot K_{\lambda,\lambda}}=\frac{f^\lambda}{n!}
+\]
+for every $\lambda$.
+\end{corollary}
+
+\section{Refutation under reading (A): ``Yamanouchi (lattice)'' is a synonym}
+
+\begin{definition}[Reading (A)]
+The parenthetical in ``Yamanouchi (lattice) word'' identifies the two terms.
+Thus a \emph{lattice word of weight $\lambda$} means a \emph{Yamanouchi word of
+weight $\lambda$}, and the set of lattice words of weight $\lambda$ is exactly
+the set of Yamanouchi words of weight $\lambda$.
+\end{definition}
+
+\begin{theorem}\label{thm:A}
+Under reading (A) the proportion of lattice words among Yamanouchi words of
+weight $\lambda$ is $1$ for every $\lambda$, while the conjectured value is
+$f^\lambda/n!$. At $\lambda=(2,1)$ one has $1\ne 1/3$; hence the conjecture is
+false.
+\end{theorem}
+
+\begin{proof}
+Under reading (A) the two classes of words coincide, so the proportion is
+$1$. By Corollary~\ref{cor:collapse} the conjectured value is $f^\lambda/n!$,
+which is $<1$ for every partition of size $n\ge 2$ (see
+Section~\ref{sec:general}). Evaluating at $\lambda=(2,1)$: $n=3$ and the words
+of content $(2,1)$ over $\{1,2\}$ are $112,121,211$. The prefix counts are
+\[
+\begin{array}{c|ccc|c}
+\text{word} & \text{prefix }1 & \text{prefix }2 & \text{prefix }3 & \text{Yamanouchi?}\\
+\hline
+112 & (1,0) & (2,0) & (2,1) & \text{yes}\\
+121 & (1,0) & (1,1) & (2,1) & \text{yes}\\
+211 & (0,1) & (1,1) & (2,1) & \text{no, since } (0,1)\text{ is not a partition}
+\end{array}
+\]
+Thus there are exactly $2$ Yamanouchi words of weight $(2,1)$, namely $112$ and
+$121$, and the proportion under reading (A) is
+\[
+\frac{2}{2}=1 .
+\]
+The hook lengths of the cells of $(2,1)$ are $3,1,1$, so the hook-length
+formula gives
+\[
+f^{(2,1)}=\frac{3!}{3\cdot1\cdot1}=\frac{6}{3}=2,
+\]
+in agreement with the two SYT $T_1,T_2$ above; moreover $n!=6$ and
+$K_{(2,1),(2,1)}=1$ by Lemma~\ref{lem:Kdiag}. The conjectured value is
+therefore
+\[
+\frac{f^{(2,1)}}{3!\cdot K_{(2,1),(2,1)}}=\frac{2}{6\cdot1}=\frac13 .
+\]
+Since
+\[
+1\;\ne\;\frac13,
+\]
+and cross-multiplying gives
+\[
+2\cdot 6=12\;\ne\;4=2\cdot 2,
+\]
+the conjecture fails at $\lambda=(2,1)$ under reading (A).
+\end{proof}
+
+The enumeration is reproduced by brute force in \texttt{reproduce.py} and is
+also formalised in \texttt{lean4/} (the Yamanouchi words of weight $(2,1)$ are
+proved to be exactly $112$ and $121$, and the two readings are proved to give
+the proportions $2/2$ and $0/2$).
+
+\subsection{The asserted maximum $1/2^{\,n-1}$}
+
+Reading (A) also kills the second clause. At $\lambda=(2,1)$ one has $n=3$, so
+the asserted maximum is $1/2^{\,n-1}=1/4$. But the proportion under reading (A)
+is $1$, and
+\[
+1\;>\;\frac14,
+\]
+so the asserted maximum is not a maximum at all: it is exceeded. Equivalently,
+the conjectured value $f^\lambda/n!$ would have to attain $1/2^{\,n-1}$ at a
+rectangle, but the proportion itself is $1$ for every shape, and $1\ne1/4$.
+
+\section{Refutation under reading (B): reading words of standard tableaux}
+
+\begin{definition}[Reading (B)]
+Read the second clause literally: a \emph{lattice word} is a word that appears
+as the reading word of a standard tableau, i.e.\ the word obtained by reading
+the entries of some SYT row by row (say from bottom to top, each row left to
+right).
+\end{definition}
+
+\begin{theorem}\label{thm:B}
+Under reading (B) there is no lattice word of weight $(2,1)$, so the proportion
+of lattice words among the $2$ Yamanouchi words of weight $(2,1)$ is
+\[
+\frac{0}{2}=0\;\ne\;\frac13 .
+\]
+Hence the conjecture is false.
+\end{theorem}
+
+\begin{proof}
+In a standard tableau the entries $1,2,\dots,n$ each occur exactly once. Hence
+every reading word is a permutation of $\{1,\dots,n\}$ and has content
+$(1,1,\dots,1)=(1^n)$, so it can have weight $(2,1)$ only if
+$(2,1)=(1,1,1)$, which is false. Concretely, the two SYT of shape $(2,1)$ have
+reading words $312$ and $213$ (bottom row first), both of content $(1,1,1)$.
+Therefore the number of lattice words of weight $(2,1)$ under reading (B) is
+$0$, and the proportion is $0/2=0$, whereas the conjectured value is $1/3$ by
+Theorem~\ref{thm:A}. This proves the claim.
+\end{proof}
+
+\begin{remark}
+The two readings are mutually inconsistent already at the level of the
+definition: Yamanouchi words of weight $\lambda$ may repeat letters (whenever
+some $\lambda_i\ge2$), while reading words of standard tableaux never do. At
+$\lambda=(2,1)$ both readings are fatal to the conjecture, and they fail in
+opposite directions ($1$ versus $0$, against the claimed $1/3$).
+\end{remark}
+
+\section{The general failure: $K_{\lambda,\lambda}=1$ makes the value $f^\lambda/n!$}
+\label{sec:general}
+
+By Lemma~\ref{lem:Kdiag}, $K_{\lambda,\lambda}=1$ for every partition, so the
+conjectured value is always $f^\lambda/n!$. Under reading (A) the true
+proportion is $1$ for every $\lambda$. Since
+\[
+\sum_{\lambda\vdash n} f^\lambda=n!
+\qquad\text{and}\qquad
+f^\lambda\ge 1 \text{ for every } \lambda\vdash n,
+\]
+for $n\ge2$ there are at least two partitions of $n$, hence $f^\lambda<n!$ and
+therefore $f^\lambda/n!<1$. So the conjectured proportion $f^\lambda/n!$
+differs from the true proportion $1$ for \emph{every} partition $\lambda$ of
+every size $n\ge2$; the only case that is not immediately excluded is $n=1$
+($\lambda=(1)$, $f^\lambda/n!=1=1$), which is trivial.
+
+\subsection{The maximisers of $f^\lambda/n!$ are not rectangles}
+
+The value $f^\lambda/n!$ is the probability that a uniformly random permutation
+of $\{1,\dots,n\}$ has RSK shape $\lambda$. Its maximisers for small $n$ are:
+\[
+\begin{array}{c|c|c|c}
+n & \text{maximising } \lambda & f^\lambda & f^\lambda/n!\\
+\hline
+3 & (2,1) & 2 & 2/6=1/3\\
+5 & (3,1,1) & 6 & 6/120=1/20\\
+6 & (3,2,1) & 16 & 16/720=1/45
+\end{array}
+\]
+None of these is a rectangle. At $n=3$ the two rectangle partitions are
+$(3)$ and $(1,1,1)$, both with $f^\lambda=1$ and $f^\lambda/n!=1/6<1/3$; the
+maximum is attained at the non-rectangle $(2,1)$. So the clause ``attains its
+maximum $1/2^{n-1}$ when $\lambda$ is a rectangle'' fails in two independent
+ways: the true proportion under reading (A) is $1>1/2^{n-1}$ for every $n\ge2$,
+and the conjectured value $f^\lambda/n!$ is not maximised at a rectangle and
+does not equal $1/2^{n-1}$ in general (at $n=3$ its maximum is $1/3\ne1/4$).
+The case $n=2$ is the only coincidence ($f^{(2)}=f^{(1,1)}=1$, $n!=2$, and
+$1/2!=1/2=1/2^{\,n-1}$), but there the true proportion under reading (A) is
+still $1\ne1/2$, so the conjecture fails there as well.
+
+\section{Reproduction and formalisation}
+
+The numerical checks are performed by \texttt{reproduce.py} (Python~3,
+standard library only), which enumerates all words of content $(2,1)$,
+classifies them by the prefix condition, lists the reading words of the two
+SYT of shape $(2,1)$, computes $f^{(2,1)}$ by the hook-length formula, computes
+$K_{(2,1),(2,1)}$ by brute-force enumeration of semistandard tableaux, asserts
+both proportions differ from $1/3$, extends the computation to all partitions
+of size $n\le6$ (verifying $\#\text{Yamanouchi}=f^\lambda=\#\SYT$ and
+$K_{\lambda,\lambda}=1$ throughout), and prints \texttt{PASS} with exit
+status~$0$.
+
+The refutation is formalised in Lean~4 in the accompanying \texttt{lean4/}
+project (core Lean only, \texttt{import Std}, no Mathlib, no \texttt{sorry},
+toolchain \texttt{leanprover/lean4:v4.33.1}). The formal statements include
+
+\begin{quote}\ttfamily
+theorem yamWords21\_eq : yamWords21 = [[1,1,2],[1,2,1]]\\
+theorem card\_yamWords21 : yamWords21.length = 2\\
+theorem yam\_eq\_latticeReadings : yamWords21 = latticeReadings21\\
+theorem numLattice21\_B\_eq : numLattice21\_B = 0\\
+theorem f21\_eq : f21 = 2\\
+theorem K21\_eq : K21 = 1\\
+theorem proportionA\_ne\_claim : propNumA * claimDen \(\ne\) claimNum * propDenA\\
+theorem cross\_values : propNumA * claimDen = 12 \(\wedge\) claimNum * propDenA = 4\\
+theorem proportionB\_ne\_claim : propNumB * claimDen \(\ne\) claimNum * propDenB\\
+theorem quarter\_lt\_one : (1 : Nat) * 1 < 4 * 1\\
+theorem proportionA\_exceeds\_max : propNumA * 4 > 1 * propDenA\\
+theorem conjecture\_00000000418\_refuted : \dots
+\end{quote}
+
+\noindent
+Here \texttt{proportionA\_ne\_claim} is the cross-multiplied form of
+$2/2\ne2/6$ (namely $12\ne4$) and \texttt{proportionA\_exceeds\_max} is the
+cross-multiplied form of $1>1/4$. The document is built with
+\texttt{tectonic main.tex}; the resulting PDF is \texttt{build/main.pdf}.
+
+\end{document}
