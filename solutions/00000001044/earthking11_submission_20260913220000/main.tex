@@ -1,0 +1,295 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage[UTF8,fontset=fandol]{ctex}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+
+\title{Disproof of conjecture \texttt{00000001044}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001044} as stated. The refutation is
+unconditional, elementary, and already complete at the smallest non-trivial
+witness $(q,n) = (3,2)$: the hypothesis $d = \gcd(n, q^2-1) > 1$ holds and
+$(q-1)/d = 1$, yet \emph{every} $a \in \F_3$ gives a value set whose complement
+has size $1$. Hence $a = 0$ is not the unique minimiser, and the other $a$ do
+not give a strictly larger value set --- they tie it.
+
+\section{The conjecture, quoted}
+
+Quoted verbatim from \texttt{conjectures/00000001044.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The value set of the Dickson polynomial
+$D_n(x,a)$ is its image over $\F_q$. Conjecture: When
+$\gcd(n, q^2-1) = d > 1$ (the non-permutation case), the minimum size of the
+complement of the value set is $(q-1)/d$, attained at $a = 0$ (the monomial
+$x^n$); every other $a$ gives a strictly larger value set.
+\end{quote}
+
+\begin{quote}
+\textbf{中文。} 定义：Dickson 多项式 $D_n(x,a)$ 的值集指其在 $\F_q$ 上的像。
+猜想：当 $\gcd(n,q^2-1)=d>1$（非置换情形）时，值集补集的最小尺寸为
+$(q-1)/d$，且该极值在 $a=0$（单项式 $x^n$）时取得；一切其他 $a$ 给出严格
+更大的值集。
+\end{quote}
+
+The claim has two clauses:
+\begin{enumerate}
+\item[(C1)] the minimum complement size equals $(q-1)/d$ and is attained at
+  $a=0$;
+\item[(C2)] every other $a$ gives a \emph{strictly larger} value set.
+\end{enumerate}
+Both fail at $(q,n) = (3,2)$; indeed (C1) and (C2) are mutually inconsistent
+as soon as any other $a$ ties $a=0$ (Section~\ref{sec:inconsistent}).
+
+\section{Setup}
+
+\begin{definition}[Dickson polynomial]
+For a field $F$ and $a \in F$, the Dickson polynomial $D_n(x,a) \in F[x]$ is
+defined by
+\[
+D_0(x,a) = 2, \qquad D_1(x,a) = x, \qquad
+D_k(x,a) = x\,D_{k-1}(x,a) - a\,D_{k-2}(x,a) \quad (k \ge 2).
+\]
+In particular $D_2(x,a) = x^2 - 2a$ and $D_3(x,a) = x^3 - 3ax$.
+\end{definition}
+
+\begin{definition}[Value set and complement]
+The \emph{value set} of $D_n(\cdot,a)$ over $\F_q$ is
+$V_q(n,a) = \{\,D_n(x,a) : x \in \F_q\,\} \subseteq \F_q$, and its
+\emph{complement size} is $\mathrm{comp}_q(n,a) = q - |V_q(n,a)|$.
+\end{definition}
+
+Fix $n$ and $q$, and let $d = \gcd(n, q^2-1)$. The conjecture concerns the
+regime $d > 1$.
+
+\section{Primary refutation: $(q,n) = (3,2)$}
+
+Take $q = 3$ and $n = 2$, so $D_2(x,a) = x^2 - 2a$ over $\F_3$. Then
+\[
+d = \gcd(n, q^2-1) = \gcd(2, 9-1) = \gcd(2,8) = 2 > 1,
+\qquad
+\frac{q-1}{d} = \frac{3-1}{2} = 1 .
+\]
+So the hypothesis of the conjecture holds strictly.
+
+\begin{theorem}\label{thm:primary}
+For $(q,n) = (3,2)$, every $a \in \F_3$ gives a value set of size $2$:
+\[
+V_3(2,0) = \{0,1\}, \qquad V_3(2,1) = \{1,2\}, \qquad V_3(2,2) = \{0,2\},
+\]
+hence
+\[
+\mathrm{comp}_3(2,0) = \mathrm{comp}_3(2,1) = \mathrm{comp}_3(2,2) = 1 .
+\]
+In particular $a=0$ is not the unique minimiser, and neither $a=1$ nor $a=2$
+gives a strictly larger value set than $a=0$.
+\end{theorem}
+
+\begin{proof}
+Direct evaluation over $\F_3$ of $D_2(x,a) = x^2 - 2a$:
+\begin{center}
+\begin{tabular}{c c c c}
+\toprule
+$a$ & $x \mapsto D_2(x,a)$ on $x=0,1,2$ & value set & complement \\
+\midrule
+$0$ & $0,1,1$ & $\{0,1\}$ & $1$ \\
+$1$ & $1,2,2$ & $\{1,2\}$ & $1$ \\
+$2$ & $2,0,0$ & $\{0,2\}$ & $1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Each value set has size $2$, so each complement has size $3-2=1$. All three
+complement sizes are equal, and the value sets all have the same size, so none
+is strictly larger than another.
+\end{proof}
+
+\begin{corollary}
+Conjecture \texttt{00000001044} is false. At $(q,n) = (3,2)$ the hypothesis
+$d = 2 > 1$ holds, the conjectured value $(q-1)/d = 1$ is correct as a
+\emph{minimum}, but it is attained by all three choices $a = 0,1,2$, and no
+value set is strictly larger than that of $a=0$.
+\end{corollary}
+
+\section{The statement is internally inconsistent}
+\label{sec:inconsistent}
+
+Independently of any computation, clauses (C1) and (C2) contradict each other.
+Write $v(a) = |V_q(n,a)|$ for the value-set size, so that the complement size
+is $q - v(a)$. Clause (C1) says that $a=0$ \emph{minimises the complement},
+i.e.\ $q - v(0) \le q - v(a)$, equivalently $v(a) \le v(0)$, for every $a$.
+Clause (C2) says that every $a \ne 0$ has a \emph{strictly larger value set},
+i.e.\ $v(a) > v(0)$. The two requirements $v(a) \le v(0)$ and $v(a) > v(0)$
+cannot both hold for any $a \ne 0$. Thus, whenever $\F_q$ contains more than
+one element (so that some $a \ne 0$ exists), the conjecture as written is
+unsatisfiable: a minimiser of the complement whose other points all have
+strictly larger value sets cannot exist. The plausible intended clause (C2)
+would have been ``every other $a$ gives a strictly \emph{smaller} value set''
+(i.e.\ a strictly larger complement), which is also what the examples below
+refute.
+
+At $(q,n) = (3,2)$ the inconsistency is visible concretely: $a=1$ has
+$v(1) = v(0) = 2$, violating the strict inequality $v(1) > v(0)$ demanded by
+(C2), while also realising the minimum demanded by (C1).
+
+\section{The same tie at $(5,2)$ and $(7,2)$}
+
+The primary witness is not an isolated accident. For $n = 2$ we have
+$D_2(x,a) = x^2 - 2a$, and the value set is the set of squares shifted
+by $-2a$; when $2$ is invertible in $\F_q$, as $a$ ranges over $\F_q$ the shift
+ranges over all of $\F_q$, so every $a$ produces a translate of the same square
+set.
+
+\begin{center}
+\begin{tabular}{c c c c c}
+\toprule
+$(q,n)$ & $d = \gcd(n,q^2-1)$ & $(q-1)/d$ & complement sizes $\mathrm{comp}_q(n,a)$ & value-set sizes \\
+\midrule
+$(5,2)$ & $\gcd(2,24) = 2$ & $2$ & $a=0,1,2,3,4:\; 2,2,2,2,2$ & all $3$ \\
+$(7,2)$ & $\gcd(2,48) = 2$ & $3$ & $a=0,\dots,6:\; 3,3,3,3,3,3,3$ & all $4$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In both rows the hypothesis $d > 1$ and the numerical value $(q-1)/d$ are
+correct, but the minimum is attained by \emph{every} $a$, not uniquely by
+$a=0$, and no $a$ yields a strictly larger value set. Thus clause (C2) fails
+across an infinite family of $n=2$ examples, not merely at $q=3$.
+
+\section{The reversal at $(7,3)$: $a=0$ is the worst choice}
+
+The direction of the claim also fails. Take $q = 7$, $n = 3$, so
+$D_3(x,a) = x^3 - 3ax$ over $\F_7$. Then
+\[
+d = \gcd(3, 49-1) = \gcd(3,48) = 3 > 1,
+\qquad
+\frac{q-1}{d} = \frac{6}{3} = 2 .
+\]
+
+\begin{center}
+\begin{tabular}{c c c c}
+\toprule
+$a$ & value set $V_7(3,a)$ & $|V_7(3,a)|$ & complement \\
+\midrule
+$0$ & $\{0,1,6\}$ (the cubes) & $3$ & $4$ \\
+$1$ & $\{0,2,3,4,5\}$ & $5$ & $2$ \\
+$2$ & $\{0,2,3,4,5\}$ & $5$ & $2$ \\
+$3$ & $\{0,1,3,4,6\}$ & $5$ & $2$ \\
+$4$ & $\{0,2,3,4,5\}$ & $5$ & $2$ \\
+$5$ & $\{0,1,3,4,6\}$ & $5$ & $2$ \\
+$6$ & $\{0,1,3,4,6\}$ & $5$ & $2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Here $a = 0$ gives the \emph{largest} complement, $4$, which strictly exceeds
+the conjectured minimum $(q-1)/d = 2$, while every nonzero $a$ gives the
+smaller complement $2$. So $a=0$ maximises the complement instead of
+minimising it: the conjecture has the direction exactly backwards at
+$(q,n) = (7,3)$.
+
+\section{Further breakages of the formula and of the ``non-permutation'' label}
+
+Two further defects of the statement are worth recording.
+
+\begin{itemize}
+\item \textbf{$(q,n) = (5,3)$.} Here $d = \gcd(3,24) = 3 > 1$, but $d$ does
+  not divide $q-1 = 4$, so $(q-1)/d = 4/3$ is not an integer and cannot be a
+  set size. Moreover $D_3(x,0) = x^3$ permutes $\F_5$ (as
+  $\gcd(3, 5-1) = 1$), so $V_5(3,0) = \F_5$ and $\mathrm{comp}_5(3,0) = 0$.
+  Thus in the very case the conjecture labels ``non-permutation''
+  ($d>1$), the monomial $a=0$ is in fact a permutation polynomial, and the true
+  minimum complement is $0$, not $(q-1)/d$.
+\item \textbf{$(q,n) = (5,4)$.} Here $d = \gcd(4,24) = 4$ and
+  $(q-1)/d = 1$, but the true minimum complement is $2$ (attained at $a=2,3$),
+  and no $a \in \F_5$ attains the claimed value $1$ at all:
+  $\mathrm{comp}_5(4,a) = 3,3,2,2,3$ for $a=0,\dots,4$, with
+  $\mathrm{comp}_5(4,0) = 3$. So even the numerical value $(q-1)/d$ can fail
+  outright.
+\end{itemize}
+
+\section{The torus-reading caveat}
+
+One might try to rescue the claim by changing the reading of ``value set''
+from the image over $\F_q$ to the image on the norm-$1$ torus, i.e.\ the
+subgroup of order $q+1$ of $\F_{q^2}^{\times}$, rather than on $\F_q$. Under
+that reading the monomial $a=0$ \emph{is} the unique minimiser, so the
+``uniqueness at $a=0$'' half of the claim survives in a qualified sense. But
+the minimum complement there is $0$, not $(q-1)/d$; the value $(q-1)/d$ is not
+what the torus reading produces. Consequently that reading does not save the
+stated formula either, and in any case it contradicts the conjecture's own
+definition, which explicitly places the value set over $\F_q$. The refutation
+above uses the definition as written.
+
+\section{Reproducibility}
+
+The brute-force checks are carried out by \texttt{reproduce.py}, which uses the
+Python~3 standard library only:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(tables for } (3,2), (5,2), (7,2), (7,3), (5,3), (5,4)\textit{)}\\
+PASS: all checks verified; conjecture 00000001044 is FALSE.
+\end{quote}
+
+It implements the Dickson recursion over the residues of $\F_q$, computes the
+complement size for every $a$, and asserts the $(3,2)$ tie, the $(5,2)$ and
+$(7,2)$ ties, and the $(7,3)$ reversal; it prints \texttt{PASS} and exits $0$
+exactly when every check holds.
+
+The same facts are formalised in the Lean~4 project under \texttt{lean4/},
+using core Lean only (no Mathlib) and no \texttt{sorry}. Its main statements
+are
+
+\begin{quote}\ttfamily
+theorem conjecture\_00000001044\_false : ...\\
+theorem q3n2\_tie : tieWithZero 3 2 = true\\
+theorem q7n3\_a0\_largest : \(\forall\) a, a < 7 \(\to\) compSize 7 3 a \(\le\) compSize 7 3 0\\
+theorem q5n2\_all : \(\forall\) a, a < 5 \(\to\) compSize 5 2 a = 2\\
+theorem q7n2\_all : \(\forall\) a, a < 7 \(\to\) compSize 7 2 a = 3
+\end{quote}
+
+\noindent where \texttt{D}, \texttt{valueSet} and \texttt{compSize} are the
+Dickson recursion, the value set, and its complement size on residues
+represented as naturals reduced modulo $q$. \texttt{lake build} compiles the
+project, and \texttt{lake env lean Check.lean} reports the axioms of every
+theorem: the concrete computations depend on no axioms at all (the two
+divisibility facts use only \texttt{propext}), and none reports
+\texttt{sorryAx}. See \texttt{lean4/README.md} for the full statement table.
+
+\section{Files}
+
+\begin{tabular}{l l}
+\toprule
+File & Description \\
+\midrule
+\texttt{README.md} & Verdict, quoted conjecture, tables, caveats, file list, reproduction, status. \\
+\texttt{main.tex} & This LaTeX source (standalone \texttt{article}, \texttt{tectonic main.tex}). \\
+\texttt{build/main.pdf} & PDF produced by \texttt{tectonic}. \\
+\texttt{reproduce.py} & Python 3 standard-library brute force; \texttt{PASS}/\texttt{FAIL}, non-zero exit on failure. \\
+\texttt{lean4/Main.lean} & Lean 4 formalisation, core Lean only. \\
+\texttt{lean4/Check.lean} & \texttt{\#print axioms} audit. \\
+\texttt{lean4/README.md} & Statement table and scope note. \\
+\bottomrule
+\end{tabular}
+
+\end{document}
