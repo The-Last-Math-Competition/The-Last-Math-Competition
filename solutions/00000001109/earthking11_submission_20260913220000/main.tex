@@ -1,0 +1,283 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage[fontset=fandol]{ctex}
+\emergencystretch=2em
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb{Z}}
+
+\title{Refutation of conjecture \texttt{00000001109}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We refute conjecture \texttt{00000001109} as stated, under the universal
+reading that its own wording signals. For every \emph{irreducible} finite
+non-crystallographic Coxeter group the degrees --- hence the exponents --- are
+pairwise distinct, so every exponent has multiplicity exactly $1$ and the
+conjectured conclusion (``some exponent of multiplicity $\ge 2$'') is false.
+
+\medskip
+\noindent\fbox{\parbox{0.94\textwidth}{\textbf{Scope (stated up front, and
+honestly).} The refutation is \emph{universal}: it holds for all irreducible
+finite non-crystallographic Coxeter groups, which is what the conjecture's
+phrase ``universality of multiplicity structure'' (中文: 重数结构普遍性) says.
+It is \emph{not} unconditional over arbitrary groups. Under an
+\emph{existential} reading that also admits \emph{reducible}
+non-crystallographic groups the conjecture is TRUE: the reducible group
+$A_1 \times H_3$ is non-crystallographic and has exponent multiset
+$\{1,1,5,9\}$, so the exponent $1$ has multiplicity $2$. See
+Section~\ref{sec:scope}.}}
+
+\section{The conjecture}
+
+Quoted verbatim from \texttt{conjectures/00000001109.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The exponents of a Coxeter system (the
+characteristic polynomial). Conjecture: The exponent set of a
+non-crystallographic Coxeter group contains, besides $(h, 1)$, some exponent of
+multiplicity $\ge 2$ (universality of multiplicity structure).
+
+\textbf{中文。} 定义：Coxeter 系统的指数(特征多项式)。猜想：非晶体 Coxeter
+群的指数集包含 $(h, 1)$ 之外的重数 $\ge 2$ 的指数(重数结构普遍性)。
+\end{quote}
+
+The claim says: for a non-crystallographic Coxeter group, apart from the
+special pair $(h,1)$, there is an exponent whose multiplicity is at least $2$.
+The parenthetical ``universality of multiplicity structure'' indicates that this
+is asserted as a general structural law across such groups, i.e.\ a
+\emph{universal} statement over the class, not the mere existence of one
+example. We take the conjecture in that universal sense.
+
+\section{Conventions}
+
+\begin{definition}[degrees, exponents, Coxeter number]
+For a finite Coxeter group $W$ let $d_1 \le d_2 \le \dots \le d_n$ be its
+\emph{degrees} (the degrees of the fundamental polynomial invariants) and let
+$h$ be its \emph{Coxeter number}. The \emph{exponents} of $W$ are
+\[
+e_i \;=\; d_i - 1 \qquad (i = 1, \dots, n),
+\]
+and $h$ is the largest degree, $h = d_n$. The \emph{multiplicity} of an
+exponent is its multiplicity as an element of the multiset
+$\{e_1, \dots, e_n\}$.
+\end{definition}
+
+Since the exponents are the degrees minus one, distinctness of degrees is
+equivalent to distinctness of exponents. For a finite Coxeter group the
+exponents are exactly the roots of the characteristic polynomial; we use the
+equivalent degree description throughout.
+
+\begin{remark}[(h, 1) is vacuous under the standard convention]
+\label{rem:hnotexp}
+Because $h = d_n$ is the largest \emph{degree} and the exponents are the
+degrees minus one, the largest exponent is $h - 1 < h$. Hence $h$ is
+\emph{not} an exponent, and the phrase $(h,1)$ in the conjecture does not
+correspond to an exponent at all: under the standard convention it is vacuous.
+Even on the generous reading in which one adjoins $h$ to the exponent list, the
+conclusion still fails (Proposition~\ref{prop:adjoinh} below).
+\end{remark}
+
+\section{The irreducible finite non-crystallographic types}
+
+The complete list of irreducible finite Coxeter types that are
+non-crystallographic is
+\[
+H_3, \qquad H_4, \qquad I_2(m)\ \ (m \ge 5).
+\]
+Here $I_2(3) = A_2$, $I_2(4) = B_2$, $I_2(6) = G_2$ are crystallographic, and
+$I_2(2) = A_1 \times A_1$ is reducible; hence the irreducible
+\emph{non-crystallographic} $I_2$ cases are exactly $m \ge 5$. (This
+classification, and the exponent tables below, are classical; see
+Humphreys~\cite{Humphreys} and Bourbaki~\cite{Bourbaki}.)
+
+\begin{center}
+\begin{tabular}{l l c l l}
+\toprule
+Type & Degrees & $h$ & Exponents & Multiplicities \\
+\midrule
+$H_3$ & $2,\,6,\,10$ & $10$ & $1,\,5,\,9$ & all $1$ \\
+$H_4$ & $2,\,12,\,20,\,30$ & $30$ & $1,\,11,\,19,\,29$ & all $1$ \\
+$I_2(m)$, $m \ge 5$ & $2,\,m$ & $m$ & $1,\,m-1$ & all $1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+In the last row the two exponents $1$ and $m-1$ coincide exactly when
+$m = 2$; for $m \ge 5$ we have $m - 1 \ge 4$, so $1 \ne m - 1$. In every row
+the exponents are pairwise distinct, so each occurs with multiplicity $1$.
+
+\section{The argument}
+
+\begin{theorem}\label{thm:main}
+Let $W$ be an irreducible finite non-crystallographic Coxeter group. Then no
+exponent of $W$ has multiplicity $\ge 2$.
+\end{theorem}
+
+\begin{proof}
+By the classification of irreducible finite Coxeter types, $W$ is one of
+$H_3$, $H_4$, or $I_2(m)$ with $m \ge 5$. From the exponent tables of
+Section~3:
+\begin{itemize}
+  \item $H_3$: exponents $1, 5, 9$, which are pairwise distinct;
+  \item $H_4$: exponents $1, 11, 19, 29$, pairwise distinct;
+  \item $I_2(m)$, $m \ge 5$: exponents $1$ and $m-1$, distinct because
+        $m - 1 \ge 4 > 1$.
+\end{itemize}
+In each case the exponents form a set with no repetitions, i.e.\ a multiset of
+multiplicity $1$ everywhere. Therefore no exponent has multiplicity $\ge 2$.
+\end{proof}
+
+\begin{corollary}\label{cor:false}
+Conjecture \texttt{00000001109}, read universally over irreducible finite
+non-crystallographic Coxeter groups, is false.
+\end{corollary}
+
+\begin{proof}
+Take $W = H_3$. Its exponent set is $\{1,5,9\}$; since $h = 10$, the pair
+$(h,1)$ contributes nothing, and the remaining exponents $5, 9$ each have
+multiplicity $1$. So the exponent set contains no exponent of multiplicity
+$\ge 2$, contradicting the conjecture's conclusion. The same contradiction is
+obtained from $H_4$ (exponents $1,11,19,29$) and from every $I_2(m)$ with
+$m \ge 5$ (exponents $1, m-1$).
+\end{proof}
+
+\begin{proposition}\label{prop:adjoinh}
+Adjoining $h$ to the exponent list does not create a repeated exponent:
+\[
+H_3:\ \{1,5,9,10\}, \qquad H_4:\ \{1,11,19,29,30\}
+\]
+are both all-distinct, and for $I_2(m)$ the list $\{1, m-1, m\}$ is
+all-distinct for $m \ge 5$.
+\end{proposition}
+
+\begin{proof}
+Immediate from the tables: $10$ differs from $1,5,9$; $30$ differs from
+$1,11,19,29$; and for $m \ge 5$ the three numbers $1$, $m-1 \ge 4$, and $m$
+are pairwise distinct (indeed $m-1 \ne m$).
+\end{proof}
+
+\section{Honest scope: universal versus existential reading}
+\label{sec:scope}
+
+The refutation above is a \emph{universal} statement over the irreducible
+finite non-crystallographic types. We state clearly where the boundary of the
+claim lies.
+
+\begin{theorem}[Reducibility caveat]\label{thm:reducible}
+Under an \emph{existential} reading that admits reducible non-crystallographic
+Coxeter groups, conjecture \texttt{00000001109} is TRUE. Explicitly, the
+reducible group $A_1 \times H_3$ is non-crystallographic and has exponent
+multiset
+\[
+\{1\} \sqcup \{1, 5, 9\} \;=\; \{1, 1, 5, 9\},
+\]
+so the exponent $1$ has multiplicity $2 \ge 2$.
+\end{theorem}
+
+\begin{proof}
+Exponents add over direct products of Coxeter groups: the exponents of
+$W_1 \times W_2$ are the exponents of $W_1$ together with those of $W_2$.
+The group $A_1$ has a single exponent, $1$ (degree $2$), and $H_3$ has
+exponents $1, 5, 9$. Hence $A_1 \times H_3$ has exponent multiset
+$\{1,1,5,9\}$, in which $1$ occurs twice. The direct product is
+non-crystallographic because $H_3$ is, and it is not irreducible. Thus an
+existential reading of the conjecture --- ``there exists a non-crystallographic
+Coxeter group with a repeated exponent'' --- is satisfied.
+\end{proof}
+
+\begin{remark}[Why the universal reading is the intended one]
+The conjecture does not say ``there exists a non-crystallographic Coxeter
+group with \dots''; it says the exponent set \emph{contains} such an exponent
+and labels this ``universality of multiplicity structure'' (重数结构普遍性).
+``Universality'' is a statement about the class of objects, so the natural
+reading is universal over non-crystallographic Coxeter groups. Under the
+universal reading the conjecture is false, by
+Corollary~\ref{cor:false}; the reducible counterexample
+(Theorem~\ref{thm:reducible}) shows that the refutation depends on this
+reading and would not survive an existential reformulation that admits
+reducible groups. We prefer to state this openly rather than leave it implicit.
+\end{remark}
+
+\begin{remark}[On $(h,1)$]
+As noted in Remark~\ref{rem:hnotexp}, under the standard convention $h$ is a
+degree and not an exponent, so the phrase $(h,1)$ is vacuous. If one
+nevertheless adjoins $h$ to the exponent list, the conclusion still fails
+(Proposition~\ref{prop:adjoinh}). So the refutation does not hinge on the
+interpretation of $(h,1)$: it fails under either reading, while the
+reducibility issue above is the genuine scope boundary.
+\end{remark}
+
+\section{Reproducibility}
+
+\paragraph{Python.} The script \texttt{reproduce.py} (Python~3 standard library
+only) encodes the exponent lists of $H_3$, $H_4$, and $I_2(m)$ for
+$m = 5, \dots, 12$, computes the multiplicities, asserts that every exponent has
+multiplicity $1$, and asserts that the reducible case $A_1 \times H_3$ has a
+repeated exponent (so the scope boundary is visible in code). It prints
+\texttt{PASS} and exits $0$ exactly when every check holds:
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... (tables, multiplicity checks, scope check) ...\\
+PASS: all checks verified; conjecture 00000001109 is FALSE ...
+\end{quote}
+
+\paragraph{Lean 4.} The accompanying project \texttt{lean4/} formalises the
+finite multiplicity arithmetic in core Lean only (\texttt{import Std}, no
+Mathlib, no \texttt{sorry}, no \texttt{native\_decide}). It proves, for the
+concrete lists,
+\[
+\neg\,\exists x,\ x \in \{1,5,9\} \wedge 2 \le \#\{1,5,9\}(x)
+\]
+and the analogous statement for $\{1,11,19,29\}$ (axiom-free, by
+\texttt{decide}), the general lemma that a duplicate-free list has every member
+with count $1$, the parametric statement for $I_2(m)$, and --- openly --- the
+reducibility boundary $\mathrm{count}_{1}(\{1,1,5,9\}) = 2$. It builds with
+\texttt{lake build} and is audited by \texttt{lake env lean Check.lean}, which
+reports no \texttt{sorryAx}. See \texttt{lean4/README.md} for the statement
+table and the scope section.
+
+\section{Cited inputs, not reproved}
+
+The classification of irreducible finite Coxeter groups, the fact that the
+exponents are the degrees minus one, and the exponent tables for
+$H_3$, $H_4$, and $I_2(m)$ are classical. They are cited here, not reproved:
+\begin{itemize}
+  \item J.~E.~Humphreys, \emph{Reflection Groups and Coxeter Groups},
+        Cambridge Studies in Advanced Mathematics 29, Cambridge University
+        Press, 1990 (degrees, exponents, the classification).
+  \item N.~Bourbaki, \emph{Groupes et algèbres de Lie}, Chapitres IV--VI,
+        Hermann, Paris, 1968 (Coxeter groups and their invariant theory).
+\end{itemize}
+The present submission contributes the observation that the multiplicity
+structure is trivial (all multiplicities $1$) for every irreducible finite
+non-crystallographic type, hence the conjectured ``universality of multiplicity
+structure'' fails; and it records explicitly the reducible exception that
+bounds the claim.
+
+\begin{thebibliography}{9}
+\bibitem{Humphreys} J.~E.~Humphreys, \emph{Reflection Groups and Coxeter
+Groups}, Cambridge Studies in Advanced Mathematics 29, Cambridge University
+Press, 1990.
+\bibitem{Bourbaki} N.~Bourbaki, \emph{Groupes et algèbres de Lie}, Chapitres
+IV--VI, Hermann, Paris, 1968.
+\end{thebibliography}
+
+\end{document}
