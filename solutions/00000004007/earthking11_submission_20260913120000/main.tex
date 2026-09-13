@@ -1,0 +1,256 @@
+\documentclass[11pt]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\emergencystretch=2em
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{conjecture}[theorem]{Conjecture}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\norm}[1]{\left\lVert #1 \right\rVert}
+
+\title{Refutation of Conjecture 00000004007:\\ the claimed optimal subadditivity inequality for $p$-variation is false}
+\author{earthking11}
+\date{13 September 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We disprove Conjecture 00000004007.  The $p$-variation of a path is the
+$p$-th root of the supremum over partitions of the sum of the $p$-th powers
+of the increments.  Being a $p$-th root of a supremum, it is homogeneous of
+degree one, $\norm{aX} = |a|\,\norm{X}$.  Taking $X = Y \neq 0$ gives
+$\norm{X+Y} = 2\norm{X}$ on the left and $2^{1/q}\norm{X}$ on the right,
+where $q = p/(p-1)$ is the conjugate exponent.  Since $q > 1$ for every
+finite $p > 1$, we have $2 > 2^{1/q}$ and the conjectured inequality fails.
+The same conclusion holds for the raw-supremum normalisation (without the
+root), a fortiori, and for the limit case $p = 1$ ($q = \infty$).  The
+failure is elementary; the inequality cannot be ``enlarged'' because it is
+not valid in the first place.  The arithmetic core of the obstruction is
+formalised in core Lean~4.
+\end{abstract}
+
+\section{The conjecture}
+
+Let $X : [0,1] \to V$ be a path with values in a normed vector space $V$, and
+let a \emph{partition} $\pi$ of $[0,1]$ be a finite increasing sequence
+\[
+  \pi : \quad 0 = t_0 < t_1 < \dots < t_k = 1 .
+\]
+The statement under consideration is the following.
+
+\begin{conjecture}[00000004007]\label{conj}
+With the $p$-variation defined as the $p$-th root of the supremum over
+partitions of the sum of the $p$-th powers of the increments, and with $q$
+the conjugate exponent of $p$, the inequality
+\begin{equation}\label{eq:conj}
+  \norm{X+Y} \le \bigl(\norm{X}^{q} + \norm{Y}^{q}\bigr)^{1/q}
+\end{equation}
+holds, and it cannot be enlarged.
+\end{conjecture}
+
+We show that \eqref{eq:conj} is false, so the conjecture is false.
+
+\section{Definition and homogeneity}
+
+\begin{definition}\label{def:pvar}
+For $1 \le p < \infty$ the \emph{$p$-variation} of a path $X$ is
+\begin{equation}\label{eq:def}
+  \norm{X}
+  := \left( \sup_{\pi} \sum_{i=1}^{k}
+       \bigl\lVert X(t_i) - X(t_{i-1}) \bigr\rVert^{p} \right)^{1/p},
+\end{equation}
+the supremum being over all partitions $\pi = \{0 = t_0 < \dots < t_k = 1\}$.
+The conjugate exponent of $p$ is $q := \dfrac{p}{p-1}$, characterised by
+$\dfrac1p + \dfrac1q = 1$; thus $q \in (1,\infty)$ whenever
+$p \in (1,\infty)$, and $q = \infty$ when $p = 1$.
+\end{definition}
+
+\begin{lemma}[Homogeneity]\label{lem:hom}
+For every scalar $a$ and every path $X$,
+\begin{equation}\label{eq:hom}
+  \norm{aX} = |a| \, \norm{X}.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+The increments of $aX$ are $a\,(X(t_i) - X(t_{i-1}))$, so for each fixed
+partition $\pi$,
+\[
+  \sum_{i=1}^{k} \bigl\lVert a\,(X(t_i) - X(t_{i-1})) \bigr\rVert^{p}
+  = |a|^{p} \sum_{i=1}^{k} \bigl\lVert X(t_i) - X(t_{i-1}) \bigr\rVert^{p}.
+\]
+The factor $|a|^{p} \ge 0$ is independent of $\pi$, and for $c \ge 0$ one has
+$\sup_\pi (c\, S_\pi) = c \, \sup_\pi S_\pi$.  Hence the $p$-th powers of the
+suprema are related by $|a|^{p}$, and taking the $p$-th root gives
+\[
+  \norm{aX}
+  = \bigl( |a|^{p}\, \norm{X}^{p} \bigr)^{1/p}
+  = |a| \, \norm{X}. \qedhere
+\]
+\end{proof}
+
+\begin{remark}
+The homogeneity \eqref{eq:hom} is exactly the property that makes the
+conjecture fail: it forces both sides of \eqref{eq:conj} to scale linearly
+in the path, and the two linear coefficients disagree for $X = Y$.
+\end{remark}
+
+\section{Refutation: the case $X = Y$}
+
+Let $X$ be any non-zero path and take $Y := X$.  Using Lemma~\ref{lem:hom},
+the left-hand side of \eqref{eq:conj} is
+\[
+  \norm{X + Y} = \norm{2X} = 2 \norm{X},
+\]
+while the right-hand side is
+\[
+  \bigl(\norm{X}^{q} + \norm{Y}^{q}\bigr)^{1/q}
+  = \bigl(2 \norm{X}^{q}\bigr)^{1/q}
+  = 2^{1/q} \norm{X}.
+\]
+Since $X \neq 0$ we have $\norm{X} > 0$, so \eqref{eq:conj} at $X = Y$ is
+equivalent to
+\begin{equation}\label{eq:core}
+  2 \le 2^{1/q}
+  \quad\Longleftrightarrow\quad
+  2^{q} \le 2 .
+\end{equation}
+But $q = p/(p-1) > 1$ for every finite $p > 1$, and $2^{q} > 2$ for every
+$q > 1$.  Therefore \eqref{eq:core} is false, and the conjectured inequality
+\eqref{eq:conj} fails.  It ``cannot be enlarged'' for the trivial reason that
+it does not hold at all.
+
+\begin{remark}[Elementary nature of the failure]
+No estimate, tightness analysis, or special path is required.  The
+counterexample is the simplest imaginable one, $X = Y \neq 0$; the failure is
+a direct consequence of the degree-one homogeneity \eqref{eq:hom} and of
+$q > 1$.  This is precisely why the stated inequality cannot be correct.
+\end{remark}
+
+\section{Explicit values for a two-point unit-step path}
+
+Let $X$ be the two-point path with a single unit step, $X(0) = 0$,
+$X(1) = 1$; there is only the trivial partition $\{0,1\}$, so
+\[
+  \norm{X} = \bigl( |1|^{p} \bigr)^{1/p} = 1 .
+\]
+For $Y = X$ the path $X+Y$ has a single step of size $2$, hence
+\[
+  \norm{X+Y} = \bigl( 2^{p} \bigr)^{1/p} = 2 ,
+\]
+independently of $p$, while the claimed right-hand side is
+$\bigl(1^{q} + 1^{q}\bigr)^{1/q} = 2^{1/q}$.  The following table lists the
+values; in every case the left-hand side strictly exceeds the right-hand
+side.
+
+\begin{center}
+\begin{tabular}{c c c c c c}
+\hline
+$p$ & $q = \dfrac{p}{p-1}$ & $\norm{X}$ & $\norm{X+Y}$ & RHS $= 2^{1/q}$ & LHS $>$ RHS \\
+\hline
+$3/2$ & $3$      & $1$ & $2$ & $1.2599\ldots$ & yes \\
+$2$   & $2$      & $1$ & $2$ & $1.4142\ldots$ & yes \\
+$3$   & $3/2$    & $1$ & $2$ & $1.5874\ldots$ & yes \\
+$4$   & $4/3$    & $1$ & $2$ & $1.6818\ldots$ & yes \\
+$10$  & $10/9$   & $1$ & $2$ & $1.8661\ldots$ & yes \\
+\hline
+\end{tabular}
+\end{center}
+
+For $p = 2$ the requirement \eqref{eq:core} reads $4 \le 2$, and for $p = 3$
+it reads $2^{3/2} \le 2$, i.e. $8 \le 4$; both are false.  As $p$ grows,
+$q = p/(p-1) \downarrow 1$ and $2^{1/q} \uparrow 2$ from below, so the
+margin $2 - 2^{1/q}$ shrinks but never vanishes for finite $p$: the
+inequality fails for \emph{every} $p > 1$.
+
+\section{The raw-supremum reading}
+
+The conjecture specifies the $p$-th root in the definition
+\eqref{eq:def}.  If instead one reads $\norm{\cdot}$ as the \emph{raw}
+supremum, without taking the $p$-th root,
+\begin{equation}\label{eq:raw}
+  N(X) := \sup_{\pi} \sum_{i=1}^{k}
+          \bigl\lVert X(t_i) - X(t_{i-1}) \bigr\rVert^{p},
+\end{equation}
+then $N$ is homogeneous of degree $p$, $N(aX) = |a|^{p} N(X)$.  At $X = Y$
+with $\norm{X}$ denoting the raw quantity \eqref{eq:raw},
+\[
+  N(X+Y) = N(2X) = 2^{p} N(X),
+\]
+and the claimed right-hand side is
+\[
+  \bigl(2 N(X)^{q}\bigr)^{1/q} = 2^{1/q} N(X),
+\]
+so the inequality would require $2^{p} \le 2^{1/q}$.  For every $p \ge 1$ and
+$q > 1$ we have $2^{p} \ge 2 > 2^{1/q}$, so the raw reading fails a
+fortiori; for instance $p = 2$ gives $4$ on the left against
+$2^{1/2} = 1.4142\ldots$ on the right.  Hence the refutation does not depend
+on which of the two normalisations is intended.
+
+\section{The limit case $p = 1$}
+
+For $p = 1$ the quantity \eqref{eq:def} is the total variation and the
+conjugate exponent is $q = \infty$, with
+\[
+  \bigl(\norm{X}^{q} + \norm{Y}^{q}\bigr)^{1/q}
+  \xrightarrow[q \to \infty]{} \max\{\norm{X}, \norm{Y}\}.
+\]
+Taking $X = Y \neq 0$ gives
+\[
+  \norm{X+Y} = 2\norm{X} > \norm{X} = \max\{\norm{X}, \norm{Y}\},
+\]
+so \eqref{eq:conj} fails in this case as well.
+
+\section{Conclusion}
+
+Conjecture 00000004007 is false.  For every $p \in (1,\infty)$ the
+conjugate exponent satisfies $q > 1$, and the single choice $X = Y \neq 0$,
+together with the degree-one homogeneity of the $p$-variation, reduces the
+claimed inequality to the false numerical statement $2^{q} \le 2$.  The
+failure is elementary and occurs for all admissible $p$; the raw-supremum
+reading and the limit case $p = 1$ fail as well.  There is no sense in which
+the inequality can be ``enlarged'': it is simply not a true inequality.
+
+\section{Formal verification}
+
+The arithmetic core of the obstruction is formalised in core Lean~4
+(\texttt{lean4/Main.lean}; \texttt{import Std}, no Mathlib, no \texttt{sorry},
+no \texttt{axiom}, no \texttt{native\_decide}, no $\R$).  The formalised
+statements are:
+\begin{itemize}
+  \item \texttt{q\_eq\_two\_fails} : $\lnot\,(2^{2} \le 2)$, i.e. $\lnot\,(4 \le 2)$
+        --- the case $p = 2$ ($q = 2$);
+  \item \texttt{q\_eq\_two} : $2^{2} = 4$;
+  \item \texttt{q\_eq\_three\_halves\_fails} : $\lnot\,(2^{3} \le 2^{2})$,
+        i.e. $\lnot\,(8 \le 4)$ --- the case $p = 3$ ($q = 3/2$, since
+        $2^{3/2} \le 2 \iff 2^{3} \le 2^{2}$);
+  \item \texttt{pow\_two\_gt\_two} : $\forall q : \N,\ 1 < q \to 2 < 2^{q}$,
+        the general arithmetic fact behind \eqref{eq:core};
+  \item \texttt{conjecture\_00000004007\_false}, collecting the two instances
+        and the general fact; the accompanying comment records that
+        homogeneity reduces the conjecture to exactly these false
+        inequalities.
+\end{itemize}
+\texttt{lean4/Check.lean} runs \texttt{\#print axioms} for each theorem: the
+\texttt{decide}-based theorems depend on no axioms, and
+\texttt{pow\_two\_gt\_two} and the final theorem depend only on the core
+axioms \texttt{propext} and \texttt{Quot.sound}; there is no \texttt{sorryAx}
+and no \texttt{ofReduceBool}.  The real-valued $p$-variation itself, the
+homogeneity Lemma~\ref{lem:hom} and the reduction of the conjecture to
+\eqref{eq:core} are proved here and checked with exact rational arithmetic in
+\texttt{reproduce.py}; they are not formalised in Lean (core Lean has no
+$\R$).  See \texttt{lean4/README.md} for the precise scope.
+
+\end{document}
