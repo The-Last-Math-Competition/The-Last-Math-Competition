@@ -1,0 +1,450 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\Lc}{L}
+
+\title{Disproof of conjecture \texttt{00000008848}}
+\author{earthking11}
+\date{2026-09-13}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000008848} as stated. The conjecture has two
+clauses, and each fails:
+
+\begin{itemize}
+  \item Clause (a), ``minimal and maximal fixed points of order-preserving maps
+    always exist'', fails already on the totally ordered set $\Z$: the shift
+    $f(x)=x+1$ is order-preserving and has no fixed point at all, and the
+    identity map is order-preserving with fixed-point set $\Z$, which has
+    neither a least nor a greatest element.
+  \item Clause (b), ``monotone iterations of the sub/supersolution method
+    approximate them in countably many steps'', fails even on a complete
+    lattice: on the complete lattice $\omega_1+1$ the map
+    $f(\alpha)=\alpha+1$ for $\alpha<\omega_1$, $f(\omega_1)=\omega_1$, is
+    order-preserving with unique fixed point $\omega_1$, and the monotone
+    iteration from the subsolution $0$ reaches it only at stage $\omega_1$,
+    i.e.\ in uncountably many steps.
+\end{itemize}
+
+The conjunction is therefore false under every reading. The honest caveat is
+this: the file specifies \emph{no poset}, so a charitable reading that adds
+``complete lattice'' makes clause (a) the Knaster--Tarski theorem and puts the
+$\Z$ witnesses out of scope; under that reading the disproof of the conjunction
+rests on clause (b). We state this explicitly in
+Section~\ref{sec:reading} and again in the formalisation and reproducibility
+sections.
+
+\section{The conjecture and the hypotheses it omits}
+
+The conjecture, quoted verbatim from \texttt{conjectures/00000008848.md}:
+
+\begin{quote}
+\textbf{Definition:} Fixed points of order-preserving maps. \textbf{Conjecture:}
+Minimal and maximal fixed points of order-preserving maps always exist; and
+monotone iterations of the sub/supersolution method approximate them in
+countably many steps. (order-preserving sub/supersolution iteration)
+\end{quote}
+
+\noindent The original bilingual statement (English and Chinese) is reproduced
+in full in \texttt{README.md}.
+
+The statement is a template with several slots left unfilled.
+
+\begin{enumerate}
+  \item \textbf{No poset is specified.} It says only ``order-preserving maps'',
+    with no hypothesis that the underlying ordered set is a complete lattice, a
+    complete partial order, a lattice with a bottom, or even bounded. In
+    particular $\Z$ with its usual order is an admissible domain, and so is an
+    arbitrary ordered set.
+  \item \textbf{No sub/supersolution hypothesis is stated} for the first
+    clause. Clause (a) therefore asserts unconditional existence of a least and
+    a greatest fixed point for every order-preserving self-map of every ordered
+    set.
+  \item \textbf{No continuity hypothesis is stated} for the second clause ---
+    no sup-continuity, no Scott continuity, no preservation of directed
+    suprema, no compactness. Without such a hypothesis, even on a complete
+    lattice, transfinite monotone iteration may require uncountably many steps.
+\end{enumerate}
+
+We now give the witnesses, first for clause (a) under the literal reading, then
+for clause (b) on a complete lattice. Throughout, ``order-preserving'' means
+\emph{monotone}: $a\le b \Rightarrow g(a)\le g(b)$.
+
+\section{Clause (a) fails on ordered sets}
+
+\subsection{The shift map on $\Z$: no fixed point at all}
+
+\begin{definition}
+Let $f:\Z\to\Z$ be the shift $f(x)=x+1$.
+\end{definition}
+
+\begin{lemma}\label{lem:fmono}
+$f$ is order-preserving.
+\end{lemma}
+
+\begin{proof}
+If $a\le b$ in $\Z$ then $a+1\le b+1$, i.e.\ $f(a)\le f(b)$.
+\end{proof}
+
+\begin{lemma}\label{lem:ffixfree}
+$f$ has no fixed point: $f(x)\neq x$ for every $x\in\Z$.
+\end{lemma}
+
+\begin{proof}
+$f(x)=x$ would say $x+1=x$, whence $1=0$, a contradiction.
+\end{proof}
+
+\begin{corollary}\label{cor:shift}
+The order-preserving map $f$ on the ordered set $\Z$ has neither a least nor a
+greatest fixed point; it has no fixed point whatsoever.
+\end{corollary}
+
+Thus clause (a), read literally as a statement about all order-preserving maps
+of ordered sets, is false. Its failure is not merely a degenerate emptiness
+accident: the next subsection exhibits an order-preserving map whose
+fixed-point set is as large as possible yet still has no extremal element.
+
+\subsection{The identity map on $\Z$: fixed points without extrema (non-vacuous)}
+
+\begin{theorem}\label{thm:id}
+The identity map $\id:\Z\to\Z$ is order-preserving, every point of $\Z$ is a
+fixed point, but the fixed-point set $\Z$ has neither a least nor a greatest
+element. Consequently there is no minimal fixed point and no maximal fixed
+point.
+\end{theorem}
+
+\begin{proof}
+Order-preservation is immediate: $a\le b\Rightarrow \id(a)=a\le b=\id(b)$.
+Every point is fixed because $\id(y)=y$ for all $y$.
+
+Suppose for contradiction that $m\in\Z$ were a least fixed point. Since every
+$y$ is fixed, in particular $y=m-1$ is fixed, so minimality gives $m\le m-1$,
+which is false. Hence there is no least fixed point.
+
+Similarly, if $M$ were a greatest fixed point, then $y=M+1$ is fixed, so
+$M+1\le M$, which is false. Hence there is no greatest fixed point either.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:id} is the \emph{primary} witness for clause (a) because it is
+non-vacuous: the map genuinely has fixed points (all of them), so the failure
+cannot be dismissed by saying the hypothesis ``has a fixed point'' is unmet. It
+shows that even the repaired statement
+
+\begin{quote}
+every order-preserving self-map of an ordered set that has at least one fixed
+point has a least fixed point,
+\end{quote}
+
+is false, with $\id$ on $\Z$ as witness.
+\end{remark}
+
+\begin{corollary}\label{cor:clauseA}
+Clause (a) is false as stated. Both the literal reading (no fixed point assumed;
+witness $f(x)=x+1$ on $\Z$) and the non-vacuous reading (a fixed point assumed;
+witness $\id$ on $\Z$) are refuted.
+\end{corollary}
+
+\section{The reading caveat: clause (a) on a complete lattice}
+\label{sec:reading}
+
+The refutation of clause (a) above uses only the fact that the file specifies
+no completeness. If a reviewer \emph{charitably} supplies the hypothesis
+``complete lattice'', clause (a) becomes a true theorem, and the $\Z$ witnesses
+fall outside its scope.
+
+\begin{theorem}[Knaster--Tarski, for reference]
+Let $\Lc$ be a complete lattice and $g:\Lc\to\Lc$ order-preserving. Then $g$ has
+a least fixed point, namely $\inf\{x\in\Lc : g(x)\le x\}$, and a greatest fixed
+point, namely $\sup\{x\in\Lc : g(x)\ge x\}$; indeed the fixed points of $g$ form
+a complete lattice.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Let $Q=\{x : g(x)\le x\}$ be the set of post-fixed points. It is nonempty
+($\top\in Q$), so $q=\inf Q$ exists; since $g$ is monotone and every $x\in Q$
+satisfies $q\le x$, one has $g(q)\le g(x)\le x$ for all $x\in Q$, hence
+$g(q)\le q$, so $g(q)\in Q$ and $q\le g(q)$; therefore $g(q)=q$ and $q$ is the
+least fixed point. The greatest fixed point is dual, using
+$\{x : g(x)\ge x\}$ and its supremum.
+\end{proof}
+
+\begin{remark}
+Under this reading the witnesses $f$ and $\id$ on $\Z$ are out of scope
+because $\Z$ is not a complete lattice: for instance the subset $\Z\subseteq\Z$
+has no supremum in $\Z$. We therefore do not claim that clause (a) is false on
+complete lattices. The next section shows that the \emph{conjunction} is
+nevertheless false under the complete-lattice reading, because clause (b)
+fails there.
+\end{remark}
+
+\section{Clause (b) fails even on a complete lattice: $\omega_1+1$}
+
+We now exhibit a complete lattice and an order-preserving map for which the
+monotone sub/supersolution iteration converges only after uncountably many
+steps. This shows that ``countably many steps'' in the conjecture cannot hold
+without a continuity hypothesis the file does not state.
+
+Let $\omega_1$ denote the first uncountable ordinal and let
+\[
+\Lc \;=\; \omega_1+1 \;=\; \{\, \alpha \;:\; \alpha \le \omega_1 \,\},
+\]
+ordered by $\in$ (equivalently, by $\le$).
+
+\begin{lemma}\label{lem:complete}
+$\Lc$ is a complete lattice. Its least element is $0$ and its greatest element
+is $\omega_1$.
+\end{lemma}
+
+\begin{proof}
+The order is that of the ordinals. For a nonempty subset $S\subseteq\Lc$ the
+infimum is $\min S$, which exists because the ordinals are well-ordered; for
+$S=\varnothing$ the infimum is the top element $\omega_1$. For the supremum,
+$S=\varnothing$ gives $0$. If $S$ is nonempty and bounded in $\Lc$ by some
+$\alpha<\omega_1$, then $S\subseteq\alpha$ is a set of ordinals below a
+countable ordinal, hence $S$ is countable, and its supremum $\sup S=\bigcup S$
+is an ordinal that is a union of countably many countable ordinals, hence
+countable, so $\sup S<\omega_1$ lies in $\Lc$. If $S$ is unbounded below
+$\omega_1$, then $\sup S=\omega_1\in\Lc$. Hence every subset of $\Lc$ has a
+supremum, and $\Lc$ is a complete lattice.
+\end{proof}
+
+\begin{definition}\label{def:f}
+Define $g:\Lc\to\Lc$ by
+\[
+g(\alpha) \;=\;
+\begin{cases}
+\alpha+1, & \alpha < \omega_1,\\[2pt]
+\omega_1,  & \alpha = \omega_1.
+\end{cases}
+\]
+\end{definition}
+
+\begin{lemma}\label{lem:gmono}
+$g$ is order-preserving.
+\end{lemma}
+
+\begin{proof}
+Let $\alpha\le\beta$ in $\Lc$. If $\beta<\omega_1$ then also
+$\alpha<\omega_1$, so $g(\alpha)=\alpha+1\le\beta+1=g(\beta)$. If
+$\beta=\omega_1$ then $g(\beta)=\omega_1$ is the greatest element of $\Lc$, so
+$g(\alpha)\le\omega_1=g(\beta)$ automatically.
+\end{proof}
+
+\begin{lemma}\label{lem:gfix}
+$g$ has exactly one fixed point, namely $\omega_1$. Hence $\omega_1$ is both
+the least and the greatest fixed point of $g$.
+\end{lemma}
+
+\begin{proof}
+For $\alpha<\omega_1$ we have $g(\alpha)=\alpha+1>\alpha$, so $\alpha$ is not
+fixed. And $g(\omega_1)=\omega_1$. Thus the fixed-point set is
+$\{\omega_1\}$, a singleton.
+\end{proof}
+
+The conjecture's second clause concerns the monotone \emph{sub/supersolution
+iteration}. Recall the standard transfinite iteration from below: given a
+subsolution $u$ (a point with $g(u)\ge u$), define $\{u_\alpha\}$ by
+\[
+u_0=u,\qquad u_{\alpha+1}=g(u_\alpha),\qquad
+u_\lambda=\sup_{\beta<\lambda} u_\beta \ \ (\lambda \text{ a limit ordinal}),
+\]
+continuing for as long as the suprema exist; on a complete lattice they always
+do. Since $g$ is order-preserving, the sequence is increasing and each $u_\alpha$
+is again a subsolution, and its limit is the greatest fixed point below the
+starting value --- in particular, starting at the least element yields the least
+fixed point.
+
+Take the subsolution $u_0=0$: indeed $g(0)=1\ge 0$, and $0$ is the least
+element of $\Lc$.
+
+\begin{lemma}\label{lem:iterate}
+For every ordinal $\alpha\le\omega_1$ the transfinite iteration from $0$
+satisfies $u_\alpha=\alpha$.
+\end{lemma}
+
+\begin{proof}
+By transfinite induction on $\alpha\le\omega_1$.
+
+\emph{Zero:} $u_0=0$ by definition.
+
+\emph{Successor:} let $\alpha+1\le\omega_1$, so $\alpha<\omega_1$. By the
+induction hypothesis $u_\alpha=\alpha<\omega_1$, hence
+$u_{\alpha+1}=g(u_\alpha)=g(\alpha)=\alpha+1$.
+
+\emph{Limit:} let $\lambda\le\omega_1$ be a limit ordinal. By the induction
+hypothesis $u_\beta=\beta$ for all $\beta<\lambda$, so
+$u_\lambda=\sup_{\beta<\lambda}\beta=\lambda$, the last equality holding
+because the ordinals below a limit ordinal are cofinal in it. (For
+$\lambda=\omega_1$ this reads $\sup_{\beta<\omega_1}\beta=\omega_1$.)
+\end{proof}
+
+\begin{theorem}\label{thm:clauseB}
+On the complete lattice $\Lc=\omega_1+1$, the order-preserving map $g$ of
+Definition~\ref{def:f} has the unique fixed point $\omega_1$
+(Lemma~\ref{lem:gfix}), but the monotone iteration from the subsolution $0$
+satisfies $u_\alpha=\alpha$ for all $\alpha\le\omega_1$
+(Lemma~\ref{lem:iterate}). Consequently:
+
+\begin{enumerate}
+  \item for every \emph{countable} ordinal $\alpha<\omega_1$ we have
+    $u_\alpha=\alpha<\omega_1$, so the iteration has \emph{not} reached the
+    least fixed point at any countable stage;
+  \item the first stage at which it reaches the fixed point is
+    $\alpha=\omega_1$, the first \emph{uncountable} ordinal.
+\end{enumerate}
+
+Hence the sub/supersolution iteration requires uncountably many steps, not
+countably many. Clause (b) is false on a complete lattice.
+\end{theorem}
+
+\begin{proof}
+Immediate from Lemmas~\ref{lem:gfix} and~\ref{lem:iterate}: $u_\alpha=\alpha$
+equals $\omega_1$ exactly when $\alpha=\omega_1$. Since every $\alpha<\omega_1$
+is countable and $\omega_1$ is uncountable, convergence occurs only at an
+uncountable stage.
+\end{proof}
+
+\begin{remark}[Why continuity is exactly what is missing]
+The map $g$ is not sup-continuous. On the directed set
+$D=\omega=\{0,1,2,\dots\}\subseteq\Lc$ we have $\sup D=\omega$ and
+\[
+g(\sup D)=g(\omega)=\omega+1
+\;\neq\;
+\omega=\sup_{n\in D} g(n)=\sup_{n<\omega}(n+1).
+\]
+This failure is precisely what prevents convergence at stage $\omega$: at that
+stage $u_\omega=\omega$ while $g(u_\omega)=\omega+1>u_\omega$, so the iteration
+must continue. Had the file assumed that $g$ preserves directed suprema
+(Scott continuity), the iteration would indeed converge after countably many
+steps, $u_\omega$ being the least fixed point. The conjecture states no such
+hypothesis, and Theorem~\ref{thm:clauseB} shows the conclusion fails without
+it.
+\end{remark}
+
+\begin{remark}[Reading of ``countably many steps'']
+Under either reading --- a sequence indexed by the natural numbers, or a
+transfinite iteration indexed by the countable ordinals --- the conclusion
+fails: the iteration is not constant at any countable stage, and its first
+fixed value occurs at the uncountable ordinal $\omega_1$. The singleton
+fixed-point set makes the example as non-degenerate as possible on the
+fixed-point side: minimal and maximal fixed points coincide, so there is no
+ambiguity about which one is being approximated.
+\end{remark}
+
+\section{Conclusion}
+
+Clause (a) is false on ordered sets, and clause (b) is false even on a complete
+lattice. Therefore conjecture \texttt{00000008848} is false as stated, under
+the literal reading and under the charitable complete-lattice reading alike.
+For the record, the logical structure of the disproof is:
+
+\begin{center}
+\begin{tabular}{@{}l l l@{}}
+\toprule
+Reading & Clause (a) & Clause (b) \\
+\midrule
+Literal (no completeness; as filed) & false (\S3, $\Z$ witnesses) & false (\S5, $\omega_1+1$) \\
+Charitable (add ``complete lattice'') & \emph{true} (Knaster--Tarski, \S4) & false (\S5, $\omega_1+1$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent In both rows the conjunction is false. Under the charitable reading
+the disproof rests on clause (b), exactly as stated in the introduction.
+
+\section{Formalisation}
+
+Clause (a) is formalised in the accompanying Lean~4 project under
+\texttt{lean4/}, using core Lean only (\texttt{import Std}, no Mathlib, no
+\texttt{sorry}); \texttt{lake build} succeeds and \texttt{lake env lean
+Check.lean} reports the axioms of every theorem with no \texttt{sorryAx}. The
+formal statements include, for $\Z$,
+
+\begin{quote}\ttfamily
+theorem f\_mono : \(\forall\) a b : Int, a \(\le\) b \(\to\) f a \(\le\) f b\\
+theorem f\_fixfree : \(\forall\) x : Int, f x \(\neq\) x\\
+theorem refutes\_least\_fixed\_point :\\
+\hspace*{2em}\(\neg\) (\(\forall\) (\(\alpha\) : Type) [LE \(\alpha\)] (g : \(\alpha\) \(\to\) \(\alpha\)),\\
+\hspace*{4em}(\(\forall\) a b, a \(\le\) b \(\to\) g a \(\le\) g b) \(\to\)\\
+\hspace*{4em}\(\exists\) m, g m = m \(\wedge\) \(\forall\) y, g y = y \(\to\) m \(\le\) y)\\
+theorem id\_no\_least\_fixed :\\
+\hspace*{2em}\(\neg\) \(\exists\) m : Int, IsFixed m \(\wedge\) \(\forall\) y, IsFixed y \(\to\) m \(\le\) y\\
+theorem refutes\_least\_fixed\_point\_with\_fixpoint : \textit{(the non-vacuous form)}
+\end{quote}
+
+\noindent The last two formalise Theorem~\ref{thm:id} and the non-vacuous
+refutation; \texttt{refutes\_least\_fixed\_point} formalises the shift-map
+witness of Corollary~\ref{cor:shift}; the greatest-fixed-point halves are
+formalised in the same file.
+
+Clause (b) is \emph{not} formalised: core Lean (and core Lean's standard
+library) has no ordinals or cardinals, and Mathlib, which does, is not
+available in this project. The $\omega_1+1$ argument is therefore carried out
+in this document, and illustrated (not computed) in \texttt{reproduce.py}. This
+limitation is stated in \texttt{lean4/README.md}.
+
+\section{Reproducibility}
+
+\texttt{reproduce.py} (Python~3 standard library only) verifies:
+
+\begin{enumerate}
+  \item that $f(x)=x+1$ on $\Z$ has no fixed point, by checking
+    $x+1\neq x$ on a large integer window and by the exact algebraic identity
+    $x+1=x \iff 1=0$;
+  \item that $\id$ on $\Z$ has every point fixed and no least or greatest
+    fixed point: for any claimed least element $m$ it exhibits the fixed point
+    $m-1<m$, and for any claimed greatest element $M$ it exhibits the fixed
+    point $M+1>M$, reporting the contradiction;
+  \item that the transfinite iteration for $\omega_1+1$ needs more than
+    countably many steps (\texttt{Thm.}~5 in the script): it
+    \emph{simulates} the first finitely many stages on a finite initial
+    segment, showing $u_n=n$ for all simulated $n$, and then records the
+    standard transfinite argument of Lemma~\ref{lem:iterate} and
+    Theorem~\ref{thm:clauseB} as the actual proof, clearly labelled as
+    \emph{argument}, not computation.
+\end{enumerate}
+
+It prints \texttt{PASS} and exits $0$ exactly when every check holds, and exits
+non-zero otherwise.
+
+\section{Status against the submission rules}
+
+Rule 3 of the competition requires each submission to contain the LaTeX source
+code, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+  \item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone
+    \texttt{article} using only \texttt{geometry}, \texttt{amsmath},
+    \texttt{amssymb}, \texttt{amsthm}, \texttt{array}, \texttt{parskip}, and
+    \texttt{booktabs}; it compiles with \texttt{tectonic}.
+  \item \textbf{PDF document} --- \texttt{build/main.pdf}, produced by
+    \texttt{tectonic --outdir build main.tex}. (Plain \texttt{tectonic
+    main.tex} also compiles, writing \texttt{./main.pdf}.)
+  \item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+    (\texttt{leanprover/lean4:v4.33.1}), \texttt{lakefile.toml} (project
+    \texttt{tlmc8848}), \texttt{Main.lean}, \texttt{Check.lean}, and a
+    \texttt{README.md}. It formalises clause (a) completely and audits its
+    axioms; clause (b) is argued here because core Lean has no ordinals.
+\end{itemize}
+
+\end{document}
