@@ -1,0 +1,263 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Fp}{\mathbb{F}_p}
+\newcommand{\Aut}{\operatorname{Aut}}
+\newcommand{\Der}{\operatorname{Der}}
+\newcommand{\GL}{\operatorname{GL}}
+
+\title{Disproof of conjecture \texttt{00000001142}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001142} as stated. For the mod-$p$ Witt
+algebra $W(1;1)$ the automorphism group has order $24$ at $p=3$ and $500$ at
+$p=5$, whereas the conjectured formula $p(p-1)$ gives $6$ and $20$. The claim
+is true only at $p=2$; it fails for \emph{every} $p\ge 3$.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000001142.md}:
+
+\begin{quote}
+\textbf{English.} Conjecture: The order of the automorphism group of the
+mod-$p$ Witt algebra $W(1;1)$ is $p(p-1)$ (Witt automorphisms).
+\end{quote}
+
+The conjecture is filed in both English and Chinese; the Chinese original is
+reproduced verbatim (in Unicode) in \texttt{README.md}, and the two versions
+are identical in content. The PDF font does not embed CJK glyphs, so the
+Chinese is kept in the markdown copy rather than duplicated here.
+
+\section{The algebra and its dimension}
+
+\begin{definition}
+$W(1;1)=\Der\bigl(\Fp[x]/(x^p)\bigr)$ is the Lie algebra of derivations of the
+truncated polynomial ring. It has the $p$ basis elements
+\[
+b_k = x^k \frac{d}{dx}, \qquad k = 0, 1, \dots, p-1,
+\]
+and $\dim W(1;1) = p$ (not $p-1$). The bracket is
+\begin{equation}\label{eq:bracket}
+[b_k,b_l] = (l-k)\, b_{k+l-1}\quad \text{if } 1 \le k+l \le p,
+\qquad\text{and } [b_k,b_l]=0 \text{ otherwise}.
+\end{equation}
+\end{definition}
+
+For example $b_0 = d/dx$, $b_1 = x\,d/dx$, \dots, $b_{p-1}=x^{p-1}d/dx$.
+
+\section{The witness $p=3$}
+
+At $p=3$ the algebra is $3$-dimensional with basis $b_0,b_1,b_2$ and bracket
+table
+\[
+[b_0,b_1]=b_0,\quad [b_0,b_2]=2b_1,\quad [b_1,b_2]=b_2,
+\]
+the other brackets following from antisymmetry ($[b_k,b_k]=0$,
+$[b_l,b_k]=-[b_k,b_l]$).
+
+A linear map is a $3\times 3$ matrix over $\mathbb{F}_3$; we enumerated
+\emph{all} $3^9 = 19683$ of them:
+
+\begin{center}
+\begin{tabular}{l r}
+\toprule
+candidate matrices & $3^9 = 19683$ \\
+invertible ($\det \ne 0$) & $|\GL(3,\mathbb{F}_3)| = 11232$ \\
+invertible \emph{and} bracket-preserving & $\mathbf{24}$ \\
+conjectured value $p(p-1) = 3\cdot 2$ & $6$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Hence
+\[
+\boxed{\;|\Aut(W(1;1))| = 24 \ne 6 = p(p-1) \quad (p=3)\;}
+\]
+and the conjecture is false at $p=3$. The count $24$ is machine-verified twice:
+by the exhaustive enumeration in \texttt{reproduce.py} and by the core-Lean
+theorem \texttt{aut\_count\_3} in \texttt{lean4/Main.lean}.
+
+\subsection*{Structural confirmation: $W(1;1)\cong \mathfrak{sl}(2,\mathbb{F}_3)$}
+
+At $p=3$ the algebra is isomorphic to $\mathfrak{sl}(2,\mathbb{F}_3)$ via
+\[
+h = 2b_1, \qquad e = b_2, \qquad f = 2b_0 ,
+\]
+for which one checks $[h,e]=2e$, $[h,f]=-2f$, $[e,f]=h$. Consequently
+\[
+|\Aut(W(1;1))| = |\Aut(\mathfrak{sl}(2,\mathbb{F}_3))|
+= |\operatorname{PGL}(2,3)| = |S_4| = 24 .
+\]
+This is an independent theoretical confirmation of the numerical value $24$.
+The element-order distribution of the $24$ automorphisms is
+\[
+\{1:1,\; 2:9,\; 3:8,\; 4:6\},
+\]
+which is exactly the order distribution of $S_4$; it is computed in
+\texttt{reproduce.py}. Note that the exceptional isomorphism with
+$\mathfrak{sl}(2,\mathbb{F}_3)$ exists only at $p=3$.
+
+\section{The value at $p=5$}
+
+At $p=5$ the algebra is $5$-dimensional. A direct brute force over $5^{25}$
+matrices is infeasible, so we use the following exact structural reduction: the
+pair $\{b_0,b_4\}$ generates $W(1;1)$ as a Lie algebra, so an automorphism
+$\varphi$ is determined by the pair
+$\bigl(\varphi(b_0),\varphi(b_4)\bigr)$; and $\varphi(b_0)$ must be a
+\emph{regular nilpotent} element, because
+$\operatorname{ad}(\varphi(b_0)) = \varphi \circ \operatorname{ad}(b_0)\circ
+\varphi^{-1}$ is conjugate to $\operatorname{ad}(b_0)$, a single Jordan block of
+size $p$. There are exactly $500$ regular nilpotent elements. Enumerating this
+pair for all of them, reconstructing
+$\varphi(b_3),\varphi(b_2),\varphi(b_1)$ from the relations
+$[b_0,b_k]=k\,b_{k-1}$ and testing bracket preservation and invertibility gives
+\begin{center}
+\begin{tabular}{l r}
+\toprule
+regular nilpotent candidates for $\varphi(b_0)$ & $500$ \\
+extensions to an automorphism (each candidate has exactly one) & $500$ \\
+conjectured value $p(p-1) = 5\cdot 4$ & $20$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+Hence
+\[
+\boxed{\;|\Aut(W(1;1))| = 500 = (p-1)p^{\,p-2}\big|_{p=5} \ne 20 = p(p-1)
+\quad (p=5)\;}
+\]
+and the conjecture is false at $p=5$ as well. This computation is carried out
+exactly in \texttt{reproduce.py}; it was validated against the $p=3$ brute
+force (where it returns $24$).
+
+\section{The exception $p=2$}
+
+At $p=2$ the algebra is the $2$-dimensional non-abelian Lie algebra
+$[b_0,b_1]=b_0$ (since $k+l=1\le 2$), and $|\Aut| = 2 = p(p-1)$. So the
+conjectured formula is correct at $p=2$ and wrong for every $p\ge 3$; the
+number $p(p-1)$ is therefore not the order of $\Aut(W(1;1))$ in general.
+
+\section{Rescue attempts that fail}
+
+We tried to save the conjecture by changing the reading of ``Aut''; none
+succeeds.
+
+\begin{center}
+\begin{tabular}{p{0.40\textwidth} p{0.52\textwidth}}
+\toprule
+Reading & Outcome \\
+\midrule
+Automorphisms of the \emph{restricted} Lie algebra (respecting the $p$-power
+map $X\mapsto X^{[p]}$) & the same counts result: at $p=3$ all $24$ Lie
+automorphisms preserve the $p$-power map, so the restricted automorphism group
+is again $24$; likewise the count at $p=5$ is again $500$. No rescue. \\
+A different (non-standard) $p$-power convention & gives $2$ at $p=3$ and $4$
+at $p=5$, even further from $p(p-1)$. No rescue. \\
+Inner automorphisms & $W(1;1)$ is finite-dimensional, so the inner
+automorphism group is trivial and $\operatorname{Out}=\Aut$, with order $24$
+(resp.\ $500$). No rescue. \\
+Automorphisms of the restricted enveloping algebra & a different (larger,
+associative-algebra) group; not $\Aut(W(1;1))$. No rescue. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{The Möbius subgroup: where $p(p-1)$ really comes from}
+
+The number $p(p-1)$ does occur, but as the order of a \emph{proper} subgroup.
+The Möbius/Witt transformations
+\[
+x \longmapsto \frac{a x}{1+b x}, \qquad a\in \mathbb{F}_p^{\times},\;
+b\in \mathbb{F}_p ,
+\]
+act on vector fields by pullback, $\varphi^*(b_k) = \varphi(x)^k/\varphi'(x)
+\cdot d/dx$, i.e.
+\[
+\varphi^*(b_k) = a^{\,k-1} x^k (1+b x)^{2-k}\,\frac{d}{dx},
+\]
+expanded as a power series in $x$ and truncated at degree $p-1$. This action
+preserves the bracket \eqref{eq:bracket}, and the $p(p-1)$ maps $(a,b)$ form a
+subgroup of $\Aut(W(1;1))$:
+\[
+|\{\,x\mapsto a x/(1+b x)\,\}| = p(p-1) = 6 \ (p=3), \qquad 20 \ (p=5).
+\]
+But these are \emph{proper} subgroups, since
+\[
+6 < 24 = |\Aut| \ (p=3), \qquad 20 < 500 = |\Aut| \ (p=5).
+\]
+Thus the conjecture is true exactly if ``$\Aut$'' is silently read as this
+Möbius/Witt subgroup rather than the full automorphism group. Under the
+literal reading of the conjecture as filed, it is false for all $p\ge 3$.
+
+\section{Reproducibility}
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(brute force at $p=3$; the exact $p=5$ count; the Möbius subgroup;
+the $p=2$ case)}\\
+PASS: all 21 checks verified; conjecture 00000001142 is FALSE.
+\end{quote}
+
+The script uses only the Python~3 standard library. It prints the
+$|\GL(3,\mathbb{F}_3)| = 11232$ / $24$ breakdown so that the enumeration is
+independently checkable, and it exits $0$ exactly when every check holds.
+Runtime is about $13$ seconds.
+
+\section{Formalisation}
+
+The $p=3$ refutation is formalised in the Lean~4 project under \texttt{lean4/}
+(core Lean only, \texttt{import Std}, no Mathlib, no \texttt{sorry}). The main
+statements are
+\begin{quote}\ttfamily
+theorem num\_mats : allMats.length = 3 \^{} 9\\
+theorem aut\_count\_3 : auts3.length = 24\\
+theorem claim\_false\_3 : auts3.length \(\neq\) 3 * (3 - 1)
+\end{quote}
+The algebra is defined by its nine structure constants only, and the number
+$24$ is produced by exhaustively filtering the $3^9$ matrices over
+$\mathbb{F}_3$. The enumeration is discharged by the core kernel
+\texttt{decide} tactic, \emph{not} by \texttt{native\_decide}; the axiom audit
+(\texttt{lake env lean Check.lean}) reports that the theorems depend on no
+axioms at all. The measured \texttt{lake build} wall time is about $50$~seconds
+($47.5$~s on the final clean build).
+The case $p=5$ is out of scope for Lean (a faithful analogue would need
+$5^{25}$ matrices) and is covered by \texttt{reproduce.py}. See
+\texttt{lean4/README.md} for details.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (name \texttt{tlmc1142}, library \texttt{Main}, no dependencies),
+  \texttt{Main.lean}, \texttt{Check.lean} (\texttt{\#print axioms}) and
+  \texttt{lean4/README.md}. \texttt{lake build} exits $0$ in about $50$~seconds
+  and the audit reports no \texttt{sorryAx} and no \texttt{Lean.ofReduceBool}.
+\end{itemize}
+
+\end{document}
