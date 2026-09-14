@@ -1,0 +1,332 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Red}{\operatorname{Red}}
+\newcommand{\SYT}{\operatorname{SYT}}
+
+\sloppy
+
+\title{Disproof of conjecture \texttt{00000001110}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001110} as stated. The refutation is
+unconditional and completely explicit: for the symmetric group $S_6$ (type
+$A_5$, Coxeter number $h = 6$) the number of reduced words of the longest
+element $w_0$ is
+\[
+\#\Red(w_0) \;=\; 292864 \;=\; 2^{11}\cdot 11\cdot 13 ,
+\]
+and the primes $11$ and $13$ both exceed $h = 6$. Hence the reduced-word
+count is \emph{not} $h$-smooth, and the conjecture fails. The smallest
+counterexample is $n = 6$; the cases $n = 2,3,4,5$ are $h$-smooth.
+
+\section{The conjecture, quoted}
+
+From \texttt{conjectures/00000001110.md}:
+
+\begin{quote}
+\textbf{English.} Conjecture: The prime factorization of the number of reduced
+words of the longest element $w_0$ involves only primes $\le h$ (smoothness of
+reduced-word counting).
+\end{quote}
+
+The conjecture is filed in both English and Chinese. The two versions are
+identical in content; the Chinese original is reproduced verbatim (in Unicode)
+in \texttt{README.md}, because the PDF font does not embed CJK glyphs. The
+mathematical content is the sentence quoted above.
+
+\section{Disambiguation: what are $h$ and the scope?}
+
+The filed statement never defines $h$ nor says which groups are quantified
+over. We fix the standard reading and record it as a deliberate convention:
+
+\begin{enumerate}
+\item \textbf{Scope.} All finite Coxeter groups $W$, with $w_0$ the longest
+  element and $\Red(w_0)$ the set of reduced words (reduced decompositions)
+  of $w_0$ with respect to the simple reflections. Under this reading, the
+  symmetric group $S_n$ (type $A_{n-1}$) is included.
+\item \textbf{Meaning of $h$.} $h$ is the \emph{Coxeter number} of $W$. In
+  type $A_{n-1}$, i.e.\ $W = S_n$, one has
+  \[
+  h \;=\; n .
+  \]
+  We stress that this is the only reading under which the statement has any
+  content: the conjecture is a claim about a single numerical invariant $h$
+  attached to the group, and the Coxeter number is that invariant.
+\end{enumerate}
+
+Any universal statement over finite Coxeter groups is refuted by a single
+group for which the conclusion fails. We produce such a group in
+Section~\ref{sec:refute}. Section~\ref{sec:rescues} shows that the other
+natural readings of $h$ do not save the conjecture either.
+
+\section{The count: a classical bijection}
+
+\begin{theorem}[Staircase bijection]\label{thm:bij}
+For $n \ge 2$ there are bijections
+\[
+\Red(w_0) \;\longleftrightarrow\;
+\SYT(n-1,n-2,\dots,1) \;\longleftrightarrow\;
+\mathcal{L}\bigl(\Pi_n\bigr),
+\]
+where $\SYT(\lambda)$ is the set of standard Young tableaux of shape
+$\lambda$, and $\mathcal{L}(\Pi_n)$ is the set of linear extensions of the
+\emph{staircase poset} $\Pi_n$: the cells $(i,j)$ of the staircase shape
+$(n-1,n-2,\dots,1)$ with the order $(i,j) \prec (i,j+1)$ (same row) and
+$(i,j) \prec (i+1,j)$ (same column).
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The standard bijection sends a reduced word
+$w_0 = s_{i_1}s_{i_2}\cdots s_{i_N}$ ($N = n(n-1)/2$) to the standard Young
+tableau obtained by inserting $k$ into the box of the $k$-th simple
+reflection under the Robinson--Schensted correspondence; the recording
+tableau of a reduced word is the staircase tableau, and this is injective
+onto $\SYT$ of the staircase shape. Equivalently, reading the generators
+$s_i$ from left to right produces exactly the linear extensions of
+$\Pi_n$. The number of boxes is
+$N = 1+2+\cdots+(n-1) = n(n-1)/2$, the number of positive roots.
+\end{proof}
+
+We use this bijection for two things: it turns $\#\Red(w_0)$ into a
+tableau count, to which the hook-length formula applies; and it gives an
+independent computational route through linear extensions of $\Pi_n$.
+
+\section{The hook-length computation for $n=6$}\label{sec:hook}
+
+For $n = 6$ the staircase shape is
+\[
+\lambda = (5,4,3,2,1), \qquad
+|\lambda| = 5+4+3+2+1 = 15 = \frac{6\cdot 5}{2} .
+\]
+The cells have hook lengths
+\[
+\begin{array}{ccccc}
+9 & 7 & 5 & 3 & 1\\
+7 & 5 & 3 & 1 & \\
+5 & 3 & 1 & & \\
+3 & 1 & & & \\
+1 & & & &
+\end{array}
+\qquad\text{i.e.}\qquad
+\prod_{(i,j)\in\lambda} h(i,j)
+= 9\cdot 7^2\cdot 5^3\cdot 3^4\cdot 1^5
+= 4465125 .
+\]
+In general, for the self-conjugate staircase with $m = n-1$ rows the hook
+length $2k-1$ occurs with multiplicity $m+1-k$, $k = 1,\dots,m$; here
+$m = 5$ and the multiplicities are $5,4,3,2,1$.
+
+The hook-length formula
+\[
+f^{\lambda} \;=\; \frac{|\lambda|!}{\displaystyle\prod_{(i,j)\in\lambda} h(i,j)}
+\]
+therefore gives
+\begin{equation}\label{eq:count}
+\#\Red(w_0) \;=\; \frac{15!}{9\cdot 7^2\cdot 5^3\cdot 3^4}
+= \frac{1307674368000}{4465125}
+= 292864 .
+\end{equation}
+
+\begin{proposition}\label{prop:factor}
+$292864 = 2^{11}\cdot 11\cdot 13$, and $11$, $13$ are prime.
+\end{proposition}
+
+\begin{proof}
+$2^{11} = 2048$, $11\cdot 13 = 143$, and $2048\cdot 143 = 292864$. The
+numbers $11$ and $13$ have no divisors other than $1$ and themselves.
+Alternatively, exact trial division of $292864$: it is even, and
+$292864/2^{11} = 143 = 11\cdot 13$.
+\end{proof}
+
+\section{Why this refutes the conjecture}\label{sec:refute}
+
+In type $A_5$, i.e.\ $W = S_6$, the Coxeter number is $h = 6$. By
+Theorem~\ref{thm:bij} and \eqref{eq:count}, and by
+Proposition~\ref{prop:factor}, the reduced-word count has prime factor $11$,
+and
+\[
+11 \;>\; 6 \;=\; h .
+\]
+So the count is not $h$-smooth. Since the conjecture (read as standard,
+Section~2) asserts $h$-smoothness for \emph{every} finite Coxeter group, this
+one group falsifies it:
+
+\begin{theorem}\label{thm:false}
+The statement ``$\#\Red(w_0)$ has all prime factors $\le h$'' is false. In
+$W = S_6$ (type $A_5$, $h = 6$),
+\[
+\#\Red(w_0) = 292864 = 2^{11}\cdot 11\cdot 13,
+\qquad 11,13 > h = 6 .
+\]
+The smallest counterexample is $n = 6$; for $n = 2,3,4,5$ the counts
+$1, 2, 16, 768$ have all prime factors $\le n$.
+\end{theorem}
+
+\section{Counts for small $n$}
+
+The table lists, for $n = 2,\dots,9$, the count of reduced words of $w_0$ in
+$S_n$, its exact factorisation, and the set of prime factors exceeding
+$h = n$. The values were computed in three mutually independent ways: the
+hook-length formula; a dynamic program over the weak order of $S_n$ via
+$R(w) = \sum_{i:\,ws_i<w} R(ws_i)$, $R(e) = 1$, evaluated at $w_0$; and, for
+$n\le 6$, a dynamic program over order ideals of the staircase poset. All
+three agree. See \texttt{reproduce.py}.
+
+\begin{center}
+\begin{tabular}{r r l l}
+\toprule
+$n$ & $h = n$ & $\#\Red(w_0)$ and its factorisation & primes $> h$ \\
+\midrule
+$2$ & $2$ & $1$ & none \\
+$3$ & $3$ & $2 = 2$ & none \\
+$4$ & $4$ & $16 = 2^4$ & none \\
+$5$ & $5$ & $768 = 2^8\cdot 3$ & none \\
+$6$ & $6$ & $292864 = 2^{11}\cdot 11\cdot 13$ & $\mathbf{11,\ 13}$ \\
+$7$ & $7$ & $1100742656 = 2^{18}\cdot 13\cdot 17\cdot 19$ & $13,\ 17,\ 19$ \\
+$8$ & $8$ & $48608795688960 = 2^{25}\cdot 3\cdot 5\cdot 13\cdot 17\cdot 19\cdot 23$
+        & $13,\ 17,\ 19,\ 23$ \\
+$9$ & $9$ &
+  $29258366996258488320 = 2^{34}\cdot 3\cdot 5\cdot 17^2\cdot 19\cdot 23\cdot 29\cdot 31$
+  & $17,\ 19,\ 23,\ 29,\ 31$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The failure is not an isolated accident: every $n\ge 6$ in the table
+violates the bound, the smallest being $n = 6$.
+
+\section{Rescue readings, and why they fail}\label{sec:rescues}
+
+We tried to save the conjecture by varying $h$ or the scope; none succeeds.
+
+\begin{center}
+\begin{tabular}{p{0.36\textwidth} p{0.54\textwidth}}
+\toprule
+Reading & Outcome \\
+\midrule
+$h = n - 1$ (the height $2h^\vee - 2$ of the highest root divided by $2$, or
+  the top degree) & at $n = 6$, still $11, 13 > 5$; refuted. \\
+$h = n/2$ & at $n = 6$, $11,13 > 3$; refuted. \\
+Restrict to simply-laced types & $S_6$ (type $A_5$) is simply-laced, so the
+  witness lies inside the restricted family; refuted. \\
+Count commutation classes of reduced words instead
+  ($s_is_j = s_js_i$ for $|i-j|>1$) & fails even harder: $n = 5$ gives
+  $62 = 2\cdot 31$ with $31 > 5$, and $n = 6$ gives $908 = 2^2\cdot 227$ with
+  $227 > 6$; refuted. \\
+Restrict the rank to $n \le 5$ & the statement becomes true
+  ($1,2,16,768$ are all $n$-smooth), but this is a different, weaker claim
+  than the conjecture as filed. \\
+Use an artificial $h$, e.g.\ the number of positive roots $N = n(n-1)/2 = 15$
+  at $n = 6$ & at $n = 6$ this covers $11, 13$; but $15 \ne h$ is not the
+  Coxeter number and the reading is not the standard one. Recorded as a
+  caveat, not as a rescue. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The only readings that avoid the counterexample change the meaning of $h$
+away from the Coxeter number, or restrict the rank to $n \le 5$. Under the
+standard reading (Coxeter number, all finite types, type $A$ included) the
+conjecture is false, with the smallest witness $n = 6$.
+
+\section{Caveats}
+
+\begin{itemize}
+\item \textbf{The file does not pin down $h$ or the scope.} The refutation
+  adopts the standard reading (Section~2): $h$ is the Coxeter number and the
+  scope is all finite Coxeter groups, so type $A_{n-1}$ with $h = n$ is
+  included. If one instead restricts the scope to $n \le 5$ or redefines $h$
+  artificially, the statement can be made true; this is stated openly in
+  Section~\ref{sec:rescues}. It is a change of the claim, not a rescue of the
+  filed one.
+\item \textbf{The bijection is cited, not formalised.} The classical
+  equivalence ``reduced words of $w_0$ in $S_n$ $\leftrightarrow$ standard
+  Young tableaux of the staircase shape $(n-1,\dots,1)$
+  $\leftrightarrow$ linear extensions of the staircase poset'' is used as a
+  known theorem (Theorem~\ref{thm:bij}); core Lean, in which the accompanying
+  formalisation is written, has no Coxeter groups, so the Lean development
+  formalises the arithmetic evaluation of the hook-length formula rather than
+  the bijection itself. The count is nevertheless confirmed independently by
+  two dynamic programs in \texttt{reproduce.py}.
+\item \textbf{The count is a \emph{number of reduced words}, not the number of
+  commutation classes.} The conjecture says ``number of reduced words''; we
+  take it literally. Counting commutation classes instead is a different
+  quantity and fails even more quickly, as recorded above.
+\item \textbf{Only finite types are considered,} since $w_0$ and the Coxeter
+  number exist in that setting; this is the natural scope of the statement.
+\end{itemize}
+
+\section{Reproducibility and formalisation}
+
+\texttt{reproduce.py} (Python~3 standard library only, no \texttt{sympy})
+computes the counts for $n = 2,\dots,9$ by the hook-length formula and by the
+weak-order dynamic program (plus an order-ideal dynamic program for
+$n\le 6$), factorises them with a self-written trial-division routine, prints
+the table with the set of primes exceeding $n$, asserts that $n = 6$ violates
+the bound with $11, 13 > 6$, identifies $n = 6$ as the smallest violation,
+and exits $0$ on \texttt{PASS}:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+...\\
+PASS: all checks verified; conjecture 00000001110 is FALSE.
+\end{quote}
+
+LaTeX: \texttt{tectonic --outdir build main.tex} produces
+\texttt{build/main.pdf}.
+
+The Lean~4 project under \texttt{lean4/} (core Lean, \texttt{import Std}, no
+Mathlib, no \texttt{sorry}) pins \texttt{leanprover/lean4:v4.33.1} and proves,
+with \emph{no} use of \texttt{native\_decide} and therefore with no
+\texttt{Lean.ofReduceBool} in the axiom footprint,
+\begin{quote}\ttfamily\small\raggedright
+theorem reducedWordsW0S6\_eq : reducedWordsW0S6 = 292864\\
+theorem reducedWordsW0S6\_factorisation :\\
+\hspace*{2em}reducedWordsW0S6 = 2 \^{} 11 * 11 * 13\\
+theorem eleven\_dvd : 11 \(|\) reducedWordsW0S6\\
+theorem thirteen\_dvd : 13 \(|\) reducedWordsW0S6\\
+theorem not\_six\_smooth : \(\neg\) Bsmooth 6 reducedWordsW0S6
+\end{quote}
+where \texttt{reducedWordsW0S6} is $15!/(9\cdot7^2\cdot5^3\cdot3^4)$ computed
+inside Lean, and \texttt{Bsmooth B c} means $\forall p,\ p \mid c \to p \le
+B$. The audit \texttt{Check.lean} shows every one of these theorems depends on
+\emph{no axioms at all}.
+
+\section*{Status against the submission rules}
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone
+  \texttt{article} using \texttt{geometry}, \texttt{amsmath},
+  \texttt{amssymb}, \texttt{amsthm}, \texttt{array}, \texttt{parskip},
+  \texttt{booktabs}; compiles with \texttt{tectonic main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (library \texttt{Main}, project \texttt{tlmc1110}, no dependencies),
+  \texttt{Main.lean}, \texttt{Check.lean} (\texttt{\#print axioms}), and
+  \texttt{lean4/README.md}. \texttt{lake build} exits $0$; the audit reports
+  neither \texttt{sorryAx} nor \texttt{Lean.ofReduceBool} (in fact no axioms
+  at all).
+\end{itemize}
+
+\end{document}
