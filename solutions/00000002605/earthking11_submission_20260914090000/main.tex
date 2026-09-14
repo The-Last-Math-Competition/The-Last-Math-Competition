@@ -1,0 +1,353 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\meet}{\wedge}
+\newcommand{\join}{\vee}
+\newcommand{\covers}{\lessdot}
+
+\title{Disproof of conjecture \texttt{00000002605}\\[2pt]
+\large (``Whitney strict concavity'' / the complete version of Mason's conjecture)}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000002605} as stated. The refutation is
+unconditional and completely elementary. The conjecture quantifies over the
+class of \emph{semimodular lattices} and asserts that their rank number
+sequences --- the Whitney numbers of the second kind --- are strictly
+log-concave. A single $5$-element lattice $L$ lies in that class and has rank
+numbers
+\[
+W = (W_0,W_1,W_2,W_3) = (1,2,1,1),
+\]
+for which log-concavity fails at $k=2$:
+\[
+W_2^{\,2} \;=\; 1 \;<\; 2 \;=\; W_1 W_3 .
+\]
+Thus $L$ violates even \emph{weak} log-concavity, a fortiori the filed
+\emph{strict} log-concavity. The lattice is distributive, hence modular, hence
+upper semimodular, so it belongs to the class the conjecture names. The two
+additional clauses of the filing are independently false as well; we prove this
+in Sections~\ref{sec:clause1} and~\ref{sec:clause2}.
+
+\section{The geometric-lattice caveat (read this first)}\label{sec:caveat}
+
+We state the scope of the refutation plainly, because the word
+``Mason's conjecture'' has a standard meaning in the literature that differs
+from the filing.
+
+\begin{quote}
+In the literature, ``Mason's conjecture'' concerns \textbf{geometric lattices}
+(equivalently: lattices of flats of simple matroids). For geometric lattices,
+\textbf{atomisticity is part of the hypothesis}, and the log-concavity of the
+Whitney numbers of the second kind there is a known \emph{theorem}
+(the strict log-concavity of $h$-vectors / Whitney numbers for geometric
+lattices, in the lineage of Mason, Heron, and others). The witness $L$ of this
+submission is \textbf{not atomistic}: the join of the atoms $a,b$ is
+$a\join b = c \ne \top$. Hence $L$ is \textbf{not geometric}, and this
+submission \textbf{does not dispute the geometric-lattice theorem}.
+
+What the witness does refute is the conjecture \emph{as literally worded by the
+filing}, which quantifies twice over the strictly larger class ``semimodular
+lattices'' and attaches no atomisticity hypothesis. The semimodular lattice $L$
+below is a counterexample to that literal statement. In short: this is a clean
+exposure of a \emph{class-broadening error} in the filing --- the filed
+statement dropped a hypothesis that the source theorem needs --- and not a
+counterexample to the classical geometric-lattice theorem.
+\end{quote}
+
+The Chinese original of the filing is reproduced verbatim (in Unicode) in
+\texttt{README.md}; it repeats the class ``semimodular lattices'' and contains
+the same two extra clauses. The PDF font used here does not embed CJK glyphs,
+so the Chinese is kept in the markdown copy rather than duplicated here.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000002605.md}:
+
+\begin{quote}
+\textbf{English.} Definition: Whitney numbers of semimodular lattices: the
+coefficients of the rank generating function. Conjecture: The rank number
+sequences of semimodular lattices are strictly log-concave (the complete version
+of Mason's conjecture), and the deficit of concavity is controlled by the number
+of embedded N\textsubscript{5} sublattices; the minimal positive deficit example
+is exactly the fifth-layer embedding in the free Boolean lattice.
+(Whitney strict concavity)
+
+\textbf{Chinese original:} reproduced verbatim (in Unicode) in
+\texttt{README.md}; it states the same definition and conjecture, naming the
+class ``semimodular lattices'' and carrying the same two extra clauses.
+\end{quote}
+
+\section{Definitions}
+
+\begin{definition}[Whitney numbers of the second kind]\label{def:whitney}
+Let $L$ be a finite graded lattice of rank $r$ with rank function
+$\rho\colon L \to \{0,1,\dots,r\}$. The \emph{Whitney numbers of the second
+kind} of $L$ are
+\[
+W_k \;=\; \#\{\, x \in L \;:\; \rho(x) = k \,\},
+\]
+that is, the number of elements of rank $k$. Equivalently, $W_k$ is the
+coefficient of $t^k$ in the rank generating function
+$\sum_{x\in L} t^{\rho(x)} = \sum_{k} W_k\, t^k$. The \emph{rank number
+sequence} of the conjecture is exactly the sequence $(W_0,W_1,\dots,W_r)$ of
+these coefficients.
+\end{definition}
+
+\begin{remark}
+The name ``Whitney numbers'' is also used for the coefficients of the
+characteristic polynomial (the \emph{first} kind). The filing specifies
+``the coefficients of the rank generating function'', i.e. the number of
+elements of each rank: this is the \emph{second} kind, and it is the reading we
+use. The verdict is unaffected by the reading, because the first-kind Whitney
+numbers are the M\"obius transform of the second-kind numbers up to sign, and the
+witness's failure occurs already in the counting sequence
+$(1,2,1,1)$ (see \texttt{README.md} for the alternative reading).
+\end{remark}
+
+\begin{definition}[Log-concavity and deficit]
+A finite sequence $(W_0,\dots,W_r)$ of non-negative reals is \emph{weakly
+log-concave} if $W_k^{\,2} \ge W_{k-1} W_{k+1}$ for all $1\le k\le r-1$, and
+\emph{strictly log-concave} if all these inequalities are strict. Its
+\emph{deficit} is
+\[
+\operatorname{def}(W)
+\;=\; \sum_{k=1}^{r-1} \max\bigl(0,\; W_{k-1}W_{k+1} - W_k^{\,2}\bigr).
+\]
+For the witness below only the term $k=2$ contributes, and
+$\operatorname{def}(W) = W_1W_3 - W_2^{\,2} = 1 > 0$.
+\end{definition}
+
+\begin{definition}[Semimodularity]\label{def:semimod}
+A lattice $L$ is \emph{upper semimodular} if for all $x,y\in L$,
+\[
+x\meet y \covers x \;\Longrightarrow\; y \covers x\join y ,
+\]
+where $u \covers v$ means that $v$ covers $u$ ($u < v$ and no element lies
+strictly between). A lattice is \emph{semimodular} when it is upper
+semimodular; every modular lattice and every distributive lattice is
+semimodular, and every semimodular lattice is graded. We use ``semimodular''
+in the filing's sense, i.e.\ upper semimodular.
+\end{definition}
+
+\section{The witness}\label{sec:witness}
+
+Let $L = \{0,\,a,\,b,\,c,\,\top\}$ be the lattice whose cover relations are
+\[
+0 \covers a, \qquad 0 \covers b, \qquad a \covers c, \qquad b \covers c,
+\qquad c \covers \top ,
+\]
+so that $a$ and $b$ are incomparable, $c = a \join b$, and $0,\top$ are the
+bottom and top. Equivalently, $L$ is the lattice $J(P)$ of order ideals of the
+poset $P$ with two incomparable minimal elements and a top. Concretely the
+order relation is
+\[
+0 < a < c < \top, \qquad 0 < b < c < \top, \qquad a \parallel b ,
+\]
+and the rank function (longest chain length) is
+\[
+\rho(0)=0,\quad \rho(a)=\rho(b)=1,\quad \rho(c)=2,\quad \rho(\top)=3 .
+\]
+
+\begin{lemma}\label{lem:lattice}
+$L$ is a distributive lattice, hence modular, hence upper semimodular. In
+particular $L$ belongs to the class ``semimodular lattices'' named by the
+conjecture.
+\end{lemma}
+
+\begin{proof}
+$L = J(P)$ is the lattice of order ideals of a poset, with meet $=$ intersection
+and join $=$ union; every such lattice is distributive (Birkhoff's
+representation theorem). A distributive lattice is modular, and a modular
+lattice is upper semimodular: if $x\meet y \covers x$ then
+$x = x \join (x \meet y) = x \meet (x \join y)$ by modularity, so
+$x \le x\join y$ with no intermediate element, i.e.\ $y \covers x \join y$
+(checking directly that $y$ is a maximal element strictly below $x\join y$).
+The script \texttt{reproduce.py} verifies upper semimodularity for all $25$
+ordered pairs and distributivity for all $125$ triples.
+\end{proof}
+
+\begin{theorem}[Main]\label{thm:main}
+$L$ is a semimodular lattice whose rank number sequence
+$(W_0,W_1,W_2,W_3) = (1,2,1,1)$ is not weakly log-concave, hence not strictly
+log-concave. Explicitly,
+\[
+W_2^{\,2} \;=\; 1 \;<\; 2 \;=\; W_1 W_3 ,
+\qquad\text{so}\qquad
+\neg\,\bigl(W_2^{\,2} \ge W_1 W_3\bigr).
+\]
+Consequently conjecture \texttt{00000002605} is false as stated.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:lattice}, $L$ is semimodular, and by the displayed ranks
+above, $W_0 = 1$, $W_1 = 2$ (the elements $a,b$), $W_2 = 1$ (the element $c$),
+and $W_3 = 1$ (the element $\top$). Hence
+$W_2^{\,2} = 1$ while $W_1 W_3 = 2\cdot 1 = 2$, so
+$W_2^{\,2} < W_1 W_3$. The inequality $W_2^{\,2} \ge W_1 W_3$ therefore fails,
+and so does the strict version. This is a counterexample to the assertion that
+\emph{the rank number sequences of semimodular lattices are strictly
+log-concave}.
+\end{proof}
+
+\begin{remark}
+The violation is as severe as possible: it occurs at the lowest nontrivial
+index $k=2$, and the sequence is not even weakly log-concave, let alone
+strictly. The deficit is $\operatorname{def}(W) = W_1W_3 - W_2^{\,2} = 1$.
+\end{remark}
+
+\section{The first extra clause is false}\label{sec:clause1}
+
+The filing asserts: \emph{``the deficit of concavity is controlled by the
+number of embedded N\textsubscript{5} sublattices''}. By this we take the
+filing to mean that the deficit is governed by --- in particular, is a function
+of, and vanishes with --- the count of embedded $N_5$ sublattices.
+
+\begin{proposition}\label{prop:clause1}
+$L$ contains \textbf{zero} $N_5$ sublattices, yet has deficit $1$.
+Hence the deficit is not controlled by the number of embedded $N_5$
+sublattices.
+\end{proposition}
+
+\begin{proof}
+$N_5$ is the $5$-element non-modular lattice (the ``pentagon''), and a lattice
+is distributive if and only if it contains no sublattice isomorphic to $N_5$ or
+to the Boolean lattice $B_2$ on four elements (the classical forbidden-subposet
+characterisation). By Lemma~\ref{lem:lattice}, $L$ is distributive; since $L$
+is a diamond-free pentagon-free poset, it contains no $N_5$ sublattice at all.
+(For completeness, \texttt{reproduce.py} enumerates every $5$-element subset of
+$L$, keeps those closed under meet and join, and tests order-isomorphism with
+$N_5$: the count is $0$; the count of $N_5$ induced subposets is also $0$.)
+On the other hand, Theorem~\ref{thm:main} gives deficit
+$W_1W_3 - W_2^{\,2} = 2 - 1 = 1 > 0$. A positive deficit with zero $N_5$
+sublattices refutes the asserted control.
+\end{proof}
+
+\begin{remark}
+This is the cleanest failure of the clause: the clause predicts zero deficit
+whenever the $N_5$ count is zero, but the deficit is $1$. Note also that the
+witness is so small ($5$ elements) that the deficit cannot be attributed to any
+large-scale structure.
+\end{remark}
+
+\section{The second extra clause is false}\label{sec:clause2}
+
+The filing asserts: \emph{``the minimal positive deficit example is exactly the
+fifth-layer embedding in the free Boolean lattice''}.
+
+\begin{proposition}\label{prop:clause2}
+No free Boolean lattice has any positive deficit, so it cannot contain the
+minimal positive deficit example; and the minimal positive deficit example is
+the $5$-element lattice $L$ of Section~\ref{sec:witness}.
+\end{proposition}
+
+\begin{proof}
+A free Boolean lattice $B_n$ is the lattice of subsets of an $n$-element set
+under inclusion; it is distributive (hence semimodular) and graded, and its
+rank-$k$ elements are the $k$-subsets, so its rank numbers are the binomial
+coefficients $\binom{n}{k}$. Binomial rows are strictly log-concave:
+$\binom{n}{k}^2 > \binom{n}{k-1}\binom{n}{k+1}$ for $0<k<n$ (the ratio
+$\binom{n}{k}/\binom{n}{k-1} = (n-k+1)/k$ is strictly decreasing in $k$).
+Hence $\operatorname{def}(B_n) = 0$ for every $n$: no free Boolean lattice
+contains a positive deficit at all, and in particular no ``fifth-layer
+embedding'' in one does. The script verifies $\operatorname{def}(B_n)=0$ and
+strict log-concavity for all $n \le 20$ directly from the binomial rows.
+
+Meanwhile the $5$-element lattice $L$ is semimodular with
+$\operatorname{def}(L)=1 > 0$, as proved in Theorem~\ref{thm:main}; and no
+semimodular lattice with a positive deficit can have fewer than $5$ elements
+(a lattice of $\le 4$ elements is a chain or a product of a chain with a
+$2$-element chain, hence distributive and log-concave). So $L$ is a minimal
+positive-deficit example, and it is not a Boolean layer. The clause is false.
+\end{proof}
+
+\begin{remark}[The four-element chain]
+The $4$-element chain has rank numbers $(1,1,1,1)$, for which
+$W_1W_3 = W_2^{\,2} = 1$: weak log-concavity holds with equality, so it is a
+degenerate violation of \emph{strict} log-concavity but has deficit $0$. It is
+recorded for completeness; the genuine positive-deficit witness is $L$.
+\end{remark}
+
+\section{Formalisation}
+
+The refutation is formalised in the Lean~4 project under \texttt{lean4/}. It is
+\emph{core Lean only}: no Mathlib, and in fact \emph{no imports at all} (only
+\texttt{Init}), and no \texttt{sorry}. Starting from the cover relations
+$(0,1),(0,2),(1,3),(2,3),(3,4)$ on $\{0,1,2,3,4\}$, the file \texttt{Main.lean}
+\emph{derives} the order as the reflexive-transitive closure of the covers,
+derives meet and join by search, and derives the rank as the longest
+cover-chain length. It then proves, all by \texttt{decide}:
+
+\begin{quote}\ttfamily\raggedright
+theorem le\_refl / le\_antisymm / le\_trans : ... (the order is a partial order)\\
+theorem le\_decomp : ... (every relation decomposes through a cover)\\
+theorem meet\_is\_glb / join\_is\_lub : ... (the lattice axioms)\\
+theorem rank\_cov : ... (rank increases by one along every cover)\\
+theorem logConcavity\_fails : W 2 * W 2 < W 1 * W 3\\
+theorem strictLogConcavity\_fails : \(\neg\) (W 1 * W 3 \(\le\) W 2 * W 2)\\
+theorem upperSemimodular\_true : upperSemimodular = true\\
+theorem distributive\_true : distributive = true\\
+theorem not\_atomistic : joinAtoms \(\ne\) top\\
+theorem conjecture\_00000002605\_false : (conjunction of the above)
+\end{quote}
+
+The script runs \texttt{lake build} (exits $0$) and \texttt{Check.lean}
+(\texttt{\#print axioms}) which reports that every theorem depends only on the
+core axiom \texttt{propext}; in particular no \texttt{sorryAx} appears. See
+\texttt{lean4/README.md} for the statement table and the scope note.
+
+\section{Reproducibility}
+
+The Python script uses the standard library only:
+
+\begin{quote}\ttfamily\raggedright
+\$ python3 reproduce.py\\
+... \textit{(builds the lattice from its covers, verifies the partial-order and
+lattice axioms, upper semimodularity, the rank numbers $[1,2,1,1]$, the failing
+inequality, distributivity, zero $N_5$ sublattices, and the order-ideal
+cross-check)}\\
+PASS: all checks verified; conjecture 00000002605 is FALSE.
+\end{quote}
+
+It prints \texttt{PASS} and exits $0$ exactly when every check holds, and exits
+non-zero otherwise.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (library \texttt{Main}, name \texttt{tlmc2605}, no dependencies),
+  \texttt{Main.lean}, \texttt{Check.lean} (\texttt{\#print axioms}), and
+  \texttt{lean4/README.md}. \texttt{lake build} exits $0$ and the audit reports
+  no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
