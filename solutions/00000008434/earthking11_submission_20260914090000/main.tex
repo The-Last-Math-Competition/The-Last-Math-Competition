@@ -1,0 +1,430 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\PG}{\mathrm{PG}}
+\newcommand{\AG}{\mathrm{AG}}
+
+\title{Disproof of conjecture \texttt{00000008434}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000008434} as stated. The first clause is
+refuted by an explicit, genuine block design: $\AG(3,2)$, the unique
+$3$-$(8,4,1)$ Steiner quadruple system, has intersection spectrum
+$\{0,2\}$, whereas the interval $[s_0,s_1] = [0,2]$ also contains the value
+$1$, which never occurs. The second clause is refuted by the Pasch
+configuration, a $1$-$(6,3,2)$ design with $s_0 = s_1 = 1$ that is not
+symmetric. Both refutations are finite, elementary, and completely explicit;
+the first is additionally verified inside Lean~4.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000008434.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The intersection structure of a combinatorial
+geometry: the intersection spectrum of its blocks. Conjecture: The
+intersection spectrum is exactly the set of all integer values in the
+interval $[s_0,s_1]$; and $s_0 = s_1$ if and only if the design is symmetric.
+(interval characterization of intersection spectra)
+\end{quote}
+
+The file is bilingual. The Chinese text is reproduced verbatim (in Unicode) in
+\texttt{README.md}; the two versions have identical content. The PDF font does
+not embed CJK glyphs, so the Chinese is kept in the markdown copy rather than
+duplicated here, and nothing is lost by working from the English below.
+
+\section{The statement defines none of its terms}
+
+The quoted statement is not a formal mathematical sentence: it introduces
+names (``combinatorial geometry'', ``blocks'', ``intersection spectrum'',
+``symmetric'') without defining any of them, and it never says what $s_0$ and
+$s_1$ are. A disproof therefore has to \emph{pin a reading}, and we record the
+one adopted here. It is the only standard reading under which the wording has
+content:
+
+\begin{definition}[Pinned reading]\label{def:pinned}
+A \emph{combinatorial geometry} is a block design: a finite point set $P$ with
+a family $\mathcal{B}$ of \emph{blocks} (a set system on $P$). Its
+\emph{intersection spectrum} is the set of sizes of intersections of
+\emph{distinct} blocks,
+\[
+S \;=\; \{\, |B \cap B'| \;:\; B,B' \in \mathcal{B},\ B \neq B' \,\},
+\]
+and $s_0 := \min S$, $s_1 := \max S$. A design is \emph{symmetric} when the
+number of blocks equals the number of points, $b = |\mathcal{B}| = |P| = v$
+(equivalently, for $2$-designs, $r = k$).
+\end{definition}
+
+Two points about this reading deserve emphasis.
+
+\begin{enumerate}
+\item Taking $s_0,s_1$ to be the \emph{minimum and maximum of the spectrum} is
+  forced by the phrasing: the conjecture asserts an ``interval
+  characterization'' whose endpoints are $s_0,s_1$, and the second clause
+  ``$s_0 = s_1$ iff symmetric'' only has content when $s_0,s_1$ are the two
+  ends of $S$. (Under this reading that second clause is in fact a
+  \emph{theorem} for genuine $2$-designs; see
+  Proposition~\ref{prop:secondclause}. It is the generality to
+  $1$-designs that kills it.)
+\item The refutation of clause~1 does not depend on any looseness in the
+  reading. The witness is a full-fledged $3$-$(8,4,1)$ design --- the strongest
+  design hypothesis available in this context --- so no ``intended''
+  strengthening of ``combinatorial geometry'' can rescue the claim.
+\end{enumerate}
+
+\section{The witness: the geometry $\AG(3,2)$}
+
+\begin{definition}[The $14$ affine planes]\label{def:ag32}
+Let $P = \F_2^3$, the $8$ points. For a nonzero normal vector
+$a \in \F_2^3 \setminus \{0\}$ and $b \in \{0,1\}$ put
+\[
+B_{a,b} \;=\; \{\, x \in \F_2^3 \;:\; a \cdot x = b \,\},
+\qquad
+a\cdot x = a_1x_1 + a_2x_2 + a_3x_3 \pmod 2 .
+\]
+The point $x=(x_1,x_2,x_3)$ is encoded by the $8$-bit mask with bit
+$x_1 + 2x_2 + 4x_3$ set, so that bitwise \texttt{AND} computes intersections.
+The family $\mathcal{B} = \{B_{a,b} : a \neq 0,\ b \in \{0,1\}\}$ consists of
+$7 \cdot 2 = 14$ blocks; in sorted mask form they are
+\[
+[\,15, 51, 60, 85, 90, 102, 105, 150, 153, 165, 170, 195, 204, 240\,].
+\]
+\end{definition}
+
+\begin{proposition}\label{prop:sqs}
+$\mathcal{B}$ is a genuine $3$-$(8,4,1)$ design: $v = 8$, $b = 14$,
+$k = 4$, every $3$-subset of the points lies in exactly one block.
+Consequently each point lies in $r = 7$ blocks and each pair in
+$\lambda_2 = (v-2)/(k-2) = 3$ blocks, and $\lambda_3 = 1$.
+\end{proposition}
+
+\begin{proof}
+For fixed $a \neq 0$, the map $x \mapsto a\cdot x$ is a nonzero $\F_2$-linear
+functional, so each $B_{a,b}$ is a coset of the kernel $\ker(a\cdot)$, a
+$2$-dimensional subspace; hence $|B_{a,b}| = 2^2 = 4$ and the $14$ blocks are
+affine $2$-planes.
+
+Let $T \subset P$ with $|T| = 3$. A line of $\AG(3,2)$ has exactly two points,
+so no three distinct points are collinear: the three points are affinely
+independent and span a unique affine $2$-subspace, i.e.\ a unique set of the
+form $B_{a,b}$. Hence exactly one block contains $T$, and
+$\lambda_3 = 1$. The stated $\lambda_2,\lambda_1$ follow from the standard
+identities
+\[
+\lambda_2 = \frac{v-2}{k-2}\,\lambda_3 = \frac{6}{2} = 3,
+\qquad
+\lambda_1 = \frac{v-1}{k-1}\,\lambda_2 = \frac{7}{3}\cdot 3 = 7 .
+\]
+Alternatively, both were checked exhaustively by \texttt{reproduce.py} and in
+Lean (all $56$ triples, all $28$ pairs, all $8$ points).
+\end{proof}
+
+This is the unique $3$-$(8,4,1)$ design (the Steiner quadruple system
+$\mathrm{SQS}(8)$, equivalently the affine geometry $\AG(3,2)$); the
+uniqueness is classical and is not needed here.
+
+\section{The intersection spectrum of $\AG(3,2)$}
+
+\begin{proposition}\label{prop:spectrum}
+For two distinct blocks $B_{a,b} \neq B_{a',b'}$ of Definition~\ref{def:ag32}:
+\[
+|B_{a,b} \cap B_{a',b'}|
+=
+\begin{cases}
+0, & a = a' \ (\text{the two planes are parallel}),\\[2pt]
+2, & a \neq a' \ (\text{distinct normals}).
+\end{cases}
+\]
+Hence the spectrum is $S = \{0,2\}$, with $s_0 = \min S = 0$ and
+$s_1 = \max S = 2$.
+\end{proposition}
+
+\begin{proof}
+If $a = a'$ then, since the blocks are distinct, $b \neq b'$; the equations
+$a\cdot x = b$ and $a\cdot x = b'$ are incompatible, so
+$B_{a,0} \cap B_{a,1} = \varnothing$. There are exactly $7$ nonzero normals
+$a$, and each gives exactly one such disjoint pair, so this case occurs
+$7$ times.
+
+If $a \neq a'$, they are linearly independent, so the two affine planes have
+distinct directions; their intersection is a nonempty affine subspace of
+dimension $2+2-3 = 1$, i.e.\ an affine line, which in $\AG(3,2)$ has exactly
+$2$ points. This case occurs for all the remaining pairs, of which there are
+\[
+\binom{14}{2} - 7 = 91 - 7 = 84 .
+\]
+Thus the spectrum, taken over all $91$ unordered pairs of distinct blocks,
+contains only $0$ and $2$; both values occur, so $S=\{0,2\}$.
+\end{proof}
+
+The seven disjoint pairs are exactly the seven parallel classes
+$\{B_{a,0},B_{a,1}\}$, $a \neq 0$; in mask terms:
+\[
+(15,240),\ (51,204),\ (60,195),\ (85,170),\ (90,165),\ (102,153),\ (105,150).
+\]
+
+\subsection*{The $91$-pair spectrum table}
+
+The next table is the complete intersection-size data. The left block lists,
+for each candidate intersection size $m \in \{0,1,2\}$, the number of unordered
+pairs $\{B,B'\}$ of distinct blocks with $|B\cap B'| = m$; the right block
+records whether $m$ lies in the conjectured interval $[s_0,s_1]=[0,2]$.
+
+\begin{center}
+\begin{tabular}{r r c}
+\toprule
+intersection size $m$ & number of pairs with $|B\cap B'| = m$ & $m \in [s_0,s_1]=[0,2]$? \\
+\midrule
+$0$ & $7$  & yes \\
+$1$ & $0$  & yes \\
+$2$ & $84$ & yes \\
+\midrule
+total & $91 = \binom{14}{2}$ & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+So exactly $7 + 0 + 84 = 91$ pairs were examined, and the spectrum is
+$S = \{0,2\}$: the value $1$ is \emph{absent}. The full $14 \times 14$
+intersection-size matrix (upper triangle; diagonal blank) is displayed below,
+so that every one of the $91$ pairs can be read off directly. Its entries are
+$2$ everywhere off the diagonal except in the seven positions
+$(1,14),(2,13),(3,12),(4,11),(5,10),(6,9),(7,8)$, which are $0$ --- the seven
+parallel classes.
+
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{r|*{14}{c}}
+\multicolumn{1}{c}{} & $1$ & $2$ & $3$ & $4$ & $5$ & $6$ & $7$ & $8$ & $9$ & $10$ & $11$ & $12$ & $13$ & $14$ \\
+\hline
+$1$  & & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 0 \\
+$2$  & & & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 0 & 2 \\
+$3$  & & & & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 2 & 0 & 2 & 2 \\
+$4$  & & & & & 2 & 2 & 2 & 2 & 2 & 2 & 0 & 2 & 2 & 2 \\
+$5$  & & & & & & 2 & 2 & 2 & 2 & 0 & 2 & 2 & 2 & 2 \\
+$6$  & & & & & & & 2 & 2 & 0 & 2 & 2 & 2 & 2 & 2 \\
+$7$  & & & & & & & & 0 & 2 & 2 & 2 & 2 & 2 & 2 \\
+$8$  & & & & & & & & & 2 & 2 & 2 & 2 & 2 & 2 \\
+$9$  & & & & & & & & & & 2 & 2 & 2 & 2 & 2 \\
+$10$ & & & & & & & & & & & 2 & 2 & 2 & 2 \\
+$11$ & & & & & & & & & & & & 2 & 2 & 2 \\
+$12$ & & & & & & & & & & & & & 2 & 2 \\
+$13$ & & & & & & & & & & & & & & 2 \\
+$14$ & & & & & & & & & & & & & & \\
+\end{tabular}
+\end{center}
+
+\section{Clause 1 is false}
+
+\begin{theorem}\label{thm:clause1}
+The intersection spectrum $S$ of $\AG(3,2)$ is \emph{not} the set of all
+integer values in the interval $[s_0,s_1]$. Indeed
+\[
+S = \{0,2\}
+\qquad\text{but}\qquad
+[s_0,s_1] \cap \mathbb{Z} = \{0,1,2\},
+\]
+so the value $1$ lies in the conjectured interval and is missing from the
+spectrum.
+\end{theorem}
+
+\begin{proof}
+Immediate from Proposition~\ref{prop:spectrum}: $s_0 = 0$, $s_1 = 2$, so the
+integer interval is $\{0,1,2\}$, while the spectrum omits $1$; $S$ is a
+\emph{strict} subset of the interval, with $|S| = 2 < 3 = |[s_0,s_1]\cap
+\mathbb{Z}|$.
+\end{proof}
+
+\begin{corollary}
+Conjecture \texttt{00000008434}, first clause, is false.
+\end{corollary}
+
+\begin{remark}
+The failure is as small as it can be: the interval has length $2$ and exactly
+one interior value, and that one value is the missing one. The witness is not
+a boundary case of the definitions --- it is the classical
+$3$-$(8,4,1)$ design, and the failure comes from clean geometry: two planes in
+$\AG(3,2)$ are either parallel (intersecting in $0$ points) or meet in an
+affine line ($2$ points); there is no way for them to meet in exactly
+$1$ point.
+\end{remark}
+
+\section{Clause 2: false for $1$-designs, but a theorem for $2$-designs}
+
+The second clause of the conjecture is ``$s_0 = s_1$ if and only if the
+design is symmetric''. It holds for genuine $2$-designs, but the conjecture
+says ``design'', and in the general $1$-design setting it fails.
+
+\begin{example}[Pasch]\label{ex:pasch}
+Let $P = \{1,2,3,4,5,6\}$ and
+\[
+\mathcal{B} = \bigl\{\{1,2,3\},\ \{1,4,5\},\ \{2,4,6\},\ \{3,5,6\}\bigr\}.
+\]
+This is the Pasch configuration. It has $b = 4$ blocks of size $k = 3$ on
+$v = 6$ points; every point lies in exactly $r = 2$ blocks, so it is a
+$1$-$(6,3,2)$ design. Every two distinct blocks meet in exactly one point,
+\[
+\{1,2,3\}\cap\{1,4,5\}=\{1\},\quad
+\{1,2,3\}\cap\{2,4,6\}=\{2\},\quad
+\{1,2,3\}\cap\{3,5,6\}=\{3\},
+\]
+and similarly for the other three pairs; hence $s_0 = s_1 = 1$. But
+$b = 4 \neq 6 = v$, so the design is \emph{not} symmetric.
+\end{example}
+
+\begin{corollary}\label{cor:clause2}
+Clause 2 fails in the generality stated: $s_0 = s_1$ does not imply that the
+design is symmetric.
+\end{corollary}
+
+\begin{proposition}[The $2$-design case, stated to be fair]\label{prop:secondclause}
+Let $D$ be a nontrivial $2$-$(v,k,\lambda)$ design (so $b \geq v$ by Fisher's
+inequality, and the incidence matrix $N$ has rank $v$). If every two distinct
+blocks of $D$ meet in the same number $\mu$ of points, then $D$ is symmetric,
+i.e.\ $b = v$.
+\end{proposition}
+
+\begin{proof}
+Let $N$ be the $b \times v$ incidence matrix. Since the off-diagonal entries of
+$NN^{\mathsf T}$ are the pairwise intersection sizes, the hypothesis says
+$NN^{\mathsf T} = (k-\mu) I_b + \mu J_b$. This matrix has eigenvalues
+$k-\mu$ (multiplicity $b-1$) and $k-\mu+\mu b = k + \mu(b-1) > 0$. Since
+$\operatorname{rank}(NN^{\mathsf T}) = \operatorname{rank}(N) = v < b$ when
+$b > v$, the matrix would have to be singular, forcing $k - \mu = 0$, i.e.\
+$\mu = k$: any two distinct blocks would share all $k$ points of a block,
+hence be equal, contradicting $b > 1$. Therefore $b > v$ is impossible, and
+with Fisher's inequality $b \geq v$ we get $b = v$.
+\end{proof}
+
+Thus the second clause is genuinely true for the symmetric-design setting it
+was presumably intended for; it is the $1$-design generality of the wording
+that makes the ``if and only if'' false. We report this to delimit the
+refutation honestly: clause 2 is a defect of the statement's generality, while
+clause 1 is refuted even in the strongest, most well-behaved setting.
+
+\section{Reproducibility}
+
+The complete finite verification is carried out by \texttt{reproduce.py}
+using the Python~3 standard library only:
+
+\begin{quote}\ttfamily\raggedright
+\$ python3 reproduce.py\\
+... \textit{(builds the 14 planes of $\F_2^3$, verifies the $3$-$(8,4,1)$\\
+property, computes all 91 pairwise intersections and their multiplicities,\\
+checks the Pasch $1$-design)}\\
+PASS: all checks verified; conjecture 00000008434 is FALSE.
+\end{quote}
+
+It builds the planes from the affine equations (not from the hard-coded mask
+list), asserts that the generated masks equal the pinned list, verifies all
+$56$ triples have containment count $1$, tabulates the $91$-pair spectrum,
+asserts $S = \{0,2\}$ and that $1 \in [0,2] \setminus S$, and verifies the
+Pasch failure. It prints \texttt{PASS} and exits $0$ exactly when every check
+holds (a buggy check was found and fixed this way during preparation).
+
+The LaTeX document is rebuilt with
+
+\begin{quote}\ttfamily\raggedright
+\$ tectonic --outdir build main.tex
+\end{quote}
+
+producing \texttt{build/main.pdf}.
+
+\section{Formalisation}
+
+The refutation of clause 1 is formalised in the Lean~4 project under
+\texttt{lean4/} (core Lean only, \texttt{import Std}, no Mathlib, no
+\texttt{sorry}). Blocks are encoded as $8$-bit \texttt{Nat} masks, the
+intersection as \texttt{Nat.land}, and the spectrum by a structurally
+recursive function (so it reduces in the kernel). The main statements are
+
+\begin{quote}\ttfamily\raggedright
+theorem blocks\_length : blocks.length = 14\\
+theorem triples\_length : triples.length = 56\\
+theorem each\_triple\_in\_one\_block :\\
+\hspace*{2em}triples.all (fun T => countIn T == 1) = true\\
+theorem spectrum\_length : (spec blocks).length = 91\\
+theorem spectrum\_values :\\
+\hspace*{2em}(spec blocks).all (fun s => s == 0 || s == 2) = true\\
+theorem spec\_count\_zero : ... filter (s == 0) ... length = 7\\
+theorem spec\_count\_one  : ... filter (s == 1) ... length = 0\\
+theorem spec\_count\_two  : ... filter (s == 2) ... length = 84\\
+theorem s0\_eq : s0 = 0\\
+theorem s1\_eq : s1 = 2\\
+theorem intervalFull\_false : intervalFull = false\\
+theorem intervalSpectrum\_false : \(\neg\) IntervalSpectrum\\
+theorem second\_clause\_fails : ... \(\wedge\) \(\neg\) Symmetric pasch.length 6
+\end{quote}
+
+All are proved by kernel \texttt{decide} (with
+\texttt{set\_option maxRecDepth 1000000}); there is no \texttt{sorry}.
+\texttt{lean4/Check.lean} prints \texttt{\#print axioms} for every theorem; the
+audit reports only \texttt{propext} (and no axioms at all for the pure
+\texttt{Nat} equalities), and in particular no \texttt{sorryAx}. See
+\texttt{lean4/README.md} for the statement table and the scope note.
+
+\section{Caveats}
+
+\begin{itemize}
+\item \textbf{The file defines nothing.} Conjecture \texttt{00000008434} is a
+  prose sentence: it fixes no precise meaning for ``combinatorial geometry'',
+  ``blocks'', ``intersection spectrum'', ``symmetric'', and it never defines
+  $s_0$ or $s_1$. We pinned the standard reading (Definition~\ref{def:pinned});
+  the refutation of clause 1 is robust under any reasonable variant because
+  the witness is a genuine $3$-design.
+\item \textbf{Clause 2 is only false for $1$-designs.} For genuine $2$-designs
+  it is a theorem (Proposition~\ref{prop:secondclause}). We flag this rather
+  than overstate the refutation.
+\item \textbf{Uniqueness of the witness.} $\AG(3,2)$ is the unique
+  $3$-$(8,4,1)$ design; that classical fact is not required. Everything used is
+  established directly by the finite computations.
+\item \textbf{Lean scope.} The Lean development certifies the finite
+  combinatorial facts (design property, spectrum, absence of $1$, negation of
+  clause 1, and the Pasch failure). The general $2$-design theorem
+  (Proposition~\ref{prop:secondclause}) is proved on paper in this document and
+  is not formalised; it is not needed for the disproof.
+\end{itemize}
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone
+  \texttt{article} using \texttt{geometry}, \texttt{amsmath},
+  \texttt{amssymb}, \texttt{amsthm}, \texttt{array}, \texttt{parskip},
+  \texttt{booktabs}; compiles with
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by the command
+  above.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (name \texttt{tlmc8434}, library \texttt{Main}, no dependencies),
+  \texttt{Main.lean}, \texttt{Check.lean} (\texttt{\#print axioms}), and
+  \texttt{lean4/README.md}. \texttt{lake build} exits $0$ and the audit
+  reports no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
