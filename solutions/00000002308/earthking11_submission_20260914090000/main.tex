@@ -1,0 +1,318 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Aut}{\operatorname{Aut}}
+\newcommand{\Inn}{\operatorname{Inn}}
+\newcommand{\Out}{\operatorname{Out}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Zc}[1]{\Z/#1}
+\newcommand{\Sthree}{S_3}
+\newcommand{\Athree}{A_3}
+\newcommand{\Fsix}{\mathbb{F}_6}
+
+\title{Disproof of conjecture \texttt{00000002308}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000002308} as stated. The refutation is
+unconditional and completely elementary. Under the standard meaning of
+\emph{complete} --- trivial center and every automorphism inner, equivalently
+$G \cong \Aut(G)$ via conjugation --- the symmetric group $\Sthree$, of order
+$6$, is a solvable complete group. Every group of order $2,3,4,5$ is abelian,
+hence has non-trivial center and is not complete. Therefore the smallest
+non-trivial solvable complete group has order $6$, not the claimed
+$2^{11}\cdot 3 = 6144$.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000002308.md}:
+
+\begin{quote}
+\textbf{English.} Definition: A complete group satisfies $G = \Aut(G)$.
+Conjecture: The order of the smallest nontrivial solvable complete group is
+$2^{11}\cdot 3$ (an explicit discovery); its structure is a minimal example of a
+semidirect product of a $2$-group.
+\end{quote}
+
+The conjecture is filed in both English and Chinese; the Chinese original is
+reproduced verbatim (in Unicode) in \texttt{README.md}. The two versions are
+identical in content. The PDF font does not embed CJK glyphs, so the Chinese is
+kept in the markdown copy rather than duplicated here.
+
+\section{The definition}
+
+\begin{definition}[Complete group]\label{def:complete}
+A group $G$ is \emph{complete} if
+\begin{enumerate}
+\item its center is trivial, $Z(G) = \{1\}$, and
+\item every automorphism of $G$ is inner, $\Aut(G) = \Inn(G)$.
+\end{enumerate}
+Equivalently, the conjugation map $G \to \Aut(G)$, $g \mapsto (x \mapsto gxg^{-1})$,
+is an isomorphism. The trivial group is excluded as ``nontrivial''.
+\end{definition}
+
+For a centerless group the conjugation map is injective, so $\Inn(G) \cong G$;
+completeness is then exactly $\Aut(G) = \Inn(G)$, which gives
+$|G| = |\Aut(G)|$ and $G \cong \Aut(G)$. Both formulations are equivalent.
+
+\section{The witness $S_3$}
+
+We model $\Sthree$ as the six permutations of $\{0,1,2\}$. In cycle notation
+\[
+\Sthree = \{\, 1,\ (12),\ (01),\ (012),\ (021),\ (02) \,\}.
+\]
+The transposition $\tau = (01)$ and the $3$-cycle $\sigma = (012)$ generate
+$\Sthree$; the six words
+\[
+1,\quad \tau\sigma,\quad \tau,\quad \sigma,\quad \sigma^2,\quad \tau\sigma^2
+\]
+are pairwise distinct and exhaust the group. (Both facts are checked by a finite
+computation, in \texttt{reproduce.py} and in the Lean certificate
+\texttt{lean4/Main.lean}.)
+
+\begin{theorem}\label{thm:complete}
+$\Sthree$ is complete.
+\end{theorem}
+
+\begin{proof}
+\emph{Trivial center.} A direct computation over the six elements shows that the
+only element commuting with all of $\Sthree$ is the identity:
+\[
+Z(\Sthree) = \{z \in \Sthree : \forall a \in \Sthree,\ za = az\} = \{1\}.
+\]
+Indeed the three transpositions $(12),(01),(02)$ are not central and neither are
+the two $3$-cycles: for instance $(01)(012) = (021) \neq (012)(01) = (12)$.
+
+\emph{Every automorphism is inner.} The group $\Sthree$ has exactly six
+automorphisms. This is verified by enumerating \emph{all} $6! = 720$ bijections
+$f : \Sthree \to \Sthree$ and retaining those satisfying
+$f(ab) = f(a)f(b)$ for all $a,b$. Exactly six of the $720$ bijections are
+homomorphisms, so
+\[
+|\Aut(\Sthree)| = 6 .
+\]
+The same enumeration shows the six conjugations
+$\Inn(\Sthree) = \{\, x \mapsto gxg^{-1} : g \in \Sthree \,\}$ are pairwise
+distinct, so $|\Inn(\Sthree)| = 6$; each is a bijective homomorphism, and the two
+sets have the same six elements:
+\[
+\Aut(\Sthree) = \Inn(\Sthree).
+\]
+Hence $\Sthree$ is centerless and all its automorphisms are inner, i.e.\ it is
+complete. Consequently $\Sthree \cong \Aut(\Sthree)$ and
+$|\Aut(\Sthree)| = |\Inn(\Sthree)| = 6 = |\Sthree|$.
+\end{proof}
+
+Equivalent generator-based reduction (also carried out in the Lean certificate,
+which uses it for speed): since $\tau,\sigma$ generate, a homomorphism is
+determined by the pair $(u,v) = (f(\tau), f(\sigma))$, and the six words above
+force $f$ to be
+\[
+1 \mapsto 1,\quad \tau\sigma \mapsto uv,\quad \tau \mapsto u,\quad
+\sigma \mapsto v,\quad \sigma^2 \mapsto v^2,\quad \tau\sigma^2 \mapsto uv^2 .
+\]
+Enumerating the $6 \times 6 = 36$ pairs $(u,v)$, exactly $10$ extend to
+endomorphisms ($1$ trivial, $3$ with image of order $2$, and $6$ automorphisms),
+again giving $|\Aut(\Sthree)| = 6$ with the automorphisms exactly the six
+conjugations.
+
+\section{Solvability and the semidirect-product structure}
+
+\begin{theorem}\label{thm:solvable}
+$\Sthree$ is solvable and is a semidirect product of a $2$-group,
+\[
+\Sthree \;=\; \Athree \rtimes \langle \tau \rangle \;\cong\; \Zc{3} \rtimes \Zc{2}.
+\]
+\end{theorem}
+
+\begin{proof}
+Let $\Athree = \{1,\sigma,\sigma^2\}$, the alternating group, of order $3$.
+Then $\Athree$ is abelian (it is cyclic of order $3$, generated by $\sigma$ with
+$\sigma^3 = 1$), it is normal in $\Sthree$ (being the kernel of the sign
+homomorphism, or directly $gag^{-1} \in \Athree$ for all $g,a$), and it has
+index $2$, since $|\Sthree|/|\Athree| = 6/3 = 2$. The quotient
+$\Sthree/\Athree \cong \Zc{2}$ is abelian. Thus the subnormal series
+\[
+1 \;\triangleleft\; \Athree \;\triangleleft\; \Sthree
+\]
+has abelian factors $\Athree \cong \Zc{3}$ and $\Sthree/\Athree \cong \Zc{2}$;
+hence $\Sthree$ is solvable.
+
+For the semidirect product let $T = \langle \tau \rangle = \{1,\tau\}$, a
+$2$-group of order $2 = 2^1$. Then $T$ is a subgroup of order $2$,
+$\Athree \cap T = \{1\}$ (their only common element is the identity), and the
+product set
+\[
+\Athree T = \{\, a t : a \in \Athree,\ t \in T \,\}
+\]
+has $3 \cdot 2 = 6 = |\Sthree|$ elements, hence equals $\Sthree$. With $\Athree$
+normal, this is an internal semidirect product $\Sthree = \Athree \rtimes T$. The
+action of $T$ on $\Athree$ by conjugation is non-trivial --- for example
+$\tau \sigma \tau^{-1} = \sigma^{-1} \neq \sigma$ --- so the product is not the
+direct product $\Zc{6}$, and
+$\Sthree \cong \Zc{3} \rtimes \Zc{2}$ with inversion action.
+\end{proof}
+
+This is \emph{exactly} the structural description in the conjecture --- ``a
+semidirect product of a $2$-group'' --- but realised at order $6$, not at
+$2^{11}\cdot 3$.
+
+\section{Minimality: no group of order $2, 3, 4, 5$ is complete}
+
+\begin{lemma}\label{lem:small-abelian}
+Every group of order $2$, $3$, $4$ or $5$ is abelian.
+\end{lemma}
+
+\begin{proof}
+For prime order ($2$, $3$, $5$) the statement is Lagrange's theorem: a
+non-identity element has order dividing the prime, hence equal to it, so the
+element generates the whole group, which is therefore cyclic and abelian. For
+order $4$: if $G$ has an element $g$ of order $4$ then $G = \langle g \rangle$ is
+cyclic and abelian; otherwise every non-identity element has order $2$, so
+$g^2 = 1$ for all $g$ and $G$ is abelian. (This case analysis is exhaustive
+because the order of an element divides $|G| = 4$.)
+
+An independent, exhaustive machine check is carried out in
+\texttt{reproduce.py}: every group of order $n$ can be relabelled so that its
+multiplication table is a \emph{reduced Latin square} (first row and column
+equal to $0,1,\dots,n-1$). Enumerating all reduced Latin squares for
+$n = 2,3,4,5$ and retaining the associative ones yields
+$1, 1, 4, 6$ tables respectively, and \emph{all} of them are abelian. Thus for
+$n \in \{2,3,4,5\}$ every group is abelian.
+\end{proof}
+
+\begin{corollary}\label{cor:minimal}
+No group of order $2$, $3$, $4$ or $5$ is complete, and $6$ is the smallest
+order of a non-trivial solvable complete group.
+\end{corollary}
+
+\begin{proof}
+A group of order $2,3,4$ or $5$ is abelian (Lemma~\ref{lem:small-abelian}), so
+its center is the whole group, which is non-trivial (the groups are
+non-trivial). By Definition~\ref{def:complete} such a group is not complete.
+The group $\Sthree$ of order $6$ is solvable (Theorem~\ref{thm:solvable}) and
+complete (Theorem~\ref{thm:complete}), so the least order of a non-trivial
+solvable complete group is exactly $6$.
+\end{proof}
+
+\section{The claimed order is wrong}
+
+\begin{corollary}[Refutation]\label{cor:refute}
+The assertion ``the order of the smallest nontrivial solvable complete group is
+$2^{11}\cdot 3$'' is false. In fact
+\[
+6 \;<\; 2^{11}\cdot 3 = 6144 ,
+\]
+and $6$ is the true minimal order.
+\end{corollary}
+
+\begin{proof}
+By Corollary~\ref{cor:minimal} the minimal order is $6$, and
+$2^{11}\cdot 3 = 2048 \cdot 3 = 6144 > 6$.
+\end{proof}
+
+The claim is wrong under \emph{every} reading, not just the solvable one:
+
+\begin{itemize}
+\item \textbf{Solvable reading} (as filed). The smallest non-trivial solvable
+  complete group is $\Sthree$ of order $6$ (Corollary~\ref{cor:minimal}), and
+  $6 < 6144$.
+\item \textbf{Non-solvable reading.} A folklore theorem states that the
+  symmetric group $S_n$ is complete for every $n \neq 2, 6$ (and $S_6$ is
+  exceptional because $\Aut(S_6)/\Inn(S_6) \cong \Zc{2}$). Hence
+  $\Sthree$ is complete in this sense too. Even the smallest \emph{non-solvable}
+  complete group is $S_5$, of order $120$: the alternating group $A_5$ of order
+  $60$ is not complete, since $\Out(A_5) = \Zc{2} \neq 1$. Again $120 < 6144$.
+\item \textbf{Order of a semidirect product of a $2$-group.} The witness
+  $\Sthree = \Zc{3} \rtimes \Zc{2}$ is the smallest nontrivial semidirect
+  product of cyclic groups of coprime prime order, at order $6$.
+\end{itemize}
+
+The number $2^{11}\cdot 3 = 6144$ is not the order of the smallest example under
+any of these readings.
+
+\section{Formalisation}
+
+The refutation is formalised in the Lean~4 project under \texttt{lean4/}
+(core Lean only, \texttt{import Std}, no Mathlib, no \texttt{sorry}). The model
+is $\Sthree$ on \texttt{Fin 6} with explicit multiplication and inverse tables.
+The main statements are
+
+\begin{quote}\ttfamily
+theorem card\_S3 : (List.finRange 6).length = 6\\
+theorem center\_trivial : \textit{(the only central element is the identity)}\\
+theorem card\_inn : InnList.length = 6\\
+theorem card\_aut : (candidates.filter isAut).length = 6\\
+theorem aut\_eq\_inn : \textit{(every automorphism is inner)}\\
+theorem A3\_abelian / A3\_normal / A3\_index2\\
+theorem solvable\_S3\\
+theorem six\_lt\_6144 : 6 < 2 \^{} 11 * 3\\
+theorem conjecture\_00000002308\_false
+\end{quote}
+
+The certificate uses the generator-based reduction: it verifies by a finite
+\texttt{decide} check that the two generators $\tau,\sigma$ have closure all six
+elements, then enumerates the $36$ pairs of generator images $(f(\tau),f(\sigma))$
+and counts the resulting automorphisms. This gives $|\Aut(\Sthree)| = 6$ in a
+`lake build` of about $2.6$~seconds, rather than the $\approx 4$~m~$45$~s that a
+direct enumeration of all $6^6 = 46656$ functions would take. The axiom audit
+(\texttt{Check.lean}, via \texttt{\#print axioms}) reports no \texttt{sorryAx};
+most theorems depend only on \texttt{propext}, and \texttt{card\_S3} and
+\texttt{six\_lt\_6144} on no axioms at all. See \texttt{lean4/README.md} for the
+statement table, the encoding pitfalls, and the measured build times.
+
+\section{Reproducibility}
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(group axioms, center, all 720 bijections, Aut = Inn, solvability,
+semidirect product, exhaustive small-order check, order comparison)}\\
+PASS: all checks verified; conjecture 00000002308 is FALSE.
+\end{quote}
+
+The script uses the Python~3 standard library only. It builds $\Sthree$ as the
+permutations of $\{0,1,2\}$, computes the center, enumerates all $720$
+bijections to obtain $|\Aut(\Sthree)| = 6$, shows
+$\Aut(\Sthree) = \Inn(\Sthree)$ with $|\Inn(\Sthree)| = 6$, verifies solvability
+and the decomposition $\Sthree = \Zc{3} \rtimes \Zc{2}$, exhaustively checks
+that every group of order $2,3,4,5$ is abelian, asserts $6 < 6144$, prints
+\texttt{PASS} and exits $0$ exactly when every check holds.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (library \texttt{Main}, no dependencies) and \texttt{name = "tlmc2308"},
+  \texttt{Main.lean}, \texttt{Check.lean} (\texttt{\#print axioms}), and
+  \texttt{lean4/README.md}. \texttt{lake build} exits $0$ in about $2.6$~seconds
+  and the audit reports no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
