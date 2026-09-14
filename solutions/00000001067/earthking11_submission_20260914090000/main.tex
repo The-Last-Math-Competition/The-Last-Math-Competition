@@ -1,0 +1,354 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\setlength{\emergencystretch}{3em}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+
+\title{Disproof of conjecture \texttt{00000001067}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001067} as stated. The refutation is
+unconditional, completely elementary, and finitely verifiable: for the prime
+$p = 19$, which satisfies $p \equiv 3 \pmod 4$, the largest strong Sidon set in
+$\F_{19}$ has size $4$, whereas $\ceil{\sqrt{19}} = 5$. The filed clause that
+the $O(1)$ term equals $0$ for $p \equiv 3 \pmod 4$ is an \emph{exact} claim,
+and it is false. It fails already at $p = 11$ and also at $p = 43, 47, 59$.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000001067.md}:
+
+\begin{quote}
+\textbf{English.} Definition: A $B_h$ set (unique $h$-fold sums). Conjecture:
+The maximal $B_2$ set in $\F_p$ has size $\ceil{\sqrt p} + O(1)$, and the
+$O(1)$ term equals $0$ for $p \equiv 3 \bmod 4$ (an exact $B_2$ result).
+\end{quote}
+
+The conjecture is filed in both English and Chinese; the Chinese original is
+reproduced verbatim in Unicode in \texttt{README.md}, and the two versions are
+identical in content. The PDF font does not embed CJK glyphs, so the Chinese is
+kept in the markdown copy rather than duplicated here.
+
+The phrase ``an exact $B_2$ result'' in the last clause fixes the reading: the
+$O(1)$ term is asserted to \emph{equal} $0$, so the conjecture claims the exact
+identity
+\begin{equation}\label{eq:claim}
+\max\{\,|S| : S \subseteq \F_p \text{ is a } B_2 \text{ set}\,\}
+   = \ceil{\sqrt p}
+\qquad \text{for every prime } p \equiv 3 \pmod 4 .
+\end{equation}
+We refute \eqref{eq:claim}.
+
+\section{Convention: $B_2$ means strong Sidon}
+
+\begin{definition}[Strong Sidon / $B_2$ set]\label{def:strong}
+A subset $S \subseteq \F_p$ is a \emph{(strong) Sidon set}, equivalently a
+$B_2$ set with unique $2$-fold sums, if the sums $a+b$ with $a,b \in S$ and
+$a \le b$ (repetition allowed) are pairwise distinct. Equivalently, the map
+$\{a,b\} \mapsto a+b$ from unordered pairs with repetition to $\F_p$ is
+injective.
+\end{definition}
+
+This is the standard meaning of ``unique $2$-fold sums'' and of $B_2$: a
+$B_h$ set has all $h$-fold sums (unordered, repetitions allowed) distinct, so a
+$B_2$ set is exactly a strong Sidon set as in
+Definition~\ref{def:strong}. In particular $2a = b + c$ with $b \ne c$ is
+forbidden, which is what distinguishes this from the \emph{weak} Sidon reading
+discussed in Section~\ref{sec:readings}.
+
+\section{The difference-count proof}
+
+\begin{lemma}[Difference bound]\label{lem:diff}
+Let $S \subseteq \F_p$ be a strong Sidon set of size $k$. Then the $k(k-1)$
+ordered differences $a - b$ with $a,b \in S$, $a \ne b$, are pairwise distinct
+and nonzero. Consequently
+\[
+k(k-1) \;\le\; p - 1 .
+\]
+\end{lemma}
+
+\begin{proof}
+Let $a \ne b$ and $c \ne d$, and suppose $a - b = c - d$. Then
+$a + d = c + b$. Both sides are sums of two elements of $S$ with repetition
+allowed. If the multisets $\{a,d\}$ and $\{c,b\}$ are equal, then
+$(a,d) = (c,b)$: indeed $\{a,d\} = \{c,b\}$ means either $a=c$, $d=b$, or
+$a=b$, $d=c$, and the second alternative is excluded by $a \ne b$. In the first
+case $a-b = a-b$, i.e.\ $(a,b) = (c,d)$. If the two multisets differ, then
+$a+d = c+b$ is a collision between two distinct allowed sums, contradicting
+Definition~\ref{def:strong}. Hence the differences are pairwise distinct.
+They are nonzero because $a \ne b$. Finally, $\F_p$ has exactly $p-1$ nonzero
+elements, so $k(k-1) \le p-1$.
+\end{proof}
+
+\begin{corollary}\label{cor:19}
+There is no strong Sidon set of size $5$ in $\F_{19}$, so the maximum is at
+most $4$. More generally, at $p = 19$ one has $5 \cdot 4 = 20 > 18 = p-1$.
+\end{corollary}
+
+\begin{proof}
+If $|S| = 5$, Lemma~\ref{lem:diff} would give $5\cdot 4 = 20 \le 19 - 1 = 18$,
+a contradiction.
+\end{proof}
+
+\begin{proposition}\label{prop:max4}
+The maximum size of a strong Sidon set in $\F_{19}$ is exactly $4$.
+\end{proposition}
+
+\begin{proof}
+The set $\{0,1,3,7\}$ is strong Sidon: its ten unordered sums are
+\[
+0,\;1,\;3,\;7,\;\;2,\;4,\;8,\;\;6,\;10,\;\;14
+\]
+(reading $\{0+0, 0+1, 0+3, 0+7, 1+1, 1+3, 1+7, 3+3, 3+7, 7+7\}$), i.e.\ the
+sorted list
+\[
+0,\,1,\,2,\,3,\,4,\,6,\,7,\,8,\,10,\,14 ,
+\]
+which is pairwise distinct. Hence the maximum is at least $4$;
+Corollary~\ref{cor:19} gives at most $4$. Therefore it equals $4$.
+\end{proof}
+
+\begin{theorem}\label{thm:false}
+Conjecture \texttt{00000001067} is false.
+\end{theorem}
+
+\begin{proof}
+At the prime $p = 19$ we have $p \equiv 3 \pmod 4$ (indeed $19 = 4\cdot 4 + 3$)
+and $\ceil{\sqrt{19}} = 5$, because $4^2 = 16 < 19 \le 25 = 5^2$. By
+Proposition~\ref{prop:max4} the maximal strong Sidon set in $\F_{19}$ has size
+$4$, not $5$. Thus the exact identity \eqref{eq:claim} fails at $p = 19$, which
+refutes the ``$O(1)$ term equals $0$ for $p \equiv 3 \bmod 4$'' clause.
+\end{proof}
+
+\begin{remark}
+$p = 11$ is an even smaller counterexample: $11 \equiv 3 \pmod 4$,
+$\ceil{\sqrt{11}} = 4$, and Lemma~\ref{lem:diff} forbids $k = 4$ because
+$4 \cdot 3 = 12 > 10 = 11 - 1$; a maximum $3$-set is $\{0,1,3\}$. We use
+$p = 19$ as the headline witness because the difference bound there is
+$5 \cdot 4 = 20 > 18 = p-1$.
+\end{remark}
+
+\section{Exhaustive verification at $p = 19$}
+
+The counting argument above is decisive, but the claim can also be checked
+directly. Enumerating all $\binom{19}{5} = 11628$ five-element subsets of
+$\F_{19}$ and testing the $15$ unordered sums of each, one finds that
+\emph{every} five-subset contains a repeated sum: there is no strong Sidon
+$5$-set, confirming Corollary~\ref{cor:19} without the difference bound.
+\texttt{reproduce.py} performs exactly this enumeration. It also reports that
+all $2129$ strong Sidon subsets of $\F_{19}$ have size at most $4$, and that
+the maximum is attained (a maximum $4$-set is $\{0,1,3,7\}$).
+
+\section{The full table}
+
+We computed the maximum strong Sidon size in $\F_p$ by exhaustive backtracking
+for $p = 7, 11, 19, 23,$ $31, 43, 47, 59$. Column ``strong'' is the true
+maximum; ``$\ceil{\sqrt p}$'' is the conjectured exact value.
+
+\begin{center}
+\begin{tabular}{r r r r l}
+\toprule
+$p$ & $p \bmod 4$ & $\ceil{\sqrt p}$ & max strong Sidon & holds? \\
+\midrule
+$7$  & $3$ & $3$ & $3$ & yes \\
+$11$ & $3$ & $4$ & $3$ & \textbf{NO} \\
+$19$ & $3$ & $5$ & $4$ & \textbf{NO} \\
+$23$ & $3$ & $5$ & $5$ & yes \\
+$31$ & $3$ & $6$ & $6$ & yes \\
+$43$ & $3$ & $7$ & $6$ & \textbf{NO} \\
+$47$ & $3$ & $7$ & $6$ & \textbf{NO} \\
+$59$ & $3$ & $8$ & $7$ & \textbf{NO} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The exact formula \eqref{eq:claim} happens to hold at $p = 7, 23, 31$ but fails
+at $p = 11, 19, 43, 47, 59$. This is what makes the conjecture plausible but
+false rather than obviously wrong: the values agree on the first few primes
+$p \equiv 3 \pmod 4$ that one is likely to test, and only break later. For
+$p = 43, 47, 59$ the difference bound alone does not forbid the conjectured
+size: at $p = 43$ one has $7 \cdot 6 = 42 = 43 - 1$, at $p = 47$,
+$7 \cdot 6 = 42 \le 46$, and at $p = 59$, $8 \cdot 7 = 56 \le 58$; it is the
+exhaustive search (and, for $p=43$, the Bruck--Ryser--Chowla theorem below)
+that rules the larger size out.
+
+\section{Cross-check at $p = 43$: Bruck--Ryser--Chowla}
+
+At $p = 43$ a strong Sidon set of size $k = 7$ would satisfy
+$k(k-1) = 42 = p - 1$, so by Lemma~\ref{lem:diff} its $42$ differences would be
+\emph{all} the nonzero elements of $\F_{43}$; such a set is a perfect
+$(43,7,1)$ difference set. A $(v,k,\lambda)$ difference set with $k-\lambda=6$
+gives a symmetric $2$-$(v,k,\lambda)$ design, and a symmetric $2$-$(n^2+n+1,
+n+1, 1)$ design is a projective plane of order $n$. Here
+$v = 43 = 6^2 + 6 + 1$ and $k = 7 = 6 + 1$, so a size-$7$ strong Sidon set in
+$\F_{43}$ would produce a projective plane of order $6$.
+
+The Bruck--Ryser--Chowla theorem states that if a projective plane of order
+$n$ exists and $n \equiv 1, 2 \pmod 4$, then $n$ is a sum of two squares. Here
+$6 \equiv 2 \pmod 4$, and $6$ is not a sum of two squares ($0,1,2,4,5$ are
+representable below $6$, but $6$ is not). Hence no projective plane of order
+$6$ exists, so no size-$7$ strong Sidon set in $\F_{43}$ exists. This is
+consistent with the computed maximum $6$, and it independently certifies the
+failure of \eqref{eq:claim} at $p = 43$.
+
+\section{Alternative readings}\label{sec:readings}
+
+We tried to save the conjecture by changing the reading; none succeeds.
+
+\subsection*{Weak Sidon}
+
+\begin{definition}[Weak Sidon]
+$S \subseteq \F_p$ is \emph{weak Sidon} if the sums $a+b$ with $a,b \in S$,
+$a \ne b$ (distinct elements only) are pairwise distinct.
+\end{definition}
+
+This is genuinely weaker: repetitions $2a$ are unconstrained. The weak maxima
+for the same primes are
+
+\begin{center}
+\begin{tabular}{r r r r}
+\toprule
+$p$ & $\ceil{\sqrt p}$ & max weak Sidon & holds? \\
+\midrule
+$7$  & $3$ & $4$  & \textbf{NO} \\
+$11$ & $4$ & $5$  & \textbf{NO} \\
+$19$ & $5$ & $6$  & \textbf{NO} \\
+$23$ & $5$ & $6$  & \textbf{NO} \\
+$31$ & $6$ & $7$  & \textbf{NO} \\
+$43$ & $7$ & $8$  & \textbf{NO} \\
+$47$ & $7$ & $8$  & \textbf{NO} \\
+$59$ & $8$ & $9$  & \textbf{NO} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Under the weak reading the exact formula fails even more dramatically: at
+$p = 19$ the maximum is $6 > 5 = \ceil{\sqrt{19}}$ (for instance
+$\{0,1,2,4,7,12\}$ works), and at $p = 11$ it is $5 > 4 = \ceil{\sqrt{11}}$
+(for instance $\{0,1,2,4,7\}$). Note also that Lemma~\ref{lem:diff} is a
+\emph{strong}-Sidon statement: the weak maximum set $\{0,1,2,4,7,12\}$ in
+$\F_{19}$ has $6 \cdot 5 = 30$ ordered differences but $\F_{19}$ has only $18$
+nonzero elements, so its differences are certainly not distinct. The
+difference-count proof must not be applied to weak Sidon sets; for weak Sidon
+the correct counting bound is $\binom{k}{2} \le p$, since the $\binom{k}{2}$
+sums of distinct pairs must lie in $\F_p$.
+
+\subsection*{``Maximal'' as inclusion-maximal}
+
+If ``maximal'' is read as \emph{inclusion-maximal} (a strong Sidon set that is
+not properly contained in another strong Sidon set) rather than maximum
+cardinality, nothing changes: every inclusion-maximal strong Sidon set in
+$\F_{19}$ has size $4$. There are $1140$ such sets, and all have size $4$;
+none has size $5$. So this reading does not rescue the $O(1) = 0$ clause
+either.
+
+\subsection*{Asymptotic weakening}
+
+Only a substantially weakened asymptotic version survives. The classical
+upper bound for strong Sidon sets in $\F_p$ is $|S| \le \sqrt p + O(1)$
+(immediately from $k(k-1) \le p-1$), so the asymptotic part of the conjecture
+is true and standard; what fails is precisely the exact ``$O(1)$ term $= 0$''
+clause, i.e.\ the assertion that the maximum equals $\ceil{\sqrt p}$ for
+$p \equiv 3 \pmod 4$. Replacing the exact claim by $|S| = \ceil{\sqrt p} +
+O(1)$ would make it true but vacuous as a statement about the $O(1)$ term.
+
+\section{Reproducibility}
+
+The exhaustive computations are carried out by \texttt{reproduce.py} using the
+Python~3 standard library only:
+
+\begin{quote}\small\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(checks, the strong/weak tables,}\\
+\hspace*{1.5em}\textit{difference bound,}\\
+\hspace*{1.5em}\textit{Bruck--Ryser cross-check)}\\
+PASS: all checks verified;\\
+\hspace*{1.5em}conjecture 00000001067 is FALSE.
+\end{quote}
+
+It computes the strong and weak maxima for all eight primes by exhaustive
+backtracking, verifies the difference bound on every maximum set, verifies the
+witness $\{0,1,3,7\}$ by listing its sums, enumerates all $\binom{19}{5} =
+11628$ five-subsets, checks the equivalence ``strong Sidon $\Leftrightarrow$
+differences distinct'' on all subsets of $\F_7, \F_{11}$ and all subsets of
+size $\le 6$ of $\F_{19}, \F_{23}$, and reports the Bruck--Ryser--Chowla and
+inclusion-maximal facts. It prints \texttt{PASS} and exits $0$ exactly when
+every check holds.
+
+\section{Formalisation}
+
+The refutation is formalised in the Lean~4 project under \texttt{lean4/}
+(core Lean only, \texttt{import Std}, no Mathlib, no \texttt{sorry}). Over the
+field $\F_{19}$ presented as \texttt{Fin 19}, the main statements are
+
+\begin{quote}\small\ttfamily
+theorem no\_sidon5 :\\
+\hspace*{2em}\(\forall\) a b c d e : Fin 19,\\
+\hspace*{2em}\phantom{\(\forall\) }a < b \(\to\) b < c \(\to\) c < d
+   \(\to\) d < e\\
+\hspace*{2em}\phantom{\(\forall\) }\(\to\) sidon5 a b c d e = false\\
+theorem sidon4\_witness :\\
+\hspace*{2em}sidon4 0 1 3 7 = true\\
+theorem count\_obstruction :\\
+\hspace*{2em}5 * 4 > 19 - 1\\
+theorem ceil\_sqrt19 :\\
+\hspace*{2em}4 \^{} 2 < 19 \(\wedge\) 19 \(\le\) 5 \^{} 2\\
+theorem conjecture\_00000001067\_false :\\
+\hspace*{2em}\((\exists\) a b c d : Fin 19,\\
+\hspace*{2em}\phantom{(\(\exists\) }sidon4 a b c d = true)\\
+\hspace*{2em}\(\wedge\) no\_sidon5 \(\wedge\) ceil\_sqrt19
+\end{quote}
+
+Here \texttt{sidon5 a b c d e} decides whether the $15$ unordered sums
+$a+a,\dots,e+e$ are pairwise distinct (strong Sidon), and \texttt{sidon4} is
+the analogous predicate for four elements. The proof of \texttt{no\_sidon5}
+uses translation invariance of the strong Sidon property: replacing each
+element $x$ by $x-a$ shifts every sum by $-2a$, an injection on $\F_{19}$,
+so it suffices to refute the case $a=0$, which \texttt{decide} checks
+exhaustively; the general case is then reduced to it. The audit
+\texttt{Check.lean} reports no \texttt{sorryAx} and no \texttt{Lean.ofReduceBool}
+(the latter would signal \texttt{native\_decide}, which is deliberately not
+used); the only axioms are the core \texttt{propext} and \texttt{Quot.sound}.
+See \texttt{lean4/README.md} for the full statement table and the honest axiom
+footprint.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (library \texttt{Main}, no dependencies), \texttt{Main.lean},
+  \texttt{Check.lean} (\texttt{\#print axioms}), and \texttt{lean4/README.md}.
+  \texttt{lake build} exits $0$ and the audit reports no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
