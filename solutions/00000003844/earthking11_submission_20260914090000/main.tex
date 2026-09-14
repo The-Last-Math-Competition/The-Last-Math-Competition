@@ -1,0 +1,373 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\St}{\star}
+\newcommand{\cov}{\operatorname{cov}}
+\DeclareMathOperator{\len}{\ell}
+
+\title{Disproof of conjecture \texttt{00000003844}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000003844} as stated. The refutation is
+unconditional and completely elementary. Let $H(S_3)$ be the $0$-Hecke monoid
+of the finite Coxeter system $(S_3,\{s_1,s_2\})$; it has $6$ elements. We
+exhibit two \emph{proper} submonoids $A,B$ with $A\cup B=H(S_3)$, so its
+covering number is at most $2$; and no single proper submonoid can cover it, so
+the covering number is exactly $2$. Thus the conjecture's first clause
+(``every finite-type $0$-Hecke monoid has infinite covering number'') is false.
+The same argument applies to $H(S_4)$ ($24$ elements) and, more generally, to
+every finite-type $0$-Hecke monoid of rank $\ge 2$. The direct-product clause
+fails as well: $\cov(M_1\times M_2)\le \cov(M_1)\cov(M_2)$, so
+$\cov(H(S_3)\times H(S_3))\le 4$, not $\infty$.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000003844.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The covering number of a monoid is the least
+number of proper submonoids needed to cover it, infinity if impossible.
+Conjecture: Every finite-type 0-Hecke monoid and every plactic monoid has
+infinite covering number, and arbitrary direct products of these two classes
+still have infinite covering number. (uncoverable direct product closure)
+\end{quote}
+
+The conjecture is filed in both English and Chinese; the Chinese original is
+reproduced verbatim (in Unicode) in \texttt{README.md}. The two versions are
+identical in content. The PDF font does not embed CJK glyphs, so the Chinese
+text is kept in the markdown copy rather than duplicated here.
+
+\section{Definitions and conventions}
+
+\begin{definition}[Covering number]
+The \emph{covering number} $\cov(M)$ of a monoid $M$ is the least $k\ge 1$ such
+that $M=S_1\cup\dots\cup S_k$ for proper submonoids $S_i\subsetneq M$; if no
+such finite cover exists, $\cov(M)=\infty$. Here ``submonoid'' always means a
+subset containing the identity and closed under the product.
+\end{definition}
+
+\begin{remark}\label{rem:oneproper}
+A single proper submonoid never covers $M$, since a proper subset is not the
+whole of $M$. Hence a finite covering number is automatically $\ge 2$.
+\end{remark}
+
+\begin{definition}[$0$-Hecke monoid]
+Let $(W,S)$ be a finite Coxeter system. The \emph{$0$-Hecke monoid} $H(W)$ is
+the monoid with generators $\pi_s$ ($s\in S$) and relations
+\[
+\pi_s^2=\pi_s \quad (s\in S),
+\qquad
+\text{the braid relations of }(W,S),
+\]
+where the braid relation for $s,t\in S$ with $m_{st}<\infty$ is the usual
+$\pi_s\pi_t\pi_s\cdots=\pi_t\pi_s\pi_t\cdots$ with $m_{st}$ factors on each
+side. Its elements are indexed by $W$, and the product is the \emph{Demazure
+product}
+\[
+\pi_u\,\pi_v=\pi_{u\St v},
+\qquad
+u\St s=
+\begin{cases}
+us, & \len(us)>\len(u),\\ u, & \len(us)<\len(u),
+\end{cases}
+\]
+extended over a reduced word of $v$. The product $\St$ is associative and the
+generators are idempotent, so $H(W)$ is a monoid with identity $\pi_e$.
+\end{definition}
+
+\begin{definition}[Length]
+For $w\in W$, $\len(w)$ is the Coxeter length, i.e.\ the number of positive
+roots sent negative by $w$, equivalently the length of a reduced word.
+
+\end{definition}
+
+\begin{theorem}[Length identity]\label{thm:length}
+For all $x,y\in W$, $\len(x\St y)\ge\max\{\len(x),\len(y)\}$.
+\end{theorem}
+
+Theorem~\ref{thm:length} is verified exhaustively for $S_3,S_4,S_5$ (all
+$6^2,24^2,120^2$ pairs, $0$ violations) by \texttt{reproduce.py}. It follows in
+general from the subword characterisation of the Demazure product: $x\St y$ is
+the unique maximal-length element of the Bruhat interval
+$\{z: z\le x \text{ and } z\le y\}$ in the Bruhat order on the set of
+subwords, whence $x\St y\ge x$ and $x\St y\ge y$ in Bruhat order and therefore
+$\len(x\St y)\ge\max\{\len(x),\len(y)\}$.
+
+\section{The counterexample: $H(S_3)$}
+
+The Coxeter system is $(S_3,\{s_1,s_2\})$, of type $A_2$, of rank $2$. Its
+$0$-Hecke monoid has $6$ elements, labelled
+\[
+0=e,\quad 1=s_2,\quad 2=s_1,\quad 3=s_1s_2,\quad 4=s_2s_1,\quad 5=w_0,
+\]
+where indices are the ones used by \texttt{lean4/Main.lean}. The Demazure
+product is the following $6\times 6$ table (row $=$ left factor, column $=$
+right factor):
+
+\begin{center}
+\begin{tabular}{c|cccccc}
+$\St$ & $e$ & $s_2$ & $s_1$ & $s_1s_2$ & $s_2s_1$ & $w_0$\\
+\hline
+$e$     & $e$     & $s_2$   & $s_1$   & $s_1s_2$ & $s_2s_1$ & $w_0$\\
+$s_2$   & $s_2$   & $s_2$   & $s_2s_1$& $w_0$    & $s_2s_1$ & $w_0$\\
+$s_1$   & $s_1$   & $s_1s_2$& $s_1$   & $s_1s_2$ & $w_0$    & $w_0$\\
+$s_1s_2$& $s_1s_2$& $s_1s_2$& $w_0$   & $w_0$    & $w_0$    & $w_0$\\
+$s_2s_1$& $s_2s_1$& $w_0$   & $s_2s_1$& $w_0$    & $w_0$    & $w_0$\\
+$w_0$   & $w_0$   & $w_0$   & $w_0$   & $w_0$    & $w_0$    & $w_0$
+\end{tabular}
+\end{center}
+
+One checks directly that $\St$ is associative (all $6^3=216$ triples), that
+$e$ is a two-sided identity, that $\pi_{s_1}^2=\pi_{s_1}$ and
+$\pi_{s_2}^2=\pi_{s_2}$, and that the braid relation holds:
+\[
+s_1\St s_2\St s_1=s_1s_2\St s_1=w_0=s_2s_1\St s_2=s_2\St s_1\St s_2 .
+\]
+
+\subsection{A two-element cover}
+
+Set
+\[
+A=\{e,s_2\},\qquad B=H(S_3)\setminus\{s_2\}=\{e,s_1,s_1s_2,s_2s_1,w_0\}.
+\]
+
+Both are submonoids:
+
+\begin{itemize}
+\item $A$ contains $e$ and is closed because $s_2\St s_2=s_2$ (and $e$ is the
+  identity).
+\item $B$ contains $e$. For closure, suppose $x,y\in B$ and $x\St y=s_2$. By
+  Theorem~\ref{thm:length},
+  $1=\len(s_2)=\len(x\St y)\ge\max\{\len(x),\len(y)\}$, so
+  $\len(x),\len(y)\le 1$, i.e.\ $x,y\in\{e,s_1,s_2\}$. Since $x,y\ne s_2$ by
+  definition of $B$, we have $x,y\in\{e,s_1\}$, and the table gives
+  $e\St e=e$, $e\St s_1=s_1\St e=s_1$, $s_1\St s_1=s_1$, none of which is
+  $s_2$. Contradiction; hence $x\St y\ne s_2$ and $x\St y\in B$.
+\end{itemize}
+
+Both are \emph{proper}: $|A|=2<6$ and $|B|=5<6$. Finally
+\[
+A\cup B=H(S_3),
+\]
+because every element of $H(S_3)$ is either $s_2$ (in $A$) or one of the other
+five (in $B$). Therefore $\cov(H(S_3))\le 2$.
+
+\subsection{One submonoid does not suffice}
+
+By Remark~\ref{rem:oneproper} a single proper submonoid cannot cover. For
+completeness, \texttt{reproduce.py} enumerates all $64$ subsets of the six
+elements and confirms that the only submonoid equal to all of $H(S_3)$ is
+$H(S_3)$ itself. Hence
+\[
+\boxed{\ \cov(H(S_3))=2\ }.
+\]
+The monoid of the counterexample is finite, of finite type, and its covering
+number is $2$, not $\infty$. This alone falsifies the conjecture's first
+clause.
+
+\section{$H(S_4)$ and all finite-type $0$-Hecke monoids of rank $\ge 2$}
+
+The same construction works one rank higher. $H(S_4)$ has
+$|S_4|=24$ elements. Exhaustive enumeration finds $10577$ submonoids
+(including $H(S_4)$ itself), and the covering number is exactly $2$: for every
+generator $s_i$ ($i=1,2,3$), the pair
+\[
+A=\{e,s_i\},\qquad B=H(S_4)\setminus\{s_i\}
+\]
+is a $2$-cover by exactly the argument of Section~4, using
+Theorem~\ref{thm:length}.
+
+\begin{theorem}\label{thm:general}
+Let $(W,S)$ be a finite Coxeter system of rank $|S|\ge 2$ and let $H(W)$ be its
+$0$-Hecke monoid. Then $\cov(H(W))=2$.
+\end{theorem}
+
+\begin{proof}
+Fix any simple reflection $s\in S$ and put $A=\{e,s\}$, $B=H(W)\setminus\{s\}$.
+
+\emph{$A$ is a submonoid.} It contains $e$, and $s\St s=s$ (idempotence of the
+generator).
+
+\emph{$B$ is a submonoid.} It contains $e$. Let $x,y\in B$ and suppose for
+contradiction that $x\St y=s$. By Theorem~\ref{thm:length},
+$1=\len(s)=\len(x\St y)\ge\max\{\len(x),\len(y)\}$, so
+$\len(x),\len(y)\le 1$. The elements of length $\le 1$ are $e$ and the simple
+reflections, so $x,y\in\{e\}\cup S$; since $x,y\ne s$, in fact
+$x,y\in\{e\}\cup(S\setminus\{s\})$. If $x=e$ then $x\St y=y\ne s$, and if
+$y=e$ then $x\St y=x\ne s$. Otherwise $x,y\in S\setminus\{s\}$: if $x=y$ then
+$x\St y=x\ne s$, while if $x\ne y$ then $x\St y$ is a product of two distinct
+simple reflections, so $\len(x\St y)=2>1=\len(s)$ and again $x\St y\ne s$.
+Hence $x\St y\ne s$, so $x\St y\in B$. (This step is where rank $\ge 2$ is
+needed for $B$ and $A$ to be \emph{proper}: $A$ is proper because some
+$t\in S\setminus\{s\}$ exists, and $B$ is proper because $s\notin B$.)
+
+\emph{The cover.} $A\cup B=H(W)$ is clear, since $s\in A$ and every other
+element is in $B$. Both $A$ and $B$ are proper. Hence $\cov(H(W))\le 2$, and by
+Remark~\ref{rem:oneproper}, $\cov(H(W))\ge 2$; therefore $\cov(H(W))=2$.
+\end{proof}
+
+\begin{corollary}
+The conjecture's assertion that every finite-type $0$-Hecke monoid has infinite
+covering number is false for the entire class of rank $\ge 2$. Only the
+degenerate ranks $\le 1$ behave differently: for $W=\{e\}$ (rank $0$),
+$H(W)=\{e\}$ has no proper submonoid, so $\cov(H(W))=\infty$; for
+$W=S_2$ (rank $1$), $H(W)=\{e,s\}$ has the single proper submonoid $\{e\}$,
+which does not cover, so again $\cov(H(W))=\infty$.
+\end{corollary}
+
+Since the conjecture's first clause is a universally quantified conjunction
+over two classes of monoids, the single counterexample $H(S_3)$ already
+refutes it; no assertion about plactic monoids is needed.
+
+\section{The direct-product clause also fails}
+
+\begin{proposition}\label{prop:product}
+For monoids $M_1,M_2$,
+\[
+\cov(M_1\times M_2)\le \cov(M_1)\cdot\cov(M_2),
+\]
+with the convention $n\cdot\infty=\infty$. Consequently, if both factors have
+finite covering number, so does the product.
+\end{proposition}
+
+\begin{proof}
+Let $\cov(M_1)=p$ and $\cov(M_2)=q$ with finite covers by proper submonoids
+$M_1=A_1\cup\dots\cup A_p$ and $M_2=B_1\cup\dots\cup B_q$. Then
+\[
+M_1\times M_2=\bigl(A_1\cup\dots\cup A_p\bigr)\times
+\bigl(B_1\cup\dots\cup B_q\bigr)
+=\bigcup_{i=1}^{p}\bigcup_{j=1}^{q} A_i\times B_j .
+\]
+Each $A_i\times B_j$ is a submonoid of $M_1\times M_2$: it is closed
+componentwise and contains $(e_1,e_2)$. It is proper: since $A_i$ is a proper
+submonoid of $M_1$ and $B_j\ne\emptyset$, choose $a\in M_1\setminus A_i$ and
+$b\in B_j$; then $(a,b)\notin A_i\times B_j$. Hence the $pq$ proper submonoids
+$A_i\times B_j$ cover $M_1\times M_2$, giving the bound.
+\end{proof}
+
+\begin{corollary}\label{cor:prod}
+$\cov(H(S_3)\times H(S_3))\le 2\cdot 2=4<\infty$.
+\end{corollary}
+
+\begin{proof}
+Apply Proposition~\ref{prop:product} with $M_1=M_2=H(S_3)$ and
+$\cov(H(S_3))=2$ from Section~4.
+\end{proof}
+
+\texttt{reproduce.py} constructs the four proper submonoids
+$A\times A$, $A\times B$, $B\times A$, $B\times B$ of the $36$-element product
+$H(S_3)\times H(S_3)$ explicitly (with $A=\{e,s_2\}$ and $B=H(S_3)\setminus
+\{s_2\}$), verifies that each is closed and proper, and verifies that their
+union is the whole product. Thus the conjecture's third clause --- that
+arbitrary direct products still have infinite covering number --- is false as
+well.
+
+\begin{remark}
+The fourth and final ingredient of the conjecture, the claim about plactic
+monoids, is not needed: refuting either half of the first clause suffices to
+refute the universal statement. We emphasise that no claim is made here about
+the covering numbers of plactic monoids; the conjecture is simply false as a
+whole because of its $0$-Hecke half and its product clause.
+\end{remark}
+
+\section{Formalisation}
+
+The counterexample is formalised in the Lean~4 project under \texttt{lean4/},
+with \textbf{no imports at all} (no \texttt{Std}, no Mathlib), no
+\texttt{sorry}, and pinned to \texttt{leanprover/lean4:v4.33.1}. Everything is
+hand-rolled over \texttt{List}/\texttt{Nat}, since \texttt{Finset} and the
+\texttt{Monoid}/\texttt{Submonoid} typeclasses are unavailable without imports.
+The main statements are
+
+\begin{quote}\ttfamily
+theorem covering\_number\_is\_two :\\
+\hspace*{2em}sub A = true \(\wedge\) sub B = true \(\wedge\) A.length < 6 \(\wedge\) B.length < 6 \(\wedge\)\\
+\hspace*{2em}elems.all (fun x => A.contains x || B.contains x) = true \(\wedge\)\\
+\hspace*{2em}(List.range 64).all (fun m => !(coverByOne m)) = true\\
+theorem conjecture\_00000003844\_false :\\
+\hspace*{2em}\(\exists\) A B : List Nat, sub A = true \(\wedge\) sub B = true \(\wedge\)\\
+\hspace*{2em}A.length < 6 \(\wedge\) B.length < 6 \(\wedge\)\\
+\hspace*{2em}elems.all (fun x => A.contains x || B.contains x) = true
+\end{quote}
+
+Here \texttt{sub S = S.contains 0 \&\& S.all (fun a => S.all (fun b => S.contains (mul a b)))}
+is the hand-rolled submonoid predicate, \texttt{A = [0,1]} and
+\texttt{B = [0,2,3,4,5]}, and \texttt{mul} is the Demazure product read off an
+explicit $6\times6$ table. The monoid axioms (\texttt{assoc} over all $216$
+triples, \texttt{identity}, \texttt{gen\_idem\_s1}, \texttt{gen\_idem\_s2},
+\texttt{braid}), the two submonoid statements, the cover, and the exhaustive
+absence of a $1$-cover over all $64$ subsets are all discharged by
+\texttt{by decide}. The axiom audit (\texttt{Check.lean}) reports only
+\texttt{propext} (and no axioms at all for the cardinality and cover
+statements); \texttt{sorryAx} does not appear. See \texttt{lean4/README.md} for
+the full statement table and scope note.
+
+\section{Reproducibility}
+
+The exhaustive computations are carried out by \texttt{reproduce.py} using the
+Python~3 standard library only:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(builds $H(S_n)$ for $n=2,3,4$; checks the monoid axioms,}\\
+\textit{enumerates all submonoids ($16$ for $H(S_3)$, $10577$ for $H(S_4)$),}\\
+\textit{computes the exact covering number, checks the length identity for}\\
+\textit{$S_3,S_4,S_5$, and checks the product bound on $H(S_3)\times H(S_3)$)}\\
+PASS: conjecture 00000003844 is FALSE.
+\end{quote}
+
+It exits $0$ on \texttt{PASS} and non-zero if any check fails.
+
+LaTeX document:
+
+\begin{quote}\ttfamily
+tectonic --outdir build main.tex
+\end{quote}
+
+Lean 4 project:
+
+\begin{quote}\ttfamily
+cd lean4\\
+lake build\\
+lake env lean Check.lean
+\end{quote}
+
+\section*{Status against the submission rules}
+
+Rule 3 requires each submission to contain the LaTeX source, a PDF document,
+and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using only \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb},
+  \texttt{amsthm}, \texttt{array}, \texttt{parskip}, \texttt{booktabs};
+  compiles with \texttt{tectonic --outdir build main.tex}.
+\item \textbf{PDF document} --- present at \texttt{build/main.pdf}.
+\item \textbf{Lean~4 project} --- present under \texttt{lean4/}, with
+  \texttt{lean-toolchain} pinned to \texttt{leanprover/lean4:v4.33.1},
+  \texttt{lakefile.toml} (library \texttt{Main}), \texttt{Main.lean},
+  \texttt{Check.lean}, and a \texttt{README.md}. It contains no \texttt{import}
+  statement, no Mathlib dependency, and no \texttt{sorry}; the axiom audit
+  reports no \texttt{sorryAx} and only \texttt{propext}.
+\end{itemize}
+
+\end{document}
