@@ -1,0 +1,311 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\chiG}{\chi}
+
+\title{Disproof of conjecture \texttt{00000001556}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001556} as stated. The refutation is
+unconditional and elementary: the explicit map
+\[
+  c_5(x,y) \;=\; (x + 2y) \bmod 5
+\]
+is a proper $5$-colouring of the lattice distance graph for \emph{both} standard
+readings of the distance set $D=\{1,2,4\}$ simultaneously. Hence the chromatic
+number is at most $5$, and the claimed value $7$ is false. In fact the exact
+values are $5$ (squared-norm reading) and $3$ (Euclidean-norm reading).
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000001556.md}:
+
+\begin{quote}
+\textbf{English.} Conjecture: The chromatic number of the planar distance graph
+$G(\Z^2, D)$ with $D = \{1, 2, 4\}$ is $7$ (the exact chromatic number of a
+fixed small distance set).
+\end{quote}
+
+The conjecture is filed in both English and Chinese. The Chinese version is
+reproduced verbatim (in Unicode) in \texttt{README.md}; the two versions are
+identical in content. The PDF font does not embed CJK glyphs, so the Chinese is
+kept in the markdown copy rather than duplicated here.
+
+\section{Definitions and the definitional ambiguity}
+
+\begin{definition}[Distance graph]
+$G(\Z^2, D)$ has vertex set $\Z^2$, and two lattice points $u,v$ are adjacent
+iff the difference $u-v$ realises a ``distance'' in $D$.
+\end{definition}
+
+The conjecture is written with three scalars $D=\{1,2,4\}$, so $D$ is a set of
+distances, not of integer vectors. There are two standard and equally natural
+readings:
+
+\begin{itemize}
+\item \textbf{Squared-norm reading.} Lattice-colouring work often states a
+  distance set as squared norms, because squared distances are integral on the
+  lattice. Here $(dx,dy)$ is a displacement iff
+  \[
+    dx^2 + dy^2 \in \{1,2,4\}.
+  \]
+  This gives the $12$ vectors $(\pm1,0),(0,\pm1),(\pm1,\pm1),(0,\pm2),(\pm2,0)$.
+\item \textbf{Euclidean-norm reading.} The literal reading: $(dx,dy)$ is a
+  displacement iff
+  \[
+    \sqrt{dx^2+dy^2} \in \{1,2,4\},
+  \]
+  i.e.\ $dx^2+dy^2 \in \{1,4,16\}$. This gives the $12$ axis vectors
+  \[
+    (\pm1,0),\ (0,\pm1),\ (\pm2,0),\ (0,\pm2),\ (\pm4,0),\ (0,\pm4).
+  \]
+\end{itemize}
+
+The union of the two displacement sets has $16$ vectors:
+\[
+\begin{array}{ll}
+D_{\mathrm{sq}} = \{(\pm1,0),(0,\pm1),(\pm1,\pm1),(\pm2,0),(0,\pm2)\}, & |D_{\mathrm{sq}}|=12,\\[2pt]
+D_{\mathrm{euc}} = \{(\pm1,0),(0,\pm1),(\pm2,0),(0,\pm2),(\pm4,0),(0,\pm4)\}, & |D_{\mathrm{euc}}|=12,\\[2pt]
+D_{\mathrm{union}} = D_{\mathrm{sq}} \cup D_{\mathrm{euc}}, & |D_{\mathrm{union}}|=16.
+\end{array}
+\]
+The four extra vectors are $(\pm4,0),(0,\pm4)$.
+
+\begin{remark}[``Planar'']
+Here ``planar distance graph'' names a graph drawn on the integer lattice, not a
+planar graph in the graph-theoretic sense; $G(\Z^2,D)$ is far from planar.
+\end{remark}
+
+\section{The witness colouring}
+
+\begin{theorem}\label{thm:main}
+Define $c_5 \colon \Z^2 \to \{0,1,2,3,4\}$ by $c_5(x,y) = (x+2y) \bmod 5$. Then
+$c_5$ is a proper colouring of the union graph $G(\Z^2, D_{\mathrm{union}})$, and
+therefore of $G(\Z^2, D_{\mathrm{sq}})$ and $G(\Z^2, D_{\mathrm{euc}})$ as well.
+Consequently
+\[
+  \chiG\bigl(G(\Z^2,D)\bigr) \le 5 < 7
+\]
+under both standard readings, and the conjectured value $7$ is false.
+\end{theorem}
+
+\begin{proof}
+Suppose $u=(x,y)$ and $u+d = (x+dx, y+dy)$ are adjacent for some
+$d=(dx,dy) \in D_{\mathrm{union}}$. Then
+\[
+  c_5(u+d) - c_5(u) \;\equiv\; (x+dx) + 2(y+dy) - (x+2y)
+  \;\equiv\; dx + 2\,dy \pmod 5 .
+\]
+The displacements of the union and the corresponding residues $dx+2dy \bmod 5$
+are listed in the table below; none is $0 \pmod 5$. Hence $c_5(u+d) \neq c_5(u)$
+for every adjacent pair, so $c_5$ is proper. Since it uses $5$ colours,
+$\chiG \le 5$. Every edge of either reading is an edge of the union graph, so
+the same colouring is proper for each reading.
+\end{proof}
+
+\begin{center}
+\begin{tabular}{c c r r r l}
+\toprule
+displacement $d=(dx,dy)$ & reading(s) & $dx+2dy$ & $\bmod\ 5$
+  & $dx^2+dy^2$ & Euclidean length \\
+\midrule
+$(1,0)$   & both    & $1$  & $1$ & $1$  & $1$ \\
+$(-1,0)$  & both    & $-1$ & $4$ & $1$  & $1$ \\
+$(0,1)$   & both    & $2$  & $2$ & $1$  & $1$ \\
+$(0,-1)$  & both    & $-2$ & $3$ & $1$  & $1$ \\
+$(1,1)$   & squared & $3$  & $3$ & $2$  & $\sqrt2$ \\
+$(1,-1)$  & squared & $-1$ & $4$ & $2$  & $\sqrt2$ \\
+$(-1,1)$  & squared & $1$  & $1$ & $2$  & $\sqrt2$ \\
+$(-1,-1)$ & squared & $-3$ & $2$ & $2$  & $\sqrt2$ \\
+$(2,0)$   & both    & $2$  & $2$ & $4$  & $2$ \\
+$(-2,0)$  & both    & $-2$ & $3$ & $4$  & $2$ \\
+$(0,2)$   & both    & $4$  & $4$ & $4$  & $2$ \\
+$(0,-2)$  & both    & $-4$ & $1$ & $4$  & $2$ \\
+$(4,0)$   & euclid  & $4$  & $4$ & $16$ & $4$ \\
+$(-4,0)$  & euclid  & $-4$ & $1$ & $16$ & $4$ \\
+$(0,4)$   & euclid  & $8$  & $3$ & $16$ & $4$ \\
+$(0,-4)$  & euclid  & $-8$ & $2$ & $16$ & $4$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All sixteen residues are nonzero modulo $5$, which proves Theorem~\ref{thm:main}.
+
+\begin{remark}[Periodicity and the de Bruijn--Erd\H{o}s argument]
+The colouring $c_5$ is defined by a formula on all of $\Z^2$, so it needs no
+compactness argument to be global. Nevertheless, the general principle
+underlying lattice colourings is worth recording: by the de Bruijn--Erd\H{o}s
+compactness theorem, the chromatic number of a (locally finite) graph is the
+supremum of the chromatic numbers of its finite subgraphs. For
+$G(\Z^2,D)$ this says $\chiG = \sup_{F \subset \Z^2 \text{ finite}} \chiG(F)$,
+so a finite clique already certifies a lower bound and a periodic colouring
+certifies a global upper bound. The two bounds below exploit exactly this.
+\end{remark}
+
+\section{Exact values, with cliques as lower bounds}
+
+\subsection*{Squared-norm reading: $\chiG = 5$}
+
+\emph{Lower bound.} The five points
+\[
+  C_5 = \{(0,0),\,(1,0),\,(-1,0),\,(0,1),\,(0,-1)\}
+\]
+form a clique: the ten pairwise differences are
+$(\pm1,0),(0,\pm1),(0,\pm2),(\pm2,0),(\pm1,\pm1),(\pm1,\mp1)$, all of squared
+norm $1$, $2$ or $4$. Hence $\chiG \ge 5$. (This is the centre of the lattice
+together with its four nearest neighbours.)
+
+\emph{Upper bound.} Theorem~\ref{thm:main} gives $\chiG \le 5$ via $c_5$.
+Therefore $\chiG = 5$ exactly.
+
+\subsection*{Euclidean-norm reading: $\chiG = 3$}
+
+\emph{Lower bound.} The three points
+\[
+  C_3 = \{(0,0),\,(1,0),\,(2,0)\}
+\]
+form a clique: the pairwise differences are $(1,0)$, $(2,0)$, $(1,0)$ of
+Euclidean length $1$, $2$, $1$, all in $\{1,2,4\}$. Hence $\chiG \ge 3$.
+
+\emph{Upper bound.} The map
+\[
+  c_3(x,y) = (x+y) \bmod 3
+\]
+is proper: for a displacement $d=(dx,dy) \in D_{\mathrm{euc}}$ we have
+$dx+dy \equiv \pm1,\pm2,\pm4 \not\equiv 0 \pmod 3$. Therefore $\chiG \le 3$, and
+$\chiG = 3$ exactly.
+
+\subsection*{Union graph: $\chiG = 5$}
+
+The clique $C_5$ lies in the squared reading, hence in the union graph, giving
+$\chiG \ge 5$; the colouring $c_5$ gives $\chiG \le 5$. So the union graph also
+has chromatic number exactly $5$.
+
+\begin{corollary}
+Under either standard reading of $D=\{1,2,4\}$, the conjectured value $7$ is
+incorrect; the true values are $5$ (squared) and $3$ (Euclidean).
+\end{corollary}
+
+\section{Caveats: Manhattan and the continuous plane}
+
+\subsection*{A non-standard Manhattan reading gives $\chiG \ge 9 > 7$}
+
+If instead $D$ is read as a set of \emph{Manhattan} (taxicab) distances
+$|dx|+|dy| \in \{1,2,4\}$, the displacement set is strictly larger than the
+union above (it adds $(\pm1,\pm3),(\pm3,\pm1),(\pm2,\pm2)$). The nine points
+\[
+  \{(0,0),\,(1,\pm1),\,(2,0),\,(2,\pm2),\,(3,\pm1),\,(4,0)\}
+\]
+are pairwise at Manhattan distance $1$, $2$ or $4$, so they form a $9$-clique
+and $\chiG \ge 9$. The colouring $c_5$ is \emph{not} proper here, since the
+displacement $(3,1)$ has $3+2\cdot1=5\equiv0 \pmod 5$. Thus $7$ is false under
+this reading too.
+
+\subsection*{The continuous plane $\R^2$ is a different problem}
+
+The only reading that would rescue the value $7$ is to reinterpret the vertex
+set $\Z^2$ as the continuous plane $\R^2$. There, the chromatic number of the
+plane with forbidden distance set $\{1,2,4\}$ is \emph{not} determined by the
+elementary argument above; the Hadwiger--Nelson problem leaves the chromatic
+number of the plane in $\{5,6,7\}$, so $7$ cannot be excluded in the continuum.
+This is not the conjecture as filed: the conjecture explicitly writes
+$G(\Z^2,D)$, the integer lattice, and for the lattice the refutation stands.
+A referee should read the present note as disproving the lattice statement, not
+the (open) continuum question.
+
+\section{Reproducibility}
+
+All claims above are checked by \texttt{reproduce.py} (Python~3 standard library
+only):
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... (displacement sets for both readings, the 16-row residue table,\\
+brute-force properness of $c_5$ on $[-200,200]^2$ and of $c_3$ on\\
+$[-100,100]^2$, the $5$-clique and $3$-clique, the Manhattan $9$-clique)\\
+PASS: all checks verified; conjecture 00000001556 is FALSE.
+\end{quote}
+
+It prints \texttt{PASS} and exits $0$ exactly when every check holds, and exits
+non-zero otherwise.
+
+The LaTeX document is compiled with
+\begin{quote}\ttfamily
+tectonic --outdir build main.tex
+\end{quote}
+producing \texttt{build/main.pdf}.
+
+\section{Formalisation}
+
+The refutation is formalised in the Lean~4 project under \texttt{lean4/}
+(core Lean only, \texttt{import Std}, no Mathlib, no \texttt{sorry}). The
+displacement list \texttt{D} is the $16$-vector union of both readings, and the
+colourings are
+\begin{quote}\ttfamily
+def color  (p : Int \(\times\) Int) : Int := (p.1 + 2 * p.2) \% 5\\
+def color3 (p : Int \(\times\) Int) : Int := (p.1 + p.2) \% 3
+\end{quote}
+The main statements are
+\begin{quote}\ttfamily
+theorem D\_ok :\\
+\hspace*{2em}D.all (fun e => decide ((e.1 + 2*e.2) \% 5 \(\ne\) 0)) = true\\
+theorem color\_shift\_ne (x y : Int) (d : Int \(\times\) Int)\\
+\hspace*{2em}(hd : d \(\in\) D) :\\
+\hspace*{4em}color (x + d.1, y + d.2) \(\ne\) color (x, y)\\
+theorem C5\_clique :\\
+\hspace*{2em}C5.all (fun p => C5.all (fun q => pairAdj p q)) = true\\
+theorem Deuc\_ok :\\
+\hspace*{2em}Deuc.all (fun e => decide ((e.1 + e.2) \% 3 \(\ne\) 0)) = true\\
+theorem color3\_shift\_ne (x y : Int) (d : Int \(\times\) Int)\\
+\hspace*{2em}(hd : d \(\in\) Deuc) :\\
+\hspace*{4em}color3 (x + d.1, y + d.2) \(\ne\) color3 (x, y)\\
+theorem C3\_clique :\\
+\hspace*{2em}C3.all (fun p => C3.all (fun q => pairAdj p q)) = true
+\end{quote}
+where \texttt{pairAdj p q} is \texttt{p == q || D.contains (q.1 - p.1, q.2 - p.2)}.
+The residue checks and the clique certificates are pure \texttt{decide}
+computations; the properness theorems extract the nonzero residue from
+\texttt{D\_ok} via \texttt{List.all\_eq\_true} and close with \texttt{omega}.
+See \texttt{lean4/README.md} for the statement table, the axiom audit, and the
+scope note.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (library \texttt{Main}, no dependencies), \texttt{Main.lean},
+  \texttt{Check.lean} (\texttt{\#print axioms}), and \texttt{lean4/README.md}.
+  \texttt{lake build} exits $0$ and the audit reports no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
