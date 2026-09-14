@@ -1,0 +1,385 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Sstd}{S}
+
+\title{Disproof of conjecture \texttt{00000002192}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000002192} as stated. The refutation is
+unconditional and completely elementary. The standard example $S_2$ is a
+height-$2$ poset on $n=4$ elements whose order dimension is exactly $2$,
+whereas the conjecture predicts $\lceil \log_2\log_2 4\rceil = 1$. The
+conjecture claims that the bound ``follows from the deep nesting of standard
+examples of random posets'', and it is precisely the standard example that
+refutes it.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000002192.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The dimension of a poset is the minimal number of
+linear extensions whose intersection is the poset. Conjecture: The maximal
+dimension of height-2 posets is $\lceil \log_2 \log_2 n\rceil$ (exact); the bound
+follows from the deep nesting of standard examples of random posets.
+\end{quote}
+
+The conjecture is filed in both English and Chinese; the Chinese original is
+reproduced verbatim (in Unicode) in \texttt{README.md}, and the two versions are
+identical in content. The PDF font does not embed CJK glyphs, so the Chinese is
+kept in the markdown copy rather than duplicated here.
+
+Throughout, a \emph{linear extension} of a poset $P$ is a strict total order
+extending the strict order of $P$, and the \emph{intersection} of linear
+extensions $L_1,\dots,L_d$ is the relation
+$x < y \iff (x <_{L_i} y \text{ for all } i)$. The \emph{dimension} $\dim(P)$ is
+the least $d$ for which some $d$ linear extensions have intersection exactly
+$P$.
+
+\section{\texorpdfstring{$n$}{n} is never defined}
+
+
+The statement is ill-posed before it is false: the symbol $n$ is never
+introduced. We show that every natural reading fails.
+
+\begin{center}
+\begin{tabular}{p{0.30\textwidth} p{0.36\textwidth} p{0.26\textwidth}}
+\toprule
+Reading of $n$ & Counterexample & Formula vs.\ truth \\
+\midrule
+number of elements $|P|$ & $S_2$ has $n=4$ elements & $\lceil \log_2\log_2 4\rceil = 1$ vs.\ $\dim = 2$ \\
+number of minimal elements & $S_k$ has $k$ minimal elements & $\lceil \log_2\log_2 k\rceil < k$ vs.\ $\dim = k$ \\
+width (largest antichain) & $S_k$ has width $k$ & $\lceil \log_2\log_2 k\rceil < k$ vs.\ $\dim = k$ \\
+rank / height & every $S_k$ has height $2$ & $\lceil \log_2\log_2 2\rceil = 0$ vs.\ $\dim = k$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+So no choice of $n$ saves the conjecture. The primary witness is the first row,
+the natural reading $n = |P|$.
+
+\section{The standard example \texorpdfstring{$S_2$}{S2}}
+
+\begin{definition}[Standard example]\label{def:Sk}
+For $k \ge 1$ the \emph{standard example} $S_k$ is the height-$2$ poset with
+$k$ minimal elements $a_0,\dots,a_{k-1}$ and $k$ maximal elements
+$b_0,\dots,b_{k-1}$ and relations
+\[
+a_j < b_i \iff i \neq j .
+\]
+\end{definition}
+
+For $k=2$ take the four elements $0,1$ (minimal) and $2,3$ (maximal), with the
+two relations
+\[
+0 < 3 \qquad\text{and}\qquad 1 < 2 .
+\]
+
+\begin{lemma}\label{lem:height}
+$S_2$ has height $2$, i.e.\ it contains a $2$-element chain but no
+$3$-element chain.
+\end{lemma}
+
+\begin{proof}
+The chain $0<3$ exists. The only relations are the disjoint pairs $0<3$ and
+$1<2$. If $x<y<z$ were a $3$-chain, then $y$ would be above $x$ and below $z$;
+but the top element of each relation ($3$ or $2$) is maximal and the bottom
+element ($0$ or $1$) is minimal, and the two relations share no element, so no
+such $y$ exists.
+\end{proof}
+
+\section{Two linear extensions whose intersection is \texorpdfstring{$S_2$}{S2}}
+
+Define the two total orders
+\[
+L_1 = [\,0,3,1,2\,] \quad(\text{order } 0<3<1<2),
+\qquad
+L_2 = [\,1,2,0,3\,] \quad(\text{order } 1<2<0<3).
+\]
+
+\begin{lemma}\label{lem:upper}
+$L_1$ and $L_2$ are linear extensions of $S_2$ and their intersection is
+exactly the relation of $S_2$. Hence $\dim(S_2) \le 2$.
+\end{lemma}
+
+\begin{proof}
+Both orders place $0$ before $3$ and $1$ before $2$, so both respect the two
+relations. Conversely, in the intersection:
+\begin{itemize}
+\item the pair $\{0,1\}$ has $0<1$ in $L_1$ and $1<0$ in $L_2$, so neither
+  order survives;
+\item the pair $\{2,3\}$ has $3<2$ in $L_1$ and $2<3$ in $L_2$, so neither
+  order survives;
+\item $0<3$ and $1<2$ hold in both orders, so both survive.
+\end{itemize}
+Hence the intersection is exactly $\{(0,3),(1,2)\}$, the relation of $S_2$.
+\end{proof}
+
+\section{No single linear extension realises \texorpdfstring{$S_2$}{S2}}
+
+\begin{lemma}\label{lem:lower}
+No single linear extension of $S_2$ has intersection equal to the relation of
+$S_2$. Hence $\dim(S_2) \ge 2$.
+\end{lemma}
+
+\begin{proof}
+Let $L$ be a single linear extension and suppose its intersection (which is
+just its own total order) equals the relation of $S_2$. A total order must
+compare the incomparable pair $\{0,1\}$: either $0 <_L 1$ or $1 <_L 0$.
+\begin{itemize}
+\item If $0 <_L 1$, then $0<1$ lies in the intersection, but $0$ and $1$ are
+  incomparable in $S_2$ (both are minimal, and $0<1$ is not one of the two
+  relations) --- contradiction.
+\item If $1 <_L 0$, then $1<0$ lies in the intersection, but again $0$ and $1$
+  are incomparable --- contradiction.
+\end{itemize}
+So no single extension realises $S_2$.
+\end{proof}
+
+\begin{theorem}\label{thm:dim2}
+$\dim(S_2) = 2$.
+\end{theorem}
+
+\begin{proof}
+Combine $\dim(S_2) \le 2$ (Lemma~\ref{lem:upper}) with $\dim(S_2) \ge 2$
+(Lemma~\ref{lem:lower}).
+\end{proof}
+
+\section{The contradiction}
+
+$S_2$ has $n = 4$ elements, height $2$ (Lemma~\ref{lem:height}), and dimension
+$2$ (Theorem~\ref{thm:dim2}). The conjecture asserts that the maximal dimension
+of a height-$2$ poset on $n$ elements is
+\[
+\left\lceil \log_2 \log_2 n \right\rceil
+= \left\lceil \log_2 \log_2 4 \right\rceil
+= \left\lceil \log_2 2 \right\rceil
+= \lceil 1 \rceil = 1 .
+\]
+But $S_2$ is a height-$2$ poset on $4$ elements with dimension $2 \neq 1$.
+Therefore the conjectured value is strictly too small and the conjecture is
+false.
+
+\begin{corollary}
+There is a height-$2$ poset on $n=4$ elements whose dimension exceeds
+$\lceil \log_2\log_2 4\rceil$. Hence the maximal dimension of height-$2$ posets
+is not given by $\lceil \log_2\log_2 n\rceil$.
+\end{corollary}
+
+\begin{remark}
+The failure is not a rounding or boundary effect. The same witness family
+refutes the claim for every $k \ge 2$; see Section~\ref{sec:family}.
+\end{remark}
+
+\section{The family \texorpdfstring{$S_k$}{Sk} and the true growth}\label{sec:family}
+
+\begin{theorem}[Dushnik--Miller]\label{thm:dimSk}
+For every $k \ge 1$, $\dim(S_k) = k$.
+\end{theorem}
+
+\begin{proof}[Proof of the lower bound]
+In a realizer, for each $i$ the incomparable pair $\{a_i,b_i\}$ must be
+reversed by some extension $L$ with $b_i <_L a_i$; otherwise $a_i < b_i$ would
+belong to the intersection.
+
+One extension cannot reverse two distinct pairs. Suppose $L$ satisfies
+$b_i <_L a_i$ and $b_j <_L a_j$ with $i \neq j$. Since $i \neq j$, the
+relations $a_i < b_j$ and $a_j < b_i$ hold in $S_k$, and every extension
+respects them. Combining,
+\[
+a_i < b_j <_L a_j < b_i <_L a_i ,
+\]
+a cycle in the total order $L$, impossible.
+
+Hence each of the $k$ pairs $\{a_i,b_i\}$ requires its own extension, so
+$k$ extensions are necessary. Conversely, the $k$ extensions
+\[
+L_i = [\,a_j\ (j \neq i)\,]\,[\,b_i\,]\,[\,a_i\,]\,[\,b_j\ (j \neq i)\,]
+\]
+are linear extensions (every relation $a_j < b_l$ with $j \neq l$ is respected:
+$a_j$ precedes $b_i$ in the leading block or $a_i$ precedes $b_l$ in the
+trailing block), and they realise $S_k$. Therefore $\dim(S_k) = k$.
+\end{proof}
+
+\begin{corollary}\label{cor:allk}
+For every $k \ge 2$, $S_k$ is a height-$2$ poset on $2k$ elements with
+$\dim(S_k) = k > \lceil \log_2\log_2 (2k)\rceil$. Thus the conjecture fails for
+every $k \ge 2$.
+\end{corollary}
+
+\begin{proof}
+By Theorem~\ref{thm:dimSk}, $\dim(S_k)=k$. For $k=2,3,4$ one checks
+$\lceil \log_2\log_2(2k)\rceil = 1,2,2 < k$; for $k \ge 5$ the doubly
+logarithmic quantity grows far more slowly than $k$ (e.g.\
+$\lceil\log_2\log_2(2k)\rceil < k$ already for all $k \ge 5$ by monotonicity and
+the value at $k=5$). Hence $k > \lceil \log_2\log_2(2k)\rceil$ for all
+$k \ge 2$.
+\end{proof}
+
+\begin{theorem}[Hiraguchi; tight for standard examples]\label{thm:floor}
+For every poset $P$ with $|P| \ge 2$, $\dim(P) \le \lfloor |P|/2\rfloor$.
+Moreover, for $n \ge 4$ the maximum dimension of a height-$2$ poset on $n$
+elements equals $\lfloor n/2\rfloor$, attained by
+$S_{\lfloor n/2\rfloor}$.
+\end{theorem}
+
+\begin{proof}[Sketch]
+Hiraguchi's inequality gives $\dim(P) \le \lfloor |P|/2\rfloor$. The standard
+example $S_{\lfloor n/2\rfloor}$ has $2\lfloor n/2\rfloor \le n$ elements and
+dimension $\lfloor n/2\rfloor$ (Theorem~\ref{thm:dimSk}); adding
+$n-2\lfloor n/2\rfloor \in \{0,1\}$ isolated elements does not decrease the
+dimension nor increase the height beyond $2$, so the bound is attained whenever
+$n \ge 4$.
+\end{proof}
+
+The true growth is therefore linear, not doubly logarithmic.
+
+\subsection{Even smaller witnesses}
+
+\begin{center}
+\begin{tabular}{l r r r l}
+\toprule
+Poset & elements & height & dimension & formula \\
+\midrule
+$2$-element chain & $2$ & $2$ & $1$ & $\lceil \log_2\log_2 2\rceil = 0$ \\
+$V$ (two minima below one maximum) & $3$ & $2$ & $2$ & $\lceil \log_2\log_2 3\rceil = 1$ \\
+$S_2$ & $4$ & $2$ & $2$ & $\lceil \log_2\log_2 4\rceil = 1$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The $2$-element chain even breaks the formula before $n=4$: the formula returns
+$0$, impossible for a non-empty poset, since every non-empty poset has dimension
+at least $1$.
+
+\section{Exhaustive and asymptotic tables}
+
+\subsection{Exhaustive verification for \texorpdfstring{$n \le 6$}{n <= 6}}
+
+\texttt{reproduce.py} enumerates all labelled posets of height $\le 2$ on $n$
+elements for $n=1,\dots,6$, de-duplicates them, and computes the exact order
+dimension of each by a bitmask search over tuples of linear extensions:
+
+\begin{center}
+\begin{tabular}{r r r r}
+\toprule
+$n$ & number of height-$\le 2$ posets & true max dim & formula $\lceil\log_2\log_2 n\rceil$ \\
+\midrule
+$1$ & $1$    & $1$ & undefined \\
+$2$ & $3$    & $2$ & $0$ \\
+$3$ & $13$   & $2$ & $1$ \\
+$4$ & $87$   & $2$ & $1$ \\
+$5$ & $841$  & $2$ & $2$ \\
+$6$ & $11643$& $3$ & $2$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The true maximum is $1,2,2,2,2,3$ while the formula is $0,1,1,2,2$; the two
+agree only at $n=5$, by coincidence.
+
+\subsection{Asymptotic comparison}
+
+\begin{center}
+\begin{tabular}{r r r}
+\toprule
+$n$ & true max $\lfloor n/2\rfloor$ & formula $\lceil\log_2\log_2 n\rceil$ \\
+\midrule
+$8$       & $4$      & $2$ \\
+$16$      & $8$      & $2$ \\
+$1024$    & $512$    & $4$ \\
+$10^{6}$  & $500000$ & $5$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The true maximum is linear in $n$; the conjectured value is the iterated
+logarithm. Their ratio diverges.
+
+\section{Formalisation}
+
+The $n=4$ contradiction is formalised in the Lean~4 project under
+\texttt{lean4/} (core Lean only, \texttt{import Std}, no Mathlib, no
+\texttt{sorry}): $S_2$ is modelled on \texttt{Fin 4} by
+\texttt{ltS2 x y := (x = 0 \(\wedge\) y = 3) \(\vee\) (x = 1 \(\wedge\) y = 2)}, a linear
+extension is a list respecting it, and the intersection of a family is the
+pointwise intersection of the induced orders. The main statements are
+\begin{quote}\ttfamily
+theorem dim\_le\_two : DimLe 2\\
+theorem no\_single (L : List E) (h : IsLinExt L) :\\
+\hspace*{2em}\(\neg\) (\(\forall\) x y, Intersection [L] x y \(\leftrightarrow\) ltS2 x y)\\
+theorem dim\_eq\_two : DimEq 2\\
+theorem height\_two : HeightTwo\\
+theorem formula\_at\_four : Nat.log2 (Nat.log2 4) = 1\\
+theorem conjecture\_00000002192\_false :\\
+\hspace*{2em}HeightTwo \(\wedge\) DimEq 2 \(\wedge\) Nat.log2 (Nat.log2 4) = 1 \(\wedge\) 2 \(\ne\) 1
+\end{quote}
+Here \texttt{DimLe d} says a realizer of $d$ linear extensions exists and
+\texttt{DimEq 2} says the dimension is exactly $2$. Core Lean has no real
+logarithm, so $\lceil\log_2\log_2 4\rceil = 1$ is formalised as the exact
+integer iterated logarithm \texttt{Nat.log2 (Nat.log2 4) = 1}; at $n=4$ the two
+readings coincide. See \texttt{lean4/README.md} for the statement table, the
+proof strategy, and the axiom audit.
+
+\section{Reproducibility}
+
+The exhaustive checks are carried out by \texttt{reproduce.py} using the
+Python~3 standard library only:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(exact dimension of $S_2,S_3,S_4$; the $S_2$ realizer; the chain and
+$V$ witnesses; exhaustive height-$\le2$ enumeration for $n \le 6$; the
+asymptotic table)}\\
+PASS: all checks verified; conjecture 00000002192 is FALSE.
+\end{quote}
+
+It prints \texttt{PASS} and exits $0$ exactly when every check holds, and exits
+non-zero otherwise. The exact order dimension is computed by iterative
+deepening over tuples of linear extensions encoded as bitmasks of the two
+orientations of every incomparable pair, with branch and bound; for a given
+length the search is exhaustive unless pruned by the valid counting bound, so
+the reported dimensions are exact.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml} (package
+  \texttt{tlmc2192}, library \texttt{Main}, no dependencies),
+  \texttt{Main.lean}, \texttt{Check.lean} (\texttt{\#print axioms}), and
+  \texttt{lean4/README.md}. \texttt{lake build} exits $0$ and the audit reports
+  no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
