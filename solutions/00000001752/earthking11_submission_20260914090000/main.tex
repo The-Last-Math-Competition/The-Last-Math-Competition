@@ -1,0 +1,353 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Sn}{S_n}
+\newcommand{\Sthree}{S_3}
+\newcommand{\Fix}{\operatorname{Fix}}
+\newcommand{\Stir}[2]{S(#1,#2)}
+
+\title{Disproof of conjecture \texttt{00000001752}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001752} as stated, in its own
+Burnside-average reading. The refutation is unconditional, elementary, and
+finite: for $\Sthree$ acting (sharply) $2$-transitively on the $1$-subsets of
+$\{1,2,3\}$ the Burnside average of fixed-point counts is $1$, whereas the
+conjectured closed form gives $1!\,\Stir{3}{1}/6 = 1/6$, and $1 \ne 1/6$.
+
+\medskip
+\noindent\textbf{Scope statement (read this first).} We refute the definite
+equation that the conjecture file itself writes in parentheses, namely that the
+vector of Mark values \emph{equals the Burnside average of subset counts},
+$\frac1{|G|}\sum_{g\in G}\Fix_k(g) = k!\,\Stir{n}{k}/|G|$. Two readings must be
+kept apart:
+\begin{itemize}
+\item \textbf{In scope.} The Burnside-average equation, with the right-hand
+  side exactly as the file states it, $k!\,\Stir{n}{k}/|G|$ and $|G|=n!$. Our
+  decisive witness $\Sthree$ on $1$-subsets lies inside the strict
+  $2$-transitive case. This is what we disprove.
+\item \textbf{Out of scope.} Any action that is \emph{not} $2$-transitive. We
+  use $S_4$ on $2$-subsets only as an additional illustration of the identity
+  being false, and we explicitly flag it as outside the $2$-transitive case:
+  its ordered pairs of distinct $2$-subsets split into intersecting and
+  disjoint orbits, so it is not $2$-transitive.
+\end{itemize}
+We also state plainly the honest caveat that the conjecture is auto-generated
+and misdefines ``Mark''; see Section~\ref{sec:caveat}.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000001752.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The Mark values of primitive permutation
+characters of $S_n$ are the averages of fixed points (by subset size).
+Conjecture: The Mark values in the 2-transitive case have a complete closed
+form: $M_k = (k!\cdot S(n,k))/|G|$ (given by the Burnside average of subset
+counts); agreeing case-by-case with the ATLAS.
+\end{quote}
+
+The conjecture is filed in both English and Chinese; the two versions are
+identical in content. The PDF's Latin Modern fonts do not embed CJK glyphs, so
+the Chinese text is kept verbatim (with embedded Unicode) in
+\texttt{README.md} rather than duplicated here, following the same convention
+as the reference submission for \texttt{00000000463}. In both languages the
+parenthetical identifies the
+right-hand side as \emph{the Burnside average of subset counts}, which is the
+equation we take as the formal content and disprove.
+
+\section{The decisive in-scope witness: $\Sthree$ on $1$-subsets}
+\label{sec:witness}
+
+Take $n=3$, $k=1$, and $G=\Sthree$ acting on the three $1$-subsets
+$\{1\},\{2\},\{3\}$ of $\{1,2,3\}$. This is the natural action on three points,
+which is sharply $2$-transitive: $|G| = 3\cdot 2 = 6$. It is therefore
+squarely inside the strict ``$2$-transitive case'' of the conjecture.
+
+Write $\Fix_1(g)$ for the number of $1$-subsets fixed by $g$; a $1$-subset
+$\{i\}$ is fixed by $g$ iff $g(i)=i$. The six elements of $\Sthree$ and their
+fixed-point counts are:
+
+\begin{center}
+\begin{tabular}{l c c}
+\toprule
+$g$ & cycle type & $\Fix_1(g)$ \\
+\midrule
+$e$            & $1^3$   & $3$ \\
+$(1\,2)$       & $2\,1$  & $1$ \\
+$(1\,3)$       & $2\,1$  & $1$ \\
+$(2\,3)$       & $2\,1$  & $1$ \\
+$(1\,2\,3)$    & $3$     & $0$ \\
+$(1\,3\,2)$    & $3$     & $0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Thus the multiset of fixed-point counts is
+\[
+\bigl[\,\Fix_1(g) : g \in \Sthree\,\bigr] = [\,3,\;1,\;1,\;1,\;0,\;0\,],
+\qquad
+\sum_{g \in \Sthree} \Fix_1(g) = 3 + 1 + 1 + 1 + 0 + 0 = 6 .
+\]
+
+\paragraph{Left-hand side (Burnside average).}
+\[
+\frac{1}{|G|}\sum_{g\in G}\Fix_1(g)
+= \frac{6}{6} = 1 .
+\]
+This is not an accident of the computation: the action of a group on a set is
+transitive iff it has a single orbit, and Burnside's lemma says the average
+number of fixed points equals the number of orbits. $\Sthree$ is transitive on
+$1$-subsets, so the average is exactly $1$.
+
+\paragraph{Right-hand side (the conjectured closed form).}
+With $n=3$, $k=1$, $\Stir{3}{1}=1$ (the only partition of a $3$-set into one
+block), $1! = 1$, and $|G| = 3! = 6$:
+\[
+\frac{k!\,\Stir{n}{k}}{|G|} = \frac{1!\cdot 1}{6} = \frac{1}{6}.
+\]
+
+\paragraph{Conclusion.} The two sides are $1$ and $1/6$:
+\[
+\frac{6}{6} = 1 \;\neq\; \frac{1}{6}.
+\]
+Since the two fractions have the common denominator $6$, this is the integer
+inequality $6 \neq 1$; equivalently, cross-multiplying $1 = 1/1$ against
+$1/6$, we compare $1\cdot 6 = 6$ with $1 \cdot 1 = 1$ and find $6 \neq 1$.
+Hence the conjectured equation fails for $\Sthree$ on $1$-subsets, an action
+that \emph{is} $2$-transitive. The refutation is in scope.
+
+\begin{remark}[the $k=2$ case of $\Sthree$ is the one coincidence]
+For $n=3$, $k=2$, the $2$-subsets are the complements of the singletons, so
+$\Sthree$ acts on them exactly as it does on the singletons: $\Fix_2$ is again
+$[3,1,1,1,0,0]$, the Burnside average is again $1$, and
+$2!\,\Stir{3}{2}/6 = 2\cdot 3/6 = 1$. Here the two sides agree. This is the
+isolated coincidence $(n,k)=(3,2)$; it does not rescue the conjecture, which
+fails at $(3,1)$ and, as we now see, almost everywhere else.
+\end{remark}
+
+\section{The general $2$-transitive range}
+\label{sec:general}
+
+\begin{theorem}\label{thm:range}
+Let $n \ge 2$ and $1 \le k \le n-1$. The action of $\Sn$ on the $k$-subsets of
+$\{1,\dots,n\}$ is $2$-transitive if and only if $k=1$ or $k=n-1$.
+(For $n=3$ both conditions hold at $k=2=n-1$, so the case $(\Sthree,2)$ is
+already covered; there is no further exception.)
+\end{theorem}
+
+\begin{proof}[Sketch]
+$\Sn$ is transitive on $k$-subsets for every $k$, and it is $2$-transitive on
+$1$-subsets (the natural action) and on $(n-1)$-subsets (complements). For
+$2 \le k \le n-2$ the intersection size of two distinct $k$-subsets is
+preserved by every permutation, but not all values $0,1,\dots,k-1$ occur
+independently: for $n \ge 4$ there exist disjoint and intersecting pairs, which
+lie in different orbits; hence the action is not $2$-transitive. For $n=3$ the
+only $k$ with $2 \le k \le n-2=1$ is empty, consistent with the statement.
+\end{proof}
+
+\noindent On this range the two sides have the following closed forms.
+
+\begin{proposition}\label{prop:closed}
+For $n \ge 2$:
+\[
+\frac{1}{|\Sn|}\sum_{g \in \Sn}\Fix_k(g) = 1
+\quad\text{for all } 1 \le k \le n-1,
+\]
+while the conjecture's right-hand side is
+\[
+\frac{k!\,\Stir{n}{k}}{n!}
+=
+\begin{cases}
+\dfrac{1}{n!}, & k = 1,\\[2mm]
+\dfrac{n-1}{2}, & k = n-1
+\end{cases}
+\qquad (1 \le k \le n-1).
+\]
+\end{proposition}
+
+\begin{proof}
+The left-hand side is the number of orbits of $\Sn$ on $k$-subsets, which is
+$1$. For $k=1$ we have $\Stir{n}{1}=1$, so $1!\,\Stir{n}{1}/n! = 1/n!$. For
+$k=n-1$, $\Stir{n}{n-1}=\binom{n}{2}$, so
+\[
+\frac{(n-1)!\,\Stir{n}{n-1}}{n!}
+= \frac{(n-1)!\binom{n}{2}}{n!}
+= \frac{\binom{n}{2}}{n}
+= \frac{n-1}{2}. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[failure throughout the $2$-transitive range]
+For $n \ge 2$ the conjecture's equation holds in the $2$-transitive range only
+at the isolated coincidence $(n,k)=(3,2)$. In particular:
+\begin{itemize}
+\item at $k=1$ the right-hand side is $1/n! \ne 1$ for every $n \ge 2$;
+\item at $k=n-1$ the right-hand side is $(n-1)/2 \ne 1$ for every $n \ge 4$;
+\item the only other value, $k=n$ (a single $k$-subset), is not
+  $2$-transitive and both sides equal $1$ there.
+\end{itemize}
+\end{corollary}
+
+The first bullet is already decisive at $(n,k)=(3,1)$, and it fails for
+\emph{every} $n \ge 2$, not merely generically.
+
+\section{The formula is not integral, so it cannot be a Mark value}
+\label{sec:nonintegral}
+
+A Mark in the ATLAS sense is a permutation-character value, i.e.\ a number of
+fixed points of a group element, hence a non-negative \emph{integer}. The
+conjectured right-hand side is frequently \emph{not} an integer. On the in-scope
+range:
+\begin{itemize}
+\item at $k=1$ (in scope for every $n \ge 2$) the value is $1/n!$, which is a
+  non-integer for every $n \ge 2$: $1/2, 1/6, 1/24, 1/120, \dots$;
+\item at $k=n-1$ the value $(n-1)/2$ is a non-integer for every even $n$
+  (e.g.\ $n=4$ gives $3/2$, $n=6$ gives $5/2$);
+\item outside the $2$-transitive range, e.g.\ $S_4$ on $2$-subsets, the value
+  is $2!\,\Stir{4}{2}/4! = 2\cdot 7/24 = 7/12$ (this case is out of scope, and
+  is listed only as an illustration).
+\end{itemize}
+Meanwhile the quantity it is equated to, the Burnside average, is $1$ --- an
+integer. So even before numerical comparison, a fractional right-hand side
+cannot be ``the Mark values'', which are integers. We present this as a
+secondary, independent obstruction; the primary refutation is the exact
+numerical mismatch of Section~\ref{sec:witness}.
+
+\section{Honest caveat: the definition of ``Mark'' is ill-posed}
+\label{sec:caveat}
+
+We state this prominently and do not hide it. The conjecture is auto-generated
+and its first sentence conflates two different objects:
+\begin{enumerate}
+\item the \emph{permutation character value} $\pi_k(g) = \Fix_k(g)$, i.e.\ the
+  number of $k$-subsets fixed by $g$ --- this is the classical Mark value, and
+  it is an integer; and
+\item the \emph{average} $\frac{1}{|G|}\sum_{g \in G}\Fix_k(g)$, which by
+  Burnside equals the number of orbits (here $1$), and is a rational number
+  whose value happens to be integral here.
+\end{enumerate}
+The first sentence says the Mark values ``are the averages of fixed points'',
+identifying (1) with (2); the parenthetical then says the right-hand side is
+``given by the Burnside average of subset counts'', which is (2). So:
+\begin{itemize}
+\item \textbf{The equation we refute is definite and is the file's own.} Under
+  the parenthetical reading, the asserted identity is
+  $\frac{1}{|G|}\sum_g \Fix_k(g) = k!\,\Stir{n}{k}/|G|$, and it is false
+  (Section~\ref{sec:witness}). This is the reading in which ``$M_k$'' is the
+  Burnside average, and here our verdict is unconditional.
+\item \textbf{Under the strictest reading, the statement is not well-posed.}
+  If ``$M_k$ is an ATLAS Mark'' is taken literally, then $M_k$ is an integer
+  character value, and equating it to a Burnside average (or to a fraction
+  such as $1/6$, $7/12$, $1/24$) is a type error: an average is not a Mark.
+  In that reading the conjecture is ill-typed rather than false, and we say so
+  plainly rather than pretend otherwise.
+\end{itemize}
+Either way the conjecture as filed cannot stand: the definite Burnside-average
+equation it writes is false, and the strict Mark reading is not a well-posed
+statement. We do not claim more than this.
+
+\section{Reproducibility}
+
+\paragraph{Python (standard library only).}
+\begin{quote}\ttfamily
+\$ python3 reproduce.py   $\Rightarrow$   PASS, exit 0
+\end{quote}
+The script enumerates all $3^3=27$ functions $\{0,1,2\}\to\{0,1,2\}$ and keeps
+the $6$ bijections; computes $\Fix_k$ for $k=1,2$ setwise; forms the Burnside
+sums and averages as exact \texttt{fractions.Fraction} values; cross-checks
+$k!\,\Stir{n}{k}/n!$ against a self-written Stirling recurrence
+($\Stir{}{}$ table and $\Stir{n}{k}=k\,\Stir{n-1}{k}+\Stir{n-1}{k-1}$); asserts
+$1 \ne 1/6$ by cross-multiplication ($6 \ne 1$); and verifies which $(n,k)$
+actions with $2 \le n \le 7$ are $2$-transitive by counting orbits on ordered
+pairs of distinct $k$-subsets. It prints \texttt{PASS} and exits $0$ exactly
+when every check holds. Observed output includes
+\[
+\Fix_1 = [3,1,1,1,0,0],\quad \textstyle\sum_g \Fix_1(g)=6,\quad \text{average}=1,
+\quad \text{formula}=\tfrac16 .
+\]
+
+\paragraph{LaTeX.}
+\begin{quote}\ttfamily
+\$ tectonic --outdir build main.tex
+\end{quote}
+produces \texttt{build/main.pdf}.
+
+\paragraph{Lean~4.}
+\begin{quote}\ttfamily
+cd lean4\\
+lake build   $\Rightarrow$   exit 0\\
+lake env lean Check.lean
+\end{quote}
+Core Lean only (\texttt{import Std}, no Mathlib, no \texttt{sorry}, no
+\texttt{native\_decide}); \texttt{Check.lean} prints \texttt{\#print axioms}
+and reports no \texttt{sorryAx}. Observed audit:
+\begin{quote}\ttfamily
+'Tlmc1752.perms\_length' depends on axioms: [propext]\\
+'Tlmc1752.burnsideSum\_eq' depends on axioms: [propext]\\
+'Tlmc1752.formula\_val' does not depend on any axioms\\
+'Tlmc1752.burnside\_average\_is\_one' depends on axioms: [propext]\\
+'Tlmc1752.mismatch' depends on axioms: [propext]\\
+'Tlmc1752.one\_ne\_one\_sixth\_cross' does not depend on any axioms
+\end{quote}
+
+\section{Formalisation}
+
+In \texttt{lean4/Main.lean} we formalise the core of
+Section~\ref{sec:witness} in core Lean. Since \texttt{Nat.factorial} and
+\texttt{Finset} are absent from \texttt{import Std}, we hand-roll
+\texttt{fact} and \texttt{stirling2}, enumerate $\Sthree$ as the
+\texttt{eraseDups.length == 3} functions among all $27$ on \texttt{Fin 3},
+compute $\Fix_1$ as \texttt{List.countP (fun s => f s == s)}, and prove:
+\begin{quote}\ttfamily
+theorem perms\_length : perms.length = 6\\
+theorem burnsideSum\_eq : burnsideSum = 6\\
+theorem formula\_val : fact 1 * stirling2 3 1 = 1\\
+theorem burnside\_average\_is\_one : burnsideSum = perms.length\\
+theorem mismatch : burnsideSum \(\ne\) fact 1 * stirling2 3 1\\
+theorem one\_ne\_one\_sixth\_cross : (1 : Nat) * 6 \(\ne\) (1 : Nat) * 1
+\end{quote}
+Both sides share the denominator $|G|=6$, so the mismatch is the \texttt{Nat}
+inequality $6 \ne 1$; no \texttt{Rat} and no \texttt{decide} on rationals is
+needed (which is fortunate, since \texttt{decide} cannot reduce \texttt{Rat}).
+The concrete evaluations are kernel computations (\texttt{rfl}), and the audit
+shows only \texttt{propext} for the four theorems that need it and no axioms at
+all for the other two. See \texttt{lean4/README.md}.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by that command.
+\item \textbf{Lean~4 project} --- \texttt{lean4/}, with the toolchain
+  \texttt{leanprover/lean4:v4.33.1} in \texttt{lean-toolchain}, a
+  \texttt{lakefile.toml} (library \texttt{tlmc1752}, no dependencies),
+  \texttt{Main.lean}, \texttt{Check.lean} (\texttt{\#print axioms}), and
+  \texttt{lean4/README.md}. \texttt{lake build} exits $0$ and the audit
+  reports no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
