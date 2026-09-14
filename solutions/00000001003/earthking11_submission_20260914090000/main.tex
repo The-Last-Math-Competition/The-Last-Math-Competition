@@ -1,0 +1,281 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\PG}{\mathrm{PG}}
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+
+\title{Disproof of conjecture \texttt{00000001003}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+Conjecture \texttt{00000001003} is false. We disprove it at the very first odd
+prime power, $q=3$: the conjecture predicts a maximal cap size of
+\[
+q^{2}+q+1+\floor{(q+1)/3}\Big|_{q=3}=9+3+1+\floor{4/3}=14,
+\]
+but $\PG(4,3)$ contains an explicit cap of $20$ points, and $20>14$. The failure
+is not an artefact of $q=3$: the same formula is beaten in $\PG(4,5)$ (an
+explicit $47$-point cap against the predicted $33$), the even-$q$ clause fails
+at $q=2$ (a $16$-point cap against the predicted $10$), and the description
+``attained by an elliptic quadric with an explicit three-point augmentation'' is
+internally inconsistent with the stated formula. The refutation is
+unconditional; no unproved hypothesis is used.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000001003.md}:
+
+\begin{quote}
+\textbf{English.} Definition: A cap is a point set of $\PG(n,q)$ with no three
+collinear. Conjecture: The maximal cap size in $\PG(4,q)$ is
+$q^{2}+q+1+\floor{(q+1)/3}$ for all odd $q$, attained by an elliptic quadric
+with an explicit three-point augmentation; for even $q$ the value increases by
+$2$.
+\end{quote}
+
+The file is bilingual; the Chinese original is reproduced verbatim in
+\texttt{README.md} (this PDF does not embed CJK glyphs). The two versions are
+identical in content.
+
+\begin{definition}[cap]
+A \emph{cap} in $\PG(n,q)$ is a set of points no three of which are collinear.
+Its \emph{size} is its cardinality; it is \emph{inclusion-maximal} if no further
+point can be added while remaining a cap.
+\end{definition}
+
+Throughout, ``maximal'' is read as \emph{maximum} (the largest size), which is
+the only reading under which the conjecture states a numerical value. We also
+test the inclusion-maximal reading in Section~\ref{sec:readings}.
+
+\section{The explicit 20-point cap in $\PG(4,3)$}
+
+We use homogeneous coordinates on $\PG(4,3)$; every point is written in
+normalised form, i.e.\ its first nonzero coordinate is $1$. The following
+$20$ points form a cap:
+\begin{center}
+\small
+\begin{tabular}{lllll}
+\toprule
+$(1,0,0,0,2)$ & $(0,0,0,1,2)$ & $(1,2,2,1,1)$ & $(0,1,0,0,0)$ & $(1,0,2,1,2)$\\
+$(1,0,1,2,0)$ & $(0,1,0,1,0)$ & $(1,2,1,2,1)$ & $(1,1,2,2,0)$ & $(1,2,0,1,2)$\\
+$(1,2,0,1,0)$ & $(1,2,1,0,2)$ & $(1,0,1,1,0)$ & $(0,1,1,1,2)$ & $(0,0,1,0,0)$\\
+$(0,1,2,2,0)$ & $(1,0,2,2,2)$ & $(1,2,1,2,2)$ & $(0,1,2,2,2)$ & $(1,1,0,1,1)$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+That is, no three of these $20$ points are collinear. Since the conjecture
+predicts $14$ at $q=3$, this already gives
+\[
+M_{2}(5,3)\;\ge\;20\;>\;14\;=\;q^{2}+q+1+\floor{(q+1)/3}\big|_{q=3},
+\]
+so the $q=3$ instance of the quantified claim ``for all odd $q$'' is false.
+
+\subsection{Three independent verifications}
+
+All three were carried out and agree on the same answer, $0$ collinear
+triples. The script \texttt{reproduce.py} performs the first two from scratch.
+
+\begin{enumerate}
+\item \textbf{Line membership.} $\PG(4,3)$ has $121$ points and $1210$ lines;
+  each line has $q+1=4$ points. Enumerating all lines and intersecting them with
+  the $\binom{20}{3}=1140$ triples gives $0$ collinear triples.
+\item \textbf{Rank over $\F_{3}$.} Three projective points are collinear iff the
+  rank of their three coordinate vectors is $\le 2$. Gaussian elimination over
+  $\F_{3}$ on all $1140$ triples gives $0$ triples of rank $\le 2$.
+\item \textbf{Kernel-checked Lean.} The executable checker in
+  \texttt{lean4/Main.lean} (core Lean, no Mathlib, no \texttt{sorry}) returns
+  \texttt{true} on the list; the theorem \texttt{pts20\_isCap} is proved by
+  \texttt{decide} and depends on no axioms.
+\end{enumerate}
+
+\section{The exact value $20$ (SAT-certified upper bound)}
+
+We have proved $M_{2}(5,3)\ge 20$. The matching upper bound $M_{2}(5,3)\le 20$
+(i.e.\ no $21$-point cap exists) is a finite computation, which we report as
+\emph{SAT-certified} rather than kernel-checked. The argument is:
+
+\begin{proposition}[upper bound, SAT certificate]
+$M_{2}(5,3)\le 20$.
+\end{proposition}
+
+\begin{proof}[Argument]
+Let $C\subseteq\PG(4,3)$ be a cap with $|C|\ge 21$. Any set of $\ge 21$ points
+in $\PG(4,3)$ spans $\PG(4,3)$, hence contains $5$ linearly independent points.
+The group $\mathrm{GL}(5,3)$ acts transitively on ordered bases of $\F_{3}^{5}$,
+so after a projectivity we may assume that the $5$ standard basis points (a
+partial frame) lie in $C$. The remaining points are then searched subject to the
+constraint that no three chosen points are collinear; with the frame fixed and
+$|C|\ge 21$ required, the resulting CNF is UNSAT (checked with a SAT solver
+using a cardinality encoding). Therefore no such $C$ exists.
+\end{proof}
+
+This is a computer-assisted certificate over a finite search space, not a
+kernel-checked proof; it is recorded here for completeness. The disproof of the
+conjecture does \emph{not} depend on it: the lower bound $M_{2}(5,3)\ge 20>14$
+already refutes the value $14$. The value $20$ agrees with the classical table
+entry $M_{2}(5,3)=20$.
+
+\section{The general formula fails at $q=5$}
+
+The conjecture quantifies over all odd $q$, so failing at $q=3$ already
+disproves it. It is nevertheless false at the next odd prime power as well, and
+by a wide margin. In $\PG(4,5)$ ($781$ points) an explicit cap of $47$ points
+exists; the conjecture predicts
+\[
+25+5+1+\floor{6/3}=33 .
+\]
+The $47$ points are exhibited explicitly in \texttt{reproduce.py} and verified
+there by two methods (pairwise line membership and rank over $\F_{5}$): all
+$\binom{47}{3}=16215$ triples have rank $3$, so the cap is valid. Hence
+$M_{2}(5,5)\ge 47>33$. (A cap of size $46$ at $q=5$ was found earlier; the
+deterministic list shipped in \texttt{reproduce.py} has $47$ points and is
+strictly stronger.)
+
+\section{The even-$q$ clause fails at $q=2$}
+
+For even $q$ the conjecture adds $2$ to the formula, giving at $q=2$
+\[
+4+2+1+\floor{3/3}+2 = 10 .
+\]
+But $\PG(4,2)$ ($31$ points) contains the $16$-point cap
+\[
+\{\,(1,v)\;:\;v\in\F_{2}^{4}\,\},
+\]
+and in fact $M_{2}(4,2)=16=2^{4}$, the classical value $M_{2}(n,2)=2^{n}$. The
+lower bound $16$ is verified in \texttt{reproduce.py}; the upper bound
+$M_{2}(4,2)\le 16$ is again a finite SAT certificate ($\ge 17$ is UNSAT),
+reported as such. Thus the even-$q$ clause is off by $6$ at $q=2$: not merely
+does the formula plus $2$ fail, it fails in the opposite direction (the true
+value is larger, not smaller).
+
+\section{Internal inconsistency of the description}
+
+The conjecture says the value is ``attained by an elliptic quadric with an
+explicit three-point augmentation''. An elliptic quadric in this setting
+contributes $q^{2}+1$ points, and augmenting it by three points gives
+\[
+q^{2}+4 .
+\]
+For $q=3$ this is $13$, whereas the stated formula gives $14$; in general
+\[
+q^{2}+q+1+\floor{(q+1)/3} - (q^{2}+4)
+   \;=\; q-3+\floor{(q+1)/3} \;>\; 0 \qquad (q\ge 3 \text{ odd}).
+\]
+So the construction does not attain the stated value (and the stated value is
+not produced by the construction). The two halves of the sentence are
+inconsistent with each other. The same mismatch occurs at $q=5$: $29$ from the
+quadric description versus $33$ from the formula.
+
+\section{Alternative readings}
+\label{sec:readings}
+
+We tried to rescue the conjecture by varying the reading; none succeeds.
+
+\begin{center}
+\begin{tabular}{p{0.36\textwidth} p{0.56\textwidth}}
+\toprule
+Reading & Outcome \\
+\midrule
+Relax ``cap'' (allow some collinear triples) &
+  Contradicts the file's own definition of a cap and has no canonical value;
+  the conjecture then states no definite number, so it is not a well-posed
+  claim. \\
+``Maximal'' means inclusion-maximal &
+  The $20$-point cap above is inclusion-maximal (verified: no point of
+  $\PG(4,3)$ can be added to it). A survey of $3000$ random greedy
+  inclusion-maximal caps produced sizes $16$--$20$ (distribution
+  $16\!:\!84$, $17\!:\!292$, $18\!:\!1889$, $19\!:\!459$, $20\!:\!276$),
+  \emph{never} $14$. So this reading does not force the value $14$ either. \\
+``The formula is meant for $q\ge 5$'' &
+  Fails at $q=5$: an explicit $47$-point cap versus the predicted $33$
+  (Section~5). \\
+Even-$q$ clause taken as the base formula &
+  Fails at $q=2$: $16$ versus $10$ (Section~6). \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The first line is the only one that changes the meaning of a term rather than a
+quantifier range; under the file's own definition of ``cap'' it does not apply.
+
+\section{Reproducibility}
+
+\texttt{reproduce.py} (Python~3 standard library only, no third-party packages)
+rebuilds $\PG(4,3)$, checks $121$ points and $1210$ lines, verifies the
+$20$ points are distinct normalised projective points, and checks all
+$\binom{20}{3}=1140$ triples by \emph{both} line membership and rank over
+$\F_{3}$, obtaining $0$ collinear triples in each case; it also verifies
+$20>14$, that the $20$-cap is inclusion-maximal, the $47$-point cap in
+$\PG(4,5)$, the $16$-point cap in $\PG(4,2)$, and the quadric/formula mismatch.
+It prints \texttt{PASS} and exits $0$ exactly when every check holds:
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... PASS: all checks verified; conjecture 00000001003 is FALSE.
+\end{quote}
+
+\section{Formalisation}
+
+The refutation at $q=3$ is formalised in the Lean~4 project under
+\texttt{lean4/} (core Lean only, \texttt{import Std}, no Mathlib, no
+\texttt{sorry}, no \texttt{native\_decide}). Points are a structure
+\texttt{Pt} with five \texttt{Nat} fields, arithmetic is reduced with
+\texttt{\% 3}, and collinearity is decided by the executable predicate
+\texttt{bad}, which is complete over $\F_{3}$: the projective line through two
+distinct points $p,q$ is $\{p,q,\text{normalize}(p+q),\text{normalize}(p+2q)\}$.
+The main statements are
+
+\begin{quote}\ttfamily
+def formula (q : Nat) : Nat := q*q + q + 1 + (q+1)/3\\
+theorem pts20\_isCap : isCap pts20 = true\\
+theorem formula\_three : formula 3 = 14\\
+theorem refutes\_conjecture :\\
+\hspace*{2em}$\exists$ S : List Pt, S.length = 20 $\wedge$ isCap S = true
+  $\wedge$ formula 3 < S.length
+\end{quote}
+
+All eleven theorems are proved by \texttt{decide} and the audit
+(\texttt{lake env lean Check.lean}, using \texttt{\#print axioms}) reports
+``does not depend on any axioms'' for every one of them --- in particular no
+\texttt{sorryAx} and no \texttt{Lean.ofReduceBool}. See
+\texttt{lean4/README.md} for the statement table, proof strategy, and scope
+note.
+
+\section*{Status against the submission rules}
+
+Rule~3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml} (library
+  \texttt{Main}, name \texttt{tlmc1003}, no dependencies), \texttt{Main.lean},
+  \texttt{Check.lean} (\texttt{\#print axioms}), and \texttt{lean4/README.md}.
+  \texttt{lake build} exits $0$ and the audit reports no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
