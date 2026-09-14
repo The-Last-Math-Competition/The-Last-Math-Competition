@@ -1,0 +1,345 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\qbin}[2]{\left[\genfrac{}{}{0pt}{}{#1}{#2}\right]_{q}}
+\newcommand{\qbinm}[2]{\left[\genfrac{}{}{0pt}{}{#1}{#2}\right]_{q=-1}}
+
+\title{Disproof of conjecture \texttt{00000000429}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000000429} as stated. The refutation is
+unconditional, completely elementary, and rests on a single explicit value:
+\[
+\qbinm{6}{2} = 3 ,
+\]
+and $3$ is neither $2^{t}$ nor $-2^{t}$ for any integer $t$. Hence
+\emph{no} formula $v(n,k)$ whatsoever can make the value of $\qbin{n}{k}$ at
+$q=-1$ equal to $2^{v(n,k)}$ for all $n,k$, and the same witness defeats the
+weaker ``signed'' reading value $=\pm 2^{v(n,k)}$.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000000429.md}:
+
+\begin{quote}
+\textbf{English.} Definition: The q-binomial $[n \text{ choose } k]_q$ at
+$q = 1$ counts binomial coefficients. Conjecture: Its value at $q = -1$ is of
+the explicit form $2^{v(n,k)}$ ($v$ a 2-adic valuation formula, giving a
+complete signed version).
+\end{quote}
+
+The conjecture is filed in both English and Chinese. The Chinese original is
+reproduced verbatim (in Unicode) in \texttt{README.md}; the PDF font here does
+not embed CJK glyphs, so the Chinese is kept in the markdown copy rather than
+duplicated. The two versions are identical in content.
+
+\section{How the statement must be read}
+
+The filed text is informal in one essential respect, and we record explicitly
+which reading we refute.
+
+\begin{enumerate}
+\item \textbf{The claim is about the value, not only the valuation.} The
+  sentence says the value \emph{is of the explicit form} $2^{v(n,k)}$. Taken
+  literally this asserts that every value $\qbinm{n}{k}$ is a power of two.
+  This is the primary reading, and it is false.
+\item \textbf{The parenthetical invites a weaker reading.} ``Giving a complete
+  signed version'' can be read as allowing a sign, i.e.\
+  $\qbinm{n}{k} = \pm 2^{v(n,k)}$. This weaker reading is \emph{also} false,
+  by the same witness ($3 \neq \pm 2^{t}$ for any $t$).
+\item \textbf{$v$ is a nonnegative integer.} A ``2-adic valuation formula''
+  produces an exponent $v(n,k) \in \N$; thus $2^{v(n,k)}$ is a nonnegative
+  integer power of two, and $\pm 2^{v(n,k)}$ is a \emph{signed} power of two
+  (with $\pm 2^0 = \pm 1$). The witness $3$ lies outside both families.
+\item \textbf{Domain.} $0 \le k \le n$, as usual for q-binomial coefficients;
+  $\qbinm{n}{k}=0$ for $k>n$.
+\end{enumerate}
+
+\section{The value at $q=-1$: recursion and table}
+
+\begin{definition}[q-binomial]
+For $0 \le k \le n$,
+\[
+\qbin{n}{k} \;=\; \frac{(1-q^{n})(1-q^{n-1})\cdots(1-q^{n-k+1})}
+                     {(1-q)(1-q^{2})\cdots(1-q^{k})}
+\]
+is a polynomial in $q$ with nonnegative integer coefficients (the Gaussian
+binomial coefficient). Equivalently it is determined by the Pascal recursion
+\[
+\qbin{n}{k} = \qbin{n-1}{k-1} + q^{k}\,\qbin{n-1}{k},
+\qquad \qbin{n}{0}=1,\quad \qbin{0}{k}=0 \ (k\ge 1).
+\]
+\end{definition}
+
+The product formula is $0/0$ at $q=-1$ and must not be substituted directly;
+the value $\qbinm{n}{k}$ is obtained from the exact polynomial. Setting
+$q=-1$ in the recursion gives the \emph{integer} recursion
+\begin{equation}\label{eq:rec}
+\qbinm{n}{k} = \qbinm{n-1}{k-1} + (-1)^{k}\,\qbinm{n-1}{k},
+\qquad \qbinm{n}{0}=1,\quad \qbinm{0}{k}=0 \ (k\ge 1),
+\end{equation}
+which is what both \texttt{reproduce.py} (for $n \le 20$, cross-checked against
+the exact polynomial for $n \le 12$) and the Lean development use.
+
+The table for $n \le 12$ (the entry in row $n$, column $k$ is
+$\qbinm{n}{k}$; blanks are out-of-range $k>n$) is:
+
+\begin{center}
+\small
+\begin{tabular}{r|r r r r r r r r r r r r r}
+\toprule
+$n\backslash k$ & $0$ & $1$ & $2$ & $3$ & $4$ & $5$ & $6$ & $7$ & $8$ & $9$ & $10$ & $11$ & $12$\\
+\midrule
+$0$  & $1$ &   &   &   &   &   &   &   &   &   &    &    &   \\
+$1$  & $1$ & $1$ &   &   &   &   &   &   &   &   &    &    &   \\
+$2$  & $1$ & $0$ & $1$ &   &   &   &   &   &   &   &    &    &   \\
+$3$  & $1$ & $1$ & $1$ & $1$ &   &   &   &   &   &   &    &    &   \\
+$4$  & $1$ & $0$ & $2$ & $0$ & $1$ &   &   &   &   &   &    &    &   \\
+$5$  & $1$ & $1$ & $2$ & $2$ & $1$ & $1$ &   &   &   &   &    &    &   \\
+$6$  & $1$ & $0$ & $3$ & $0$ & $3$ & $0$ & $1$ &   &   &   &    &    &   \\
+$7$  & $1$ & $1$ & $3$ & $3$ & $3$ & $3$ & $1$ & $1$ &   &   &    &    &   \\
+$8$  & $1$ & $0$ & $4$ & $0$ & $6$ & $0$ & $4$ & $0$ & $1$ &   &    &    &   \\
+$9$  & $1$ & $1$ & $4$ & $4$ & $6$ & $6$ & $4$ & $4$ & $1$ & $1$ &    &    &   \\
+$10$ & $1$ & $0$ & $5$ & $0$ & $10$ & $0$ & $10$ & $0$ & $5$ & $0$ & $1$ &    &   \\
+$11$ & $1$ & $1$ & $5$ & $5$ & $10$ & $10$ & $10$ & $10$ & $5$ & $5$ & $1$ & $1$ &   \\
+$12$ & $1$ & $0$ & $6$ & $0$ & $15$ & $0$ & $20$ & $0$ & $15$ & $0$ & $6$ & $0$ & $1$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For instance, from the definition,
+\[
+\qbin{6}{2} = 1+q+2q^{2}+2q^{3}+3q^{4}+2q^{5}+2q^{6}+q^{7}+q^{8},
+\]
+so substituting $q=-1$ gives $1-1+2-2+3-2+2-1+1 = 3$. Similarly
+\[
+\qbin{2}{1} = 1+q \ \Rightarrow\ \qbinm{2}{1}=0,
+\qquad
+\qbin{8}{4}(-1) = 6,
+\qquad
+\qbin{10}{2}(-1) = 5,
+\qquad
+\qbin{7}{3}(-1) = 3 .
+\]
+
+\section{The refutation}
+
+\begin{theorem}[Main]\label{thm:main}
+Let $v : \N \times \N \to \N$ be arbitrary. Then it is \emph{not} the case that
+\[
+\qbinm{n}{k} = 2^{\,v(n,k)} \quad\text{for all } n,k \in \N .
+\]
+Consequently the conjecture is false as filed, for \emph{every} candidate
+valuation formula $v$, and not merely for one choice of $v$.
+\end{theorem}
+
+\begin{proof}
+Evaluate at $(n,k)=(6,2)$. The recursion \eqref{eq:rec} gives the table entry
+$\qbinm{6}{2}=3$ (verified independently by the exact polynomial
+$1+q+2q^{2}+2q^{3}+3q^{4}+2q^{5}+2q^{6}+q^{7}+q^{8}$ at $q=-1$, and formally
+in Lean by \texttt{decide}). Now $2^{0}=1$, $2^{1}=2$, $2^{2}=4$, and $2^{t}$
+is strictly increasing in $t$ for $t\ge 0$, so
+\[
+2^{t} = 3 \quad\Longrightarrow\quad 2^{1} < 2^{t} < 2^{2}
+\quad\Longrightarrow\quad 1 < t < 2,
+\]
+impossible for $t \in \N$. Hence $2^{v(6,2)} \neq 3 = \qbinm{6}{2}$ for every
+$v(6,2)$, so no formula $v$ works at $(n,k)=(6,2)$.
+\end{proof}
+
+\begin{corollary}[Signed reading]\label{cor:signed}
+Even the weaker reading $\qbinm{n}{k} = \pm 2^{\,v(n,k)}$ is false: for every
+$t \in \Z$, $\;2^{t} \neq 3$ and $-2^{t} \neq 3$, while $\qbinm{6}{2}=3$.
+\end{corollary}
+
+\begin{proof}
+$2^{t}$ is positive and increasing in $t$, and $2<3<4$. Since $-2^{t}<0<3$, no
+signed power of two equals $3$.
+\end{proof}
+
+\begin{remark}
+The witness $3$ is the \emph{smallest} interior entry that is not a signed
+power of two. The smallest entry that is not a power of two at all is the zero
+$\qbinm{2}{1}=0$ (and $0$ is not $2^{t}$ for any $t$). Two further small
+counterexamples are $\qbinm{8}{4}=6$ and $\qbinm{10}{2}=5$. For $n \le 20$
+there are $102$ nonzero values that are not $\pm$ a power of two.
+\end{remark}
+
+\section{The correct characterisation, and a false one}
+
+The true description of the whole table is the $d=2$ case of the q-Lucas
+theorem; we state it as the corrected replacement for the conjecture.
+
+\begin{theorem}[q-Lucas at $d=2$; corrected description]\label{thm:lucas}
+For all $0 \le k \le n$,
+\[
+\qbinm{n}{k} =
+\begin{cases}
+\dbinom{\lfloor n/2\rfloor}{\lfloor k/2\rfloor}, & \text{if it is \emph{not}
+the case that } n \text{ is even and } k \text{ is odd},\\[2mm]
+0, & \text{if } n \text{ is even and } k \text{ is odd}.
+\end{cases}
+\]
+\end{theorem}
+
+\emph{Verification.} The rule reproduces the recursion \eqref{eq:rec} exactly;
+\texttt{reproduce.py} checks it for all $0 \le k \le n \le 20$ with
+\textbf{0 mismatches}, and it visibly explains every entry of the table above
+(e.g.\ $\qbinm{6}{2}=\binom{3}{1}=3$, $\qbinm{8}{4}=\binom{4}{2}=6$,
+$\qbinm{10}{2}=\binom{5}{1}=5$, $\qbinm{2}{1}=0$ since $2$ is even and $1$ is
+odd). This is the q-Lucas congruence specialized to a primitive $d$-th root of
+unity at $d=2$.
+
+\begin{remark}[The ``parity of $\binom{n}{k}$\,'' rule is FALSE]
+It is tempting to guess
+\[
+\qbinm{n}{k} \;\overset{?}{=}\;
+\begin{cases}
+\binom{\lfloor n/2\rfloor}{\lfloor k/2\rfloor}, & \binom{n}{k} \text{ odd},\\
+0, & \binom{n}{k} \text{ even}.
+\end{cases}
+\]
+This is \textbf{wrong}, and we explicitly disclaim it. It fails
+\textbf{73 times} for $n \le 20$. The smallest failure is
+\[
+\qbinm{8}{4} = 6, \qquad\text{while}\qquad \binom{8}{4}=70 \text{ is even},
+\]
+so that rule would predict $0$ instead of $6$. The parity of $\binom{n}{k}$ is
+irrelevant; the correct criterion in Theorem~\ref{thm:lucas} is the parity of
+$n$ \emph{and} of $k$, not of the binomial coefficient.
+\end{remark}
+
+\begin{remark}[A true but different statement]
+By Kummer's theorem the $2$-adic valuation of $\qbinm{n}{k}$ satisfies the true
+identity
+\[
+v_{2}\!\left(\qbinm{n}{k}\right)
+= v_{2}\!\left(\binom{\lfloor n/2\rfloor}{\lfloor k/2\rfloor}\right),
+\]
+which is consistent with Theorem~\ref{thm:lucas}. This is a statement about the
+\emph{valuation} of the value, not about the value being a power of two, and it
+does not rescue the conjecture: e.g.\ $v_{2}(3)=0$, so
+$2^{v_{2}(\qbinm{6}{2})}=2^{0}=1\neq 3$.
+\end{remark}
+
+\section{Alternative readings tried}
+
+None of the following rescue the claim.
+
+\begin{center}
+\begin{tabular}{p{0.42\textwidth} p{0.48\textwidth}}
+\toprule
+Reading & Outcome \\
+\midrule
+Value $=2^{v(n,k)}$ (literal, unsigned) & false: $\qbinm{6}{2}=3$ is not a
+  power of two. \\
+Value $=\pm 2^{v(n,k)}$ (signed parenthetical) & false: $3\neq\pm 2^{t}$ for
+  every $t$. \\
+$q$ a primitive $d$-th root of unity, $d\ge 3$ & the values are non-integer
+  algebraic numbers (e.g.\ $[2 \text{ choose } 1]_{\zeta}=1+\zeta$); not
+  integer powers of two, so the ``form $2^{v}$\,'' claim fails a fortiori. \\
+Restrict to $k=1$ & false: $\qbinm{2}{1}=0$ is not $2^{t}$ or $\pm 2^{t}$
+  (nor is $\qbinm{n}{1}=0$ for any even $n$). \\
+Restrict to even $n$ & false: $\qbinm{8}{4}=6$, an even $n$, is not a signed
+  power of two. \\
+Read the value as $2^{v_{2}(\binom{n}{k})}$ & false for $n\le 20$ (the
+  ``parity of $\binom{n}{k}$\,'' rule) --- 73 mismatches, cf.\ the remark
+  above. \\
+Read $v$ as $v_{2}$ of the value itself & false: $3$ has $v_{2}(3)=0$, so
+  $2^{v_{2}(3)}=1\neq 3$. The true identity
+  $v_{2}(\qbinm{n}{k})=v_{2}(\binom{\lfloor n/2\rfloor}{\lfloor k/2\rfloor})$
+  concerns valuations only. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Only Theorem~\ref{thm:lucas} correctly describes the value; it is not of the
+conjectured form, and it produces $3$ at $(6,2)$. The refutation therefore
+stands under every reading of the filed text.
+
+\section{Formalisation in Lean~4}
+
+The refutation is formalised in the Lean~4 project under \texttt{lean4/} (core
+Lean only, \texttt{import Std}, no Mathlib, no \texttt{sorry}). The recursion is
+implemented on integers,
+\begin{quote}\ttfamily
+def qb : Nat \(\to\) Nat \(\to\) Int\\
+\ \ | \_, 0 => 1\\
+\ \ | 0, \_+1 => 0\\
+\ \ | n+1, k+1 => qb n k + (-1 : Int)\^{}(k+1) * qb n (k+1)
+\end{quote}
+so that \texttt{decide} can evaluate it (structural recursion, no division, no
+\texttt{Rat}). The main statements are
+\begin{quote}\ttfamily
+theorem qb\_6\_2 : qb 6 2 = 3\\
+theorem qb\_8\_4 : qb 8 4 = 6\\
+theorem pow2\_ne\_three : \(\forall\) t : Nat, (2 : Int)\^{}t \(\ne\) 3\\
+theorem negpow2\_ne\_three : \(\forall\) t : Nat, -((2 : Int)\^{}t) \(\ne\) 3\\
+theorem not\_pow2\_unsigned : \(\neg\) (\(\forall\) n k, \(\exists\) t, qb n k = 2\^{}t)\\
+theorem not\_pow2\_signed : \(\neg\) (\(\forall\) n k, \(\exists\) t,\\
+\hspace*{2em}qb n k = 2\^{}t \(\lor\) qb n k = -(2\^{}t))\\
+theorem conjecture\_00000000429\_false :\\
+\hspace*{2em}\(\neg\) (\(\exists\) v : Nat \(\to\) Nat \(\to\) Nat, \(\forall\) n k, qb n k = (2 : Int)\^{}(v n k))
+\end{quote}
+\texttt{Check.lean} prints \texttt{\#print axioms} for every theorem and
+reports only \texttt{propext} and \texttt{Quot.sound}; in particular there is
+no \texttt{sorryAx}. The concrete evaluations (\texttt{qb\_6\_2} etc.) depend on
+no axioms at all. See \texttt{lean4/README.md} for the full statement table.
+
+\section{Reproducibility}
+
+\begin{quote}\ttfamily
+\$ python3 reproduce.py\\
+... (exact integer Pascal recursion, independent polynomial cross-check,\\
+the q-Lucas rule, the false parity rule, the 102-value census)\\
+PASS: all checks verified; conjecture 00000000429 is FALSE.\\
+\$ tectonic --outdir build main.tex\\
+\$ cd lean4 \&\& lake build \&\& lake env lean Check.lean
+\end{quote}
+
+\texttt{reproduce.py} uses the Python~3 standard library only and exits
+non-zero if any check fails. The value $\qbinm{6}{2}=3$ is confirmed three
+ways: by the integer recursion \eqref{eq:rec}, by exact polynomial arithmetic
+(the Gaussian binomial divided out as a polynomial in $q$ and then evaluated at
+$q=-1$), and in Lean by \texttt{decide}.
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (library \texttt{tlmc429}, no dependencies), \texttt{Main.lean},
+  \texttt{Check.lean} (\texttt{\#print axioms}), and \texttt{lean4/README.md}.
+  \texttt{lake build} exits $0$ and the audit reports no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
