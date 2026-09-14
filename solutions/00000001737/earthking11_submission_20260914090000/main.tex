@@ -1,0 +1,325 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{parskip}
+\usepackage{booktabs}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\PP}{\mathbb{P}}
+\newcommand{\OK}{\mathcal{O}}
+\newcommand{\SZ}{\mathbb{Z}_S}
+
+\title{Disproof of conjecture \texttt{00000001737}}
+\author{earthking11}
+\date{2026-09-14}
+
+\begin{document}
+\maketitle
+
+\section*{Verdict: FALSE}
+
+We disprove conjecture \texttt{00000001737} as stated. The refutation is
+unconditional and elementary: for the two-element prime set $S=\{2,3\}$ the
+projective line minus three points $\PP^1\setminus\{0,1,\infty\}$ has
+\emph{21} $S$-integral points, not at most $12$. Since
+$21 > 12$, the conjectured maximum is false. We additionally verify that
+$12$ is not a value attained by any two-element prime set $S$ with
+$p<q\le 23$, and that the true maximum there is $21$, attained at
+$S=\{2,3\}$. The final phrase of the conjecture, ``with the extremum exhausted
+by explicit hyperelliptic covers'', is a non-sequitur: $\PP^1$ minus three
+points has genus $0$ and is not a hyperelliptic (nor any) curve of genus
+$\ge 1$; no hyperelliptic cover is involved.
+
+\section{The conjecture, quoted verbatim}
+
+From \texttt{conjectures/00000001737.md}:
+
+\begin{quote}
+\textbf{English.} Conjecture: The maximal possible number of $S$-integral
+points of $\PP^1\setminus\{0,1,\infty\}$ with $S$ of two primes is $12$; a
+tightening of Evertse's general bound, with the extremum exhausted by explicit
+hyperelliptic covers.
+\end{quote}
+
+The conjecture is filed in both English and Chinese; the Chinese original is
+reproduced verbatim (in Unicode) in \texttt{README.md}, and the two versions are
+identical in content. The PDF font does not embed CJK glyphs, so the Chinese is
+kept in the markdown copy rather than duplicated here.
+
+\section{The definition of $S$-integral point}
+
+The statement is only meaningful under the standard definition, and it is worth
+fixing carefully because the naive reading is degenerate.
+
+Let $K=\Q$, let $S=\{p_1,p_2\}$ be a finite set of primes, and let
+\[
+\OK_S \;=\; \Z[1/p_1,1/p_2] \;=\; \Z[1/p_1 p_2]
+\]
+be the ring of $S$-integers. An element of $\OK_S^\times$ is an \emph{$S$-unit}:
+a non-zero rational $u$ with $|u|=p_1^{a}p_2^{b}$ for some $a,b\in\Z$.
+
+\begin{definition}\label{def:sint}
+The scheme $\PP^1\setminus\{0,1,\infty\}$ over $\Z$ is
+$\operatorname{Spec}\Z[x,1/x,1/(1-x)]$. An \emph{$S$-integral point} is a
+$\Z$-morphism $\operatorname{Spec}\OK_S\to\PP^1\setminus\{0,1,\infty\}$, i.e.\
+a rational $x$ such that
+\[
+x \in \OK_S^\times, \qquad 1-x \in \OK_S^\times .
+\]
+Equivalently: $x$, $1/x$ and $1/(1-x)$ have no prime outside $S$ in numerator
+or denominator. Note that ``$1/x$ integral'' forces $v_p(x)=0$ for
+$p\notin S$.
+\end{definition}
+
+The integrality is required at the \emph{whole} divisor $\{0,1,\infty\}$. This
+is the only reading under which the problem is a finite count. The naive
+reading ``$x\ne 0,1$ with $x\in\OK_S$'' would already make the set infinite:
+$\Z[1/6]$ is infinite, and every $x\in\Z[1/6]$ with $x\ne 0,1$ would qualify. So
+the naive reading cannot be what is meant, and we use Definition~\ref{def:sint}
+throughout.
+
+\begin{remark}[classical form]
+Writing $y=1-x$, Definition~\ref{def:sint} says precisely that $(x,y)$ is a
+solution in $S$-units of
+\[
+x+y=1 .
+\]
+This is the \emph{$S$-unit equation}. By Mahler's theorem (1933) it has
+finitely many solutions, effective bounds going back to Gy\H{o}ry (1979); the
+deep inputs (linear forms in logarithms, or lattice reduction) are needed only
+for \emph{exact} computation. For the refutation we need only a lower bound,
+which is elementary.
+\end{remark}
+
+\section{The decisive witness: $S=\{2,3\}$}
+
+\begin{theorem}\label{thm:21}
+For $S=\{2,3\}$ the set of $S$-integral points of
+$\PP^1\setminus\{0,1,\infty\}$ has exactly $21$ elements, namely
+\[
+\begin{aligned}
+&-8,\ -3,\ -2,\ -1,\ -\tfrac12,\ -\tfrac13,\ -\tfrac18,\\
+&\tfrac19,\ \tfrac14,\ \tfrac13,\ \tfrac12,\ \tfrac23,\ \tfrac34,\
+ \tfrac89,\ \tfrac98,\ \tfrac43,\ \tfrac32,\ 2,\ 3,\ 4,\ 9 .
+\end{aligned}
+\]
+\end{theorem}
+
+\begin{proof}[Verification]
+Each listed $x$ has $x$ and $1-x$ of the form $\pm 2^{a}3^{b}$ with
+$a,b\in\Z$; the corresponding pairs $(x,1-x)$ are
+\[
+\begin{array}{llll}
+(-8,9) & (-3,4) & (-2,3) & (-1,2)\\
+(-\tfrac12,\tfrac32) & (-\tfrac13,\tfrac43) & (-\tfrac18,\tfrac98) &
+ (\tfrac19,\tfrac89)\\
+(\tfrac14,\tfrac34) & (\tfrac13,\tfrac23) & (\tfrac12,\tfrac12) &
+ (\tfrac23,\tfrac13)\\
+(\tfrac34,\tfrac14) & (\tfrac89,\tfrac19) & (\tfrac98,-\tfrac18) &
+ (\tfrac43,-\tfrac13)\\
+(\tfrac32,-\tfrac12) & (2,-1) & (3,-2) & (4,-3)\\
+\multicolumn{4}{l}{(9,-8)}
+\end{array}
+\]
+Every entry of every pair is a unit of $\Z[1/6]$, so all $21$ rationals are
+$S$-integral points by Definition~\ref{def:sint}. They are pairwise distinct,
+so the count is at least $21$. The exact count $21$ (rather than merely
+$\ge 21$) is confirmed by exhaustive enumeration: for every exponent bound
+$B\ge 5$ the enumeration of $x=\pm 2^{a}3^{b}$ with $|a|,|b|\le B$ satisfying
+Definition~\ref{def:sint} returns the same $21$ elements; the saturated list is
+stable for all $B\in\{5,10,20,40,60,80,100,120,150\}$. See
+\texttt{reproduce.py} and Section~\ref{sec:formal}.
+\end{proof}
+
+\begin{corollary}[the conjecture is false]\label{cor:false}
+The maximal possible number of $S$-integral points of
+$\PP^1\setminus\{0,1,\infty\}$ over two-element prime sets is at least $21$.
+In particular it is not $12$, and the assertion ``the maximal possible number
+$\dots$ is $12$'' is false.
+\end{corollary}
+
+\begin{proof}
+Theorem~\ref{thm:21} gives $21$ points for the admissible two-element prime set
+$S=\{2,3\}$, and $21>12$.
+\end{proof}
+
+\section{The maximum over all two-element prime sets}
+
+To make the failure robust, we computed the exact count for every pair of primes
+$p<q\le 23$ by the same saturated enumeration.
+
+\begin{center}
+\begin{tabular}{l r}
+\toprule
+$S$ & number of $S$-integral points \\
+\midrule
+$\{2,3\}$  & $21$ \\
+$\{2,5\}$, $\{2,7\}$, $\{2,17\}$ & $9$ \\
+$\{2,11\}$, $\{2,13\}$, $\{2,19\}$, $\{2,23\}$ & $3$ \\
+any $\{p,q\}$ with $p,q$ both odd ($3\le p<q\le 23$) & $0$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The maximum over all these sets is $21$, attained only at $S=\{2,3\}$. No
+two-element prime set in the range has exactly $12$ points: the observed counts
+are $0,3,9,21$ only. The same is expected in general: $S=\{2,3\}$ is the
+extremal two-element set for the $S$-unit equation.
+
+\begin{remark}[cross-reference]
+The values for $S=\{\text{first }n\text{ primes}\}$ are OEIS
+\textbf{A362567}, ``Number of rational solutions to the $S$-unit equation
+$x+y=1$, where $S=\{\text{prime}(i):1\le i\le n\}$'', whose data begin
+\[
+a(0)=0,\quad a(1)=3,\quad a(2)=21,\quad a(3)=99,\ \dots
+\]
+with offset $0$. Its a(2)${}=21$ is exactly our count, and its EXAMPLE section
+lists precisely the $21$ solutions exhibited above. Our enumeration reproduces
+A362567's a(2) independently and from scratch.
+\end{remark}
+
+\section{Comparison with Evertse's bound}
+
+Evertse's general bound for the number of solutions of the $S$-unit equation is
+\emph{exponential} in $|S|$; the commonly quoted form is
+\[
+N(S) \;\le\; 3\cdot 7^{\,2|S|+3}.
+\]
+For $|S|=2$ this is
+\[
+3\cdot 7^{7} = 3\cdot 823543 = 2\,470\,629,
+\]
+which is not close to $12$. It is also not close to $21$. So:
+
+\begin{itemize}
+\item $12$ is not Evertse's bound for $|S|=2$; the true Evertse-type bound is
+  $2\,470\,629$.
+\item $12$ is not Evertse's bound for any small $|S|$ either: for $|S|=1$ the
+  bound is $3\cdot 7^{5}=50409$ (and the true value is $a(1)=3$), and for
+  $|S|\ge 2$ the bound is already in the millions. In fact $12$ is not a
+  standard bound in this circle of ideas at all.
+\item Therefore ``a tightening of Evertse's general bound'' to $12$ cannot be
+  obtained by any known bound: the claim is false on both counts, as a maximum
+  (it is $21$ for $|S|=2$) and as an upper bound (Evertse's is exponential,
+  not $12$).
+\end{itemize}
+
+The genuine exact values ($a(1)=3$, $a(2)=21$, $a(3)=99$) are far below
+Evertse's bound; that gap is exactly why exact $S$-unit computations are hard,
+and it is unrelated to the number $12$.
+
+\section{The ``hyperelliptic covers'' clause}
+
+The conjecture ends: ``with the extremum exhausted by explicit hyperelliptic
+covers''. This is a non-sequitur for the objects at hand.
+
+\begin{itemize}
+\item $\PP^1\setminus\{0,1,\infty\}$ is a curve of genus $0$: the projective
+  line has genus $0$ and removing points does not change the genus. Genus-$0$
+  curves are \emph{not} hyperelliptic in the usual sense (no degree-$2$ map to
+  $\PP^1$ of the required kind exists over $\Q$ with the relevant ramification
+  — the only genus-$0$ case is the base itself). There is no hyperelliptic
+  curve and no cover to speak of.
+\item The $S$-unit equation $x+y=1$ is a problem on the torus
+  $\mathbb{G}_m^2$, not on a hyperelliptic curve; its finiteness comes from
+  Mahler's theorem and its effective resolution from linear forms in
+  logarithms, not from hyperelliptic covering arguments.
+\item The extremal set for $|S|=2$ is $S=\{2,3\}$, with $21$ points found by
+  direct enumeration of $S$-units; no hyperelliptic cover is needed or used.
+\end{itemize}
+
+We therefore record the clause as mathematically unrelated to the claim, and
+note that it does not rescue the conjecture.
+
+\section{Framing: this is a lower-bound witness}\label{sec:framing}
+
+We state the logical shape of the refutation precisely so as not to
+overclaim.
+
+\begin{itemize}
+\item We prove \emph{existence} of $21$ pairwise-distinct $S$-integral points
+  for $S=\{2,3\}$. Hence the maximum over two-element prime sets satisfies
+  $\max \ge 21$.
+\item Since $21 > 12$, the conjectured maximum of $12$ is refuted. This is all
+  that is needed; an upper bound, or an exact maximum over all $S$, is not
+  required.
+\item We do \emph{not} claim to compute the exact maximum over all two-element
+  prime sets. We do show that for $S=\{2,3\}$ the count is exactly $21$ by
+  saturation of the enumeration, and for $p<q\le 23$ we list the exact counts,
+  whose maximum is $21$. A proof that no larger set $S$ does better would
+  require the $S$-unit theorem / linear forms in logarithms and is beyond this
+  elementary witness.
+\item Likewise we do not compute exact values for general $|S|$; those are the
+  deep computations of A362567.
+\end{itemize}
+
+\section{Reproducibility}\label{sec:formal}
+
+The exhaustive check is carried out by \texttt{reproduce.py} using the Python~3
+standard library only (no \texttt{sympy}), with exact arithmetic via
+\texttt{fractions.Fraction}:
+
+\begin{quote}\small\ttfamily
+\$ python3 reproduce.py\\
+... \textit{(enumeration of $\pm 2^{a}3^{b}$ with exponent bound $60$;}\\
+\textit{the full 21-element list; saturation across bounds $5,\dots,150$;}\\
+\textit{counts for all prime pairs $p<q\le 23$; the checks)}\\
+PASS: 21 distinct S-integral points exist for $S = \{2,3\}$;\\
+\hspace*{1.5em}21 $>$ 12, so conjecture 00000001737 is FALSE.
+\end{quote}
+
+The refutation is also formalised in Lean~4 under \texttt{lean4/} (core Lean
+only, \texttt{import Std}, no Mathlib, no \texttt{sorry}). The main statements
+are
+\begin{quote}\small\ttfamily
+theorem isSmooth\_sound \{n : Nat\} (h : IsSmooth n = true) :\\
+\hspace*{2em}\(\exists\) a b : Nat, n = 2 \^{} a * 3 \^{} b\\
+theorem sIntegral\_sound \{p : Int\} \{q : Nat\} (h : SIntegral p q) :\\
+\hspace*{2em}0 < q \(\wedge\) p \(\ne\) 0 \(\wedge\) (\(\exists\) a b, p.natAbs = 2\^{}a*3\^{}b)\\
+\hspace*{2em}\(\wedge\) (\(\exists\) a b, q = 2\^{}a*3\^{}b) \(\wedge\) p \(\ne\) q \(\wedge\)\\
+\hspace*{2em}(\(\exists\) a b, ((q:Int)-p).natAbs = 2\^{}a*3\^{}b)\\
+theorem conjecture\_00000001737\_false :\\
+\hspace*{2em}pts.length = 21 \(\wedge\) (\(\forall\) x \(\in\) pts, SIntegral x.1 x.2) \(\wedge\)\\
+\hspace*{2em}(\(\forall\) x \(\in\) pts, \(\forall\) y \(\in\) pts, x \(\ne\) y \(\to\)\\
+\hspace*{4em}x.1*(y.2:Int) \(\ne\) y.1*(x.2:Int)) \(\wedge\)\\
+\hspace*{2em}(12 : Nat) < pts.length
+\end{quote}
+The rationals are encoded as pairs \texttt{(p : Int, q : Nat)} (lowest terms)
+because \texttt{decide} cannot reduce \texttt{Rat} (its normalisation is
+opaque); comparisons use cross-multiplication. \texttt{sIntegral\_sound} is the
+faithfulness bridge from the executable Boolean test to the mathematical
+definition. See \texttt{lean4/README.md} for the statement table, the proof
+strategy, and the axiom audit (which reports only \texttt{propext} and
+\texttt{Quot.sound}, and no \texttt{sorryAx}).
+
+\section*{Status against the submission rules}
+
+Rule 3 requires a LaTeX source, a PDF document, and a Lean~4 project.
+
+\begin{itemize}
+\item \textbf{LaTeX source} --- \texttt{main.tex}, a standalone \texttt{article}
+  using \texttt{geometry}, \texttt{amsmath}, \texttt{amssymb}, \texttt{amsthm},
+  \texttt{array}, \texttt{parskip}, \texttt{booktabs}; compiles with
+  \texttt{tectonic main.tex}.
+\item \textbf{PDF} --- at \texttt{build/main.pdf}, produced by
+  \texttt{tectonic --outdir build main.tex}.
+\item \textbf{Lean~4 project} --- \texttt{lean4/} with \texttt{lean-toolchain}
+  pinned to \texttt{leanprover/lean4:v4.33.1}, \texttt{lakefile.toml}
+  (library \texttt{Main}, no dependencies), \texttt{Main.lean},
+  \texttt{Check.lean} (\texttt{\#print axioms}), and \texttt{lean4/README.md}.
+  \texttt{lake build} exits $0$ and the audit reports no \texttt{sorryAx}.
+\end{itemize}
+
+\end{document}
