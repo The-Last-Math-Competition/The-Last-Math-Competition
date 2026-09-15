@@ -1,0 +1,132 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[margin=1in]{geometry}
+\setlength{\emergencystretch}{1em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\title{A Disproof of Conjecture 00000000154}
+\author{Prepared for the account \texttt{idealistichacker}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The conjecture claims that infinitely many even-indexed derangement numbers
+are prime. We prove the stronger result that no even-indexed derangement
+number is prime. A separate Lean~4 project formalizes the statement on actual
+fixed-point-free permutations and proves that the relevant index set is empty.
+\end{abstract}
+
+\section*{Frozen statement and scope}
+The organizer source is identified below and was frozen before this analysis:
+\begin{flushleft}
+\footnotesize
+Source: \texttt{conjectures/00000000154.md}\\
+Commit: \texttt{95acb520ec5607c826b8a997b1ef2fc82d6f7c57}
+\end{flushleft}
+It states:
+
+\begin{quote}
+``Prime values of derangement numbers: there exist infinitely many even $n$
+such that $D_n$ is prime ($D_n$ can be odd only when $n$ is even).''
+\end{quote}
+
+\begin{flushleft}
+\footnotesize
+Git blob: \texttt{5d2fb2e814a4c521d2ace36034863cc8ec6fe836}\\
+SHA-256: \texttt{694c389d34ad78b41caae8ad4e1f414fa0541e6b19b81aeab432466039dc87c1}
+\end{flushleft}
+Here $D_n$ has its standard meaning: the number of fixed-point-free
+permutations of an $n$-element set.
+
+The parenthetical observation about when $D_n$ can be odd is not a hypothesis
+or a conclusion of the present proof.  We prove only the negation of the
+source's asserted infinite set of \emph{even} indices with prime $D_n$.
+
+\section*{Derangement recurrence}
+The standard initial values and recurrence are
+\[
+ D_0=1,\qquad D_1=0,\qquad
+ D_{r+2}=(r+1)\bigl(D_{r+1}+D_r\bigr) \quad (r\geq0).
+\]
+In particular, $D_2=(1)(D_1+D_0)=1$.
+
+\begin{lemma}
+For every $r\geq0$, $D_{r+2}>0$.
+\end{lemma}
+\begin{proof}
+Induct on $r$.  The base case is $D_2=1>0$.  If $D_{r+2}>0$, then
+\[
+D_{r+3}=(r+2)\bigl(D_{r+2}+D_{r+1}\bigr)>0,
+\]
+since $r+2>0$, $D_{r+2}>0$, and derangement numbers are nonnegative.
+\end{proof}
+
+\begin{theorem}
+For every even natural number $n$, $D_n$ is not prime.
+\end{theorem}
+\begin{proof}
+Write $n=2k$.  There are three branches.
+
+If $k=0$, then $n=0$ and $D_n=D_0=1$, not prime.  If $k=1$, then $n=2$ and
+$D_n=D_2=1$, also not prime.  Finally suppose $k\geq2$, so $n\geq4$.
+The recurrence gives
+\[
+ D_n=(n-1)\bigl(D_{n-1}+D_{n-2}\bigr).
+\]
+The first factor obeys $n-1\geq3$.  Also $n-2\geq2$ and $n-1\geq2$, so the
+lemma gives $D_{n-2}>0$ and $D_{n-1}>0$.  Thus
+$D_{n-1}+D_{n-2}\geq2$.  This expresses $D_n$ as a product of two natural
+numbers both greater than one; it cannot be prime.
+\end{proof}
+
+Thus
+\[
+ \{n\in\mathbb N : n\text{ is even and }D_n\text{ is prime}\}=\varnothing,
+\]
+which is certainly not infinite.  This disproves the conjecture.
+
+\section*{Lean statement bridge}
+The Lean source does not formalize an unrelated recurrence alone.  Mathlib's
+\texttt{derangements (Fin n)} is the subtype of fixed-point-free permutations
+of \texttt{Fin n}; \texttt{Fintype.card} counts that actual subtype.  The
+Mathlib theorem \texttt{card\_derangements\_fin\_eq\_numDerangements} connects
+this cardinality to the recurrence above.
+
+The final Lean statements are:
+\[
+\forall n\in\mathbb N,\quad \mathrm{Even}(n)\to
+\neg\mathrm{Prime}\bigl(\#\,\texttt{derangements (Fin n)}\bigr),
+\]
+and equality of the set
+\[
+\{n:\mathrm{Even}(n)\land
+\mathrm{Prime}(\#\,\texttt{derangements (Fin n)})\}
+\]
+with the empty set, followed by its non-infinitude.  Hence the formalization
+contains an explicit bridge from the all-even non-primality theorem to the
+exact set-existence wording of the source conjecture.
+
+\texttt{Check.lean} prints the transitive axiom dependencies of every
+advertised theorem.  The elementary recurrence lemmas print
+{\footnotesize\texttt{[propext, Quot.sound]}}; the statements about actual derangement
+cardinalities, the all-even bridge, emptiness, and non-infinitude print
+{\footnotesize\texttt{[propext, Classical.choice, Quot.sound]}}.  These standard Lean/Mathlib
+principles are disclosed rather than called zero axioms; no custom axiom,
+\texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, or unsafe evaluation
+is used.
+
+\section*{Status}
+This package includes a PDF compiled from this source with Tectonic~0.15.0
+with deterministic PDF timestamp metadata.
+
+It has no independent review record and does not claim organizer acceptance.
+Independent mathematical and statement-alignment review, final duplicate/source
+checks, reproducible PDF verification, and release coordination are required
+before publication.
+
+\end{document}
