@@ -1,0 +1,9 @@
+import Main
+
+#print axioms TLMC154.numDerangements_pos_add_two
+#print axioms TLMC154.numDerangements_even_ge_two_not_prime
+#print axioms TLMC154.numDerangements_even_not_prime
+#print axioms TLMC154.fin_even_derangements_card_not_prime
+#print axioms TLMC154.fin_all_even_derangements_card_not_prime
+#print axioms TLMC154.evenPrimeDerangementIndices_eq_empty
+#print axioms TLMC154.evenPrimeDerangementIndices_not_infinite
