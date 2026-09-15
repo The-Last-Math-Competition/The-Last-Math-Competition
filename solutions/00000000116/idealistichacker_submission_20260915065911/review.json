@@ -1,0 +1,251 @@
+{
+  "version": 1,
+  "id": "00000000116",
+  "reviewer": "Gauss / 01a0a3ce-7364-7061-876b-6c5029aff1c1",
+  "reviewer_kind": "internal_ai_agent",
+  "reviewer_thread_id": "01a0a3ce-7364-7061-876b-6c5029aff1c1",
+  "implementation_agent": "McClintock / 01a0a3cd-f67a-7582-b597-27358c544175",
+  "reviewed_at": "2026-09-15T07:36:16.033644+00:00",
+  "verdict": "pass",
+  "checks": {
+    "statement_alignment": true,
+    "mathematics": true,
+    "lean_bridge": true,
+    "reproduction": true,
+    "pdf_visual": true
+  },
+  "content_sha256": "6c836e2e6c1d85aca1d6679829efccc18c114658af14f624510f6049306e7b17",
+  "content_hash_method": {
+    "implementation": "scripts/contributor.py::content_hash in the coordinator workspace",
+    "implementation_sha256_raw": "83539172024ca2e4d845719964eaa7677094e468125f794be741dfcdd92ca0d0",
+    "normalization": "The actual coordinator function was called. Recognized text files use CRLF-to-LF normalization; binary PDF bytes are unchanged. Relative paths and NUL separators are included. review.json, validation.json, .lake, __pycache__ and the function-defined build/log suffixes are excluded.",
+    "verified_unchanged_before_review_write": true
+  },
+  "review_scope": {
+    "source_commit": "95acb520ec5607c826b8a997b1ef2fc82d6f7c57",
+    "source_git_blob": "ed6fd48c6da15dfe80337f0253593c3f78550c42",
+    "source_sha256_git_lf": "d035f3d5701f9b6abf631c46d3e0410c033af6ec32980195c1baa0cf53ba09e6",
+    "source_checkout_normalized_matches_git_blob": true,
+    "files": [
+      "README.md",
+      "main.tex",
+      "main.pdf",
+      "reproduce.py",
+      "submission.json",
+      "lean4/Main.lean",
+      "lean4/Check.lean",
+      "lean4/lean-toolchain",
+      "lean4/lakefile.toml",
+      "lean4/lake-manifest.json",
+      "lean4/.gitignore"
+    ],
+    "main_lean_sha256_raw": "3ac97320c409e00e018da014f00f5d6946beebc2e5b59ee5390e7c8427e68761",
+    "check_lean_sha256_raw": "4b603ffc40408f3360bec49c8e8e6da8ff775b720e3eebca86379bf2dae2be85",
+    "main_pdf_sha256_raw": "050c9636b7ecab45173c5eb2f89afb1f5e688145446e1f6055817f028b0ed320"
+  },
+  "notes": {
+    "statement_alignment": [
+      "Read both languages of conjecture 00000000116. The quantifiers are one bijection of all natural numbers followed by a condition for every input. Zero displacement is explicitly allowed; neither fixed-point-freeness nor infinitely many moved points is required.",
+      "The original theorem, README, TeX, PDF and manifest agree on this scope. The positive-natural subtype theorem covers the convention N={1,2,...}. No bounded Python search is presented as the infinite proof.",
+      "Verified the source commit contents, Git blob ID and LF-normalized SHA-256. The differing raw Windows checkout SHA-256 in the preliminary audit was due to CRLF bytes, not a different conjecture."
+    ],
+    "mathematics": [
+      "Independently checked that the identity is a complete solution because all displacements are zero.",
+      "Independently checked the strengthened witness swapping 1 and 3 and fixing everything else: it is self-inverse, hence injective and surjective; the two nonzero displacements equal the prime 2; it preserves positive naturals.",
+      "Checked the proof of primality of 2 using positive divisors, the absolute-difference case split, the positive-natural restriction, and the exact nonidentity claim in both PDF pages and the corresponding Lean declarations. This is elementary and no novelty claim is justified or made."
+    ],
+    "lean_bridge": [
+      "Read the definitions and proofs in Main.lean. Prime uses p>=2 and the actual natural-number divisibility relation; absDiff uses both truncated differences and has a proved piecewise bridge. IsBijection explicitly contains injectivity and surjectivity.",
+      "In the preliminary independent audit in this same reviewer task, compiled stdin-only bridge theorems equating Prime with the unrestricted-divisor prime characterization and absDiff with Int.natAbs of the integer difference, then translated both full existential results into those terms. All four supplementary theorems passed. Their input Main.lean and Check.lean hashes are unchanged in this frozen release.",
+      "The supplementary prime bridge had no axioms; the supplementary integer-absolute-value bridge and its two translations used standard propext. These reviewer-only tests were not added to the submission and are not confused with its empty-axiom claims.",
+      "The final reproduction run replayed Main.lean directly and checked all 17 public theorems. Each reported no transitive axiom dependencies; manifest theorem names, source public theorem names and Check.lean audits match exactly. Small decide proofs do not replace the universally quantified argument."
+    ],
+    "reproduction": [
+      "Read reproduce.py before execution. Ran the exact full reproduction command with the supplied Lake executable using Python 3.12.8. Exit status was 0; there was no regression-only fallback.",
+      "Observed finite regression on 10001 inputs (0 through 10000), a 65 by 65 absolute-difference grid, small primality cases and three large integer samples. These are only regression tests.",
+      "Observed Lean 4.33.1 at commit 819816b2e0a3bf405af45ae5c7af2491d8f5bee6, Lake 5.0.0-src+819816b, successful lake build, direct Main.lean source replay, successful Check.lean and an empty external-package list.",
+      "GH_TOKEN and GITHUB_TOKEN were removed from the reviewer command environment. The reviewed source files were not edited; normal Lake build-cache activity was allowed."
+    ],
+    "pdf_visual": [
+      "Independently opened and visually inspected both supplied PNG pages. The title, formulas, piecewise witness, proof, positive-natural discussion, correspondence table, source hashes and attribution are legible. No clipping, overfull line, overlapping table entry, missing formula, missing glyph or page-number problem was observed.",
+      "Independently read the current two-page PDF and extracted both pages, comparing their mathematical content and source identifiers with main.tex, README.md, Main.lean and submission.json.",
+      "Re-rendered each page of the current PDF to PNG in memory with Poppler at a 1400-pixel longest edge. Each render was pixel-identical to the corresponding visually reviewed supplied PNG, binding the visual check to this exact PDF rather than trusting the coordinator screenshots.",
+      "No PDF or TeX source was modified or re-exported. A non-blocking text-copying issue with one inline optional command flag is recorded separately."
+    ]
+  },
+  "reproduction_evidence": {
+    "finished_at": "2026-09-15T07:31:17.9433905Z",
+    "elapsed_seconds_observed": 1.808312,
+    "python_version": "3.12.8",
+    "lean_version": "4.33.1",
+    "lean_commit": "819816b2e0a3bf405af45ae5c7af2491d8f5bee6",
+    "lake_version": "5.0.0-src+819816b",
+    "public_theorem_count": 17,
+    "empty_axiom_audit_count": 17,
+    "finite_input_count": 10001,
+    "absolute_difference_grid": [
+      65,
+      65
+    ],
+    "large_integer_sample_count": 3,
+    "external_lake_packages": []
+  },
+  "executed_commands": [
+    {
+      "argv": [
+        "python",
+        "reproduce.py",
+        "--lake",
+        "D:\\AStudy\\开源杂\\LastMathC\\.local\\tools\\lean-4.33.1-windows\\bin\\lake.exe"
+      ],
+      "cwd": "D:\\AStudy\\开源杂\\LastMathC\\.local\\worktrees\\00000000116\\solutions\\00000000116\\idealistichacker_submission_20260915065911",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:\\AStudy\\开源杂\\LastMathC\\.local\\tools\\lean-4.33.1-windows\\bin\\lake.exe",
+        "--version"
+      ],
+      "cwd": "D:\\AStudy\\开源杂\\LastMathC\\.local\\worktrees\\00000000116\\solutions\\00000000116\\idealistichacker_submission_20260915065911\\lean4",
+      "invoked_by": "reproduce.py",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:\\AStudy\\开源杂\\LastMathC\\.local\\tools\\lean-4.33.1-windows\\bin\\lake.exe",
+        "env",
+        "lean",
+        "--version"
+      ],
+      "cwd": "D:\\AStudy\\开源杂\\LastMathC\\.local\\worktrees\\00000000116\\solutions\\00000000116\\idealistichacker_submission_20260915065911\\lean4",
+      "invoked_by": "reproduce.py",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:\\AStudy\\开源杂\\LastMathC\\.local\\tools\\lean-4.33.1-windows\\bin\\lake.exe",
+        "build"
+      ],
+      "cwd": "D:\\AStudy\\开源杂\\LastMathC\\.local\\worktrees\\00000000116\\solutions\\00000000116\\idealistichacker_submission_20260915065911\\lean4",
+      "invoked_by": "reproduce.py",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:\\AStudy\\开源杂\\LastMathC\\.local\\tools\\lean-4.33.1-windows\\bin\\lake.exe",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Main.lean"
+      ],
+      "cwd": "D:\\AStudy\\开源杂\\LastMathC\\.local\\worktrees\\00000000116\\solutions\\00000000116\\idealistichacker_submission_20260915065911\\lean4",
+      "invoked_by": "reproduce.py",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "D:\\AStudy\\开源杂\\LastMathC\\.local\\tools\\lean-4.33.1-windows\\bin\\lake.exe",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Check.lean"
+      ],
+      "cwd": "D:\\AStudy\\开源杂\\LastMathC\\.local\\worktrees\\00000000116\\solutions\\00000000116\\idealistichacker_submission_20260915065911\\lean4",
+      "invoked_by": "reproduce.py",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "python",
+        "-B",
+        "D:\\AStudy\\开源杂\\LastMathC\\scripts\\contributor.py",
+        "--repo",
+        "D:\\AStudy\\开源杂\\LastMathC\\.local\\worktrees\\00000000116",
+        "hash",
+        "solutions/00000000116/idealistichacker_submission_20260915065911"
+      ],
+      "cwd": "D:\\AStudy\\开源杂\\LastMathC",
+      "exit_code": 0,
+      "stdout": "6c836e2e6c1d85aca1d6679829efccc18c114658af14f624510f6049306e7b17"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.exe",
+        "-f",
+        "1",
+        "-l",
+        "1",
+        "-singlefile",
+        "-scale-to",
+        "1400",
+        "-png",
+        "D:\\AStudy\\开源杂\\LastMathC\\.local\\worktrees\\00000000116\\solutions\\00000000116\\idealistichacker_submission_20260915065911\\main.pdf"
+      ],
+      "cwd": "D:\\AStudy\\开源杂\\LastMathC",
+      "output": "stdout only; decoded in memory for pixel comparison",
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "C:\\Users\\jh\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdftoppm.exe",
+        "-f",
+        "2",
+        "-l",
+        "2",
+        "-singlefile",
+        "-scale-to",
+        "1400",
+        "-png",
+        "D:\\AStudy\\开源杂\\LastMathC\\.local\\worktrees\\00000000116\\solutions\\00000000116\\idealistichacker_submission_20260915065911\\main.pdf"
+      ],
+      "cwd": "D:\\AStudy\\开源杂\\LastMathC",
+      "output": "stdout only; decoded in memory for pixel comparison",
+      "exit_code": 0
+    }
+  ],
+  "pdf_evidence": {
+    "page_count": 2,
+    "page_size_points": [
+      612,
+      792
+    ],
+    "pages": [
+      {
+        "page": 1,
+        "supplied_png_sha256": "4272ee04e7e322ba389c9a3a25a450a36ddfad3291363a7d598124e444b69702",
+        "size_pixels": [
+          1082,
+          1400
+        ],
+        "independently_visually_checked": true,
+        "pixel_identical_to_current_pdf_render": true
+      },
+      {
+        "page": 2,
+        "supplied_png_sha256": "08c93eed84c41c468b3a1c815b47f7da1c97d237553820a3873b14467c28cfae",
+        "size_pixels": [
+          1082,
+          1400
+        ],
+        "independently_visually_checked": true,
+        "pixel_identical_to_current_pdf_render": true
+      }
+    ]
+  },
+  "non_blocking_observations": [
+    {
+      "area": "documentation_copyability",
+      "detail": "On PDF page 2, text extraction represents the inline optional --regression-only flag with an en dash (U+2013). Use the ASCII command in README.md when copying this optional mode. The primary full reproduction command is correctly displayed and was executed successfully; this does not affect the mathematical result or the passed reproduction command."
+    }
+  ],
+  "limitations": [
+    "This is internal AI review by the named reviewer agent, separate from the implementation agent. It is not human mathematical review, organizer review, a cryptographic signature, upstream approval, acceptance, a score or an award.",
+    "This review approves only the content bound by content_sha256 and the stated five checks. Any covered-content change requires fresh review; source line endings follow the coordinator hash function.",
+    "The reviewer did not independently invoke Tectonic or verify byte-identical PDF rebuilding with SOURCE_DATE_EPOCH=0 in this final stage. PDF/TeX content and exact-PDF visual correspondence were checked. The release coordinator must perform the separate full publication validation, including deterministic TeX rebuild.",
+    "The release coordinator retains responsibility for fresh upstream duplicate checks, permissions, publication, CI and upstream maintainer review. No network publication or repository permission changes were performed.",
+    "The proof checks rely on the installed Lean toolchain, its kernel and implementation. The toolchain binary provenance and arbitrary third-party build sandbox security were not independently re-audited here."
+  ],
+  "human_review": false,
+  "organizer_review": false,
+  "upstream_acceptance_claimed": false
+}
