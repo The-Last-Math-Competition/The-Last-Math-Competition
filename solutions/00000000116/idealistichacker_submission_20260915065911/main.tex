@@ -1,0 +1,138 @@
+\documentclass[10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newcommand{\NN}{\mathbb{N}}
+\title{Conjecture 00000000116: A Direct Proof\\
+\large and a Nonidentity Witness}
+\author{\texttt{idealistichacker}}
+\date{September 15, 2026}
+\begin{document}
+\maketitle
+
+\section{Exact statement and definitions}
+The repository's English statement is:
+\begin{quote}
+Conjecture: There exists a bijection $\pi$ of $\NN$ such that for every $n$,
+$|\pi(n)-n|\in\mathbb{P}\cup\{0\}$ (every displacement is a prime or zero).
+\end{quote}
+The Chinese statement has the same quantifiers and also permits zero
+displacement. Neither version excludes the identity or requires infinitely
+many moved points. The assertion is elementary: the identity already proves
+it. Below we also give a nonidentity witness; no mathematical novelty is claimed.
+
+We use the usual definition: $p$ is prime if $2\leq p$ and every positive
+divisor $d$ of $p$ is either 1 or $p$. In particular, 2 is prime: if
+$2=dk$ with $d>0$, then $k\ne0$, so $1\leq d\leq2$ and $d=1$ or $d=2$.
+This is the definition used by the Lean predicate \texttt{Prime}, not a
+predicate restricted to the witness.
+
+Lean's natural subtraction is truncated. We therefore define
+\[
+  \operatorname{absDiff}(a,b)=(a\mathbin{\dot-}b)+(b\mathbin{\dot-}a),
+  \qquad a\mathbin{\dot-}b=\max(a-b,0).
+\]
+For $a\leq b$ the sum is $b-a$; otherwise it is $a-b$. Thus it is exactly
+$|a-b|$. The formal theorem \texttt{absDiff\_piecewise} proves this distinction.
+One direction of truncated subtraction alone would not suffice.
+
+\section{Proof and nonidentity strengthening}
+\begin{theorem}
+The original conjecture holds. Moreover, it has a nonidentity involutive
+solution that moves exactly 1 and 3.
+\end{theorem}
+\begin{proof}
+For the original assertion alone, the identity $\pi(n)=n$ is a bijection
+and has displacement zero at every input. This is a complete proof as written.
+
+For the strengthening, set
+\[
+ s(n)=\begin{cases}3,&n=1,\\1,&n=3,\\n,&n\notin\{1,3\}.\end{cases}
+\]
+The three cases show that $s(s(n))=n$ for every natural number $n$.
+If $s(a)=s(b)$, applying $s$ gives $a=b$, proving injectivity.
+For any target $b$, its preimage is $s(b)$, proving surjectivity.
+The displacements at 1 and 3 are $|3-1|=|1-3|=2$, which is prime;
+all other displacements are zero. Finally $s(1)=3\ne1$ and $s(3)=1\ne3$,
+while every other element is fixed. This proves all claimed properties.
+\end{proof}
+
+\section{Whether natural numbers include zero}
+Lean's \texttt{Nat} contains zero, and our witness satisfies $s(0)=0$.
+For every $n>0$, also $s(n)>0$: the moved points have positive images,
+and every other positive point is fixed. The restriction to $\NN_{>0}$
+is therefore well defined and remains self-inverse, hence bijective.
+Its nonidentity property and displacements are unchanged. A separate Lean
+theorem establishes the existential statement on the subtype
+\texttt{PositiveNat = \{n : Nat // 0 < n\}}, so both conventions are covered.
+
+\newpage
+\section{Formal statement correspondence}
+All declarations are in namespace \texttt{Conjecture00000000116} in
+\texttt{lean4/Main.lean}. The main theorem has exactly the original
+existential and universal quantifiers, with no extra hypotheses.
+\begin{center}
+\small
+\begin{tabular}{p{0.43\textwidth}p{0.48\textwidth}}
+\hline
+Declaration & Mathematical role \\
+\hline
+\texttt{Prime}, \texttt{prime\_two} & Positive-divisor primality; 2 is prime. \\
+\texttt{absDiff\_piecewise} & Absolute difference agrees with its usual piecewise definition. \\
+\texttt{IsBijection} & Injectivity and surjectivity on the whole domain. \\
+\texttt{AllowedDisplacements} & Prime-or-zero displacement for every input. \\
+\texttt{identity\_solution} & Independent minimal proof using the identity. \\
+\texttt{original\_conjecture} & Original statement, witnessed by the transposition. \\
+\texttt{nonidentity\_strengthening} & The involution, exchange, fixed-point and nonidentity properties. \\
+\texttt{positive\_naturals\_solution} & Nonidentity solution when natural numbers start at one. \\
+\hline
+\end{tabular}
+\end{center}
+The proofs are about all natural numbers, not an assumed solution, a finite
+array, or a hard-coded Boolean check.
+
+\section{Reproduction and trust boundary}
+The project pins \texttt{leanprover/lean4:v4.33.1}. It uses only the bundled
+\texttt{Std} library, with no Mathlib or external Lake packages.
+With Python 3.11 or newer and the pinned toolchain installed, run from the
+submission directory:
+\begin{verbatim}
+python reproduce.py --lake /absolute/path/to/lake
+\end{verbatim}
+On Windows the executable may be named \texttt{lake.exe}. The script runs
+finite regression checks, \texttt{lake build}, direct checking of
+\texttt{Main.lean}, and \texttt{Check.lean}. The checker displays definitions,
+principal theorem types, and transitive dependency audits for all 17 public
+theorems. Every one has an empty axiom list in the tested Lean 4.33.1 build.
+There are no unproved placeholders, new assumptions, or native evaluation
+shortcuts. The small concrete facts use ordinary kernel-checked proofs.
+An empty dependency list does not remove Lean's kernel or implementation
+from the trusted computing base.
+
+The default Python tests cover inputs $0,\ldots,10000$, a $65\times65$
+absolute-difference grid, small primality examples, and three large integer
+samples. These are \emph{regression checks only}, not a proof of an infinite
+statement. The Lean theorems provide that proof. The optional
+\texttt{--regression-only} mode explicitly reports that Lean was not run.
+Command failures, version mismatches, and failed or nonempty dependency audits
+cause the full reproduction command to fail. PDF generation and independent
+review are separate from this script.
+
+\section*{Source identification and attribution}
+Source: \texttt{conjectures/00000000116.md} in the repository:\\
+\texttt{The-Last-Math-Competition/The-Last-Math-Competition}.
+\begin{flushleft}
+\small
+Commit: \texttt{95acb520ec5607c826b8a997b1ef2fc82d6f7c57}\\
+Git blob: \texttt{ed6fd48c6da15dfe80337f0253593c3f78550c42}\\
+SHA-256 of the Git blob contents, not CRLF checkout bytes:\\
+\texttt{d035f3d5701f9b6abf631c46d3e0410c033af6ec32980195c1baa0cf53ba09e6}
+\end{flushleft}
+Prepared with AI assistance under the account name \texttt{idealistichacker}.
+No affiliation, award, mathematical novelty, human verification, or upstream
+acceptance is claimed. Independent AI release review is recorded separately. The proof needs no external mathematical result beyond the elementary
+arithmetic made explicit above.
+\end{document}
