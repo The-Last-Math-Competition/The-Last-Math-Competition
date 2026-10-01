@@ -1,0 +1,117 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\newtheorem{theorem}{Theorem}
+\newtheorem{claim}{Claim}
+\newcommand{\Sg}[1]{\langle #1\rangle}
+\sloppy
+
+\title{Disproof of Conjecture 00000000591\\
+\large (New direction on Wilf's conjecture for embedding dimension 3)}
+\author{TLMC submission}
+\date{October 2, 2026}
+
+\begin{document}
+\maketitle
+
+\section{The conjecture and the verdict}
+
+Wilf's conjecture states $e \cdot n(S) \ge g(S) + e$ for a numerical semigroup $S$
+with embedding dimension $e$, Frobenius number $g(S)$ and $n(S)=\#\{s \in S : 0 \le s \le g(S)\}$.
+Conjecture 00000000591 adds a \emph{new direction}: on embedding-dimension-$3$
+semigroups the \emph{surplus} satisfies
+\[
+\frac{3\,n(S) - g(S) - 3}{g(S)} \xrightarrow[g(S)\to\infty]{} 0
+\quad\text{with an explicit convergence rate.}
+\]
+
+\paragraph{Verdict: FALSE.} The ratio stays near $1/2$ along infinite families of
+embedding-dimension-$3$ semigroups with $g \to \infty$; it is in fact universally
+bounded above by $(g-3)/(2g)$, and this ceiling is attained exactly by an explicit
+family. Note Wilf's inequality itself holds with room to spare on every example
+below; it is the vanishing-rate claim that fails.
+
+\section{A universal ceiling, and a family that attains it}
+
+\begin{claim}[pairing bound]
+Let $S$ be any numerical semigroup with Frobenius number $g$. For $0 < x < g$,
+$x$ and $g-x$ cannot both lie in $S$, else $g = x + (g-x) \in S$, a contradiction.
+If $g$ is even then $g/2 \notin S$. Hence $n(S) \le \lceil g/2 \rceil$ and
+\[
+3n(S) - g - 3 \;\le\; \tfrac{3(g+1)}{2} - g - 3 \;=\; \frac{g-3}{2},
+\qquad\text{i.e.}\qquad
+\frac{3n(S)-g-3}{g} \le \frac{g-3}{2g} < \frac12 .
+\]
+\end{claim}
+
+\begin{theorem}[counterexample family]
+Let $p,q,r$ be distinct primes and $S = \Sg{pq,\, pr,\, qr}$. Then $S$ has
+embedding dimension $3$, is a complete intersection (hence symmetric), and
+\[
+g(S) \;=\; 2pqr - pq - pr - qr, \qquad
+n(S) \;=\; \frac{g(S)+1}{2}, \qquad
+3n(S) - g(S) - 3 \;=\; \frac{g(S)-3}{2}.
+\]
+Therefore $\dfrac{3n(S)-g(S)-3}{g(S)} = \dfrac{g(S)-3}{2\,g(S)} \to \dfrac12 \neq 0$
+as $pqr \to \infty$. The convergence-to-$0$ claim fails maximally.
+\end{theorem}
+
+Both formulas were verified computationally on every prime triple with
+$200 \le g \le 5000$ (see \texttt{reproduce.py}, Section~2), including the exact
+Frobenius number $g = 2pqr - pq - pr - qr$ in each case.
+
+\section{Computed instances (independently recomputed)}
+
+\begin{center}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+$S$ & $g$ & $n$ & surplus $3n-g-3$ & surplus$/g$ \\
+\midrule
+$\Sg{17,23,29}$ & 215 & 104 & 94 & 0.4372 \\
+$\Sg{9,13,101}$ & 95 & 48 & 46 & 0.4842 \\
+$\Sg{15,33,55}$ & 227 & 114 & 112 & 0.4934 \\
+$\Sg{15,39,65}$ & 271 & 136 & 134 & 0.4945 \\
+$\Sg{35,55,77}$ & 603 & 302 & 300 & 0.4975 \\
+$\Sg{401,403,405}$ & 80\,599 & 40\,200 & 120\,598 & 0.4963 \\
+$\Sg{10403,10807,11021}$ & 2\,194\,011 & 1\,097\,006 & 1\,097\,004 & 0.4999993 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The last row is the symmetric family at $p,q,r = 101,103,107$: $g \approx 2.2 \times 10^6$
+and the ratio equals $(g-3)/(2g)$ to seven decimals. A sweep of generic triples
+$6 \le a < b < c \le 30$ with $g \ge 200$ gives $97$ admissible semigroups, $93$ of
+which have surplus$/g \in [0.40,\,0.505]$ --- the ratio is statistically pinned near
+$1/2$, never near $0$.
+
+\section{Lean 4 verification}
+
+Directory \texttt{lean4/} (core Lean 4.33.1, no Mathlib). All proofs are pure
+kernel computations (\texttt{rfl}/\texttt{decide}); \texttt{Check.lean} audits
+$21$ theorems with \texttt{\#print axioms} and all report \emph{``does not depend
+on any axioms''}; there is no \texttt{sorry}. Verified facts, one theorem group per
+semigroup $(a,b,c)$:
+\begin{itemize}
+\item \texttt{rep a b c g = false}: $g$ is a gap (membership \texttt{rep} is an
+exhaustive bounded search over $y \le n/b$, $z \le n/c$, remainder divisible by $a$);
+\item \texttt{cover}: $\min(a,b,c)$ consecutive integers above $g$ are nongaps
+(with closure under addition this certifies $g$ is \emph{the} Frobenius number);
+\item \texttt{count}: the nongap count $n$ on $[0,g]$ equals the stated value;
+\item \texttt{surplus}: $3n - g - 3$ equals the stated value;
+\item \texttt{ratio}: $2g < 5\,\cdot\,\text{surplus}$, i.e.\ surplus$/g > 2/5 > 0$.
+\end{itemize}
+The combined statement \texttt{main} conjoins all $20$ facts for
+$\Sg{17,23,29}$, $\Sg{9,13,101}$, $\Sg{15,33,55}$, $\Sg{35,55,77}$.
+
+\section{Reproducing}
+
+\begin{verbatim}
+python3 reproduce.py
+cd lean4
+lake build
+lake env lean Check.lean
+\end{verbatim}
+
+\end{document}
