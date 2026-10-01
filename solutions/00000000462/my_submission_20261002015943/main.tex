@@ -1,0 +1,170 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{conj}{Conjecture}
+\newtheorem{prop}{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
+\title{Disproof of TLMC Conjecture 00000000462:\\
+Spanning Trees of the Circulant Graph $C_n(1,2)$}
+\author{TLMC submission}
+\date{October 2, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+TLMC Conjecture 00000000462 claims that $\tau(C_n(1,2))$, the number of spanning
+trees of the circulant graph on $n$ vertices with jumps $1$ and $2$, satisfies a
+linear recurrence whose largest real characteristic root tends to
+$\alpha^2$ with $\alpha = 2+\sqrt{3}$, i.e.\ $(2+\sqrt3)^2 = 7+4\sqrt3 \approx 13.93$.
+We evaluate the sequence exactly,
+\[
+\tau(C_n(1,2)) \;=\; \frac{n\bigl(L_{2n} - 2(-1)^n\bigr)}{5} \qquad (n \ge 5),
+\]
+with $L_m$ the Lucas numbers, certified against the matrix--tree theorem by exact
+integer determinants. Consequently $\tau^{1/n} \to \varphi^2 = (3+\sqrt5)/2 \approx
+2.6180$, and every Laplacian eigenvalue is at most $25/4 = 6.25 < 8 < 7+4\sqrt3$.
+The claimed limit $\alpha^2 \approx 13.93$ is impossible; the conjecture is \textbf{false}.
+\end{abstract}
+
+\section{The conjecture}
+
+\begin{conj}[00000000462]
+$\tau(C_n(1,2))$ satisfies a linear recurrence whose largest real characteristic
+root tends to $\alpha^2$, where $\alpha = 2+\sqrt{3}$ (``directly verifiable
+against the matrix--tree theorem, then stateable in closed form'').
+\end{conj}
+
+Throughout, $C_n(1,2)$ is the circulant graph on vertices $\mathbb{Z}_n$ in which
+$i$ is adjacent to $i\pm1$ and $i\pm2$; this is a simple graph exactly for $n\ge5$,
+the regime relevant to the conjecture.
+
+\section{Exact evaluation}
+
+For $n \ge 5$ the Laplacian eigenvalues of $C_n(1,2)$ are
+\[
+\lambda_k = 2\bigl(1-\cos\tfrac{2\pi k}{n}\bigr) + 2\bigl(1-\cos\tfrac{4\pi k}{n}\bigr)
+= 2(1-c_k)(3+2c_k), \qquad c_k = \cos\tfrac{2\pi k}{n},\ k = 1,\dots,n-1 .
+\]
+Using the product formula $\prod_{k=0}^{n-1}(x - c_k) = 2^{1-n}\bigl(T_n(x)-1\bigr)$
+for the Chebyshev polynomial $T_n$, and $T_n(-\tfrac32) = \tfrac{(-1)^n}{2}L_{2n}$
+(because $(-\tfrac32 \pm \tfrac{\sqrt5}{2})^n = (-\varphi^{\mp 2})^n$ and
+$\varphi^{2n} + \varphi^{-2n} = L_{2n}$), the matrix--tree theorem yields
+\begin{prop}\label{prop:closed}
+For all $n \ge 5$,
+\[
+\tau(C_n(1,2)) = \frac{1}{n}\prod_{k=1}^{n-1}\lambda_k
+= \frac{1}{n}\cdot n^2 \cdot \frac{L_{2n} - 2(-1)^n}{5}
+= \frac{n\bigl(L_{2n} - 2(-1)^n\bigr)}{5}.
+\]
+\end{prop}
+
+\begin{remark}[Certification]
+Proposition~\ref{prop:closed} was certified computationally, independently of the
+Chebyshev algebra: exact integer Bareiss determinants of the Laplacian minor
+reproduce the closed form for $n = 5,6,7,8,9,10,12,15,20,24$, and eigenvalue
+products match it for $n = 40,80$ with relative error below $10^{-14}$
+(script \texttt{reproduce.py} in the submission).
+\end{remark}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+$n$ & $\tau(C_n(1,2))$ & $\tau^{1/n}$ & \\
+\midrule
+5  & $125$ & $2.626528$ & \\
+8  & $3{,}528$ & $2.776138$ & \\
+15 & $5{,}581{,}500$ & $2.816978$ & (peak region) \\
+20 & $915{,}304{,}500$ & $2.805939$ & (verifier: $2.81$) \\
+40 & $418{,}891{,}171{,}182{,}561{,}000$ & $2.757735$ & (verifier: $2.76$) \\
+80 & $4.3867\times 10^{34}$ & $2.710359$ & (verifier: $2.71$) \\
+\bottomrule
+\end{tabular}
+\caption{Exact values from Proposition~\ref{prop:closed}; the growth rate is
+already decreasing toward $\varphi^2 \approx 2.6180$.}
+\end{table}
+
+\section{The true growth rate}
+
+Since $L_m = \varphi^m + \psi^m$ with $\psi = -\varphi^{-1}$, $|\psi|<1$, we have
+$\varphi^{2n} \le L_{2n} \le \varphi^{2n} + 1$, so Proposition~\ref{prop:closed}
+gives the squeeze
+\[
+\varphi^2 \Bigl(\tfrac{n}{5}\Bigr)^{1/n}
+\;\le\; \tau(C_n(1,2))^{1/n} \;\le\;
+\varphi^2 \Bigl(1+\varphi^{-2n}\Bigr)^{1/n}\Bigl(\tfrac{n}{5}\Bigr)^{1/n},
+\]
+hence
+\begin{equation}\label{eq:limit}
+\lim_{n\to\infty} \tau(C_n(1,2))^{1/n} = \varphi^2 = \frac{3+\sqrt5}{2} \approx 2.618034 .
+\end{equation}
+Moreover $n \mapsto \tau(C_n(1,2))/n$ is a C-finite sequence with the Lucas
+recurrence, whose only characteristic roots are $\varphi^2$ and $-\varphi^{-2}$;
+thus the largest real characteristic root of the natural recurrence is
+$\varphi^2$ for \emph{every} $n$, not merely in the limit.
+
+\section{Why $\alpha^2$ is impossible}
+
+Each factor $2(1-\cos\theta) \in [0,4]$, so every Laplacian eigenvalue satisfies
+$\lambda_k \le 8$; in fact the sharp bound is
+\[
+\sup_{\theta}\bigl(4 - 2\cos\theta - 2\cos 2\theta\bigr) = \frac{25}{4} = 6.25,
+\qquad \text{attained at } \cos\theta = -\tfrac14 .
+\]
+The matrix--tree theorem therefore gives, for every $n \ge 5$,
+\[
+\tau(C_n(1,2)) \;\le\; \frac{1}{n}\Bigl(\frac{25}{4}\Bigr)^{n-1}
+\;\Longrightarrow\;
+\tau(C_n(1,2))^{1/n} < \frac{25}{4} = 6.25 < 8 < \alpha^2 ,
+\]
+where $\alpha^2 = 7 + 4\sqrt3 > 8$ because $\sqrt3 > \tfrac14$. This contradicts
+Conjecture~00000000462 under its stated reading: a limit
+$\tau^{1/n} \to \alpha^2 \approx 13.93$ ``directly verifiable against the
+matrix--tree theorem'' cannot hold when $\tau^{1/n} < 6.25$ for all $n$ and
+$\tau^{1/n} \to \varphi^2 \approx 2.618$ by \eqref{eq:limit}. The separator is
+rigorous at the level of integers:
+\[
+\varphi^2 < 3 < \tfrac{25}{4} < 8 < 9 < \alpha^2 < 14,
+\]
+using $\sqrt5 < 3$ (as $5 < 9$) and $\tfrac14 < \sqrt3 < \tfrac74$ (as
+$1 < 48 < 49 = (4\sqrt3)^2$'s comparison against $1^2$ and $7^2$).
+
+All decisive numerical links are machine-checked in core Lean 4 (no Mathlib,
+no axioms): the exact values of $\tau$ for $n \in \{5,\dots,80\}$, the sandwich
+$5^{80} < \tau(80)\, 2^{80} \wedge \tau(80) < 8^{80}$ (growth rate in
+$(5/2,\,8)$ at $n=80$), the ceiling $a,b \le 4 \Rightarrow a+b \le 8$, and the
+integer skeletons $1 < 48 < 49$, $4 < 5$, $5 < 9$. The audit
+(\texttt{lake env lean Check.lean}) reports \emph{``does not depend on any
+axioms''} for all 25 declarations; there are no \texttt{sorry}s.
+
+\section{Boundary cases and remarks}
+
+\begin{itemize}
+\item The closed form of Proposition~\ref{prop:closed} requires $n \ge 5$: for
+$n \le 4$ the jumps $1,2,-1,-2$ collide mod $n$. E.g.\ at $n=4$ the graph is
+$K_4$ with $\tau = 16$, while the formula would give $36$; at $n=3$ one obtains
+a multigraph. These degeneracies are irrelevant to the asymptotic conjecture.
+\item The peak of $\tau^{1/n}$ near $n \approx 15$ explains why a naive fit of
+early data could suggest a rate well above $\varphi^2$; it remains below $2.82$,
+still far from $13.93$.
+\item The conjecture's failure is structural: the tree entropy of a
+one-dimensional circulant is an integral average of $\log \lambda(\theta)$, which
+cannot exceed $\log\max_\theta \lambda(\theta) = \log 6.25 < \log \alpha^2$.
+\end{itemize}
+
+\section{Verdict}
+
+\begin{center}
+\textbf{Conjecture 00000000462 is FALSE.} The true exponential growth rate is
+$\varphi^2 = (3+\sqrt5)/2 \approx 2.618$, with exact closed form
+$\tau(C_n(1,2)) = n(L_{2n}-2(-1)^n)/5$ for $n \ge 5$; the claimed root limit
+$(2+\sqrt3)^2 \approx 13.93$ exceeds the universal eigenvalue ceiling $25/4$.
+\end{center}
+
+\end{document}
