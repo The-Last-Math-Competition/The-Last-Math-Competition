@@ -1,0 +1,126 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{fact}{Fact}
+\theoremstyle{definition}
+\newtheorem{attack}{Attack}
+
+\title{Disproof of TLMC Conjecture 00000000556:\\
+Trivial $HH^1$ versus representation-finite rigid algebras}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000556 states that $HH^1(\Lambda)=0$ if and only if $\Lambda$
+is representation-finite and rigid. We refute the ``if'' direction with the
+dual numbers $\Lambda=k[x]/(x^2)$: they are representation-finite and rigid
+(self-injective), yet $HH^1(\Lambda)\cong k\neq 0$.
+\end{abstract}
+
+\section{The conjecture}
+
+\begin{quote}
+$HH^1(\Lambda)=0$ if and only if $\Lambda$ is representation-finite and rigid.
+\end{quote}
+
+\noindent Here $HH^1(\Lambda)=\mathrm{Der}_k(\Lambda)/\mathrm{Inn}(\Lambda)$ is
+the first Hochschild cohomology group: derivations modulo inner derivations.
+
+\section{The counterexample}
+
+Let $\Lambda=k[x]/(x^2)$ be the algebra of dual numbers over an arbitrary
+field $k$, with basis $1,x$ and $x^2=0$.
+
+\begin{attack}[Representation-finite]\leavevmode\\
+A $\Lambda$-module is a pair $(V,T)$ where $T$ is a nilpotent endomorphism of
+the vector space $V$ with $T^2=0$. Over an algebraically closed field such
+pairs decompose into Jordan blocks of size at most $2$, hence the only
+indecomposable $\Lambda$-modules are $k$ and $\Lambda$ itself. There are
+exactly two, so $\Lambda$ is representation-finite.
+\end{attack}
+
+\begin{attack}[Rigid, i.e.\ self-injective]\leavevmode\\
+The linear form $\lambda(a+bx)=b$ has associated bilinear form
+$B(u,v)=\lambda(uv)$, whose matrix on the basis $\{1,x\}$ is
+$\left(\begin{smallmatrix}0&1\\1&0\end{smallmatrix}\right)$ with determinant $-1$
+($1$ in characteristic $2$) --- never zero. Hence $\Lambda$ is a Frobenius
+algebra, therefore self-injective, i.e.\ rigid. (Independently,
+$\operatorname{Ext}^1_\Lambda(\Lambda,\Lambda)=0$ trivially, since $\Lambda$
+is projective as a module over itself.)
+\end{attack}
+
+\begin{attack}[$HH^1(\Lambda)\neq 0$]\leavevmode\\
+Let $d\colon \Lambda\to\Lambda$ be $k$-linear with $d(1)=0$ and
+$d(x)=v$. The Leibniz rule applied to $x^2=0$ forces $2xv=0$; conversely any
+such $v$ yields a derivation.
+
+\emph{Case $\operatorname{char}k\neq 2$:} $2xv=0$ forces $v\in(x)$, so
+$\mathrm{Der}_k(\Lambda)\cong k$, spanned by $d=x\partial$, i.e.\
+$d(1)=0$, $d(x)=x$.
+
+\emph{Case $\operatorname{char}k=2$:} the constraint is vacuous,
+$\mathrm{Der}_k(\Lambda)\cong k^2$.
+
+Since $\Lambda$ is commutative, $uv-vu=0$ for all $u,v$, so every inner
+derivation vanishes: $\mathrm{Inn}(\Lambda)=0$. The element
+$d=x\partial$ satisfies $d(x)=x\neq 0$, hence is a derivation which is
+\emph{not} inner. Therefore
+\[
+HH^1(\Lambda)\;\cong\;
+\begin{cases}
+k & \operatorname{char}k\neq 2,\\
+k^2 & \operatorname{char}k=2,
+\end{cases}
+\qquad\text{in particular } HH^1(\Lambda)\neq 0.
+\]
+\end{attack}
+
+\section{Conclusion}
+
+$\Lambda=k[x]/(x^2)$ is representation-finite and rigid, but
+$HH^1(\Lambda)\cong k\neq 0$. The direction
+``representation-finite and rigid $\Rightarrow HH^1=0$'' of Conjecture
+00000000556 fails, and with it the conjectured equivalence.
+
+\section{Boundary of the attack}
+
+\begin{itemize}
+\item \textbf{Characteristic.} The attack works over every field: $HH^1\cong k$
+  for $\operatorname{char}k\neq 2$ and $HH^1\cong k^2$ for
+  $\operatorname{char}k=2$ --- nonzero either way --- and even over $\mathbb{Z}$.
+\item \textbf{Meaning of ``rigid''.} The refutation adopts the
+  self-injectivity reading, which the dual numbers satisfy (Frobenius).
+  Under two other readings $\Lambda$ would \emph{not} be rigid and this
+  particular attack would not apply:
+  (i) deformation-rigidity ($HH^2=0$): the $2$-periodic $\Lambda^e$-resolution
+  with differentials $x\otimes1-1\otimes x$ and $x\otimes1+1\otimes x$ gives
+  $HH^2(\Lambda)\cong\Lambda/(x)\cong k\neq 0$;
+  (ii) ``every indecomposable module is rigid'':
+  $\operatorname{Ext}^1_\Lambda(k,k)\cong k\neq 0$ via the nonsplit extension
+  $0\to(x)\to\Lambda\to k\to 0$.
+\item \textbf{Failure direction.} Only the ``$\Leftarrow$'' direction is
+  refuted; nothing is claimed about ``$\Rightarrow$''.
+\end{itemize}
+
+\section{Verification}
+
+\begin{itemize}
+\item \texttt{reproduce.py}: independent exact linear-algebra recomputation
+  over $\mathbb{Q}$, $\mathbb{F}_2$, $\mathbb{F}_3$:
+  $\dim\mathrm{Der}=1/2/1$, $\dim\mathrm{Inn}=0$, $\dim HH^1=1/2/1$,
+  Frobenius determinant $\neq 0$, and $d(x)=x$ is a derivation.
+\item \texttt{lean4/}: formal certificate in core Lean 4.33 (no Mathlib, no
+  dependencies). \texttt{lake build \&\& lake env lean Check.lean} prints
+  ``does not depend on any axioms'' for every theorem: zero axioms, zero
+  \texttt{sorry}. It formalizes that $x\partial$ is a derivation, that all
+  inner derivations vanish, that $HH^1\neq 0$, the classification
+  $f(a,b)=(0,\,b\cdot f(x)_2)$ (so $\mathrm{Der}\cong$ base ring), and the
+  nondegeneracy of the Frobenius form.
+\end{itemize}
+
+\end{document}
