@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003479}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the harmonious chromatic number of $G(n,p)$
+concentrates at $(1+o(1))\sqrt{np}$ with constant $1$, uniformly for
+$p \ge \log n / n$.
+\end{quote}
+
+\section{The refutation}
+
+In a harmonious coloring every unordered color pair carries at most one
+edge, so $2m \le h(h-1)$, i.e.\ $h \ge \sqrt{2m}$. For constant $p = 1/2$
+(inside the claimed uniform range), typical realizations have
+$m \ge n^2/6$ w.h.p.\ (Chernoff), forcing $h \ge n/\sqrt{3} = \Theta(n)$,
+while the claimed law is $\Theta(\sqrt{n})$: the scales differ by
+$\Theta(\sqrt{n})$.
+
+Anchor at $n = 1000$: typical $2m \ge 333333$ forces $h \ge 578$
+(since $577 \cdot 576 = 332352 < 333333$), while the claimed value
+satisfies $\sqrt{500} < 23$ --- off by a factor of more than 25.
+
+\section{Verification}
+
+\texttt{reproduce.py} performs the exact integer arithmetic and
+Monte-Carlo samples $G(1000, 1/2)$. The Lean package (core Lean~4,
+v4.33.1) certifies the general counting lemma and the anchor; all five
+audited theorems report \texttt{does not depend on any axioms}. The
+color-pair count and Chernoff bound are classical and cited.
+
+\section{Boundary}
+
+Only the claimed $\sqrt{np}$-concentration is refuted.
+
+\end{document}
