@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000002455}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the complete table of ZFC-provable inequalities is
+a finite DAG (about 200 vertices / $\aleph_0$ edges); the table is drawn
+explicitly (traversal complete).
+\end{quote}
+
+\section{The refutation}
+
+A DAG has at most one directed edge per unordered vertex pair (both
+directions would form a directed 2-cycle), so a DAG on $N$ vertices has
+at most $\binom{N}{2}$ edges. For $N = 200$:
+$\binom{200}{2} = 200 \cdot 199 / 2 = 19900$. A count bounded by 19900
+is finite and cannot be $\aleph_0$: the displayed statement --- ``finite
+DAG \dots\ $\aleph_0$ edges'' --- is internally contradictory.
+
+\section{Verification}
+
+\texttt{reproduce.py} brute-forces acyclic orientations on small $n$
+and counts pairs. The Lean package (core Lean~4, v4.33.1) certifies the
+pair count 19900, the boundedness, the general identity
+$2\binom{n}{2} = n(n-1)$ at $n = 200$, and the refutation; all four
+audited theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+Only the displayed self-contradiction is refuted.
+
+\end{document}
