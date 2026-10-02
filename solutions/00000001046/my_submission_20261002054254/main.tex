@@ -1,0 +1,196 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\newtheorem{claim}{Claim}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\GF}{\mathrm{GF}}
+\newcommand{\duni}{\delta}
+
+\title{Disproof of TLMC Conjecture 00000001046\\
+\large The differential uniformity of $x \mapsto x + x^{q-2}$ is not $2$ for large $q$}
+\author{TLMC falsification pipeline}
+\date{October 2, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+\textbf{Verdict: FALSE.}
+The conjecture states that the differential uniformity of
+$F\colon x \mapsto x + x^{q-2}$ equals $2$ for large $q$.  We prove that over
+$\F_{2^m}$ the differential uniformity equals $4$ for every even $m$ and $2$
+for every odd $m$.  Since even $m$ is unbounded, there are arbitrarily large
+$q$ with $\duni = 4 \neq 2$.  Exhaustive enumeration confirms this for
+$q = 16, 64, 256, 1024, 4096$ (even $m$) and $q = 32, 128, 512, 2048$ (odd
+$m$), and the base counterexample instance over $\GF(16)$ is machine-checked
+in axiom-free core Lean.
+\end{abstract}
+
+\section{The conjecture and the attack}
+
+\begin{quote}
+\textbf{Conjecture (00000001046).} \emph{The differential uniformity of
+$x \mapsto x + x^{q-2}$ is $2$ for large $q$ (uniqueness of the optimal
+almost perfectly nonlinear (APN) function for large $q$).}
+\end{quote}
+
+Throughout, $q = 2^m$, $\F_q = \GF(2)[\alpha]/(f)$ with $f$ primitive of
+degree $m$, and
+\[
+F(x) = x + x^{q-2}.
+\]
+For $x \neq 0$ we have $x^{q-2} = x^{-1}$, and $0^{q-2} = 0$; thus
+$F(x) = x + x^{-1}$ for $x \neq 0$ and $F(0) = 0$.  The \emph{differential
+uniformity} of $F$ is
+\[
+\duni(F) \;=\; \max_{a \neq 0} \; \max_{b \in \F_q} \;\#\{\, x \in \F_q : F(x+a) + F(x) = b \,\}.
+\]
+
+\begin{claim}\label{claim:main}
+For every $m \geq 1$:
+\[
+\duni(F) \;=\;
+\begin{cases}
+4, & m \text{ even},\\
+2, & m \text{ odd}.
+\end{cases}
+\]
+\end{claim}
+
+In particular, taking $m$ even and arbitrarily large disproves the
+conjecture.
+
+\section{Proof of Claim~\ref{claim:main}}
+
+\paragraph{Step 1 (shift invariance).}
+The map $L \colon x \mapsto x$ is $\F_2$-linear, and for every $a \neq 0$ the
+derivative of $F + L$ satisfies
+\[
+(F+L)(x+a) + (F+L)(x) \;=\; \bigl(F(x+a) + F(x)\bigr) + L(a).
+\]
+For fixed $a$, translation by the constant $L(a)$ permutes $\F_q$, so the
+multiset of derivative values is merely shifted and the maximum multiplicity
+is unchanged.  Hence
+$\duni(x + x^{q-2}) = \duni(x^{q-2})$, and we may analyse the pure inverse
+map $G(x) = x^{q-2}$.
+
+\paragraph{Step 2 (upper bound $\duni \leq 4$).}
+Fix $a \neq 0$.  For $x \notin \{0, a\}$,
+\[
+G(x+a) + G(x) \;=\; (x+a)^{-1} + x^{-1} \;=\; \frac{a}{x^2 + ax},
+\]
+which is never $0$.  For each $b \neq 0$, the equation above is equivalent to
+the quadratic $x^2 + ax = a/b$, which has at most $2$ solutions (and none of
+them is $0$ or $a$).  The two special points $x \in \{0, a\}$ both give
+$G(a) + G(0) = a^{-1}$.  Therefore every value has at most $2$ solutions,
+except possibly $b_0 = a^{-1}$, which has at least the two solutions
+$x \in \{0, a\}$; so $\duni(G) \leq 4$ always.
+
+\paragraph{Step 3 (even $m$: $\duni = 4$).}
+Additional solutions of $G(x+a)+G(x) = a^{-1}$ satisfy $x \notin \{0,a\}$ and
+$x^2 + ax = a^2$.  Substituting $x = ay$ gives $y^2 + y + 1 = 0$, whose roots
+are the two elements of order $3$; they lie in $\F_q$ if and only if
+$\GF(4) \subseteq \F_q$, i.e.\ iff $2 \mid m$.  When they exist they are
+$\neq 0, 1$, so $b_0 = a^{-1}$ attains exactly $2 + 2 = 4$ solutions and
+$\duni(G) = 4$.
+
+\paragraph{Step 4 (odd $m$: $\duni = 2$).}
+If $m$ is odd then $\GF(4) \not\subseteq \F_q$, the quadratic $y^2+y+1 = 0$
+has no root, $b_0$ has exactly $2$ solutions, and by Step~2 every value has
+at most $2$ solutions: $\duni(G) = 2$.
+\qed
+
+\begin{remark}
+The same conclusion holds verbatim for $F = x + x^{q-2}$ by Step 1; the
+attack instance below is stated for $F$ itself.
+\end{remark}
+
+\section{Exhaustive verification}
+
+An independent implementation (\texttt{reproduce.py}; carry-less
+multiplication, elementwise-verified inverse tables, primitive polynomials
+verified by order checks) enumerates all pairs $(a,b)$ for $m = 4, \dots,
+12$:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{rrrl}
+\toprule
+$m$ & $q = 2^m$ & parity of $m$ & $\duni(F)$ \\
+\midrule
+4  & 16   & even & \textbf{4} \\
+5  & 32   & odd  & 2 \\
+6  & 64   & even & \textbf{4} \\
+7  & 128  & odd  & 2 \\
+8  & 256  & even & \textbf{4} \\
+9  & 512  & odd  & 2 \\
+10 & 1024 & even & \textbf{4} \\
+11 & 2048 & odd  & 2 \\
+12 & 4096 & even & \textbf{4} \\
+\bottomrule
+\end{tabular}
+\caption{Differential uniformity of $x \mapsto x + x^{q-2}$ over
+$\F_{2^m}$, exhaustive enumeration.}
+\end{table}
+
+Concrete smallest instance ($q = 16$, $\alpha^4 = \alpha + 1$, elements in
+the basis $\alpha^i \mapsto$ bit $i$): for $a = 1$, $b = 0$,
+\[
+F(x+1) + F(x) = 0 \quad\Longleftrightarrow\quad x \in \{0,\; 1,\; 6,\; 7\}
+\;=\; \{0,\; 1,\; \alpha^5,\; \alpha^{10}\},
+\]
+i.e.\ the two special points $0, a$ together with the two roots of
+$y^2 + y + 1 = 0$ in $\GF(4)$.  Four solutions for one pair $(a,b)$: the
+differential uniformity is at least $4$, not $2$.
+
+\section{Machine-checked instance in core Lean}
+
+The directory \texttt{lean4/} contains a core-Lean (v4.33.1, no Mathlib)
+formalization of the $\GF(16)$ counterexample and a $\GF(32)$ odd-$m$
+control, with $\GF(2^m)$ elements encoded as $\mathrm{Nat}$ literals in the
+polynomial basis and field addition implemented as bitwise XOR by structural
+recursion.  All statements are closed literal equalities proved by
+\texttt{rfl}; \texttt{Check.lean} audits
+\[
+\texttt{\#print axioms}
+\]
+for every theorem, and each reports \emph{``does not depend on any
+axioms''} (no \texttt{sorry}, no \texttt{propext}, no \texttt{Quot.sound}):
+
+\begin{itemize}
+  \item \texttt{delta\_16 : delta16 = 4} --- the full $15 \times 16$
+        enumeration over $\GF(16)$;
+  \item \texttt{attack\_instance\_16 : diffCount16 1 0 = 4} and
+        \texttt{attack\_solutions\_16} --- the solutions are exactly
+        $\{0,1,6,7\}$;
+  \item \texttt{delta\_32 : delta32 = 2} --- the full enumeration over
+        $\GF(32)$ (odd-$m$ boundary control);
+  \item \texttt{gf\_inv16\_ok}, \texttt{gf\_inv32\_ok} --- the inverse tables
+        agree with an independently written carry-less multiplication.
+\end{itemize}
+
+Build and audit:
+\begin{verbatim}
+cd lean4
+lake build
+lake env lean Check.lean
+\end{verbatim}
+
+\section{Conclusion}
+
+The differential uniformity of $x \mapsto x + x^{q-2}$ over $\F_{2^m}$ is
+$4$ for every even $m$ and $2$ for every odd $m$ --- proved in
+Claim~\ref{claim:main}, confirmed by exhaustive computation for all
+$q \leq 4096$ in the family, and machine-checked (zero axioms) for the
+instance $q = 16$.  Since $m = 2k$ is unbounded, arbitrarily large $q$ have
+$\duni(F) = 4 \neq 2$; the conjectured ``$\duni = 2$ for large $q$'' fails.
+The correct picture is parity-dependent: the inverse-type map
+$x \mapsto x + x^{q-2}$ is APN exactly on the odd-degree subfamily, and on
+the even-degree subfamily its differential uniformity is uniformly $4$ at
+every size.
+
+\end{document}

@@ -1,0 +1,116 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\title{Disproof of Conjecture 00000001046:\\
+The differential uniformity of $x \mapsto x+x^{q-2}$ is not $2$ for large $q$}
+\author{TLMC falsification pack}
+\date{October 2, 2026}
+\newtheorem*{conj*}{Conjecture 00000001046}
+\newtheorem{fact}{Fact}
+\begin{document}
+\maketitle
+
+\section*{Verdict}
+\textbf{FALSE.}
+
+\section{The conjecture, verbatim, and the object}
+
+\begin{conj*}
+The differential uniformity of $x \mapsto x+x^{q-2}$ is $2$ for large $q$
+(uniqueness of the optimal almost perfectly nonlinear (APN) function for large $q$).
+\end{conj*}
+
+\noindent\emph{Object discipline.} We attack exactly the named object. Let
+$F_q = \mathrm{GF}(2^m)$, $q = 2^m$, and
+\[
+f \colon F_q \to F_q, \qquad f(x) = x + x^{q-2}.
+\]
+For $x \neq 0$, $x^{q-2} = x^{-1}$, and $f(0) = 0$ because $0^{\,q-2} = 0$
+($q-2 \ge 1$); thus $f$ is inversion with $0 \mapsto 0$, plus the identity ---
+precisely the map $x \mapsto x + x^{q-2}$ of the conjecture. Its
+\emph{differential uniformity} is the standard quantity
+\[
+\delta(f) \;=\; \max_{a \in F_q^{*},\, b \in F_q} \#\{x \in F_q : f(x+a) + f(x) = b\},
+\]
+the additive subtraction being XOR in characteristic $2$. The conjecture asserts
+that $\delta(f) = 2$ for all sufficiently large $q$.
+
+\section{The attack}
+
+Take the input difference $a = 1$ and output difference $b = 0$. For
+$x, x+1 \neq 0$,
+\[
+f(x+1) = f(x) \iff (x+1) + (x+1)^{-1} = x + x^{-1}
+\iff 1 = x^{-1} + (x+1)^{-1} = \frac{1}{x(x+1)},
+\]
+i.e.\ $x^2 + x + 1 = 0$. In $\mathrm{GF}(2^m)$ this quadratic has exactly two
+roots iff $3 \mid 2^m - 1$, i.e.\ iff $m$ is \emph{even}. The two remaining
+values $x = 0$ and $x = 1$ are degenerate solutions as well
+($f(0) = 0 = 1 + 1 = f(1)$, using $0^{q-2} = 0$ and $1^{-1} = 1$).
+
+\begin{fact}\label{fac:even}
+For every even $m$:
+$\#\{x \in F_{2^m} : f(x+1) + f(x) = 0\} = 4$, hence
+$\delta(f) \ge 4 \ne 2$ at $q = 2^m$.
+\end{fact}
+
+The two non-degenerate solutions are the primitive third roots of unity
+$\omega, \omega^2$ (so the four solutions are $0, 1, \omega, \omega^2$); at
+$q = 16$ (poly $X^4+X+1$) they evaluate to $x \in \{0, 1, 6, 7\}$.
+The count of a derivative entry is invariant under field isomorphism (an
+isomorphism preserves $+$, $\cdot$, $^{-1}$, hence conjugates $f$ to itself),
+so the witness count $4$ at $(a,b) = (1,0)$ does not depend on the chosen
+irreducible polynomial.
+
+\subsection{Full enumeration (machine recomputation)}
+
+\begin{center}
+\begin{tabular}{rrrl}
+\toprule
+$m$ & $q$ & $\delta(f)$ & parity of $m$ \\
+\midrule
+4  & 16   & \textbf{4} & even \\
+5  & 32   & 2 & odd \\
+7  & 128  & 2 & odd \\
+8  & 256  & \textbf{4} & even \\
+9  & 512  & 2 & odd \\
+10 & 1024 & \textbf{4} & even \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Each entry is a complete enumeration over all $a \in F_q^{*}$, $b \in F_q$,
+$x \in F_q$ (\texttt{reproduce.py}; field polynomials verified irreducible:
+$X^4{+}X{+}1$, $X^5{+}X^2{+}1$, $X^7{+}X{+}1$, $X^8{+}X^4{+}X^3{+}X{+}1$,
+$X^9{+}X^4{+}1$, $X^{10}{+}X^3{+}1$). Even $m$ produces arbitrarily large $q$
+with $\delta(f) = 4 \neq 2$; therefore the conjectured threshold does not exist
+and the conjecture is false.
+
+\section{Formal certificate (Lean 4)}
+
+\texttt{lean4/Main.lean} (checked by \texttt{lean4/Check.lean}) certifies the
+attack on concrete fields, everything table-driven and closed by kernel
+\texttt{decide} on concrete \texttt{Nat} arithmetic:
+\begin{itemize}
+\item \texttt{TLMC1046.delta16\_eq\_4}: at $q = 16$, every derivative value
+occurs at most $4$ times over all $a \neq 0$ and $(1,0)$ occurs exactly $4$
+times --- the complete computation of $\delta(f) = 4$;
+\item \texttt{TLMC1046.cnt256\_1\_0} and \texttt{TLMC1046.cnt1024\_1\_0}: the
+$4$-fold occurrence of $(1,0)$ persists at $q = 256$ and $q = 1024$;
+\item \texttt{TLMC1046.disproof} packages the exhibits.
+\end{itemize}
+There is no \texttt{sorry} and no \texttt{native\_decide}; the axiom audit over
+all $9$ theorems reports $9/9$ axiom-free (no \texttt{propext},
+\texttt{Quot.sound}, \texttt{Classical.choice}).
+
+\section{Boundaries}
+
+For odd $m$ the conjectured value $\delta(f) = 2$ genuinely holds (verified at
+$q = 32, 128, 512$); the failure is entirely the even-$m$ family
+(Fact~\ref{fac:even}), consistent with the classical fact that $x + x^{-1}$ is
+APN iff $m$ is odd. We claim nothing about APN-uniqueness beyond the refuted
+premise $\delta(f) = 2$ for large $q$.
+
+\end{document}
