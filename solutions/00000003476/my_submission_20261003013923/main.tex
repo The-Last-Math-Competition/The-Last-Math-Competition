@@ -1,0 +1,47 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003476}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} subdividing an edge decreases the Wiener index if
+and only if the betweenness of that edge is below one quarter of the
+vertex count.
+\end{quote}
+
+\section{The counterexample (K$_5$)}
+
+Every edge of $K_5$ has betweenness $0 < 5/4$: the criterion predicts
+that subdivision decreases the Wiener index. But subdividing the edge
+$\{0,1\}$ (replacing it by $0{-}x{-}1$) gives the fifteen pairwise
+distances
+$d(0,1) = 2$, $d(0,j) = d(1,j) = d(0,x) = d(1,x) = 1$ ($j = 2,3,4$),
+$d(x,j) = 2$ ($j = 2,3,4$), $d(i,j) = 1$ ($2 \le i < j \le 4$),
+summing to $W = 19 > 10 = W(K_5)$: the Wiener index \emph{increased}.
+
+The ``if'' direction of the characterization is false; the criterion is
+refuted (indeed subdivision of any edge of any complete graph increases
+the Wiener index).
+
+\section{Verification}
+
+\texttt{reproduce.py} runs Floyd--Warshall from scratch on $K_5$ and
+all ten single-edge subdivisions, computes the betweenness of every
+$K_5$ edge (zero), and checks the criterion's prediction against the
+actual change (wrong in all ten cases). The Lean package (core
+Lean~4, v4.33.1) certifies both Wiener sums, the betweenness bound, and
+the increase; all six audited theorems report \texttt{does not depend
+on any axioms}.
+
+\section{Boundary}
+
+Only the displayed criterion is refuted via $K_5$; the cut-load chain
+and bipartite-exactness clauses are not addressed.
+
+\end{document}
