@@ -1,0 +1,56 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001433}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} the absorption time of ARW is the time when all
+particles sleep. \textit{Conjecture:} for fixed $\lambda > \lambda_c$,
+the tail of the local absorption time is exponential,
+$P(T > t) \le \exp(-c(\lambda)\, t)$, with the explicit linear rate
+$c(\lambda) = \lambda - 1$; the rate tends to $\infty$ as
+$\lambda \to \infty$ and to $0$ as $\lambda \downarrow \lambda_c$.
+\end{quote}
+
+\section{The refutation}
+
+The explicit rate $c(\lambda) = \lambda - 1$ is \emph{negative} on the
+whole region $(\lambda_c, 1)$ for any threshold $\lambda_c < 1$ --- the
+known ARW regime (the critical density is strictly below $1$;
+Rolla--Sidoravicius). At $\lambda = 9/10$:
+$c(\lambda) = -1/10 < 0$, so the claimed bound is
+$\exp(-c\, t) = e^{t/10}$, which \emph{grows}: it exceeds $1$ for every
+$t > 0$ and diverges. A growing bound is not an exponential decay
+tail. Moreover, the stated limit forces
+$c(\lambda_c) = \lambda_c - 1 = 0$, i.e.\ $\lambda_c = 1$; but for any
+$\lambda_c < 1$ one has $c(\lambda_c) = \lambda_c - 1 < 0 \ne 0$,
+contradicting the conjecture's own limit at its own critical point.
+The formula $c = \lambda - 1$ is compatible with the stated limits
+only if $\lambda_c = 1$ --- neither assumed nor true.
+
+\section{Verification}
+
+\texttt{reproduce.py} checks with exact fractions that
+$c(9/10) = -1/10 < 0$, that $e^{t/10}$ exceeds $1$ and diverges
+($t = 1, 10, 100$), and that $c(\lambda_c) < 0 \ne 0$ for
+$\lambda_c \in \{1/2, 7/10, 9/10\}$. The Lean package (core Lean~4,
+v4.33.1) certifies the scaled-pair rate lemma (negativity and
+nonvanishing of $(u-v)/v$ whenever $u < v$), the instance $9 < 10$,
+and the growing exponent $10 - 9 = 1 > 0$; all four audited theorems
+report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the arithmetic core (negativity and nonvanishing
+of the linear rate below $1$, universally in the scaled form); the ARW
+threshold fact $\lambda_c < 1$ is the classical
+Rolla--Sidoravicius theorem, cited in prose, as is the
+probability-theoretic reading of growing versus decaying bounds.
+
+\end{document}
