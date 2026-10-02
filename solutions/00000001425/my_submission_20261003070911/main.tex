@@ -1,0 +1,58 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001425}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} the relaxation time $t_{\mathrm{rel}}$.
+\textit{Conjecture:} for random walks on the binary tree,
+$t_{\mathrm{rel}} = (1+o(1))\cdot 4n$ with second term $-2\log n$.
+\end{quote}
+
+\section{The refutation}
+
+For the complete binary tree of depth $d$, the similarity-symmetrized
+walk matrix has second eigenvalue giving
+\[
+t_{\mathrm{rel}} = 4\cdot 2^d - 6d + O(1),
+\]
+measured at $d = 8, 10, 12$: $984.6$, $4045.1$, $16321.4$ (formula:
+$976$, $4036$, $16312$); the least-squares second-term coefficient is
+$-5.8 \approx -6$.
+
+\emph{Reading $n = $ depth $d$:} the conjectured law $4d + o(d)$ is
+linear, but the growth is exponential --- $2^d > 4d$ for all
+$d \ge 5$ (kernel-certified by induction). At $d = 12$ the conjectured
+$4d = 48$ against the measured $16321.4$, just under the exponential
+law $4\cdot 2^{12} = 16384$.
+
+\emph{Reading $n = $ vertices $N = 2^{d+1}-1$:} the leading
+coefficient is $t_{\mathrm{rel}}/N \to 2$ (not $4$), and the second
+term is $-6d = -6\log_2(N+1) + O(1)$ (coefficient $-6$, not $-2$).
+
+Both readings fail; the conjectured law holds for neither.
+
+\section{Verification}
+
+\texttt{reproduce.py} recomputes the eigenvalues independently
+(NumPy) at $d = 8, 10, 12$, fits the second-term coefficient, checks
+the separation $2^d > 4d$ up to $d = 39$, and evaluates the $n = N$
+reading. The Lean package (core Lean~4, v4.33.1) certifies the
+exponential-vs-linear separation for all $d \ge 5$ and the instance
+anchors; all five audited theorems report \texttt{does not depend on
+any axioms}.
+
+\section{Boundary}
+
+The spectral measurements are numerical (script, standard
+complete-binary-tree walk conventions); the kernel certifies the
+exponential-vs-linear separation and the instance anchors. The
+conjecture fails under both readings of $n$.
+
+\end{document}
