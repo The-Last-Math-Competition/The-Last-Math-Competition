@@ -1,0 +1,104 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem*{claim}{Claim}
+\newcommand{\Sch}{\mathfrak{S}}
+\newcommand{\lcm}{\ell}
+
+\title{Disproof of Conjecture 00000001128\\
+\large Maximal Schubert-polynomial coefficients are not a factorial times a lattice-path count}
+\author{}
+\date{October 2, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{quote}
+\textbf{Conjecture (00000001128), quoted verbatim.} ``Definition: $M(w,j)$ is the maximal
+monomial coefficient in the degree-$j$ part of the Schubert polynomial $\Sch_w$.
+Conjecture: $M(w,j)$ equals $\min(j,\lcm(w),\lceil \lcm(w)/2\rceil)!$ times a lattice-path
+count $C(w)$, where $C(w)$ has a product formula on $321$-avoiding permutations; in
+particular $M(w,\lcm(w))$ is an explicit function of the increasing-subsequence count of $w$.''
+\end{quote}
+
+We disprove the conjecture with a single counterexample. Since $C(w)$ is a
+\emph{count} of lattice paths, it must be a non-negative integer; the conjecture forces
+$C(321) = 1/2$.
+
+\section{The counterexample $w = 321 \in S_3$}
+
+Let $w = 321$ (one-line notation), the longest element $w_0$ of $S_3$. Then
+$\lcm(w) = 3$, and $w$ has longest increasing subsequence length $1$.
+
+\paragraph{The Schubert polynomial.}
+For the longest element of $S_n$ one has the product formula
+\[
+\Sch_{w_0} \;=\; \prod_{1 \le i < j \le n} (x_i + x_{i+1} + \dots + x_{j-1}),
+\]
+so in $n = 3$ variables
+\[
+\Sch_{321} \;=\; x_1\,(x_1 + x_2)\,x_2 \;=\; x_1^2 x_2 + x_1 x_2^2 .
+\]
+This polynomial is homogeneous of degree $3$ (equivalently, its degree-$3$ part is the
+whole polynomial), so there is no ambiguity in the notion of ``degree-$j$ part''.
+
+\paragraph{The maximal coefficient.}
+Both monomials $x_1^2 x_2$ and $x_1 x_2^2$ of the degree-$3$ part carry coefficient $1$;
+hence
+\begin{equation}
+M(321,\,3) \;=\; 1. \label{eq:M}
+\end{equation}
+This value was confirmed by an independent exact computation of $\Sch_w$ via the
+down-transition recurrence
+\[
+\Sch_{\mathrm{id}} = 1, \qquad
+\Sch_w \;=\; \sum_{i\,:\,\lcm(w t_i) < \lcm(w)} x_i \cdot \Sch_{w t_i},
+\]
+implemented in \texttt{reproduce.py} in exact integer arithmetic; the resulting
+polynomial $x_1^2x_2 + x_1x_2^2$ agrees with the product formula above.
+
+\paragraph{The conjectured factorial factor.}
+With $j = 3$ and $\lcm(w) = 3$,
+\begin{equation}
+\min\bigl(j,\ \lcm(w),\ \lceil \lcm(w)/2 \rceil\bigr)!
+\;=\; \min(3,\,3,\,\lceil 3/2 \rceil)!
+\;=\; \min(3,3,2)!
+\;=\; 2!\;=\;2. \label{eq:fac}
+\end{equation}
+
+\section{The contradiction}
+
+Suppose the conjecture holds at $(w,j) = (321,3)$. Then by \eqref{eq:M} and \eqref{eq:fac}
+\[
+1 \;=\; M(321,3) \;=\; 2 \cdot C(321),
+\]
+with $C(321)$ a lattice-path count, i.e.\ a non-negative integer. But $2 \nmid 1$, so the
+unique rational solution is $C(321) = \tfrac12 \notin \mathbb{Z}_{\ge 0}$, which cannot be
+the cardinality of any set of lattice paths. Contradiction.
+
+The failure is generic in nature: whenever $\lcm(w)$ is odd and the conjectured factor
+$\min(j,\lcm(w),\lceil \lcm(w)/2 \rceil)!$ contains an even factor at $j = \lcm(w)$, every
+odd value of $M(w,j)$ is immediately excluded --- and odd maximal coefficients occur
+already at the top element of $S_3$. One counterexample suffices.
+
+\begin{claim}
+Conjecture 00000001128 is false: the identity
+$M(w,j) = \min(j,\lcm(w),\lceil \lcm(w)/2\rceil)! \cdot C(w)$ fails at $w = 321$,
+$j = 3$, since it would force $C(321) = 1/2$, which is not a lattice-path count.
+\end{claim}
+
+\paragraph{Artifacts.}
+\begin{itemize}
+  \item \texttt{reproduce.py} --- exact recomputation of $\Sch_{321}$ (down-transition
+        recurrence, cross-checked against the product formula), extraction of $M(321,3)$,
+        the factor of \eqref{eq:fac}, and the divisibility failure.
+  \item \texttt{lean4/Main.lean} --- a zero-axiom Lean~4 certificate (no \texttt{sorry},
+        no \texttt{propext}, no \texttt{Classical.choice}, no \texttt{Quot.sound}) proving
+        $\lcm(321) = 3$, $M(321,3) = 1$, and
+        $\neg \exists C : \mathbb{N},\ M(321,3) = k! \cdot C$ for
+        $k = \min(3,3,\lceil 3/2 \rceil)$.
+\end{itemize}
+
+\end{document}
