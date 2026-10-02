@@ -1,0 +1,42 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003730}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the maximum of graph spectral energy is attained
+by complete bipartite graphs; among trees the minimum is attained by
+paths.
+\end{quote}
+
+\section{The counterexample (5 vertices)}
+
+$A(K_5) = J - I$ has spectrum $\{4, -1, -1, -1, -1\}$ (all-ones
+eigenvector with eigenvalue 4; every sum-zero vector with eigenvalue
+$-1$), so its energy is $4 + 4 = 8$. Every complete bipartite graph
+$K_{m,n}$ on 5 vertices has spectrum
+$\{\sqrt{mn}, -\sqrt{mn}, 0^{m+n-2}\}$, energy $2\sqrt{mn} \le 2\sqrt6$
+(maximum at $\{m,n\} = \{2,3\}$). Since $8 > 2\sqrt6$ (squared:
+$64 > 24$), the non-bipartite graph $K_5$ strictly exceeds every
+complete bipartite graph: the maximum clause is false.
+
+\section{Verification}
+
+\texttt{reproduce.py} computes eigenvalues over all 1024 graphs on 5
+vertices (maximum energy 8, attained uniquely by $K_5$). The Lean
+package (core Lean~4, v4.33.1) certifies the numeric comparisons; all
+audited theorems report \texttt{does not depend on any axioms}. The
+spectra used are classical.
+
+\section{Boundary}
+
+Only the maximum clause is refuted; the tree-minimum clause is
+classical and not disputed.
+
+\end{document}
