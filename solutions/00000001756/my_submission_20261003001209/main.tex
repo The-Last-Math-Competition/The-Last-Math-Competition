@@ -1,0 +1,46 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001756}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the maximal order $d(n)$ of a unimodular square
+submatrix of the $S_n$ character table equals
+$d(n) = \#\{\lambda \vdash n : \mathrm{hook}(\lambda)\ \text{pairwise
+coprime}\}$, and a submatrix of that order is selectable from
+irreducible-character rows sorted by dimension.
+\end{quote}
+
+\section{The counterexample at $n=3$}
+
+$S_3$ character table, rows sorted by dimension (trivial, sign,
+standard), columns $[e], [(12)], [(123)]$:
+$\chi = \left(\begin{matrix} 1 & 1 & 2 \\ 1 & -1 & 1 \\ 2 & 0 & -1 \end{matrix}\right)$.
+
+\textbf{Formula value 3.} All partitions $(3), (2,1), (1,1,1)$ have
+pairwise coprime hook multisets $\{3,2,1\}, \{3,1,1\}, \{3,2,1\}$.
+
+\textbf{True value 2.} The only $3\times3$ submatrix is the whole table
+with $\det = 6 \ne \pm 1$; while rows $\{$trivial, standard$\}$,
+columns $\{(12),(123)\}$ give $\det = -1$. Hence $d(3) = 2 \ne 3$, and
+the dim-sorted order-3 selection does not exist.
+
+\section{Verification}
+
+\texttt{reproduce.py} computes all ten square-submatrix determinants and
+recomputes the hook multisets from the hook-length formula. The Lean
+package (core Lean~4, v4.33.1) certifies the determinants, the pairwise
+coprimality, and $3 \ne 2$; all five audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+Only $n = 3$ is addressed; larger $n$ are not.
+
+\end{document}
