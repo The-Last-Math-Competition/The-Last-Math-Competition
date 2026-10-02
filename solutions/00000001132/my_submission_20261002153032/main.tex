@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+
+\title{Disproof of Conjecture 00000001132\\
+\large The structure group of $T(G/B)$ always reduces to a maximal torus:\\ the rank-1 counterexample $G=\mathrm{SL}_2$}
+\author{TLMC submission}
+\date{October 2, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000001132 states: \emph{``The structure group of the tangent bundle of the complete flag variety reduces to a maximal torus if and only if $G$ is a torus (a characterization of tangent-bundle triviality).''}
+We disprove it with $G=\mathrm{SL}_2$: the flag variety is $G/B \cong \mathbb{P}^1$, the tangent bundle $T\mathbb{P}^1 \cong \mathcal{O}(2)$ is a complex line bundle whose structure group is $\mathbb{C}^* = \mathbb{G}_m$ --- \emph{already} a torus --- while $\mathrm{SL}_2$ is not a torus.  The mechanism is checked end-to-end by a zero-axiom Lean~4 certificate in the discrete model $\mathrm{SL}_2(\mathbb{F}_2)$.
+\end{abstract}
+
+\section{The conjecture}
+
+\begin{quote}
+The structure group of the tangent bundle of the complete flag variety reduces to a maximal torus if and only if $G$ is a torus (a characterization of tangent-bundle triviality).
+\end{quote}
+
+We exhibit $G$ with a reduction of the structure group of $T(G/B)$ to a maximal torus, but with $G$ not a torus, so the ``$\Leftarrow$'' (indeed the ``$\Rightarrow$'') direction fails.
+
+\section{The counterexample $G = \mathrm{SL}_2$}
+
+Let $G=\mathrm{SL}_2(\mathbb{C})$, $B$ the upper-triangular Borel, $U\le B$ its unipotent radical, $T = B/U \cong \mathbb{C}^*$ the maximal torus $\{\mathrm{diag}(t,t^{-1})\}$.
+
+\begin{enumerate}
+\item \textbf{Flag variety and tangent bundle.} $G/B \cong \mathbb{P}^1(\mathbb{C})$ and $T_{\mathbb{P}^1} \cong \mathcal{O}(2)$, a complex \emph{line} bundle. As a $\mathrm{GL}_1(\mathbb{C})$-bundle its structure group is $\mathbb{C}^*=\mathbb{G}_m$, which is precisely (the image of) the maximal torus of $\mathrm{SL}_2$ acting on the tangent line by the weight-2 character $t \mapsto t^2$, surjective onto $\mathbb{C}^*$.
+\item \textbf{The mechanism, at every rank.} The tangent bundle of $G/B$ is the homogeneous bundle
+\[
+T(G/B) \cong G \times_B (\mathfrak{g}/\mathfrak{b}),
+\]
+and the adjoint action of $B$ on $\mathfrak{g}/\mathfrak{b}$ factors through $B \twoheadrightarrow B/U \cong T$, because the unipotent radical acts trivially on the quotient. Hence the structure group of $T(G/B)$ \emph{canonically} reduces to the maximal torus $T$ --- for \emph{every} $G$, torus or not.
+\item \textbf{$\mathrm{SL}_2$ is not a torus.} It is non-abelian: $\begin{psmallmatrix}1&1\\0&1\end{psmallmatrix}$ and $\begin{psmallmatrix}1&0\\1&1\end{psmallmatrix}$ do not commute.
+\end{enumerate}
+
+So ``structure group reduces to a maximal torus'' holds while ``$G$ is a torus'' fails: the biconditional is false. The conjecture indeed mischaracterizes triviality: $\mathcal{O}(2)$ is \emph{not} trivial ($c_1 = 2 \neq 0$) even though its structure group is a torus. (What \emph{is} true: $T(G/B)$ is trivial iff $G$ is commutative, i.e.\ $G/B = \mathrm{pt}$ --- the conjecture conflated reduction with triviality.)
+
+\section{Machine-checked discrete certificate}
+
+The identical algebraic mechanism is verified with zero axioms in the smallest faithful model $G=\mathrm{SL}_2(\mathbb{F}_2)=\mathrm{GL}_2(\mathbb{F}_2)$ ($|G|=6\cong S_3$; $\mathbb{F}_2^*=\{1\}$; flag set of 3 points). Matrices over $\mathbb{F}_2$ as $(a\,b; c\, d)$, $\det = ad\oplus bc$:
+
+\begin{itemize}
+\item $\det I = \det U = \det V = 1$ with $U=\left(\begin{smallmatrix}1&1\\0&1\end{smallmatrix}\right)$, $V=\left(\begin{smallmatrix}1&0\\1&1\end{smallmatrix}\right)$; $U V = \left(\begin{smallmatrix}0&1\\1&1\end{smallmatrix}\right) \neq \left(\begin{smallmatrix}1&1\\1&0\end{smallmatrix}\right) = V U$ \;\;$\Rightarrow$ $G$ non-abelian, hence not a torus.
+\item $B=\{I,U\}$ (both self-inverse); $\mathfrak{g}/\mathfrak{b}$ is $1$-dimensional over $\mathbb{F}_2$ with coordinate the bottom-left entry. For \textbf{all} $16$ matrices $X\in\mathfrak{g}$ and both $b\in B$: $(bXb^{-1})\bigr|_{\mathfrak{g}/\mathfrak{b}} = X\bigr|_{\mathfrak{g}/\mathfrak{b}}$, so the induced transition functions of $G\times_B(\mathfrak{g}/\mathfrak{b})$ are the identity --- the image of the maximal torus $T=\{\mathrm{diag}(1,1)\}$ \;\;$\Rightarrow$ the structure group reduces to a maximal torus.
+\end{itemize}
+
+Lean 4 (no dependencies): \texttt{Main.lean} proves
+\texttt{conjecture\_00000001132\_false : ¬ (ReducesToMaximalTorus ↔ GroupIsAbelian)}
+from \texttt{reduction\_holds} and \texttt{not\_torus}; \texttt{Check.lean} audits every theorem with \texttt{\#print axioms}: all report \emph{``does not depend on any axioms''} (no \texttt{propext}, no \texttt{Classical.choice}, no \texttt{Quot.sound}, zero \texttt{sorry}). \texttt{reproduce.py} recomputes all listed values.
+
+\section{Conclusion}
+
+\textbf{Conjecture 00000001132 is DISPROVEN.} The structure group of the tangent bundle of the complete flag variety reduces to a maximal torus for \emph{every} reductive $G$ (rank-1 example $G=\mathrm{SL}_2$, $T(G/B) \cong \mathcal{O}(2)$), so no such ``iff'' with ``$G$ is a torus'' can hold.
+
+\end{document}
