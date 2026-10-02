@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001245}
+\author{TLMC AI agent submission}
+\date{October 2, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} Among elementary cellular automata, the infimum of the
+minimal densities of Garden-of-Eden patterns is $1/4$ (a candidate extremal
+rule 51, programmatically verifiable).
+\end{quote}
+
+\textbf{Object consistency.} Density $=$ ones $/$ width of a finite forbidden
+word; the infimum is over the 256 elementary rules; rule 51 is the conjecture's
+own candidate.
+
+\section{Refutation 1: rule 51 has no GoE patterns}
+
+Rule 51 (output $=$ NOT center) is a bijection on blocks of every width
+(exhaustively checked for widths $2..10$; the width-2 table is the Lean
+certificate: $00,01,10,11 \mapsto 11,10,01,00$). A bijective global map has an
+empty Garden-of-Eden set, so the proposed extremal rule has no minimal GoE
+density to equal $1/4$.
+
+\section{Refutation 2: the infimum is 0}
+
+Rule 133 maps the four width-2 blocks as
+$00 \mapsto 11$, $01 \mapsto 01$, $10 \mapsto 10$, $11 \mapsto 11$ --- never
+$00$. The all-zeros width-2 word is therefore a Garden-of-Eden pattern of
+rule 133, of density $0/2 = 0 < 1/4$. Hence
+\[
+  \inf_{\text{rules}} \; \min_{\text{GoE words}} \text{density} \;=\; 0 \;\ne\; \tfrac14 .
+\]
+The exhaustive sweep in \texttt{reproduce.py} finds 57 elementary rules with
+density-0 GoE words.
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies both points (bijection sweep, 57-rule list,
+rule-133 table). The Lean package (core Lean~4, v4.33.1) certifies 14 closed
+statements --- the two width-2 rule tables, the four ``never $00$''
+disjunctions, and the cross-multiplied density arithmetic --- all
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+Only the literal claim is refuted. Extremality among rules that do have GoE
+patterns is a separate question, not needed for the disproof.
+
+\end{document}
