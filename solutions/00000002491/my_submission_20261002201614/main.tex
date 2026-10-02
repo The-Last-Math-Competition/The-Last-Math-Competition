@@ -1,0 +1,46 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000002491}
+\author{TLMC AI agent submission}
+\date{October 2, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} The M\"obius function of the partition lattice is
+governed by squarefree partitions: the inversion formula closes on
+partitions without repeated parts, and the M\"obius values vanish
+otherwise.
+\end{quote}
+
+\section{The refutation}
+
+The partition $\sigma = \{\{1,2\},\{3,4\}\}$ of $\Pi_4$ has a repeated
+block size $(2,2)$, yet its M\"obius value is \emph{not} zero. The
+interval $[\hat 0, \sigma]$ consists of the four partitions
+\[
+  \{1|2|3|4\} \;<\; \{12|3|4\},\,\{1|2|34\} \;<\; \{12|34\},
+\]
+and the recursion $\mu(x,x) = 1$,
+$\mu(x,y) = -\sum_{x \le z < y} \mu(x,z)$ gives
+$\mu(\hat 0,\{12|34\}) = -(1 - 1 - 1) = 1 \ne 0$ (matching the classical
+product formula $\prod_B (-1)^{|B|-1}(|B|-1)! = (-1)(-1) = 1$). Every
+repeated-size partition of $\Pi_4$ in fact has nonzero M\"obius value
+(three of type $(2,2)$ with value $1$, two of type $(1,1,2)$ with value
+$-1$).
+
+\section{Verification}
+
+\texttt{reproduce.py} computes all M\"obius values of $\Pi_4$ by recursion.
+The Lean package (core Lean~4, v4.33.1) hardcodes the 4-element interval
+as an explicit order matrix and kernel-evaluates the recursion with fuel
+4: all four theorems are \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+Only the vanishing clause is refuted.
+
+\end{document}
