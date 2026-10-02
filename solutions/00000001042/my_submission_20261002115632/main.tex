@@ -1,0 +1,92 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+
+\newtheorem*{claim*}{Conjecture (00000001042)}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+
+\title{Disproof of TLMC Conjecture 00000001042\\
+\large Value-Set Variance of Random Low-Degree Polynomials}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{claim*}
+\emph{``The variance of the value-set size of a random polynomial $f$ uniform of degree $\le d$ is asymptotically $q\cdot(1 - 1/e)/d$ (value-set variance).''}
+\end{claim*}
+
+\noindent\textbf{Verdict: FALSE.} We refute the conjecture at $d=1$ by exact enumeration, in two ways: the predicted constant is numerically wrong at $q=101$ (Section~\ref{sec:disproof}), and the true asymptotic constant at $d=1$ is $1$, not $1-1/e$ (Section~\ref{sec:asym}).
+
+\section{Setup and object discipline}
+
+Reading of the conjecture (consistent with the verification note ``$a,b$ 全 $F_q$''): $f$ is uniform over \emph{all} polynomials of degree $\le d$, i.e.\ over all coefficient tuples $(a_0,\dots,a_d)\in \mathbb{F}_q^{d+1}$ (constant polynomials included); the value set is $\{f(x): x\in\mathbb{F}_q\}\subseteq\mathbb{F}_q$.
+
+\section{Exact computation at $d=1$, $q=101$}
+
+For $d=1$, $f(x)=ax+b$ with $(a,b)$ uniform over $\mathbb{F}_q^2$. If $a\neq 0$, $x\mapsto ax+b$ is a bijection $\mathbb{F}_q\to\mathbb{F}_q$, so the value-set size is $V=q$; if $a=0$, $f$ is constant and $V=1$. Hence, over the $N=q^2$ polynomials,
+\[
+\sum V=(q-1)q^2+q=q(q^2-q+1),\qquad
+\sum V^2=(q-1)q^3+q=q(q^3-q^2+1),
+\]
+\[
+\operatorname{Var}(V)\;=\;\frac{\sum V^2}{N}-\Bigl(\frac{\sum V}{N}\Bigr)^{2}
+\;=\;\frac{(q^4-q^3+q)q-(q^3-q^2+q)^2}{q^4}
+\;=\;\frac{q^2\bigl(q^3-3q^2+3q-1\bigr)}{q^4}
+\;=\;\frac{(q-1)^3}{q^2},
+\]
+an exact rational identity (machine-verified by enumeration for $2\le q\le 50$ in \texttt{reproduce.py}).
+
+At $q=101$:
+\[
+E[V]=\frac{10101}{101}\approx 100.00990099,\qquad
+E[V^2]=\frac{1020101}{101}\approx 10100.00990099,\qquad
+\operatorname{Var}=\frac{1000000}{10201}\approx 98.02960494.
+\]
+
+\section{Disproof}\label{sec:disproof}
+
+The conjectured value at $(q,d)=(101,1)$ is $101\,(1-1/e)\approx 63.84417644$ ($e\approx 2.718281828$), while the true value is $1000000/10201\approx 98.02960494$: an absolute gap of $\approx 34.19$, a ratio of $\approx 1.535$.
+
+The key step avoids floating point. From $e=\sum_{k\ge0}1/k!$ and $k!\ge 720\cdot 7^{\,k-6}$ for $k\ge 6$,
+\[
+e \;<\; \Bigl(1+1+\tfrac12+\tfrac16+\tfrac1{24}+\tfrac1{120}\Bigr)+\tfrac1{720}\sum_{j\ge0}7^{-j}
+=\tfrac{163}{60}+\tfrac{7}{4320}=\tfrac{11743}{4320}\approx 2.7182870\;<\;\tfrac{68}{25}=2.72 .
+\]
+Therefore $1/e>25/68$ and
+\[
+101\,(1-1/e)\;<\;101\Bigl(1-\tfrac{25}{68}\Bigr)=\frac{4343}{68}\approx 63.8676 ,
+\]
+and $\tfrac{4343}{68}<\tfrac{1000000}{10201}$ because
+$4343\cdot 104060401=451934321543\;<\;693668000000=68\cdot 10201000000$.
+So the conjecture's prediction is strictly below the true variance.
+
+\section{Asymptotic refutation}\label{sec:asym}
+
+Since $\operatorname{Var}(q)=(q-1)^3/q^2\to q$, we have $\operatorname{Var}(q)/q\to 1$ as $q\to\infty$, whereas the conjecture asserts the limit $1-1/e\approx 0.6321$. The claimed asymptotic constant is wrong:
+
+\begin{center}
+\begin{tabular}{ccc}
+\toprule
+$q$ & $\operatorname{Var}=(q-1)^3/q^2$ & $(1-1/e)\,q$\\
+\midrule
+$101$   & $98.0296$    & $63.8442$\\
+$1009$  & $1006.0030$  & $637.8096$\\
+$10007$ & $10004.0003$ & $6325.6304$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}[Boundary reading]
+If ``uniform of degree $\le d$'' were read as ``uniform over degree-\emph{exactly}-$d$ polynomials'' ($a\neq 0$, $N=10100$ pairs), then $V\equiv 101$ deterministically and $\operatorname{Var}=0\neq 63.8442$: the conjecture fails under this reading as well.
+\end{remark}
+
+\section{Lean formalization}
+
+The directory \texttt{lean4/} (Lean 4.33.1, core only, no Mathlib) contains \texttt{Main.lean}, which defines the value-set size, enumerates all $10201$ (resp.\ $10100$) polynomials, and proves with \texttt{decide} and hand-built induction lemmas only: $\operatorname{Var}\cdot 101^4 = 10201000000$, i.e.\ $\operatorname{Var}=1000000/10201$ (\texttt{scaledVar\_eq}), the kernel $4343\cdot 101^4 < 68\cdot 10201000000$ (\texttt{gap}), and the main disproof \texttt{attack}: for every pair $(m,d)$ representing a candidate $e=n/d=(m+d)/d$ with $m>0$ and $25(m+d)\le 68d$ (i.e.\ $1<e\le 68/25$), the scaled equation $\operatorname{Var}\cdot 101^4\cdot(m+d) = 101\,m\cdot 101^2$ is refuted by elementary $\mathbb{N}$ arithmetic; together with the explicit bound $e<11743/4320<68/25$ above this falsifies the conjecture. The boundary reading is refuted by \texttt{attack\_exact1} ($\operatorname{Var}=0$). \texttt{Check.lean} audits \texttt{\#print axioms} for every theorem: all axiom-free.
+
+\end{document}
