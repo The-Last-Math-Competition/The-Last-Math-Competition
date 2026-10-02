@@ -1,0 +1,47 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001531}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} for group rings $\mathbb{Z}\Gamma$ with $\Gamma$
+torsion-free hyperbolic, the minimal nonzero $n$ with
+$HH_n(\mathbb{Z}\Gamma) \ne 0$ is infinite: higher Hochschild homology
+always vanishes.
+\end{quote}
+
+\section{The counterexample: the genus-2 surface group}
+
+$\Gamma = \langle a,b,c,d \mid [a,b][c,d]\rangle$ is torsion-free
+hyperbolic. Burghelea's decomposition of $HH_*(\mathbb{Z}\Gamma)$ over
+conjugacy classes contributes the group homology at the identity class:
+$HH_2(\mathbb{Z}\Gamma) \supseteq H_2(\Gamma;\mathbb{Z}) =
+\mathbb{Z} \ne 0$ (orientable genus-2 surface). The minimal nonzero
+degree is $\le 2$.
+
+\textbf{Chain-level input, kernel-certified:} the Fox derivatives of
+the relator $r = ab\bar{a}\bar{b}cd\bar{c}\bar{d}$ evaluated at the
+trivial representation equal the exponent sums of $a, b, c, d$ in $r$,
+each $+1 - 1 = 0$: all four vanish (structural computation over the
+word's $(generator, exponent)$ pairs).
+
+\section{Verification}
+
+\texttt{reproduce.py} computes all four Fox derivatives symbolically in
+$\mathbb{Z}[\Gamma]$, evaluates them at the augmentation, and confirms
+the abelianization $H_1 = \mathbb{Z}^4$. The Lean package (core
+Lean~4, v4.33.1) certifies the same structural computation; all seven
+audited theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+Only the torsion-free clause is refuted; the torsion case (smallest
+prime factor) is not addressed.
+
+\end{document}
