@@ -1,0 +1,158 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\title{Disproof of TLMC Conjecture 00000001168}
+\author{}
+\date{October 2, 2026}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newcommand{\SSp}{\mathbb{S}}
+\newcommand{\R}{\mathbb{R}}
+\begin{document}
+\maketitle
+
+\section*{Verdict}
+\textbf{FALSE.} The round metric on $\mathrm{SU}(2) \cong \SSp^3$ is itself a
+Zoll metric, and its first nonzero Laplace eigenvalue has multiplicity
+$4 > 2$; the family of rotated round metrics that the conjecture itself
+cites violates the claimed bound on every member.
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition: A Zoll metric is one all of whose geodesics are closed.
+Conjecture: The spectral multiplicity upper bound for Zoll metrics on
+$\mathrm{SU}(2)$ is two; and the counterexample to multiplicity rigidity is
+the family of rotated round metrics. (Zoll multiplicity rigidity)}
+\end{quote}
+
+\section{Counterexample: the round metric on \texorpdfstring{$\mathrm{SU}(2)$}{SU(2)}}
+
+Identify $\mathrm{SU}(2)$ with the unit quaternions, i.e.\ with the round
+unit sphere $\SSp^3 \subset \R^4$. Write $g_r$ for the round (constant
+curvature $1$) metric.
+
+\begin{lemma}\label{lem:zoll}
+$(\SSp^3, g_r)$ is a Zoll metric in the sense of the conjecture's own
+definition: every geodesic is a great circle
+$\gamma(t) = \cos(t)\, u + \sin(t)\, v$ with $u, v \in \SSp^3$ orthonormal,
+closed with the common period $2\pi$.
+\end{lemma}
+
+\begin{proof}
+The geodesics of the round sphere are exactly the great circles
+$C = \SSp^3 \cap P$, $P \subset \R^4$ a two-plane through the origin, and the
+parametrization above (unit speed) satisfies the geodesic equation
+$\ddot\gamma + \gamma = 0$ identically; since $\cos$ and $\sin$ have common
+period $2\pi$, $\gamma(t + 2\pi) = \gamma(t)$ for every great circle. The
+script \texttt{reproduce.py} verifies $|\gamma(t)| = 1$,
+$\ddot\gamma + \gamma = 0$ at sample points, and the $2\pi$-periodicity for
+$200$ sampled orthonormal pairs $(u,v)$.
+\end{proof}
+
+\begin{theorem}\label{thm:main}
+The $k$-th eigenvalue of the Laplace--Beltrami operator of $(\SSp^3, g_r)$ is
+$\lambda_k = k(k+2)$, $k = 0, 1, 2, \dots$, with multiplicity $(k+1)^2$. In
+particular $\lambda_1 = 3$ has multiplicity $4 > 2$. Hence the round metric
+$g_r$, transported to $\mathrm{SU}(2)$ along the quaternion identification,
+is a Zoll metric on $\mathrm{SU}(2)$ whose spectrum violates the claimed
+upper bound of two. The conjecture is false.
+\end{theorem}
+
+\begin{proof}
+The eigenfunctions on the round $\SSp^3 \subset \R^4$ are the restrictions of
+the homogeneous harmonic polynomials on $\R^4$: the eigenspace for
+$\lambda_k$ is the restriction of $\mathcal{H}_k$, the kernel of the flat
+Laplacian $\Delta$ restricted to the space $\mathrm{Hom}_k$ of homogeneous
+polynomials of degree $k$ in $4$ variables.
+
+\emph{Dimension count.} $\dim \mathrm{Hom}_k$ is the number of monomials of
+degree $k$ in $4$ variables,
+\[
+\dim \mathrm{Hom}_k = \binom{k+3}{3} = \frac{(k+1)(k+2)(k+3)}{6}.
+\]
+Since $\Delta$ maps $\mathrm{Hom}_k$ onto $\mathrm{Hom}_{k-2}$ (classical;
+$\Delta$ is surjective because it is self-adjoint for the Fischer inner
+product and its image is the orthogonal complement of the harmonic space in
+$\mathrm{Hom}_{k-2}$; surjectivity is also verified computationally below),
+and $\dim \mathrm{Hom}_{k-2} = \binom{k+1}{3}$, we get
+\[
+\dim \mathcal{H}_k = \binom{k+3}{3} - \binom{k+1}{3} = (k+1)^2 .
+\]
+
+\emph{The case $k=1$ explicitly.} $\mathrm{Hom}_1$ is the space of linear
+forms $c_1 x_1 + c_2 x_2 + c_3 x_3 + c_4 x_4$, all of which are harmonic;
+so $\lambda_1 = 1 \cdot 3 = 3$ and the eigenspace contains the restrictions
+of the four coordinate functions. These are linearly independent: the
+evaluation matrix at the four axis points $e_1, \dots, e_4 \in \SSp^3$ is the
+identity ($x_j(e_i) = \delta_{ij}$), so a linear combination vanishing on
+$\SSp^3$ has $c_i = 0$ for every $i$. Hence
+$\dim \mathcal{H}_1 = 4$, matching $(1+1)^2 = 4$.
+
+\emph{Independent computational verification.} The script
+\texttt{reproduce.py} assembles the flat Laplacian
+$\Delta\colon \mathrm{Hom}_k \to \mathrm{Hom}_{k-2}$ as an explicit matrix
+over $\mathbb{Q}$ (entry
+$\partial^2/\partial x_i^2\, x^a = a_i(a_i - 1)\, x^{a - 2e_i}$) and computes
+its rank by exact rational Gaussian elimination for $k = 0, \dots, 8$. In
+every case the map is surjective onto $\mathrm{Hom}_{k-2}$ and the kernel has
+dimension exactly $(k+1)^2$:
+\[
+\begin{array}{c|ccccccccc}
+k & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8\\ \hline
+\lambda_k = k(k+2) & 0 & 3 & 8 & 15 & 24 & 35 & 48 & 63 & 80\\
+\text{multiplicity } (k+1)^2 & 1 & 4 & 9 & 16 & 25 & 36 & 49 & 64 & 81
+\end{array}
+\]
+Every nonzero eigenvalue has multiplicity $> 2$; already $\lambda_1$ has
+multiplicity $4$.
+\end{proof}
+
+\section{The conjecture's own example family refutes its own bound}
+
+The conjecture proposes ``the family of rotated round metrics'' as the
+counterexample to multiplicity rigidity. But a rotation
+$Q \in SO(4)$ is an isometry of $(\SSp^3, g_r)$: it preserves round distances
+($Q^T Q = I$), so the pulled-back metric $Q^* g_r$ is \emph{identically}
+$g_r$. The ``family of rotated round metrics'' is a single isometry class
+carrying a single spectrum, with $\mathrm{mult}(\lambda_k) = (k+1)^2$ on
+every member --- in particular $\mathrm{mult}(\lambda_1) = 4 > 2$ on every
+member. So the proposed family does not merely fail to support the claimed
+upper bound of two; it is precisely a set of witnesses against it. The two
+clauses of the conjecture are jointly inconsistent:
+
+\begin{itemize}
+\item the bound clause (``multiplicity upper bound is two'') is refuted by
+$g_r$ and by every rotated round metric, all of which are Zoll metrics on
+$\mathrm{SU}(2)$;
+\item the counterexample clause is vacuous as stated, because the proposed
+counterexample family is one isometry class with no metric-to-metric
+spectrum variation to exhibit, and it contradicts the bound clause.
+\end{itemize}
+
+A single counterexample suffices to refute the universal bound: the round
+metric $g_r$ is a Zoll metric on $\mathrm{SU}(2)$ with
+$\mathrm{mult}(\lambda_1) = 4$.
+
+\section{Boundary remarks}
+
+\begin{itemize}
+\item \emph{Scale invariance.} The round metric of any radius $r$ has
+eigenvalues $k(k+2)/r^2$ with the same multiplicities $(k+1)^2$, so no
+rescaling escapes the counterexample. More generally every bi-invariant
+metric on $\mathrm{SU}(2)$ is isometric to a round $\SSp^3$.
+\item \emph{Formalization.} The discrete skeleton is machine-checked in pure
+Lean~4 (no Mathlib, no axioms, no \texttt{sorry}; see \texttt{lean4/}): the
+eigenvalue and multiplicity tables, the dimension count
+$\#\mathrm{Hom}_k - \#\mathrm{Hom}_{k-2} = (k+1)^2$ for $k \le 12$, the
+explicit $k = 1$ case, the linear independence of the coordinate functions
+via the identity evaluation matrix, and the rotation isometry
+(norm preservation and permutation of the axis points).
+\item \emph{Generically Zoll metrics may well have simple spectrum} (as
+expected on $S^3$ by analogy with negative-curvature results); that is
+irrelevant to the refuted statement, which is a \emph{universal upper bound}
+claim falsified by an explicit Zoll metric the conjecture itself points at.
+\end{itemize}
+
+\end{document}
