@@ -1,0 +1,44 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001791}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the union of lct values over polynomial families
+of degree $\le d$ is a discrete layer $\{1/m : m = 1,\dots,d\} \cup
+\{n + 1/m\}$; the explicit layers of the jump set are given by the
+Sano--N\'emethi Newton upper bound.
+\end{quote}
+
+\section{The counterexample at $d = 3$}
+
+$f(x,y) = x^2 + y^3$ has degree $3$ and
+$\mathrm{lct}_0(f) = 1/2 + 1/3 = 5/6$ --- the weighted-homogeneous
+threshold (weights $3, 2$; Saito). But $5/6$ lies in neither layer:
+
+\begin{itemize}
+\item $5/6 \ne 1/m$ for $m = 1,2,3$ (cross-multiplied: $5m \ne 6$);
+\item $5/6 \ne n + 1/m$ for every $n \ge 1$, $m = 1,2,3$: in
+  cross-multiplied form $5m < 6nm + 6$ for all such $n, m$, certified
+  by the chain $5m \le 5m + 6 \le 6m + 6 \le 6nm + 6$ with the last
+  step from $m \le nm$.
+\end{itemize}
+
+\section{Verification}
+
+\texttt{reproduce.py} sweeps the $x^a + y^b$ family and checks the
+membership by exact rational arithmetic. The Lean package (core
+Lean~4, v4.33.1) certifies both layer exclusions uniformly in $n$; all
+four audited theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+Only $d = 3$ is addressed.
+
+\end{document}
