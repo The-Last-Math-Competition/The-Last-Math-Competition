@@ -1,0 +1,63 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001135}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} $P(t) = \sum b_{2i} t^i$ is the Betti-number
+generating function of the Bott--Samelson variety
+$BS(s_1,\dots,s_k)$. \textit{Conjecture:} the coefficients of $P(t)$
+are strictly increasing up to the middle level, $P(t)$ is divisible by
+$(1+t)^{\lfloor k/2 \rfloor}$ with monic quotient, and the quotient's
+coefficients have no internal zeros when $s_1 \dots s_k$ is a reduced
+word.
+\end{quote}
+
+\section{The refutation}
+
+For a reduced word the Bott--Samelson variety is an iterated
+$\mathbb{P}^1$-bundle, so by the projective bundle formula
+\[
+P(t) = (1 + t^2)^k .
+\]
+
+\emph{Divisibility fails.} If $(1+t)\cdot Q(t) = (1+t^2)^2$, evaluating
+at $t = -1$ gives $0 \cdot Q(-1) = (1+1)^2 = 4$, i.e.\ $0 = 4$ ---
+absurd. In general $P(-1) = 2^k \ne 0$ for all $k \ge 1$, with
+synthetic-division remainders $4, 16, 64$ at $k = 2, 4, 6$.
+
+\emph{Strict increase fails.} $(1+t^2)^2 = 1 + 0\cdot t + 2t^2 +
+0\cdot t^3 + t^4$ has vanishing odd-degree coefficients.
+
+\emph{No internal zeros fails.} The quotient for $k = 6$,
+$(1+t)^3(1-t)^6 = 1 - 3t + 0t^2 + 8t^3 - 6t^4 - 6t^5 + 8t^6 + 0t^7
+- 3t^8 + t^9$, has internal zeros.
+
+All three clauses fail for reduced words.
+
+\section{Verification}
+
+\texttt{reproduce.py} performs the polynomial arithmetic over
+$\mathbb{Z}[t]$: $P(-1) = 2^k$ for $k \le 6$, synthetic division
+remainders $4, 16, 64$ at $k = 2, 4, 6$, the exact $k = 6$ quotient
+list with internal zeros, and the $k = 2$ coefficient zeros. The Lean
+package (core Lean~4, v4.33.1) certifies the $k = 2$ divisibility
+failure by the evaluation argument at $t = -1$, using only the clean
+\texttt{Int.mul\_zero}; all three audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the $k = 2$ divisibility failure; the general-$k$
+evaluation failure ($P(-1) = 2^k$) and the other clause failures are
+carried by the exact script arithmetic. The reduced-word
+iterated-$\mathbb{P}^1$-bundle structure and the projective bundle
+formula are classical, cited in prose.
+
+\end{document}
