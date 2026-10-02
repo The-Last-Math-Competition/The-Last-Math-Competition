@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001422}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} on regular graphs,
+$t_{\mathrm{mix}}(\text{interchange})/t_{\mathrm{mix}}(\text{SRW})$
+concentrates around $2$ with variance $O(1/n)$.
+\end{quote}
+
+\section{The counterexample: $K_n$}
+
+$K_n$ is regular. The random walk mixes in one step: the TV distance
+after one step is exactly $1/n \le 1/4$ for $n \ge 4$, so
+$t_{\mathrm{mix}}(\mathrm{SRW}) = 1$. On $K_n$ every pair is adjacent,
+so the interchange process is the random-transpositions shuffle with
+mixing time $\frac12 n \ln n$ (Diaconis--Shahshahani). The ratio is
+$\frac12 n \ln n \to \infty$: at $n = 100$ it already exceeds $200$
+(since $\ln 100 > 4$, as $e^4 < 3^4 = 81 < 100$). The claimed
+constant-2 concentration fails on the most basic regular family.
+
+\section{Verification}
+
+\texttt{reproduce.py} computes the exact one-step TV distances and the
+cutoff values. The Lean package (core Lean~4, v4.33.1) certifies the
+general TV form, the $n = 100$ components, the $e^4 < 100$ anchor, and
+the ratio bound; all five audited theorems report \texttt{does not
+depend on any axioms}. The DS cutoff and $e < 3$ are classical and
+cited.
+
+\section{Boundary}
+
+Only the constant-2 ratio claim is refuted; the CLR spectral-gap
+theorem is not disputed.
+
+\end{document}
