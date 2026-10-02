@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001032}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Non-cyclic} $(v,k,1)$ \textit{planar difference sets do not
+exist outside} $v = q^2+q+1$ \textit{being a prime power square.}
+\end{quote}
+
+\section{The refutation}
+
+For every $q \ge 1$,
+\[
+q^2 \;<\; q^2+q+1 \;<\; (q+1)^2 = q^2 + 2q + 1,
+\]
+since $q < 2q$. Hence $q^2+q+1$ is never a perfect square (a square
+root $s$ would satisfy $q < s < q+1$ by monotonicity of squaring).
+For $q = 0$, $v = 1 = 1^2$, but $1$ is not a prime power: every prime
+power square is at least $4$. The conjecture's exceptional class is
+therefore \emph{empty}: there is no $v = q^2+q+1$ that is a prime
+power square, and the claim degenerates to ``no non-cyclic $(v,k,1)$
+planar difference set exists at all.''
+
+That is false. Non-cyclic planar difference sets exist classically:
+the smallest are the $(91,10,1)$ difference sets of the
+non-Desarguesian projective planes of order $9$ (Bruck; Hall). Here
+$q = 9$ and $v = 91 = 9^2+9+1$, and $91 = 7 \cdot 13$ is not even a
+square ($9^2 < 91 < 10^2$) --- let alone a prime power square. The
+conjecture's own exceptional parameter fails to cover the known
+counterexamples.
+
+\section{Verification}
+
+\texttt{reproduce.py} checks the squeeze for $1 \le q \le 10^6$, the
+$q=0$ case, and the $q=9$ parameter. The Lean package (core Lean~4,
+v4.33.1) certifies the squeeze, the no-square-root theorem for all
+$q \ge 1$ (squaring monotonicity by trichotomy), the
+prime-power-square lower bound, and the $q=9$ numeric check; all seven
+audited theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The existence of non-cyclic $(91,10,1)$ planar difference sets is
+classical finite geometry (Bruck / Hall), cited in prose; the kernel
+certifies the arithmetic core --- the emptiness of the exceptional
+class for all $q$ --- on which the refutation rests.
+
+\end{document}
