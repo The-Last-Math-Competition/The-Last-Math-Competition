@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001559}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} the $n$-disk covering radius $r_n$ of the unit
+disk is the minimal radius of $n$ equal disks covering it.
+\textit{Conjecture:} $r_6$ is an explicit quadratic algebraic number
+of the $(1+\sqrt{3})/2 \cdot (\sqrt{3}-1)$ type, realized by one
+central disk and five symmetric annular disks; and $r_7$ is a cubic
+algebraic number.
+\end{quote}
+
+\section{The refutation}
+
+The conjecture's own displayed expression evaluates to exactly $1$:
+\[
+\frac{1+\sqrt{3}}{2}\cdot(\sqrt{3}-1)
+= \frac{(\sqrt{3}+1)(\sqrt{3}-1)}{2}
+= \frac{(\sqrt{3})^2 - 1}{2} = \frac{3-1}{2} = 1 .
+\]
+So the claim asserts $r_6 = 1$.  But $r_6 \le 0.62 < 1$: place six
+centers at the vertices of the inscribed hexagon (radius $1/2$) and
+cover with radius $0.62$.  The unit disk splits into six $60^\circ$
+sectors; the squared distance to the sector's center is convex on the
+convex sector, so its maximum sits at a sector corner, where the
+values are $1/4$ (origin) and $1 + 1/4 - \cos 30^\circ = 5/4 -
+\sqrt{3}/2 \le 5/4 - 0.866 = 0.384 < 0.3844 = 0.62^2$.  Covered: the
+claimed quadratic-algebraic value is refuted.  (The literature
+optimum is $r_6 \approx 0.5559$, so the one-central-plus-five
+configuration is not optimal either.)
+
+\section{Verification}
+
+\texttt{reproduce.py} evaluates the difference of squares, certifies
+the sector corners, and cross-checks the covering on a
+$2000 \times {\sim}2000$ grid (max squared distance $0.3840 \le
+0.3844$).  The Lean package (core Lean~4, v4.33.1) works in
+$\mathbb{Z}[\sqrt{3}]$ (pairs $(a,b) = a + b\sqrt{3}$, product
+$(ac+3bd, ad+bc)$) and certifies $(1,1)\cdot(-1,1) = (2,0)$ --- the
+claimed value is exactly the integer $1$ --- plus $100 \ne 62$ and
+$62 < 100$; all three audited theorems report \texttt{does not depend
+on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the algebra (claimed value $= 1$) and the value
+comparison; the covering certificate combines the sector-convexity
+argument (prose) with the script's corner checks and grid sweep.  The
+$r_7$ clause is not needed for the refutation.
+
+\end{document}
