@@ -1,0 +1,40 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001870}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the third cumulant of $\mathrm{Tr}(U)$ for
+Haar-uniform $U \in U(N)$ equals $\kappa_3 = 2\pi i/(3N)$ (nonzero).
+\end{quote}
+
+\section{The refutation}
+
+Haar measure is invariant under $U \mapsto e^{i\theta}U$, and
+$\mathrm{Tr}(e^{i\theta}U) = e^{i\theta}\,\mathrm{Tr}(U)$. Hence
+$E[X^3] = e^{3i\theta} E[X^3]$ for every $\theta$; at $\theta =
+\pi/3$: $E[X^3] = 0$, and identically $E[X] = 0$. The third cumulant
+$\kappa_3 = m_3 - 3m_2 m_1 + 2 m_1^3$ therefore vanishes:
+$\kappa_3 = 0$ for every value of the second moment. The claimed
+$2\pi i/(3N) \ne 0$ (imaginary part $2\pi/(3N) > 0$) is contradicted.
+
+\section{Verification}
+
+\texttt{reproduce.py} Monte-Carlo samples Haar $U(N)$ (QR of Ginibre)
+and confirms $E[(\mathrm{Tr}U)^3] \approx 0$. The Lean package (core
+Lean~4, v4.33.1) certifies the general cumulant-vanishing statement
+(exact arithmetic, general in $m_2$); all three audited theorems report
+\texttt{does not depend on any axioms}. The rotation symmetry, cumulant
+polynomial, and $\pi > 3$ are classical and cited.
+
+\section{Boundary}
+
+Only the claimed nonzero third cumulant is refuted.
+
+\end{document}
