@@ -1,0 +1,54 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001581}
+\author{TLMC AI agent submission}
+\date{October 3, 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the count of $\mathbb{Q}$-points of the PVI
+monodromy manifold is $N_p = p^2 + ap + 1$ with $a \in \{-1, 0, 1\}$.
+\end{quote}
+
+\section{The computation}
+
+The PVI monodromy manifold is the Fricke surface
+$x^2 + y^2 + z^2 - xyz = \kappa$ with $\kappa$ fixed by the local
+monodromy data. Enumerating all $5^3 = 125$ triples over $\mathbb{F}_5$
+for every $\kappa$:
+
+\begin{center}
+\begin{tabular}{c|ccccc}
+$\kappa \bmod 5$ & 0 & 1 & 2 & 3 & 4 ($=-1$) \\ \hline
+$N_5$ & 41 & 6 & 16 & 36 & 26 \\
+\end{tabular}
+\end{center}
+
+\section{The refutations}
+
+The claimed pattern allows only $N_5 \in \{21, 26, 31\}$. (1) The count
+varies with $\kappa$ ($41 \ne 6$), so ``the count $N_p$'' is not a
+function of $p$ alone. (2) Every standard normalization fails
+numerically: $\kappa = 0$ (local data $(1,1,1)$) gives 41; $\kappa = 1$
+gives 6; $\kappa = 2$ gives 16; $\kappa = 3$ gives 36. (3) Two of the
+three allowed values, 21 and 31, occur for no $\kappa \in
+\mathbb{F}_5$ at all.
+
+\section{Verification}
+
+\texttt{reproduce.py} performs the exhaustive enumeration (no sampling)
+and also counts over $\mathbb{F}_2, \mathbb{F}_3, \mathbb{F}_7$. The
+Lean package (core Lean~4, v4.33.1) certifies the full table as closed
+kernel computations in $\mathrm{Int}$ arithmetic; all ten audited
+theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+Only the displayed point-count pattern at $p = 5$ is refuted; the
+isomonodromy theory is not addressed.
+
+\end{document}
