@@ -6,9 +6,9 @@ Submitter: **gaochengzhecpu**. AI-assisted with Codex; draft for mathematical re
 
 ## Scope
 
-The source does not exclude complete complement-of-singleton designs. Both block and point derivations agree in this example.
+Uses complete complement-of-singleton designs; the source does not explicitly exclude this family. Under the BIBD convention 2 <= k < v the four derivations are valid. A convention additionally excluding complete/trivial designs is outside this counterexample's claim.
 
-Read `proof.pdf` for the complete ordinary proof, explicit assumptions and the correspondence to `Main.lean`. The LaTeX source is `proof.tex`. This submission preserves the locally reviewed source and PDF byte for byte; their draft labels do not imply organizer acceptance.
+Read `proof.pdf` for the complete ordinary proof, explicit assumptions and the correspondence to `Main.lean`. The LaTeX source is `proof.tex`. This revised version has been checked locally; its draft status does not imply organizer acceptance.
 
 ## Reproduce
 
@@ -29,3 +29,7 @@ Original statement: [conjecture 00000008435](https://github.com/The-Last-Math-Co
 Lean compilation, exact source correspondence, AI cross-review, and rendered-PDF inspection were completed locally. The source hashes in `verification.json` identify the checked artifacts. This is a draft submission, not an official review or an accepted result.
 
 Immediately before preparing this submission, official metadata did not mark this conjecture solved, and no matching conjecture number was found in the titles or bodies of the 298 public PRs checked at 2026-10-03T13:15:11.955212+00:00. This limited check is not a claim of mathematical novelty or priority.
+
+## Second review and correction
+
+Second adversarial review requested an explicit bridge between seven-bit masks and arbitrary subsets of the seven-point universe. This revision adds that representation bridge and the set meanings of the operations used in the four successive derivations, retaining the complete-design interpretation boundary.
