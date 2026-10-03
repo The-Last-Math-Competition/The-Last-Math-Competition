@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000004116}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the asymptotic dimension of
+$\mathrm{Conf}_n(\mathbb{R}^d)$ is exactly $dn - 1$, coinciding
+with the coarse dimension, and the fractal correction term is
+always zero.
+\end{quote}
+
+\section{The refutation}
+
+Configuration spaces of Euclidean space are open manifolds of
+dimension $dn$: the ordered configuration is the open set
+$\{x_i \ne x_j\} \subset \mathbb{R}^{dn}$, and the unordered
+quotient is a $dn$-manifold (the free $S_n$-action is by
+diffeomorphisms).  The asymptotic dimension of
+$\mathbb{R}^k$ is $k$, and asdim is homotopy-invariant for these
+spaces.  At the smallest instances:
+\[
+\operatorname{asdim} \mathrm{Conf}_1(\mathbb{R}) =
+\operatorname{asdim} \mathbb{R} = 1 \ne 0 = dn - 1;
+\]
+\[
+\mathrm{Conf}_2(\mathbb{R}) = \{x \ne y\} = \{x < y\} \cup \{x > y\},
+\quad (x, y) \mapsto (x, y - x):
+\]
+each component is linearly homeomorphic to $(0,\infty) \times
+\mathbb{R} \cong \mathbb{R}^2$, so
+$\operatorname{asdim} \mathrm{Conf}_2(\mathbb{R}) = 2 \ne 1 =
+dn - 1$.  The correct value is $dn$ --- always strictly larger
+than the claimed $dn - 1$.  Since the conjecture explicitly fixes
+the fractal correction term to \emph{zero}, the off-by-one failure
+at the base case cannot be repaired within its own terms.
+
+\section{Verification}
+
+\texttt{reproduce.py} certifies the linear homeomorphism
+(det $= \pm 1$) for the $\mathrm{Conf}_2(\mathbb{R})$ component,
+the dimension comparisons, and the manifold structure.  The Lean
+package (core Lean~4, v4.33.1) certifies
+\texttt{instance\_11} ($1 \cdot 1 - 1 = 0$, $1 \ne 0$),
+\texttt{instance\_21} ($1 \cdot 2 - 1 = 1$, $2 \ne 1$),
+\texttt{off\_by\_one} ($0 < 1 \wedge 1 < 2$), and
+\texttt{conjecture\_refuted}.  All four audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the dimension comparisons at the two smallest
+instances; that $\operatorname{asdim} \mathbb{R}^k = k$ and that
+$\mathrm{Conf}_n(\mathbb{R}^d)$ is a $dn$-manifold are classical,
+cited in prose and illustrated by the script.  The formula
+$dn - 1$ (with zero correction) is refuted at the base cases and
+structurally.
+
+\end{document}
