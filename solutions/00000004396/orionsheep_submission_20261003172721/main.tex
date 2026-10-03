@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+\title{Refutation of TLMC Conjecture 00000004396\\
+\large (Sidorenko ladder--subdivision infinite families)}
+\author{orionsheep submission}
+\date{2026-10-03}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+The conjecture states that \emph{all M\"obius ladders are Sidorenko}, that
+\emph{every odd subdivision of a tree is Sidorenko}, and that the union of
+these two families yields infinitely many new nontrivial Sidorenko graphs.
+
+\section{Definitions}
+Write $\hom(G,H)$ for the number of graph homomorphisms $G\to H$.
+\begin{definition}[Sidorenko graph]
+A finite graph $G$ is \emph{Sidorenko} if for every finite host graph $H$,
+\[
+  \hom(G,H)\,|V(H)|^{|E(G)|}\ \ge\ \hom(K_2,H)^{|E(G)|}\,|V(H)|^{|V(G)|},
+\]
+equivalently $t(G,W)\ge t(K_2,W)^{|E(G)|}$ for every graphon $W$.
+\end{definition}
+\begin{definition}[M\"obius ladder]
+The M\"obius ladder $M_k$ has vertex set $\mathbb Z_{2k}$; vertex $i$ is
+adjacent to $i\pm1$ (rim edges) and to $i+k$ (spokes).
+\end{definition}
+
+\section{The refutation}
+\begin{theorem}
+The M\"obius ladder $M_2$ is not Sidorenko. Consequently the conjecture's
+first conjunct is false.
+\end{theorem}
+\begin{proof}
+$M_2$ has vertex set $\mathbb Z_4$ with rim edges $i\sim i\pm1$ and spokes
+$i\sim i+2$: every pair of distinct vertices is adjacent, so $M_2\cong K_4$.
+
+Take the host $H=K_2$.  Since $K_4$ is non-bipartite,
+$\hom(K_4,K_2)=0$.  But $K_2$ admits a homomorphism to itself (the
+identity), so $\hom(K_2,K_2)\ge1$ and the right-hand side
+$\hom(K_2,K_2)^{|E|}\,2^{|V|}$ is strictly positive.  The Sidorenko
+inequality fails already at $H=K_2$, hence $M_2$ is not Sidorenko.
+\end{proof}
+
+The same argument applies to every $M_k$ with $k$ even ($M_4, M_6,\dots$):
+when $k$ is even the M\"obius ladder is non-bipartite and therefore
+violates the $H=K_2$ instance of the bound (every Sidorenko graph must be
+bipartite).  Odd-$k$ ladders ($M_3=K_{3,3}$, $M_5,\dots$) are bipartite
+and are not touched by this refutation, but the universal claim
+``\emph{all} M\"obius ladders are Sidorenko'' is false.
+
+\section{Formalization}
+\texttt{lean4/Main.lean} defines
+\texttt{mobiusLadder n : SimpleGraph (ZMod (2*n+2))} (the classical ladder
+$M_{n+1}$; the index shift keeps the modulus $\ge2$ so the graph is simple
+for all $n$ without side conditions), the counting function
+\texttt{homCount} via \texttt{Nat.card}, the predicate
+\texttt{IsSidorenko}, and proves \texttt{mobiusLadder\_one\_eq\_top}
+($M_2 = K_4$ on $\mathbb Z_4$), \texttt{isEmpty\_hom\_K4\_K2},
+\texttt{isEmpty\_hom\_top\_zmod4\_K2} (transport of the previous
+emptiness along $\mathrm{Fin}\,4\simeq\mathbb Z_4$),
+\texttt{homCount\_mobiusLadder\_one\_K2} and the main theorem
+\texttt{not\_sidorenko\_mobiusLadder\_one}.
+\texttt{Check.lean} audits axioms (\texttt{\#print axioms}); only
+\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound} appear.
+Numerical verification is in \texttt{reproduce.py}.
+\end{document}
