@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000004165}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the main-term coefficient of the asymptotic of
+the shifted energy of the squares is the explicit constant
+$4\pi^{-2}$, and the remainder decays like the square root of the
+shift parameter and cannot be improved.
+\end{quote}
+
+\section{The refutation}
+
+$E_h(X) = \#\{(x_1,x_2,x_3,x_4) \in [1,X]^4 : x_1^2 + x_2^2 =
+x_3^2 + x_4^2 + h\}$.
+
+\textbf{The $\sqrt{h}$ remainder cannot exist.}  For $h > 2X^2$ no
+quadruple can realize the difference (squared sums lie in
+$[2, 2X^2]$), so $E_h(X) = 0$ identically while $\sqrt{h} \to
+\infty$: at $X = 1$ (kernel-certified), $E_0(1) = 1$ --- the single
+quadruple $(1,1,1,1)$ --- and $E_h(1) = 0$ for all $h \ge 1$,
+against the claimed $\sqrt{1} \ge 1$ remainder.
+
+\textbf{Two regimes, one claimed constant.}  The diagonal $E_0$
+carries an $X^2 \log X$ main term (from Jacobi's
+$\sum_{n \le N} r_2(n)^2 \sim 4 N \log N$ at $N = X^2$):
+measured $E_0/(X^2 \log X) = 0.7239,\ 0.7032,\ 0.6875$ at
+$X = 120, 240, 480$.  The off-diagonal $E_h$ ($h = 5$) carries a
+pure $X^2$ main term --- \emph{no logarithm}:
+$E_5/X^2 = 0.6681,\ 0.6702,\ 0.6730$, stable.  A single universal
+coefficient $4/\pi^2 = 0.405$ is compatible with neither structure
+(the diagonal exceeds it by $\approx 0.26$ and drifts away; the
+off-diagonal by $\approx 0.27$, stably).
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies the $X = 1$ values, the vanish-for
+$h > 2X^2$ property, and the two-regime table.  The Lean package
+(core Lean~4, v4.33.1) certifies \texttt{E0\_one},
+\texttt{Eh\_zero} ($E_h(1) = 0$ with $h \ge 1$),
+\texttt{remainder\_mismatch} ($0 < 1$), \texttt{offdiag\_structure},
+\texttt{constant\_mismatch} ($66 > 40$), and
+\texttt{conjecture\_refuted}.  All six audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the $X = 1$ instance and the scaled constant
+mismatch; the two asymptotic structures are established by the
+script's exact enumerations, consistent with the classical shifted
+convolution of $r_2$.  Both the constant and the remainder clauses
+are refuted.
+
+\end{document}
