@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{geometry}
+\geometry{margin=1in}
+
+\title{Refutation of TLMC Conjecture 00000004225\\
+\large Higher Dirichlet--Neumann zero-multiplicity identity}
+\author{orionsheep (Lean 4 + Mathlib formalization)}
+\date{2026-10-03}
+
+\begin{document}
+\maketitle
+
+\section*{The conjecture}
+\noindent\textbf{Definition (as stated).} The higher Dirichlet--Neumann operator
+is the boundary response operator on $k$-chains.
+
+\noindent\textbf{Conjecture.} The multiplicity of its zero eigenvalue equals
+exactly the count of $k$-spanning trees of the boundary, and the multiplicity
+is one if and only if the boundary is a sphere triangulation.
+
+\section*{Standard reading and why it fails}
+On a boundary complex $B=\partial M$, the combinatorial higher
+Dirichlet--Neumann (boundary-response) operator on $k$-chains is
+\[
+\Delta_k \;=\; \partial_{k+1}\partial_{k+1}^{\!\top}
+             \;+\; \partial_k^{\!\top}\partial_k ,
+\]
+the Hodge Laplacian. Its zero eigenspace is the space of harmonic $k$-chains,
+so
+\[
+\operatorname{mult}_k(B)=\dim\ker\Delta_k(B)=\beta_k(B)
+   = f_k-\operatorname{rank}\partial_k-\operatorname{rank}\partial_{k+1}.
+\]
+The simplicial spanning-tree count $\tau_k(B)$ is a \emph{determinantal}
+quantity (Kalai's matrix-tree theorem: a weighted product of the
+\emph{nonzero} Laplacian eigenvalues), not a kernel dimension. Hence
+$\operatorname{mult}_k=\tau_k$ fails generically, and the ``multiplicity one
+iff sphere'' clause fails in both directions.
+
+\section*{Counterexample A: $\partial\Delta^3$ (a sphere), $k=1$}
+The boundary of the tetrahedron has $(f_0,f_1,f_2)=(4,6,4)$, $\chi=2$: a
+triangulation of $S^2$. Direct computation gives
+\[
+\Delta_1 = \partial_1^{\top}\partial_1+\partial_2\partial_2^{\top}=4I_6,
+\qquad \det\Delta_1=4096,
+\]
+so $\operatorname{mult}_1=0$. But $\tau_1=\tau(K_4)=16$ (Cayley). Thus
+$\operatorname{mult}_1\neq\tau_1$ (first clause fails), and a sphere boundary
+has $\operatorname{mult}_1\neq 1$ (the ``if'' direction of clause 2 fails).
+
+\section*{Counterexample B: the 7-vertex torus $T^2$, $k=2$}
+The minimal triangulation of the torus (the boundary of a solid torus) has
+$(f_0,f_1,f_2)=(7,21,14)$, $\chi=0\neq2$: not a sphere. Since there are no
+$3$-faces, $\Delta_2=\partial_2^{\top}\partial_2$ on $C_2\cong\mathbb{Q}^{14}$.
+An explicit harmonic $2$-cycle
+$c=(-1,\dots,-1,+1,\dots,+1)$ lies in the kernel, and a dual-tree elimination
+on the 21 edge equations shows the kernel is exactly $\operatorname{span}\{c\}$;
+hence $\operatorname{mult}_2=\beta_2(T^2)=1$. A non-sphere boundary therefore
+attains multiplicity $1$ (the ``only if'' direction fails). Moreover
+$\tau_2=0$ (a $2$-tree would require $\operatorname{rank}\partial_2=f_2=14$,
+but $\operatorname{rank}\partial_2=13$), so clause 1 fails again:
+$1\neq0$.
+
+\section*{Formalization}
+All objects are defined concretely in \texttt{Main.lean} (namespace
+\texttt{Submission00000004225}): \texttt{dnOperator},
+\texttt{zeroMult}, \texttt{FinSurface} with \texttt{IsTwoSphere},
+the incidence matrices \texttt{tetB1}, \texttt{tetB2}, \texttt{torusB2},
+and the tree count \texttt{tetTreeCount}. The headline theorem
+\texttt{disproof\_00000004225} states
+\begin{align*}
+&\operatorname{zeroMult}(\texttt{tetDN1})\neq\texttt{tetTreeCount}\\
+&{}\wedge\ \bigl(\texttt{tetBoundary.IsTwoSphere}
+   \wedge\operatorname{zeroMult}(\texttt{tetDN1})\neq1\bigr)\\
+&{}\wedge\ \bigl(\neg\texttt{torusBoundary.IsTwoSphere}
+   \wedge\operatorname{zeroMult}(\texttt{torusDN2})=1\bigr),
+\end{align*}
+refuting both clauses and both directions. Every proof is axiom-audited in
+\texttt{Check.lean}; only the ambient axioms \texttt{propext},
+\texttt{Classical.choice}, \texttt{Quot.sound} appear. Numerical
+verification is in \texttt{reproduce.py} (sympy, exact arithmetic).
+
+\end{document}
