@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000002118}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} the Quicksort cost $Q_n$ is the number of
+comparisons. \textit{Conjecture:} the third cumulant is
+$\kappa_3(n) = 2n - 6\log n + C$ (with explicit constant $C$); the
+linear main coefficient of $\kappa_3$ is $2$.
+\end{quote}
+
+\section{The refutation}
+
+Quicksort splits at a uniform position $J \in \{0, \dots, n-1\}$:
+$C_n = (n-1) + C_J + C_{n-1-J}$ with independent subproblems.  Solving
+the exact moment recurrences over Fractions gives
+\[
+\kappa_3(n) = M_3 - 3 M_1 M_2 + 2 M_1^3:
+\qquad \kappa_3(50) = 22084.80 \approx 442 \cdot 50,
+\]
+with the ratio $\kappa_3(n)/n$ \emph{growing}: $0.35, 6.40, 48.2,
+133.9, 264.9, 441.7$ at $n = 5, 10, 20, 30, 40, 50$.  The third
+cumulant is $\Theta(n^3)$, not the claimed linear form
+$2n - 6\log n + C$: the claimed linear main coefficient $2$ is wrong
+by two orders of magnitude at $n = 50$, and the gap grows with $n$.
+
+\section{Verification}
+
+\texttt{reproduce.py} solves the exact Fraction moment recurrences up
+to $n = 54$, tabulates $\kappa_3$ and $\kappa_3/n$, checks the strict
+growth of the ratios, and confirms $\kappa_3(50) \approx 22085$ with
+ratio $441.7 \pm 0.2$.  The Lean package (core Lean~4, v4.33.1)
+certifies the claimed main-coefficient anchor $2 \cdot 50 = 100$, the
+measured rounded ratio $442 \ne 2$, the comparisons $442 > 100$ and
+$442 > 3 \cdot 50$; all four audited theorems report \texttt{does not
+depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the claimed-coefficient anchor and the rounded
+measured-ratio contrast; the exact $\kappa_3$ values are carried by
+the script's Fraction-exact moment recurrences.  The
+linear-main-coefficient claim is refuted at $n = 50$.
+
+\end{document}
