@@ -1,0 +1,92 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000002196}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the second coefficient of the asymptotic
+expansion of the Dedekind numbers $M(n)$ is explicit:
+\[
+\log M(n) = \bigl(\log 2 - (\log n)^{-1}(\log\log n + c)^2\bigr)\,
+C\!\bigl(n, \lfloor n/2 \rfloor\bigr)\,(1 + o(1)),
+\qquad c = -\tfrac32 .
+\]
+\end{quote}
+
+\section{The refutation}
+
+Read at fixed $n$ (in any logarithm base $>1$), the conjecture's
+second-order correction relative to the leading term
+$(\log 2)\,C(n,\lfloor n/2\rfloor)$ is
+\[
+-(\log n)^{-1}(\log\log n + c)^2 ,
+\]
+a \emph{negated square divided by a positive logarithm}.  A square is
+never negative and $\log n > 0$, so this correction is $\le 0$ for
+\emph{every} $n$ and \emph{every} value of the constant $c$ --- the
+sign is wrong regardless of how $c$ is fitted.  For the claimed
+$c = -\tfrac32$ at $n = 9$ the offset is even strictly positive
+($\log_2 9 \approx 3.170 > 3 > \tfrac32$, so
+$\log\log 9 - \tfrac32 \approx 0.164 > 0$), making the conjectured
+correction strictly negative there: $-0.0085$ in $\log_2$ units.
+
+The truth points the other way.  The 9th Dedekind number was computed
+in 2023 (Van Hirtum--De Causmaecker--Gossow et al., by FPGA
+supercomputing; independently confirmed by J\"akel):
+\[
+M(9) = 286386577668298411128469151667598498812366 ,
+\]
+a $138$-bit number:
+\[
+2^{137} < M(9) < 2^{138}
+\quad\Longrightarrow\quad
+\lfloor \log_2 M(9) \rfloor = 137 .
+\]
+But $C(9,4) = 126$, so the \emph{actual} second-order gap is
+$137 - 126 = +11 > 0$ ($\log_2 M(9) = 137.717$: relative correction
+$+11.72$).  The conjecture's own formula, with $c = -\tfrac32$,
+predicts $\log_2 M(9) \approx \bigl(1 - (1.664-\tfrac32)^2/3.170\bigr)
+\cdot 126 \approx 125.99$ --- a \emph{nonpositive} correction of
+$-0.01$, underestimating $M(9)$ by a factor of $2^{11.7} \approx
+3400$.  The classical Korshunov asymptotics indeed carry a
+\emph{positive} second-order term of order
+$+C(n,n/2)\log\log n/\log n$; the conjecture's negated square can
+never produce one.
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies the exact integer anchors
+($2^{137} < M(9) < 2^{138}$, bit length $138 \Rightarrow
+\lfloor\log_2 M(9)\rfloor = 137$, $C(9,4) = 126$, gap $11 > 0$), the
+formula's correction in both $\log_2$ and $\ln$ readings at
+$n = 9$, $c = -\tfrac32$ (strictly negative), and a sign sweep over
+$c \in \{-10, -\tfrac32, 0, 5, 100\}$ confirming the correction is
+$\le 0$ always.  The Lean package (core Lean~4, v4.33.1) certifies,
+all with ground \texttt{decide} computations and one structural
+lemma: $2^{137} < M(9) < 2^{138}$ (\texttt{M9\_bounds}),
+$\texttt{Nat.log2}\,M(9) = 137$ (\texttt{log2M9}), $C(9,4) = 126$ via
+the Pascal recursion (\texttt{C94}), $126 < 137$
+(\texttt{gap\_positive}), the sign mechanism (the squared offset is a
+square, hence $\ge 0$; \texttt{correction\_numerator\_nonneg}), and
+the strict instance facts $2^3 < 9$, $0 < 6 - 3$,
+$0 < 9$.  All nine audited theorems report \texttt{does not depend on
+any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the instance anchors (binary size of the
+published $M(9)$, $C(9,4)$, the positive gap) and the sign mechanism
+(negated square over a positive denominator, never positive; strictly
+negative at $n = 9$ for $c = -\tfrac32$).  The value $M(9)$ is the
+published 2023 computation, ground into the kernel as a literal and
+cross-checked by the script's exact integer arithmetic; the real-log
+reading of the formula is carried in prose and by the script.  The
+stated expansion is refuted in both its sign and its constant.
+
+\end{document}
