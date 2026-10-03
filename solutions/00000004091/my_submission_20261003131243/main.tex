@@ -1,0 +1,52 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000004091}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} for a graph $\Gamma$ the first Betti number of
+$\mathrm{Conf}_n(\Gamma)$ is invariant under barycentric subdivision
+and is a polynomial in the chromatic number of degree exactly $n$.
+\end{quote}
+
+\section{The refutation}
+
+At $n = 1$ the configuration space of one point is the graph
+itself: $\mathrm{Conf}_1(\Gamma) = \Gamma$, so
+$b_1 = E - V + 1$, the cycle rank.  The certified pair: $C_4$
+($E = 4$, $V = 4$: $b_1 = 4 + 1 - 4 = 1$) and $P_4$ ($E = 3$,
+$V = 4$: $b_1 = 3 + 1 - 4 = 0$) are \emph{both bipartite} ---
+every even cycle and every tree is 2-colorable --- so both have
+chromatic number $2$.  A polynomial in $\chi$ takes equal values at
+equal $\chi$; the Betti numbers differ: $b_1$ is not a function of
+the chromatic number, hence not a polynomial of degree exactly
+$n = 1$ nor of any degree.  The subdivision clause makes things
+worse: the barycentric subdivision of $C_3$ is the $6$-cycle, so
+invariance preserves $b_1 = 1$ while $\chi$ drops from $3$ to $2$;
+and within the fixed class $\chi = 2$ the value $b_1$ already
+varies ($0$ for trees, $1$ for even cycles, unbounded beyond).
+
+\section{Verification}
+
+\texttt{reproduce.py} computes the cycle ranks, checks
+bipartiteness by 2-coloring, and exhibits the $C_3 \to C_6$
+subdivision conflict.  The Lean package (core Lean~4, v4.33.1)
+certifies \texttt{b1\_C4} ($4+1-4 = 1$), \texttt{b1\_P4}
+($3+1-4 = 0$), \texttt{betti\_differ} ($1 \ne 0$),
+\texttt{same\_chromatic}, and \texttt{conjecture\_refuted}.  All
+five audited theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the cycle ranks and their separation; the
+bipartiteness of $C_4$ and $P_4$ is elementary, cited in prose and
+checked by the script.  The polynomial-in-$\chi$ clause is refuted
+at $n = 1$.
+
+\end{document}
