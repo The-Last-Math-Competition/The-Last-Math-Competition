@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000004001}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} $E\|S^n\|^2 = n!\,\binom{d+n-1}{n}$ for the
+$n$-th level of the Brownian signature, and its generating function
+in $n$ is rational.
+\end{quote}
+
+\section{The refutation}
+
+For scalar Brownian motion ($d = 1$) the iterated integrals
+collapse: $S_n = \int_{t_1 < \dots < t_n} \mathrm{d}W^{\otimes n} =
+X_1^n/n!$ (Stratonovich chain rule; Monte Carlo:
+$E[S_2^2] = 0.755 \approx 3/4$ over $400{,}000$ samples).  Hence,
+using the Gaussian moment $E[X^{2n}] = (2n)!/(2^n n!)$,
+\[
+E\|S^n\|^2 = \frac{E[X_1^{2n}]}{(n!)^2}
+= \frac{(2n)!}{2^n (n!)^3},
+\]
+while the conjecture's formula at $d = 1$ reads
+$n!\binom{n}{n} = n!$:
+\[
+\begin{array}{c|ccccccc}
+n & 0 & 1 & 2 & 3 & 4 & 5 & 6\\ \hline
+\text{true} & 1 & 1 & \tfrac34 & \tfrac5{12} & \tfrac{35}{192} &
+\tfrac{21}{320} & \tfrac{77}{3840}\\
+\text{claimed} & 1 & 1 & 2 & 6 & 24 & 120 & 720
+\end{array}
+\]
+--- agreement only at $n = 0, 1$, then overestimates growing
+without bound ($8/3$ at $n = 2$, $14.4$ at $n = 3$, $131$ at
+$n = 4$).  The generating-function clause fails independently: the
+true coefficients have ratio $a_{n+1}/a_n = \frac{2n+1}{(n+1)^2}
+\to 0$ --- Bessel-type decay, not C-finite --- while coefficients
+of rational generating functions satisfy a linear recurrence with
+polynomial-exponential behavior.
+
+\section{Verification}
+
+\texttt{reproduce.py} tabulates true vs claimed ($n = 0..6$,
+exact rationals), confirms $E[S_2^2] = 3/4$ by Monte Carlo, and
+verifies the ratio law exactly for $n = 1..5$.  The Lean package
+(core Lean~4, v4.33.1) certifies \texttt{claimed\_value},
+\texttt{gaussian\_moment} ($4! = 24$, $2^3 = 8$, $24/8 = 3$,
+$3 < 8$), \texttt{true\_below\_claimed}, \texttt{agree\_only\_early},
+\texttt{ratio\_decay} ($5 < 9$), and \texttt{conjecture\_refuted}.
+All six audited theorems report \texttt{does not depend on any
+axioms}.
+
+\section{Boundary}
+
+The kernel certifies the scaled comparison at $(d, n) = (1, 2)$ and
+the ratio-decay anchor; the scalar signature identification, the
+Gaussian moments, and the C-finiteness obstruction are classical,
+cited in prose and confirmed by the script.  Both the formula and
+the rationality clause are refuted at $d = 1$.
+
+\end{document}
