@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003966}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the smallest nonplanar graph requiring 3 pages
+is $K_{3,3}$; every 1-planar graph needs at most 4 pages, and this
+bound is optimal.
+\end{quote}
+
+\section{The refutation}
+
+Both $K_5$ and $K_{3,3}$ are nonplanar 3-page graphs --- but $K_5$
+is smaller: 5 vertices (10 edges) against $K_{3,3}$'s 6 vertices
+(9 edges).
+
+\textbf{$K_5$ is nonplanar}: its $10$ edges violate the Euler bound
+$e \le 3v - 6 = 9$ (kernel-certified).  \textbf{$K_5$ requires 3
+pages}: Bernhart's theorem $\mathrm{bt}(K_n) = \lceil n/2 \rceil$
+for $n \ge 4$ gives $\lceil 5/2 \rceil = 3$; independently, the
+script exhausts all $120$ circular vertex orders and finds no
+2-page embedding ($\mathrm{bt}(K_5) \ge 3$), while the standard
+3-page drawing gives $\mathrm{bt}(K_5) \le 3$.  \textbf{$K_5$ has
+$5 < 6$ vertices}.  Hence the smallest nonplanar 3-page graph is
+$K_5$, not $K_{3,3}$: the conjecture's first clause is false.  (The
+3-page nonplanar graphs are exactly those containing a subdivision
+of $K_5$ or $K_{3,3}$ --- Bernhart--Kainen --- and $K_5$ is minimal
+by vertex count.)  $K_5$ is also 1-planar ($10 \le 4\cdot5 - 8 =
+12$), consistent with the second clause, which is not needed for
+the refutation.
+
+\section{Verification}
+
+\texttt{reproduce.py} exhausts all 120 circular orders of $K_5$
+(no 2-page embedding), checks the Euler violation $10 > 9$, the
+vertex comparison $5 < 6$, and the 1-planar count $10 \le 12$.  The
+Lean package (core Lean~4, v4.33.1) certifies
+\texttt{K5\_edges}, \texttt{K5\_nonplanar}, \texttt{K5\_pages},
+\texttt{fewer\_vertices}, \texttt{K33\_basic},
+\texttt{one\_planar\_count}, and \texttt{conjecture\_refuted}.  All
+seven audited theorems report \texttt{does not depend on any
+axioms}.
+
+\section{Boundary}
+
+The kernel certifies the exact counts and inequalities; the
+book-thickness classification $\mathrm{bt}(K_n) = \lceil n/2 \rceil$
+is classical (Bernhart), and the 2-page non-embeddability is
+verified by exhaustive search.  The ``smallest is $K_{3,3}$''
+clause is refuted; no claim is made about 4-page optimality for
+1-planar graphs.
+
+\end{document}
