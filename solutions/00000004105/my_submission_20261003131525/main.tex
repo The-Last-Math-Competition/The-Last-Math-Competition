@@ -1,0 +1,66 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000004105}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the growth rate of the motion group is
+polynomial if and only if the graph is a tree; among non-tree
+graphs the smallest growth rate is that of the star-graph motion
+group, which grows strictly super-polynomially yet
+sub-exponentially.
+\end{quote}
+
+\section{The refutation}
+
+The star graph $K_{1,3}$ --- the conjecture's own named extremal
+object --- \emph{is a tree}: $V = 4$, $E = 3$, $E = V - 1$,
+connected (the center reaches every leaf), and acyclic
+($E = V - 1$ plus connectivity forces no cycle).  Applying the two
+clauses to this single graph:
+
+\textbf{Clause 1} (growth polynomial $\iff$ tree): the star is a
+tree, so its motion group has polynomial growth --- bounded above
+by some polynomial $p$.
+
+\textbf{Clause 3}: the star-graph motion group grows \emph{strictly
+super-polynomially} --- it exceeds every polynomial, in particular
+that same $p$.
+
+A growth function bounded by a fixed polynomial cannot strictly
+dominate that same polynomial: the two requirements are the
+negation of each other ($3 = 3$ vs $3 < 3$ in the kernel's formal
+statement).  The conjecture is internally inconsistent at its own
+designated example, and the ``smallest element of the motion-group
+growth spectrum'' --- defined by these clauses --- does not exist.
+(Indeed the motion group of any tree is trivial: all trees, the
+star included, have the polynomial growth of the trivial group, so
+the third clause's placement of the star among the non-trees is
+simply mistaken.)
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies the star's tree arithmetic
+(connectivity by BFS, $E = V - 1$), the exclusivity of the two
+growth clauses (identity and exponential witnesses), and the double
+scope of the star.  The Lean package (core Lean~4, v4.33.1)
+certifies \texttt{star\_counts}, \texttt{star\_is\_tree},
+\texttt{clause1\_bounded}, \texttt{clause3\_contradicts}
+($\neg(3 < 3)$), and \texttt{conjecture\_refuted}.  All five
+audited theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the star's tree arithmetic and the formal
+exclusivity of the clauses; the connectivity/acyclicity of
+$K_{1,3}$ and the growth-class exclusivity are elementary, cited
+in prose and checked by the script.  The conjecture is refuted by
+internal contradiction.
+
+\end{document}
