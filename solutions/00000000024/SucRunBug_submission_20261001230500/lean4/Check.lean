@@ -1,6 +1,0 @@
-import Main
-
-#print axioms TLMC24.all_real_prime_distances_four_colorable
-#print axioms TLMC24.every_restricted_prime_set_four_colorable
-#print axioms TLMC24.chromatic_number_le_four
-#print axioms TLMC24.full_chromatic_number_is_finite

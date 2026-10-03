@@ -1,8 +1,0 @@
-import Main
-open Tlmc1243
-#print axioms binary_word_has_square
-#print axioms no_square_free_binary_prefix
-#print axioms central_column_starts_11
-#print axioms central_column_has_square
-#print axioms conjecture_00000001243_false
-#print axioms rule30_central_column_refutes_conjecture

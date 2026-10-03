@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000002154}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} the number of cyclic factors of the critical
+group $\mathrm{Jac}(G)$ (the sandpile group) is the number of its
+cyclic $\mathbb{Z}$-components. \textit{Conjecture:} the
+classification of graphs with zero cyclic factors (i.e.\ Jac entirely
+cyclic-free): exactly subdivisions of closed Eulerian graphs (trivial
+exceptions exhausted).
+\end{quote}
+
+\section{The refutation}
+
+$C_6$ is a subdivision of the closed Eulerian graph $C_3$ (the
+triangle: all degrees $2$, Eulerian circuit exists): each of the 3
+triangle edges split once gives $3 \cdot 2 = 6$ edges.  By the
+Matrix-Tree theorem, $|\mathrm{Jac}(C_6)| = $ \#spanning trees of
+$C_6 = 6$ (delete one of the 6 edges: a spanning path), and the exact
+Smith normal form of the $5 \times 5$ reduced Laplacian is
+$\mathrm{diag}(1,1,1,1,6)$:
+\[
+\mathrm{Jac}(C_6) = \mathbb{Z}/6 \cong \mathbb{Z}/2 \times
+\mathbb{Z}/3,
+\]
+with \textbf{two} nontrivial cyclic torsion factors --- the cyclic
+factor count is $2 \ne 0$.  The classification's inclusion 1 fails at
+$C_6$: the ``exactly'' classification is refuted.  (Independent
+second failure: any tree has $\mathrm{Jac} = 0$ but is not a
+subdivision of a closed Eulerian graph.)
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies the subdivision arithmetic, the
+triangle's Eulerian property, the spanning-tree enumeration
+($= 6$), the exact Smith normal form over $\mathbb{Z}$ (diag$(1, 1,
+1, 1, 6)$), and the factor-count contrast.  The Lean package (core
+Lean~4, v4.33.1) certifies the subdivision arithmetic, the Eulerian
+anchor, the Jac order $6 = 2 \cdot 3 > 1$, and the two nontrivial
+factors; all five audited theorems report \texttt{does not depend on
+any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the subdivision arithmetic, the Eulerian anchor,
+and the factor-count contrast; the Matrix-Tree theorem, the classical
+$\mathrm{Jac}(C_n) = \mathbb{Z}/n$, and the Smith-normal-form
+computation are cited in prose and re-verified exactly by the script.
+The classification is refuted at $C_6$.
+
+\end{document}
