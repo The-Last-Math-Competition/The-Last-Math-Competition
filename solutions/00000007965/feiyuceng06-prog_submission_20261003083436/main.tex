@@ -1,0 +1,253 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb F}
+\newcommand{\wt}{\operatorname{wt}}
+\newcommand{\supp}{\operatorname{supp}}
+
+\title{A Counterexample to Conjecture 00000007965:\\
+Isospectral Inequivalent Binary Codes of Length $6$}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5.5)\thanks{Anthropic.}%
+}
+\date{2026-10-03}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The second claim of Conjecture 00000007965 asserts that the minimal example of
+isospectral (same weight enumerator) but non-permutation-equivalent linear codes is
+the unique pair at $(n,k)=(9,4)$. We exhibit two binary $[6,3]$ codes with weight
+enumerator $1+3z^2+3z^4+z^6$ that are not permutation equivalent, so a smaller
+example exists. We also exhibit two different such pairs of $[9,4]$ codes, so the
+pair at $(9,4)$ is not unique either. Both refutations are checked in Lean~4
+against Mathlib.
+\end{abstract}
+
+\section{The conjecture as stated}
+
+The original text of conjecture 00000007965 reads:
+
+\begin{quote}
+Definition: The spectral rigidity of the MacWilliams identity for codes: the
+isospectral class (the set of equivalence classes of linear codes with the same
+weight enumerator $A(z)$) under the Krawtchouk transform. Conjecture: The maximal
+size of an isospectral class at length $n$ and dimension $k$ is exponential
+$2^{\Omega(n)}$, attained by decomposable codes (direct-sum structure); the minimal
+example of isospectral but non-permutation-equivalent codes is the unique pair at
+$(n,k) = (9,4)$; and the complete spectral rigidity criterion (isospectral implies
+equivalent) holds in the weight at least $4$ part of self-dual codes, uniquely
+determined by the coefficient classification of modular forms of theta series.
+\end{quote}
+
+The Chinese version in \texttt{conjectures/00000007965.md} states the same three
+claims.
+
+\section{Reading of the statement}
+
+The conjecture is a conjunction of three claims. We refute the second one, so the
+conjecture is false whatever the first and the third claim mean.
+
+\paragraph{Codes.} We work with binary linear codes, the setting of the MacWilliams
+identity with the binary Krawtchouk transform. The statement names no field, and a
+claim about linear codes in general includes the binary ones. A \emph{binary linear
+$[n,k]$ code} is a $k$-dimensional subspace $C\le\F_2^n$. The Hamming weight
+$\wt(x)$ of $x\in\F_2^n$ is the number of nonzero coordinates, and
+$\supp(x)=\{i:x_i\ne0\}$.
+
+\begin{definition}
+Let $C,D\le\F_2^n$.
+\begin{enumerate}
+\item The \emph{weight distribution} of $C$ is $(A_0(C),\dots,A_n(C))$ with
+  $A_w(C)=\#\{c\in C:\wt(c)=w\}$, and its \emph{weight enumerator} is
+  $A_C(z)=\sum_{w=0}^n A_w(C)\,z^w$.
+\item $C$ and $D$ are \emph{isospectral} if $A_C(z)=A_D(z)$.
+\item $C$ and $D$ are \emph{permutation equivalent} if there is a permutation
+  $\sigma$ of $\{1,\dots,n\}$ with $D=\{(c_{\sigma(1)},\dots,c_{\sigma(n)}):c\in C\}$.
+\end{enumerate}
+\end{definition}
+
+An \emph{example} is a pair $(C,D)$ of isospectral codes that are not permutation
+equivalent. Isospectral codes have the same number $2^k$ of codewords, so both codes
+of an example have the same parameters $(n,k)$.
+
+\paragraph{Minimality.} The statement does not say in which order $(9,4)$ is
+minimal. Every natural choice implies the following weakest form:
+\begin{equation}\label{eq:min}
+\text{every example satisfies } n\ge9 \text{ or } k\ge4. \tag{M}
+\end{equation}
+Indeed, (M) follows if minimality is by length ($n\ge9$), by dimension ($k\ge4$),
+in the componentwise order (an example with $n<9$ and $k<4$ would lie strictly below
+$(9,4)$), lexicographically in either order, or by $n+k$ ($n+k\ge13$ rules out
+$n\le8$, $k\le3$).
+
+\paragraph{Uniqueness.} ``The unique pair at $(9,4)$'' means: any two examples of
+$[9,4]$ codes are the same pair up to permutation equivalence and order. That is, if
+$(C,D)$ and $(C',D')$ are examples with $n=9$ and $k=4$, then $C\sim C'$ and $D\sim
+D'$, or $C\sim D'$ and $D\sim C'$, where $\sim$ is permutation equivalence.
+
+\section{Results}
+
+\begin{theorem}\label{thm:six}
+Let $A,B\le\F_2^6$ be the codes with generator matrices
+\[
+G_A=\begin{pmatrix}1&1&1&0&0&1\\0&0&0&1&0&1\\0&0&0&0&1&1\end{pmatrix},
+\qquad
+G_B=\begin{pmatrix}1&1&0&0&0&0\\0&0&1&1&0&0\\0&0&0&0&1&1\end{pmatrix}.
+\]
+Both are $[6,3]$ codes with weight enumerator $1+3z^2+3z^4+z^6$, and they are not
+permutation equivalent. Hence (M) fails.
+\end{theorem}
+
+\begin{theorem}\label{thm:nine}
+Let $R=\{000,111\}$ and $E=\{000,100\}$, and let $A^R=A\oplus R$, $B^R=B\oplus R$,
+$A^E=A\oplus E$, $B^E=B\oplus E$ (concatenation of coordinates). These are $[9,4]$
+codes; $(A^R,B^R)$ and $(A^E,B^E)$ are examples; and $A^R$ is permutation equivalent
+neither to $A^E$ nor to $B^E$. Hence the pair at $(9,4)$ is not unique.
+\end{theorem}
+
+Either theorem refutes the second claim, and with it the conjecture.
+
+\section{Proofs}
+
+\begin{lemma}\label{lem:inv}
+Let $C,D\le\F_2^n$. Suppose that any two distinct codewords of $C$ of weight $2$
+have a common support coordinate, while $D$ contains two distinct codewords of
+weight $2$ with disjoint supports. Then $C$ and $D$ are not permutation equivalent.
+Moreover, permutation equivalent codes have the same weight distribution.
+\end{lemma}
+
+\begin{proof}
+Suppose $D=\{c\circ\sigma:c\in C\}$. The map $c\mapsto c\circ\sigma$ is a bijection
+$C\to D$ with $\wt(c\circ\sigma)=\wt(c)$; this proves the second statement. Let
+$b_1,b_2\in D$ be distinct of weight $2$ with disjoint supports, and put
+$a_j=b_j\circ\sigma^{-1}\in C$. Then $a_1\ne a_2$, both have weight $2$, and
+$\supp(a_j)=\sigma(\supp(b_j))$, so their supports are disjoint. This contradicts
+the hypothesis on $C$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:six}]
+The message $x=(x_1,x_2,x_3)$ is encoded as $xG_A=(x_1,x_1,x_1,x_2,x_3,
+x_1+x_2+x_3)$ and as $xG_B=(x_1,x_1,x_2,x_2,x_3,x_3)$. Both maps are injective, so
+both codes have dimension $3$. Their codewords are
+\begin{center}
+\begin{tabular}{c|cccccccc}
+$x$ & $000$ & $100$ & $010$ & $001$ & $110$ & $101$ & $011$ & $111$\\\hline
+$xG_A$ & $000000$ & $111001$ & $000101$ & $000011$ & $111100$ & $111010$ &
+  $000110$ & $111111$\\
+$xG_B$ & $000000$ & $110000$ & $001100$ & $000011$ & $111100$ & $110011$ &
+  $001111$ & $111111$
+\end{tabular}
+\end{center}
+with weights $0,4,2,2,4,4,2,6$ for $A$ and $0,2,2,2,4,4,4,6$ for $B$. So
+$A_C(z)=1+3z^2+3z^4+z^6$ for $C=A$ and for $C=B$.
+
+The weight-$2$ codewords of $A$ are $000101$, $000011$, $000110$, with supports
+$\{4,6\},\{5,6\},\{4,5\}$; any two of them meet. The weight-$2$ codewords of $B$ are
+$110000$, $001100$, $000011$, with pairwise disjoint supports. By
+Lemma~\ref{lem:inv}, $A$ and $B$ are not permutation equivalent. Thus $(A,B)$ is an
+example with $n=6<9$ and $k=3<4$, contradicting (M).
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:nine}]
+For codes $C\le\F_2^n$ and $F\le\F_2^m$, the codewords of $C\oplus F$ are the
+concatenations $(c,f)$ with $\wt(c,f)=\wt(c)+\wt(f)$, so $C\oplus F$ has dimension
+$\dim C+\dim F$ and $A_{C\oplus F}(z)=A_C(z)\,A_F(z)$. Hence $A^R,B^R,A^E,B^E$ are
+$[9,4]$ codes with
+\begin{align*}
+A_{A^R}(z)=A_{B^R}(z)&=(1+3z^2+3z^4+z^6)(1+z^3),\\
+A_{A^E}(z)=A_{B^E}(z)&=(1+3z^2+3z^4+z^6)(1+z).
+\end{align*}
+
+A codeword $(c,f)$ has weight $2$ only if $\wt(c)=2$ and $f=0$, because $A$ and $B$
+have no codewords of weight $1$, and the nonzero words of $R$ and $E$ have weights
+$3$ and $1$. So for $F\in\{R,E\}$ the weight-$2$ codewords of $A\oplus F$ (resp.\
+$B\oplus F$) are those of $A$ (resp.\ $B$) followed by $000$. Their supports
+pairwise meet in $A\oplus F$ and are pairwise disjoint in $B\oplus F$. By
+Lemma~\ref{lem:inv}, $A\oplus F$ and $B\oplus F$ are not permutation equivalent, so
+$(A^R,B^R)$ and $(A^E,B^E)$ are examples.
+
+Finally, $A^R$ has no codeword of weight $1$, while $A^E$ and $B^E$ each have
+exactly one (the word $000000100$). By the second part of Lemma~\ref{lem:inv},
+$A^R$ is permutation equivalent neither to $A^E$ nor to $B^E$. So neither
+alternative in the uniqueness claim holds.
+\end{proof}
+
+\section{Formalization}
+
+The Lean~4 project in \texttt{lean/} (file \texttt{lean/Submission/Basic.lean})
+formalizes the definitions above and proves both theorems against Mathlib.
+\begin{itemize}
+  \item \texttt{Code n} is \texttt{Submodule (ZMod 2) (Fin n -> ZMod 2)}. Hamming
+    weight is Mathlib's \texttt{hammingNorm}; dimension is
+    \texttt{Module.finrank}.
+  \item \texttt{weightDist C w} is the number of codewords of weight $w$, and
+    \texttt{weightEnumerator C} is the polynomial
+    $\sum_{w=0}^n A_w(C)\,z^w\in\mathbb N[z]$. \texttt{Isospectral C D} is
+    equality of weight enumerators.
+  \item \texttt{PermEquiv C D} is $\exists\sigma$,
+    $\forall x,\ x\in C\leftrightarrow x\circ\sigma\in D$, that is,
+    $D=\{c\circ\sigma:c\in C\}$.
+  \item \texttt{MinimalAtNineFour} is (M); \texttt{UniqueAtNineFour} is the
+    uniqueness statement; \texttt{ConjectureClause2} is their conjunction.
+  \item The codes are the row spaces of the generator matrices, defined as
+    \texttt{LinearMap.range G.vecMulLinear}: \texttt{codeA}, \texttt{codeB} are
+    $A,B$, and \texttt{codeA1}, \texttt{codeB1}, \texttt{codeA2}, \texttt{codeB2}
+    are $A^R,B^R,A^E,B^E$. Injectivity of the encoders, the
+    weight distributions and the weight-$2$ support facts are checked by
+    \texttt{decide} over all messages.
+  \item General lemmas: \texttt{weightDist\_range},
+    \texttt{finrank\_range}, \texttt{hammingNorm\_comp\_perm},
+    \texttt{weightDist\_eq\_of\_permEquiv}, \texttt{not\_permEquiv\_of\_disjoint}
+    (Lemma~\ref{lem:inv}).
+  \item Main results: \texttt{isospectralInequivalent\_codeA\_codeB},
+    \texttt{not\_minimalAtNineFour}, \texttt{not\_uniqueAtNineFour},
+    \texttt{conjecture\_00000007965\_false} ($\lnot$\,\texttt{ConjectureClause2}),
+    and \texttt{conjecture\_00000007965\_false'}, which states that for any
+    propositions $P,Q$ standing for the first and third claims,
+    $\lnot(P\wedge\texttt{ConjectureClause2}\wedge Q)$.
+\end{itemize}
+The toolchain is \texttt{leanprover/lean4:v4.33.1}, Mathlib is pinned to
+\texttt{v4.33.1}, and \texttt{lake build} succeeds. The project contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and introduces no
+axioms: \texttt{\#print axioms} reports exactly \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound} for
+\texttt{conjecture\_00000007965\_false} and \texttt{not\_uniqueAtNineFour}.
+
+\section{Remarks}
+
+\begin{remark}
+Length $6$ is the smallest possible, and $(A,B)$ is the only example up to
+equivalence with $n\le6$. The script \texttt{search.py} (Python~3, standard library)
+enumerates every subspace of $\F_2^n$ for $n\le6$, classifies them up to coordinate
+permutation, and groups the classes by weight distribution. For $n\le5$ no two
+inequivalent codes share a weight distribution. For $n=6$ exactly one such group
+occurs, at $k=3$ with distribution $(1,0,3,0,3,0,1)$, and it consists of two classes.
+They are the classes of $A$ and $B$: in the printed representatives, the weight-$2$
+supports pairwise meet in the first and are pairwise disjoint in the second. This
+remark is not used in the refutation.
+\end{remark}
+
+\begin{remark}
+Taking $A\oplus F$ and $B\oplus F$ for other codes $F$ gives further examples at
+$(9,4)$ and at larger parameters. We do not address the first and third claims of
+the conjecture.
+\end{remark}
+
+\end{document}
