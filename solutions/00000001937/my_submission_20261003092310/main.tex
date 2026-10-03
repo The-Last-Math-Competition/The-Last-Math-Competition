@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001937}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} the subgroup growth zeta function is the
+Dirichlet series of subgroup-index counts. \textit{Conjecture:} the
+abscissa of convergence of the zeta function of an arithmetic linear
+group is $\dim G / (\dim G + 1)$, uniquely determined by the
+algebraic dimension of the group.
+\end{quote}
+
+\section{The refutation}
+
+Take the arithmetic linear group $G = \mathbb{Z}$ (dimension $1$).
+The subgroups of index $n$ are exactly the $n\mathbb{Z}$ --- one per
+$n$ --- so $a_n = 1$ identically and
+\[
+\zeta_{\mathbb{Z}}(s) = \sum_{n \ge 1} \frac{1}{n^s}
+= \text{the Riemann zeta function},
+\]
+whose abscissa of convergence is $1$: the harmonic series diverges at
+$s = 1$ ($H_{20000} > 10$ and growing; classical), and convergence
+holds for $s > 1$.  The conjecture's formula gives
+$\dim G / (\dim G + 1) = 1/2$ at $\dim G = 1$.  Since
+$1 \ne 1/2$, the abscissa of convergence is not determined by the
+algebraic dimension: refuted at the very first arithmetic linear
+group.  (For comparison, $\mathbb{Z}^d$ with $d \ge 2$ has abscissa
+$d$, also not $d/(d+1)$.)
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies the subgroup uniqueness ($n\mathbb{Z}$),
+the harmonic divergence ($H_{20000} > 10$), convergence spot-checks
+for $s > 1$, and the formula mismatch $1/2 \ne 1$.  The Lean package
+(core Lean~4, v4.33.1) certifies the formula value $1/2$ vs the true
+abscissa $1$ (scaled comparison $1 \ne 2$), the harmonic anchor
+$H_4 = 25/12 > 2$, and the instance anchors; all three audited
+theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the arithmetic core (formula value, harmonic
+anchor, scaled comparison); the subgroup classification of $\mathbb{Z}$
+and the Riemann-zeta abscissa are classical, cited in prose.  The
+conjecture is refuted at $\dim G = 1$.
+
+\end{document}
