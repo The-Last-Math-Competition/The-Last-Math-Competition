@@ -1,0 +1,50 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001581}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} the isomonodromy deformation and its monodromy
+manifold. \textit{Conjecture:} the count of $\mathbb{Q}$-points of the
+PVI monodromy manifold is $N_p = p^2 + ap + 1$ with
+$a \in \{-1, 0, 1\}$ (point-count patterns).
+\end{quote}
+
+\section{The refutation}
+
+The PVI monodromy manifold is classically the Fricke surface
+$x^2 + y^2 + z^2 - xyz = \kappa$.  Over $\mathbb{F}_5$ with
+$\kappa = 1$, the exhaustive count over the $5^3 = 125$ triples gives
+\[
+N_5 = 6: \quad (0,0,1),\ (0,0,4),\ (0,1,0),\ (0,4,0),\ (1,0,0),\ (4,0,0),
+\]
+while the pattern $N_p = p^2 + ap + 1$, $a \in \{-1,0,1\}$, at $p = 5$
+demands $N_5 \in \{21, 26, 31\}$.  Since $6 \notin \{21, 26, 31\}$,
+the point-count pattern is violated.  (Contrast: the degenerate
+$\kappa = 0$ surface has $41$ points.)
+
+\section{Verification}
+
+\texttt{reproduce.py} brute-forces the count over
+$\mathbb{F}_5^3$ (exactly $6$ points, listed above) and the pattern
+values.  The Lean package (core Lean~4, v4.33.1) defines the membership
+predicate (using $-xyz = 4xyz \bmod 5$), counts over
+\texttt{List.range 5} at each coordinate, and certifies the count
+$= 6$ by kernel reduction, plus the six memberships, two sanity
+non-memberships, and the pattern arithmetic; all five audited theorems
+report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the complete $\mathbb{F}_5$ enumeration; the
+identification ``PVI monodromy manifold = Fricke surface'' is
+classical, cited in prose.  The pattern is refuted at $p = 5$,
+$\kappa = 1$.
+
+\end{document}
