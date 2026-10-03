@@ -1,0 +1,60 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\title{Two equal nonzero Ulm invariants: a counterexample to Conjecture 00000004273}
+\author{Local solution draft}
+\date{October 3, 2026}
+% Compact consistent title for a short mathematical note.
+\makeatletter
+\renewcommand{\maketitle}{\begin{center}
+{\Large\bfseries\@title\par}\vspace{0.6em}
+{\small\@author\par\@date}
+\end{center}\vspace{0.5em}}
+\makeatother
+\setlength{\emergencystretch}{3em}
+\begin{document}
+\maketitle
+\noindent\textbf{Verdict: false.} The reduced abelian $2$-group $\mathbb Z/2\mathbb Z\oplus\mathbb Z/4\mathbb Z$ has successive Ulm invariants $1,1$.
+
+\paragraph{Statement being refuted.}
+Conjecture 00000004273 asserts that the realizable Ulm sequences of countable $p$-groups are exactly the sequences whose terms are at most countable and are strictly decreasing in ordinal order, together with further closure claims. Strict decrease alone already fails. The counterexample has two equal \emph{nonzero} successive invariants, so discarding terminal zeros cannot repair the assertion.
+
+\paragraph{Definitions.}
+For an abelian $p$-group $G$, write $p^nG$ for the image of multiplication by $p^n$, and $H[p]=\{h\in H:ph=0\}$. At finite indices the Ulm invariant is
+\[
+ u_n(G)=\dim_{\mathbb F_p}\big((p^nG)[p]/(p^{n+1}G)[p]\big).
+\]
+The quotient is an $\mathbb F_p$-vector space because each of its elements is annihilated by $p$.
+
+\paragraph{The group and its Ulm layers.}
+Let
+\[
+ G=\mathbb Z/2\mathbb Z\oplus\mathbb Z/4\mathbb Z,
+\]
+with coordinatewise addition. This is a finite, hence countable, abelian $2$-group. Every element is killed by $4$. It is reduced: if a divisible subgroup contained an element $x$, divisibility would give an element $z$ of that subgroup with $4z=x$, whence $x=0$.
+
+Set $U_n=(2^nG)[2]$. Direct computation gives
+\begin{align*}
+ U_0&=\{(0,0),(1,0),(0,2),(1,2)\},\\
+ U_1&=\{(0,0),(0,2)\},\\
+ U_2&=\{(0,0)\}.
+\end{align*}
+The first-coordinate map $U_0\to\mathbb F_2$ is surjective and has kernel $U_1$, so it induces an additive, therefore $\mathbb F_2$-linear, isomorphism $U_0/U_1\cong\mathbb F_2$. On $U_1$, the map $(0,0)\mapsto0$, $(0,2)\mapsto1$ is an additive isomorphism $U_1/U_2\cong\mathbb F_2$. Consequently,
+\[
+ u_0(G)=1=u_1(G).
+\]
+Both terms are nonzero. Strict decrease would require $u_1(G)<u_0(G)$, or $1<1$, a contradiction. If the source counts quotient cardinalities instead of dimensions, the two successive values are $2,2$, which also fail strict decrease. Thus the claimed characterization of realizable sequences, and hence the full conjunction in the conjecture, is false.
+
+\paragraph{Formal verification and semantic correspondence.}
+The accompanying Lean 4.19.0 development imports only \texttt{Std}. It represents $G$ as \texttt{Fin 2} times \texttt{Fin 4} and verifies every abelian group law for the modular operations. It proves countability by an injective natural-number encoding, the $2$-primary property by a uniform exponent, and reducedness by excluding every nonzero subset divisible under doubling.
+
+The formal Ulm layers are defined by actual images of iterated doubling followed by the actual $2$-torsion condition. Their descriptions are proved by complete finite verification. Each quotient model contains its coordinate map, representatives, surjectivity, the equivalence between equal coordinates and membership of the difference in the next Ulm layer, and preservation of inherited addition. A separate general theorem constructs a bijection of the actual \texttt{Quot} type with \texttt{Fin 2}; no quotient cardinality or dimension is hardcoded independently of the group.
+
+The type \texttt{Fin 2} with modular addition is the additive group of $\mathbb F_2$ and has dimension one. Its only scalars are $0$ and $1$, so additivity supplies linearity. The universal strict-decrease consequence is therefore refuted by two explicit one-dimensional quotient models of this countable reduced abelian $2$-group.
+
+The main contradiction uses only the standard logical axiom \texttt{propext}. The auxiliary actual-quotient bijection additionally uses the standard quotient axiom \texttt{Quot.sound}. No extra axioms, admissions, or native decision procedures occur.
+
+\paragraph{Scope.}
+Only the first two finite indices are needed. No transfinite induction, infinite cardinal calculation, or classification theorem for countable abelian groups is assumed. The word ``countable'' is used in its standard sense including finite groups.
+\end{document}
