@@ -1,0 +1,177 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\diam}{\operatorname{diam}}
+
+\title{A Counterexample to Conjecture 00000003967:\\
+the $4$-Cycle Attains the Pebbling Bound $2^d$}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5.5)\thanks{Anthropic.}%
+}
+\date{2026-10-03}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000003967 claims that the graphs whose pebbling number equals $2^d$, with
+$d$ the diameter, are exactly the paths, and that every $2$-connected graph satisfies
+$\pi(G)\le2^d(1-c/\log d)$ for a constant $c>0$. The $4$-cycle $C_4$ has diameter
+$2$ and $\pi(C_4)=4=2^2$. It is not a path and it is $2$-connected, so both claims
+fail. The refutation is checked in Lean~4 against Mathlib.
+\end{abstract}
+
+\section{The conjecture as stated}
+
+The original text of conjecture 00000003967 reads:
+
+\begin{quote}
+Definition: The pebbling number $\pi(G)$ is the minimal number of pebbles guaranteeing
+that a pebble can be moved to any target vertex. Conjecture: The graphs attaining the
+Graham bound $2^d$ are exactly the $(d-1)$-subdivision classes of paths, and every
+$2$-connected graph satisfies $\pi(G) \le 2^d (1 - c/\log d)$.
+\end{quote}
+
+The Chinese version in \texttt{conjectures/00000003967.md} states the same two
+claims.
+
+\section{Reading of the statement}
+
+\begin{definition}
+Let $G$ be a finite graph. A \emph{distribution} $p$ assigns a number of pebbles
+$p(v)\ge0$ to each vertex $v$. A \emph{pebbling move} along an edge $uv$ with
+$p(u)\ge2$ removes two pebbles from $u$ and adds one pebble to $v$. A distribution is
+\emph{$r$-solvable} if a sequence of moves leads to a distribution with at least one
+pebble on the target $r$. The \emph{pebbling number} $\pi(G)$ is the least $t$ such
+that every distribution of $t$ pebbles is $r$-solvable for every target $r$.
+\end{definition}
+
+Here $d=\diam(G)$ is the diameter. The ``Graham bound'' $2^d$ is the classical bound
+$\pi(G)\ge2^{\diam(G)}$: put $2^d-1$ pebbles on a vertex at distance $d$ from the
+target. A graph \emph{attains} it if $\pi(G)=2^{\diam(G)}$. Subdividing edges of a path
+gives again a path, so the class in the first claim consists of the paths. A graph is
+\emph{$2$-connected} if it has at least three vertices and stays connected after
+deleting any one vertex. The two claims are:
+\begin{enumerate}
+\item[(C1)] a connected graph satisfies $\pi(G)=2^{\diam(G)}$ if and only if it is a
+  path;
+\item[(C2)] for some constant $c>0$, every $2$-connected graph with $d=\diam(G)\ge2$
+  satisfies $\pi(G)\le2^d(1-c/\log d)$.
+\end{enumerate}
+Requiring $d\ge2$ in (C2) avoids $\log1=0$ and only weakens the claim.
+
+\section{Result}
+
+Let $C_4$ be the cycle $0-1-2-3-0$.
+
+\begin{theorem}\label{thm:main}
+$\diam(C_4)=2$ and $\pi(C_4)=4=2^{\diam(C_4)}$. Moreover $C_4$ is $2$-connected and is
+not a path. Hence (C1) fails, and (C2) fails for every $c>0$ because
+$4>4(1-c/\log2)$. In particular Conjecture 00000003967 is false.
+\end{theorem}
+
+\section{Proof}
+
+\paragraph{Diameter, connectivity, not a path.} Two distinct non-adjacent vertices of
+$C_4$ are opposite, at distance $2$ through a common neighbour. Deleting a vertex
+leaves a path on three vertices, which is connected. $C_4$ has four edges, whereas a
+path on four vertices has three, so $C_4$ is not a path.
+
+\begin{lemma}\label{lem:upper}
+Every distribution of four pebbles on $C_4$ is $r$-solvable for every target $r$.
+\end{lemma}
+
+\begin{proof}
+By symmetry take $r=0$. Let $a,b$ be the neighbours $1,3$ of $0$ and $o=2$ the
+opposite vertex, and suppose $p(0)=0$. If $p(a)\ge2$ or $p(b)\ge2$, move a pebble to
+$0$. Otherwise $p(a),p(b)\le1$, so $p(o)\ge2$. If $p(a)=1$, move one pebble from $o$
+to $a$, which then holds $2$, and move on to $0$; similarly if $p(b)=1$. If
+$p(a)=p(b)=0$ then $p(o)=4$; move twice from $o$ to $a$, then from $a$ to $0$. In all
+cases at most three moves suffice.
+\end{proof}
+
+\begin{lemma}\label{lem:lower}
+If $t\le3$ pebbles are placed on vertex $2$, the target $0$ cannot be reached.
+\end{lemma}
+
+\begin{proof}
+Let $\Psi(p)=4p(0)+2p(1)+p(2)+2p(3)$. A move from $u$ to a neighbour $v$ changes
+$\Psi$ by $-2w(u)+w(v)$, where $w=(4,2,1,2)$. For every edge of $C_4$ we have
+$w(v)\le2w(u)$, so $\Psi$ never increases. Initially $\Psi=t\le3$, whereas a
+distribution with a pebble on $0$ has $\Psi\ge4$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Lemma~\ref{lem:upper} gives $\pi(C_4)\le4$. Lemma~\ref{lem:lower} shows that for each
+$t\le3$ some distribution of $t$ pebbles is not $0$-solvable, so $\pi(C_4)\ge4$. Thus
+$\pi(C_4)=4=2^{\diam(C_4)}$ although $C_4$ is not a path, refuting (C1). Since $C_4$
+is $2$-connected with $d=2$ and $\log2>0$, for every $c>0$ we have
+$2^d(1-c/\log 2)<4=\pi(C_4)$, refuting (C2).
+\end{proof}
+
+\section{Formalization}
+
+\sloppy
+The Lean~4 project in \texttt{lean/} (file \texttt{lean/Submission/Basic.lean})
+formalizes the definitions above and proves Theorem~\ref{thm:main} against Mathlib.
+\begin{itemize}
+  \item \texttt{moveFn}, \texttt{Move}, \texttt{Solvable} and
+    \texttt{pebblingNumber} follow the definition above. Reachability is Mathlib's
+    \texttt{Relation.ReflTransGen}, and the pebbling number is \texttt{sInf} of the
+    admissible $t$.
+  \item \texttt{TwoConnected}, \texttt{Claim1} and \texttt{Claim2} are the notions and
+    claims above, for graphs on \texttt{Fin n}. Diameter is Mathlib's
+    \texttt{SimpleGraph.diam}, paths are Mathlib's \texttt{pathGraph}, and isomorphism
+    is \texttt{SimpleGraph.Iso}.
+  \item \texttt{C4} is Mathlib's \texttt{cycleGraph 4}. \texttt{diam\_C4},
+    \texttt{twoConnected\_C4} and \texttt{C4\_not\_path} are the facts in the first
+    paragraph of the proof.
+  \item Lemma~\ref{lem:upper} is \texttt{four\_mem}: a depth-bounded search
+    \texttt{solve} is proved sound (\texttt{solve\_sound}) and checked by
+    \texttt{decide} on all distributions of four pebbles and all targets
+    (\texttt{solve\_all}).
+  \item Lemma~\ref{lem:lower} is \texttt{not\_solvable}, via \texttt{weight\_move} and
+    \texttt{weight\_reach}. Together they give \texttt{pebblingNumber\_C4}.
+  \item \texttt{conjecture\_00000003967\_false} states
+    $\lnot\texttt{Claim1}\wedge\lnot\texttt{Claim2}$.
+\end{itemize}
+The toolchain is \texttt{leanprover/lean4:v4.33.1}, Mathlib is pinned to
+\texttt{v4.33.1}, and \texttt{lake build} succeeds. The project contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and introduces no
+axioms: \texttt{\#print axioms conjecture\_00000003967\_false} reports exactly
+\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
+
+\fussy
+\section{Remarks}
+
+\begin{remark}
+The second claim fails for every diameter, not only for $d=2$. The weight argument of
+Lemma~\ref{lem:lower}, with weights $2^{d-\mathrm{dist}(v,r)}$, shows
+$\pi(G)\ge2^{\diam(G)}$ for every connected graph. So no $2$-connected graph with
+$d\ge2$ satisfies $\pi(G)<2^d$; for instance the even cycle $C_{2m}$ is $2$-connected
+with diameter $m$. The first claim also has many other counterexamples, for instance
+the hypercubes $Q_d$, with $\pi(Q_d)=2^d$ by Chung's theorem~\cite{chung}. Only the
+$C_4$ case is formalized.
+\end{remark}
+
+\begin{thebibliography}{9}
+\bibitem{chung} F.~R.~K.~Chung, \emph{Pebbling in hypercubes}, SIAM J. Discrete Math.
+  2 (1989), 467--472.
+\end{thebibliography}
+
+\end{document}
