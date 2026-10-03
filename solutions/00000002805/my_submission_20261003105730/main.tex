@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000002805}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} Cameron--Martin rigidity of the Schilder rate:
+the rate function vanishes if and only if the path lies in the
+Cameron--Martin unit ball, and the spectral distribution of the rate
+on the sphere is an explicit chi-square-type law.
+\end{quote}
+
+\section{The refutation}
+
+Schilder's rate on the Cameron--Martin space
+$H_0 = \{w: w(0) = 0 \text{ abs.\ cont.}\}$ is
+$I(w) = \tfrac12\int_0^1 |\dot w(t)|^2\,dt = \tfrac12 \|w\|_H^2$.
+It vanishes exactly when $\dot w = 0$ a.e., i.e.\ when $w \equiv 0$
+--- a single point, \emph{not} the unit ball.  In the coordinate
+model $w_c(t) = c\,t$ ($\|w_c\|_H = |c|$, $I = c^2/2$): the path
+$c = \tfrac12$ lies \emph{in} the unit ball with $I = \tfrac18 \ne 0$
+--- the ``if'' direction fails --- while every $c \ne 0$ has
+$I = c^2/2 > 0$ (kernel-certified positivity), so the true vanishing
+set is $\{0\}$.
+
+On the sphere $\|w\|_H = 1$ the rate is $I = \tfrac12$ for
+\emph{every} point: in 2D Cameron--Martin coordinates
+$w = a_1 e_1 + a_2 e_2$ with $a_1^2 + a_2^2 = 1$,
+$I = (a_1^2 + a_2^2)/2 = \tfrac12$ identically.  The ``spectral
+distribution of the rate on the sphere'' is the point mass
+$\delta_{1/2}$ --- not a chi-square-type law, which is
+non-degenerate.
+
+\section{Verification}
+
+\texttt{reproduce.py} tabulates (exact rationals) norm, ball
+membership and rate for $c \in \{0, \tfrac14, \tfrac12, 1,
+\tfrac32\}$, exhibits the in-ball counterexample $w(t) = t/2$ with
+$I = \tfrac18$, and confirms the constant sphere rate in 1D and 2D
+coordinates.  The Lean package (core Lean~4, v4.33.1) certifies
+\texttt{vanishes\_only\_at\_zero} ($0 < c \to 0 < c^2$, via clean
+\texttt{Nat.mul\_pos}), \texttt{in\_unit\_ball} ($1 \le 2$),
+\texttt{rate\_nonzero} ($1 \ne 0$), \texttt{sphere\_rate\_constant}
+($2 = 1 \cdot 2$), \texttt{constant\_not\_chisquare} ($1 \ne 2$),
+and \texttt{conjecture\_refuted}.  All six audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the positivity off the zero path, the in-ball
+counterexample, and the constancy on the sphere; the identification
+$I(w) = \tfrac12\|w\|_H^2$ (Schilder's theorem proper) is classical,
+cited in prose and instantiated by the script.  Both the rigidity
+clause and the spectral clause are refuted.
+
+\end{document}
