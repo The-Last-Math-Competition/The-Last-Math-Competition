@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003027}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the fusion rules of string-net anyons are the
+Grothendieck ring of the input category, and the rank of the ring is
+a lower bound for ground-state degeneracy.
+\end{quote}
+
+\section{The refutation}
+
+The anyons of a Levin--Wen model on input category $C$ are the
+simples of the \emph{Drinfeld center} $Z(C)$ --- not of $C$.  For
+the smallest non-trivial input $C = \mathrm{Vec}_{\mathbb{Z}/2}$:
+
+\textbf{Input ring.}  $\mathrm{Vec}_{\mathbb{Z}/2}$ has two simples
+$\{1, x\}$ with $x \otimes x = 1$; its Grothendieck ring is
+$\mathbb{Z}[\mathbb{Z}/2]$, of rank $2$.
+
+\textbf{Anyon ring.}  $Z(\mathrm{Vec}_{\mathbb{Z}/2}) \cong
+\mathrm{Vec}_{\mathbb{Z}/2 \times \mathbb{Z}/2}$ (the toric-code
+category) has four simples $\{1, e, m, \psi\}$ with group-law
+fusion
+\[
+e\,e = m\,m = \psi\,\psi = 1, \qquad e\,m = \psi :
+\]
+a fusion ring of rank $4$ (associativity verified on all
+$4^3 = 64$ triples).  Rank $4 \ne 2$: the conjecture's
+identification is false --- the string-net excitation spectrum is
+governed by the center, which adds the electric $e$, the magnetic
+$m$, and their product $\psi$ beyond the input's data.
+Correspondingly the torus ground-state degeneracy of this model is
+$4$ --- the \emph{center's} rank (the toric-code number); the
+lower-bound clause, read on the input rank, holds only vacuously
+($2 \le 4$) and rests on the failed identification.
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies the $\mathbb{Z}/2$ group law (input
+ring, rank 2), the $(\mathbb{Z}/2)^2$ fusion table (four toric laws,
+$e\,m = \psi$), associativity on all triples, the rank mismatch, and
+the torus GSD $= 4$ = center rank.  The Lean package (core Lean~4,
+v4.33.1) certifies \texttt{input\_rank} ($2 = 1+1$),
+\texttt{rank4} ($4 = 2 \cdot 2$), \texttt{toric\_laws} (the XOR
+group law on 2-bit codes: $\texttt{fuse}\ 1\ 1 = 0$, \dots,
+$\texttt{fuse}\ 1\ 2 = 3$), \texttt{four\_simples} (pairwise
+distinct), and \texttt{conjecture\_refuted} ($2 \ne 4$).  All five
+audited theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the two ranks, the toric fusion laws, the
+distinctness of the four simples, and the mismatch; the
+identification of the anyon category as $Z(\mathrm{Vec}_{\mathbb{Z}/2})
+\cong \mathrm{Vec}_{V_4}$ is classical (Levin--Wen; Kitaev's quantum
+double), cited in prose and reproduced by the script's table.  The
+identification clause is refuted.
+
+\end{document}
