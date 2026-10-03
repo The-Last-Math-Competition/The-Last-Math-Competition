@@ -1,0 +1,60 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\title{The stated numerical ratio in Conjecture 996 is false}
+\author{Local AI-assisted solution draft}
+\date{3 October 2026}
+% Compact consistent title for a short mathematical note.
+\makeatletter
+\renewcommand{\maketitle}{\begin{center}
+{\Large\bfseries\@title\par}\vspace{0.6em}
+{\small\@author\par\@date}
+\end{center}\vspace{0.5em}}
+\makeatother
+\setlength{\emergencystretch}{3em}
+\usepackage{url}
+\begin{document}
+\maketitle
+\paragraph{Source.}
+Conjecture \texttt{00000000996} in The Last Math Competition was read at
+the source commit
+\begin{center}\small
+\path{efab34b80a63963991d6c7ed625442a89a328a44}.
+\end{center}
+The statement explicitly specifies two
+spectral dimensions $4/3$ and $7/4$ and claims their ratio is $7/9$.
+
+\paragraph{Disproof.}
+The asserted numerical identity fails in exact rational arithmetic:
+\[
+\frac{4/3}{7/4}=\frac{4}{3}\frac{4}{7}=\frac{16}{21}\ne\frac79,
+\]
+since $16\cdot9=144$ whereas $7\cdot21=147$.
+Reading ``ratio between'' in the opposite order does not help:
+\[
+\frac{7/4}{4/3}=\frac{21}{16}\ne\frac79.
+\]
+Therefore the conjunction of the dimensions as written and the claimed
+ratio cannot hold. This disproof does not require a claim about whether the
+two individual spectral-dimension values are themselves correct.
+
+\paragraph{Formal verification and scope.}
+The self-contained Lean 4.19.0 file \texttt{Main.lean} uses the standard
+library's exact rational type, \texttt{Std.Internal.Rat}. It defines the two
+dimensions and the claimed ratio directly from the numerals in the source,
+proves the forward and reverse ratio values, and proves
+\path{Conjecture996.conjecture996_false}. The reversed reading is also
+formally refuted. All reductions are kernel-checked, with no proof
+placeholders, custom axioms, or native decision procedures. The only
+reported foundational axiom is standard propositional extensionality.
+
+This is a disproof of the statement's explicit arithmetic equality. It
+establishes no additional percolation or spectral-dimension theorem. If the
+organizers intended a different ratio or different values, that would be a
+revised conjecture.
+
+\paragraph{Status.}
+This is a locally checked draft, not an organizer-accepted result. Prior
+submission status must be refreshed before publication.
+\end{document}
