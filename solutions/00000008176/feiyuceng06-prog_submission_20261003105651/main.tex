@@ -1,0 +1,201 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Z}{\mathbb Z}
+
+\title{A Counterexample to Conjecture 00000008176:\\
+the Artin Density of a Perfect Square}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5.5)\thanks{Anthropic.}%
+}
+\date{2026-10-03}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Let $\delta_A(q)$ be the density of the primes $p$ modulo which $q$ is a primitive
+root. The second claim of Conjecture 00000008176 is that $\delta_A(q)$ is zero or
+nonzero according to whether $q\not\equiv1\pmod{p^2}$ holds for every prime $p$. We
+show unconditionally that $\delta_A(s^2)=0$ for every integer $s$. Since $q=4$
+satisfies the criterion and $q=9$ violates it, the criterion decides nothing, in
+either direction. The refutation is checked in Lean~4 against Mathlib.
+\end{abstract}
+
+\section{The conjecture as stated}
+
+The original text of conjecture 00000008176 reads:
+
+\begin{quote}
+Definition: The density table for computational verification of Artin's primitive
+root conjecture: the explicit values of the density delta\_A(q) of primes q being a
+primitive root (Hooley explicit). Conjecture: delta\_A(2) = 0.3739558136\dots{} (the
+explicit 2-value of the Artin constant, the product of $(1 - 1/(p(p-1)))$ with the
+Legendre correction); the complete classification of the values of delta\_A(q) (zero
+versus nonzero) is decided by q not congruent to 1 mod $p^2$ for all p (a
+non-Wieferich criterion); the minimal positive value of delta is attained at q = 2 (a
+2-minimality law); and the arithmeticity of the density (rationality of delta):
+delta\_A(q) is rational if and only if q is a perfect square or $-4$ times a square (a
+rationality criterion), the list of rational values being finite (a finite rational
+list).
+\end{quote}
+
+The Chinese version in \texttt{conjectures/00000008176.md} states the same four
+claims.
+
+\section{Reading of the statement}
+
+The conjecture is a conjunction of four claims. We refute the second one, so the
+conjecture is false whatever the other three claims mean.
+
+\paragraph{The density.} As in Artin's primitive root conjecture, $\delta_A(q)$ is
+the density of the set
+\[
+\mathcal A(q)=\{p \text{ prime}: q \text{ is a primitive root modulo } p\}
+\]
+relative to the primes. Here $q$ is a primitive root modulo $p$ if its residue
+generates the cyclic group $(\Z/p\Z)^\times$, that is, it has multiplicative order
+$p-1$; a residue $0$ is never a primitive root. The phrase ``the density of primes q
+being a primitive root'' can only mean this, since $\delta_A$ is indexed by $q$. The
+fourth claim speaks of $q$ being a perfect square or $-4$ times a square, so $q$
+ranges over the integers, including perfect squares.
+
+\begin{definition}
+A set $S$ of primes has \emph{density $d$} if
+$\#\{p\in S: p\le x\}/\pi(x)\to d$ as $x\to\infty$, where $\pi(x)$ is the number of
+primes up to $x$. We write $\delta_A(q)=0$ if $\mathcal A(q)$ has density $0$.
+\end{definition}
+
+\paragraph{The criterion.} Let $W(q)$ be the statement ``$q\not\equiv1\pmod{p^2}$
+for every prime $p$''. The name ``non-Wieferich criterion'' indicates that $p$ runs
+over primes. The second claim says that $W$ decides whether $\delta_A(q)$ is zero or
+nonzero. The natural reading is
+\begin{equation}\label{eq:N}
+\delta_A(q)\ne0 \iff W(q)\qquad\text{for every integer } q. \tag{N}
+\end{equation}
+We also refute the reversed matching
+\begin{equation}\label{eq:Z}
+\delta_A(q)=0 \iff W(q)\qquad\text{for every integer } q. \tag{Z}
+\end{equation}
+For (N) it does not matter whether ``$\delta_A(q)\ne0$'' is read as ``$\mathcal
+A(q)$ does not have density $0$'' or as ``$\mathcal A(q)$ has a density $d\ne0$''.
+
+\section{Results}
+
+\begin{proposition}\label{prop:square}
+For every integer $s$, $\mathcal A(s^2)\subseteq\{2\}$. Consequently
+$\delta_A(s^2)=0$.
+\end{proposition}
+
+\begin{theorem}\label{thm:main}
+$W(4)$ holds and $\delta_A(4)=0$, so (N) fails. $W(9)$ fails and $\delta_A(9)=0$, so
+(Z) fails. In particular Conjecture 00000008176 is false.
+\end{theorem}
+
+\section{Proofs}
+
+\begin{proof}[Proof of Proposition~\ref{prop:square}]
+Let $p$ be an odd prime and $a$ the residue of $s$ modulo $p$. If $a=0$, the residue
+of $s^2$ is $0$, which is not a primitive root. Otherwise Fermat's little theorem
+gives
+\[
+(a^2)^{(p-1)/2}=a^{p-1}=1,
+\]
+so the order of $a^2$ divides $(p-1)/2$. Since $0<(p-1)/2<p-1$, this order is not
+$p-1$, and $s^2$ is not a primitive root modulo $p$. Hence $\mathcal A(s^2)
+\subseteq\{2\}$.
+
+It follows that $\#\{p\in\mathcal A(s^2):p\le x\}\le1$, so
+\[
+0\le\frac{\#\{p\in\mathcal A(s^2):p\le x\}}{\pi(x)}\le\frac1{\pi(x)}\to0,
+\]
+because $\pi(x)\to\infty$. So $\mathcal A(s^2)$ has density $0$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+If $4\equiv1\pmod{p^2}$ for a prime $p$, then $p^2\mid3$, which is impossible as
+$p^2\ge4$. So $W(4)$ holds, and $\delta_A(4)=0$ by
+Proposition~\ref{prop:square} with $s=2$. This contradicts (N) at $q=4$ in either
+reading of ``$\delta_A(4)\ne0$'': the density is $0$, and a density is unique since
+it is a limit.
+
+On the other hand $9\equiv1\pmod{2^2}$, so $W(9)$ fails, while $\delta_A(9)=0$ by
+Proposition~\ref{prop:square} with $s=3$. This contradicts (Z) at $q=9$.
+\end{proof}
+
+\section{Formalization}
+\sloppy
+
+The Lean~4 project in \texttt{lean/} (file \texttt{lean/Submission/Basic.lean})
+formalizes the definitions above and proves both results against Mathlib.
+\begin{itemize}
+  \item \texttt{artinSet q} is $\mathcal A(q)$: the primes $p$ with
+    \texttt{IsPrimitiveRoot ((q : ZMod p)) (p - 1)}, using Mathlib's notion of a
+    primitive root of unity, i.e.\ the residue has order exactly $p-1$.
+  \item \texttt{HasPrimeDensity S d} states that
+    \texttt{(S $\cap$ [0,x]).ncard / Nat.primeCounting x} tends to $d$.
+  \item \texttt{NonWieferich q} is $W(q)$, with $q\equiv1\pmod{p^2}$ expressed by
+    Mathlib's \texttt{Int.ModEq}.
+  \item \texttt{ClassificationNonzero} is (N) with ``$\delta_A(q)\ne0$'' read as
+    ``not density $0$''; \texttt{ClassificationNonzero'} is (N) with ``has a
+    density $d\ne0$''; \texttt{ClassificationZero} is (Z).
+  \item \texttt{artinSet\_sq\_subset} and \texttt{hasPrimeDensity\_sq} are
+    Proposition~\ref{prop:square}. They use Mathlib's Fermat little theorem
+    \texttt{ZMod.pow\_card\_sub\_one\_eq\_one} and
+    \texttt{Nat.tendsto\_primeCounting}.
+  \item \texttt{nonWieferich\_four}, \texttt{not\_nonWieferich\_nine}, and the
+    refutations \texttt{not\_classificationNonzero},
+    \texttt{not\_classificationNonzero'}, \texttt{not\_classificationZero}.
+  \item \texttt{conjecture\_00000008176\_false} states
+    $\lnot(P\wedge\texttt{ClassificationNonzero}\wedge Q\wedge R)$ for arbitrary
+    propositions $P,Q,R$ standing for the other three claims.
+\end{itemize}
+The toolchain is \texttt{leanprover/lean4:v4.33.1}, Mathlib is pinned to
+\texttt{v4.33.1}, and \texttt{lake build} succeeds. The project contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and introduces no
+axioms: \texttt{\#print axioms} reports exactly \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound} for the three refutations.
+
+\fussy
+\section{Remarks}
+
+\begin{remark}
+The refutation is unconditional: it only uses that squares have density $0$. The
+expected classification is different from the stated one. If $q=-1$ or $q$ is a
+perfect square, then $\delta_A(q)=0$ (the integer $-1$ is a primitive root only
+modulo $2$ and $3$). Otherwise, under the generalized Riemann hypothesis, Hooley
+\cite{hooley} proved that $\delta_A(q)$ exists and is positive. The criterion $W$ is
+unrelated to this dichotomy in both directions: $4$ satisfies $W$ with
+$\delta_A(4)=0$, and $10\equiv1\pmod{3^2}$ violates $W$ although $\delta_A(10)>0$
+under the generalized Riemann hypothesis.
+\end{remark}
+
+\begin{remark}
+We do not address the other three claims. Under the generalized Riemann hypothesis,
+Hooley's theorem gives $\delta_A(2)$ as Artin's constant $0.3739558136\ldots$.
+Unconditionally, it is not known for any single integer $q$ that $q$ is a primitive
+root modulo infinitely many primes.
+\end{remark}
+
+\begin{thebibliography}{9}
+\bibitem{hooley} C.~Hooley, \emph{On Artin's conjecture}, J. Reine Angew. Math. 225
+  (1967), 209--220.
+\end{thebibliography}
+
+\end{document}
