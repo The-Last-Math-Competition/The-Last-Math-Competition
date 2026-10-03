@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}{Definition}
+
+\title{Refutation of Conjecture 00000004413\\
+\large Cycle counts in bounded-degree graph limits}
+\author{orionsheep (TLMC refutation submission)}
+\date{October 3, 2026}
+
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{definition}[graphing / bounded-degree graph limit]
+A (deterministic) graphing on a finite probability space $V$ is a symmetric,
+irreflexive edge relation $E$ on $V$.  It satisfies \emph{degree bound} $d$
+when every vertex has at most $d$ neighbours.  Its \emph{cycle measure} of
+length $l$ is the number of distinct undirected $l$-cycles divided by $|V|$
+(the uniform measure on $V$).
+\end{definition}
+
+\noindent\textbf{Conjecture 00000004413.} \emph{For every graphing of degree
+bound $d$ and every $l$, the $l$-cycle measure is at most
+$\dfrac{(d-1)^l}{2l}$, and this bound is attained and optimal for the
+$d$-regular tree limit.}
+
+\section{The conjecture is false}
+
+\subsection{Counterexample to the upper bound}
+
+Take $G = K_3$, the triangle, on the probability space $V = \{0,1,2\}$
+($x\sim y \iff x\neq y$).
+
+\begin{itemize}
+  \item Degree bound: every vertex has degree $2$, so $d = 2$.
+  \item The number of undirected $3$-cycles is $1$, so the $3$-cycle measure
+        is $1/3$.
+  \item The claimed bound: $\dfrac{(d-1)^l}{2l} = \dfrac{1^3}{6} = \dfrac16$.
+\end{itemize}
+
+\noindent But $\dfrac13 > \dfrac16$: the alleged upper bound fails on the
+simplest bounded-degree object.  Already the raw cycle \emph{count} $1$
+exceeds $1/6$.
+
+\subsection{The optimality/attainment claim is also false}
+
+A $d$-regular \emph{tree} contains no cycles at all, so its $l$-cycle
+measure is $0$, whereas the claimed bound $\frac{(d-1)^l}{2l}$ is strictly
+positive for every $d \ge 2$ and $l \ge 1$.  Hence the bound is never
+``attained'' by the $d$-regular tree: the second half of the conjecture is
+inconsistent with the first.
+
+\subsection{What $(d-1)^l/(2l)$ really is}
+
+The expression $(d-1)^l/(2l)$ is the \emph{mean of the Poisson limit} for
+the number of $l$-cycles in a uniformly random $d$-regular graph on $n$
+vertices (Bollob\'as--Wormald): the cycle count of a random $d$-regular
+graph converges in distribution to $\mathrm{Poisson}\bigl((d-1)^l/(2l)\bigr)$.
+It is therefore a \emph{typical/expected} value for locally-tree-like limits,
+not a universal upper bound.
+
+\section{Formalization}
+
+The Lean~4/Mathlib development (\texttt{lean4/Main.lean}) defines
+
+\begin{itemize}
+  \item \texttt{Graphing V}: symmetric irreflexive decidable relation on a
+        finite vertex type $V$ (uniform measure);
+  \item \texttt{Graphing.deg}, \texttt{Graphing.DegreeBound},
+        \texttt{Graphing.cycleWalks}, \texttt{Graphing.edgeSetOf}
+        (a \texttt{Finset (Sym2 V)}, so a cycle and all its
+        rotations/reversal give the same edge set),
+        \texttt{Graphing.cycleCount} (normalized by $|V|$), and
+        \texttt{Graphing.claimedBound} $= (d-1)^l/(2l)$;
+  \item \texttt{triangle}: the $K_3$ graphing on \texttt{Fin 3}.
+\end{itemize}
+
+\noindent Main theorems:
+
+\begin{itemize}
+  \item \texttt{conjecture\_00000004413\_false}: the universal bound is
+        \emph{false} (proved from
+        \texttt{triangle\_degreeBound}, \texttt{triangle\_cycleCount\_ge}
+        $\Rightarrow$ \texttt{cycleCount}~$\ge 1/3$, and
+        \texttt{claimedBound\_2\_3} $= 1/6$);
+  \item \texttt{counterexample\_exists}: explicit counterexample;
+  \item \texttt{tree\_cannot\_attain}: $\texttt{claimedBound} > 0$ for
+        $d \ge 2$, $l \ge 1$, while a tree has cycle measure $0$, so the
+        bound cannot be attained by the $d$-regular tree.
+\end{itemize}
+
+\noindent The axiom audit (\texttt{lean4/Check.lean}, \texttt{\#print axioms})
+reports dependence only on Lean's three standard foundational axioms
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound} --- no
+\texttt{sorry}, no \texttt{native\_decide}.
+
+\section{Reproduction}
+
+\begin{itemize}
+  \item \texttt{reproduce.py}: brute-force enumeration of undirected
+        $3$-cycles in $K_3$ ($=1$), comparison with $1^3/6 = 1/6$, and a
+        check that trees have cycle count $0 < (d-1)^l/(2l)$.
+  \item \texttt{lean4/}: \texttt{lake build} exits $0$ on Lean
+        \texttt{v4.33.1}/Mathlib \texttt{v4.33.1}.
+\end{itemize}
+
+\end{document}
