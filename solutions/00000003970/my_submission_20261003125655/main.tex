@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003970}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} there exist two graphs whose counts of all
+connected subgraphs coincide while their adjacency spectra differ;
+the minimal vertex number for such a separation is $6$ or $7$, and
+all cases can be completely enumerated.
+\end{quote}
+
+\section{The refutation}
+
+At $n = 5$ take $G_1 = K_3 \cup 2K_1$ (triangle plus two isolates)
+and $G_2 = P_3 \cup K_2$ (path plus an edge).  Connected induced
+subgraphs by order: $G_1$ has $5$ vertices, $3$ edges, exactly one
+connected triple (the triangle), and nothing larger; $G_2$ has $5$
+vertices, $3$ edges ($2 + 1$), exactly one connected triple (the
+path), and nothing larger.  The count vectors $(5, 3, 1, 0, 0)$
+coincide.  The spectra do not:
+\[
+p_1(x) = x^2(x-2)(x+1)^2, \qquad
+p_2(x) = x(x^2 - 2)(x^2 - 1):
+\]
+$p_1(2) = 0$ (the triangle's eigenvalue $2$) while $p_2(2) =
+2 \cdot 2 \cdot 3 = 12 \ne 0$, and the multiplicity of $-1$ is $2$
+versus $1$.  Since exhaustive enumeration over all
+$2^{\binom{n}{2}}$ graphs at $n = 2, 3, 4$ yields no separation,
+the minimal vertex number is exactly $5$ --- not ``$6$ or $7$''.
+(The existence clause survives; the minimal-number and enumeration
+claims are refuted.  Under the non-induced reading the sweep finds
+no separation up to $n = 7$ at all.)
+
+\section{Verification}
+
+\texttt{reproduce.py} exhibits the certified pair (identical
+counts, distinct eigenvalues) and exhausts $n = 2, 3, 4$.  The
+Lean package (core Lean~4, v4.33.1) certifies
+\texttt{count\_vertices}, \texttt{count\_edges},
+\texttt{count\_triples}, \texttt{spec1\_two} ($(2-2) = 0$),
+\texttt{spec2\_no\_two}/\texttt{polys\_differ}
+($2 \cdot (4-2) \cdot (4-1) = 12 \ne 0$),
+\texttt{multiplicity\_gap} ($2 = 1+1$ vs $1 \ne 1+1$), and
+\texttt{conjecture\_refuted}.  All eight audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the count identity and the spectral anchors at
+the certified pair; the $n \le 4$ enumeration and the eigenvalue
+numerics are in the script.  The minimal-number claim is refuted.
+
+\end{document}
