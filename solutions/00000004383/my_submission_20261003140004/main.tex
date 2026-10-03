@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000004383}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the first five nonzero low-degree homotopy
+groups of THH(S) are explicit direct sums of $\mathbb{F}_p$, and
+the first nonzero group lies in degree 1 and is cyclic of order 4.
+\end{quote}
+
+\section{The refutation}
+
+THH of a ring spectrum $A$ is the realization of the cyclic bar
+construction; for the sphere spectrum $S$ --- the initial object
+among ring spectra --- the unit maps collapse the construction:
+$\mathrm{THH}(S) \simeq S$.  Hence $\pi_*\mathrm{THH}(S) =
+\pi_*^{\mathrm{st}}(S)$, the classical stable stems:
+
+\[
+\pi_0 = \mathbb{Z} \ (\text{infinite}), \qquad
+\pi_1 = \mathbb{Z}/2, \qquad
+\pi_3 = \mathbb{Z}/24 .
+\]
+
+Every row of the claimed table fails: $\pi_0$ is \emph{infinite},
+while every direct sum of $\mathbb{F}_p$'s is finite; the first
+nonzero positive-degree group is $\mathbb{Z}/2$ of order $2$, not
+a cyclic group of order $4$ ($2 \ne 4$); and $\pi_3 = \mathbb{Z}/24$
+has order $24$, decomposing as $\mathbb{Z}/8 \oplus \mathbb{Z}/3$
+($8 \cdot 3 = 24$) --- not the claimed $(\mathbb{Z}/2)^2 \oplus
+(\mathbb{Z}/3)^2$ of order $4 \cdot 9 = 36$ ($24 \ne 36$).  The
+conjecture appears to conflate $\mathrm{THH}(S)$ with
+B\"okstedt's $\mathrm{THH}(\mathbb{F}_p)$ computation, where the
+$\mathbb{F}_p$-sum structure and order-$4$ phenomena genuinely
+occur.
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies the group orders against the
+claimed table.  The Lean package (core Lean~4, v4.33.1) certifies
+\texttt{first\_group\_order} ($2 \ne 4$),
+\texttt{order\_mismatch\_3} ($24 \ne 36$),
+\texttt{structure\_mismatch} ($4 \cdot 9 = 36$, $8 \cdot 3 = 24$,
+$24 \ne 36$), \texttt{pi0\_infinite}, and
+\texttt{conjecture\_refuted}.  All five audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the order arithmetic contradicting the table;
+the identification $\mathrm{THH}(S) \simeq S$ and the stable-stem
+groups are classical (Toda's table), cited in prose.  All rows of
+the claimed table are refuted.
+
+\end{document}
