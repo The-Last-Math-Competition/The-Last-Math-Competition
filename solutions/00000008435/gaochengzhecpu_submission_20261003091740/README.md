@@ -1,35 +1,44 @@
-# Conjecture 00000008435: disproof submission
+# Disproof of conjecture 00000008435
 
-Four successive derivations of symmetric designs.
+**Result:** Disproof under the reading stated below.
 
-Submitter: **gaochengzhecpu**. AI-assisted with Codex; draft for mathematical review.
+The complement-of-singleton symmetric design on seven points admits four successive derived designs, with parameters (7,6,5), (6,5,4), (5,4,3), (4,3,2), and (3,2,1). This refutes the proposed limit under the stated BIBD convention, which allows complete designs.
 
-## Scope
+## The conjecture
+
+> Definition: Residual and derived designs: the designs obtained from a given design by residual and derivation operations. Conjecture: The parameters of the residual and derived designs are (v-k, k-t, lambda) and (k,t,1); the symmetric designs recovering the original parameters after two levels of derivation are exactly the symmetric BIBDs; and the length of the derivation chain is at most 3. (upper bound on derivation chain length)
+
+[Original statement](https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/efab34b80a63963991d6c7ed625442a89a328a44/conjectures/00000008435.md); both languages are in `SOURCE.md`.
+
+## Reading and scope
 
 Uses complete complement-of-singleton designs; the source does not explicitly exclude this family. Under the BIBD convention 2 <= k < v the four derivations are valid. A convention additionally excluding complete/trivial designs is outside this counterexample's claim.
 
-Read `proof.pdf` for the complete ordinary proof, explicit assumptions and the correspondence to `Main.lean`. The LaTeX source is `proof.tex`. This revised version has been checked locally; its draft status does not imply organizer acceptance.
+## Proof
+
+The full mathematical argument is in [main.pdf](main.pdf), with LaTeX source [main.tex](main.tex).
+
+## Formalization
+
+Lean **4.19.0**, using its bundled standard library only; no Mathlib dependency. The complete project is in `lean/`, with warnings treated as errors. The report explains how the encoded objects and final proposition correspond to the original statement.
+
+Audited declarations include `d2_correct`, `d3_correct`, `d4_correct`, `also_point_derivations`, `conjecture8435_false`. `lean-verification.txt` records the clean build and printed axiom dependencies. No `sorry`, `admit`, `native_decide`, or additional axiom is used; only standard Lean foundational axioms occur.
 
 ## Reproduce
 
-Use Lean **4.19.0**, then run in this directory:
+From this submission directory:
 
 ```text
+cd lean
 lake build
 ```
 
-Only Lean's bundled standard libraries are needed; there is no Mathlib dependency. The Lake configuration treats warnings as errors. Principal declarations print their axiom dependencies. Local checks found no `sorry`, `admit`, `native_decide` or added axioms; only standard Lean foundational axioms occur. `lean-verification.txt` records the successful local build.
+From this submission directory, rebuild the PDF with:
 
-Rebuild the PDF with `tectonic proof.tex` (or a standard LaTeX toolchain).
+```text
+tectonic main.tex
+```
 
-## Provenance and local validation
+## Submission status
 
-Original statement: [conjecture 00000008435](https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/efab34b80a63963991d6c7ed625442a89a328a44/conjectures/00000008435.md). An unchanged bilingual copy is included as `SOURCE.md`.
-
-Lean compilation, exact source correspondence, AI cross-review, and rendered-PDF inspection were completed locally. The source hashes in `verification.json` identify the checked artifacts. This is a draft submission, not an official review or an accepted result.
-
-Immediately before preparing this submission, official metadata did not mark this conjecture solved, and no matching conjecture number was found in the titles or bodies of the 298 public PRs checked at 2026-10-03T13:15:11.955212+00:00. This limited check is not a claim of mathematical novelty or priority.
-
-## Second review and correction
-
-Second adversarial review requested an explicit bridge between seven-bit masks and arbitrary subsets of the seven-point universe. This revision adds that representation bridge and the set meanings of the operations used in the four successive derivations, retaining the complete-design interpretation boundary.
+AI-assisted with Codex; submitted by **gaochengzhecpu**. The statement-to-proof correspondence was checked locally by a separate agent, and the PDF was rendered and inspected. This remains a draft for independent mathematical review; local verification is not organizer acceptance. `verification.json` gives hashes of the reviewed files.
