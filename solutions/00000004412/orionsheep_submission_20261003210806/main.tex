@@ -1,0 +1,100 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{Refutation of TLMC Conjecture 00000004412\\
+\large (Fredholm-logarithm characterization of exchangeable spectra)}
+\author{orionsheep submission}
+\date{2026-10-03}
+
+\begin{document}
+\maketitle
+
+\section*{The conjecture}
+\begin{quote}
+The spectral distribution of an exchangeable random graph limit is the
+spectral measure of its graphon integral operator.  \emph{Conjecture:} The
+characteristic function of the expected spectral measure is given explicitly
+by the \emph{logarithm} of the Fredholm determinant of the kernel, and the
+determinant series converges \emph{if and only if} the kernel is square
+integrable.
+\end{quote}
+
+Write the claim as the conjunction
+\[
+\mathrm{(a)}\quad \varphi(t)=\log\det(I-tT_K)\qquad\text{and}\qquad
+\mathrm{(b)}\quad \text{Fredholm series converges}\iff K\in L^2 .
+\]
+We refute the conjunction: conjunct (a) fails for \emph{every} kernel
+(already at $t=0$), and the ``only if'' direction of (b) also fails on a
+rank-one kernel.  The Lean development formalizes (a) in full.
+
+\section*{The model}
+An exchangeable random-graph limit is a graphon $W$, whose integral operator
+$T_K f(x)=\int K(x,y)f(y)\,dy$ is a self-adjoint Hilbert--Schmidt operator
+with eigenvalues $(\lambda_j)$.  The \emph{expected spectral measure} is the
+empirical eigenvalue law, and its characteristic function is
+\[
+\varphi(t)=\int e^{it\lambda}\,d\mu(\lambda)
+=\sum_{n\ge 0}\frac{(it)^n}{n!}\,m_n,\qquad m_n=\operatorname{Tr}T^n .
+\]
+We discretize on a finite probability space $\mathrm{Fin}\,m$ with uniform
+measure: the kernel is a symmetric matrix $K$ and $T=(1/m)K$.
+
+\section*{Refutation of (a)}
+The conjectured identity $\varphi(t)=\log\det(I-tT)$ is evaluated at $t=0$:
+\begin{itemize}
+\item $\varphi(0)=\mu(\mathbb R)=1$: \emph{every} characteristic function of
+a probability measure equals $1$ at $0$.  For the finite model
+$\varphi(0)=(1/m)\operatorname{Tr}I=1$.
+\item $\det(I-0\cdot T)=\det I=1$, hence $\log\det(I-0\,T)=0$ for \emph{every}
+kernel.
+\end{itemize}
+Thus $\varphi(0)=1\ne 0=\log\det(I)$ on the complete graphon
+($m=1$, $K\equiv 1$): the identity fails already at the expansion point, for
+any kernel.  No normalizing convention repairs it --- a characteristic
+function is $1$ at $0$, a log-determinant is $0$ there.
+
+Even at nonzero $t$ the two sides cannot coincide: $|\varphi(t)|\le 1$ for
+all real $t$ (it is a characteristic function), whereas
+$\operatorname{Re}\log\det(I-tT)=\log\prod_j|1-t\lambda_j|$ is unbounded
+above as $|t|\to\infty$ whenever $T$ has a nonzero eigenvalue.
+Numerically, for a random $4\times4$ symmetric kernel,
+$\varphi(20)\approx 0.118-0.071i$ (modulus $<1$) while
+$\operatorname{Re}\log\det(I-20T)\approx +6.74$.
+
+\section*{Refutation of (b), ``only if''}
+The Fredholm determinant series needs only the coefficient integrals
+$a_n=\frac1{n!}\int\det[K(x_i,x_j)]\,dx_1\cdots dx_n$.  For a rank-one kernel
+$K(x,y)=u(x)v(y)$ every $n\times n$ determinant with $n\ge 2$ vanishes, so
+\[
+\det(I-zT)=1-z\!\int\! u(x)v(x)\,dx,
+\]
+a polynomial, hence convergent for all $z$.  Taking $u=1$,
+$v(y)=y^{-3/4}$ on $[0,1]$ gives $\int v=4$ but
+$\int\!\!\int K^2=\int v^2=\int_0^1 y^{-3/2}dy=+\infty$: the kernel is
+\emph{not} square integrable, yet its Fredholm series converges (it equals
+$1-4z$).  ``Converges $\Rightarrow$ square integrable'' is therefore false.
+
+\section*{Lean certification}
+\texttt{lean4/Main.lean} defines the objects genuinely:
+\texttt{FiniteGraphon} (symmetric kernel on $\mathrm{Fin}\,m$),
+\texttt{intOp} (the $(1/m)K$ integral operator), \texttt{spectralMoment}
+($(1/m)\operatorname{Tr}T^n$), \texttt{spectralCharFn} (the exponential
+generating function of the moments), \texttt{fredholmCoeff} (the $n$-th
+Fredholm coefficient $m^{-n}\sum_x\det[K(x_i,x_j)]/n!$ with sign),
+\texttt{fredholmDet} ($1+\sum_{n\ge1}a_nz^n$), and the claim
+\texttt{FredholmLogClaim} $=\forall W\,t,\ \varphi_W(t)=\log\det_W(t)$.
+The main theorem \texttt{conjecture\_refuted} proves
+$\neg$\,\texttt{FredholmLogClaim} via \texttt{spectralCharFn\_zero}
+($\varphi(0)=1$, every kernel), \texttt{fredholmDet\_zero} ($\det=1$), and
+\texttt{instance\_violates\_claim} ($1\ne0$ on \texttt{completeGraphon}).
+\texttt{Check.lean} audits: every theorem depends only on
+\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}.
+
+\section*{Conclusion}
+\[
+\boxed{\;\text{VERDICT: SUBMITTED --- the conjecture is refuted.}\;}
+\]
+\end{document}
