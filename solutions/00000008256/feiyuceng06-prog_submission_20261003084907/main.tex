@@ -1,0 +1,219 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\SP}{\mathcal S}
+
+\title{A Counterexample to Conjecture 00000008256:\\
+a Maximal Condorcet Domain Above the Stated Bound}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5.5)\thanks{Anthropic.}%
+}
+\date{2026-10-03}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The first claim of Conjecture 00000008256 asserts that every maximal Condorcet
+domain on $n$ alternatives has at most $2^{n-1}\,n!/2^{n(n-1)/2}$ linear orders.
+For $n=3$ this bound equals $3$. The single-peaked domain on three alternatives,
+consisting of the four orders in which the middle alternative is not ranked last, is
+a maximal Condorcet domain with $4$ orders. The refutation is checked in Lean~4
+against Mathlib.
+\end{abstract}
+
+\section{The conjecture as stated}
+
+The original text of conjecture 00000008256 reads:
+
+\begin{quote}
+Definition: The maximal subdomains of the Condorcet domain for voting paradoxes: the
+maximal preference domains cond\_max admitting Condorcet winners. Conjecture: The
+size of cond\_max (a maximal Condorcet domain) is at most the Fishburn type explicit
+bound $2^{n-1} (n!)/2^{n(n-1)/2}$ (a Fishburn bound formula); the tightness of the
+bound (domains attaining it) is given by white-list domains (a white-list tight
+domain law); the count of maximal domains (the number of maximal domains at $n = 4$)
+is exactly $7$ (a four-alternative seven-domain law); and the permutation-symmetric
+maximization structure of maximal domains is characterized by the lattice of
+separable preferences (a separable lattice characterization law).
+\end{quote}
+
+The Chinese version in \texttt{conjectures/00000008256.md} writes the bound as
+$2^{n-1}\cdot(n!)/2^{n(n-1)/2}$.
+
+\section{Reading of the statement}
+
+The conjecture is a conjunction of four claims. We refute the first one, so the
+conjecture is false whatever the other three claims mean.
+
+Fix $n$ alternatives. A \emph{preference} is a strict linear order on the
+alternatives, and a \emph{domain} is a set $D$ of preferences. A \emph{profile} over
+$D$ with $m$ voters assigns to each voter $i\in\{1,\dots,m\}$ a preference
+$\succ_i\in D$; different voters may have the same preference.
+
+\begin{definition}
+Let $(\succ_i)_{i\le m}$ be a profile.
+\begin{enumerate}
+\item Alternative $a$ \emph{beats} $b$ if more than half of the voters prefer $a$ to
+  $b$: $\#\{i: a\succ_i b\}>m/2$.
+\item $a$ is a \emph{Condorcet winner} if it beats every other alternative.
+\item A domain $D$ \emph{admits Condorcet winners} if every profile over $D$ with an
+  odd number of voters has a Condorcet winner.
+\item $D$ is a \emph{maximal Condorcet domain} if it admits Condorcet winners and
+  every domain $D'\supseteq D$ that admits Condorcet winners equals $D$.
+\end{enumerate}
+\end{definition}
+
+Restricting to an odd number of voters is the standard convention: it rules out
+ties, which otherwise block a strict majority winner even in very small domains
+(two voters with opposite preferences). The first claim then reads:
+\begin{equation}\label{eq:bound}
+|D|\ \le\ B(n):=\frac{2^{n-1}\,n!}{2^{n(n-1)/2}}
+\quad\text{for every maximal Condorcet domain $D$ on $n$ alternatives.}
+\tag{B}
+\end{equation}
+If ``the size of cond\_max'' is read instead as the largest size of a Condorcet
+domain, the claim is refuted by the same example, since that largest size is at least
+the size of any maximal Condorcet domain.
+
+\section{Result}
+
+For $n=3$ we have $B(3)=2^2\cdot 6/2^3=3$. Write the alternatives as $0,1,2$ and a
+preference as the list of alternatives from best to worst, so that $102$ means
+$1\succ0\succ2$. Let
+\[
+\SP=\{012,\ 102,\ 120,\ 210\}
+\]
+be the orders in which the middle alternative $1$ is not ranked last. These are
+exactly the orders that are single-peaked with respect to the axis $0<1<2$.
+
+\begin{theorem}\label{thm:main}
+$\SP$ is a maximal Condorcet domain on three alternatives with $|\SP|=4>3=B(3)$.
+Hence (B) fails, and Conjecture 00000008256 is false.
+\end{theorem}
+
+\section{Proof}
+
+\begin{lemma}\label{lem:black}
+$\SP$ admits Condorcet winners.
+\end{lemma}
+
+\begin{proof}
+This is Black's median voter theorem for three alternatives; we give the direct
+argument. Take a profile over $\SP$ with $m$ voters, $m$ odd. Let $N_0$ and $N_2$
+be the numbers of voters ranking $0$, respectively $2$, first.
+
+If $N_0>m/2$, then $0$ is a Condorcet winner, since every voter ranking $0$ first
+prefers $0$ to each other alternative. Likewise, if $N_2>m/2$, then $2$ is a
+Condorcet winner.
+
+Otherwise $N_0\le m/2$ and $N_2\le m/2$, hence $N_0<m/2$ and $N_2<m/2$ since $m$ is
+odd. The only order in $\SP$ with $0$ on top is $012$, and in the other three orders
+$102,120,210$ the alternative $1$ is above $0$. So exactly $m-N_0>m/2$ voters prefer
+$1$ to $0$. Symmetrically, the only order in $\SP$ with $2$ on top is $210$, and in
+$012,102,120$ the alternative $1$ is above $2$. So $m-N_2>m/2$ voters prefer $1$ to
+$2$. Hence $1$ is a Condorcet winner.
+\end{proof}
+
+\begin{lemma}\label{lem:max}
+$\SP$ is a maximal Condorcet domain.
+\end{lemma}
+
+\begin{proof}
+By Lemma~\ref{lem:black}, $\SP$ admits Condorcet winners. Let $D'\supseteq\SP$
+admit Condorcet winners, and suppose $D'$ contains an order outside $\SP$. The only
+orders outside $\SP$ are $021$ and $201$.
+\begin{itemize}
+\item If $021\in D'$, consider the profile $(021,\,210,\,102)$ over $D'$. Here $0$
+  beats $2$ (voters 1 and 3), $2$ beats $1$ (voters 1 and 2), and $1$ beats $0$
+  (voters 2 and 3).
+\item If $201\in D'$, consider the profile $(201,\,012,\,120)$ over $D'$. Here $0$
+  beats $1$ (voters 1 and 2), $1$ beats $2$ (voters 2 and 3), and $2$ beats $0$
+  (voters 1 and 3).
+\end{itemize}
+In either case the majority relation is a cycle, so every alternative is beaten by
+some other one and there is no Condorcet winner, a contradiction. Hence $D'=\SP$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+By Lemma~\ref{lem:max}, $\SP$ is a maximal Condorcet domain, and $|\SP|=4>3=B(3)$.
+\end{proof}
+
+\section{Formalization}
+
+The Lean~4 project in \texttt{lean/} (file \texttt{lean/Submission/Basic.lean})
+formalizes the definitions above and proves Theorem~\ref{thm:main} against Mathlib.
+\begin{itemize}
+  \item A preference on \texttt{Fin n} is encoded by its ranking
+    \texttt{r : Equiv.Perm (Fin n)}, where \texttt{r a} is the position of $a$
+    (with $0$ the top) and $a$ is preferred to $b$ iff \texttt{r a < r b}. This
+    encodes every strict linear order exactly once.
+  \item \texttt{Beats v a b} is \texttt{m < 2 * \#\{i | v i a < v i b\}} for a
+    profile \texttt{v : Fin m -> Ranking n}; \texttt{IsCondorcetWinner},
+    \texttt{AdmitsCondorcetWinners} (all profiles with \texttt{Odd m}) and
+    \texttt{IsMaximalCondorcetDomain} follow the definition above.
+  \item \texttt{SizeBound} is (B), with the bound computed in $\mathbb R$.
+  \item \texttt{singlePeaked} is $\SP$, defined as the rankings with
+    \texttt{r 1} $\ne 2$; \texttt{card\_singlePeaked} gives $|\SP|=4$.
+  \item \texttt{admitsCondorcetWinners\_singlePeaked} is Lemma~\ref{lem:black},
+    proved for all odd $m$ by the counting argument above.
+    \texttt{cycle\_of\_not\_mem} provides the cyclic three-voter profiles, by
+    \texttt{decide}, and \texttt{isMaximalCondorcetDomain\_singlePeaked} is
+    Lemma~\ref{lem:max}.
+  \item \texttt{conjecture\_00000008256\_false} is $\lnot\,$\texttt{SizeBound}, and
+    \texttt{conjecture\_00000008256\_false'} states
+    $\lnot(\texttt{SizeBound}\wedge P\wedge Q\wedge R)$ for arbitrary propositions
+    $P,Q,R$ standing for the other three claims.
+\end{itemize}
+The toolchain is \texttt{leanprover/lean4:v4.33.1}, Mathlib is pinned to
+\texttt{v4.33.1}, and \texttt{lake build} succeeds. The project contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and introduces no
+axioms: \texttt{\#print axioms conjecture\_00000008256\_false} reports exactly
+\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
+
+\section{Remarks}
+
+\begin{remark}
+For three alternatives and an odd number of voters, the majority relation is a
+tournament, and a tournament on three vertices has a Condorcet winner exactly when
+it is acyclic. So on three alternatives our notion coincides with the other common
+definition of a Condorcet domain (the majority relation is transitive for every
+profile with an odd number of voters), and $\SP$ is maximal in that sense too.
+\end{remark}
+
+\begin{remark}
+The bound fails for every $n\ge3$, although only $n=3$ is formalized. The
+single-peaked domain for an axis on $n$ alternatives has $2^{n-1}$ orders and admits
+Condorcet winners by Black's theorem~\cite{black}, and it lies in some maximal
+Condorcet domain. On the other hand $B(n)<2^{n-1}$, because
+$n!<2^{n(n-1)/2}$ for $n\ge3$. Moreover $B(n+1)/B(n)=(n+1)/2^{n-1}$, so
+$B(3)=B(4)=3$, $B(5)=15/8$, $B(6)=45/64$, and $B(n)<1$ for all $n\ge6$. Every
+maximal Condorcet domain is nonempty, because a domain with a single order admits
+Condorcet winners. So for $n\ge6$ every maximal Condorcet domain violates (B).
+\end{remark}
+
+\begin{remark}
+We do not address the other three claims of the conjecture.
+\end{remark}
+
+\begin{thebibliography}{9}
+\bibitem{black} D.~Black, \emph{On the rationale of group decision-making},
+  J. Political Economy 56 (1948), 23--34.
+\end{thebibliography}
+
+\end{document}
