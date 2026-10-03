@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003883}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} for the binomial ideal $(x^a, y^b)$ with
+$\gcd(a,b) = 1$, $\mathrm{fpt} = \min(a,b)$ when $p \nmid \min(a,b)$;
+otherwise $\mathrm{fpt} = \min(a,b)$ minus an explicit correction
+term depending only on the $p$-adic valuation of $\min(a,b)$.
+\end{quote}
+
+\section{The refutation}
+
+The F-pure threshold is bounded by the log canonical threshold
+(Takagi--Watanabe: $\mathrm{fpt}(I) \le \mathrm{lct}(I)$ in regular
+rings), and for the monomial ideal $(x^a, y^b)$ the log canonical
+threshold is the classical exponent sum
+$\mathrm{lct} = \tfrac1a + \tfrac1b < 1$.  Hence
+\[
+\mathrm{fpt}\bigl((x^a, y^b)\bigr) \;\le\; \frac1a + \frac1b
+\;<\; 1 \;<\; 2 \;\le\; \min(a,b) \qquad (\min(a,b) \ge 2):
+\]
+the conjecture's main clause asserts a value $\ge 2$ outside the
+admissible range --- in precisely the case it designates
+correction-free ($p \nmid \min(a,b)$, i.e.\ valuation $0$).  The
+correction clause is unsalvageable: a valuation-only correction
+would force the deficit $\min(a,b) - \mathrm{fpt}$ to be constant
+across all valuation-$0$ pairs, but the true deficits
+$\min(a,b) - \mathrm{lct} = \tfrac76,\ \tfrac{13}{10},\
+\tfrac{301}{202}$ at $(2,3), (2,5), (2,101)$ are three distinct
+values.  Certified instance $(a,b) = (2,3)$: claimed
+$\mathrm{fpt} = 2$; true $\mathrm{fpt} \le \mathrm{lct} =
+\tfrac12 + \tfrac13 = \tfrac56$ (in fact $= \tfrac56$ for
+$p \ge 5$).
+
+\section{Verification}
+
+\texttt{reproduce.py} checks $\mathrm{lct} = \tfrac56$ at
+$(2,3)$ for $p = 5, 7, 11, 13, 101$, the general violation
+$\mathrm{lct} < 1 < \min(a,b)$ for five $\gcd$-1 pairs, and the
+valuation-0 deficit inconsistency.  The Lean package (core Lean~4,
+v4.33.1) certifies the scaled comparisons: \texttt{claimed\_value}
+($2$), \texttt{fpt\_ceiling} ($1$), \texttt{claimed\_exceeds\_ceiling}
+($12 > 6$), \texttt{true\_value\_scaled} ($5 = 3 + 2$),
+\texttt{true\_below\_claimed} ($5 < 12$), \texttt{true\_below\_one}
+($5 < 6$), and \texttt{conjecture\_refuted}.  All seven audited
+theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the exact scaled comparisons at $(2,3)$; the
+theorems $\mathrm{fpt} \le \mathrm{lct}$ (Takagi--Watanabe) and
+$\mathrm{lct}(x^a, y^b) = 1/a + 1/b$ are classical, cited in prose;
+the valuation-0 inconsistency is exact rational computation in the
+script.  Both the main clause and the correction clause are
+refuted.
+
+\end{document}
