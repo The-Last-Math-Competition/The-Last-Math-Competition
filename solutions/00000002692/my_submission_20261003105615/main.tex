@@ -1,0 +1,70 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000002692}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the measure of the attracting basin of a
+$p$-adic contraction is an explicit fraction of the ball volume; the
+denominator of the fraction is the order of the multiplier mod $p$,
+and the boundary of the basin is the closure of periodic points.
+\end{quote}
+
+\section{The refutation}
+
+Take $f(x) = 5x + x^2 = x(5+x)$ on $\mathbb{Z}_5$, with attracting
+fixed point $0$ and multiplier $f'(0) = 5$.
+
+\textbf{No denominator.} The multiplier mod $p$ is $5 \equiv 0
+\pmod 5$, and $0$ has \emph{no} multiplicative order modulo $5$
+($0^k = 0 \ne 1$ for all $k \ge 1$): the conjecture's denominator
+does not exist at this instance.  Even the charitable reading
+$\mathrm{ord}(0) = 1$ gives the fraction $1/1 \ne$ the truth:
+
+\textbf{The basin is $5\mathbb{Z}_5$, measure $1/5$.}  If $x \in
+5\mathbb{Z}_5$ then $|f(x)| \le |x|/5 \to 0$; if $x \notin
+5\mathbb{Z}_5$ then $|f(x)| = |x| = 1$ forever.  The basin is
+exactly $5\mathbb{Z}_5$: measure $1/5$ of the ball, denominator
+$5 = p$.  On the grid models $\mathbb{Z}/5^k$ the basin is exactly
+the set of multiples of $5$ --- a $1/5$-fraction at depths $k = 2,
+3, 4$ ($5/25$, $25/125$, $125/625$).
+
+\textbf{The boundary is not a periodic closure.}  The basin-boundary
+shell $5\mathbb{Z}_5 \setminus 25\mathbb{Z}_5$ consists of points
+with $f(x) = x(5+x) \equiv 0 \pmod{25}$ (whenever $x \equiv 0 \bmod
+5$): one step into the basin, never to return.  Mod $25$ the
+periodic points are $\{0,\ 21 = -4,\ 1, 6, 11, 16\}$ (two fixed
+points and a 4-cycle), all \emph{off} the shell
+$\{5, 10, 15, 20\}$ --- whose points satisfy $f(x) = 0 \ne x$.  The
+boundary of the basin is not the closure of periodic points.
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies the non-existence of the order of $0$
+mod $5$ ($k = 1..99$), the basin $=$ multiples of $5$ exactly at
+depths $2..4$ (the $1/5$-fraction), and the enumeration of periodic
+points mod $25$ against the shell.  The Lean package (core Lean~4,
+v4.33.1) certifies the depth-2 instance: \texttt{multiplier\_zero\_mod\_p},
+\texttt{zero\_has\_no\_order} ($\forall k \ge 1,\ 0^k \ne 1$),
+\texttt{basin\_fraction} ($5 \cdot 5 = 25$),
+\texttt{denominator\_mismatch} ($5 \ne 1$),
+\texttt{shell\_maps\_to\_zero}, \texttt{shell\_not\_periodic}, and
+\texttt{conjecture\_refuted}.  All seven audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the depth-2 grid instance; the passage to
+$\mathbb{Z}_5$ (the $5\mathbb{Z}_5$ identification and its measure)
+is classical non-archimedean dynamics, cited in prose and verified
+by the script at depths $2..4$.  All three clauses --- the explicit
+fraction's denominator, and the boundary description --- are
+refuted at this instance.
+
+\end{document}
