@@ -1,0 +1,164 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Qb}{\overline{\mathbb Q}}
+\newcommand{\PP}{\mathbb P^1(\Qb)}
+\newcommand{\Prep}{\operatorname{Prep}}
+
+\title{A Counterexample to Conjecture 00000007780:\\
+Four Common Preperiodic Points of $z^2-1$ and $z^2$}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5.5)\thanks{Anthropic.}%
+}
+\date{2026-10-03}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000007780 claims that a quadratic polynomial $f$ and a power map $z^d$
+have at most $2\nu(d)$ common preperiodic points on $\PP$, where $\nu(d)$ is the
+number of prime factors of $d$, and at most $3$ if $f$ is neither Chebyshev nor
+monomial. For $f(z)=z^2-1$ and $d=2$ the points $0,1,-1,\infty$ are preperiodic for
+both maps. Since $4>2=2\nu(2)$ and $z^2-1$ is neither Chebyshev nor monomial, both
+claims fail. The refutation is checked in Lean~4 against Mathlib.
+\end{abstract}
+
+\section{The conjecture as stated}
+
+The original text of conjecture 00000007780 reads:
+
+\begin{quote}
+Definition: Common preperiodic sets of mixed power maps: $S(d_1,d_2) =
+\mathrm{Per}(z^{d_1}) \cap \mathrm{Per}(z^{d_2})$ consists of roots of unity.
+Conjecture: For any quadratic polynomial $f$ together with a power map $z^d$ on
+$\mathbb P^1(\overline{\mathbb Q})$, the common preperiodic set has cardinality
+uniformly bounded by $2 v(d)$ with $v(d)$ the prime factor count of $d$; and when $f$
+is neither Chebyshev nor monomial the set contains only fixed-point-type points, at
+most $3$, decidable by uniform distribution of the fixed-point multipliers of $f$.
+\end{quote}
+
+The Chinese version in \texttt{conjectures/00000007780.md} states the same two claims.
+
+\section{Reading of the statement}
+
+A polynomial map $g$ of positive degree acts on $\PP=\Qb\cup\{\infty\}$, fixing
+$\infty$. A point $x$ is \emph{preperiodic} for $g$ if its forward orbit
+$\{g^{\circ k}(x):k\ge0\}$ is finite, equivalently if some iterate $g^{\circ m}(x)$
+is periodic. Write $\Prep(g)$ for the set of preperiodic points.
+
+For a quadratic polynomial $f$ and an integer $d\ge2$ the \emph{common preperiodic
+set} is $\Prep(f)\cap\Prep(z^d)\subseteq\PP$. A quadratic polynomial is
+\emph{monomial} if it is affinely conjugate to $z^2$, and \emph{Chebyshev} if it is
+affinely conjugate to $T_2(z)=2z^2-1$ or to $-T_2$. Conjugacy is by
+$\varphi(z)=\alpha z+\beta$ with $\alpha\ne0$, meaning $\varphi\circ f=g\circ\varphi$.
+These are the broadest readings: a literal monomial $az^2$ or a literal $\pm T_2$ is
+in particular conjugate to $z^2$ or $T_2$.
+
+The two claims are:
+\begin{enumerate}
+\item[(C1)] for every quadratic polynomial $f$ and every $d\ge2$,
+  $\#\bigl(\Prep(f)\cap\Prep(z^d)\bigr)\le2\nu(d)$;
+\item[(C2)] if $f$ is neither Chebyshev nor monomial, then
+  $\#\bigl(\Prep(f)\cap\Prep(z^d)\bigr)\le3$ for every $d\ge2$.
+\end{enumerate}
+The ``prime factor count'' $\nu(d)$ may be read with or without multiplicity; for
+$d=2$ both readings give $\nu(2)=1$. Restricting to $d\ge2$ only weakens (C1) and
+(C2), so refuting the restricted claims is stronger. In (C2) we refute only the
+bound ``at most $3$''; the other phrases of (C2) are not needed.
+
+\section{Result}
+
+\begin{theorem}\label{thm:main}
+Let $f(z)=z^2-1$ and $d=2$. Then $\{0,1,-1,\infty\}\subseteq\Prep(f)\cap\Prep(z^2)$,
+so the common preperiodic set has at least $4$ elements. Moreover $f$ is neither
+monomial nor Chebyshev. Hence both (C1) (as $4>2=2\nu(2)$) and (C2) (as $4>3$) fail,
+and Conjecture 00000007780 is false.
+\end{theorem}
+
+\section{Proof}
+
+\paragraph{Preperiodicity.} Under $f(z)=z^2-1$ we have $f(0)=-1$, $f(-1)=0$ and
+$f(1)=0$. So $0$ and $-1$ are periodic of period $2$, and $1$ is strictly preperiodic.
+Under $z\mapsto z^2$ the points $0$ and $1$ are fixed and $-1\mapsto1$. Both maps fix
+$\infty$. Thus $0,1,-1,\infty$ are preperiodic for both maps, and they are pairwise
+distinct since $\Qb$ has characteristic $0$.
+
+\paragraph{$f$ is not monomial.} Suppose $\alpha f(z)+\beta=(\alpha z+\beta)^2$ for
+all $z$, with $\alpha\ne0$. At $z=1$ and $z=-1$ (where $f=0$) this gives
+$\beta=(\alpha+\beta)^2$ and $\beta=(\beta-\alpha)^2$. Subtracting yields
+$4\alpha\beta=0$, so $\beta=0$. Then $0=\alpha^2$ at $z=1$, contradicting
+$\alpha\ne0$.
+
+\paragraph{$f$ is not Chebyshev.} Suppose $\alpha f(z)+\beta=\varepsilon\bigl(2(\alpha
+z+\beta)^2-1\bigr)$ for all $z$, with $\alpha\ne0$ and $\varepsilon\in\{1,-1\}$.
+At $z=\pm1$ we get $\beta=\varepsilon(2(\alpha+\beta)^2-1)=\varepsilon(2(\beta-
+\alpha)^2-1)$, hence $8\varepsilon\alpha\beta=0$ and $\beta=0$. At $z=0$ we get
+$-\alpha=-\varepsilon$, so $\alpha=\varepsilon$. At $z=1$ we then get
+$0=\varepsilon(2\alpha^2-1)=\varepsilon$, a contradiction.
+
+\section{Formalization}
+
+\sloppy
+The Lean~4 project in \texttt{lean/} (file \texttt{lean/Submission/Basic.lean})
+formalizes the definitions above and proves Theorem~\ref{thm:main} against Mathlib.
+\begin{itemize}
+  \item $\Qb$ is \texttt{AlgebraicClosure} of $\mathbb Q$, and $\PP$ is \texttt{Option Qbar}
+    with \texttt{none} as $\infty$. A polynomial map acts by \texttt{Option.map},
+    which fixes $\infty$.
+  \item \texttt{IsPreperiodic F x} means that some iterate $F^{\circ m}(x)$ is a
+    periodic point in the sense of Mathlib's \texttt{Function.IsPeriodicPt} (with
+    positive period).
+  \item \texttt{quad a b c} is $z\mapsto az^2+bz+c$, \texttt{powMap d} is $z\mapsto
+    z^d$, and \texttt{commonPrep a b c d} is the common preperiodic set.
+    \texttt{IsMonomial} and \texttt{IsChebyshev} are the conjugacy conditions above.
+  \item \texttt{Claim1} is (C1) with $\nu=\omega$
+    (\texttt{ArithmeticFunction.cardDistinctFactors}); \texttt{Claim1'} is (C1) with
+    $\nu=\Omega$ (\texttt{ArithmeticFunction.cardFactors}); \texttt{Claim2} is the
+    bound in (C2). Cardinalities are \texttt{Set.encard}, so infinite sets are
+    handled correctly.
+  \item \texttt{subset\_commonPrep} and \texttt{four\_le\_encard} give the four
+    common points; \texttt{not\_isMonomial} and \texttt{not\_isChebyshev} are the
+    two computations above.
+  \item \texttt{not\_claim1}, \texttt{not\_claim1'} and \texttt{not\_claim2} are the
+    refutations, and \texttt{conjecture\_00000007780\_false} states
+    $\lnot(\texttt{Claim1}\vee\texttt{Claim1'})\wedge\lnot\texttt{Claim2}$.
+\end{itemize}
+The toolchain is \texttt{leanprover/lean4:v4.33.1}, Mathlib is pinned to
+\texttt{v4.33.1}, and \texttt{lake build} succeeds. The project contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and introduces no
+axioms: \texttt{\#print axioms conjecture\_00000007780\_false} reports exactly
+\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
+
+\fussy
+
+\section{Remarks}
+
+\begin{remark}
+None of $0,1,-1$ is a fixed point of $f$ (the fixed points of $z^2-1$ are
+$(1\pm\sqrt5)/2$), so the description ``only fixed-point-type points'' in (C2) also
+fails under the natural reading. We formalize only the count.
+\end{remark}
+
+\begin{remark}
+For monomial $f$ the bound (C1) fails badly: $\Prep(z^2)\cap\Prep(z^d)$ contains
+every root of unity, hence is infinite. Our example is not monomial, so it refutes
+(C1) even for readings that tacitly exclude the monomial case.
+\end{remark}
+
+\end{document}
