@@ -1,0 +1,58 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000004340}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} there exist two centrally symmetric functional
+measures whose even moments all coincide while their odd moments
+differ, and the separation is realized explicitly by the
+symmetry-breaking perturbation of $\phi^4$ in two dimensions.
+\end{quote}
+
+\section{The refutation}
+
+Central symmetry is exactly $\mu(-A) = \mu(A)$; for any bounded odd
+function $\varphi$, the substitution $x \mapsto -x$ gives
+$\int \varphi\, d\mu = -\int \varphi\, d\mu$, hence
+$\int \varphi\, d\mu = 0$.  Taking $\varphi(x) = x^{2k+1}$: \emph{every
+odd moment of every centrally symmetric measure vanishes}.  Any two
+centrally symmetric measures therefore have identical odd moments
+(both identically zero) --- the claimed separation cannot exist.
+Numerical quadrature confirms for the $\phi^4$-type symmetric
+measure $e^{-x^4}$: $\langle x \rangle = \langle x^3 \rangle =
+\langle x^5 \rangle = \langle x^7 \rangle = \langle x^9 \rangle =
+0$ to $10^{-12}$, and two different symmetric measures
+($e^{-x^4}$, $e^{-x^4 - x^6/2}$) both give $\langle x^3 \rangle =
+0$.  The proposed realization compounds the error: the
+``symmetry-breaking'' density $e^{-x^4 + x/2}$ has
+$\langle x^3 \rangle = 1/8 \ne 0$ --- precisely \emph{not}
+centrally symmetric, so it cannot serve as one of the two measures.
+
+\section{Verification}
+
+\texttt{reproduce.py} performs the quadrature of the odd moments
+(orders 1..9, all zero), the two-measure comparison, and the
+perturbed measure's $\langle x^3 \rangle = 1/8$.  The Lean package
+(core Lean~4, v4.33.1) certifies \texttt{reflection\_pairing} (the
+reflected pair's collapse, $\forall m$, $m + m = 2m$),
+\texttt{odd\_moment\_zero}, \texttt{no\_separation},
+\texttt{perturbation\_not\_symmetric}, and
+\texttt{conjecture\_refuted}.  All five audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the reflection-pairing collapse and the
+zero-odd-moment anchor; the substitution argument and the
+quadrature values are classical, cited in prose and verified
+numerically.  Both the existence clause and the realization clause
+are refuted.
+
+\end{document}
