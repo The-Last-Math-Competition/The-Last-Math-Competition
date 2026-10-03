@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001870}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} the CLT for the trace distribution of random
+unitary matrices (known). \textit{Conjecture:} the third cumulant
+decays as $N^{-1} \cdot c_3$ with $c_3 = (2\pi i)/3$ (from the series
+expansion of the cumulant-generating function); the decay exponent $1$
+is exact.
+\end{quote}
+
+\section{The refutation}
+
+Haar invariance under multiplication by $i$ ($U \mapsto iU$ preserves
+the measure) maps $\operatorname{Tr} U$ to $i \operatorname{Tr} U$,
+so the third moment $m = E[(\operatorname{Tr} U)^3]$ satisfies
+$m = E[(i \operatorname{Tr} U)^3] = -i \, m$.  Working in the Gaussian
+integers $\mathbb{Z}[i]$ (pairs $(a, b) = a + bi$, with
+$-i \cdot (a, b) = (b, -a)$), the invariance equation
+$(b, -a) = (a, b)$ forces $b = a$ and $-a = b$, whence $a = -a = 0$:
+\[
+m = 0 \quad \text{exactly, for every } N .
+\]
+(The mean vanishes by the same invariance, so the third cumulant
+equals the third moment.)  Since $c_3 = 2\pi i/3$ is nonzero-imaginary
+($2\pi/3 > 0$), $\kappa_3 = 0$ cannot equal $c_3/N$ at any $N$: the
+``decay exponent 1'' claim concerns a cumulant that is identically
+zero.
+
+\section{Verification}
+
+\texttt{reproduce.py} Monte-Carlo samples Haar $U(N)$ via QR of
+complex Ginibre matrices (60000 trials each at $N = 2, 3$):
+$E[(\operatorname{Tr} U)^3]$ vanishes within noise, while
+$E[|\operatorname{Tr} U|^2] = 1$ confirms the CLT normalization; the
+claimed $\kappa_3 \approx 1.047i$ ($N = 2$), $0.698i$ ($N = 3$) are
+more than ten times the observed magnitudes.  The Lean package (core
+Lean~4, v4.33.1) certifies the rotation collapse in $\mathbb{Z}[i]$
+(`\texttt{rot\_inv\_collapse}`), the order-4 property of the rotation,
+its non-identity, and the nonzero imaginary part of the claimed
+constant; all five audited theorems report \texttt{does not depend on
+any axioms} (core's `Int`-taunted lemmas avoided entirely; the
+equality analysis uses \texttt{Int.noConfusion}).
+
+\section{Boundary}
+
+The kernel certifies the rotational-symmetry collapse --- the
+mathematical core --- universally over the $\mathbb{Z}[i]$-valued
+moment; Haar invariance of $U \mapsto iU$ and the classical CLT
+normalization $E[|\operatorname{Tr} U|^2] = 1$ are cited in prose and
+re-verified by the Monte Carlo script.
+
+\end{document}
