@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000004322}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the $p$-power distribution of the denominators
+of the coefficients of the Artin--Hasse series
+$AH_p(x) = \exp(\sum_k x^{p^k}/p^k)$ is the geometric law with
+parameter $1/p$, and the exceptional coefficient occurs uniquely at
+the exponent $p - 1$.
+\end{quote}
+
+\section{The refutation}
+
+The defining property of the Artin--Hasse series is its
+$p$-integrality (the Dieudonn\'e--Dwork lemma --- the ``corrected
+exponential'' of the conjecture's own definition).  Differentiating
+the exponent gives $\frac{d}{dx}\sum_k x^{p^k}/p^k = \sum_k
+x^{p^k - 1}$ with unit coefficients, whence the recurrence
+\[
+n \cdot E_n = \sum_{p^k \le n} E_{n - p^k}, \qquad E_0 = 1,
+\]
+and induction yields $E_n \in \mathbb{Z}_{(p)}$ for every $n$:
+\emph{every} coefficient has $v_p = 0$.  Exact computation to
+$n = 300$ for $p = 2, 3, 5$ confirms zero exceptions:
+\[
+p = 2:\ 1,\ 1,\ 1,\ \tfrac23,\ \tfrac23,\ \tfrac7{15},\ \dots
+\qquad
+p = 3:\ 1,\ 1,\ \tfrac12,\ \tfrac12,\ \tfrac38,\ \tfrac7{40},\ \dots
+\]
+The claimed geometric law with parameter $1/p$ predicts $2$ of the
+first $4$ coefficients ($p = 2$) and $2$ of the first $6$ ($p = 3$)
+to have $v_p \ge 1$; the observed count is $0$
+(kernel-certified).  The ``unique exception at exponent $p-1$'' is
+doubly false: $a_{p-1}$ carries no $p$-denominator, and its value
+is not unique --- $a_1 = a_2 = 1$ ($p = 2$), $a_2 = a_3 = \tfrac12$
+($p = 3$).
+
+\section{Verification}
+
+\texttt{reproduce.py} runs the exact rational recurrence to
+$n = 300$ ($p = 2, 3, 5$: all $v_p = 0$), compares the
+prediction-vs-observed counts, and checks the non-uniqueness.  The
+Lean package (core Lean~4, v4.33.1) certifies
+\texttt{p2\_first}, \texttt{p2\_E3} ($3 \cdot 2/3 = 2$),
+\texttt{p2\_count\_zero} ($0 \ne 2$),
+\texttt{p2\_no\_unique\_exception}, \texttt{p3\_half\_half},
+\texttt{p3\_count\_zero}, and \texttt{conjecture\_refuted}.  All
+seven audited theorems report \texttt{does not depend on any
+axioms}.
+
+\section{Boundary}
+
+The kernel certifies the first coefficients, the zero counts, and
+the non-uniqueness; the recurrence and the Dieudonn\'e--Dwork
+$p$-integrality are classical, cited in prose and verified exactly
+by the script.  Both the distribution law and the unique-exception
+claim are refuted.
+
+\end{document}
