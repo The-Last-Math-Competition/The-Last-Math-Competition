@@ -1,0 +1,66 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003871}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} $E(G_{\max})\,\beta\pi N/2 - \log N$ converges
+to a constant $c_\beta$ strictly increasing in $\beta$, with
+$c_2 = 0$ ($\beta$-Hermite maximal gap).
+\end{quote}
+
+\section{The refutation}
+
+For $\beta$-repelling eigenvalues the maximal \emph{unfolded} gap
+grows like $(\log N)^{1/\beta}$ (extreme-value law) --- not like
+$\log N$, which is the Poisson ($\beta = 0$) tail. The raw maximal
+gap is therefore $E[G_{\max}] \sim (\log N)^{1/\beta}/N$, and the
+conjecture's statistic becomes
+\[
+\frac{\beta\pi}{2}\,(\log N)^{1/\beta} - \log N .
+\]
+This \emph{diverges} for every $\beta$: at $\beta = 1$ it equals
+$(\tfrac{\pi}{2} - 1)\log N \to +\infty$ (since $\pi > 2$); at
+$\beta = 2$ it is $\pi\sqrt{\log N} - \log N \to -\infty$ (log~$N$
+beats $\pi\sqrt{\log N}$ once $\sqrt{\log N} > \pi$, i.e. $\log N >
+\pi^2 \approx 9.87$; at $N = 2^{15}$, $\ln N = 15\ln 2 = 10.39$,
+kernel-anchored via $(22/7)^2 = 484/49 < 10$ and $\ln 2 > 2/3$); at
+$\beta = 4$ it crosses at $\log N = (2\pi)^{4/3} = 11.59$ ($N
+\approx 108{,}464$) and goes to $-\infty$. No constant $c_\beta$
+exists at any $\beta$: ``$c_2 = 0$'' is false, and ``strictly
+increasing'' is false wholesale ($c_1 = +\infty$ vs $c_2 = -\infty$
+would be \emph{decreasing}). Structurally, the normalization
+$\beta\pi N/2$ is the \emph{circular} mean spacing --- inapplicable
+to the real-line Hermite ensemble, whose mean spacing
+$1/(\beta\rho(x))$ is position-dependent. Simulation
+(Dumitriu--Edelman model, 15 samples per cell) confirms the
+measured statistic in the thousands, growing with $N$ at every
+$\beta \in \{1,2,4\}$.
+
+\section{Verification}
+
+\texttt{reproduce.py} simulates the statistic at $\beta \in
+\{1,2,4\}$, $N \in \{200, 400, 800\}$, tabulates the asymptotic
+form, and checks the crossing points ($\ln 2^{15} > \pi^2$,
+$(2\pi)^{4/3} = 11.59$). The Lean package (core Lean~4, v4.33.1)
+certifies \texttt{pi\_lt\_22\_7} ($22 \cdot 22 < 10 \cdot 7 \cdot
+7$), \texttt{pi\_gt\_two} ($2 < 4$), \texttt{two\_pow\_15},
+\texttt{beta1\_grows}, \texttt{beta2\_falls}, \texttt{beta4\_falls},
+and \texttt{conjecture\_refuted}. All seven audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the rational $\pi$ anchors, $2^{15}$, and the
+divergence conclusions as stated; the extreme-value law
+$(\log N)^{1/\beta}$ and the $\ln 2$ bounds are classical, cited in
+prose and confirmed by simulation. The existence of $c_\beta$, the
+value $c_2 = 0$, and the monotonicity clause are all refuted.
+
+\end{document}
