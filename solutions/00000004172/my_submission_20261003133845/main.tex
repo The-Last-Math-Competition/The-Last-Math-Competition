@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000004172}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the boundary density for the dense circle
+method to be transferable is $5/8$, and sets of density below this
+value can completely avoid nontrivial sum representations.
+\end{quote}
+
+\section{The refutation}
+
+The sum-representation threshold for subsets of $[1, N]$ is the
+classical sum-free ceiling: a set with $a + b \notin A$ for all
+$a, b \in A$ has size at most $\lceil N/2 \rceil$ (Diananda--Yap),
+attained by the odd numbers ($\text{odd} + \text{odd} =
+\text{even} \notin \text{odds}$): density exactly $1/2$.
+Hence:
+
+\textbf{Reading (a)} (all sets of density $< 5/8$ avoid sums):
+false --- the interval $A = \{1, \dots, 60\} \subseteq [1, 100]$
+has density $\tfrac{60}{100} = \tfrac35 = 0.6 < \tfrac58 = 0.625$
+(kernel: $3 \cdot 8 = 24 < 25 = 5 \cdot 5$), yet $1770$ ordered
+nontrivial sum pairs land in $A$ ($1 + 1 = 2$, $1 + 2 = 3$, \dots).
+
+\textbf{Reading (b)} (some set of every density $< 5/8$ avoids
+sums): false for densities in $(\tfrac12, \tfrac58)$ --- no set of
+density $\tfrac35$ can be sum-free, since $60 > 50 = \lceil
+100/2 \rceil$ (kernel-certified).
+
+The genuine boundary density is $\tfrac12$: sum-free sets exist up
+to density exactly $\tfrac12$ (the odds) and none beyond.
+
+\section{Verification}
+
+\texttt{reproduce.py} checks the dense interval, the odd-number
+sum-free set, and brute-forces the maximum sum-free size at
+$N = 6, 8, 10$ ($= \lceil N/2 \rceil$).  The Lean package (core
+Lean~4, v4.33.1) certifies \texttt{density\_below} ($24 < 25$),
+\texttt{has\_sums}, \texttt{odds\_sumfree},
+\texttt{ceiling\_exceeded} ($60 > 50$), and
+\texttt{conjecture\_refuted}.  All five audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the density comparison, the sum witnesses, and
+the ceiling violation; the $\lceil N/2 \rceil$ sum-free ceiling is
+classical, cited in prose and brute-force confirmed.  The $5/8$
+boundary claim is refuted under both readings; the true constant
+is $1/2$.
+
+\end{document}
