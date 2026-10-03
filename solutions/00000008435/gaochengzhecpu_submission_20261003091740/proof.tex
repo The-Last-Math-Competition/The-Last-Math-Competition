@@ -1,0 +1,51 @@
+\documentclass[10pt]{article}
+\usepackage{amsmath,amssymb,geometry}
+\geometry{margin=1in}
+\title{Four successive derived designs disprove conjecture 00000008435}
+\author{}
+\date{3 October 2026}
+\usepackage{url}
+% Compact consistent title for a short mathematical note.
+\makeatletter
+\renewcommand{\maketitle}{\begin{center}
+{\Large\bfseries\@title\par}\vspace{0.6em}
+{\small\@author\par\@date}
+\end{center}\vspace{0.5em}}
+\makeatother
+\setlength{\emergencystretch}{3em}
+\begin{document}
+\maketitle
+\paragraph{Claim being disproved.}
+The conjecture includes the unconditional assertion that the length of a derivation chain is at most three. We exhibit four successive genuine derivations, all within symmetric balanced incomplete block designs (BIBDs) with positive parameters and proper blocks. The proof does not depend on interpreting the conjecture's ambiguous proposed parameter formulas.
+\paragraph{The designs.}
+For each $v\ge3$, let $X_v$ be a $v$-element set and let
+\[
+ \mathcal D_v=\bigl(X_v,\{X_v\setminus\{x\}:x\in X_v\}\bigr).
+\]
+Every block has size $v-1$. Every pair of distinct points is in exactly $v-2$ blocks, namely the blocks whose omitted point is outside the pair. There are $v$ distinct blocks, so $\mathcal D_v$ is a symmetric $2$-$(v,v-1,v-2)$ BIBD. Since $2\le v-1<v$, all the designs used below have proper blocks. These complete designs are sometimes called trivial designs; the conjecture does not exclude them.
+\paragraph{Actual derivation.}
+The standard derived design of a symmetric BIBD at a block $B$ has point set $B$ and blocks $C\cap B$ for all original blocks $C\ne B$. Choose $B=X_v\setminus\{a\}$. Every other original block has the form $C=X_v\setminus\{x\}$ with $x\ne a$, and
+\[
+ C\cap B=B\setminus\{x\}.
+\]
+Thus the derived incidence structure is precisely $\mathcal D_{v-1}$ on the point set $B$, with no repeated blocks. Starting with $v=7$, this gives
+\[
+\begin{split}
+ 2\text{-}(7,6,5)&\longrightarrow 2\text{-}(6,5,4)
+ \longrightarrow 2\text{-}(5,4,3)\\
+ &\longrightarrow 2\text{-}(4,3,2)
+ \longrightarrow 2\text{-}(3,2,1).
+\end{split}
+\]
+These are four consecutive derivation operations and five distinct incidence structures. Consequently the asserted upper bound three is false. More generally, beginning at any larger $v$ yields arbitrarily long such chains.
+
+There is also no issue if ``derivation'' is understood as point derivation: keep the blocks containing $a$ and delete $a$ from them. In this family those are exactly the blocks other than $X_v\setminus\{a\}$, and deleting $a$ is exactly intersecting with $B$. Hence the resulting incidence structures coincide with the block-derived designs above. Although point derivation of a general $2$-design only guarantees strength one, the structures in this example additionally remain the explicitly verified $2$-designs listed above.
+\paragraph{Formal verification and semantic correspondence.}
+The accompanying \texttt{Main.lean} uses only Lean 4.19.0 \texttt{Std}. The seven point labels are \texttt{Fin 7}, and subsets are represented by seven-bit masks. The design predicate checks the actual number of points, distinctness of blocks, their containment and common size, and the number of blocks containing every prescribed $t$-element subset. Symmetry additionally requires equality of the block count and point count. The inequalities $1\le t\le k<v$ and $\lambda>0$ are included.
+
+The function \texttt{deriveBlock} implements exactly the block-intersection operation just defined. The objects \texttt{d1} through \texttt{d4} are defined by applying that operation successively, not merely by independently listing desired parameter tuples. Every selected block is checked to belong to the current design and to be proper; each of the five actual incidence structures is checked to have its stated symmetric BIBD parameters. The optional theorem \path{also_point_derivations} also checks equality with the four successive point derivations.
+
+A \texttt{DerivedStep} requires valid symmetric BIBDs at both ends and an actual block whose derivation yields the target. The proposition \texttt{ChainLengthAtMostThree} rules out four consecutive such steps, a necessary consequence of the conjectured chain-length bound. The final theorem \texttt{conjecture8435\_false} negates that proposition using the four verified steps. The formal disproof therefore includes every intermediate derivation and every design condition, rather than only the numerical inequality $4>3$.
+
+All finite checks use kernel reduction through \texttt{decide}. The printed axiom lists contain only the standard axiom \texttt{propext}. There are no proof placeholders, external decision oracles, or additional axioms.
+\end{document}
