@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003901}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} for every ideal in an $n$-dimensional ring, the
+leading exponent of the length of the Frobenius exponent quotient
+$I^{[p^e]}/I$ in $p^e$ is always $n-1$, with leading coefficient
+equal to the boundary measure of the Newton polyhedron divided by
+$(n-1)!$.
+\end{quote}
+
+\section{The refutation}
+
+Take $R = k[x,y]$ ($n = 2$), $I = (x,y)$, $q = p^e$.  The Frobenius
+image is $I^{[q]} = (x^q, y^q)$, and the finite-length quotient
+realizing the growth is $\mathfrak{m}/(x^q, y^q)$ with
+$\mathfrak{m} = (x,y)$: its monomial basis is
+$\{x^i y^j : i + j \ge 1,\ i < q,\ j < q\}$ --- the $q \times q$
+box minus the origin --- so the length is exactly $q^2 - 1$,
+verified for $q = 2, 3, 4, 5$: lengths $3, 8, 15, 24$.  The growth
+exponent is $2 = n$ ($\log \mathrm{len}/\log q = 1.9924, 1.9986,
+1.9997$ at $q = 8, 16, 32$), \emph{not} $n - 1 = 1$.  At the claimed
+exponent $n - 1$ no finite leading coefficient exists:
+\[
+q^2 - 1 - C\,q \;=\; 2C^2 + 3C \;>\; 0
+\quad\text{at } q = 2C + 1,
+\]
+so the length exceeds $C\,q$ for every fixed $C$ (certified for
+$C = 1, 2, 3, 5, 10, 100$).  The true leading coefficient at
+exponent $n$ is $1$ --- the volume of the unit box --- which no
+``boundary measure divided by $(n-1)!$'' reading reproduces.
+
+\section{Verification}
+
+\texttt{reproduce.py} enumerates the monomial bases for
+$q = 2..8$ (all $q^2 - 1$), estimates the exponent ($\to 2$),
+tabulates the constant violations (excess $2C^2 + 3C$), and checks
+$\mathrm{len}(4)/16 = 15/16$.  The Lean package (core Lean~4,
+v4.33.1) certifies \texttt{len\_q2}..\texttt{len\_q5},
+\texttt{beats\_C1}..\texttt{beats\_C10}, and
+\texttt{conjecture\_refuted}.  All ten audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the exact lengths at $q = 2..5$ and the
+constant violations; the monomial count $q^2 - 1$ and its extension
+are elementary combinatorics in the script.  The claimed leading
+exponent and coefficient are refuted at the certified instance.
+
+\end{document}
