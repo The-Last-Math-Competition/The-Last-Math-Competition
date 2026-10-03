@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003890}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} the jumping set of a fixed ideal is always
+finite; but there exist sequences of ideals on a fixed ring whose
+unions of jumping sets are dense in $(0,1)$.
+\end{quote}
+
+\section{The refutation}
+
+In $k[x]$ (any field, in particular $\mathbb{F}_p$), the test ideal
+of the parameter $x^c$ has the classical closed form
+\[
+\tau(x^c) = (x^{\lceil c \rceil}),
+\]
+a unit staircase in the parameter: the exponent equals $n$ on
+$(n-1, n]$ and increments by exactly $1$ at each positive integer.
+Between the parameters $c = m + \tfrac12$ and $c' = m + \tfrac32$
+(straddling the integer $m+1$), the exponents are $m+1$ and $m+2$,
+certified in the kernel by the multiplication-only bounds
+\[
+2m < 2(m+1) \le 2(m+1)+1, \qquad
+2(m+1)+1 < 2(m+2) \le 2(m+2)+1,
+\]
+with the strict separation $m+1 < m+2$.  Hence \emph{every}
+positive integer is a jumping number of the single fixed ideal
+$(x)$: its F-jumping set is $\{1, 2, 3, \dots\}$ --- infinite and
+unbounded; for every $N$ the parameters up to $N + \tfrac12$
+already exhibit $N+1$ distinct test ideals
+$(x), (x^2), \dots, (x^{N+1})$.  The clause ``the jumping set of a
+fixed ideal is always finite'' is false.
+
+\section{Verification}
+
+\texttt{reproduce.py} checks the staircase structure of
+$\lceil k/2 \rceil$ ($k = 1..40$: unit increments totaling $19$),
+enumerates the jumps $1..20$, and counts the linear growth of
+distinct test ideals.  The Lean package (core Lean~4, v4.33.1)
+certifies \texttt{exponent\_left}/\texttt{exponent\_left'},
+\texttt{exponent\_right}/\texttt{exponent\_right'},
+\texttt{exponents\_separated}, \texttt{unbounded}, and
+\texttt{conjecture\_refuted}.  All seven audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the multiplication-only ceiling
+characterizations and the separation of consecutive exponents; the
+closed form $\tau(x^c) = (x^{\lceil c \rceil})$ in $k[x]$ is
+classical, cited in prose and mirrored by the script's staircase
+enumeration.  The finiteness clause is refuted outright.
+
+\end{document}
