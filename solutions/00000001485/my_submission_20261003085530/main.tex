@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000001485}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} the zeta function of a suspension of an
+invertible map is the generating function
+$\zeta(z) = \prod (1 - z^p)^{-1}$ of its periodic counts.
+\textit{Conjecture:} for every hyperbolic suspension, $\zeta$ has
+radius of convergence $1$, and its singular set on the unit circle is
+exactly the set of roots of unity; no hyperbolic suspension has
+radius of convergence $> 1$.
+\end{quote}
+
+\section{The refutation}
+
+The Arnold cat map $A = \begin{pmatrix} 2 & 1 \\ 1 & 1 \end{pmatrix}$
+is hyperbolic with eigenvalues $\lambda_{1,2} = (3 \pm \sqrt{5})/2$.
+A suspension of $A$ has the same periodic-orbit counts
+$N_k = |\det(A^k - I)| = \lambda_1^k + \lambda_2^k - 2 = L_{2k} - 2$
+($L_{2k}$ = even Lucas): $N_1 = 1$, $N_2 = 5$, $N_3 = 16$,
+$N_4 = 45$.  The zeta function is the rational function
+\[
+\zeta(z) = \exp\Big(\sum_k \frac{N_k z^k}{k}\Big)
+= \frac{(1-z)^2}{(1 - \lambda_1 z)(1 - \lambda_2 z)}
+= \frac{(1-z)^2}{1 - 3z + z^2},
+\]
+with poles at $z = 1/\lambda_1 = (3-\sqrt5)/2 \approx 0.382$ and
+$z = 1/\lambda_2 \approx 2.618$.  The radius of convergence is
+\[
+r = \frac{3 - \sqrt{5}}{2} \approx 0.382 < 1,
+\]
+NOT $1$; and the singular set $\{0.382, 2.618\}$ contains no root of
+unity (no unit-circle singularity at all).  Both clauses of the
+conjecture fail for this hyperbolic suspension.
+
+\section{Verification}
+
+\texttt{reproduce.py} computes the matrix powers $A^k$ (periodic
+counts $1, 5, 16, 45$ for $k \le 6$, extended by the Lucas recurrence
+$N_k = 3N_{k-1} - N_{k-2} + 2$), the pole positions, the zeta series
+vs the closed form at $z = 0.3$ (matching to 10 digits), and the
+radius comparison.  The Lean package (core Lean~4, v4.33.1) certifies
+the counts, the root certificate for $z = (3,-\sqrt5)/2$ in
+$\mathbb{Z}[\sqrt5]$ (i.e.\ $z^2 - 3z + 1 = 0$), and the pole position
+$0 < (3-\sqrt5)/2 < 1$; all seven audited theorems report
+\texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the periodic counts, the $\mathbb{Z}[\sqrt5]$
+root certificate, and the pole position.  The
+suspension-invariance of the zeta function and the radius-of-
+convergence identification are classical, cited in prose and
+re-verified numerically by the script.
+
+\end{document}
