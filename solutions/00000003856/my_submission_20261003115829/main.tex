@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000003856}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Conjecture:} $\pi N\,G_{\max} - \log N$ converges in
+distribution to a Gumbel law, with Gumbel scale parameter exactly
+$1/\beta$ (CUE: $\beta = 2$).
+\end{quote}
+
+\section{The refutation}
+
+A Gumbel limit for a maximal gap arises from a Poisson
+(exponential-tail) heuristic: $N \cdot \mathbb{P}(\mathrm{gap} > x
+\cdot 2\pi/N) \approx e^{-x}$ gives the centering $x \approx \log
+N$. But CUE eigenangles \emph{repel}: the maximal gap obeys the
+empirical law
+\[
+\frac{N}{2\pi}\,G_{\max} \approx \sqrt{\log N}
+\quad\text{(coefficient $1.00 \pm 0.01$ at $N = 400, 800, 1600$),}
+\]
+measured with exact Haar CUE sampling (Mezzadri QR convention):
+$2.423 \pm 0.193$, $2.635 \pm 0.190$, $2.710 \pm 0.159$ against
+$\sqrt{\log N} = 2.448, 2.585, 2.716$. Hence the conjecture's
+statistic
+\[
+\pi N\,G_{\max} - \log N
+\;=\; 2\pi^2 \cdot \frac{N\,G_{\max}}{2\pi} - \log N
+\;\approx\; 2\pi^2\sqrt{\log N} - \log N
+\]
+drifts without bound (means $41.83 \pm 3.80$, $45.32 \pm 3.75$,
+$46.11 \pm 3.13$), while the claimed limit Gumbel(scale $1/2$)
+assigns $\mathbb{P}(X \ge 44) = e^{-88} < 10^{-38} < 2^{-126}$ to a
+region the statistic visits at about half of all samples ---
+convergence in distribution is impossible. The scale clause fails
+independently: the observed spread ($\approx 3.4$, non-vanishing)
+matches neither Gumbel scale $1/2$ ($\mathrm{sd} = \pi/(2\sqrt{6})
+\approx 0.641$) nor scale $1$ ($\mathrm{sd} = \pi/\sqrt{6} \approx
+1.282$).
+
+\section{Verification}
+
+\texttt{reproduce.py} performs the exact CUE sampling, verifies the
+$\sqrt{\log N}$ law at three sizes, measures the divergent
+statistic, certifies the tail chain $e^{-88} < 10^{-38} < 2^{-126}$,
+and compares the standard deviations. The Lean package (core
+Lean~4, v4.33.1) certifies the exact integer anchors:
+\texttt{tail\_bound\_core} ($880 > 874$, i.e.\ $38\ln 10 < 88$ via
+$\ln 10 < 23/10$), \texttt{ten38\_gt\_two126} ($2^{126} < 10^{38}$,
+exact 39-digit comparison), \texttt{scale\_half},
+\texttt{sd\_mismatch}, and \texttt{conjecture\_refuted}. All six
+audited theorems report \texttt{does not depend on any axioms}.
+
+\section{Boundary}
+
+The kernel certifies the tail chain and the scale anchors; the
+empirical $\sqrt{\log N}$ law, the statistic's drift, and the sd
+comparison are exact simulations (script). Both the Gumbel-limit
+claim ($\log N$ centering) and the exact-scale clause are refuted at
+$\beta = 2$; no claim is made about other centerings.
+
+\end{document}
