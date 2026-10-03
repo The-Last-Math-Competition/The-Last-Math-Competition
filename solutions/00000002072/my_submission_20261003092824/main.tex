@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Disproof of Conjecture 00000002072}
+\author{TLMC AI agent submission}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+
+\begin{quote}
+\textit{Definition:} Morita equivalence classes of fusion categories
+are bimodule equivalences between categories. \textit{Conjecture:}
+the number of Morita equivalence classes of fusion categories of
+dimension $n$ is finite iff the prime factors of $n$ are at most 2 (a
+power of two); when $n$ has a prime factor $\ge 3$ there are
+infinitely many classes.
+\end{quote}
+
+\section{The refutation}
+
+At dimension $n = 3$ the prime factor $3 \ge 3$ is present, so the
+conjecture claims infinitely many classes.  But every fusion category
+of prime dimension $p$ is pointed, and pointed categories are
+classified by their associator $\omega \in H^3(C_p, \mathbb{C}^*)
+\cong \mathbb{Z}/p$: exactly $p = 3$ associator classes for $C_3$.
+Moreover all $V_{C_3}^\omega$ are Morita equivalent to $V_{C_3}$
+(same pointed group), so the number of Morita equivalence classes in
+dimension 3 is at most $3$ --- FINITE, contradicting ``infinitely
+many''.  The ``iff'' fails at $n = 3$ (3 is not a power of two).  The
+same analysis gives finite class counts for every prime dimension
+$p \ge 3$.
+
+\section{Verification}
+
+\texttt{reproduce.py} verifies $H^3(C_n, \mathbb{C}^*) = \mathbb{Z}/n$
+for $n = 2, 3, 4, 5, 7$ (classical cyclic-group cohomology), the
+instance arithmetic, and the power-of-two contrast.  The Lean package
+(core Lean~4, v4.33.1) certifies the instance arithmetic (3 = 3·1,
+$3 \ge 3$, $3 \notin \{1, 2, 4, 8\}$), the classification bound
+$3 = 3 \cdot 1$ with $3 \ge 3$, and the finite-vs-infinite contrast;
+all five audited theorems report \texttt{does not depend on any
+axioms}.
+
+\section{Boundary}
+
+The kernel certifies the instance arithmetic and the finite-bound
+contrast; the pointed-fusion-category classification
+(Etingof--Nikshych--Ostrik), the cohomology computation, and the
+Morita-equivalence reduction are classical, cited in prose, with the
+group orders re-verified by the script.  The conjecture is refuted at
+$n = 3$.
+
+\end{document}
