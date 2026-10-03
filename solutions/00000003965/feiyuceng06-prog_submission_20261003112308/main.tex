@@ -1,0 +1,168 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\bx}{\operatorname{box}}
+\newcommand{\R}{\mathbb R}
+
+\title{A Counterexample to Conjecture 00000003965:\\
+Boxicity of $K_{2,2,2,2}$ and of Its Complement}
+\author{%
+  Feiyu\thanks{Independent researcher.}
+  \and
+  Claude (Opus 5.5)\thanks{Anthropic.}%
+}
+\date{2026-10-03}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000003965 asserts that every graph $G$ satisfies
+$|\bx(G)-\bx(\overline G)|\le2$. For the complete multipartite graph
+$G=K_{2,2,2,2}$ we have $\bx(G)=4$, while its complement is a perfect matching with
+$\bx(\overline G)=1$. So the difference is $3$. The refutation is checked in Lean~4
+against Mathlib.
+\end{abstract}
+
+\section{The conjecture as stated}
+
+The original text of conjecture 00000003965 reads:
+
+\begin{quote}
+Definition: The boxicity of a graph is the minimal dimension in which the graph is
+represented as an intersection of interval boxes. Conjecture: Every graph $G$
+satisfies $|\bx(G) - \bx(\text{complement of } G)| \le 2$ with respect to its
+complement, and the difference $2$ is attained by an explicit construction.
+\end{quote}
+
+The Chinese version in \texttt{conjectures/00000003965.md} states the same claim.
+
+\section{Reading of the statement}
+
+\begin{definition}
+A \emph{$d$-dimensional box representation} of a graph $G$ assigns to every vertex
+$v$ an axis-parallel box $\prod_{i=1}^d[l_i(v),r_i(v)]\subseteq\R^d$, with
+$l_i(v)\le r_i(v)$, such that two distinct vertices are adjacent if and only if their
+boxes intersect. Two boxes intersect iff their intervals overlap in every coordinate,
+where $[a,b]$ and $[c,e]$ overlap iff $a\le e$ and $c\le b$. The \emph{boxicity}
+$\bx(G)$ is the least $d$ for which such a representation exists.
+\end{definition}
+
+In dimension $0$ every box is the single point $\R^0$, so exactly the complete graphs
+have boxicity $0$; this is the usual convention. The first claim of the conjecture is
+$|\bx(G)-\bx(\overline G)|\le2$ for every graph $G$, where $\overline G$ is the
+complement. We refute it with a finite graph, so restricting the claim to finite
+graphs makes no difference. We do not need the second claim.
+
+\section{Result}
+
+Let $G=K_{2,2,2,2}$ be the complete multipartite graph with four parts of size two.
+Its vertices are the pairs $(i,s)$ with $i\in\{1,2,3,4\}$ and $s\in\{0,1\}$, and
+$(i,s)$ is adjacent to $(k,t)$ iff $i\ne k$. The complement $\overline G$ is the
+perfect matching $4K_2$ with edges $\{(i,0),(i,1)\}$.
+
+\begin{theorem}\label{thm:main}
+$\bx(G)=4$ and $\bx(\overline G)\le1$. Hence $\bx(G)-\bx(\overline G)\ge3$, and
+Conjecture 00000003965 is false.
+\end{theorem}
+
+This is the case $k=4$ of Roberts' theorem that the complete multipartite graph with
+$k$ parts of size two has boxicity $k$~\cite{roberts}. We give the short proof.
+
+\section{Proof}
+
+\begin{lemma}\label{lem:interval}
+Let $A,B,C,E$ be closed intervals of $\R$ such that $A\cap B=\emptyset$ and each of
+$C$ and $E$ meets both $A$ and $B$. Then $C\cap E\ne\emptyset$.
+\end{lemma}
+
+\begin{proof}
+Say $A=[a_1,a_2]$ lies to the left of $B=[b_1,b_2]$, so $a_2<b_1$. Since $C=[c_1,c_2]$
+meets $A$ and $B$, we have $c_1\le a_2$ and $c_2\ge b_1>a_2$, so $a_2\in C$. Likewise
+$a_2\in E$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+\emph{Upper bound for $\overline G$.} Give $(i,0)$ and $(i,1)$ the interval
+$[3i,3i+1]$. Intervals of the same $i$ coincide, and intervals of different $i$ are
+disjoint, so this is a $1$-dimensional representation of $\overline G$.
+
+\emph{Upper bound for $G$.} In coordinate $j\in\{1,2,3,4\}$ give $(j,0)$ the interval
+$[0,1]$, give $(j,1)$ the interval $[2,3]$, and give every vertex $(i,s)$ with
+$i\ne j$ the interval $[0,3]$. In coordinate $j$ the only non-overlapping pair is
+$\{(j,0),(j,1)\}$. Hence two distinct vertices have intersecting boxes iff they do not
+form one of the pairs $\{(j,0),(j,1)\}$, that is, iff they are adjacent in $G$. So
+$\bx(G)\le4$.
+
+\emph{Lower bound for $G$.} Suppose $G$ has a $d$-dimensional representation with
+$d\le3$. The vertices $(i,0)$ and $(i,1)$ are distinct and non-adjacent, so their
+boxes are disjoint and there is a coordinate $\mathrm{sep}(i)$ in which their
+intervals are disjoint. Since $\mathrm{sep}$ maps four values into $d\le3$
+coordinates, $\mathrm{sep}(i)=\mathrm{sep}(k)=j$ for some $i\ne k$. In coordinate $j$
+the intervals $A,B$ of $(i,0),(i,1)$ are disjoint. The intervals $C,E$ of
+$(k,0),(k,1)$ each meet $A$ and $B$, because $(k,t)$ is adjacent to $(i,s)$. By
+Lemma~\ref{lem:interval}, $C$ and $E$ meet, contradicting the choice of
+$j=\mathrm{sep}(k)$. Hence $\bx(G)\ge4$.
+\end{proof}
+
+\section{Formalization}
+
+\sloppy
+The Lean~4 project in \texttt{lean/} (file \texttt{lean/Submission/Basic.lean})
+formalizes the definitions above and proves Theorem~\ref{thm:main} against Mathlib.
+\begin{itemize}
+  \item \texttt{BoxRep G d} is a $d$-dimensional box representation: real endpoint
+    maps $l,r$ on vertices and coordinates $i\in\texttt{Fin d}$ with
+    $l_i(v)\le r_i(v)$, such that distinct $u,v$ are adjacent iff
+    $l_i(u)\le r_i(v)$ and $l_i(v)\le r_i(u)$ for all $i$. \texttt{boxicity G} is the
+    infimum (\texttt{sInf}) of the dimensions admitting one.
+  \item \texttt{BoxicityGapAtMostTwo} states $|\bx(G)-\bx(\overline G)|\le2$ for
+    every finite graph, with $\overline G$ Mathlib's complement of \texttt{G}.
+  \item The graph $G$ is Mathlib's \texttt{completeEquipartiteGraph 4 2} on
+    \texttt{Fin 4} $\times$ \texttt{Fin 2}.
+  \item \texttt{repCompl} and \texttt{repK} are the two representations above; the
+    adjacency conditions are checked by \texttt{decide} on integer endpoints.
+  \item \texttt{interval\_lemma} is Lemma~\ref{lem:interval}, and
+    \texttt{no\_rep\_of\_lt\_four} is the lower bound, using the pigeonhole principle
+    \texttt{Fintype.exists\_ne\_map\_eq\_of\_card\_lt}.
+  \item \texttt{boxicity\_K} gives $\bx(G)=4$, \texttt{boxicity\_compl\_le} gives
+    $\bx(\overline G)\le1$, and \texttt{conjecture\_00000003965\_false} is
+    $\lnot\,$\texttt{BoxicityGapAtMostTwo}.
+\end{itemize}
+The toolchain is \texttt{leanprover/lean4:v4.33.1}, Mathlib is pinned to
+\texttt{v4.33.1}, and \texttt{lake build} succeeds. The project contains no
+\texttt{sorry}, no \texttt{admit} and no \texttt{native\_decide}, and introduces no
+axioms: \texttt{\#print axioms} reports exactly \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound} for
+\texttt{conjecture\_00000003965\_false} and \texttt{boxicity\_K}.
+
+\fussy
+\section{Remarks}
+
+\begin{remark}
+The same construction gives unbounded differences: for the complete multipartite
+graph with $k$ parts of size two, $\bx=k$ while the complement (a perfect matching)
+has boxicity $1$~\cite{roberts}. So $|\bx(G)-\bx(\overline G)|$ is not bounded by any
+constant.
+\end{remark}
+
+\begin{thebibliography}{9}
+\bibitem{roberts} F.~S.~Roberts, \emph{On the boxicity and cubicity of a graph}, in:
+  Recent Progress in Combinatorics (W.~T.~Tutte, ed.), Academic Press, 1969,
+  301--310.
+\end{thebibliography}
+
+\end{document}
