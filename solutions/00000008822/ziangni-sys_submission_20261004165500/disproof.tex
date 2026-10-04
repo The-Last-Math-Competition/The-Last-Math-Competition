@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=24mm]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\title{The stated ceiling rank bound is not sharp at two constraints}
+\author{ziangni-sys}
+\date{4 October 2026}
+\begin{document}
+\maketitle
+We disprove the pointwise sharpness of the ceiling formula in conjecture
+00000008822. The displayed rank inequality and the asserted attainment
+of the ceiling bound are incompatible at $m=2$. We do not use the
+separate assertions about minimal-rank solutions or Frank--Wolfe.
+
+For real symmetric semidefinite programs, write the actual feasible set as
+\[
+F(A,b)=\{X\succeq0:\operatorname{tr}(A_iX)=b_i,
+\ i=1,\ldots,m\}.
+\]
+The conjecture asserts that the rank $r$ of any extreme point satisfies
+\[
+\frac{r(r+1)}2\le m,
+\]
+and claims that the bound
+$c(m)=\lceil(\sqrt{8m+1}-1)/2\rceil$ is tight: an extreme point can
+have rank exactly $c(m)$.
+
+At $m=2$, we have $3<\sqrt{17}<5$, hence
+\[
+1<\frac{\sqrt{17}-1}{2}<2,\qquad c(2)=2.
+\]
+But an extreme point of that rank would, by the simultaneously asserted
+rank inequality, satisfy
+\[
+3=\frac{2(2+1)}2\le2,
+\]
+a contradiction. More generally, for integer $r\ge0$ the displayed
+inequality at $m=2$ forces $r\le1$. This argument covers every dimension,
+all choices of the two trace constraints and every actual extreme point.
+Thus no such instance can attain the stated ceiling value under the
+conjecture's own rank law.
+
+The correct integer upper bound obtained from the displayed inequality
+uses the \emph{floor}, not the ceiling:
+\[
+r\le\left\lfloor\frac{\sqrt{8m+1}-1}{2}\right\rfloor.
+\]
+The ceiling is a weaker bound; calling it pointwise sharp is the error.
+For triangular values $m=r(r+1)/2$, floor and ceiling coincide. We do
+not deny that examples can attain the formula at those special values;
+the counterexample concerns its asserted sharpness as a bound in $m$.
+
+A concrete feasible example at $m=2$ is the scalar SDP with
+$A_1=A_2=[1]$ and $b_1=b_2=1$. Its feasible set is the singleton
+$\{[1]\}$, whose sole point is genuinely extreme and has rank $1$.
+This illustrates the attainable rank without replacing the universal
+contradiction by an example-specific assumption.
+
+\paragraph{Formal correspondence.}
+Lean defines $F(A,b)$ using the actual \texttt{Matrix.PosSemidef},
+matrix multiplication and trace. It uses the actual
+\texttt{Set.extremePoints} and \texttt{Matrix.rank}, quantifies over
+all finite matrix dimensions and all two-constraint instances, computes
+$c(2)=2$, and disproves the conjunction of the displayed universal rank
+law with ceiling attainment. It also checks the explicit singleton SDP
+and its rank-one extreme point. The inequality itself is a hypothesis
+of the source conjunction being refuted; the Lean proof does not pretend
+to reprove Pataki's theorem. Lean 4.19.0 and Mathlib commit
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b} are pinned.
+\end{document}
