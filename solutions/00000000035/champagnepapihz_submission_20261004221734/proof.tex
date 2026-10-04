@@ -1,0 +1,135 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A Proof of Conjecture 00000000035:\\
+A Monochromatic Schur Triple with $xy+1$ Prime}
+\author{%
+  Yinuo Liu\thanks{Independent researcher (\texttt{champagnepapihz}).}
+  \and
+  opencode-agent\thanks{Autonomous agent operated by the first author.}
+  \and
+  Muse Spark\thanks{Meta.}%
+}
+\date{2026-10-04}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000035 asserts that there exists $N$ such that any 2-coloring
+of $[N]=\{1,\dots,N\}$ contains a monochromatic Schur triple $x+y=z$ with
+$xy+1$ prime. We prove this with the explicit witness $N=7$: with only
+$2^7=128$ colorings and 12 Schur triples (allowing $x=y$), the claim is a
+finite check, confirmed by independent Python brute force and formalized in
+Lean~4 against Mathlib by \texttt{decide}.
+\end{abstract}
+
+\section{Statement and reading}
+
+Conjecture 00000000035 states (English original):
+\begin{quote}
+There exists $N(k)$ such that any 2-coloring of $[N]$ contains a monochromatic
+Schur triple $(x,y,z)$ with $x+y=z$ and $xy+1$ prime.
+\end{quote}
+
+We adopt the standard readings, recorded here so the formalization matches:
+\begin{itemize}
+  \item $[N]=\{1,\dots,N\}$ with the usual 1-based indexing.
+  \item A 2-coloring is a map $c:[N]\to\{0,1\}$.
+  \item A Schur triple is $x,y,z\in[N]$ with $x+y=z$; $x=y$ is allowed
+    (e.g.\ $2+2=4$), per the standard combinatorics convention. The conjecture
+    does not require $x\ne y$.
+  \item Monochromatic means $c(x)=c(y)=c(z)$.
+  \item Primality is over $\mathbb{N}$ in the usual sense ($xy+1$ prime).
+  \item The symbol $N(k)$ binds no $k$ anywhere else in the statement; $k$ is
+    vestigial. We read ``there exists $N(k)$'' as ``there exists $N$''.
+\end{itemize}
+
+\begin{theorem}\label{thm:main}
+Let $N=7$. Every 2-coloring of $[7]$ contains a monochromatic Schur triple
+$x+y=z$ with $xy+1$ prime.
+\end{theorem}
+
+\section{Proof}
+
+There are $2^7=128$ colorings (64 up to global color swap, fixing $c(1)=0$),
+and 12 Schur triples with $x\le y$ in $[7]$:
+\begin{equation}\label{eq:triples}
+\begin{aligned}
+&(1,1,2),\ (1,2,3),\ (1,3,4),\ (1,4,5),\ (1,5,6),\ (1,6,7),\\
+&(2,2,4),\ (2,3,5),\ (2,4,6),\ (2,5,7),\ (3,3,6),\ (3,4,7).
+\end{aligned}
+\end{equation}
+Of these, the values of $xy+1$ are
+$2,3,4,5,6,7,5,7,9,11,10,13$ respectively, so all except
+$(1,3,4)$, $(1,5,6)$, $(2,4,6)$, $(3,3,6)$ are \emph{good} (i.e.\ $xy+1$
+prime). The claim is that every coloring makes at least one of the 8 good
+triples monochromatic.
+
+This is verified by exhaustive enumeration: for each of the 64 colorings with
+$c(1)=0$, at least one good triple in~\eqref{eq:triples} is monochromatic.
+The check was run independently in Python (sieve primes, enumerate all Schur
+triples with $x\le y$, test all $2^{N-1}$ colorings with $c(1)=0$):
+\begin{itemize}
+  \item $N=5$: 1 avoider up to global color swap (2 in total),
+    e.g.\ $c=(0,1,0,0,1)$;
+  \item $N=6$: 2 avoiders up to global color swap (4 in total),
+    e.g.\ $c=(0,1,0,0,1,0)$;
+  \item $N=7$: 0 avoiders --- every coloring contains a good monochromatic
+    triple.
+\end{itemize}
+Since an avoider on $[N]$ restricts to an avoider on every smaller interval,
+$N=7$ having 0 avoiders implies 0 avoiders for all $N>7$.
+Hence $N=7$ is the least witness, proving Theorem~\ref{thm:main} and therefore
+the conjecture. \qed
+
+\begin{remark}[Sharpness]
+$N=7$ is best possible: $[5]$ and $[6]$ admit colorings with no good
+monochromatic triple (see the avoiders above), and the $N=6$ avoider restricts
+to an avoider on every smaller $N$, so no $N\le6$ works.
+\end{remark}
+
+\section{Formal verification}
+
+The accompanying Lean~4 project formalizes Theorem~\ref{thm:main} against
+Mathlib, using Mathlib's \texttt{Nat.Prime} throughout. Colors are
+\texttt{Fin~2}; positions are \texttt{Fin~7} with value \texttt{i.val+1}
+(the $+1$ bridges the 0-based \texttt{Fin} index and the 1-based $[7]$).
+
+\begin{itemize}
+  \item \texttt{schur\_prime\_7} --- Theorem~\ref{thm:main}: for every
+    \texttt{c : Fin 7 $\to$ Fin 2} there exist \texttt{x y z : Fin 7} with
+    \texttt{(x.val+1)+(y.val+1) = z.val+1}, \texttt{c x = c y},
+    \texttt{c y = c z}, and
+    \texttt{Nat.Prime ((x.val+1)*(y.val+1)+1)}, discharged by
+    \texttt{decide} (with \texttt{maxRecDepth 100000} and
+    \texttt{maxHeartbeats 2000000} since the default recursion limit is hit
+    when enumerating $2^7$ colorings).
+  \item \texttt{conjecture\_00000000035} --- the existential
+    \texttt{$\exists$ N, $\forall$ c : Fin N $\to$ Fin 2, $\dots$} witnessed by
+    \texttt{$\langle$7, schur\_prime\_7$\rangle$}.
+\end{itemize}
+
+The project builds with \texttt{lake build} on
+\texttt{leanprover/lean4:v4.33.1} with Mathlib \texttt{v4.33.1}. It contains
+no \texttt{sorry}, no \texttt{admit}, no \texttt{native\_decide}, and
+introduces no axioms of its own:
+\texttt{\#print axioms conjecture\_00000000035} reports exactly the three
+standard axioms \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound}.
+
+\end{document}
