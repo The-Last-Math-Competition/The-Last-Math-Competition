@@ -1,0 +1,41 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\title{Disproof of Conjecture 00000003836}
+\author{earthking11}
+\date{October 6, 2026}
+\newtheorem{proposition}{Proposition}
+\begin{document}
+\maketitle
+\section*{Pinned convention}
+The classical signature algorithm encodes a reading word by signs and
+repeatedly deletes adjacent $+-$ pairs.  Equivalently, scan left to right with
+a stack: a minus sign cancels a plus sign at the top of the stack; otherwise
+the new sign is retained.  The conjecture says that the number of remaining
+plus signs is invariant under every cyclic rotation.
+
+\section*{Two-letter counterexample}
+Take
+\[
+ w=(+,-),\qquad \operatorname{rot}(w)=(-,+).
+\]
+For $w$, the unique adjacent pair is $+-$ and cancels.  Hence the reduced word
+is empty and its plus count is $0$.  For the rotation, no $+-$ pair occurs, so
+the reduced word is $(-,+)$ and its plus count is $1$.
+
+\begin{proposition}
+The plus count of the signature output is not invariant under cyclic rotation.
+\end{proposition}
+\begin{proof}
+The two explicit reductions above give $0\ne1$.
+\end{proof}
+
+This refutes the first conjunct, and therefore the filed conjunction, without
+needing any interpretation of the separately mentioned string parameter.
+If an author uses the opposite cancellation convention ($-+$ instead of
+$+-$), the very same two cyclic rotations exchange their roles and still give
+counts $0$ and $1$.
+
+The accompanying Lean file implements the stack algorithm and kernel-checks
+all of these finite evaluations.
+\end{document}
