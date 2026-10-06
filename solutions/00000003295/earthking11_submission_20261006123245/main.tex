@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\newtheorem{theorem}{Theorem}
+\title{A disproof of Conjecture 00000003295}
+\author{earthking11}
+\date{October 6, 2026}
+\begin{document}
+\maketitle
+\section*{Dawson's reciprocal expansion}
+Dawson's integral has the familiar asymptotic expansion
+\[
+ F(x)\sim\sum_{n\ge0}\frac{(2n-1)!!}{2^{n+1}x^{2n+1}}
+ =\frac1{2x}+\frac1{4x^3}+\frac3{8x^5}+\frac{15}{16x^7}+\cdots.
+\]
+The conjecture incorrectly promotes this asymptotic expansion to a series
+converging throughout the real axis.
+
+\begin{theorem}
+The displayed series diverges at $x=1$.
+\end{theorem}
+\begin{proof}
+Write $a_n=(2n-1)!!/2^{n+1}$.  Then
+\[
+ \frac{a_{n+1}}{a_n}=\frac{2n+1}{2}.
+\]
+For $n\ge1$ this ratio is at least $3/2$.  In particular $a_4=105/32>1$
+and all subsequent terms increase, so $a_n$ does not tend to zero.  A
+necessary condition for convergence of a series is that its terms tend to
+zero.  Therefore the series diverges at $x=1$ and cannot have the whole real
+axis as its convergence domain.
+\end{proof}
+
+Indeed the same ratio tends to infinity for every fixed nonzero $x$, after
+division by the additional factor $x^2$, so the expansion is divergent for
+every fixed finite nonzero $x$.
+
+\section*{Lean 4 certificate}
+The project in \texttt{lean4/} defines $(2n-1)!!$, proves by induction that
+$2^{n+1}\le(2n-1)!!$ for $n\ge4$, and contradicts the eventual inequality
+required for terms to approach zero.  No \texttt{sorry},
+\texttt{native\_decide}, or extra axiom is used.
+\end{document}

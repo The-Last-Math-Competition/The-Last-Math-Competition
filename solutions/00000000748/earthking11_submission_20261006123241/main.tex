@@ -1,0 +1,42 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\newtheorem{theorem}{Theorem}
+\title{A disproof of Conjecture 00000000748}
+\author{earthking11}
+\date{October 6, 2026}
+\begin{document}
+\maketitle
+\section*{Statement and counterexample}
+The conjecture classifies the polynomials compatible with the Teichmuller lift
+$w:\mathbb F_p\to\mathbb Z_p$, claiming that the only minimum-degree examples
+satisfying $P\circ w=w\circ\overline P$ are identity and Frobenius.  As written,
+constant polynomials are not excluded.
+
+\begin{theorem}
+The stated classification is false.
+\end{theorem}
+\begin{proof}
+Take $P(X)=0\in\mathbb Z_p[X]$ and $\overline P(X)=0\in\mathbb F_p[X]$.
+The defining property $w(0)=0$ gives, for every $x\in\mathbb F_p$,
+\[
+ P(w(x))=0=w(0)=w(\overline P(x)).
+\]
+Hence the required commuting identity holds.  The polynomial has minimum
+possible degree (degree zero among nonempty coefficient lists; under the
+standard convention the zero polynomial has degree $-\infty$).  Nevertheless
+it is neither identity nor Frobenius: at $1$ both listed maps have value $1$,
+whereas $P(1)=0$.
+\end{proof}
+
+The same argument works with the constant-one polynomial.  Therefore any valid
+classification must at least add a nonconstant or normalization hypothesis;
+neither occurs in the filed conjecture.
+
+\section*{Lean 4 certificate}
+The project in \texttt{lean4/} defines the commuting-square predicate
+\texttt{LiftCompatible}.  The theorem \texttt{counterexample} constructs the
+zero maps, proves compatibility from $w(0)=0$, and proves by evaluation at $1$
+that the map is neither identity nor Frobenius.  It contains no
+\texttt{sorry}, \texttt{native\_decide}, or additional axiom.
+\end{document}
