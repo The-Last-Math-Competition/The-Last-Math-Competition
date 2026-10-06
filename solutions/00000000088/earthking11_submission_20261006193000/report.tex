@@ -1,0 +1,26 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\title{No Integer Stretch Factor for a Pseudo-Anosov Map\\[2pt]\large Disproof of Conjecture 00000000088}
+\author{earthking11}
+\date{6 October 2026}
+\begin{document}
+\maketitle
+
+\paragraph{Verdict.} The conjecture is false at the prime $p=2$. Every pseudo-Anosov stretch factor is an algebraic unit, whereas the rational integer $2$ is not an algebraic unit.
+
+\paragraph{The arithmetic contradiction.} An algebraic unit is an algebraic integer whose reciprocal is also an algebraic integer. If $2$ were a pseudo-Anosov stretch factor, then $1/2$ would be an algebraic integer. A rational algebraic integer must be an integer: if a reduced rational number $a/b$ is a root of a monic polynomial in $\mathbb Z[x]$, the rational-root theorem gives $b=1$. But $1/2$ is not an integer. Therefore no pseudo-Anosov element has stretch factor $2$. Since $2$ is prime and the conjecture asserts existence for every prime $p\ge2$, this one case disproves it.
+
+\paragraph{Published theorem used.} We use the classical result attributed to Thurston that each pseudo-Anosov stretch factor is an algebraic unit. See W. P. Thurston, \emph{On the geometry and dynamics of diffeomorphisms of surfaces}, \emph{Bull. Amer. Math. Soc.} 19 (1988), no. 2, 417--431, \href{https://doi.org/10.1090/S0273-0979-1988-15685-6}{doi:10.1090/S0273-0979-1988-15685-6}. For an explicit published statement of the algebraic-unit consequence and its attribution, see J. Pankau, \emph{Salem number stretch factors and totally real fields arising from Thurston's construction}, \emph{Geom. Topol.} 24 (2020), 1695--1716, \href{https://msp.org/gt/2020/24-4/gt-v24-n4-p.pdf}{published article}.
+
+\paragraph{Lean correspondence and limitation.} The Lean 4 project proves the integer-unit lemma and a conditional obstruction theorem. Its explicit parameter `unitBridge` records the precise arithmetic consequence supplied by the external topology and number-theory results: whenever a hypothetical witness has stretch factor $2$, the resulting algebraic-unit argument gives an integer reciprocal for $2$. Lean proves that such an integer-unit value can only be $1$ or $-1$, hence cannot be $2$.
+
+The Lean project does not formalize mapping class groups, pseudo-Anosov maps, Thurston's theorem, or the theorem that rational algebraic integers are integers. The original conjecture is disproved by the written proof using those cited published results; Lean verifies the arithmetic deduction after the bridge is supplied as an explicit theorem parameter. Thus the submission does not claim an end-to-end Lean formalization of the original statement. The project introduces no custom axioms, \texttt{sorry}, or \texttt{native\_decide}.
+
+\paragraph{Reproduction.} The accompanying self-contained project uses Lean 4.33.1 and core Lean. From the `lean` directory, run `lake build`, then `lake env lean -DwarningAsError=true Main.lean`. The file prints the axiom dependencies of its main theorems.
+
+\end{document}
