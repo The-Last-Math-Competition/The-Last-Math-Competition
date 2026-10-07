@@ -1,0 +1,58 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\title{A fixed point defeats the proposed periodic-height gap\\
+  Disproof of conjecture 00000007777}
+\author{earthking11}
+\date{}
+
+\begin{document}
+\maketitle
+
+Conjecture 00000007777 defines $m_n$ as the minimum canonical height of
+points of exact period $n$ for a non-postcritically-finite (non-PCF)
+polynomial $f$ of degree $d$. It asserts a positive lower bound
+$m_n\ge c d^n/n$, where $c>0$ depends only on $f$. We disprove this
+inequality already at $n=1$.
+
+Take the quadratic polynomial
+\[
+  f(X)=X^2+6X\in\mathbb Q[X]\subset\overline{\mathbb Q}[X].
+\]
+Its derivative is $2X+6$, so $-3$ is a critical point. Its orbit begins
+\[
+  -3\longmapsto -9\longmapsto 27\longmapsto 891\longmapsto\cdots.
+\]
+For every rational $x\ge27$, $f(x)-x=x(x+5)>0$. Hence, from the third
+displayed value onward, the orbit is strictly increasing and remains at
+least $27$. The first two values are distinct and negative. There is no
+repetition in the critical orbit, so $f$ is non-PCF even when critical
+points and orbits are considered in $\overline{\mathbb Q}$.
+
+Meanwhile, $f(0)=0$, so $0$ has exact period $1$. For $x\in\mathbb Q$ in
+lowest terms, write its logarithmic height as
+\[
+  h(x)=\log\max\{|\operatorname{num}(x)|,\operatorname{den}(x)\},\qquad
+  \widehat h_f(x)=\lim_{k\to\infty}2^{-k}h(f^{\circ k}(x)).
+\]
+Since every iterate of $0$ is $0$ and $h(0)=0$, the defining sequence is
+identically zero. Thus $\widehat h_f(0)=0$. The asserted bound for
+$m_1$ would imply $2c\le\widehat h_f(0)=0$, contradicting $c>0$.
+
+\paragraph{Lean correspondence.}
+The Lean project defines $K=\operatorname{AlgebraicClosure}(\mathbb Q)$ and
+the actual polynomial $P\in K[X]$. It proves $\deg P=2$ and verifies that
+$-3$ is a derivative root in $K$. A strictly increasing rational orbit is
+transported through the injective map $\mathbb Q\hookrightarrow K$, proving
+that $P$ is non-PCF. It defines rational logarithmic height by the formula
+above and canonical height by the degree-normalized orbit limit; at $0$ the
+limit is proved to equal zero. The final theorem
+\texttt{TLMC7777.counterexample} combines these facts and denies every
+positive lower bound at period $1$. Its only axiom dependencies are
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+The argument refutes the asserted positive inequality, so the proposed
+optimality statement and B\"ottcher-series explanation require no
+separate analysis.
+\end{document}
