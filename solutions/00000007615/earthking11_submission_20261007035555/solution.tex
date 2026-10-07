@@ -1,0 +1,69 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\title{A Pseudo-Riemannian Counterexample to Conjecture 00000007615}
+\author{earthking11}
+\date{October 7, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The conjecture states a double-Hodge-star sign depending only on dimension and form degree, with exponent equal to the product of the two codimensions. As written, it does not restrict the metric to be positive definite. We construct the standard Hodge star for a two-dimensional metric of signature $(1,1)$ directly from its defining identity and show that its square on one-forms is $+1$, while the dimension-only formula predicts $-1$.
+\end{abstract}
+
+\section*{The original claim}
+
+The conjecture describes the exponent of the double-star sign as the product of codimensions. For a $p$-form in dimension $n$, this is the dimension-only law
+\[
+  \star^2 = (-1)^{p(n-p)}\,\mathrm{id}.
+\]
+The bilingual statement says nothing about the metric being positive definite. We therefore test this universal sign law on a standard pseudo-Riemannian Hodge star.
+
+\section*{A concrete Hodge star}
+
+Let $V^*=\mathbb R^2$ with covectors written $(a,b)$ in the oriented basis $e_1,e_2$. Choose volume form $e_1\wedge e_2$ and inverse-metric pairing
+\[
+  \langle (a,b),(c,d)\rangle = -ac+bd.
+\]
+The diagonal metric has one negative and one positive direction, hence signature $(1,1)$. Relative to the chosen volume form, the wedge coefficient is
+\[
+  (a,b)\wedge(c,d) = ad-bc.
+\]
+By definition, the Hodge star is the unique linear map satisfying
+\[
+  \alpha\wedge\star\beta = \langle\alpha,\beta\rangle(e_1\wedge e_2)
+  \qquad\text{for every }\alpha,\beta\in V^*.
+\]
+Write $\beta=(c,d)$ and $\star\beta=(u,v)$. For arbitrary $\alpha=(a,b)$, the defining equation becomes
+\[
+  av-bu=-ac+bd.
+\]
+Equality for all $a,b$ forces $v=-c$ and $u=-d$. Thus the actual Hodge star is
+\[
+  \star(c,d)=(-d,-c).
+\]
+This is not an assumed sign formula: it is derived from, and uniquely determined by, the defining metric-volume identity. The accompanying Lean development verifies that identity for every pair of covectors and proves uniqueness.
+
+Applying the map twice gives
+\[
+  \star\star(c,d)=\star(-d,-c)=(c,d),
+\]
+so $\star^2=+\mathrm{id}$ on one-forms.
+
+\section*{Contradiction with the dimension-only law}
+
+Here $n=2$ and $p=1$, so the conjectured exponent is
+\[
+  p(n-p)=1(2-1)=1.
+\]
+The dimension-only law therefore predicts $\star^2=-\mathrm{id}$. On the actual basis covector $e_1=(1,0)$, however, the defining Hodge star gives $\star^2e_1=e_1$, not $-e_1$. Since $e_1\ne -e_1$, the asserted sign law fails on this explicit object. This single failed required identity disproves the conjecture as stated.
+
+\section*{Scope and formal verification}
+
+The counterexample uses the standard pseudo-Riemannian Hodge star. The original statement does not impose a positive-definite metric; if only Riemannian metrics were intended, that additional restriction must be stated. This argument does not refute the Riemannian-only identity.
+
+The Lean project formalizes the covector space, metric pairing, oriented wedge coefficient, the star map defined by the Hodge identity, its uniqueness, its square, and the explicit disagreement with the dimension-only prediction. \texttt{Check.lean} records \texttt{\#print axioms} for the principal results. The dependency audit contains only standard Lean/Mathlib axioms and no \texttt{sorryAx} or custom axiom.
+
+\end{document}
