@@ -1,0 +1,61 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\setlength{\emergencystretch}{2em}
+\newtheorem{proposition}{Proposition}
+\title{Fixed trace alone admits no maximal spectral configuration}
+\author{Conjecture 00000007171}
+\date{October 8, 2026}
+\begin{document}
+\maketitle
+\noindent\textbf{Result.} Fixing trace does not give a maximum of the largest eigenvalue or spectral radius, even among real symmetric matrices of fixed dimension two. Nor does the set of ordered trace-one spectral lists have a maximal element under majorization.
+
+\section*{A fixed-dimensional, fixed-trace family}
+For every real $t\geq1$, consider the actual symmetric matrix
+\[
+ A_t=\begin{pmatrix}t&0\\0&1-t\end{pmatrix}.
+\]
+Its trace is one and its characteristic polynomial is
+\[
+ \det(zI-A_t)=(z-t)(z-(1-t)).
+\]
+Therefore its spectrum is exactly $\{t,1-t\}$. In descending order the eigenvalues are $t,1-t$, since $t\geq1$. It follows that
+\[
+ \lambda_{\max}(A_t)=t,\qquad
+ r(A_t)=\max\{|t|,|1-t|\}=t.
+\]
+These are the genuine spectrum and its extrema, not separately assigned scalar parameters.
+
+\begin{proposition}
+On the whole class of real symmetric $2\times2$ matrices of trace one, neither the largest eigenvalue nor the spectral radius is bounded above. In particular neither has a maximizing configuration.
+\end{proposition}
+\begin{proof}
+Given any real proposed bound $C$, take $t=|C|+1$. Then $t\geq1$, $A_t$ lies in the stated class, and both spectral quantities equal $t>C$. If a matrix in the whole class were a maximizer, its finite spectral value would itself supply such a bound, contradicting the same construction.
+\end{proof}
+
+For a concrete comparison, the concentrated matrix $A_1=\operatorname{diag}(1,0)$ has largest eigenvalue one. The equally trace-one matrix $A_2=\operatorname{diag}(2,-1)$ has largest eigenvalue two. Increasing $t$ continues this improvement without changing trace or dimension.
+
+\newpage
+\section*{Majorization gives the same obstruction}
+The phrase ``maximal spectrum'' does not specify an order. The usual majorization order also has no maximal spectral list here. For descending real lists $x=(x_1,x_2)$ and $y=(y_1,y_2)$ with equal sums, $x$ majorizes $y$ precisely when $x_1\geq y_1$. It strictly majorizes $y$ when this inequality is strict.
+
+Let $y_1\geq y_2$ and $y_1+y_2=1$ be any such spectral list. Set $t=|y_1|+1$ and $x=(t,1-t)$, the ordered spectrum of $A_t$. Then
+\[
+ x_1>y_1,\qquad x_1+x_2=1=y_1+y_2.
+\]
+Thus $x$ strictly majorizes $y$. This applies to every ordered trace-one two-dimensional list, not only to a preselected subfamily. Every symmetric $2\times2$ trace-one matrix has such a list. Consequently no spectral configuration in this class is maximal in the standard majorization sense either.
+
+\section*{Scope and the missing restriction}
+Both versions state fixed trace as the constraint. They do not impose positive semidefiniteness, a norm bound, or another compactness restriction. Under the standard largest-eigenvalue, spectral-radius, and majorization meanings made precise above, the proposed maximal configuration does not exist. The assertion that such an extremum is realized by a rank-one perturbation therefore cannot repair the missing extremum.
+
+This submission does not claim that every possible undefined meaning of ``maximal spectrum'' has been ruled out. It supplies the obstruction for the standard spectral-extremum interpretations and explains exactly the hypothesis needed to avoid this example. If positive semidefiniteness is added, all eigenvalues are nonnegative and sum to one, so the largest is at most one; the concentrated rank-one spectrum $(1,0)$ does attain that bound. That restricted concentration statement is untouched. For $t>1$ the matrices used here are indefinite, as the unrestricted source permits.
+
+\section*{Formal verification}
+The Lean project uses actual real matrices, Hermitian symmetry, matrix trace, and Mathlib's algebraic spectrum. The characteristic determinant proves the exact spectrum. Supremum definitions of the largest eigenvalue and spectral radius are evaluated, and attainment of the largest spectral value is proved explicitly.
+
+The theorem \texttt{no\_maximizer} quantifies over the whole symmetric trace-one matrix class. The majorization theorem quantifies over every ordered real pair of sum one and produces a feasible matrix with the exact strictly dominating spectrum. No extremal certificate is assumed.
+
+Run \texttt{lake build} in \texttt{lean/} using Lean 4.19.0. Mathlib is pinned to
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The source prints principal-theorem axiom audits; only the standard logical axioms are used.
+\end{document}
