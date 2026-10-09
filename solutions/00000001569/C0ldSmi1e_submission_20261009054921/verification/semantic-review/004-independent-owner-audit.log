@@ -1,0 +1,65 @@
+OWNED Solution :: Conjecture1569.configuration_card :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.axisPoint :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.configuration_angle_zero_or_pi._proof_3 :: AXIOMS [propext]
+OWNED Solution :: Conjecture1569.configuration_angleSet_card_le._proof_2 :: AXIOMS [propext,
+ Quot.sound,
+ Classical.choice]
+OWNED Solution :: Conjecture1569.axis_collinear :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.configuration_angle_zero_or_pi._proof_2 :: AXIOMS [propext]
+OWNED Solution :: Conjecture1569.Plane :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.mem_angleSet_iff._proof_2 :: AXIOMS [propext, Quot.sound]
+OWNED Solution :: Conjecture1569.configuration_mem_axis :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.configuration.eq_1 :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.mem_angleSet_iff :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.configuration :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.mem_angleSet_iff._proof_3 :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.configuration_angleSet_subset :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.UniformQuadraticLowerBound :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.arbitrarily_large_counterexamples :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.configuration_angle_zero_or_pi :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.axisPoint_injective :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.not_uniformQuadraticLowerBound :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.angleSet.eq_1 :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.angleSet :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.configuration_angleSet_card_le :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.original_conjunction_false :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.axisPoint.eq_1 :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Solution :: Conjecture1569.axisPoint._proof_1 :: AXIOMS []
+OWNED Solution :: Conjecture1569.mem_angleSet_iff._proof_1 :: AXIOMS [propext, Quot.sound, Classical.choice]
+OWNER_TOTAL Solution=26 Audit=0
+@[reducible] def Conjecture1569.Plane : Type :=
+EuclideanSpace ℝ (Fin 2)
+def Conjecture1569.angleSet : Finset Conjecture1569.Plane → Finset ℝ :=
+fun S =>
+  Finset.image (fun t => EuclideanGeometry.angle t.1 t.2.1 t.2.2)
+    ({t ∈ S ×ˢ S ×ˢ S | t.1 ≠ t.2.1 ∧ t.2.1 ≠ t.2.2 ∧ t.1 ≠ t.2.2})
+def Conjecture1569.axisPoint : ℝ → Conjecture1569.Plane :=
+fun x => !₂[x, 0]
+def Conjecture1569.configuration : ℕ → Finset Conjecture1569.Plane :=
+fun n => Finset.image (fun j => Conjecture1569.axisPoint ↑j) (Finset.range n)
+def Conjecture1569.UniformQuadraticLowerBound : Prop :=
+∃ C,
+  0 ≤ C ∧
+    ∃ N,
+      ∀ (n : ℕ),
+        N ≤ n → ∀ (S : Finset Conjecture1569.Plane), S.card = n → ↑n ^ 2 - C * ↑n ≤ ↑(Conjecture1569.angleSet S).card
+'Conjecture1569.configuration_angle_zero_or_pi' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1569.arbitrarily_large_counterexamples' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1569.not_uniformQuadraticLowerBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1569.original_conjunction_false' depends on axioms: [propext, Classical.choice, Quot.sound]
+EuclideanGeometry.angle.{u_1, u_2} {V : Type u_1} {P : Type u_2} [NormedAddCommGroup V] [InnerProductSpace ℝ V]
+  [MetricSpace P] [NormedAddTorsor V P] (p₁ p₂ p₃ : P) : ℝ
+EuclideanGeometry.collinear_iff_eq_or_eq_or_angle_eq_zero_or_angle_eq_pi.{u_1, u_2} {V : Type u_1} {P : Type u_2}
+  [NormedAddCommGroup V] [InnerProductSpace ℝ V] [MetricSpace P] [NormedAddTorsor V P] {p₁ p₂ p₃ : P} :
+  Collinear ℝ {p₁, p₂, p₃} ↔
+    p₁ = p₂ ∨ p₃ = p₂ ∨ EuclideanGeometry.angle p₁ p₂ p₃ = 0 ∨ EuclideanGeometry.angle p₁ p₂ p₃ = Real.pi
+Conjecture1569.mem_angleSet_iff (S : Finset Conjecture1569.Plane) (θ : ℝ) :
+  θ ∈ Conjecture1569.angleSet S ↔ ∃ a ∈ S, ∃ b ∈ S, ∃ c ∈ S, a ≠ b ∧ b ≠ c ∧ a ≠ c ∧ EuclideanGeometry.angle a b c = θ
+Conjecture1569.configuration_card (n : ℕ) : (Conjecture1569.configuration n).card = n
+Conjecture1569.configuration_angleSet_card_le (n : ℕ) :
+  (Conjecture1569.angleSet (Conjecture1569.configuration n)).card ≤ 2
+Conjecture1569.arbitrarily_large_counterexamples (C : ℝ) (N : ℕ) :
+  ∃ n, N ≤ n ∧ ∃ S, S.card = n ∧ ↑(Conjecture1569.angleSet S).card < ↑n ^ 2 - C * ↑n
+Conjecture1569.not_uniformQuadraticLowerBound : ¬Conjecture1569.UniformQuadraticLowerBound
+Conjecture1569.original_conjunction_false (LatticeAttainment : Prop) :
+  ¬(Conjecture1569.UniformQuadraticLowerBound ∧ LatticeAttainment)

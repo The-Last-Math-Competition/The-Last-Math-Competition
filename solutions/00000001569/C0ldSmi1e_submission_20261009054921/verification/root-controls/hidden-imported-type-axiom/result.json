@@ -1,0 +1,40 @@
+{
+  "control": "hidden-imported-type-axiom",
+  "expected_rejection": "Forbidden transitive axiom Hidden.size",
+  "result": "PASS",
+  "fixture_modules": {
+    "ImportedBridge": "axiom Hidden.size : Nat\ndef Hidden.Index := Fin Hidden.size\n",
+    "Solution": "import ImportedBridge\ntheorem Public.root (_ : Hidden.Index) : True := True.intro\n"
+  },
+  "records": [
+    {
+      "label": "compile-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "build"
+      ],
+      "cwd": "/private/tmp/tlmc1569-root-controls-verification/hidden-imported-type-axiom/fresh-project",
+      "started_utc": "2026-10-09T05:37:36.056474+00:00",
+      "exit_code": 0,
+      "completed_utc": "2026-10-09T05:37:36.692223+00:00",
+      "stdout": "✔ [2/5] Built ImportedBridge\n✔ [3/5] Built Solution\n✔ [4/5] Built AuthorAudit\nBuild completed successfully.\n",
+      "stderr": ""
+    },
+    {
+      "label": "audit-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "cwd": "/private/tmp/tlmc1569-root-controls-verification/hidden-imported-type-axiom/fresh-project",
+      "started_utc": "2026-10-09T05:37:36.692704+00:00",
+      "exit_code": 1,
+      "completed_utc": "2026-10-09T05:37:39.008350+00:00",
+      "stdout": "Audit.lean:18:0: error: Forbidden transitive axiom Hidden.size in Public.root\n",
+      "stderr": ""
+    }
+  ]
+}
