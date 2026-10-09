@@ -1,0 +1,84 @@
+import Conjecture7788
+
+set_option pp.universes true
+
+#check Conjecture7788.hull_range_image_simplex
+#print axioms Conjecture7788.hull_range_image_simplex
+#check Conjecture7788.hull_graph_closed
+#print axioms Conjecture7788.hull_graph_closed
+#check Conjecture7788.hull_volume_measurable
+#print axioms Conjecture7788.hull_volume_measurable
+#check GenericRate.quadratic_tendsto_atTop
+#print axioms GenericRate.quadratic_tendsto_atTop
+#check GenericRate.quadratic_not_tendsto_nhds
+#print axioms GenericRate.quadratic_not_tendsto_nhds
+#check GenericRate.inverse_square_ratio_tendsto_atTop
+#print axioms GenericRate.inverse_square_ratio_tendsto_atTop
+#check GenericRate.inverse_square_ratio_not_tendsto_one
+#print axioms GenericRate.inverse_square_ratio_not_tendsto_one
+#check GenericRate.not_isEquivalent_inverse_square
+#print axioms GenericRate.not_isEquivalent_inverse_square
+#check GenericRate.real_power_ratio_tendsto_atTop
+#print axioms GenericRate.real_power_ratio_tendsto_atTop
+#check GenericRate.real_power_ratio_not_tendsto_one
+#print axioms GenericRate.real_power_ratio_not_tendsto_one
+#check GenericRate.not_isEquivalent_real_power
+#print axioms GenericRate.not_isEquivalent_real_power
+#check Conjecture7788.Plane
+#print axioms Conjecture7788.Plane
+#check Conjecture7788.disk
+#print axioms Conjecture7788.disk
+#check Conjecture7788.uniformDisk
+#print axioms Conjecture7788.uniformDisk
+#check Conjecture7788.volume_disk
+#print axioms Conjecture7788.volume_disk
+#check Conjecture7788.uniformDisk_probability
+#print axioms Conjecture7788.uniformDisk_probability
+#check Conjecture7788.samples
+#print axioms Conjecture7788.samples
+#check Conjecture7788.samples_probability
+#print axioms Conjecture7788.samples_probability
+#check Conjecture7788.samples_rectangle
+#print axioms Conjecture7788.samples_rectangle
+#check Conjecture7788.hullArea
+#print axioms Conjecture7788.hullArea
+#check Conjecture7788.deficit
+#print axioms Conjecture7788.deficit
+#check Conjecture7788.deficit_eq_expected_volume_deficit
+#print axioms Conjecture7788.deficit_eq_expected_volume_deficit
+#check Conjecture7788.hull_volume_ne_top
+#print axioms Conjecture7788.hull_volume_ne_top
+#check Conjecture7788.hullArea_nonneg
+#print axioms Conjecture7788.hullArea_nonneg
+#check Conjecture7788.hullArea_le
+#print axioms Conjecture7788.hullArea_le
+#check Conjecture7788.innerEvent
+#print axioms Conjecture7788.innerEvent
+#check Conjecture7788.innerEvent_measurable
+#print axioms Conjecture7788.innerEvent_measurable
+#check Conjecture7788.uniformDisk_inner
+#print axioms Conjecture7788.uniformDisk_inner
+#check Conjecture7788.innerEvent_probability
+#print axioms Conjecture7788.innerEvent_probability
+#check Conjecture7788.samples_in_disk
+#print axioms Conjecture7788.samples_in_disk
+#check Conjecture7788.hullArea_measurable
+#print axioms Conjecture7788.hullArea_measurable
+#check Conjecture7788.hullArea_integrable
+#print axioms Conjecture7788.hullArea_integrable
+#check Conjecture7788.hull_volume_integrable
+#print axioms Conjecture7788.hull_volume_integrable
+#check Conjecture7788.deficit_lower_from_radius
+#print axioms Conjecture7788.deficit_lower_from_radius
+#check Conjecture7788.deficit_lower
+#print axioms Conjecture7788.deficit_lower
+#check Conjecture7788.normalized_deficit_tendsto_atTop
+#print axioms Conjecture7788.normalized_deficit_tendsto_atTop
+#check Conjecture7788.no_finite_normalized_limit
+#print axioms Conjecture7788.no_finite_normalized_limit
+#check Conjecture7788.deficit_ratio_tendsto_atTop
+#print axioms Conjecture7788.deficit_ratio_tendsto_atTop
+#check Conjecture7788.source_exponent_dimension_two
+#print axioms Conjecture7788.source_exponent_dimension_two
+#check Conjecture7788.conjecture_00000007788_false
+#print axioms Conjecture7788.conjecture_00000007788_false
