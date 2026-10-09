@@ -1,0 +1,55 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{hidelinks}
+\newtheorem{proposition}{Proposition}
+\title{Disproof of Conjecture 00000009755\\Pass-at-$k$ is not an exact power law}
+\author{gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\noindent\textbf{Claim addressed.} The conjecture asserts an exact affine law between $\log(\mathrm{pass@}k)$ and $\log k$ within fixed theorem-difficulty strata. A fixed theorem and a fixed independently sampled generator already contradict every possible slope and intercept.
+
+\begin{proposition}
+There is a sound proof-generation experiment for one fixed theorem such that its pass-at-$1$, pass-at-$2$, and pass-at-$4$ probabilities do not lie on any affine line in logarithmic coordinates.
+\end{proposition}
+\begin{proof}
+Fix the theorem \texttt{True}. On each attempt toss a fair binary coin. On one outcome output its correct proof \texttt{True.intro}; on the other return failure. Acceptance is deterministic: a returned proof is accepted, and failure is rejected. The theorem, generator, and acceptance rule do not change with the number of attempts. Four independent coin flips give the sample space $\Omega=\{0,1\}^4$, with mass $1/16$ at each outcome.
+
+For $k\in\{1,2,3,4\}$, let $p_k$ be the probability that at least one of the first $k$ attempts succeeds. The failed prefixes have respectively $2^{4-k}$ extensions, so
+\[
+ p_k=1-2^{-k},\qquad
+ p_1=\frac12,\quad p_2=\frac34,\quad p_4=\frac{15}{16}.
+\]
+These are probabilities of actual success events, not prescribed numerical success scores.
+
+Suppose $\log p_k=a+b\log k$ at $k=1,2,4$. Because $\log1=0$ and $\log4=2\log2$, this would imply
+\[
+ \log p_4+\log p_1=2\log p_2,
+ \qquad p_4p_1=p_2^2.
+\]
+All probabilities are positive, so logarithmic injectivity applies. However,
+\[
+ p_4p_1=\frac{15}{32}\ne\frac{18}{32}=p_2^2.
+\]
+Thus no such $a,b$ exist.
+\end{proof}
+
+\noindent\textbf{Scope.} The theorem being attempted is held fixed, so changing its difficulty quantile or combining different tasks cannot account for the failure. A stratum containing this fixed task retains the same contradiction. No particular numerical definition of difficulty is required: every real slope is excluded. Failure is a legitimate unsuccessful attempt, and the successful output contains an actual proof. The statement addressed is the universal exact law; approximate empirical fits for a specified prover are not ruled out.
+
+\section*{Lean formalization}
+The sample space is an actual fourfold Cartesian product of \texttt{Fin 2}. The measure is $(1/16)$ times Mathlib's counting measure. Lean proves that its total mass is one and that each prescribed joint coordinate pattern has probability $(1/2)^4$, providing the independent fair-bit model.
+
+The function \texttt{generate} returns either \texttt{none} or \texttt{some} containing a lifted proof of \texttt{True}. A successful event means that at least one of the first $k$ returned options contains a proof. The finite event sets at $k=1,2,4$ have exactly $8,12,15$ outcomes. The definition \texttt{passRate} takes the real value of the measure of those sets; Lean computes the three probabilities from those cardinalities.
+
+The theorem \texttt{no\_affine\_log\_scaling} rules out all real intercepts and slopes at the three sample counts. The final theorem also rules out an affine law throughout $1\leq k\leq4$. All computations are exact and kernel-checked; no simulation, assumed pass-rate formula, or statistical estimate is used.
+
+\section*{Reproduction and source}
+In \texttt{lean/}, run \texttt{lake build}, then
+\begin{verbatim}
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The project pins Lean 4.19.0 and Mathlib; exact dependency revisions, command logs, source hashes, and review records accompany the submission. All printed axiom dependencies are standard foundational axioms. No auxiliary numerical computation is needed. Compile this document with \texttt{tectonic main.tex}.
+
+The unchanged bilingual statement is included as \texttt{SOURCE.md}; its repository location is \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000009755.md}{conjecture 00000009755}. The source snapshot and its exact hash are recorded in \texttt{verification/}.
+\end{document}
