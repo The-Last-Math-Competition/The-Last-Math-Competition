@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{The missing factor in Conjecture 00000003454}
+\author{gaochengzhecpu}
+\date{October 9, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+For the smooth polynomial $f(x)=(x-1/2)^2$, the Bernstein approximation
+at $x=1/2$ has error exactly $1/(4n)$. Thus the error multiplied by $n$
+converges to $1/4$, whereas $f''(1/2)=2$. This disproves the source's
+identification of the deviation limit with the second derivative.
+The unscaled error also has a different limit, namely zero.
+\end{abstract}
+
+\section{Statement and interpretation}
+The source conjecture describes the Voronovskaya asymptotics of Bernstein
+operators by saying that ``the limit of the deviation is the second
+derivative,'' with a rate inverse in $n$. The standard Bernstein operator is
+\[
+ (B_nf)(x)=\sum_{k=0}^{n}f(k/n)\binom nk x^k(1-x)^{n-k},\qquad n\geq1.
+\]
+We examine the usual normalized deviation $n(B_nf-f)$ and, separately,
+the literal unscaled deviation $B_nf-f$. Neither converges to $f''$ in
+our example, even at an interior point and for a polynomial.
+The issue is the coefficient of the second derivative, not the occurrence
+of an order $1/n$ approximation error.
+
+\section{Exact counterexample}
+\begin{theorem}
+For $f(x)=(x-1/2)^2$ and every positive integer $n$,
+\[
+ (B_nf)(1/2)-f(1/2)=\frac{1}{4n}.
+\]
+Consequently, $n((B_nf)(1/2)-f(1/2))$ converges to $1/4$, and the
+unscaled deviation converges to $0$. Both limits differ from $f''(1/2)=2$.
+\end{theorem}
+\begin{proof}
+The binomial variance identity gives, for $0\leq x\leq1$,
+\[
+ \sum_{k=0}^{n}(k/n-x)^2\binom nk x^k(1-x)^{n-k}
+   =\frac{x(1-x)}n.
+\]
+At $x=1/2$, the left side is exactly $(B_nf)(1/2)$, while the right side
+is $1/(4n)$. Since $f(1/2)=0$, this proves the displayed formula.
+Multiplying by $n$ gives the constant $1/4$. Without that multiplication,
+the error tends to zero. Direct differentiation gives
+$f'(x)=2(x-1/2)$ and $f''(x)=2$. The asserted limit is therefore false
+under either reading of the deviation.
+\end{proof}
+
+\paragraph{The coefficient matters.}
+The usual Voronovskaya expression contains the factor $x(1-x)/2$ in front
+of $f''(x)$; at the midpoint this factor is $1/8$ and gives $1/4$ for our
+quadratic. The proof above is an exact finite-sum calculation and does not
+assume a general Voronovskaya theorem. It does not dispute the classical
+formula with its factor restored, or any separately specified
+renormalization that divides out this factor. Neither such factor nor
+such a renormalization appears in the source.
+
+\section{Formal verification}
+The Lean project uses Mathlib's actual \texttt{bernsteinApproximation}
+on continuous functions on $[0,1]$, its proved binomial variance identity,
+real derivatives, and filter limits. In particular:
+\begingroup\raggedright
+\begin{itemize}
+\item \texttt{quadratic\_\allowbreak smooth} proves the polynomial is infinitely
+      differentiable; \texttt{quadratic\_\allowbreak second\_\allowbreak derivative} evaluates
+      the second derivative at every real point.
+\item \texttt{approximation\_\allowbreak at\_\allowbreak midpoint} identifies the actual
+      Bernstein sum with $1/(4n)$ for every positive integer $n$.
+\item \texttt{scaled\_\allowbreak deviation\_\allowbreak limit} and \texttt{deviation\_\allowbreak limit}
+      prove the normalized and unscaled limits. The sequences are indexed
+      by $n+1$ so every approximation order is positive.
+\item \texttt{scaled\_\allowbreak second\_\allowbreak derivative\_\allowbreak limit\_\allowbreak false} and
+      \texttt{raw\_\allowbreak second\_\allowbreak derivative\_\allowbreak limit\_\allowbreak false} state the two
+      contradictions using the actual second derivative, not a
+      substituted numerical surrogate.
+\end{itemize}
+\endgroup
+No auxiliary numerical computation is required. All final theorems use
+only Lean's standard logical axioms, with no unproved placeholders,
+custom axioms, or native evaluation used as a proof.
+
+\paragraph{Reproduction.}
+In \texttt{lean/}, run:
+\begin{verbatim}
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The project pins Lean 4.19.0 and an exact Mathlib revision.
+Run \texttt{tectonic main.tex} to rebuild the PDF.
+\texttt{SOURCE.md} preserves the bilingual conjecture.
+
+\begingroup\raggedright
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000003454.md}{Conjecture 00000003454}.
+\bibitem{mathlib} The Mathlib Community, Lean 4 mathematical library,
+\href{https://github.com/leanprover-community/mathlib4/commit/c44e0c8ee63ca166450922a373c7409c5d26b00b}{revision c44e0c8ee63c},
+module \texttt{Analysis.SpecialFunctions.Bernstein}.
+\end{thebibliography}
+\endgroup
+\end{document}
