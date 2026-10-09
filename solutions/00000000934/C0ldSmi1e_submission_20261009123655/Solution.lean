@@ -1,0 +1,186 @@
+import Mathlib.Analysis.Fourier.AddCircle
+import Mathlib.Analysis.PSeries
+
+/-!
+# Conjecture 00000000934
+
+The scalar field is ℂ. The circle is ℝ / ℤ with its normalized Haar measure.
+`MeasureTheory.Lp` is the standard almost-everywhere quotient with its Lp norm.
+`Summable` means convergence of the net of sums over all finite subsets, hence
+unconditional convergence in the norm topology, rather than pointwise convergence.
+-/
+
+noncomputable section
+
+open MeasureTheory AddCircle
+open scoped ENNReal Topology
+
+namespace Conjecture934
+
+abbrev Circle := AddCircle (1 : ℝ)
+abbrev μ : Measure Circle := haarAddCircle
+abbrev L1 := Lp ℂ 1 μ
+abbrev L2 := Lp ℂ 2 μ
+
+/-- For circumference one, normalized Haar is also the standard Lebesgue volume. -/
+theorem measure_eq_volume : μ = (volume : Measure Circle) := by
+  simpa using (volume_eq_smul_haarAddCircle (T := (1 : ℝ))).symm
+
+/-- The norm used below is precisely the integral of the pointwise absolute value. -/
+theorem L1_norm_integral (f : L1) : ‖f‖ = ∫ x, ‖f x‖ ∂μ :=
+  MeasureTheory.L1.norm_eq_integral_norm f
+
+/-- The identity on a.e. classes is linear from L² to L¹. -/
+theorem inclusionLinear_exists : ∃ L : L2 →ₗ[ℂ] L1, ∀ f,
+    L f = ⟨f.1, Lp.antitone (by norm_num : (1 : ℝ≥0∞) ≤ 2) f.2⟩ := by
+  refine ⟨{ toFun := fun f => ⟨f.1, Lp.antitone (by norm_num : (1 : ℝ≥0∞) ≤ 2) f.2⟩
+            map_add' := fun _ _ => rfl
+            map_smul' := fun _ _ => rfl }, fun _ => rfl⟩
+
+/-- Choose the proved map, keeping it non-executable. -/
+def inclusionLinear : L2 →ₗ[ℂ] L1 := inclusionLinear_exists.choose
+
+theorem inclusionLinear_apply (f : L2) :
+    inclusionLinear f = ⟨f.1, Lp.antitone (by norm_num : (1 : ℝ≥0∞) ≤ 2) f.2⟩ :=
+  inclusionLinear_exists.choose_spec f
+
+/-- On a probability space, the L¹ norm is bounded by the L² norm. -/
+theorem inclusion_norm_le (f : L2) : ‖inclusionLinear f‖ ≤ ‖f‖ := by
+  rw [inclusionLinear_apply, Lp.norm_def, Lp.norm_def]
+  exact ENNReal.toReal_mono (Lp.eLpNorm_ne_top f)
+    (eLpNorm_le_eLpNorm_of_exponent_le (by norm_num : (1 : ℝ≥0∞) ≤ 2)
+      (Lp.aestronglyMeasurable f))
+
+/-- There is a bounded linear map equal to the identity on these a.e. classes. -/
+theorem inclusion_exists : ∃ L : L2 →L[ℂ] L1, ∀ f, L f = inclusionLinear f :=
+  ⟨inclusionLinear.mkContinuous 1 (by intro f; simpa using inclusion_norm_le f),
+    fun _ => rfl⟩
+
+/-- The bounded linear inclusion preserves norm-unconditional sums.
+Choosing the proved witness keeps this non-executable and avoids compiler-only
+closed-term helpers; the following equality fixes its mathematical action fully. -/
+def inclusion : L2 →L[ℂ] L1 := inclusion_exists.choose
+
+theorem inclusion_apply (f : L2) : inclusion f = inclusionLinear f :=
+  inclusion_exists.choose_spec f
+
+@[simp] theorem inclusion_fourier (n : ℤ) :
+    inclusion (fourierLp 2 n) = (fourierLp 1 n : L1) := by
+  rw [inclusion_apply, inclusionLinear_apply]
+  rfl
+
+/-- The actual L¹ class represented by n⁻¹ exp(2πinx); the zeroth term is zero. -/
+def term (n : ℕ) : L1 := (n : ℂ)⁻¹ • fourierLp 1 (n : ℤ)
+
+/-- An a.e. representative of the actual L¹ quotient element. -/
+theorem term_ae (n : ℕ) :
+    term n =ᵐ[μ] (fun x : Circle => (n : ℂ)⁻¹ * fourier (n : ℤ) x) := by
+  exact (Lp.coeFn_smul (n : ℂ)⁻¹ (fourierLp 1 (n : ℤ))).trans
+    ((coeFn_fourierLp 1 (n : ℤ)).const_smul (n : ℂ)⁻¹)
+
+/-- The representative is the stated exponential Fourier monomial on ℝ/ℤ. -/
+theorem representative_on_real (n : ℕ) (x : ℝ) :
+    (n : ℂ)⁻¹ * fourier (n : ℤ) (x : Circle) =
+      (n : ℂ)⁻¹ * Complex.exp (2 * Real.pi * Complex.I * (n : ℂ) * x) := by
+  simp only [fourier_coe_apply, Int.cast_natCast, Complex.ofReal_one, div_one]
+
+/-- Fourier monomials have L¹ norm one, not just L² norm one. -/
+theorem fourier_L1_norm (n : ℤ) : ‖(fourierLp 1 n : L1)‖ = 1 := by
+  rw [Lp.norm_def, eLpNorm_congr_ae (coeFn_fourierLp 1 n)]
+  have hnorm : eLpNorm (fourier (T := (1 : ℝ)) n) 1 μ =
+      eLpNorm (fun _ : Circle => (1 : ℂ)) 1 μ := by
+    apply eLpNorm_congr_norm_ae
+    exact Filter.Eventually.of_forall (fun x => by simp [fourier_apply])
+  rw [hnorm, eLpNorm_const (1 : ℂ) (by norm_num) (IsProbabilityMeasure.ne_zero μ)]
+  simp
+
+/-- The norm series is precisely the harmonic series. -/
+theorem term_norm (n : ℕ) : ‖term n‖ = (n : ℝ)⁻¹ := by
+  simp [term, norm_smul, fourier_L1_norm]
+
+/-- Even arbitrary complex unit phases preserve unconditional L² convergence. -/
+theorem phase_L2_summable (ε : ℕ → ℂ) (hε : ∀ n, ‖ε n‖ = 1) :
+    Summable (fun n : ℕ => (ε n * (n : ℂ)⁻¹) • (fourierLp 2 (n : ℤ) : L2)) := by
+  have hortho : Orthonormal ℂ (fun n : ℕ => (fourierLp 2 (n : ℤ) : L2)) :=
+    orthonormal_fourier.comp (fun n : ℕ => (n : ℤ)) Nat.cast_injective
+  have hs : Summable (fun n : ℕ => ‖ε n * (n : ℂ)⁻¹‖ ^ 2) := by
+    simpa [norm_mul, hε, norm_inv, ← inv_pow] using
+      (Real.summable_nat_pow_inv.mpr (by norm_num : 1 < (2 : ℕ)))
+  simpa only [LinearIsometry.toSpanSingleton_apply] using
+    (hortho.orthogonalFamily.summable_iff_norm_sq_summable
+      (fun n : ℕ => ε n * (n : ℂ)⁻¹)).mpr hs
+
+/-- All infinite choices of complex unit phases preserve unconditional L¹ convergence. -/
+theorem phase_summable (ε : ℕ → ℂ) (hε : ∀ n, ‖ε n‖ = 1) :
+    Summable (fun n => ε n • term n) := by
+  simpa only [map_smul, inclusion_fourier, term, smul_smul] using
+    inclusion.summable (phase_L2_summable ε hε)
+
+/-- The unsigned original series is unconditionally convergent in L¹. -/
+theorem term_summable : Summable term := by
+  simpa using phase_summable (fun _ => 1) (by simp)
+
+/-- A scalar sign can be chosen independently at every natural-number index. -/
+def IsSignChoice (ε : ℕ → ℂ) : Prop := ∀ n, ε n = 1 ∨ ε n = -1
+
+/-- In particular, every infinite termwise sign change is unconditionally convergent. -/
+theorem sign_summable (ε : ℕ → ℂ) (hε : IsSignChoice ε) :
+    Summable (fun n => ε n • term n) := by
+  apply phase_summable ε
+  intro n
+  rcases hε n with h | h <;> simp [h]
+
+/-- No bijective ordering makes the series norm-absolute. -/
+theorem no_absolute_rearrangement (π : Equiv.Perm ℕ) :
+    ¬ Summable (fun n => ‖term (π n)‖) := by
+  intro h
+  have h' : Summable (fun n => ‖term n‖) := π.summable_iff.mp h
+  simp only [term_norm] at h'
+  exact Real.not_summable_natCast_inv h'
+
+/-- Unit phases and every permutation still fail norm-absolute summability. -/
+theorem phase_no_absolute_rearrangement (ε : ℕ → ℂ) (hε : ∀ n, ‖ε n‖ = 1)
+    (π : Equiv.Perm ℕ) : ¬ Summable (fun n => ‖ε (π n) • term (π n)‖) := by
+  simpa only [norm_smul, hε, one_mul] using no_absolute_rearrangement π
+
+/-- The net of finite sums converges in the actual L¹ norm. -/
+theorem phase_unconditional_norm (ε : ℕ → ℂ) (hε : ∀ n, ‖ε n‖ = 1) :
+    ∃ s : L1, Filter.Tendsto
+      (fun F : Finset ℕ => ‖(∑ n ∈ F, ε n • term n) - s‖)
+      Filter.atTop (𝓝 0) := by
+  obtain ⟨s, hs⟩ := phase_summable ε hε
+  exact ⟨s, tendsto_iff_norm_sub_tendsto_zero.mp hs⟩
+
+/-- For each phase choice, every reordering has the same norm limit. -/
+theorem phase_permutation_norm (ε : ℕ → ℂ) (hε : ∀ n, ‖ε n‖ = 1) :
+    ∃ s : L1, ∀ π : Equiv.Perm ℕ, Filter.Tendsto
+      (fun N : ℕ => ‖(∑ n ∈ Finset.range N, ε (π n) • term (π n)) - s‖)
+      Filter.atTop (𝓝 0) := by
+  obtain ⟨s, hs⟩ := phase_summable ε hε
+  refine ⟨s, fun π => ?_⟩
+  exact tendsto_iff_norm_sub_tendsto_zero.mp (π.hasSum_iff.mpr hs).tendsto_sum_nat
+
+/-- The nonnegative norm partial sums diverge to infinity in every ordering. -/
+theorem phase_norm_partial_sums_diverge (ε : ℕ → ℂ) (hε : ∀ n, ‖ε n‖ = 1)
+    (π : Equiv.Perm ℕ) : Filter.Tendsto
+      (fun N : ℕ => ∑ n ∈ Finset.range N, ‖ε (π n) • term (π n)‖)
+      Filter.atTop Filter.atTop :=
+  (not_summable_iff_tendsto_nat_atTop_of_nonneg (fun _ => norm_nonneg _)).mp
+    (phase_no_absolute_rearrangement ε hε π)
+
+/-- The complete existential claim, in the complex scalar convention. -/
+theorem conjecture : ∃ f : ℕ → L1,
+    Summable f ∧
+    (∀ ε : ℕ → ℂ, IsSignChoice ε → Summable (fun n => ε n • f n)) ∧
+    (∀ π : Equiv.Perm ℕ, ¬ Summable (fun n => ‖f (π n)‖)) :=
+  ⟨term, term_summable, sign_summable, no_absolute_rearrangement⟩
+
+/-- A stronger formulation quantifies over all unit scalar choices in both clauses. -/
+theorem strengthened_conjecture : ∃ f : ℕ → L1,
+    Summable f ∧ ∀ ε : ℕ → ℂ, (∀ n, ‖ε n‖ = 1) →
+      Summable (fun n => ε n • f n) ∧
+      (∀ π : Equiv.Perm ℕ, ¬ Summable (fun n => ‖ε (π n) • f (π n)‖)) :=
+  ⟨term, term_summable, fun ε hε =>
+    ⟨phase_summable ε hε, phase_no_absolute_rearrangement ε hε⟩⟩
+
+end Conjecture934

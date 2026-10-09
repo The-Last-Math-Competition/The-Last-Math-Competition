@@ -1,0 +1,198 @@
+OWNED Conjecture934.Circle
+TYPE Type
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.IsSignChoice
+TYPE (ℕ → ℂ) → Prop
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.L1
+TYPE AddSubgroup (Conjecture934.Circle →ₘ[Conjecture934.μ] ℂ)
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.L1_norm_integral
+TYPE ∀ (f : ↥Conjecture934.L1), ‖f‖ = ∫ (x : Conjecture934.Circle), ‖↑↑f x‖ ∂Conjecture934.μ
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.L2
+TYPE AddSubgroup (Conjecture934.Circle →ₘ[Conjecture934.μ] ℂ)
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.conjecture
+TYPE ∃ f,
+  Summable f ∧
+    (∀ (ε : ℕ → ℂ), Conjecture934.IsSignChoice ε → Summable fun n => ε n • f n) ∧
+      ∀ (π : Equiv.Perm ℕ), ¬Summable fun n => ‖f (π n)‖
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.fourier_L1_norm
+TYPE ∀ (n : ℤ), ‖fourierLp 1 n‖ = 1
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.inclusion
+TYPE ↥Conjecture934.L2 →L[ℂ] ↥Conjecture934.L1
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.inclusionLinear
+TYPE ↥Conjecture934.L2 →ₗ[ℂ] ↥Conjecture934.L1
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.inclusion_fourier
+TYPE ∀ (n : ℤ), Conjecture934.inclusion (fourierLp 2 n) = fourierLp 1 n
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.inclusion_norm_le
+TYPE ∀ (f : ↥Conjecture934.L2), ‖Conjecture934.inclusionLinear f‖ ≤ ‖f‖
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.measure_eq_volume
+TYPE Conjecture934.μ = MeasureTheory.volume
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.no_absolute_rearrangement
+TYPE ∀ (π : Equiv.Perm ℕ), ¬Summable fun n => ‖Conjecture934.term (π n)‖
+AXIOMS [Quot.sound, propext, Classical.choice]
+OWNED Conjecture934.phase_L2_summable
+TYPE ∀ (ε : ℕ → ℂ), (∀ (n : ℕ), ‖ε n‖ = 1) → Summable fun n => (ε n * (↑n)⁻¹) • fourierLp 2 ↑n
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.phase_no_absolute_rearrangement
+TYPE ∀ (ε : ℕ → ℂ),
+  (∀ (n : ℕ), ‖ε n‖ = 1) → ∀ (π : Equiv.Perm ℕ), ¬Summable fun n => ‖ε (π n) • Conjecture934.term (π n)‖
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.phase_norm_partial_sums_diverge
+TYPE ∀ (ε : ℕ → ℂ),
+  (∀ (n : ℕ), ‖ε n‖ = 1) →
+    ∀ (π : Equiv.Perm ℕ),
+      Filter.Tendsto (fun N => ∑ n ∈ Finset.range N, ‖ε (π n) • Conjecture934.term (π n)‖) Filter.atTop Filter.atTop
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.phase_permutation_norm
+TYPE ∀ (ε : ℕ → ℂ),
+  (∀ (n : ℕ), ‖ε n‖ = 1) →
+    ∃ s,
+      ∀ (π : Equiv.Perm ℕ),
+        Filter.Tendsto (fun N => ‖∑ n ∈ Finset.range N, ε (π n) • Conjecture934.term (π n) - s‖) Filter.atTop (nhds 0)
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.phase_summable
+TYPE ∀ (ε : ℕ → ℂ), (∀ (n : ℕ), ‖ε n‖ = 1) → Summable fun n => ε n • Conjecture934.term n
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.phase_unconditional_norm
+TYPE ∀ (ε : ℕ → ℂ),
+  (∀ (n : ℕ), ‖ε n‖ = 1) →
+    ∃ s, Filter.Tendsto (fun F => ‖∑ n ∈ F, ε n • Conjecture934.term n - s‖) Filter.atTop (nhds 0)
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.representative_on_real
+TYPE ∀ (n : ℕ) (x : ℝ), (↑n)⁻¹ * (fourier ↑n) ↑x = (↑n)⁻¹ * Complex.exp (2 * ↑Real.pi * Complex.I * ↑n * ↑x)
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.sign_summable
+TYPE ∀ (ε : ℕ → ℂ), Conjecture934.IsSignChoice ε → Summable fun n => ε n • Conjecture934.term n
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.strengthened_conjecture
+TYPE ∃ f,
+  Summable f ∧
+    ∀ (ε : ℕ → ℂ),
+      (∀ (n : ℕ), ‖ε n‖ = 1) →
+        (Summable fun n => ε n • f n) ∧ ∀ (π : Equiv.Perm ℕ), ¬Summable fun n => ‖ε (π n) • f (π n)‖
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.term
+TYPE ℕ → ↥Conjecture934.L1
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.term_ae
+TYPE ∀ (n : ℕ), ↑↑(Conjecture934.term n) =ᵐ[Conjecture934.μ] fun x => (↑n)⁻¹ * (fourier ↑n) x
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.term_norm
+TYPE ∀ (n : ℕ), ‖Conjecture934.term n‖ = (↑n)⁻¹
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.term_summable
+TYPE Summable Conjecture934.term
+AXIOMS [Quot.sound, propext, Classical.choice]
+OWNED Conjecture934.μ
+TYPE MeasureTheory.Measure Conjecture934.Circle
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.L2._proof_1
+TYPE (0 + 2).AtLeastTwo
+AXIOMS []
+UNSAFE Conjecture934.inclusion._cstage1 TYPE ↥Conjecture934.L2 →L[ℂ] ↥Conjecture934.L1
+DISALLOWED lcProof in Conjecture934.inclusion._cstage1
+OWNED Conjecture934.inclusion._cstage1
+TYPE ↥Conjecture934.L2 →L[ℂ] ↥Conjecture934.L1
+AXIOMS [propext, Quot.sound, Classical.choice, lcProof]
+UNSAFE Conjecture934.inclusion._cstage2 TYPE _obj
+DISALLOWED AddSubgroup.zmultiples._at.Real.Angle.coe._spec_1 in Conjecture934.inclusion._cstage2
+DISALLOWED Nat.cast._at.PiLp.innerProductSpace._spec_1 in Conjecture934.inclusion._cstage2
+DISALLOWED LinearMap.mkContinuous._at.Conjecture934.inclusion._spec_1 in Conjecture934.inclusion._cstage2
+DISALLOWED RingHom.id._at.Conjecture934.inclusionLinear._spec_1 in Conjecture934.inclusion._cstage2
+OWNED Conjecture934.inclusion._cstage2
+TYPE _obj
+AXIOMS [AddSubgroup.zmultiples._at.Real.Angle.coe._spec_1,
+ propext,
+ Quot.sound,
+ Classical.choice,
+ Nat.cast._at.PiLp.innerProductSpace._spec_1,
+ LinearMap.mkContinuous._at.Conjecture934.inclusion._spec_1,
+ RingHom.id._at.Conjecture934.inclusionLinear._spec_1]
+OWNED Conjecture934.inclusion._proof_8
+TYPE ∀ (f : ↥Conjecture934.L2), ‖Conjecture934.inclusionLinear f‖ ≤ 1 * ‖f‖
+AXIOMS [propext, Quot.sound, Classical.choice]
+UNSAFE Conjecture934.inclusionLinear._cstage1 TYPE ↥Conjecture934.L2 →ₗ[ℂ] ↥Conjecture934.L1
+DISALLOWED lcProof in Conjecture934.inclusionLinear._cstage1
+OWNED Conjecture934.inclusionLinear._cstage1
+TYPE ↥Conjecture934.L2 →ₗ[ℂ] ↥Conjecture934.L1
+AXIOMS [propext, Quot.sound, Classical.choice, lcProof]
+UNSAFE Conjecture934.inclusionLinear._cstage2 TYPE _obj → _obj
+OWNED Conjecture934.inclusionLinear._cstage2
+TYPE _obj → _obj
+AXIOMS []
+OWNED Conjecture934.inclusionLinear._proof_2
+TYPE IsTopologicalAddGroup ℂ
+AXIOMS [Quot.sound, propext, Classical.choice]
+OWNED Conjecture934.inclusionLinear._proof_3
+TYPE ∀ (f : ↥Conjecture934.L2), ↑f ∈ MeasureTheory.Lp ℂ 1 Conjecture934.μ
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.inclusionLinear._proof_4
+TYPE ∀ (x x_1 : ↥Conjecture934.L2), ↑(x + x_1) ∈ MeasureTheory.Lp ℂ 1 Conjecture934.μ
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.inclusionLinear._proof_5
+TYPE ∀ (x x_1 : ↥Conjecture934.L2), ⟨↑(x + x_1), ⋯⟩ = ⟨↑(x + x_1), ⋯⟩
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.inclusionLinear._proof_6
+TYPE ∀ (x : ℂ) (x_1 : ↥Conjecture934.L2), ↑(x • x_1) ∈ MeasureTheory.Lp ℂ 1 Conjecture934.μ
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.inclusionLinear._proof_7
+TYPE ∀ (x : ℂ) (x_1 : ↥Conjecture934.L2), ⟨↑(x • x_1), ⋯⟩ = ⟨↑(x • x_1), ⋯⟩
+AXIOMS [propext, Quot.sound, Classical.choice]
+OWNED Conjecture934.phase_L2_summable._proof_9
+TYPE ∀ {α : Type u_1} [inst : DivisionMonoid α] (a : α) (n : ℕ), (a ^ n)⁻¹ = a⁻¹ ^ n
+AXIOMS [propext]
+OWNED Conjecture934.term.eq_1
+TYPE ∀ (n : ℕ), Conjecture934.term n = (↑n)⁻¹ • fourierLp 1 ↑n
+AXIOMS [propext, Quot.sound, Classical.choice]
+UNSAFE LinearMap.mkContinuous._at.Conjecture934.inclusion._spec_1 TYPE (_x_1 : AddGroup ℝ) →
+  (_x_3 : AddSubgroup ℝ) →
+    (_x_4 : MeasurableSpace (ℝ ⧸ _x_3)) →
+      (_x_8 : ENNReal) →
+        let _x_9 := MeasureTheory.Lp.instNormedAddCommGroup;
+        let _x_10 := NormedAddCommGroup.toSeminormedAddCommGroup;
+        Zero ℝ →
+          LE ℝ →
+            (_x_288 : WithTop NNReal) →
+              let _x_289 := MeasureTheory.Lp.instNormedAddCommGroup;
+              let _x_290 := NormedAddCommGroup.toSeminormedAddCommGroup;
+              let _x_291 := NormedField.toNormedCommRing;
+              let _x_298 := _x_291.1;
+              let _x_299 := RCLike.innerProductSpace;
+              let _x_310 := _x_299.1;
+              let _x_311 := _x_310.1;
+              let _x_312 := MeasureTheory.Lp.instModule;
+              let _x_313 := MeasureTheory.Lp.instModule;
+              let _y_5 := Complex.instRing;
+              let _y_6 := Complex.instRing;
+              let _y_7 := _x_10;
+              let _y_8 := _x_290;
+              let _y_9 := _x_312;
+              let _y_10 := _x_313;
+              (σ : ℂ →+* ℂ) →
+                (f : ↥Conjecture934.L2 →ₛₗ[σ] ↥Conjecture934.L1) →
+                  (C : ℝ) →
+                    (∀ (x : ↥Conjecture934.L2), ‖f x‖ ≤ C * ‖x‖) →
+                      let _x_1 := _y_5.1;
+                      let _x_2 := _y_6.1;
+                      let _x_3 := _y_7.3;
+                      let _x_4 := _x_3.7;
+                      let _x_5 := _x_4.1;
+                      let _x_6 := _y_7.2;
+                      let _x_7 := AddCommGroup.toAddCommMonoid;
+                      let _x_8 := _y_8.3;
+                      let _x_9 := _x_8.7;
+                      let _x_10 := _x_9.1;
+                      let _x_11 := _y_8.2;
+                      let _x_12 := AddCommGroup.toAddCommMonoid;
+                      ↥Conjecture934.L2 →SL[σ] ↥Conjecture934.L1
+Audit.lean:10:0: error: Owned axiom: LinearMap.mkContinuous._at.Conjecture934.inclusion._spec_1
