@@ -1,0 +1,55 @@
+import Solution
+import Lean
+
+
+open Lean Elab Command in
+run_cmd do
+  let ownedModules : Array String := #["Solution"]
+  let env ← getEnv
+  let declarations := (env.constants.toList.toArray.filter fun pair =>
+    match env.getModuleIdxFor? pair.1 with
+    | none => false
+    | some idx => ownedModules.contains (env.allImportedModuleNames[idx]!.toString))
+      |>.qsort (fun a b => a.1.toString < b.1.toString)
+  liftIO <| IO.println ("TLMC-AUDIT-1	" ++ (Json.mkObj [
+    ("event", toJson "begin"), ("modules", toJson ownedModules)]).compress)
+  for (name, info) in declarations do
+    let some idx := env.getModuleIdxFor? name | throwError "Missing defining module"
+    let kind := match info with
+      | .axiomInfo _ => "axiom"
+      | .defnInfo _ => "definition"
+      | .thmInfo _ => "theorem"
+      | .opaqueInfo _ => "opaque"
+      | .quotInfo _ => "quotient"
+      | .inductInfo _ => "inductive"
+      | .ctorInfo _ => "constructor"
+      | .recInfo _ => "recursor"
+    let axioms ← liftCoreM <| Lean.collectAxioms name
+    let sortedAxioms := (axioms.map Name.toString).qsort (· < ·)
+    liftIO <| IO.println ("TLMC-AUDIT-1	" ++ (Json.mkObj [
+      ("event", toJson "declaration"), ("name", toJson name.toString),
+      ("module", toJson env.allImportedModuleNames[idx]!.toString),
+      ("kind", toJson kind), ("unsafe", toJson info.isUnsafe),
+      ("axioms", toJson sortedAxioms)]).compress)
+  let mut pending := declarations.map (·.1)
+  let mut seen : NameSet := {}
+  while !pending.isEmpty do
+    let name := pending.back!
+    pending := pending.pop
+    if seen.contains name then continue
+    seen := seen.insert name
+    let info ← getConstInfo name
+    if info.isUnsafe then throwError "Unsafe transitive declaration: {name}"
+    if let .axiomInfo _ := info then
+      unless #[``propext, ``Classical.choice, ``Quot.sound].contains name do
+        throwError "Unapproved transitive axiom: {name}"
+    for dependency in info.type.getUsedConstants do
+      pending := pending.push dependency
+    if let some body := info.value? (allowOpaque := true) then
+      for dependency in body.getUsedConstants do
+        pending := pending.push dependency
+  let closure := (seen.toArray.map Name.toString).qsort (· < ·)
+  liftIO <| IO.println ("TLMC-AUDIT-1	" ++ (Json.mkObj [
+    ("event", toJson "closure"), ("names", toJson closure)]).compress)
+  liftIO <| IO.println ("TLMC-AUDIT-1	" ++ (Json.mkObj [
+    ("event", toJson "end"), ("count", toJson declarations.size)]).compress)

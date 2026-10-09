@@ -1,0 +1,180 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newcommand{\T}{\mathbb{T}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\title{Proof of Conjecture 00000000934\\[4pt]
+\large An unconditionally convergent series in complex $L^1(\R/\mathbb{Z})$}
+\author{C0ldSmi1e}
+\date{October 9, 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We construct a series in complex-valued $L^1$ of the circle that converges
+unconditionally after every termwise sign choice and admits no rearrangement
+that converges absolutely in the $L^1$ norm. The construction uses the Fourier
+monomials with harmonic coefficients. In fact, arbitrary complex unit phases
+may replace signs. The accompanying Lean 4 project proves the complete
+existence assertion with the usual almost-everywhere quotient and norm.
+\end{abstract}
+
+\section{Statement and conventions}
+The English source asserts that there is an unconditionally convergent series
+in $L^1(\T)$ which remains unconditionally convergent after every sign change
+and admits no absolute rearrangement. The exact English and Chinese source
+is preserved in \texttt{ORIGINAL.md}.
+
+We use the complex scalar convention: $\T=\R/\mathbb{Z}$ has normalized Haar
+measure $\mu$, with $\mu(\T)=1$. For this circumference-one circle, $\mu$ is
+also the usual Lebesgue volume. The space $L^1=L^1(\T;\C)$ consists of
+integrable functions modulo equality almost everywhere, with
+$\norm{f}_1=\int_{\T}|f|\,d\mu$.
+Unconditional convergence means convergence in this norm of the net of sums
+over all finite subsets of the index set. A sign choice is any function
+$\varepsilon:\N\to\{-1,1\}$, with no support or eventual-constancy restriction.
+An absolute rearrangement would be a bijection $\pi:\N\to\N$ for which
+$\sum_n\norm{f_{\pi(n)}}_1<\infty$. Thus ``absolute'' refers to the norm of
+the stated Banach space, rather than an alternative pointwise convergence condition.
+
+The source's parenthetical reference to the boundary of Orlicz's theorem is
+retained as descriptive attribution. It specifies no additional endpoint
+parameter or sharpness assertion. We make no separate historical or endpoint claim.
+
+\begin{theorem}
+There exists $f:\N\to L^1(\T;\C)$ such that $\sum_n f_n$ is
+unconditionally convergent, every infinite termwise scalar sign choice also
+gives an unconditionally convergent series, and every permutation fails to
+give an absolutely norm-convergent series.
+\end{theorem}
+
+\section{Construction and unconditional convergence}
+For $n\geq1$, let
+\[
+ e_n(x)=\exp(2\pi i n x),\qquad f_n=\frac{e_n}{n},
+ \qquad f_0=0.
+\]
+The exponential is invariant under integer translations of $x$, so it is
+well-defined on $\T$. Each term is bounded and integrable. The initial zero
+term only permits indexing by $\N$; it does not affect any convergence assertion.
+
+The functions $e_n$ are orthonormal in $L^2(\T;\C)$:
+\[
+ \int_{\T}\overline{e_m}e_n\,d\mu=
+ \begin{cases}1,&m=n,\\0,&m\ne n.\end{cases}
+\]
+For distinct integers $m,n$, the integrand is the character $e_{n-m}$.
+Translation by $1/(2(n-m))$ multiplies it by $-1$, while Haar invariance
+preserves its integral; the integral is therefore zero. For $m=n$ the
+integrand is identically one.
+
+Fix an arbitrary sequence $\varepsilon_n\in\C$ with $|\varepsilon_n|=1$.
+For finite sets $F,G\subset\N$, orthogonality gives
+\[
+ \left\lVert\sum_{n\in F}\varepsilon_n f_n
+       -\sum_{n\in G}\varepsilon_n f_n\right\rVert_2^2
+   =\sum_{\substack{n\in F\mathbin{\triangle}G\\n\geq1}}\frac1{n^2}.
+\]
+Given $\delta>0$, convergence of $\sum_{n\geq1}n^{-2}$ gives $M$ for which
+the tail above $M$ is less than $\delta^2$. If both $F$ and $G$ contain
+$\{0,\ldots,M\}$, the displayed difference has norm less than $\delta$.
+The finite-subset net is Cauchy. Completeness of $L^2$ yields its limit.
+
+For every $g\in L^2$, Cauchy--Schwarz and $\mu(\T)=1$ imply
+\[
+ \norm{g}_1=\int_{\T}|g|\cdot1\,d\mu
+       \leq\left(\int_{\T}|g|^2\,d\mu\right)^{1/2}
+       =\norm{g}_2.
+\]
+The identity on almost-everywhere classes is consequently a bounded linear
+map $L^2\to L^1$. It sends the convergent finite-subset net to a convergent
+net in the actual $L^1$ norm. Hence $\sum_n\varepsilon_n f_n$ converges
+unconditionally for every unit-phase sequence. The original series follows
+by taking all phases equal to $1$; every requested sign choice is included.
+The limiting element may depend on the phase sequence.
+
+For any fixed phase sequence, every bijection $\pi$ gives the same norm
+limit: its finite prefix sets $\{\pi(0),\ldots,\pi(N-1)\}$ eventually contain
+each prescribed finite subset of $\N$. This also explains directly the
+relation between the finite-subset and permutation formulations.
+
+\section{Failure of every absolute rearrangement}
+The pointwise equality $|e_n(x)|=1$ and $\mu(\T)=1$ give
+\[
+ \norm{f_n}_1=\frac1n\quad(n\geq1),\qquad\norm{f_0}_1=0.
+\]
+Unit phases preserve these norms. The harmonic series diverges, since each
+block $2^k\leq n<2^{k+1}$ contributes at least $1/2$.
+A bijection of indices does not change the supremum of finite sums of a
+nonnegative family. Therefore for every unit-phase sequence and every
+permutation $\pi$,
+\[
+ \sum_{n=0}^{\infty}\norm{\varepsilon_{\pi(n)}f_{\pi(n)}}_1=+\infty.
+\]
+In particular no absolute rearrangement of the original series exists.
+Together with unconditional convergence above, this proves all clauses of
+the theorem for a single sequence.\hfill$\square$
+
+\section{Formal correspondence and verification}
+The project pins Lean 4.19.0 and Mathlib v4.19.0. All declarations below are
+in the namespace \texttt{Conjecture934} of \texttt{Solution.lean}.
+
+\begin{center}
+\begin{tabular}{p{0.42\textwidth}p{0.49\textwidth}}
+\hline
+Mathematical content & Lean declarations\\\hline
+Actual circle, measure, a.e. quotient and norm &
+\texttt{Circle}, \texttt{\textmu}, \texttt{L1}, \texttt{L2},
+\texttt{measure\_eq\_volume}, \texttt{L1\_norm\_integral}\\[4pt]
+Explicit Fourier sequence and representatives &
+\texttt{term}, \texttt{term\_ae}, \texttt{representative\_on\_real}\\[4pt]
+Bounded identity inclusion $L^2\to L^1$ &
+\texttt{inclusionLinear\_exists}, \texttt{inclusionLinear\_apply},
+\texttt{inclusion\_norm\_le}, \texttt{inclusion\_exists},
+\texttt{inclusion\_apply}, \texttt{inclusion\_fourier}\\[4pt]
+Every infinite phase and sign choice &
+\texttt{phase\_L2\_summable}, \texttt{phase\_summable},
+\texttt{IsSignChoice}, \texttt{sign\_summable}\\[4pt]
+Explicit norm limits and all permutations &
+\texttt{phase\_unconditional\_norm},
+\texttt{phase\_permutation\_norm}\\[4pt]
+Harmonic norm and no absolute ordering &
+\texttt{term\_norm}, \texttt{no\_absolute\_rearrangement},
+\texttt{phase\_norm\_partial\_sums\_diverge}\\[4pt]
+Complete existential source assertion & \texttt{conjecture}\\[4pt]
+Stronger assertion for every unit phase & \texttt{strengthened\_conjecture}\\\hline
+\end{tabular}
+\end{center}
+
+Mathlib's \texttt{Summable} means existence of a limit for the net of finite
+subset sums. Here it uses the norm topology of \texttt{MeasureTheory.Lp}.
+The proof invokes the library's orthonormal Fourier family and the
+orthogonal-family square-summability theorem, then transports convergence
+through the explicitly established inclusion. Chosen inclusion maps are
+selected from proved existence statements; pointwise action lemmas fully
+fix their values on every input. They introduce no additional assumptions.
+
+The frozen mathematical core passes a fresh source replay with warnings
+treated as errors. Its audit inspects all 36 owned declarations, including
+generated helpers, and 30,946 transitive declarations. Only the standard
+axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}
+occur; the audit accepts no unsafe declaration or owned axiom.
+No numerical computation is needed for the mathematics. The auxiliary
+programs check provenance and proof dependencies.
+
+\texttt{PROOF.md} gives the full declaration mapping;
+\texttt{VERIFICATION.md} retains both successful checks and resolved
+development failures. The final package's \texttt{VERIFICATION-PACKAGE.md}
+provides the reviewer workflow and additional verification records.
+Local compilation and independent review do not constitute maintainer
+acceptance. This submission claims the complex-valued theorem stated above,
+without a separate formalized real-valued or Orlicz-endpoint assertion.
+\end{document}

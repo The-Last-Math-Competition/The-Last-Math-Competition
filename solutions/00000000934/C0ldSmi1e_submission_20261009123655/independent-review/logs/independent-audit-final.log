@@ -1,0 +1,561 @@
+@[reducible] def Conjecture934.Circle : Type :=
+AddCircle.{0} 1
+@[reducible] def Conjecture934.μ : MeasureTheory.Measure.{0} Conjecture934.Circle :=
+AddCircle.haarAddCircle
+@[reducible] def Conjecture934.L1 : AddSubgroup.{0}
+  (MeasureTheory.AEEqFun.{0, 0} Conjecture934.Circle Complex Conjecture934.μ) :=
+MeasureTheory.Lp.{0, 0} Complex 1 Conjecture934.μ
+@[reducible] def Conjecture934.L2 : AddSubgroup.{0}
+  (MeasureTheory.AEEqFun.{0, 0} Conjecture934.Circle Complex Conjecture934.μ) :=
+MeasureTheory.Lp.{0, 0} Complex 2 Conjecture934.μ
+theorem Conjecture934.conjecture : ∃ f,
+  And (Summable.{0, 0} f)
+    (And
+      (∀ (ε : Nat → Complex), Conjecture934.IsSignChoice ε → Summable.{0, 0} fun n => HSMul.hSMul.{0, 0, 0} (ε n) (f n))
+      (∀ (π : Equiv.Perm.{1} Nat), Not (Summable.{0, 0} fun n => norm.{0} (f (π n))))) :=
+Exists.intro.{1} Conjecture934.term
+  ⟨Conjecture934.term_summable, ⟨Conjecture934.sign_summable, Conjecture934.no_absolute_rearrangement⟩⟩
+theorem Conjecture934.strengthened_conjecture : ∃ f,
+  And (Summable.{0, 0} f)
+    (∀ (ε : Nat → Complex),
+      (∀ (n : Nat), Eq.{1} (norm.{0} (ε n)) 1) →
+        And (Summable.{0, 0} fun n => HSMul.hSMul.{0, 0, 0} (ε n) (f n))
+          (∀ (π : Equiv.Perm.{1} Nat),
+            Not (Summable.{0, 0} fun n => norm.{0} (HSMul.hSMul.{0, 0, 0} (ε (π n)) (f (π n)))))) :=
+Exists.intro.{1} Conjecture934.term
+  ⟨Conjecture934.term_summable, fun ε hε =>
+    ⟨Conjecture934.phase_summable ε hε, Conjecture934.phase_no_absolute_rearrangement ε hε⟩⟩
+theorem Conjecture934.inclusionLinear_exists : ∃ L,
+  ∀ (f : ↥Conjecture934.L2),
+    Eq.{1} (L f)
+      (Subtype.mk.{1} (↑f)
+        (MeasureTheory.Lp.antitone.{0, 0}
+          (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+            (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+          (Subtype.property.{1} f))) :=
+Exists.intro.{1}
+  (LinearMap.mk.{0, 0, 0, 0}
+    (AddHom.mk.{0, 0}
+      (fun f =>
+        Subtype.mk.{1} (↑f)
+          (MeasureTheory.Lp.antitone.{0, 0}
+            (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+              (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+            (Subtype.property.{1} f)))
+      fun x x_1 => rfl.{1})
+    fun x x_1 => rfl.{1})
+  fun x => rfl.{1}
+def Conjecture934.inclusionLinear : LinearMap.{0, 0, 0, 0} (RingHom.id.{0} Complex) ↥Conjecture934.L2
+  ↥Conjecture934.L1 :=
+Exists.choose.{1} Conjecture934.inclusionLinear_exists
+theorem Conjecture934.inclusionLinear_apply : ∀ (f : ↥Conjecture934.L2),
+  Eq.{1} (Conjecture934.inclusionLinear f)
+    (Subtype.mk.{1} (↑f)
+      (MeasureTheory.Lp.antitone.{0, 0}
+        (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+          (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+        (Subtype.property.{1} f))) :=
+fun f => Exists.choose_spec.{1} Conjecture934.inclusionLinear_exists f
+theorem Conjecture934.inclusion_exists : ∃ L,
+  ∀ (f : ↥Conjecture934.L2), Eq.{1} (L f) (Conjecture934.inclusionLinear f) :=
+Exists.intro.{1}
+  (LinearMap.mkContinuous.{0, 0, 0, 0} Conjecture934.inclusionLinear 1 fun f =>
+    Eq.mpr.{0}
+      (id.{0} (congrArg.{1, 1} (LE.le.{0} (norm.{0} (Conjecture934.inclusionLinear f))) (one_mul.{0} (norm.{0} f))))
+      (Conjecture934.inclusion_norm_le f))
+  fun x => rfl.{1}
+def Conjecture934.inclusion : ContinuousLinearMap.{0, 0, 0, 0} (RingHom.id.{0} Complex) ↥Conjecture934.L2
+  ↥Conjecture934.L1 :=
+Exists.choose.{1} Conjecture934.inclusion_exists
+theorem Conjecture934.inclusion_apply : ∀ (f : ↥Conjecture934.L2),
+  Eq.{1} (Conjecture934.inclusion f) (Conjecture934.inclusionLinear f) :=
+fun f => Exists.choose_spec.{1} Conjecture934.inclusion_exists f
+theorem Conjecture934.inclusion_norm_le : ∀ (f : ↥Conjecture934.L2),
+  LE.le.{0} (norm.{0} (Conjecture934.inclusionLinear f)) (norm.{0} f) :=
+fun f =>
+  Eq.mpr.{0}
+    (id.{0} (congrArg.{1, 1} (fun _a => LE.le.{0} (norm.{0} _a) (norm.{0} f)) (Conjecture934.inclusionLinear_apply f)))
+    (Eq.mpr.{0}
+      (id.{0}
+        (congrArg.{1, 1} (fun _a => LE.le.{0} _a (norm.{0} f))
+          (MeasureTheory.Lp.norm_def.{0, 0}
+            (Subtype.mk.{1} (↑f)
+              (MeasureTheory.Lp.antitone.{0, 0}
+                (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+                  (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+                (Subtype.property.{1} f))))))
+      (Eq.mpr.{0}
+        (id.{0}
+          (congrArg.{1, 1}
+            (fun _a =>
+              LE.le.{0}
+                (ENNReal.toReal
+                  (MeasureTheory.eLpNorm.{0, 0}
+                    (↑↑(Subtype.mk.{1} (↑f)
+                          (MeasureTheory.Lp.antitone.{0, 0}
+                            (Mathlib.Meta.NormNum.isNat_le_true.{0}
+                              (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+                              (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+                            (Subtype.property.{1} f))))
+                    1 Conjecture934.μ))
+                _a)
+            (MeasureTheory.Lp.norm_def.{0, 0} f)))
+        (ENNReal.toReal_mono (MeasureTheory.Lp.eLpNorm_ne_top.{0, 0} f)
+          (MeasureTheory.eLpNorm_le_eLpNorm_of_exponent_le.{0, 0}
+            (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+              (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+            (MeasureTheory.Lp.aestronglyMeasurable.{0, 0} f)))))
+def MeasureTheory.Lp.{u_6, u_7} : {α : Type u_7} →
+  (E : Type u_6) →
+    {m : MeasurableSpace.{u_7} α} →
+      [inst : NormedAddCommGroup.{u_6} E] →
+        ENNReal →
+          (μ : autoParam.{u_7 + 1} (MeasureTheory.Measure.{u_7} α) _auto✝) →
+            AddSubgroup.{max u_6 u_7} (MeasureTheory.AEEqFun.{u_7, u_6} α E μ) :=
+fun {α} E {m} [inst : NormedAddCommGroup.{u_6} E] p μ =>
+  AddSubgroup.mk.{max u_6 u_7}
+    (AddSubmonoid.mk.{max u_6 u_7}
+      (AddSubsemigroup.mk.{max u_6 u_7}
+        (setOf.{max u_6 u_7} fun f => LT.lt.{0} (MeasureTheory.eLpNorm.{u_7, u_6} (↑f) p μ) Top.top.{0})
+        (@MeasureTheory.Lp._proof_3.{u_7, u_6} α E m inst p μ))
+      (MeasureTheory.Lp._proof_4.{u_7, u_6} E p μ))
+    (@MeasureTheory.Lp._proof_5.{u_7, u_6} α E m inst p μ)
+def MeasureTheory.AEEqFun.{u_1, u_2} : (α : Type u_1) →
+  (β : Type u_2) →
+    [inst : MeasurableSpace.{u_1} α] →
+      [inst_1 : TopologicalSpace.{u_2} β] → MeasureTheory.Measure.{u_1} α → Type (max u_1 u_2) :=
+fun α β [MeasurableSpace.{u_1} α] [TopologicalSpace.{u_2} β] μ =>
+  Quotient.{(max u_1 u_2) + 1} (MeasureTheory.Measure.aeEqSetoid.{u_1, u_2} β μ)
+@[reducible] def AddCircle.{u_1} : {𝕜 : Type u_1} → [inst : AddCommGroup.{u_1} 𝕜] → 𝕜 → Type u_1 :=
+fun {𝕜} [AddCommGroup.{u_1} 𝕜] p => HasQuotient.Quotient.{u_1, u_1} 𝕜 (AddSubgroup.zmultiples.{u_1} p)
+def AddCircle.haarAddCircle : {T : Real} → [hT : Fact (LT.lt.{0} 0 T)] → MeasureTheory.Measure.{0} (AddCircle.{0} T) :=
+fun {T} [Fact (LT.lt.{0} 0 T)] => MeasureTheory.Measure.addHaarMeasure.{0} Top.top.{0}
+def HasSum.{u_1, u_2} : {α : Type u_1} →
+  {β : Type u_2} → [inst : AddCommMonoid.{u_1} α] → [inst : TopologicalSpace.{u_1} α] → (β → α) → α → Prop :=
+fun {α} {β} [AddCommMonoid.{u_1} α] [TopologicalSpace.{u_1} α] f a =>
+  Filter.Tendsto.{u_2, u_1} (fun s => ∑ b ∈ s, f b) Filter.atTop.{u_2} (nhds.{u_1} a)
+def Summable.{u_1, u_2} : {α : Type u_1} →
+  {β : Type u_2} → [inst : AddCommMonoid.{u_1} α] → [inst : TopologicalSpace.{u_1} α] → (β → α) → Prop :=
+fun {α} {β} [AddCommMonoid.{u_1} α] [TopologicalSpace.{u_1} α] f => ∃ a, HasSum.{u_1, u_2} f a
+INDEPENDENT_OWNED Conjecture934.Circle
+ACTUAL_TYPE Type
+ACTUAL_BODY AddCircle.{0} 1
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.IsSignChoice
+ACTUAL_TYPE (Nat → Complex) → Prop
+ACTUAL_BODY fun ε => ∀ (n : Nat), Or (Eq.{1} (ε n) 1) (Eq.{1} (ε n) (-1))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.L1
+ACTUAL_TYPE AddSubgroup.{0} (MeasureTheory.AEEqFun.{0, 0} Conjecture934.Circle Complex Conjecture934.μ)
+ACTUAL_BODY MeasureTheory.Lp.{0, 0} Complex 1 Conjecture934.μ
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.L1_norm_integral
+ACTUAL_TYPE ∀ (f : ↥Conjecture934.L1),
+  Eq.{1} (norm.{0} f) (∫ (x : Conjecture934.Circle), norm.{0} (↑↑f x) ∂Conjecture934.μ)
+ACTUAL_BODY fun f => MeasureTheory.L1.norm_eq_integral_norm.{0, 0} f
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.L2
+ACTUAL_TYPE AddSubgroup.{0} (MeasureTheory.AEEqFun.{0, 0} Conjecture934.Circle Complex Conjecture934.μ)
+ACTUAL_BODY MeasureTheory.Lp.{0, 0} Complex 2 Conjecture934.μ
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.conjecture
+ACTUAL_TYPE ∃ f,
+  And (Summable.{0, 0} f)
+    (And
+      (∀ (ε : Nat → Complex), Conjecture934.IsSignChoice ε → Summable.{0, 0} fun n => HSMul.hSMul.{0, 0, 0} (ε n) (f n))
+      (∀ (π : Equiv.Perm.{1} Nat), Not (Summable.{0, 0} fun n => norm.{0} (f (π n)))))
+ACTUAL_BODY Exists.intro.{1} Conjecture934.term
+  ⟨Conjecture934.term_summable, ⟨Conjecture934.sign_summable, Conjecture934.no_absolute_rearrangement⟩⟩
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.fourier_L1_norm
+ACTUAL_TYPE ∀ (n : Int), Eq.{1} (norm.{0} (fourierLp 1 n)) 1
+ACTUAL_BODY fun n =>
+  Eq.mpr.{0} (id.{0} (congrArg.{1, 1} (fun _a => Eq.{1} _a 1) (MeasureTheory.Lp.norm_def.{0, 0} (fourierLp 1 n))))
+    (Eq.mpr.{0}
+      (id.{0}
+        (congrArg.{1, 1} (fun _a => Eq.{1} (ENNReal.toReal _a) 1)
+          (MeasureTheory.eLpNorm_congr_ae.{0, 0} (coeFn_fourierLp 1 n))))
+      (let_fun hnorm :=
+        MeasureTheory.eLpNorm_congr_norm_ae.{0, 0, 0}
+          (Filter.Eventually.of_forall.{0} fun x =>
+            of_eq_true
+              (Eq.trans.{1}
+                (congr.{1, 1}
+                  (congrArg.{1, 1} Eq.{1} (norm_eq_of_mem_sphere.{0} (AddCircle.toCircle (HSMul.hSMul.{0, 0, 0} n x))))
+                  norm_one.{0})
+                (eq_self.{1} 1)));
+      Eq.mpr.{0} (id.{0} (congrArg.{1, 1} (fun _a => Eq.{1} (ENNReal.toReal _a) 1) hnorm))
+        (Eq.mpr.{0}
+          (id.{0}
+            (congrArg.{1, 1} (fun _a => Eq.{1} (ENNReal.toReal _a) 1)
+              (MeasureTheory.eLpNorm_const.{0, 0} 1
+                (Mathlib.Meta.NormNum.isNat_eq_false.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+                  (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_zero.{0}) (Eq.refl.{1} false))
+                (MeasureTheory.IsProbabilityMeasure.ne_zero.{0} Conjecture934.μ))))
+          (of_eq_true
+            (Eq.trans.{1}
+              (congrArg.{1, 1} (fun x => Eq.{1} (ENNReal.toReal x) 1)
+                (Eq.trans.{1}
+                  (congr.{1, 1} (congrArg.{1, 1} HMul.hMul.{0, 0, 0} enorm_one.{0})
+                    (Eq.trans.{1}
+                      (congr.{1, 1} (congrArg.{1, 1} HPow.hPow.{0, 0, 0} MeasureTheory.measure_univ.{0})
+                        (div_self.{0}
+                          (of_eq_true (Eq.trans.{1} (congrArg.{1, 1} Not _proof_2✝.{0}) not_false_eq_true))))
+                      (ENNReal.rpow_one 1)))
+                  (mul_one.{0} 1)))
+              (eq_self.{1} 1))))))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.inclusion
+ACTUAL_TYPE ContinuousLinearMap.{0, 0, 0, 0} (RingHom.id.{0} Complex) ↥Conjecture934.L2 ↥Conjecture934.L1
+ACTUAL_BODY Exists.choose.{1} Conjecture934.inclusion_exists
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.inclusionLinear
+ACTUAL_TYPE LinearMap.{0, 0, 0, 0} (RingHom.id.{0} Complex) ↥Conjecture934.L2 ↥Conjecture934.L1
+ACTUAL_BODY Exists.choose.{1} Conjecture934.inclusionLinear_exists
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.inclusionLinear_apply
+ACTUAL_TYPE ∀ (f : ↥Conjecture934.L2),
+  Eq.{1} (Conjecture934.inclusionLinear f)
+    (Subtype.mk.{1} (↑f)
+      (MeasureTheory.Lp.antitone.{0, 0}
+        (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+          (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+        (Subtype.property.{1} f)))
+ACTUAL_BODY fun f => Exists.choose_spec.{1} Conjecture934.inclusionLinear_exists f
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.inclusionLinear_exists
+ACTUAL_TYPE ∃ L,
+  ∀ (f : ↥Conjecture934.L2),
+    Eq.{1} (L f)
+      (Subtype.mk.{1} (↑f)
+        (MeasureTheory.Lp.antitone.{0, 0}
+          (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+            (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+          (Subtype.property.{1} f)))
+ACTUAL_BODY Exists.intro.{1}
+  (LinearMap.mk.{0, 0, 0, 0}
+    (AddHom.mk.{0, 0}
+      (fun f =>
+        Subtype.mk.{1} (↑f)
+          (MeasureTheory.Lp.antitone.{0, 0}
+            (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+              (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+            (Subtype.property.{1} f)))
+      fun x x_1 => rfl.{1})
+    fun x x_1 => rfl.{1})
+  fun x => rfl.{1}
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.inclusion_apply
+ACTUAL_TYPE ∀ (f : ↥Conjecture934.L2), Eq.{1} (Conjecture934.inclusion f) (Conjecture934.inclusionLinear f)
+ACTUAL_BODY fun f => Exists.choose_spec.{1} Conjecture934.inclusion_exists f
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.inclusion_exists
+ACTUAL_TYPE ∃ L, ∀ (f : ↥Conjecture934.L2), Eq.{1} (L f) (Conjecture934.inclusionLinear f)
+ACTUAL_BODY Exists.intro.{1}
+  (LinearMap.mkContinuous.{0, 0, 0, 0} Conjecture934.inclusionLinear 1 fun f =>
+    Eq.mpr.{0}
+      (id.{0} (congrArg.{1, 1} (LE.le.{0} (norm.{0} (Conjecture934.inclusionLinear f))) (one_mul.{0} (norm.{0} f))))
+      (Conjecture934.inclusion_norm_le f))
+  fun x => rfl.{1}
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.inclusion_fourier
+ACTUAL_TYPE ∀ (n : Int), Eq.{1} (Conjecture934.inclusion (fourierLp 2 n)) (fourierLp 1 n)
+ACTUAL_BODY fun n =>
+  Eq.mpr.{0}
+    (id.{0} (congrArg.{1, 1} (fun _a => Eq.{1} _a (fourierLp 1 n)) (Conjecture934.inclusion_apply (fourierLp 2 n))))
+    (Eq.mpr.{0}
+      (id.{0}
+        (congrArg.{1, 1} (fun _a => Eq.{1} _a (fourierLp 1 n)) (Conjecture934.inclusionLinear_apply (fourierLp 2 n))))
+      (Eq.refl.{1}
+        (Subtype.mk.{1} (↑(fourierLp 2 n))
+          (MeasureTheory.Lp.antitone.{0, 0}
+            (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+              (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+            (Subtype.property.{1} (fourierLp 2 n))))))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.inclusion_norm_le
+ACTUAL_TYPE ∀ (f : ↥Conjecture934.L2), LE.le.{0} (norm.{0} (Conjecture934.inclusionLinear f)) (norm.{0} f)
+ACTUAL_BODY fun f =>
+  Eq.mpr.{0}
+    (id.{0} (congrArg.{1, 1} (fun _a => LE.le.{0} (norm.{0} _a) (norm.{0} f)) (Conjecture934.inclusionLinear_apply f)))
+    (Eq.mpr.{0}
+      (id.{0}
+        (congrArg.{1, 1} (fun _a => LE.le.{0} _a (norm.{0} f))
+          (MeasureTheory.Lp.norm_def.{0, 0}
+            (Subtype.mk.{1} (↑f)
+              (MeasureTheory.Lp.antitone.{0, 0}
+                (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+                  (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+                (Subtype.property.{1} f))))))
+      (Eq.mpr.{0}
+        (id.{0}
+          (congrArg.{1, 1}
+            (fun _a =>
+              LE.le.{0}
+                (ENNReal.toReal
+                  (MeasureTheory.eLpNorm.{0, 0}
+                    (↑↑(Subtype.mk.{1} (↑f)
+                          (MeasureTheory.Lp.antitone.{0, 0}
+                            (Mathlib.Meta.NormNum.isNat_le_true.{0}
+                              (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+                              (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+                            (Subtype.property.{1} f))))
+                    1 Conjecture934.μ))
+                _a)
+            (MeasureTheory.Lp.norm_def.{0, 0} f)))
+        (ENNReal.toReal_mono (MeasureTheory.Lp.eLpNorm_ne_top.{0, 0} f)
+          (MeasureTheory.eLpNorm_le_eLpNorm_of_exponent_le.{0, 0}
+            (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+              (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+            (MeasureTheory.Lp.aestronglyMeasurable.{0, 0} f)))))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.measure_eq_volume
+ACTUAL_TYPE Eq.{1} Conjecture934.μ MeasureTheory.volume.{0}
+ACTUAL_BODY Eq.mp.{0}
+  (congrArg.{1, 1} (fun x => Eq.{1} x MeasureTheory.volume.{0})
+    (Eq.trans.{1} (congrArg.{1, 1} (fun x => HSMul.hSMul.{0, 0, 0} x AddCircle.haarAddCircle) ENNReal.ofReal_one)
+      (one_smul.{0, 0} ENNReal AddCircle.haarAddCircle)))
+  (Eq.symm.{1} AddCircle.volume_eq_smul_haarAddCircle)
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.no_absolute_rearrangement
+ACTUAL_TYPE ∀ (π : Equiv.Perm.{1} Nat), Not (Summable.{0, 0} fun n => norm.{0} (Conjecture934.term (π n)))
+ACTUAL_BODY fun π h =>
+  let_fun h' := Iff.mp (Equiv.summable_iff.{0, 0, 0} π) h;
+  Real.not_summable_natCast_inv
+    (Eq.mp.{0} (congrArg.{1, 1} Summable.{0, 0} (funext.{1, 1} fun n => Conjecture934.term_norm n)) h')
+AXIOMS [Quot.sound, propext, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.phase_L2_summable
+ACTUAL_TYPE ∀ (ε : Nat → Complex),
+  (∀ (n : Nat), Eq.{1} (norm.{0} (ε n)) 1) →
+    Summable.{0, 0} fun n => HSMul.hSMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} (ε n) (Inv.inv.{0} ↑n)) (fourierLp 2 ↑n)
+ACTUAL_BODY fun ε hε =>
+  let_fun hortho := Orthonormal.comp.{0, 0, 0, 0} orthonormal_fourier (fun n => ↑n) Nat.cast_injective.{0};
+  let_fun hs :=
+    Eq.mpr.{0}
+      (id.{0}
+        (congrArg.{1, 1} Summable.{0, 0}
+          (funext.{1, 1} fun n =>
+            congrArg.{1, 1} (fun x => HPow.hPow.{0, 0, 0} x 2)
+              (Eq.trans.{1} (Complex.norm_mul (ε n) (Inv.inv.{0} ↑n))
+                (Eq.trans.{1}
+                  (congr.{1, 1} (congrArg.{1, 1} HMul.hMul.{0, 0, 0} ((fun n => hε n) n))
+                    (Eq.trans.{1} (norm_inv.{0} ↑n) (congrArg.{1, 1} Inv.inv.{0} (Complex.norm_natCast n))))
+                  (one_mul.{0} (Inv.inv.{0} ↑n)))))))
+      (Eq.mp.{0}
+        (congrArg.{1, 1} Summable.{0, 0} (funext.{1, 1} fun n => Conjecture934.phase_L2_summable._proof_4.{0} (↑n) 2))
+        (Iff.mpr Real.summable_nat_pow_inv
+          (Mathlib.Meta.NormNum.isNat_lt_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} Nat (Eq.refl.{1} 1))
+            (Mathlib.Meta.NormNum.isNat_ofNat.{0} Nat (Eq.refl.{1} 2)) (Eq.refl.{1} false))));
+  Iff.mpr
+    (OrthogonalFamily.summable_iff_norm_sq_summable.{0, 0, 0, 0} (Orthonormal.orthogonalFamily.{0, 0, 0} hortho)
+      fun n => HMul.hMul.{0, 0, 0} (ε n) (Inv.inv.{0} ↑n))
+    hs
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.phase_no_absolute_rearrangement
+ACTUAL_TYPE ∀ (ε : Nat → Complex),
+  (∀ (n : Nat), Eq.{1} (norm.{0} (ε n)) 1) →
+    ∀ (π : Equiv.Perm.{1} Nat),
+      Not (Summable.{0, 0} fun n => norm.{0} (HSMul.hSMul.{0, 0, 0} (ε (π n)) (Conjecture934.term (π n))))
+ACTUAL_BODY fun ε hε π =>
+  Eq.mpr.{0}
+    (id.{0}
+      (congrArg.{1, 1} (fun x => Not (Summable.{0, 0} x))
+        (funext.{1, 1} fun n =>
+          Eq.trans.{1} (norm_smul.{0, 0} (ε (π n)) (Conjecture934.term (π n)))
+            (Eq.trans.{1}
+              (congrArg.{1, 1} (fun x => HMul.hMul.{0, 0, 0} x (norm.{0} (Conjecture934.term (π n))))
+                ((fun n => hε n) (π n)))
+              (one_mul.{0} (norm.{0} (Conjecture934.term (π n))))))))
+    (Conjecture934.no_absolute_rearrangement π)
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.phase_norm_partial_sums_diverge
+ACTUAL_TYPE ∀ (ε : Nat → Complex),
+  (∀ (n : Nat), Eq.{1} (norm.{0} (ε n)) 1) →
+    ∀ (π : Equiv.Perm.{1} Nat),
+      Filter.Tendsto.{0, 0}
+        (fun N => ∑ n ∈ Finset.range N, norm.{0} (HSMul.hSMul.{0, 0, 0} (ε (π n)) (Conjecture934.term (π n))))
+        Filter.atTop.{0} Filter.atTop.{0}
+ACTUAL_BODY fun ε hε π =>
+  Iff.mp
+    (not_summable_iff_tendsto_nat_atTop_of_nonneg fun x =>
+      norm_nonneg.{0} (HSMul.hSMul.{0, 0, 0} (ε (π x)) (Conjecture934.term (π x))))
+    (Conjecture934.phase_no_absolute_rearrangement ε hε π)
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.phase_permutation_norm
+ACTUAL_TYPE ∀ (ε : Nat → Complex),
+  (∀ (n : Nat), Eq.{1} (norm.{0} (ε n)) 1) →
+    ∃ s,
+      ∀ (π : Equiv.Perm.{1} Nat),
+        Filter.Tendsto.{0, 0}
+          (fun N =>
+            norm.{0}
+              (HSub.hSub.{0, 0, 0} (∑ n ∈ Finset.range N, HSMul.hSMul.{0, 0, 0} (ε (π n)) (Conjecture934.term (π n)))
+                s))
+          Filter.atTop.{0} (nhds.{0} 0)
+ACTUAL_BODY fun ε hε =>
+  Exists.casesOn.{1} (Conjecture934.phase_summable ε hε) fun s hs =>
+    Exists.intro.{1} s fun π =>
+      Iff.mp tendsto_iff_norm_sub_tendsto_zero.{0, 0}
+        (HasSum.tendsto_sum_nat.{0} (Iff.mpr (Equiv.hasSum_iff.{0, 0, 0} π) hs))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.phase_summable
+ACTUAL_TYPE ∀ (ε : Nat → Complex),
+  (∀ (n : Nat), Eq.{1} (norm.{0} (ε n)) 1) → Summable.{0, 0} fun n => HSMul.hSMul.{0, 0, 0} (ε n) (Conjecture934.term n)
+ACTUAL_BODY fun ε hε =>
+  Eq.mpr.{0}
+    (id.{0}
+      (congrArg.{1, 1} Summable.{0, 0}
+        (funext.{1, 1} fun n => smul_smul.{0, 0} (ε n) (Inv.inv.{0} ↑n) (fourierLp 1 ↑n))))
+    (Eq.mp.{0}
+      (congrArg.{1, 1} Summable.{0, 0}
+        (funext.{1, 1} fun b =>
+          Eq.trans.{1}
+            (map_smul.{0, 0, 0, 0} Conjecture934.inclusion (HMul.hMul.{0, 0, 0} (ε b) (Inv.inv.{0} ↑b))
+              (fourierLp 2 ↑b))
+            (congrArg.{1, 1} (HSMul.hSMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} (ε b) (Inv.inv.{0} ↑b)))
+              (Conjecture934.inclusion_fourier ↑b))))
+      (ContinuousLinearMap.summable.{0, 0, 0, 0, 0} Conjecture934.inclusion (Conjecture934.phase_L2_summable ε hε)))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.phase_unconditional_norm
+ACTUAL_TYPE ∀ (ε : Nat → Complex),
+  (∀ (n : Nat), Eq.{1} (norm.{0} (ε n)) 1) →
+    ∃ s,
+      Filter.Tendsto.{0, 0}
+        (fun F => norm.{0} (HSub.hSub.{0, 0, 0} (∑ n ∈ F, HSMul.hSMul.{0, 0, 0} (ε n) (Conjecture934.term n)) s))
+        Filter.atTop.{0} (nhds.{0} 0)
+ACTUAL_BODY fun ε hε =>
+  Exists.casesOn.{1} (Conjecture934.phase_summable ε hε) fun s hs =>
+    Exists.intro.{1} s (Iff.mp tendsto_iff_norm_sub_tendsto_zero.{0, 0} hs)
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.representative_on_real
+ACTUAL_TYPE ∀ (n : Nat) (x : Real),
+  Eq.{1} (HMul.hMul.{0, 0, 0} (Inv.inv.{0} ↑n) ((fourier ↑n) ↑x))
+    (HMul.hMul.{0, 0, 0} (Inv.inv.{0} ↑n)
+      (Complex.exp
+        (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} 2 ↑Real.pi) Complex.I) ↑n)
+          ↑x)))
+ACTUAL_BODY fun n x =>
+  of_eq_true
+    (Eq.trans.{1}
+      (congrArg.{1, 1}
+        (fun x_1 =>
+          Eq.{1} (HMul.hMul.{0, 0, 0} (Inv.inv.{0} ↑n) x_1)
+            (HMul.hMul.{0, 0, 0} (Inv.inv.{0} ↑n)
+              (Complex.exp
+                (HMul.hMul.{0, 0, 0}
+                  (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} 2 ↑Real.pi) Complex.I) ↑n) ↑x))))
+        (Eq.trans.{1} fourier_coe_apply
+          (congrArg.{1, 1} Complex.exp
+            (Eq.trans.{1}
+              (congrArg.{1, 1}
+                (fun x_1 =>
+                  HDiv.hDiv.{0, 0, 0}
+                    (HMul.hMul.{0, 0, 0}
+                      (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} 2 ↑Real.pi) Complex.I) x_1) ↑x)
+                    1)
+                (Int.cast_natCast.{0} n))
+              (div_one.{0}
+                (HMul.hMul.{0, 0, 0}
+                  (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} 2 ↑Real.pi) Complex.I) ↑n) ↑x))))))
+      (eq_self.{1}
+        (HMul.hMul.{0, 0, 0} (Inv.inv.{0} ↑n)
+          (Complex.exp
+            (HMul.hMul.{0, 0, 0}
+              (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} (HMul.hMul.{0, 0, 0} 2 ↑Real.pi) Complex.I) ↑n) ↑x)))))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.sign_summable
+ACTUAL_TYPE ∀ (ε : Nat → Complex),
+  Conjecture934.IsSignChoice ε → Summable.{0, 0} fun n => HSMul.hSMul.{0, 0, 0} (ε n) (Conjecture934.term n)
+ACTUAL_BODY fun ε hε =>
+  Conjecture934.phase_summable ε fun n =>
+    Or.casesOn (hε n)
+      (fun h =>
+        of_eq_true
+          (Eq.trans.{1} (congrArg.{1, 1} (fun x => Eq.{1} x 1) (Eq.trans.{1} (congrArg.{1, 1} norm.{0} h) norm_one.{0}))
+            (eq_self.{1} 1)))
+      fun h =>
+      of_eq_true
+        (Eq.trans.{1}
+          (congrArg.{1, 1} (fun x => Eq.{1} x 1)
+            (Eq.trans.{1} (Eq.trans.{1} (congrArg.{1, 1} norm.{0} h) (norm_neg.{0} 1)) norm_one.{0}))
+          (eq_self.{1} 1))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.strengthened_conjecture
+ACTUAL_TYPE ∃ f,
+  And (Summable.{0, 0} f)
+    (∀ (ε : Nat → Complex),
+      (∀ (n : Nat), Eq.{1} (norm.{0} (ε n)) 1) →
+        And (Summable.{0, 0} fun n => HSMul.hSMul.{0, 0, 0} (ε n) (f n))
+          (∀ (π : Equiv.Perm.{1} Nat),
+            Not (Summable.{0, 0} fun n => norm.{0} (HSMul.hSMul.{0, 0, 0} (ε (π n)) (f (π n))))))
+ACTUAL_BODY Exists.intro.{1} Conjecture934.term
+  ⟨Conjecture934.term_summable, fun ε hε =>
+    ⟨Conjecture934.phase_summable ε hε, Conjecture934.phase_no_absolute_rearrangement ε hε⟩⟩
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.term
+ACTUAL_TYPE Nat → ↥Conjecture934.L1
+ACTUAL_BODY fun n => HSMul.hSMul.{0, 0, 0} (Inv.inv.{0} ↑n) (fourierLp 1 ↑n)
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.term_ae
+ACTUAL_TYPE ∀ (n : Nat),
+  Filter.EventuallyEq.{0, 0} (MeasureTheory.ae.{0, 0} Conjecture934.μ) ↑↑(Conjecture934.term n) fun x =>
+    HMul.hMul.{0, 0, 0} (Inv.inv.{0} ↑n) ((fourier ↑n) x)
+ACTUAL_BODY fun n =>
+  Filter.EventuallyEq.trans.{0, 0} (MeasureTheory.Lp.coeFn_smul.{0, 0, 0} (Inv.inv.{0} ↑n) (fourierLp 1 ↑n))
+    (Filter.EventuallyEq.const_smul.{0, 0, 0} (coeFn_fourierLp 1 ↑n) (Inv.inv.{0} ↑n))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.term_norm
+ACTUAL_TYPE ∀ (n : Nat), Eq.{1} (norm.{0} (Conjecture934.term n)) (Inv.inv.{0} ↑n)
+ACTUAL_BODY fun n =>
+  of_eq_true
+    (Eq.trans.{1}
+      (congrArg.{1, 1} (fun x => Eq.{1} x (Inv.inv.{0} ↑n))
+        (Eq.trans.{1} (norm_smul.{0, 0} (Inv.inv.{0} ↑n) (fourierLp 1 ↑n))
+          (Eq.trans.{1}
+            (congr.{1, 1}
+              (congrArg.{1, 1} HMul.hMul.{0, 0, 0}
+                (Eq.trans.{1} (norm_inv.{0} ↑n) (congrArg.{1, 1} Inv.inv.{0} (Complex.norm_natCast n))))
+              (Conjecture934.fourier_L1_norm ↑n))
+            (mul_one.{0} (Inv.inv.{0} ↑n)))))
+      (eq_self.{1} (Inv.inv.{0} ↑n)))
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.term_summable
+ACTUAL_TYPE Summable.{0, 0} Conjecture934.term
+ACTUAL_BODY Eq.mp.{0}
+  (congrArg.{1, 1} Summable.{0, 0} (funext.{1, 1} fun n => one_smul.{0, 0} Complex (Conjecture934.term n)))
+  (Conjecture934.phase_summable (fun x => 1)
+    (of_eq_true
+      (Eq.trans.{1}
+        (forall_congr.{1} fun n => Eq.trans.{1} (congrArg.{1, 1} (fun x => Eq.{1} x 1) norm_one.{0}) (eq_self.{1} 1))
+        (implies_true.{1} Nat))))
+AXIOMS [Quot.sound, propext, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.μ
+ACTUAL_TYPE MeasureTheory.Measure.{0} Conjecture934.Circle
+ACTUAL_BODY AddCircle.haarAddCircle
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.L2._proof_1
+ACTUAL_TYPE Nat.AtLeastTwo (HAdd.hAdd.{0, 0, 0} 0 2)
+ACTUAL_BODY instNatAtLeastTwo
+AXIOMS []
+INDEPENDENT_OWNED Conjecture934.inclusionLinear._proof_2
+ACTUAL_TYPE IsTopologicalAddGroup.{0} Complex
+ACTUAL_BODY SeminormedAddCommGroup.toIsTopologicalAddGroup.{0}
+AXIOMS [Quot.sound, propext, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.inclusionLinear._proof_3
+ACTUAL_TYPE ∀ (f : ↥Conjecture934.L2), Membership.mem.{0, 0} (MeasureTheory.Lp.{0, 0} Complex 1 Conjecture934.μ) ↑f
+ACTUAL_BODY fun f =>
+  MeasureTheory.Lp.antitone.{0, 0}
+    (Mathlib.Meta.NormNum.isNat_le_true.{0} (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal Nat.cast_one.{0})
+      (Mathlib.Meta.NormNum.isNat_ofNat.{0} ENNReal (Eq.refl.{1} 2)) (Eq.refl.{1} true))
+    (Subtype.property.{1} f)
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_OWNED Conjecture934.phase_L2_summable._proof_4
+ACTUAL_TYPE ∀ {α : Type u_1} [inst : DivisionMonoid.{u_1} α] (a : α) (n : Nat),
+  Eq.{u_1 + 1} (Inv.inv.{u_1} (HPow.hPow.{u_1, 0, u_1} a n)) (HPow.hPow.{u_1, 0, u_1} (Inv.inv.{u_1} a) n)
+ACTUAL_BODY fun {α} [DivisionMonoid.{u_1} α] a n => Eq.symm.{u_1 + 1} (inv_pow.{u_1} a n)
+AXIOMS [propext]
+INDEPENDENT_OWNED Conjecture934.term.eq_1
+ACTUAL_TYPE ∀ (n : Nat), Eq.{1} (Conjecture934.term n) (HSMul.hSMul.{0, 0, 0} (Inv.inv.{0} ↑n) (fourierLp 1 ↑n))
+ACTUAL_BODY fun n => Eq.refl.{1} (Conjecture934.term n)
+AXIOMS [propext, Quot.sound, Classical.choice]
+INDEPENDENT_PASS owned=36 transitive=30946 axioms=[propext, Classical.choice, Quot.sound]

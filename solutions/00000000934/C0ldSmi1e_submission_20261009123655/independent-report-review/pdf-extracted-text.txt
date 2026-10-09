@@ -1,0 +1,157 @@
+PAGE 1
+Proof of Conjecture 00000000934
+An unconditionally convergent series in complex L1(R/Z)
+C0ldSmi1e
+October 9, 2026
+Abstract
+We construct a series in complex-valued L1 of the circle that converges unconditionally
+after every termwise sign choice and admits no rearrangement that converges absolutely in the
+L1 norm. The construction uses the Fourier monomials with harmonic coeﬃcients. In fact,
+arbitrary complex unit phases may replace signs. The accompanying Lean 4 project proves the
+complete existence assertion with the usual almost-everywhere quotient and norm.
+1 Statement and conventions
+The English source asserts that there is an unconditionally convergent series in L1(T) which remains
+unconditionally convergent after every sign change and admits no absolute rearrangement. The
+exact English and Chinese source is preserved in ORIGINAL.md.
+We use the complex scalar convention: T = R/ Z has normalized Haar measure µ, with µ(T) = 1 .
+For this circumference-one circle, µ is also the usual Lebesgue volume. The space L1 = L1(T; C)
+consists of integrable functions modulo equality almost everywhere, with ∥f ∥1 =
+∫
+T |f |dµ. Uncon-
+ditional convergence means convergence in this norm of the net of sums over all ﬁnite subsets of
+the index set. A sign choice is any function ε : N → {− 1, 1}, with no support or eventual-constancy
+restriction. An absolute rearrangement would be a bijection π : N → N for which ∑
+n
+fπ(n)
+
+1
+< ∞ .
+Thus “absolute” refers to the norm of the stated Banach space, rather than an alternative pointwise
+convergence condition.
+The source’s parenthetical reference to the boundary of Orlicz’s theorem is retained as descrip-
+tive attribution. It speciﬁes no additional endpoint parameter or sharpness assertion. We make no
+separate historical or endpoint claim.
+Theorem 1. There exists f : N → L1(T; C) such that ∑
+n fn is unconditionally convergent, ev-
+ery inﬁnite termwise scalar sign choice also gives an unconditionally convergent series, and every
+permutation fails to give an absolutely norm-convergent series.
+2 Construction and unconditional convergence
+For n ≥ 1, let
+en(x) = exp(2 πinx), f n = en
+n , f 0 = 0.
+The exponential is invariant under integer translations of x, so it is well-deﬁned on T. Each term
+is bounded and integrable. The initial zero term only permits indexing by N; it does not aﬀect any
+convergence assertion.
+1
+
+PAGE 2
+The functions en are orthonormal in L2(T; C):
+∫
+T
+emen dµ =
+{
+1, m = n,
+0, m ̸= n.
+For distinct integers m, n , the integrand is the character en−m. Translation by 1/ (2(n − m)) multi-
+plies it by − 1, while Haar invariance preserves its integral; the integral is therefore zero. For m = n
+the integrand is identically one.
+Fix an arbitrary sequence εn ∈ C with |εn|= 1. For ﬁnite sets F, G ⊂ N, orthogonality gives
+
+∑
+n∈F
+εnfn −
+∑
+n∈G
+εnfn
+
+2
+2
+=
+∑
+n∈F △G
+n≥1
+1
+n2 .
+Given δ > 0, convergence of ∑
+n≥1 n−2 gives M for which the tail above M is less than δ2. If both
+F and G contain {0, . . . , M }, the displayed diﬀerence has norm less than δ. The ﬁnite-subset net
+is Cauchy. Completeness of L2 yields its limit.
+For every g ∈ L2, Cauchy–Schwarz and µ(T) = 1 imply
+∥g∥1 =
+∫
+T
+|g| ·1 dµ ≤
+(∫
+T
+|g|2 dµ
+) 1/ 2
+= ∥g∥2 .
+The identity on almost-everywhere classes is consequently a bounded linear map L2 → L1. It
+sends the convergent ﬁnite-subset net to a convergent net in the actual L1 norm. Hence ∑
+n εnfn
+converges unconditionally for every unit-phase sequence. The original series follows by taking all
+phases equal to 1; every requested sign choice is included. The limiting element may depend on
+the phase sequence.
+For any ﬁxed phase sequence, every bijection π gives the same norm limit: its ﬁnite preﬁx
+sets {π(0), . . . , π (N − 1)} eventually contain each prescribed ﬁnite subset of N. This also explains
+directly the relation between the ﬁnite-subset and permutation formulations.
+3 Failure of every absolute rearrangement
+The pointwise equality |en(x)|= 1 and µ(T) = 1 give
+∥fn∥1 = 1
+n (n ≥ 1), ∥f0∥1 = 0.
+Unit phases preserve these norms. The harmonic series diverges, since each block 2k ≤ n < 2k+1
+contributes at least 1/ 2. A bijection of indices does not change the supremum of ﬁnite sums of a
+nonnegative family. Therefore for every unit-phase sequence and every permutation π,
+∞∑
+n=0
+επ(n)fπ(n)
+
+1
+= +∞ .
+In particular no absolute rearrangement of the original series exists. Together with unconditional
+convergence above, this proves all clauses of the theorem for a single sequence. □
+2
+
+PAGE 3
+4 Formal correspondence and veriﬁcation
+The project pins Lean 4.19.0 and Mathlib v4.19.0. All declarations below are in the namespace
+Conjecture934 of Solution.lean.
+Mathematical content Lean declarations
+Actual circle, measure, a.e. quotient and
+norm
+Circle, µ, L1, L2, measure_eq_volume,
+L1_norm_integral
+Explicit Fourier sequence and
+representatives
+term, term_ae, representative_on_real
+Bounded identity inclusion L2 → L1 inclusionLinear_exists,
+inclusionLinear_apply, inclusion_norm_le,
+inclusion_exists, inclusion_apply,
+inclusion_fourier
+Every inﬁnite phase and sign choice phase_L2_summable, phase_summable,
+IsSignChoice, sign_summable
+Explicit norm limits and all
+permutations
+phase_unconditional_norm,
+phase_permutation_norm
+Harmonic norm and no absolute ordering term_norm, no_absolute_rearrangement,
+phase_norm_partial_sums_diverge
+Complete existential source assertion conjecture
+Stronger assertion for every unit phase strengthened_conjecture
+Mathlib’sSummable means existence of a limit for the net of ﬁnite subset sums. Here it uses the
+norm topology of MeasureTheory.Lp. The proof invokes the library’s orthonormal Fourier family
+and the orthogonal-family square-summability theorem, then transports convergence through the
+explicitly established inclusion. Chosen inclusion maps are selected from proved existence state-
+ments; pointwise action lemmas fully ﬁx their values on every input. They introduce no additional
+assumptions.
+The frozen mathematical core passes a fresh source replay with warnings treated as errors.
+Its audit inspects all 36 owned declarations, including generated helpers, and 30,946 transitive
+declarations. Only the standard axioms propext, Classical.choice, and Quot.sound occur; the
+audit accepts no unsafe declaration or owned axiom. No numerical computation is needed for the
+mathematics. The auxiliary programs check provenance and proof dependencies.
+PROOF.md gives the full declaration mapping; VERIFICATION.md retains both successful checks
+and resolved development failures. The ﬁnal package’s VERIFICATION-PACKAGE.md provides the
+reviewer workﬂow and additional veriﬁcation records. Local compilation and independent review
+do not constitute maintainer acceptance. This submission claims the complex-valued theorem
+stated above, without a separate formalized real-valued or Orlicz-endpoint assertion.
+3
