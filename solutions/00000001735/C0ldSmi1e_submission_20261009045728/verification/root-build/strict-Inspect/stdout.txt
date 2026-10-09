@@ -1,0 +1,33 @@
+def Conjecture1735.solutionSet : ℤ → Set (ℤ × ℤ) :=
+fun k => {p | p.1 ^ 3 - 2 * p.2 ^ 3 = k}
+def Conjecture1735.solutionCount : ℤ → Cardinal.{0} :=
+fun k => Cardinal.mk ↑(Conjecture1735.solutionSet k)
+def Conjecture1735.MaximumIsTwelve : Prop :=
+(∀ (k : ℤ), Conjecture1735.solutionCount k ≤ 12) ∧ ∃ k, Conjecture1735.solutionCount k = 12
+def Conjecture1735.Conjecture : Prop :=
+Conjecture1735.MaximumIsTwelve ∧ {k | Conjecture1735.solutionCount k = 12}.Finite
+def Conjecture1735.NonzeroConjecture : Prop :=
+(∀ (k : ℤ), k ≠ 0 → Conjecture1735.solutionCount k ≤ 12) ∧
+  (∃ k, k ≠ 0 ∧ Conjecture1735.solutionCount k = 12) ∧ {k | k ≠ 0 ∧ Conjecture1735.solutionCount k = 12}.Finite
+Conjecture1735.zero_fiber (x y : ℤ) (h : x ^ 3 - 2 * y ^ 3 = 0) : x = 0 ∧ y = 0
+Conjecture1735.solutionCount_zero : Conjecture1735.solutionCount 0 = 1
+Conjecture1735.scaleSolution_injective (t k : ℤ) (ht : t ≠ 0) : Function.Injective (Conjecture1735.scaleSolution t k)
+Conjecture1735.solutionCount_le_scaled (t k : ℤ) (ht : t ≠ 0) :
+  Conjecture1735.solutionCount k ≤ Conjecture1735.solutionCount (t ^ 3 * k)
+Conjecture1735.scaled_rhs_injective {k : ℤ} (hk : k ≠ 0) : Function.Injective fun n => (↑n + 1) ^ 3 * k
+Conjecture1735.infinite_maximizers_of_nonzero_maximizer {m : Cardinal.{0}}
+  (hbound : ∀ (k : ℤ), Conjecture1735.solutionCount k ≤ m) {k : ℤ} (hk : Conjecture1735.solutionCount k = m)
+  (hk0 : k ≠ 0) : {j | Conjecture1735.solutionCount j = m}.Infinite
+Conjecture1735.maximum_twelve_implies_infinite_maximizers (h : Conjecture1735.MaximumIsTwelve) :
+  {k | Conjecture1735.solutionCount k = 12}.Infinite
+Conjecture1735.conjecture_false : ¬Conjecture1735.Conjecture
+Conjecture1735.nonzero_conjecture_false : ¬Conjecture1735.NonzeroConjecture
+'Conjecture1735.zero_fiber' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1735.solutionCount_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1735.scaleSolution_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1735.solutionCount_le_scaled' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1735.scaled_rhs_injective' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1735.infinite_maximizers_of_nonzero_maximizer' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1735.maximum_twelve_implies_infinite_maximizers' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1735.conjecture_false' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture1735.nonzero_conjecture_false' depends on axioms: [propext, Classical.choice, Quot.sound]

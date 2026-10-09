@@ -1,0 +1,39 @@
+{
+  "control": "unsafe-definition",
+  "expected_rejection": "Unsafe authored declaration",
+  "result": "PASS",
+  "fixture_modules": {
+    "Solution": "unsafe def OutsideNamespace.unchecked : Nat := 1\n"
+  },
+  "records": [
+    {
+      "label": "compile-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "build"
+      ],
+      "cwd": "/private/tmp/tlmc1735-root-controls-verification/unsafe-definition/fresh-project",
+      "started_utc": "2026-10-09T04:47:55.648622+00:00",
+      "exit_code": 0,
+      "completed_utc": "2026-10-09T04:47:56.170060+00:00",
+      "stdout": "✔ [2/4] Built Solution\n✔ [3/4] Built Inspect\nBuild completed successfully.\n",
+      "stderr": ""
+    },
+    {
+      "label": "audit-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "cwd": "/private/tmp/tlmc1735-root-controls-verification/unsafe-definition/fresh-project",
+      "started_utc": "2026-10-09T04:47:56.170521+00:00",
+      "exit_code": 1,
+      "completed_utc": "2026-10-09T04:47:58.598601+00:00",
+      "stdout": "Audit.lean:22:0: error: Unsafe authored declaration: OutsideNamespace.unchecked\n",
+      "stderr": ""
+    }
+  ]
+}

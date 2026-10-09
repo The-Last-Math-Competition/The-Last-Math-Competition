@@ -1,0 +1,40 @@
+{
+  "control": "hidden-imported-lcProof-proof",
+  "expected_rejection": "Forbidden transitive axiom lcProof",
+  "result": "PASS",
+  "fixture_modules": {
+    "ImportedBridge": "import Lean\nopen Lean Elab Command\nrun_cmd do\n  let decl : Declaration := .thmDecl {\n    name := `Hidden.safeBridge, levelParams := [], type := mkConst ``True,\n    value := mkApp (mkConst `lcProof) (mkConst ``True) }\n  match (← getEnv).addDeclCore 0 decl none false with\n  | .ok env => setEnv env\n  | .error _ => throwError \"fixture insertion failed\"\n",
+    "Solution": "import ImportedBridge\ntheorem Public.root : True := Hidden.safeBridge\n"
+  },
+  "records": [
+    {
+      "label": "compile-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "build"
+      ],
+      "cwd": "/private/tmp/tlmc1735-root-controls-verification/hidden-imported-lcProof-proof/fresh-project",
+      "started_utc": "2026-10-09T04:48:21.003775+00:00",
+      "exit_code": 0,
+      "completed_utc": "2026-10-09T04:48:22.281196+00:00",
+      "stdout": "✔ [2/5] Built ImportedBridge\n✔ [3/5] Built Solution\n✔ [4/5] Built Inspect\nBuild completed successfully.\n",
+      "stderr": ""
+    },
+    {
+      "label": "audit-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "cwd": "/private/tmp/tlmc1735-root-controls-verification/hidden-imported-lcProof-proof/fresh-project",
+      "started_utc": "2026-10-09T04:48:22.281651+00:00",
+      "exit_code": 1,
+      "completed_utc": "2026-10-09T04:48:24.695404+00:00",
+      "stdout": "Audit.lean:22:0: error: Forbidden transitive axiom lcProof in Public.root\n",
+      "stderr": ""
+    }
+  ]
+}

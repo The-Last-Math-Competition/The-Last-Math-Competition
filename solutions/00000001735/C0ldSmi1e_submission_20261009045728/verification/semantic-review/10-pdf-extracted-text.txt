@@ -1,0 +1,73 @@
+PAGE 1
+Disproof of Conjecture 00000001735
+An attained maximum cannot have ﬁnitely many maximizing right-hand sides
+C0ldSmi1e
+October 9, 2026
+1 The statement and the counting convention
+Both versions of the original conjecture assert that the maximum solution count for X 3 − 2Y 3 = k
+is 12 and that only ﬁnitely many k attain 12. They also promise an explicit ﬁnite list through
+an unspeciﬁed unit-group torsion condition. We disprove the conjunction of the maximum and
+ﬁniteness assertions, which is a necessary part of the full statement.
+We use the ordinary integer-solution interpretation of a Thue equation:
+Sk = {(x, y) ∈ Z2 : x3 − 2y3 = k}, N (k) = # Sk, k ∈ Z.
+Solutions are distinct ordered pairs. Signs and zero coordinates are included. Neither language
+restricts solutions to primitive pairs, restricts k to cube-free integers, or identiﬁes parameters up
+to multiplication by cubes. None of those additional restrictions is imposed here. The customary
+alternative of requiring k ̸= 0 is also treated below.
+Theorem. If N (k) ≤ 12 for every integer k and N (k0) = 12 for some integer k0, then inﬁnitely
+many integers k have N (k) = 12 . Consequently the conjecture, as stated, is false.
+Proof. First S0 = {(0,0)}. Indeed, x3 = 2 y3 with y ̸= 0 would also have x ̸= 0 . Taking absolute
+values and comparing exponents of the prime 2 in the two positive integers gives
+3v2(|x|) = 1 + 3 v2(|y|),
+which is impossible modulo 3. Thus y = 0 and then x = 0. In particular N (0) = 1 , so a parameter
+k0 with N (k0) = 12 is nonzero.
+For every nonzero integer t, homogeneity gives an injective map
+Sk0 − →St3k0, (x, y) ↦− →(tx, ty),
+because (tx)3 − 2(ty)3 = t3(x3 − 2y3) and multiplication by t is injective on integers. Hence
+N (t3k0) ≥ 12. The assumed global upper bound forces N (t3k0) = 12 .
+Take t = n + 1 for n ∈ N. The parameters (n + 1)3k0 are pairwise distinct: one may cancel the
+nonzero k0, and cubing integers is injective. They form an inﬁnite subset of the claimed ﬁnite set
+of maximizers.
+1
+
+PAGE 2
+2 Scope of the disproof
+The conclusion is the incompatibility of the two assertions. We do not determine the actual nu-
+merical maximum, prove that the number 12 is attained, or compute an actual list of maximizing
+parameters.
+For the parameter domain Z \ {0}, an upper bound of 12 extends to all integers because N (0) = 1 .
+Excluding zero does not change the set of twelve-solution parameters. This variant is separately
+formalized and refuted.
+The undeﬁned torsion-condition phrase is not given an invented meaning. Whatever additional
+enumeration assertion it expresses, the full source still implies the maximum-and-ﬁniteness core
+refuted above. In particular a ﬁnite explicit list cannot repair that contradiction.
+3 Formalization and reproduction
+The Lean project uses Lean 4.19.0 and Mathlib v4.19.0, with dependency revisions pinned in its
+manifest. In lean/Solution.lean, Conjecture1735.solutionSet is exactly the displayed subset
+of Z × Z and solutionCount is Cardinal.mk(solutionSetk). Using cardinal numbers counts the
+whole set even before its ﬁniteness is known; it never assigns an artiﬁcial ﬁnite count to an inﬁnite
+set. A count equal to the ﬁnite cardinal 12 is the ordinary statement that there are exactly twelve
+solutions.
+MaximumIsTwelve means a universal upper bound of twelve together with actual attainment.
+Conjecture conjoins it with Set.Finite of the full set of attaining parameters. The main
+endpoints are:
+• Conjecture1735.maximum_twelve_implies_infinite_maximizers: the asserted maximum
+implies Set.Infinite of the maximizer set;
+• Conjecture1735.conjecture_false: the unconditional negation of Conjecture;
+• Conjecture1735.nonzero_conjecture_false : the unconditional negation of the nonzero-
+parameter variant.
+The zero-ﬁber argument, scaling map, injection, cardinal inequality, and inﬁnite range are all
+proved in Lean. No search bound, numerical experiment, auxiliary mathematical program, or
+unproved ﬁniteness theorem is used. The submitted inspection ﬁle expands the deﬁnitions and
+prints endpoint types and axiom dependencies. The portable veriﬁer rebuilds the project, replays
+the inspection and full compiled-declaration audit with warnings treated as errors, and checks
+the source, dependency, and declaration records. Its accompanying controls test the rejection of
+invalid or altered veriﬁcation inputs. Exact commands and results are recorded in README.md and
+VERIFICATION.md.
+The original bilingual source is included as ORIGINAL.md, with its exact hash recorded in the veri-
+ﬁcation manifest. The author derived the scaling argument from that source before an accidental
+exposure to unrelated task-status summaries; the access record discloses that event. A fresh re-
+viewer independently identiﬁed the same argument before reading the proof. Full provenance and
+local veriﬁcation records accompany the submission; local validation is distinct from maintainer
+acceptance.
+2
