@@ -1,0 +1,102 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\title{Disproof of conjecture 00000000408\\
+at the staircase of order \(2\)}
+\author{LibertychaserUS}
+\date{9 October 2026}
+
+\begin{document}
+\maketitle
+
+\section{The claim}
+Conjecture 00000000408 reads:
+\begin{quote}
+Definition: Decomposition numbers \(g(\lambda,\mu,\nu)\) (Kronecker coefficients of \(s_\lambda * s_\mu\)).
+Conjecture: For \(\lambda=\mu=\nu\) of staircase shape, \(g\) is odd if and only if \(n\) is a triangular number (verifiable for \(n\le 20\)).
+\end{quote}
+The parenthetical identifies \(g(\lambda,\mu,\nu)\) as the Kronecker coefficient of the internal product of Schur functions, equivalently the multiplicity
+\[
+g(\lambda,\mu,\nu)=\langle \chi_\lambda\chi_\mu,\chi_\nu\rangle_{S_{|\lambda|}}.
+\]
+The staircase of order \(n\ge 1\) is the partition
+\[
+\sigma_n=(n,n-1,\ldots,1)
+\]
+of \(N=n(n+1)/2\). The quantity in the conjecture is \(g_n=g(\sigma_n,\sigma_n,\sigma_n)\), and a positive integer is triangular when it equals \(k(k+1)/2\) for some integer \(k\ge 0\). The claim is therefore
+\[
+\forall n\ge 1,\qquad g_n\text{ is odd}\iff n\text{ is triangular}.
+\]
+This note disproves that equivalence at \(n=2\). The Lean development in \texttt{lean/Disproof.lean} checks the finite representation theory of \(S_3\) and the arithmetic; it uses neither \texttt{sorry} nor \texttt{native\_decide}.
+
+\section{The Specht module \(S^{(2,1)}\)}
+For \(n=2\) one has \(\sigma_2=(2,1)\), a partition of \(3\). Let \(S_3\) act on \(\mathbb{Z}^3\) by permuting coordinates. The tabloid module of shape \((2,1)\) has basis the three tabloids, indexed by the entry of the single box in the second row, and is this permutation representation. The polytabloids are the differences \(e_i-e_j\). They span the sum-zero plane
+\[
+S^{(2,1)}=\{(x,y,z)\in\mathbb{Z}^3:x+y+z=0\}.
+\]
+That plane is free of rank \(2\) on the basis
+\[
+b_1=(1,-1,0),\qquad b_2=(1,0,-1).
+\]
+Indeed, if \(x+y+z=0\), then
+\[
+(x,y,z)=(-y)\,b_1+(-z)\,b_2,
+\]
+which is \texttt{reconstruct} in the Lean file. The trace of a permutation \(\tau\) on \(\mathbb{Z}^3\) is the number \(\mathrm{fix}(\tau)\) of fixed points. The invariant line spanned by \((1,1,1)\) contributes trace \(1\), so the trace on the complementary sum-zero plane is
+\[
+\chi(\tau)=\mathrm{fix}(\tau)-1.
+\]
+The same trace is recovered from the matrices of the six permutations in the basis \((b_1,b_2)\): the coordinate formula above gives the trace
+\[
+\operatorname{tr}(\tau)=-\bigl(\tau\cdot b_1\bigr)_y-\bigl(\tau\cdot b_2\bigr)_z,
+\]
+and \texttt{trace\_eq\_chi} checks equality with \(\chi\) on every element of \(S_3\). The six maps are exactly the bijections of \(\{0,1,2\}\) (\texttt{group\_exhaustive}).
+
+The values are
+\begin{center}
+\begin{tabular}{c|ccc}
+class & identity & transpositions & \(3\)-cycles\\
+\hline
+size & \(1\) & \(3\) & \(2\)\\
+\(\chi\) & \(2\) & \(0\) & \(-1\)
+\end{tabular}
+\end{center}
+
+\section{Irreducibility}
+The only linear characters of \(S_3\) are the trivial character and the sign character. A one-dimensional representation lands in \(\{\pm 1\}\). Every \(3\)-cycle has order \(3\), so it must act by \(1\). All transpositions are conjugate, so they share a common value \(\pm 1\). The value \(+1\) gives the trivial character and the value \(-1\) gives the sign character.
+
+Pairing the table above against these two characters gives
+\begin{align*}
+\sum_{\tau\in S_3}\chi(\tau)
+&=2+3\cdot 0+2\cdot(-1)=0,\\
+\sum_{\tau\in S_3}\operatorname{sgn}(\tau)\chi(\tau)
+&=2+3\cdot(-1)\cdot 0+2\cdot(1)\cdot(-1)=0,\\
+\sum_{\tau\in S_3}\chi(\tau)^2
+&=2^2+3\cdot 0^2+2\cdot(-1)^2=6.
+\end{align*}
+Thus \(\langle\chi,1\rangle=\langle\chi,\operatorname{sgn}\rangle=0\) and \(\langle\chi,\chi\rangle=1\)
+(\texttt{sumChi\_eq}, \texttt{sumSignChi\_eq}, \texttt{sumSquares\_eq}, \texttt{characterInner\_eq}).
+The group \(S_3\) has three conjugacy classes, hence three irreducible characters. Their degrees \(d\) satisfy \(d_1^2+d_2^2+d_3^2=6\). The two linear characters already contribute \(1+1\), so the remaining irreducible character has degree \(2\). The character \(\chi\) has degree \(2\), norm \(1\), and is orthogonal to both linear characters, so it is that remaining irreducible character. It is the character of the rank-\(2\) module \(S^{(2,1)}\) constructed above.
+
+\section{The Kronecker coefficient}
+By definition,
+\begin{align*}
+g(\sigma_2,\sigma_2,\sigma_2)
+&=\frac1{|S_3|}\sum_{\tau\in S_3}\chi(\tau)^3
+=\frac1{6}\bigl(2^3+3\cdot 0^3+2\cdot(-1)^3\bigr)
+=\frac{8-2}{6}=1.
+\end{align*}
+This is \texttt{sumCubes\_eq} and \texttt{kronecker\_eq}. In particular \(g_2=1\) is odd (\texttt{kronecker\_odd}).
+
+\section{Two is not triangular}
+Suppose \(k(k+1)=4\) for some integer \(k\ge 0\). The products \(k(k+1)\) for \(k=0,1,2\) are \(0,2,6\), and for \(k\ge 3\) one has \(k(k+1)\ge 12\). None equals \(4\). Hence \(2\) is not equal to \(k(k+1)/2\) (\texttt{not\_triangular\_two}).
+
+\section{Conclusion}
+The integer \(g_2\) is odd, while \(2\) is not a triangular number. The equivalence asserted for staircase order \(n=2\) is false, and therefore so is the universal claim. This is \texttt{staircase\_two\_breaks\_the\_equivalence}.
+
+\end{document}
