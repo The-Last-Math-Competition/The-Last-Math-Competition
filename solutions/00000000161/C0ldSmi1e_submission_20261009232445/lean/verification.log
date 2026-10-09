@@ -1,0 +1,242 @@
+$ lean --version
+Lean (version 4.19.0, arm64-apple-darwin23.6.0, commit 6caaee842e94, Release)
+$ git -C /private/tmp/tlmc161-author/.lake/packages/mathlib rev-parse HEAD
+c44e0c8ee63ca166450922a373c7409c5d26b00b
+$ git -C /private/tmp/tlmc161-author/.lake/packages/mathlib diff --quiet HEAD --
+$ git -C /private/tmp/tlmc161-author/.lake/packages/plausible rev-parse HEAD
+77e08eddc486491d7b9e470926b3dbe50319451a
+$ git -C /private/tmp/tlmc161-author/.lake/packages/plausible diff --quiet HEAD --
+$ git -C /private/tmp/tlmc161-author/.lake/packages/LeanSearchClient rev-parse HEAD
+25078369972d295301f5a1e53c3e5850cf6d9d4c
+$ git -C /private/tmp/tlmc161-author/.lake/packages/LeanSearchClient diff --quiet HEAD --
+$ git -C /private/tmp/tlmc161-author/.lake/packages/importGraph rev-parse HEAD
+e6a9f0f5ee3ccf7443a0070f92b62f8db12ae82b
+$ git -C /private/tmp/tlmc161-author/.lake/packages/importGraph diff --quiet HEAD --
+$ git -C /private/tmp/tlmc161-author/.lake/packages/proofwidgets rev-parse HEAD
+c4919189477c3221e6a204008998b0d724f49904
+$ git -C /private/tmp/tlmc161-author/.lake/packages/proofwidgets diff --quiet HEAD --
+$ git -C /private/tmp/tlmc161-author/.lake/packages/aesop rev-parse HEAD
+5d50b08dedd7d69b3d9b3176e0d58a23af228884
+$ git -C /private/tmp/tlmc161-author/.lake/packages/aesop diff --quiet HEAD --
+$ git -C /private/tmp/tlmc161-author/.lake/packages/Qq rev-parse HEAD
+fa4f7f15d97591a9cf3aa7724ba371c7fc6dda02
+$ git -C /private/tmp/tlmc161-author/.lake/packages/Qq diff --quiet HEAD --
+$ git -C /private/tmp/tlmc161-author/.lake/packages/batteries rev-parse HEAD
+f5d04a9c4973d401c8c92500711518f7c656f034
+$ git -C /private/tmp/tlmc161-author/.lake/packages/batteries diff --quiet HEAD --
+$ git -C /private/tmp/tlmc161-author/.lake/packages/Cli rev-parse HEAD
+02dbd02bc00ec4916e99b04b2245b30200e200d0
+$ git -C /private/tmp/tlmc161-author/.lake/packages/Cli diff --quiet HEAD --
+Removed only this project's .lake/build for a clean project rebuild.
+$ lake build
+✔ [2797/2799] Built Conjecture161.Arithmetic
+✔ [2798/2799] Built Conjecture161
+Build completed successfully.
+$ lake env lean -DwarningAsError=true lakefile.lean
+$ lake env lean -DwarningAsError=true Conjecture161/Arithmetic.lean
+$ lake env lean -DwarningAsError=true Conjecture161.lean
+$ lake env lean -DwarningAsError=true Audit.lean
+Conjecture161.prime_le_of_dvd_gl4_card_product {p r : Nat}
+  (hp : @LE.le Nat instLENat (@OfNat.ofNat Nat 2 (instOfNatNat 2)) p) (hr : Nat.Prime r)
+  (hdvd :
+    @Dvd.dvd Nat Nat.instDvd r
+      (∏ i,
+        @HSub.hSub Nat Nat Nat (@instHSub Nat instSubNat)
+          (@HPow.hPow Nat Nat Nat (@instHPow Nat Nat (@Monoid.toNatPow Nat Nat.instMonoid)) p
+            (@OfNat.ofNat Nat 4 (instOfNatNat 4)))
+          (@HPow.hPow Nat Nat Nat (@instHPow Nat Nat (@Monoid.toNatPow Nat Nat.instMonoid)) p
+            (@Fin.val (@OfNat.ofNat Nat 4 (instOfNatNat 4)) i)))) :
+  @LE.le Nat instLENat r
+    (@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat)
+      (@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat)
+        (@HPow.hPow Nat Nat Nat (@instHPow Nat Nat (@Monoid.toNatPow Nat Nat.instMonoid)) p
+          (@OfNat.ofNat Nat 2 (instOfNatNat 2)))
+        p)
+      (@OfNat.ofNat Nat 1 (instOfNatNat 1)))
+'Conjecture161.prime_le_of_dvd_gl4_card_product' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.primes_tendsto_nat_atTop :
+  @Filter.Tendsto Conjecture161.PrimeIndex Nat (fun p => @Subtype.val Nat (fun p => Nat.Prime p) p)
+    (@Filter.atTop Conjecture161.PrimeIndex (@Subtype.preorder Nat Nat.instPreorder fun p => Nat.Prime p))
+    (@Filter.atTop Nat Nat.instPreorder)
+'Conjecture161.primes_tendsto_nat_atTop' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.prime_index_neBot :
+  @Filter.NeBot Conjecture161.PrimeIndex
+    (@Filter.atTop Conjecture161.PrimeIndex (@Subtype.preorder Nat Nat.instPreorder fun p => Nat.Prime p))
+'Conjecture161.prime_index_neBot' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.sampleSpace_card_pos (n : Nat) (p : Conjecture161.PrimeIndex) :
+  @LT.lt Nat instLTNat (@OfNat.ofNat Nat 0 (instOfNatNat 0)) (Nat.card (Conjecture161.GeneralLinear n p))
+'Conjecture161.sampleSpace_card_pos' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.successProbability_mem_Icc (n : Nat) (C : Real) (p : Conjecture161.PrimeIndex) :
+  @Membership.mem Real (Set Real) (@Set.instMembership Real)
+    (@Set.Icc Real Real.instPreorder (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero))
+      (@OfNat.ofNat Real 1 (@One.toOfNat1 Real Real.instOne)))
+    (Conjecture161.successProbability n C p)
+'Conjecture161.successProbability_mem_Icc' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.prime_divisor_order_le (p : Conjecture161.PrimeIndex)
+  (A : Conjecture161.GeneralLinear (@OfNat.ofNat Nat 4 (instOfNatNat 4)) p) {r : Nat} (hr : Nat.Prime r)
+  (hdvd :
+    @Dvd.dvd Nat Nat.instDvd r
+      (@orderOf (Conjecture161.GeneralLinear (@OfNat.ofNat Nat 4 (instOfNatNat 4)) p)
+        (@Units.instMonoid
+          (Matrix (Fin (@OfNat.ofNat Nat 4 (instOfNatNat 4))) (Fin (@OfNat.ofNat Nat 4 (instOfNatNat 4)))
+            (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p)))
+          (@MonoidWithZero.toMonoid
+            (Matrix (Fin (@OfNat.ofNat Nat 4 (instOfNatNat 4))) (Fin (@OfNat.ofNat Nat 4 (instOfNatNat 4)))
+              (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p)))
+            (@Semiring.toMonoidWithZero
+              (Matrix (Fin (@OfNat.ofNat Nat 4 (instOfNatNat 4))) (Fin (@OfNat.ofNat Nat 4 (instOfNatNat 4)))
+                (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p)))
+              (@Matrix.semiring (Fin (@OfNat.ofNat Nat 4 (instOfNatNat 4)))
+                (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p))
+                (@CommSemiring.toSemiring (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p))
+                  (@CommRing.toCommSemiring (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p))
+                    (ZMod.commRing (@Subtype.val Nat (fun p => Nat.Prime p) p))))
+                (Fin.fintype (@OfNat.ofNat Nat 4 (instOfNatNat 4)))
+                (instDecidableEqFin (@OfNat.ofNat Nat 4 (instOfNatNat 4)))))))
+        A)) :
+  @LE.le Nat instLENat r
+    (@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat)
+      (@HAdd.hAdd Nat Nat Nat (@instHAdd Nat instAddNat)
+        (@HPow.hPow Nat Nat Nat (@instHPow Nat Nat (@Monoid.toNatPow Nat Nat.instMonoid))
+          (@Subtype.val Nat (fun p => Nat.Prime p) p) (@OfNat.ofNat Nat 2 (instOfNatNat 2)))
+        (@Subtype.val Nat (fun p => Nat.Prime p) p))
+      (@OfNat.ofNat Nat 1 (instOfNatNat 1)))
+'Conjecture161.prime_divisor_order_le' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.threshold_dominates {C x : Real}
+  (hC : @LT.lt Real Real.instLT (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero)) C)
+  (hx : @LE.le Real Real.instLE (@OfNat.ofNat Real 1 (@One.toOfNat1 Real Real.instOne)) x)
+  (hCx :
+    @LE.le Real Real.instLE
+      (@HMul.hMul Real Real Real (@instHMul Real Real.instMul)
+        (@OfNat.ofNat Real 3 (@instOfNatAtLeastTwo Real 3 Real.instNatCast ⋯)) C)
+      x) :
+  @LE.le Real Real.instLE
+    (@HAdd.hAdd Real Real Real (@instHAdd Real Real.instAdd)
+      (@HAdd.hAdd Real Real Real (@instHAdd Real Real.instAdd)
+        (@HPow.hPow Real Nat Real (@instHPow Real Nat (@Monoid.toNatPow Real Real.instMonoid)) x
+          (@OfNat.ofNat Nat 2 (instOfNatNat 2)))
+        x)
+      (@OfNat.ofNat Real 1 (@One.toOfNat1 Real Real.instOne)))
+    (@HDiv.hDiv Real Real Real (@instHDiv Real (@DivInvMonoid.toDiv Real Real.instDivInvMonoid))
+      (@HPow.hPow Real Nat Real (@instHPow Real Nat (@Monoid.toNatPow Real Real.instMonoid)) x
+        (@OfNat.ofNat Nat 3 (instOfNatNat 3)))
+      C)
+'Conjecture161.threshold_dominates' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.no_largePrimeFactor_four {C : Real}
+  (hC : @LT.lt Real Real.instLT (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero)) C)
+  (p : Conjecture161.PrimeIndex)
+  (hp :
+    @LE.le Real Real.instLE
+      (@HMul.hMul Real Real Real (@instHMul Real Real.instMul)
+        (@OfNat.ofNat Real 3 (@instOfNatAtLeastTwo Real 3 Real.instNatCast ⋯)) C)
+      (@Nat.cast Real Real.instNatCast (@Subtype.val Nat (fun p => Nat.Prime p) p)))
+  (A : Conjecture161.GeneralLinear (@OfNat.ofNat Nat 4 (instOfNatNat 4)) p) :
+  Not (Conjecture161.LargePrimeFactor (@OfNat.ofNat Nat 4 (instOfNatNat 4)) C p A)
+'Conjecture161.no_largePrimeFactor_four' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.successProbability_four_eq_zero {C : Real}
+  (hC : @LT.lt Real Real.instLT (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero)) C)
+  (p : Conjecture161.PrimeIndex)
+  (hp :
+    @LE.le Real Real.instLE
+      (@HMul.hMul Real Real Real (@instHMul Real Real.instMul)
+        (@OfNat.ofNat Real 3 (@instOfNatAtLeastTwo Real 3 Real.instNatCast ⋯)) C)
+      (@Nat.cast Real Real.instNatCast (@Subtype.val Nat (fun p => Nat.Prime p) p))) :
+  @Eq Real (Conjecture161.successProbability (@OfNat.ofNat Nat 4 (instOfNatNat 4)) C p)
+    (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero))
+'Conjecture161.successProbability_four_eq_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.successProbability_four_eventually_zero {C : Real}
+  (hC : @LT.lt Real Real.instLT (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero)) C) :
+  @Filter.Eventually Conjecture161.PrimeIndex
+    (fun p =>
+      @Eq Real (Conjecture161.successProbability (@OfNat.ofNat Nat 4 (instOfNatNat 4)) C p)
+        (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero)))
+    (@Filter.atTop Conjecture161.PrimeIndex (@Subtype.preorder Nat Nat.instPreorder fun p => Nat.Prime p))
+'Conjecture161.successProbability_four_eventually_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.successProbability_four_tendsto_zero {C : Real}
+  (hC : @LT.lt Real Real.instLT (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero)) C) :
+  @Filter.Tendsto Conjecture161.PrimeIndex Real
+    (Conjecture161.successProbability (@OfNat.ofNat Nat 4 (instOfNatNat 4)) C)
+    (@Filter.atTop Conjecture161.PrimeIndex (@Subtype.preorder Nat Nat.instPreorder fun p => Nat.Prime p))
+    (@nhds Real (@UniformSpace.toTopologicalSpace Real (@PseudoMetricSpace.toUniformSpace Real Real.pseudoMetricSpace))
+      (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero)))
+'Conjecture161.successProbability_four_tendsto_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.successProbability_four_not_tendsto_one {C : Real}
+  (hC : @LT.lt Real Real.instLT (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero)) C) :
+  Not
+    (@Filter.Tendsto Conjecture161.PrimeIndex Real
+      (Conjecture161.successProbability (@OfNat.ofNat Nat 4 (instOfNatNat 4)) C)
+      (@Filter.atTop Conjecture161.PrimeIndex (@Subtype.preorder Nat Nat.instPreorder fun p => Nat.Prime p))
+      (@nhds Real
+        (@UniformSpace.toTopologicalSpace Real (@PseudoMetricSpace.toUniformSpace Real Real.pseudoMetricSpace))
+        (@OfNat.ofNat Real 1 (@One.toOfNat1 Real Real.instOne))))
+'Conjecture161.successProbability_four_not_tendsto_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.no_positive_denominator_function :
+  Not
+    (∃ D,
+      And
+        (∀ (n : Nat),
+          @LE.le Nat instLENat (@OfNat.ofNat Nat 2 (instOfNatNat 2)) n →
+            @LT.lt Real Real.instLT (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero)) (D n))
+        (∀ (n : Nat),
+          @LE.le Nat instLENat (@OfNat.ofNat Nat 2 (instOfNatNat 2)) n →
+            @Filter.Tendsto Conjecture161.PrimeIndex Real (Conjecture161.successProbability n (D n))
+              (@Filter.atTop Conjecture161.PrimeIndex (@Subtype.preorder Nat Nat.instPreorder fun p => Nat.Prime p))
+              (@nhds Real
+                (@UniformSpace.toTopologicalSpace Real (@PseudoMetricSpace.toUniformSpace Real Real.pseudoMetricSpace))
+                (@OfNat.ofNat Real 1 (@One.toOfNat1 Real Real.instOne)))))
+'Conjecture161.no_positive_denominator_function' depends on axioms: [propext, Classical.choice, Quot.sound]
+Conjecture161.conjecture_false : Not Conjecture161.OriginalClaim
+'Conjecture161.conjecture_false' depends on axioms: [propext, Classical.choice, Quot.sound]
+@[reducible] def Conjecture161.PrimeIndex : Type :=
+@Subtype Nat fun p => Nat.Prime p
+@[reducible] def Conjecture161.GeneralLinear : Nat → Conjecture161.PrimeIndex → Type :=
+fun n p =>
+  @Matrix.GeneralLinearGroup (Fin n) (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p)) (instDecidableEqFin n)
+    (Fin.fintype n) (ZMod.commRing (@Subtype.val Nat (fun p => Nat.Prime p) p))
+def Conjecture161.LargePrimeFactor : (n : Nat) →
+  Real → (p : Conjecture161.PrimeIndex) → Conjecture161.GeneralLinear n p → Prop :=
+fun n C p A =>
+  ∃ r,
+    And (Nat.Prime r)
+      (And
+        (@Dvd.dvd Nat Nat.instDvd r
+          (@orderOf (Conjecture161.GeneralLinear n p)
+            (@Units.instMonoid (Matrix (Fin n) (Fin n) (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p)))
+              (@MonoidWithZero.toMonoid (Matrix (Fin n) (Fin n) (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p)))
+                (@Semiring.toMonoidWithZero (Matrix (Fin n) (Fin n) (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p)))
+                  (@Matrix.semiring (Fin n) (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p))
+                    (@CommSemiring.toSemiring (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p))
+                      (@CommRing.toCommSemiring (ZMod (@Subtype.val Nat (fun p => Nat.Prime p) p))
+                        (ZMod.commRing (@Subtype.val Nat (fun p => Nat.Prime p) p))))
+                    (Fin.fintype n) (instDecidableEqFin n)))))
+            A))
+        (@LT.lt Real Real.instLT
+          (@HDiv.hDiv Real Real Real (@instHDiv Real (@DivInvMonoid.toDiv Real Real.instDivInvMonoid))
+            (@HPow.hPow Real Nat Real (@instHPow Real Nat (@Monoid.toNatPow Real Real.instMonoid))
+              (@Nat.cast Real Real.instNatCast (@Subtype.val Nat (fun p => Nat.Prime p) p))
+              (@HSub.hSub Nat Nat Nat (@instHSub Nat instSubNat) n (@OfNat.ofNat Nat 1 (instOfNatNat 1))))
+            C)
+          (@Nat.cast Real Real.instNatCast r)))
+def Conjecture161.successProbability : Nat → Real → Conjecture161.PrimeIndex → Real :=
+fun n C p =>
+  @HDiv.hDiv Real Real Real (@instHDiv Real (@DivInvMonoid.toDiv Real Real.instDivInvMonoid))
+    (@Nat.cast Real Real.instNatCast
+      (Nat.card (@Subtype (Conjecture161.GeneralLinear n p) fun A => Conjecture161.LargePrimeFactor n C p A)))
+    (@Nat.cast Real Real.instNatCast (Nat.card (Conjecture161.GeneralLinear n p)))
+def Conjecture161.OriginalClaim : Prop :=
+∃ P,
+  And
+    (∀ (n : Nat),
+      @LE.le Nat instLENat (@OfNat.ofNat Nat 2 (instOfNatNat 2)) n →
+        @LT.lt Real Real.instLT (@OfNat.ofNat Real 0 (@Zero.toOfNat0 Real Real.instZero))
+          (@Polynomial.eval Real Real.semiring (@Nat.cast Real Real.instNatCast n) P))
+    (∀ (n : Nat),
+      @LE.le Nat instLENat (@OfNat.ofNat Nat 2 (instOfNatNat 2)) n →
+        @Filter.Tendsto Conjecture161.PrimeIndex Real
+          (Conjecture161.successProbability n
+            (@Polynomial.eval Real Real.semiring (@Nat.cast Real Real.instNatCast n) P))
+          (@Filter.atTop Conjecture161.PrimeIndex (@Subtype.preorder Nat Nat.instPreorder fun p => Nat.Prime p))
+          (@nhds Real
+            (@UniformSpace.toTopologicalSpace Real (@PseudoMetricSpace.toUniformSpace Real Real.pseudoMetricSpace))
+            (@OfNat.ofNat Real 1 (@One.toOfNat1 Real Real.instOne))))
+PASS: clean build, every source strict, all 14 theorem types and axiom dependencies.

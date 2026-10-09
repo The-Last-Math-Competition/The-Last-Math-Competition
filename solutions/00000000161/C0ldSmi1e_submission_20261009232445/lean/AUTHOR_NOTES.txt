@@ -1,0 +1,173 @@
+CONJECTURE 00000000161 — INDEPENDENT AUTHOR NOTES
+
+Result
+======
+The conjecture is false under the standard meaning of a positive polynomial
+denominator in n, independent of p. At fixed dimension n = 4, for every real
+C > 0, the probability in the question is exactly zero whenever p >= 3C.
+In particular it tends to zero, and cannot tend to one, as p tends to infinity
+through primes. No distributional approximation or auxiliary numerical
+computation is needed: the event is eventually empty for every group element.
+
+Original statement and scope
+============================
+Both original language versions and both rules files were read before deriving
+the argument. The English source says:
+
+"Conjecture: The order of a random element of GL_n(F_p): with probability
+tending to 1 (as p → ∞ with fixed n ≥ 2), a random A ∈ GL_n(F_p) has order
+divisible by a prime factor exceeding p^{n−1}/poly(n)."
+
+The Chinese version has the same conditions and threshold. The notation
+poly(n) does not identify a particular polynomial or supply formal quantifiers.
+The conventional reading is that a positive polynomial in the fixed dimension
+serves as the denominator, with coefficients independent of p, and the claimed
+conclusion applies to every fixed n >= 2. OriginalClaim makes that reading
+explicit by existentially quantifying a real polynomial P positive at every
+integer n >= 2, followed by the asserted limit for each such fixed n.
+
+The main result is stronger than needed for that reading: it excludes every
+positive real constant C at dimension four, and also excludes every positive
+dimension-only denominator function D : Nat -> Real. Thus changing the degree,
+coefficients, or choice of a positive polynomial cannot rescue the claim.
+Any conventional positive multiplicative constants can be absorbed into C.
+No conclusion depends on a precise growth degree in n. A denominator depending
+on p or a nonpositive denominator would change the source's standard meaning
+and is not silently substituted here.
+
+Mathematical derivation
+=======================
+Fix a prime p, an element A of GL_4(F_p), and a prime r dividing its order.
+Lagrange's theorem gives r | order(A) | |GL_4(F_p)|. Counting ordered linearly
+independent columns gives
+
+  |GL_4(F_p)| = product_{i=0}^3 (p^4 - p^i)
+              = p^6 (p-1)^4 (p+1)^2 (p^2+1) (p^2+p+1).
+
+The four individual factors expand as follows:
+
+  p^4 - 1   = (p-1)(p+1)(p^2+1),
+  p^4 - p   = p(p-1)(p^2+p+1),
+  p^4 - p^2 = p^2(p-1)(p+1),
+  p^4 - p^3 = p^3(p-1).
+
+Euclid's lemma says r divides at least one of p, p-1, p+1, p^2+1, or p^2+p+1.
+All these integers are positive for p >= 2. A positive integer's prime divisor
+does not exceed the integer. Each factor is at most p^2+p+1, so
+
+  r <= p^2+p+1.
+
+Now let C > 0 be arbitrary. If p >= 3C, then, using p >= 1,
+
+  p^2+p+1 <= 3p^2 <= p^3/C.
+
+Consequently no prime divisor of any element order can strictly exceed p^3/C.
+The numerator in the uniform counting probability is therefore zero. For fixed
+C this holds for all sufficiently large primes. The prime-indexing filter is
+nontrivial, and its values are unbounded by Euclid's theorem, so uniqueness of
+real limits rules out a simultaneous limit of one. Since 4 >= 2 and n-1 = 3
+at n = 4, this directly contradicts the stated assertion for every fixed n.
+
+Exact formal correspondence
+===========================
+* PrimeIndex is the subtype {p : Nat // Nat.Prime p}, with inherited usual order.
+  Its atTop filter is shown nontrivial, and the coercion to Nat is proved to
+  tend to atTop using Nat.exists_infinite_primes.
+* GeneralLinear n p is Mathlib's Matrix.GeneralLinearGroup (Fin n) (ZMod p).
+  Matrix.GeneralLinearGroup is the group of units in the square matrix ring;
+  for prime p, ZMod p is the p-element field. Thus this is the actual GL_n(F_p).
+* LargePrimeFactor n C p A means there exists a natural prime r dividing the
+  actual group-theoretic orderOf A, with the strict inequality p^(n-1)/C < r.
+  It does not replace "prime factor" with "divisor", or allow a large composite.
+* successProbability is the number of such A divided by the number of all A.
+  This is exactly a uniformly random element's probability. The sample space
+  is proved finite/nonempty via positive Nat.card; the ratio is also proved
+  to belong to the real interval [0,1].
+* prime_divisor_order_le joins the generic arithmetic lemma to orderOf_dvd_natCard
+  and the stock Matrix.card_GL_field theorem; this is the essential bridge from
+  arithmetic to actual elements of the actual group.
+* no_largePrimeFactor_four proves the event's emptiness for every A at p >= 3C.
+  The subsequent theorems establish exact zero probability, eventual zero,
+  convergence to zero, and failure to converge to one, without sampling.
+* no_positive_denominator_function excludes every positive dimension-only
+  function, and conjecture_false proves the negation of OriginalClaim.
+
+Files and reproducible verification
+==================================
+The mathematical source files are Conjecture161.lean and
+Conjecture161/Arithmetic.lean. Audit.lean prints all 14 named theorem types and
+their transitive axiom dependencies, as well as the five central definitions.
+All theorem dependencies are contained in the permitted set
+{propext, Classical.choice, Quot.sound}. No additional mathematical axioms,
+proof placeholders, untrusted computation, or auxiliary numerical computations
+are used.
+
+Lean is pinned to leanprover/lean4:v4.19.0. Mathlib is pinned in lake-manifest.json
+to v4.19.0, commit c44e0c8ee63ca166450922a373c7409c5d26b00b. All eight transitive
+dependency revisions are pinned in that same unmodified neutral manifest.
+Its SHA256 is 56f7aa9722d120b38ffe868179164054411be9398660939609cb8a0c55e48637.
+
+To verify with Lean 4.19.0 and dependencies present, run:
+
+  python3 verify.py
+
+For an ordinary fresh network-enabled checkout, dependencies can first be
+obtained with the standard pinned project command `lake exe cache get`.
+The verifier checks Lean version, exact manifest bytes and all nine dependency
+revisions plus absence of tracked dependency changes. It removes only this
+project's own generated .lake/build directory, runs lake build, separately
+checks lakefile.lean and both mathematical sources with warningAsError=true,
+and similarly runs Audit.lean. It verifies complete theorem coverage and rejects
+any axiom outside the three listed above. verification.log is the recorded
+evidence. The project's Lake configuration also makes its own build warnings
+errors. Dependencies are stock and are not altered by the mathematical proof.
+
+The authoring machine initially lacked one cached stock object:
+Mathlib/LinearAlgebra/Matrix/GeneralLinearGroup/Card.lean. That unmodified source
+has SHA256 e28e3ee969ec70d013d8a9c69adb3c879f1906f109fcddcee1772fd01c55e284.
+An isolated copy-on-write mirror of the stock Mathlib sources and cached build
+files was made under this project's .lake/packages/mathlib; ordinary lake build
+compiled this missing module there. No stock library source was edited and the
+original cache remained unchanged. An initial successful one-module scratch
+compilation also used an exact copy under .stock-source and output under
+.stock-build; neither scratch directory is required or part of the deliverable.
+The final ordinary Lake project does not use overlay imports or modified module
+names. Another verifier can use standard pinned dependencies directly.
+
+Input provenance and independent derivation
+===========================================
+The only problem-specific mathematical input was the bilingual original at
+/private/tmp/tlmc161-author-input/conjectures/00000000161.md. Authorized local
+rules and neutral version pins were also read. Their input SHA256 values are:
+
+  conjectures/00000000161.md
+    1c971b03093fe80cb0bcaadeb5eeaf3139f34b846d65e1eae3d4f103c256ec76
+  RULES.en.md
+    200d9a783c08a5edfd1b508e6942b3b851a63c726506291f6de6a59773f1163a
+  RULES.zh-CN.md
+    7c5b49bb84403feea1eb14d23d48491400c7749d58db345cd317231949a9e82b
+  lean-toolchain
+    55e97be96000b5e9e290c9e74482e5e317861499a5540353ce845471bded8cea
+  lake-manifest.json
+    56f7aa9722d120b38ffe868179164054411be9398660939609cb8a0c55e48637
+
+The input checksum manifest itself has SHA256
+3f56a82d2facffacad8e92c98fcaa9576bd1f408246b6386cda52c81c6c48fb8.
+
+The author independently derived the n = 4 obstruction from the original,
+then consulted only stock Lean/Mathlib. No other conjecture, solution, proof,
+selector record, prior mathematical summary, public solution, or thread roster
+was inspected. There was no web search. Eligibility and publication are outside
+this authoring task and remain with the parent coordinator.
+
+One fresh child task, /root/author_161/arith, formalized only the generic
+arithmetic lemma after the author had independently derived it. It received
+the statement "p >= 2, r prime, r divides product_(i : Fin 4)(p^4-p^i), hence
+r <= p^2+p+1" and the displayed factorization, together with instructions to
+use only the isolated project and pristine stock Lean/Mathlib, avoid all other
+conjecture/solution/history inputs, and use no disallowed proof mechanisms.
+It returned Conjecture161/Arithmetic.lean and a successful strict compilation.
+The author inspected that complete proof and integrated and reverified it.
+All group, probability, limit, and source-correspondence reasoning and proofs
+were developed by the author. No mathematical strategy was supplied by the
+parent coordinator.

@@ -1,0 +1,139 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\newtheorem{theorem}{Theorem}
+\newcommand{\GL}{\mathrm{GL}}
+\newcommand{\Fp}{\mathbb F_p}
+\newcommand{\ord}{\operatorname{ord}}
+\begin{document}
+\begin{center}
+{\Large\bfseries Disproof of conjecture 00000000161}\\[5pt]
+{\large A uniform prime-divisor bound in dimension four}\\[7pt]
+C0ldSmi1e \quad --- \quad AI-assisted submission\\
+9 October 2026
+\end{center}
+
+\paragraph{Claim and scope.}
+Both language versions assert that, for every fixed integer $n\ge2$, a uniformly
+chosen $A\in\GL_n(\Fp)$ has, with probability tending to one as the prime $p$
+tends to infinity, a prime divisor of $\ord(A)$ exceeding
+$p^{n-1}/\operatorname{poly}(n)$. The conventional denominator is positive and
+independent of $p$. No particular polynomial is specified. We disprove the
+claim for every possible positive denominator value at $n=4$.
+
+\begin{theorem}
+Let $C>0$. For every prime $p$ satisfying $p\ge3C$ and every
+$A\in\GL_4(\Fp)$, no prime divisor of $\ord(A)$ exceeds $p^3/C$.
+Consequently the uniform probability of the conjectured event is eventually
+exactly zero, and its limit along primes is zero, not one.
+\end{theorem}
+
+\begin{proof}
+Counting ordered linearly independent columns gives
+\[
+ |\GL_4(\Fp)|=\prod_{i=0}^{3}(p^4-p^i)
+   =p^6(p-1)^4(p+1)^2(p^2+1)(p^2+p+1).
+\]
+For completeness, the individual factors are
+\begin{align*}
+ p^4-1&=(p-1)(p+1)(p^2+1),&
+ p^4-p&=p(p-1)(p^2+p+1),\\
+ p^4-p^2&=p^2(p-1)(p+1),&
+ p^4-p^3&=p^3(p-1).
+\end{align*}
+If a prime $r$ divides $\ord(A)$, Lagrange's theorem implies that it divides
+$|\GL_4(\Fp)|$. Euclid's lemma therefore makes $r$ a divisor of at least one of
+$p$, $p-1$, $p+1$, $p^2+1$, and $p^2+p+1$. These integers are positive because
+$p\ge2$, and each is at most $p^2+p+1$. Thus
+\[
+ r\le p^2+p+1\le3p^2\le\frac{p^3}{C}\qquad(p\ge3C).
+\]
+The conjecture requires a \emph{strictly} larger prime divisor, so its event
+is empty. Its uniform counting probability is zero. Primes are unbounded;
+hence this holds eventually along the prime-indexed limit. Uniqueness of real
+limits on a nontrivial filter rules out a limit of one.
+\end{proof}
+
+\paragraph{Why this refutes the full claim.}
+For any proposed positive polynomial $P$, put $C=P(4)>0$. The conjecture includes
+the dimension $4$, where $n-1=3$, and is contradicted by the theorem. The same
+argument rules out even an arbitrary positive function of dimension as the
+denominator. No conclusion about other dimensions, or about a denominator
+allowed to depend on $p$, is required.
+
+\newpage
+\section*{Formal correspondence and reproduction}
+
+The exact bilingual original is included as \texttt{conjecture.md}. The Lean
+project uses the original threshold, the actual general linear group, and the
+actual group-theoretic element order. The relevant definitions are:
+\begin{itemize}[leftmargin=1.4em,itemsep=3pt,topsep=3pt]
+\item \texttt{PrimeIndex} is $\{p\in\mathbb N:p\text{ is prime}\}$ with the
+usual inherited order. Its \texttt{atTop} filter is nontrivial; coercion to
+$\mathbb N$ tends to infinity by Euclid's theorem.
+\item \texttt{GeneralLinear n p} is
+\texttt{Matrix.GeneralLinearGroup (Fin n) (ZMod p)}. For prime $p$ this is
+$\GL_n(\Fp)$, the units of the square matrix ring over the $p$-element field.
+\item \texttt{LargePrimeFactor} requires a natural prime $r$ dividing
+\texttt{orderOf A} and satisfying $p^{n-1}/C<r$.
+\item \texttt{successProbability} is the cardinality of that event divided
+by the cardinality of the full group. Positivity of the finite sample-space
+cardinality and membership of this ratio in $[0,1]$ are proved.
+\item \texttt{OriginalClaim} explicitly means that there exists a real
+polynomial $P$, positive at every integer $n\ge2$, for which the corresponding
+probability tends to one at every such fixed dimension.
+\end{itemize}
+
+The mathematical files are \texttt{Conjecture161.lean} and
+\texttt{Conjecture161/Arithmetic.lean}. The key bridge,
+\nolinkurl{prime_divisor_order_le}, applies the arithmetic factorization to
+Mathlib's \nolinkurl{Matrix.card_GL_field} and
+\nolinkurl{orderOf_dvd_natCard}. Thus the group cardinality and its link to
+individual element orders are proved within Lean, not merely supplied as
+numerical assumptions.
+
+The final theorem is
+\begin{center}
+\texttt{Conjecture161.conjecture\_false :}\quad
+\texttt{$\neg$ Conjecture161.OriginalClaim}.
+\end{center}
+The stronger results
+\nolinkurl{successProbability_four_not_tendsto_one} and
+\nolinkurl{no_positive_denominator_function} make the independence from the
+choice of polynomial explicit. Exact event emptiness, eventual zero, and the
+limit zero are all separately formalized.
+
+\paragraph{Verification.}
+The project pins Lean 4.19.0 and Mathlib v4.19.0. The Mathlib commit is
+\begin{center}
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+All eight transitive dependency
+revisions are pinned in \texttt{lake-manifest.json}. With the pinned Lean on
+\texttt{PATH}, obtain dependencies using \texttt{lake exe cache get}, then run
+\texttt{python3 verify.py} inside \texttt{lean/}.
+The verifier checks the pins, rebuilds the project's own generated objects,
+replays all Lean files with warnings treated as errors, and prints the full
+types and axiom dependencies of all 14 named mathematical theorems.
+The recorded author run passed. Its axiom sets contain only
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+There are no admitted proofs, added axioms, or \texttt{native\_decide} calls.
+No auxiliary numerical computation is needed: the proof is uniform in every
+prime and every group element under the displayed bound.
+
+\paragraph{Provenance and review status.}
+The proof author worked from the original bilingual statement, contribution
+rules, and stock pinned libraries. After independently deriving the argument,
+the author delegated only the generic arithmetic factorization lemma to a
+fresh helper; the full disclosure is in \texttt{AUTHOR\_NOTES.txt}. The package's
+verification records distinguish author checks, independent internal review,
+and repository eligibility checks. These records do not constitute maintainer
+acceptance.
+\end{document}
