@@ -1,0 +1,41 @@
+Independent engineering review — conjecture 00000000930
+
+RESULT: PASS for the final canonical-import Lean project, its actual Lake default target, and the independent transitive trust/signature audit. Final whole-submission inventory binding is completed separately after documentation/evidence freeze. Mathematical report/PDF review and public submission eligibility are handled separately by the parent reviewer.
+
+Reviewed project: solutions/00000000930/C0ldSmi1e_submission_20261009175153/lean
+Toolchain: Lean 4.19.0; Mathlib c44e0c8ee63ca166450922a373c7409c5d26b00b.
+The final lake-manifest.json SHA-256 is 5fceca7fa41e6c675d6b87dd02c8c7cd99634561dce5826368d42b85f25c23f7. Its only change from initial installation was making mathlib.inputRev the same exact SHA requested by lakefile.toml; resolved dependency revisions are unchanged.
+
+Fresh independent build
+The submitted Lean sources were copied to a new private project directory with no owned compiled objects. All nine designated standard dependency trees and caches were privately copied using filesystem copy-on-write; Lake could write only to those private copies. No author-generated compiled object was used. Every dependency HEAD matched the manifest and tracked dependency sources remained unchanged after the build.
+
+Three missing standard Mathlib modules were freshly compiled from their unchanged pinned sources in the private cache: RemovableSingularity, UniformLimitsDeriv, LocallyUniformLimit. Canonical imports are used throughout. The nine owned source modules are Bergman930.Bergman, Commutant, Geometry, MeanValue, Evaluation, Completeness, Reducing, Verification, and the Bergman930 root. All seven mathematical source bodies were byte-identical to the prior fully reviewed milestone after removing only import lines.
+
+The actual Lake command was:
+  lake --no-cache --wfail --verbose build
+It exited 0 with no warnings or errors, ran bergman930/Bergman930:default, and freshly elaborated all nine owned modules. The raw trace records -DwarningAsError=true on every owned Lean invocation. No --old option, author output, or altered project target was used. Ordinary cached pinned standard imports were replayed. The standard library trust boundary is explicit: existing pinned dependency objects are trusted imports; all owned modules and the three missing standard modules were freshly built. Fresh downloading/rebuilding the entire external dependency ecosystem was not attempted.
+
+Portable positive audit
+EngineeringAudit.lean is independent reviewer verification code. From the submitted lean directory it was successfully run as:
+  lake env lean -DwarningAsError=true ../validation/EngineeringAudit.lean
+It exits 0. The audit recursively inspects both types and available bodies, including opaque bodies, and rejects missing constants, unsafe or partial constants, sorryAx, Lean.ofReduceBool*, and any axiom other than propext, Classical.choice, Quot.sound.
+
+Results:
+  l2Space_isClosed: 43,286 reachable constants; PASS.
+  not_continuum: 43,906 reachable constants; PASS.
+  All 59 explicit mathematical definitions, abbreviations and theorems: 44,056 reachable constants; PASS.
+All three audits found zero unsafe, partial or missing dependencies and only the allowed axioms. Anonymous mathematical instances needed by the proofs are covered transitively. Independent #print axioms results agree for closure, completeness, adjoint equivalence, classification, exact cardinality and non-continuum cardinality.
+
+The elaborated types of l2Space_isClosed, reducing_cardinality and not_continuum have zero top-level binders and no universe parameters. The final fixed types are exactly:
+  Cardinal.mk Bergman930.ReducingSubspace = 2
+  Cardinal.mk Bergman930.ReducingSubspace != Cardinal.continuum
+The printed concrete definitions and compiled signature examples bind the actual open unit disk, Lebesgue area, holomorphic square-integrable functions, the closed Lp range, bounded multiplication by z, and the subtype of all closed reducing subspaces. Classification quantifies over only a subspace and its reducing property. The adjoint equivalence is also checked.
+
+Audit control and source/routing checks
+A deliberate forbidden-axiom theorem in separate private reviewer scratch was rejected by the same transitive checking procedure with nonzero exit status and the expected forbidden-axiom diagnostic. That negative-control source is not part of the submission and is not imported by the positive audit or project.
+
+The nine owned project sources contain no unfinished proof, custom axiom, unsafe/partial declaration, native_decide, external implementation hook, or executable elaboration hook. The lone raw forbidden-token hit is the word "axiom" in a Verification.lean comment. The positive reviewer audit necessarily mentions forbidden constructs in diagnostics/checks and uses normal Lean metaprogramming to inspect declarations; it is verification code, not a proof assumption.
+
+A private inventory hashes all 4,118 objects imported by the complete audit, including standard Lean audit imports. Every object resolves under the designated runtime or private review dependency/project directories, with zero shadow-path matches. All nine project objects were built in this review. No local absolute path is a portable project dependency. Dependency caches, full imported-object inventory, earlier diagnostic experiments and the negative-control code remain private; command receipts, input hashes, successful raw build/audit logs and this report are sufficient concise submission evidence.
+
+Included auxiliary materials available during this review (README, original statement, toolchain/config/manifest, Verification.lean, author build JSON/raw log, source-audit summary and PDF validation receipts) were read. They introduce no auxiliary numerical computations. Final documentation and inventory files may be added without requiring a new mathematical build if all reviewed Lean/config/manifest hashes remain identical.
