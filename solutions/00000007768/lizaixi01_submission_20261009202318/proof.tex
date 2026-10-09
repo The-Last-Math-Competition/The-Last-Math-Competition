@@ -1,0 +1,144 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\C}{\mathbb C}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\dimH}{\dim_{\mathrm H}}
+\title{A counterexample to the dimension clause\protect\\of conjecture 00000007768}
+\author{Local formalization artifact}
+\date{8 October 2026}
+\begin{document}
+\maketitle
+
+The original asserts that a complex polynomial outside the power and signed
+Chebyshev families has Julia-set fractal dimension strictly greater than one.
+We use the standard meanings of affine polynomial conjugacy and Hausdorff
+dimension. The following exact example refutes this necessary clause of the
+conjecture. It does not require deciding the separate algebraic-arc,
+transcendence or cusp-parameter assertions.
+
+For a polynomial $p$ of degree at least two, write
+\[
+ K(p)=\{z\in\C:\text{the complete forward orbit of }z\text{ is bounded}\},
+ \qquad J(p)=\partial K(p).
+\]
+This is the usual filled Julia set and polynomial Julia set; see Milnor,
+\emph{Dynamics in One Complex Variable}, \S17, Lemma 17.1. All boundedness below
+is over every iterate, not over a finite truncation.
+
+\begin{theorem}
+Let $f(z)=z^2-6$. Its coefficients are algebraic, its degree is two, and it is
+not affinely conjugate to $z^d$, $T_d$, or $-T_d$ for any $d\in\N$. Its Julia
+set is nonempty and satisfies $J(f)\subset\R\subset\C$, hence
+$\dimH J(f)\leq 1$. Thus the original universal assertion
+``non-exceptional implies dimension $>1$'' is false.
+\end{theorem}
+
+\begin{lemma}[Escape radius, with the full orbit]
+An orbit of $f$ is bounded if and only if all its terms have modulus at most
+three. Consequently $K(f)$ is closed.
+\end{lemma}
+\begin{proof}
+The reverse triangle inequality gives
+\[
+ |f(z)|\geq |z|^2-6.
+\]
+Suppose an orbit term has modulus $r_0>3$, and put $\delta=r_0-3>0$.
+For every $r\geq r_0$,
+\[
+ r^2-6-r=(r-3)(r+2)\geq 5\delta\geq\delta.
+\]
+Induction therefore bounds the subsequent moduli below by $r_0+n\delta$.
+The Archimedean property makes this unbounded, a contradiction. The argument
+applies to every tail of a bounded orbit, so every term has modulus at most
+three. The converse is immediate. Moreover
+\[
+ K(f)=\bigcap_{n\in\N}\{z:|f^{\circ n}(z)|\leq 3\}.
+\]
+Each set in the intersection is closed by continuity, proving the last claim.
+\end{proof}
+
+\begin{lemma}[Reality and nonemptiness]
+$K(f)\subset\R$ and $3\in J(f)$.
+\end{lemma}
+\begin{proof}
+Let $z_n=x_n+iy_n$ be a bounded forward orbit. The escape lemma gives
+$|z_{n+1}|\leq 3$, so
+\[
+ x_n^2-y_n^2-6=\operatorname{Re} z_{n+1}\geq -3,
+ \qquad x_n^2-y_n^2\geq 3.
+\]
+In particular $|x_n|\geq 1$. Since $y_{n+1}=2x_ny_n$,
+\[
+ |y_n|\geq 2^n|y_0|.
+\]
+If $y_0\ne0$, this contradicts $|y_n|\leq |z_n|\leq3$. Hence every point of
+$K(f)$ is real. Because the real axis is closed,
+\[
+ J(f)=\partial K(f)\subset\overline{K(f)}\subset\R.
+\]
+The point $3$ is fixed, so belongs to $K(f)$. Every neighborhood of $3$ contains
+a nonreal point, and such a point is outside $K(f)$ by the reality argument.
+Therefore $3$ belongs to the boundary $J(f)$, proving nonemptiness.
+\end{proof}
+
+\begin{lemma}[Every exceptional degree and both Chebyshev signs]
+The polynomial $f$ is not affinely conjugate to $z^d$ or $\pm T_d$ for any
+$d\in\N$.
+\end{lemma}
+\begin{proof}
+Write a putative affine conjugacy as $h(z)=az+b$, with $a\ne0$, satisfying
+$f\circ h=h\circ q$. This map is bijective, with inverse $(z-b)/a$.
+Polynomial degrees in this identity give
+\[
+ 2=\deg q=d,
+\]
+using the actual degree of $T_d$, and the same degree for its negative. Thus
+all degrees reduce to $d=2$.
+
+Now $q(1)=q(-1)$ for each of $q(z)=z^2$, $T_2(z)=2z^2-1$, and $-T_2(z)$.
+Evaluating $f(h(z))=h(q(z))$ at $1$ and $-1$ and subtracting gives $4ab=0$.
+As $a\ne0$, we have $b=0$.
+
+If $q(z)=z^2$, evaluation at zero gives $-6=0$, impossible. If
+$q(z)=2z^2-1$, the zero evaluation forces $a=6$; if
+$q(z)=-(2z^2-1)$, it forces $a=-6$. In either case, evaluation at one then
+gives $36-6=6$, again impossible. This uses the actual signed Chebyshev
+polynomials, not a substituted centered-parameter hypothesis.
+\end{proof}
+
+\begin{proof}[Completion of the theorem]
+The integer coefficients of $z^2-6$ are algebraic over $\mathbb Q$.
+The real-axis inclusion above and monotonicity of Hausdorff dimension give
+\[
+ \dimH J(f)\leq\dimH\R=1,
+\]
+where the real axis is identified with its isometric image in the complex
+plane. Together with the complete exceptional-family exclusion and
+nonemptiness, this is the claimed counterexample. A conjunction containing
+the asserted strict lower bound therefore cannot hold for all the original
+admissible polynomials.
+\end{proof}
+
+\paragraph{Source and formalization correspondence.}
+Both the English and Chinese source copies assert the dimension clause used
+here. The Lean objects use polynomials over $\C$, arbitrary natural-number
+iterates, bounded-orbit filled Julia sets, their topological boundaries, actual
+Mathlib Hausdorff dimension, actual Mathlib Chebyshev polynomials, and
+invertible affine conjugacies. The named dimension convention and conjugacy
+convention are explicit semantic conventions and remain subject to independent
+source review. Compiler checks of an author package do not constitute manager
+acceptance or an external submission.
+
+\begin{thebibliography}{1}
+\bibitem{milnor}
+John Milnor, \emph{Dynamics in One Complex Variable: Introductory Lectures},
+Stony Brook IMS Preprint 1990/5, revised September 1991,
+\S17, Lemma 17.1 (PDF page 98).
+\url{https://legacy-www.math.harvard.edu/archive/118r_spring_05/docs/milnor.pdf}
+\end{thebibliography}
+\end{document}
