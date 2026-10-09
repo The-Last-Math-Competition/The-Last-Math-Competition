@@ -1,0 +1,160 @@
+{
+  "status": "PASS",
+  "project": "/private/tmp/tlmc1624-verifier-engineering/snapshots/hardened",
+  "source_sha256": "8b7bd1c71ca83fbfa82b723c1beff0582d2fd54bda12e46d5815f1e15add62bd",
+  "audit_sha256": "4bb5fe52a96a94ace859b75f0bbf7da91043c30a2f07063e65a77257dfb65fe2",
+  "commands": [
+    {
+      "label": "axiom-compile",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "-o",
+        ".lake/build/lib/lean/Verification.olean",
+        "Verification.lean"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 1.473,
+      "log": "records/final-lean-controls/axiom-compile.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "axiom-audit",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 9.275,
+      "log": "records/final-lean-controls/axiom-audit.log",
+      "log_sha256": "a4bb79bbef786d919b474433ef5e719d96fdf13bccb209cc1c05e42914c37713"
+    },
+    {
+      "label": "unsafe-compile",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "-o",
+        ".lake/build/lib/lean/Verification.olean",
+        "Verification.lean"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 1.414,
+      "log": "records/final-lean-controls/unsafe-compile.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "unsafe-audit",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 10.52,
+      "log": "records/final-lean-controls/unsafe-audit.log",
+      "log_sha256": "cb6b053c4ab45ff56861371249f4be151f251293eb3cdf838e76f3904e81c1af"
+    },
+    {
+      "label": "partial-compile",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "-o",
+        ".lake/build/lib/lean/Verification.olean",
+        "Verification.lean"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 1.423,
+      "log": "records/final-lean-controls/partial-compile.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "partial-audit",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 5.971,
+      "log": "records/final-lean-controls/partial-audit.log",
+      "log_sha256": "4350abd222f4d54d903969c7f82afe9e767604c9d1c085eccb6199d5a5924eac"
+    },
+    {
+      "label": "restore-compile",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "-o",
+        ".lake/build/lib/lean/Verification.olean",
+        "Verification.lean"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 1.424,
+      "log": "records/final-lean-controls/restore-compile.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "restore-audit",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 10.538,
+      "log": "records/final-lean-controls/restore-audit.log",
+      "log_sha256": "b4ef2f88a066c4e4a0f22457497959e3cd98500bf8ed14d71a4961b94da54505"
+    }
+  ],
+  "controls": [
+    {
+      "name": "axiom",
+      "injection": "\naxiom EngineeringControl.forbidden : True\n",
+      "mutated_source_sha256": "c839d6cbc7894e6a45a6d51d98a2305f90981b7489a52d9711864992d1ca4b98",
+      "expected_rejection_observed": true
+    },
+    {
+      "name": "unsafe",
+      "injection": "\nunsafe def EngineeringControl.unsafeRoot : True := True.intro\n",
+      "mutated_source_sha256": "58aa114beecbfa5ab7c34520bc047e2d59f5e39a8bfbdc90112c74741370794e",
+      "expected_rejection_observed": true,
+      "audit_result": {
+        "status": "FAIL",
+        "forbidden_axioms": [],
+        "unsafe_dependencies": [
+          "EngineeringControl.unsafeRoot"
+        ],
+        "partial_dependencies": []
+      },
+      "audit_gzip": "records/final-lean-controls/unsafe-dependency-audit.json.gz",
+      "audit_gzip_sha256": "a992e76f9b92c8c72fbc2a7dda82536ee67dbcae3ce36fb4b1f25e663473e56b"
+    },
+    {
+      "name": "partial",
+      "injection": "\npartial def EngineeringControl.partialRoot (n : Nat) : Nat := EngineeringControl.partialRoot n\n",
+      "mutated_source_sha256": "b6eed3af935a845233a111248c995a45bbcc7d489cf02328eaff5529c34bec00",
+      "expected_rejection_observed": true
+    }
+  ],
+  "restored_positive_audit": true,
+  "source_restored": true
+}

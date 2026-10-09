@@ -1,0 +1,198 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.3em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newcommand{\R}{\mathbb R}
+\newcommand{\vol}{\lambda}
+\newcommand{\Int}{\operatorname{int}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\title{Disproof of Conjecture 00000001624\\[0.3em]
+\large A positive-measure Cantor spectrum must have an internal gap}
+\author{C0ldSmi1e\\\small AI-assisted submission}
+\date{9 October 2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+The conjecture requests a quasiperiodic potential whose spectrum is a
+positive-measure Cantor set with no gaps and whose spectral measure is singular.
+Its geometric requirements are already incompatible under the literal,
+standard real-energy meaning of ``with no gaps.'' We prove that every closed
+subset of $\R$ with empty interior and positive Lebesgue measure has a bounded
+complementary component with both endpoints in the set. The Lean proof ranges
+over all real sets and then over every potential type and spectrum assignment;
+no particular operator or potential is selected.
+\end{abstract}
+
+\section{Exact claim and interpretation}
+
+The English source states:
+\begin{quote}
+\raggedright
+``Conjecture: There exists a quasiperiodic potential whose spectrum is a
+positive-measure Cantor set with no gaps while the spectral measure is singular
+(an explicit construction of gapless singular spectra).''
+\end{quote}
+The accompanying Chinese statement also attributes both Cantor character and
+absence of gaps to the spectrum. The exact original in both languages is
+retained in \code{source/ORIGINAL.md}. Neither version specifies a reference
+energy at which alone a gap should be absent.
+
+Throughout this report the spectrum is a subset of the real energy line, as
+in the usual self-adjoint setting for quasiperiodic potentials. A real Cantor
+set means a nonempty, compact, perfect, nowhere-dense subset of $\R$. It need
+not be the middle-thirds Cantor set: Cantor character does not by itself imply
+zero Lebesgue measure. The measure in ``positive-measure'' is Lebesgue measure
+$\vol$ on $\R$, distinct from the operator's spectral measure.
+
+For $S\subseteq\R$, an \emph{internal gap} is a nonempty interval $(a,b)$ such
+that
+\begin{equation}\label{eq:gap}
+ a<b,\qquad a,b\in S,\qquad (a,b)\cap S=\varnothing.
+\end{equation}
+These finite spectral endpoints distinguish an internal gap from the exterior
+resolvent rays of a bounded spectrum. ``With no gaps'' means that no such pair
+$a,b$ exists, anywhere in the spectrum. We verify below that
+\eqref{eq:gap} yields a whole connected component of the complement. For closed
+real sets, we also prove that this absence of gaps is equivalent to containing
+every point between any two of the set's points.
+
+This reading differs from absence of a gap at a chosen Fermi energy, absence
+of an excitation gap above a selected ground state, or closure of only some
+labelled gaps. No such restriction is present in the source. The result here
+does not settle a rewritten conjecture with one of those different conditions.
+
+\section{The set-level obstruction}
+
+\begin{lemma}[A missing point lies in a full internal gap]\label{lem:gap}
+Let $S\subseteq\R$ be closed, and let $x,y\in S$ and $c\notin S$ satisfy
+$x<c<y$. Then there are $a,b\in S$ with $a<c<b$ and
+$(a,b)\cap S=\varnothing$.
+\end{lemma}
+\begin{proof}
+Set
+\[
+ L=S\cap(-\infty,c],\qquad R=S\cap[c,\infty),\qquad
+ a=\sup L,\qquad b=\inf R.
+\]
+The sets $L,R$ are nonempty because they contain $x,y$, respectively.
+They are closed; $L$ is bounded above by $c$, and $R$ is bounded below by $c$.
+The supremum and infimum therefore belong to their respective sets.
+Consequently $a,b\in S$ and $a\leq c\leq b$. Neither equality can hold because
+$c\notin S$, so $a<c<b$.
+
+If $z\in S\cap(a,b)$ and $z\leq c$, then $z\in L$ and hence $z\leq a$,
+a contradiction. If instead $c\leq z$, then $z\in R$ and $b\leq z$, also a
+contradiction. Thus $(a,b)$ is disjoint from $S$.
+\end{proof}
+
+\begin{lemma}[The interval is an entire complementary component]\label{lem:component}
+If \eqref{eq:gap} holds and $c\in(a,b)$, then the connected component of
+$\R\setminus S$ containing $c$ is precisely $(a,b)$.
+\end{lemma}
+\begin{proof}
+The interval $(a,b)$ is connected, contains $c$, and lies in $\R\setminus S$,
+so it lies in that component. Conversely, a connected subset of $\R$ contains
+every point between any two of its points. If the component contained some
+$z\leq a$, it would contain $a$ between $z$ and $c$, contradicting $a\in S$.
+If it contained some $z\geq b$, it would similarly contain $b\in S$.
+The component is therefore contained in $(a,b)$.
+\end{proof}
+
+\begin{theorem}\label{thm:main}
+Every closed subset $S\subseteq\R$ with empty interior and
+$\vol(S)>0$ has an internal gap.
+\end{theorem}
+\begin{proof}
+A set with at most one point has Lebesgue measure zero. Thus $S$ contains
+distinct points, which we order as $x<y$. The nonempty open interval $(x,y)$
+cannot be contained in $S$: otherwise it would be contained in $\Int(S)$,
+contrary to $\Int(S)=\varnothing$. Choose $c\in(x,y)\setminus S$ and apply
+Lemma~\ref{lem:gap}. Lemma~\ref{lem:component} confirms that the resulting
+gap is a bounded complementary component, not an arbitrarily selected
+subinterval of a larger one.
+\end{proof}
+
+The argument actually needs only two distinct points in place of positive
+measure, and does not require compactness or perfection. Those observations
+strengthen the obstruction; they do not add assumptions to the conjecture.
+
+\begin{lemma}[Equivalent no-gap formulation]\label{lem:convex}
+For a closed set $S\subseteq\R$, absence of internal gaps is equivalent to
+order convexity: whenever $x,y\in S$ and $x\leq z\leq y$, one has $z\in S$.
+\end{lemma}
+\begin{proof}
+If $z\notin S$ lies between $x,y\in S$, then it differs from both endpoints,
+so $x<z<y$; Lemma~\ref{lem:gap} supplies a gap. Conversely, order convexity
+would put every point of an interval $(a,b)$ with $a,b\in S$ into $S$,
+contradicting \eqref{eq:gap}.
+\end{proof}
+
+\section{Negation of the original existence claim}
+
+\begin{corollary}\label{cor:cantor}
+There is no positive-measure real Cantor set with no internal gaps.
+\end{corollary}
+\begin{proof}
+A real Cantor set is closed and has empty interior. Apply
+Theorem~\ref{thm:main}.
+\end{proof}
+
+Every proposed witness to the source claim would provide such a real spectrum,
+contradicting Corollary~\ref{cor:cantor}. This is a disproof of a necessary
+conjunction of the original conditions, hence of the full existential claim.
+The additional quasiperiodicity and spectral-measure singularity requirements
+cannot restore a witness once its required spectrum is impossible. There can
+therefore be no explicit construction meeting all the stated requirements.
+No separate claim about the existence of singular spectral measures is made.
+
+The formal lift makes the quantifier coverage explicit. Let $\mathcal V$ be
+\emph{any} type of candidate potentials, let
+$\Sigma:\mathcal V\to\mathcal P(\R)$ be \emph{any} real spectrum assignment
+(where the codomain denotes the power set), and let $Q,T$ be arbitrary
+predicates on $\mathcal V$. Then
+\[
+\neg\exists V\in\mathcal V:\quad
+Q(V)\ \land\ \operatorname{Cantor}(\Sigma(V))\ \land\
+\vol(\Sigma(V))>0\ \land\ \operatorname{NoGaps}(\Sigma(V))\ \land\ T(V).
+\]
+Here genuine quasiperiodicity and singular-spectral-measure predicates may be
+substituted for $Q,T$. Universality of this result means that these notions
+are not replaced by a restricted toy model. The proof works even without
+constraining $Q$ or $T$ at all. The source's omitted choices of operator
+realization, potential regularity, phase, and spectral-measure vector do not
+affect this geometric contradiction.
+
+\section{Correspondence with the Lean project}
+
+The project uses Lean 4.19.0 and Mathlib v4.19.0. Its mathematical core is
+\code{Conjecture1624.lean}, in namespace \code{Conjecture1624}.
+\begin{itemize}
+\setlength{\itemsep}{0.2em}
+\item \code{IsRealCantor} is nonemptiness, compactness, Mathlib's
+\code{Perfect}, and empty interior. Mathlib's \code{Perfect} includes
+closedness, so the last condition is equivalent here to nowhere density.
+\item \code{IsGap} is exactly \eqref{eq:gap}; \code{HasNoGaps} is its
+existential negation.
+\item \code{exists_gap_around} proves Lemma~\ref{lem:gap},
+and \code{IsGap.component} proves Lemma~\ref{lem:component}.
+\item \code{exists_gap_of_positive_volume} is Theorem~\ref{thm:main}.\\
+\code{hasNoGaps_iff_ordConnected} is Lemma~\ref{lem:convex}.
+\item \code{no_source_spectrum} is Corollary~\ref{cor:cantor}, and
+\code{no_source_potential} is the universal lift just displayed.
+\end{itemize}
+
+The conclusion uses ordinary real topology and Lebesgue measure. No numerical
+experiment or auxiliary computation is needed to establish the mathematical
+claim. Reproducible build, challenge checks, axiom-dependency inspection, and
+independent review records accompany the submission. Those checks establish
+local verification; repository acceptance remains a maintainer decision.
+
+\end{document}

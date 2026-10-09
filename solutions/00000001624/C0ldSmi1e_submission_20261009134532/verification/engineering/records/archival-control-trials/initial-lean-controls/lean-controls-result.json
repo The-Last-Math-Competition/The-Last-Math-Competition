@@ -1,0 +1,113 @@
+{
+  "status": "RUNNING",
+  "project": "/private/tmp/tlmc1624-verifier-engineering/snapshots/initial",
+  "source_sha256": "8b7bd1c71ca83fbfa82b723c1beff0582d2fd54bda12e46d5815f1e15add62bd",
+  "audit_sha256": "4bb5fe52a96a94ace859b75f0bbf7da91043c30a2f07063e65a77257dfb65fe2",
+  "commands": [
+    {
+      "label": "axiom-compile",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "-o",
+        ".lake/build/lib/lean/Verification.olean",
+        "Verification.lean"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 1.738,
+      "log": "records/initial-lean-controls/axiom-compile.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "axiom-audit",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 9.292,
+      "log": "records/initial-lean-controls/axiom-audit.log",
+      "log_sha256": "a4bb79bbef786d919b474433ef5e719d96fdf13bccb209cc1c05e42914c37713"
+    },
+    {
+      "label": "unsafe-compile",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "-o",
+        ".lake/build/lib/lean/Verification.olean",
+        "Verification.lean"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 1.58,
+      "log": "records/initial-lean-controls/unsafe-compile.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "unsafe-audit",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "returncode": 1,
+      "elapsed_seconds": 4.963,
+      "log": "records/initial-lean-controls/unsafe-audit.log",
+      "log_sha256": "4350abd222f4d54d903969c7f82afe9e767604c9d1c085eccb6199d5a5924eac"
+    },
+    {
+      "label": "restore-compile",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "-o",
+        ".lake/build/lib/lean/Verification.olean",
+        "Verification.lean"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 1.4,
+      "log": "records/initial-lean-controls/restore-compile.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "restore-audit",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "returncode": 0,
+      "elapsed_seconds": 10.072,
+      "log": "records/initial-lean-controls/restore-audit.log",
+      "log_sha256": "b4ef2f88a066c4e4a0f22457497959e3cd98500bf8ed14d71a4961b94da54505"
+    }
+  ],
+  "controls": [
+    {
+      "name": "axiom",
+      "injection": "\naxiom EngineeringControl.forbidden : True\n",
+      "mutated_source_sha256": "c839d6cbc7894e6a45a6d51d98a2305f90981b7489a52d9711864992d1ca4b98",
+      "expected_rejection_observed": true
+    },
+    {
+      "name": "unsafe",
+      "injection": "\nunsafe def EngineeringControl.unsafeRoot : Nat := 1\n",
+      "mutated_source_sha256": "d1d5bf548b30ca5bf1724197034c160f011b6a92e1fdfd75086b8f55153f4931"
+    }
+  ],
+  "restored_positive_audit": true,
+  "source_restored": true
+}

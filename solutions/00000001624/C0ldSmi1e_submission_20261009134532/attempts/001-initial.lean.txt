@@ -1,0 +1,121 @@
+import Mathlib.MeasureTheory.Measure.Lebesgue.Basic
+import Mathlib.Topology.Order.IntermediateValue
+import Mathlib.Topology.Perfect
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Push
+
+/-!
+# Literal obstruction to conjecture 00000001624
+
+All spectra below are arbitrary subsets of the real line.  No operator model is assumed.
+A bounded internal gap has two distinct endpoints in the set and no point of the set
+strictly between them.  `IsGap.component` checks that such an interval is an entire
+connected component of the complement, rather than an arbitrary smaller interval.
+-/
+
+open Set MeasureTheory
+
+namespace Conjecture1624
+
+/-- A bounded internal gap of a real set. -/
+def IsGap (S : Set ℝ) (a b : ℝ) : Prop :=
+  a < b ∧ a ∈ S ∧ b ∈ S ∧ Ioo a b ⊆ Sᶜ
+
+/-- No bounded internal gaps, anywhere in the real spectrum. -/
+def HasNoGaps (S : Set ℝ) : Prop := ¬ ∃ a b, IsGap S a b
+
+/-- Standard real Cantor set: nonempty, compact, perfect, and nowhere dense.
+Since `Perfect` includes closedness, empty interior is equivalent to nowhere density. -/
+def IsRealCantor (S : Set ℝ) : Prop :=
+  S.Nonempty ∧ IsCompact S ∧ Perfect S ∧ interior S = ∅
+
+/-- A gap is exactly the complementary connected component through any of its points. -/
+theorem IsGap.component {S : Set ℝ} {a b c : ℝ} (h : IsGap S a b)
+    (hc : c ∈ Ioo a b) : connectedComponentIn Sᶜ c = Ioo a b := by
+  have hcC : c ∈ connectedComponentIn Sᶜ c := mem_connectedComponentIn (h.2.2.2 hc)
+  apply Subset.antisymm
+  · intro z hz
+    constructor
+    · by_contra hza
+      have haC : a ∈ connectedComponentIn Sᶜ c :=
+        isPreconnected_connectedComponentIn.Icc_subset hz hcC ⟨le_of_not_gt hza, hc.1.le⟩
+      exact (connectedComponentIn_subset Sᶜ c haC) h.2.1
+    · by_contra hzb
+      have hbC : b ∈ connectedComponentIn Sᶜ c :=
+        isPreconnected_connectedComponentIn.Icc_subset hcC hz ⟨hc.2.le, le_of_not_gt hzb⟩
+      exact (connectedComponentIn_subset Sᶜ c hbC) h.2.2.1
+  · exact isPreconnected_Ioo.subset_connectedComponentIn hc h.2.2.2
+
+/-- Every omitted point strictly between two points of a closed real set lies in a gap.
+The endpoints are the supremum of the set to its left and the infimum to its right. -/
+theorem exists_gap_around {S : Set ℝ} (hclosed : IsClosed S)
+    {x c y : ℝ} (hx : x ∈ S) (hy : y ∈ S) (hxc : x < c) (hcy : c < y)
+    (hc : c ∉ S) : ∃ a b, IsGap S a b ∧ c ∈ Ioo a b := by
+  let L := S ∩ Iic c
+  let R := S ∩ Ici c
+  have hLn : L.Nonempty := ⟨x, hx, hxc.le⟩
+  have hRn : R.Nonempty := ⟨y, hy, hcy.le⟩
+  have hLb : BddAbove L := ⟨c, fun _ hz => hz.2⟩
+  have hRb : BddBelow R := ⟨c, fun _ hz => hz.2⟩
+  have ha : sSup L ∈ L := (hclosed.inter isClosed_Iic).csSup_mem hLn hLb
+  have hb : sInf R ∈ R := (hclosed.inter isClosed_Ici).csInf_mem hRn hRb
+  have hac : sSup L < c := lt_of_le_of_ne ha.2 (fun heq => hc (heq ▸ ha.1))
+  have hcb : c < sInf R := lt_of_le_of_ne hb.2 (fun heq => hc (heq ▸ hb.1))
+  refine ⟨sSup L, sInf R, ⟨hac.trans hcb, ha.1, hb.1, ?_⟩, hac, hcb⟩
+  intro z hz hzS
+  rcases le_total z c with hzc | hcz
+  · exact (not_le_of_gt hz.1) (le_csSup hLb ⟨hzS, hzc⟩)
+  · exact (not_le_of_gt hz.2) (csInf_le hRb ⟨hzS, hcz⟩)
+
+/-- Empty interior forces an omitted point inside every nonempty real open interval. -/
+theorem exists_omitted_between {S : Set ℝ} (hi : interior S = ∅)
+    {x y : ℝ} (hxy : x < y) : ∃ c ∈ Ioo x y, c ∉ S := by
+  by_contra h
+  push_neg at h
+  have hsub : Ioo x y ⊆ interior S := interior_maximal h isOpen_Ioo
+  obtain ⟨c, hc⟩ := nonempty_Ioo.mpr hxy
+  have := hsub hc
+  simpa [hi] using this
+
+/-- Closed real sets with empty interior and two points have a genuine bounded gap. -/
+theorem exists_gap_of_nontrivial {S : Set ℝ} (hclosed : IsClosed S)
+    (hi : interior S = ∅) (hn : S.Nontrivial) : ∃ a b, IsGap S a b := by
+  obtain ⟨x, hx, y, hy, hxy⟩ := nontrivial_iff_exists_lt.mp hn
+  obtain ⟨c, hc, hcS⟩ := exists_omitted_between hi hxy
+  obtain ⟨a, b, hab, _⟩ := exists_gap_around hclosed hx hy hc.1 hc.2 hcS
+  exact ⟨a, b, hab⟩
+
+/-- Positive Lebesgue measure supplies the two distinct points needed above. -/
+theorem nontrivial_of_positive_volume {S : Set ℝ} (hm : 0 < volume S) : S.Nontrivial := by
+  by_contra hn
+  exact hm.ne' ((not_nontrivial_iff.mp hn).measure_zero volume)
+
+/-- The main set-level obstruction requires neither a particular potential nor compactness. -/
+theorem exists_gap_of_positive_volume {S : Set ℝ} (hclosed : IsClosed S)
+    (hi : interior S = ∅) (hm : 0 < volume S) : ∃ a b, IsGap S a b :=
+  exists_gap_of_nontrivial hclosed hi (nontrivial_of_positive_volume hm)
+
+/-- Literal positive-measure Cantor spectra cannot have no gaps. -/
+theorem positive_measure_cantor_not_gapless {S : Set ℝ} (hC : IsRealCantor S)
+    (hm : 0 < volume S) : ¬ HasNoGaps S := by
+  intro hno
+  exact hno (exists_gap_of_positive_volume hC.2.2.1.closed hC.2.2.2 hm)
+
+/-- No real set has the three geometric properties demanded in the source. -/
+theorem no_source_spectrum :
+    ¬ ∃ S : Set ℝ, IsRealCantor S ∧ 0 < volume S ∧ HasNoGaps S := by
+  rintro ⟨S, hC, hm, hno⟩
+  exact positive_measure_cantor_not_gapless hC hm hno
+
+/-- Universal lift to every class of potentials and every real spectrum assignment.
+The quasiperiodicity and singular-measure predicates are entirely unrestricted:
+they cannot rescue an already contradictory conjunction of spectral-set properties. -/
+theorem no_source_potential {Potential : Type*}
+    (spectrum : Potential → Set ℝ)
+    (quasiperiodic singularSpectralMeasure : Potential → Prop) :
+    ¬ ∃ V : Potential, quasiperiodic V ∧ IsRealCantor (spectrum V) ∧
+      0 < volume (spectrum V) ∧ HasNoGaps (spectrum V) ∧ singularSpectralMeasure V := by
+  rintro ⟨V, _, hC, hm, hno, _⟩
+  exact positive_measure_cantor_not_gapless hC hm hno
+
+end Conjecture1624

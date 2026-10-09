@@ -1,0 +1,210 @@
+INDEPENDENT SEMANTIC AND MATHEMATICAL CORE REVIEW: 00000001624
+
+Verdict: PASS_CORE_SEMANTIC
+No mathematical or source-mapping correction is required for the reviewed
+Lean core under the literal standard real-spectrum reading. One snapshot
+configuration discrepancy needs rechecking against the final package. This
+is not yet a full report/PDF/package review or permission to publish.
+
+Scope and provenance
+
+The review read the exact original, both rule extracts, complete Lean source,
+complete source mapping, and three tool-configuration files from:
+  /private/tmp/tlmc1624-semantic-review-input
+The prior same-problem source-only assessment was retained. Neutral standard
+Mathlib definitions and the supplied Lean runtime were used for checking.
+No other conjectures, submissions, selector reasoning, operational history,
+PR claims, or agent inventories were consulted. The input was not edited.
+Fresh compilation occurred in:
+  /private/tmp/tlmc1624-independent-review
+
+Input-manifest SHA-256:
+b144fb5cd410ab991a00b2f42768a6616a12aadfbb91722b6472cc8edf1bf605
+
+All eight manifest entries were independently recomputed and matched:
+Conjecture1624.lean
+  f2135c4b339236755e8b6fd6dd23e7685d7831dbdbad3f2d9aaf924f5e4a7487
+ORIGINAL.md
+  53acb6877d3ac08f6469e5f63d03a4de0e22fe4a402699415ee499682705a77a
+RULES.en.md
+  200d9a783c08a5edfd1b508e6942b3b851a63c726506291f6de6a59773f1163a
+RULES.zh-CN.md
+  7c5b49bb84403feea1eb14d23d48491400c7749d58db345cd317231949a9e82b
+SOURCE-MAPPING.md
+  f1f39e255140e9cebe5bd69c2f578607448cc339e5004ff2ef324939904078a4
+lake-manifest.json
+  e878dc305e653df9abe0d98cba7c1423804555f529d4a82700fd8de019b8b70c
+lakefile.lean
+  f352dd8623a79b6e2fb10cb6d3f8f5a9697addcc459c9d865aa8738a82f4289c
+lean-toolchain
+  55e97be96000b5e9e290c9e74482e5e317861499a5540353ce845471bded8cea
+
+Source fidelity
+
+The English main clause requests a positive-measure Cantor spectrum "with
+no gaps"; the Chinese main clause requests 正测度 Cantor 且无隙. Under the
+literal standard real-energy reading established in the source assessment,
+this concerns all bounded internal spectral gaps. The source specifies no
+reference energy at which gaplessness alone is required. The mapping
+correctly disclaims a result about such a materially different reading.
+
+The formalization does not replace positive-measure Cantor sets with a
+specific measure-zero Cantor construction. It does not silently replace
+singular spectral measure by singular continuous measure, density of states,
+or a chosen vector measure. Rather, it negates a necessary geometric part
+of the complete existence claim for every possible additional predicate.
+The source's explicit-construction request is also excluded by this stronger
+nonexistence result; a separate constructive witness is not required for a
+disproof. Both rule extracts require complete source-conforming reasoning;
+the English solver rule expressly permits disproofs.
+
+Definition review
+
+IsGap S a b requires finite real endpoints a < b, membership of both endpoints
+in S, and exclusion of S from the whole open interval (a,b). It excludes
+empty intervals, arbitrary shorter omitted intervals whose endpoints are
+outside S, and exterior resolvent half-lines. For a closed real spectrum this
+is a standard bounded internal gap.
+
+HasNoGaps is the absence of every such pair, not a statement about one
+selected gap, energy, size threshold, or labelling class.
+
+IsRealCantor requires nonemptiness, compactness, Perfect S, and empty
+interior. I checked the actual imported Mathlib definition: Perfect contains
+closedness and accumulation at each point and does not itself require
+nonemptiness. The author's separate nonemptiness condition is therefore
+appropriate. For this closed real set, empty interior is exactly nowhere
+density. This is the usual general real Cantor-set notion, including fat
+Cantor sets. No zero-measure condition is inserted.
+
+The expression 0 < volume S is positive Lebesgue measure on the real line.
+Closedness ensures the relevant sets are measurable, although the proof of
+nontriviality itself does not need a measurability assumption.
+
+Theorem-by-theorem mathematical review
+
+1. IsGap.component: the full connected component of the complement through
+   c in (a,b) is proved equal to (a,b). If a component point were at or beyond
+   either endpoint, order-connectedness of a real preconnected set would
+   place that endpoint in the complement, contrary to its membership in S.
+   Conversely the connected interval lies in the complement and contains c,
+   hence lies in that component. I checked the imported connectedComponentIn
+   definition: it is the subtype's actual connected component, not a
+   separately stipulated interval construction. Closedness of S is not
+   needed for this direction, and its absence here is sound.
+
+2. exists_gap_around: L = S intersect (-infinity,c] and R = S intersect
+   [c,infinity) are nonempty, closed, and bounded on the required sides.
+   Supremum and infimum therefore belong to their respective sets. They are
+   strictly to the left and right of c because c is not in S. Any putative
+   S-point strictly between the endpoints contradicts the corresponding
+   supremum or infimum bound. The endpoints are finite and in S, so the
+   result is an internal gap containing c.
+
+3. exists_omitted_between: an entirely contained nonempty open interval would
+   lie in the interior of S; this contradicts empty interior. The strict
+   inequality x < y supplies nonemptiness. No unsupported density hypothesis
+   is used.
+
+4. exists_gap_of_nontrivial: two distinct real points are ordered, an omitted
+   point between them is found, and the preceding gap theorem applies.
+   Closedness and empty interior are exactly the hypotheses used.
+
+5. hasNoGaps_iff_ordConnected: for closed S, any missing point in an interval
+   with endpoints in S yields a gap, while order-connectedness rules out a
+   nonempty interval of complement between two S-points. Endpoint equalities
+   are properly excluded when obtaining strict inequalities. The theorem
+   handles empty and singleton sets correctly. Together with component
+   identification above, it supplies the promised ordinary gap semantics.
+
+6. nontrivial_of_positive_volume: any subsingleton real set has Lebesgue
+   measure zero, so a positive-measure set contains two distinct points.
+   This does not presume that all Cantor sets have measure zero.
+
+7. exists_gap_of_positive_volume: correctly combines positive-measure
+   nontriviality with closedness and empty interior. It is stronger than
+   the eventual Cantor-specialized obstruction, not a restriction to a
+   smaller class of Cantor spectra.
+
+8. positive_measure_cantor_not_gapless: extracts actual closedness from
+   Perfect and empty interior from IsRealCantor, then contradicts HasNoGaps
+   using the produced gap. Compactness and accumulation properties need
+   not be used in this stronger obstruction.
+
+9. no_source_spectrum: negates precisely the conjunction of the three source
+   geometric conditions for every real set. It does not merely refute an
+   example or a proposed construction.
+
+10. no_source_potential: universally quantifies over an arbitrary universe-
+    polymorphic type of potentials, an arbitrary real spectrum assignment,
+    and arbitrary quasiperiodicity and singularity predicates. Any genuine
+    real-spectrum operator model instantiates these parameters. Consequently
+    no restriction to a regularity class, frequency, phase, lattice, boundary
+    condition, or spectral-measure type is imposed by the theorem. If actual
+    data involve phase or auxiliary witnesses, those can be part of the
+    potential data or the unrestricted predicates. The theorem's stronger
+    negation excludes any additional explicitness requirement as well.
+
+Edge cases checked
+
+Empty sets and singletons have no bounded internal gaps but cannot pass the
+positive-volume premise. Nonclosed sets would not support the supremum/
+infimum membership argument; the needed closedness is explicitly supplied.
+Unbounded or infinite-volume closed sets cause no problem in the stronger
+theorem because the selected gap still has two finite endpoints. The final
+Cantor sets are compact in any event. The proof does not treat singular
+spectral measures or positive-measure spectral supports as mutually
+incompatible; only the genuine no-gaps geometric condition is excluded.
+
+Actual fresh checks
+
+Runtime:
+  /private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lean
+Reported version:
+  Lean 4.19.0, arm64-apple-darwin23.6.0, commit 6caaee842e94, Release
+
+The reviewed source was copied by exact bytes to the new independent-review
+directory. It compiled from source with -DwarningAsError=true and a fresh
+local Conjecture1624.olean output. Result: exit 0, empty stdout, empty stderr.
+Dependencies came only from the supplied neutral standard-library build
+directories. No network fetch and no author-built local proof object were
+used. Detailed command/environment/result record: fresh-core-check.json.
+
+A new ReviewAxioms.lean imported that freshly produced object and printed
+axioms for all ten author theorems. It also printed the full final theorem,
+confirming the universal potential/spectrum/predicate quantifiers. Result:
+exit 0. Every theorem depended only on propext, Classical.choice, and
+Quot.sound. No sorryAx, custom axiom, or native evaluation axiom appeared.
+The complete author source also contained none of the scanned tokens
+sorry, admit, axiom, native_decide, unsafe, implemented_by, or extern.
+Detailed outputs: fresh-axiom-check.json.
+
+Two harmless setup details are recorded for accuracy: the input manifest
+was named SHA256SUMS.json rather than SHA256SUMS, and the neutral Cli package
+had no prebuilt Lean-library directory. The manifest was then checked under
+its actual name, and the unused Cli build path was omitted. Neither event
+was a mathematical failure or required an input/source change.
+
+Snapshot configuration discrepancy to recheck
+
+The reviewed snapshot's lake-manifest.json top-level "name" field does not
+match the package name "conjecture1624" declared in lakefile.lean. The root
+agent reports that it prepared this snapshot with the unchanged neutral
+input manifest, while the author's working manifest already has the correct
+name and unchanged dependency pins. I have not inspected that working
+manifest and do not independently certify it at this stage. Accordingly,
+this is classified as a review-snapshot preparation discrepancy, not an
+author mathematical defect or a demonstrated defect of the final package.
+The authoritative final configuration must be checked when supplied. The
+reviewed snapshot remains unchanged. No source-mathematics edit is requested.
+
+Limitations and next gate
+
+This verdict binds exactly to the hashes above. It does not certify an
+unseen later core revision. The final LaTeX source, PDF, report completeness,
+visual rendering, and full frozen submission layout have not yet arrived
+and have not been reviewed. This pass used direct fresh Lean compilation;
+a full package-level Lake build was not asserted. The final package must
+retain the literal real-spectrum scope and must not claim to settle a
+rewritten statement about gaplessness only at a distinguished energy.
+History eligibility and publication authorization were outside this review.

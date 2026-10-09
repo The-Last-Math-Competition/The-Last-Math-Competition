@@ -1,0 +1,99 @@
+{
+  "python_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+  "python_version": "3.14.2 (main, Dec  5 2025, 16:49:16) [Clang 17.0.0 (clang-1700.4.4.1)]",
+  "platform": "macOS-26.3.1-arm64-arm-64bit-Mach-O",
+  "commands": [
+    {
+      "command": [
+        "python3",
+        "tests/initial_18_test_replay.py",
+        "--project",
+        "snapshots/initial"
+      ],
+      "exit_code": 1,
+      "interpretation": "Expected historical regression failures: exactly three",
+      "log": "records/initial-18-regression-confirmation.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/test_replay.py",
+        "--project",
+        "snapshots/hardened"
+      ],
+      "exit_code": 0,
+      "interpretation": "20 tests pass",
+      "log": "records/final-regression.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/test_replay.py",
+        "--project",
+        "/private/tmp/tlmc1624-package"
+      ],
+      "environment": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "interpretation": "20 tests pass on final package",
+      "log": "records/final-package-regression.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tests/run_lean_controls.py",
+        "--work-project",
+        "snapshots/hardened",
+        "--lean-bin",
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin",
+        "--records",
+        "records/final-lean-controls"
+      ],
+      "exit_code": 0,
+      "log": "records/final-lean-controls-driver.log"
+    },
+    {
+      "cwd": "snapshots/hardened",
+      "command": [
+        "python3",
+        "scripts/check_stale_audit_rejection.py",
+        "--lean-bin",
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin",
+        "--stdlib-root",
+        "/private/tmp/tlmc-standard-library-419"
+      ],
+      "exit_code": 0,
+      "log": "records/final-stale-helper-driver.log"
+    },
+    {
+      "cwd": "snapshots/initial",
+      "command": [
+        "python3",
+        "scripts/replay.py",
+        "--lean-bin",
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin",
+        "--stdlib-root",
+        "/private/tmp/tlmc-standard-library-419"
+      ],
+      "exit_code": 0,
+      "log": "records/initial-full-replay.log"
+    },
+    {
+      "cwd": "snapshots/hardened",
+      "command": [
+        "python3",
+        "scripts/replay.py",
+        "--lean-bin",
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin",
+        "--stdlib-root",
+        "/private/tmp/tlmc-standard-library-419"
+      ],
+      "exit_code": 0,
+      "log": "records/hardened-full-replay.log"
+    }
+  ],
+  "full_replay_commands_and_runtime_hashes": "records/hardened-positive-replay/replay-result.json",
+  "actual_lean_control_commands": "records/final-lean-controls/lean-controls-result.json",
+  "stale_helper_nested_commands": "records/final-stale-helper/nested-replay/replay-result.json"
+}
