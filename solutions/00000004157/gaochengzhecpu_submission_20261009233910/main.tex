@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{Diagonal solutions do not give the proposed VMVT coefficient\\
+\large Disproof of Conjecture 00000004157}
+\author{gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+For $k=1,s=2$, inside the stated range $s\leq k(k+1)$, the exact Vinogradov mean value is $(2N^3+N)/3$, whereas the diagonal count is $2N^2-N$. Thus the true cubic coefficient is $2/3$, and the diagonal contribution on that same scale is zero. The diagonal count's own leading coefficient is $2!=2$, which also differs from $2/3$. As a supplementary degree-two obstruction, an elementary counting argument gives $J_{6,2}(N)\geq N^9/49$, while there are at most $6!N^6$ diagonal solutions. The Lean project proves these facts for the actual finite solution sets.
+\end{abstract}
+
+\section*{Statement and conventions}
+The source defines the optimal constant as the main-term coefficient of $J_{s,k}(X)$. It asserts that this coefficient always equals the number of diagonal solutions, expressed by factorials, with validity exactly for $s\leq k(k+1)$. It imposes no restriction excluding $k=1$.
+
+For an integer $N\geq1$, use the standard unweighted count
+\[
+ J_{s,k}(N)=\#\left\{(\boldsymbol x,\boldsymbol y)\in\{1,\ldots,N\}^{2s}:
+ \sum_{i=1}^s x_i^j=\sum_{i=1}^s y_i^j\quad(1\leq j\leq k)\right\}.
+\]
+By a diagonal solution we mean an ordered pair for which $\boldsymbol y$ is a permutation of $\boldsymbol x$; each pair is counted once, even when repeated coordinates allow several permutations. Write its count as $D_s(N)$. These are the usual solution counts for the Vinogradov mean value. Disagreement along the integer values of $X$ suffices to refute an asserted general asymptotic.
+
+\section*{An exact counterexample to the coefficient claim}
+\begin{theorem}
+For every integer $N\geq1$,
+\[
+ J_{2,1}(N)=\frac{2N^3+N}{3},\qquad D_2(N)=2N^2-N.
+\]
+Consequently
+\[
+ \lim_{N\to\infty}\frac{J_{2,1}(N)}{N^3}=\frac23,
+ \qquad \lim_{N\to\infty}\frac{D_2(N)}{N^3}=0,
+ \qquad \lim_{N\to\infty}\frac{D_2(N)}{N^2}=2.
+\]
+\end{theorem}
+\begin{proof}
+The only equation is $a+b=c+d$. Translating all four coordinates by $-1$ changes the domain to $\{0,\ldots,N-1\}$ without changing this equation. Classify a solution by $\delta=a-c=d-b$.
+
+When $\delta=0$, there are $N^2$ solutions. If $1\leq\delta\leq N-1$, choose $c,b\in\{0,\ldots,N-1-\delta\}$ freely; the remaining coordinates are uniquely $a=c+\delta$ and $d=b+\delta$. Thus there are $(N-\delta)^2$ such solutions. Interchanging the left and right pairs gives the same count for $-\delta$. Hence
+\[
+ J_{2,1}(N)=N^2+2\sum_{m=0}^{N-1}m^2
+ =N^2+\frac{N(N-1)(2N-1)}3
+ =\frac{2N^3+N}{3}.
+\]
+For the diagonal count the two possible right pairs are $(a,b)$ and $(b,a)$. Each choice gives $N^2$ ordered solutions, and the two families intersect exactly when $a=b$, in $N$ solutions. Therefore $D_2(N)=2N^2-N$. Dividing these exact formulas by the displayed powers of $N$ proves the limits.
+\end{proof}
+
+Here $s=2=k(k+1)$ for $k=1$, so the example belongs to the claimed range. On the actual main-term scale $N^3$, the coefficient of $J_{2,1}$ is $2/3$ while the diagonal contribution is zero. If the wording is instead read as asserting equality with the factorial coefficient of the diagonal count itself, that coefficient is $2!=2$, again unequal to $2/3$. Thus the counterexample directly concerns the coefficient, not only the existence of some non-diagonal solutions.
+
+\section*{A supplementary obstruction with degree two}
+There is also a failure of diagonal main-term dominance at $k=2,s=6$, again with $s=k(k+1)$. Map each $\boldsymbol x\in\{1,\ldots,N\}^6$ to its genuine moment pair
+\[
+ F(\boldsymbol x)=\left(\sum_{i=1}^6 x_i,\ \sum_{i=1}^6 x_i^2\right).
+\]
+Both entries are nonnegative integers, at most $6N$ and $6N^2$, respectively. Thus they lie in a box with
+\[
+ B_N=(6N+1)(6N^2+1)\leq49N^3
+\]
+elements. If $r_b$ is the number of tuples in the fiber over $b$, then
+\[
+ \sum_b r_b=N^6,\qquad J_{6,2}(N)=\sum_b r_b^2.
+\]
+Cauchy--Schwarz gives
+\[
+ N^{12}\leq B_N J_{6,2}(N)\leq49N^3J_{6,2}(N),
+ \qquad J_{6,2}(N)\geq\frac{N^9}{49}.
+\]
+Choosing the left tuple and one of the $6!$ permutations covers every diagonal pair, possibly with repetitions. Hence $D_6(N)\leq720N^6$. It follows that $J_{6,2}(N)$ is not $O(N^6)$, and in particular cannot be asymptotic to $D_6(N)$. This is a supplementary refutation of diagonal dominance within the claimed range; it does not purport to compute the exact degree-two asymptotic coefficient. The preceding degree-one example already supplies an exact coefficient counterexample to the source as written.
+
+\section*{Formal correspondence and verification}
+The Lean project works with actual finite types and their cardinalities. For $k=1,s=2$, \texttt{LinearSolutions} is the subtype of four entries in \texttt{Fin N} satisfying $a+b=c+d$. The theorem \texttt{linear\_equation\_iff\_standard} proves that adding one to all entries gives the standard equation on $\{1,\ldots,N\}$. The map \texttt{encodeLinear} implements the three difference cases in the proof; its injectivity and surjectivity are proved before its cardinality is used. The diagonal set is the union of the identity and transposition families, with its intersection counted exactly.
+
+The theorems \texttt{J21\_exact} and \texttt{D21\_exact} establish the two polynomial formulas. The actual real limits, including the zero diagonal contribution on the cubic scale, are proved using \texttt{Filter.Tendsto}. They are combined with the range check in \texttt{explicit\_\allowbreak coefficient\_\allowbreak counterexample}.
+
+For $k=2,s=6$, \texttt{momentMap} sends actual six-tuples to the two integer power sums. The theorem \texttt{momentMap\_eq\_iff} identifies collisions with the two Vinogradov equations. An explicit equivalence with a disjoint union of pairs of fibers proves the collision formula; finite Cauchy--Schwarz gives the lower bound. The diagonal type consists of actual permuted tuple pairs, and these are proved to satisfy both equations. The project then proves the $720N^6$ bound and negates asymptotic equivalence with the full solution count.
+
+The project is pinned to Lean 4.19.0 and a fixed Mathlib commit. No custom axioms, proof placeholders, or numerical oracles are used. Printed theorem dependencies are limited to the standard \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. No external theorem about the VMVT asymptotic is assumed.
+
+\section*{Source}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000004157.md}{The Last Math Competition, Conjecture 00000004157}. The submission preserves the exact bilingual source and records its commit and SHA-256 separately.
+\end{document}
