@@ -1,0 +1,7 @@
+# Final local review and submission records
+
+The independent mathematical reviewer approved the exact 432-file core package with no findings or required repairs. `independent-package-review.json` states the full semantic, report, verifier and evidence review and lists every approved core file hash; `independent-package-receipt.json` binds that review. The earlier semantic and report reviews are preserved here as supporting records. This approval is local and does not represent competition maintainer acceptance.
+
+The coordinator then appended this directory of review and operational records and the whole-payload hash manifest. None of the 432 approved core files changed. Operational eligibility records are the coordinator's responsibility and are outside the independent mathematics review: the complete public capture was checked through 2026-10-09 06:40:02 UTC, supplemented by the final lightweight current-main/candidate-search/recent-PR check at 06:47:43 UTC. The public scope and its limits are explicit in those records.
+
+Earlier receipts that say final package review was pending accurately describe their earlier stage; the final independent approval and coordinator gate here record the subsequent completion. `verification/PAYLOAD-SHA256SUMS.json` covers every final file except the manifest itself. Reproduction still uses the unchanged inputs and commands in the package README.

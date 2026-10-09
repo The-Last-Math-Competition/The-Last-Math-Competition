@@ -1,0 +1,220 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\nn}[1]{\left\lVert #1\right\rVert_2}
+\title{Disproof of conjecture 00000001478\\
+\large Polynomial images of cones and the tensor nuclear-norm ball}
+\author{C0ldSmi1e}
+\date{October 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The nuclear-norm unit ball of complex \(2\times2\times2\) tensors cannot
+be the image of a genuine cone under a polynomial map. A polynomial
+bounded on a cone is constant along each ray, and its value on every
+ray is its value at the common origin. The nuclear ball contains two
+points distinguished by a bounded coordinate, giving a contradiction.
+This rules out the conjectured spectrahedral-cone representation,
+including the stated \(4\times4\) symmetric-matrix case.
+\end{abstract}
+
+\section{The source claim and the precise negation}
+
+Both language versions of conjecture 00000001478 assert that the
+nuclear-norm unit ball in \(\C^{2\times2\times2}\) is the polynomial
+image of an explicit spectrahedral cone described using \(4\times4\)
+symmetric matrices, and that this representation gives SDP computability
+of the nuclear norm. The exact bilingual statement is included in
+\texttt{ORIGINAL.md}.
+
+We disprove the necessary representation assertion. Thus no interpretation
+of the additional SDP consequence can make the stated conjunction true.
+We do not claim that the nuclear norm cannot be computed by some other SDP
+formulation.
+
+The source abbreviates the nuclear norm as a \emph{minimal sum of rank-one
+tensors}. We make its conventional scalar objective explicit. Let
+\[
+ V=\C^2,\qquad \mathcal T=\C^{2\times2\times2},
+\]
+with the usual Hermitian Euclidean norm on each factor \(V\).
+For an arbitrary finite list \(L=((a_r,b_r,c_r))_r\) of triples in \(V^3\), put
+\[
+ A(L)_{ijk}=\sum_r (a_r)_i(b_r)_j(c_r)_k,\qquad
+ c(L)=\sum_r \nn{a_r}\nn{b_r}\nn{c_r}.
+\]
+Define the standard complex projective tensor norm and its closed unit ball by
+\[
+ D(T)=\{c(L):A(L)=T\},\qquad
+ \nu(T)=\inf D(T),\qquad B=\{T:\nu(T)\leq1\}.
+\]
+The lists in \(D(T)\) have unrestricted finite length. Every \(D(T)\) is
+nonempty: the coordinate expansion
+\[
+ T=\sum_{i,j,k\in\{0,1\}}(T_{ijk}e_i)\otimes e_j\otimes e_k
+\]
+gives a decomposition. All costs are nonnegative.
+Zero pure tensors can be deleted without changing either the sum or the
+cost: a pure tensor is zero exactly when a factor is zero.
+The formalization proves these facts, so allowing zero factors does not
+change the attainable cost set for nonzero rank-one summands.
+
+A cone here means a subset \(C\subseteq\R^n\) containing \(0\) and satisfying
+\(tx\in C\) whenever \(x\in C\) and \(t\geq0\).
+A polynomial map \(P:\R^n\to\mathcal T\) has real polynomials as the real
+and imaginary parts of all eight complex coordinates.
+Complex-coefficient polynomials on real parameters are included: their
+real and imaginary parts are real polynomials, as also proved in Lean.
+
+\begin{theorem}\label{thm:main}
+For every natural number \(n\), every such cone \(C\subseteq\R^n\), and
+every polynomial map \(P:\R^n\to\mathcal T\), one has \(P(C)\neq B\).
+\end{theorem}
+
+The quantifiers allow all finite parameter dimensions and all polynomial
+degrees. Convexity and a particular matrix presentation are not needed.
+This larger class contains every spectrahedral cone in the source claim.
+
+\section{A bounded coordinate and two exact points}
+
+\begin{lemma}\label{lem:bound}
+For every tensor \(T\) and every coordinate \(i,j,k\),
+\(\lvert T_{ijk}\rvert\leq\nu(T)\).
+Consequently, \(\lvert\operatorname{Re}T_{000}\rvert\leq1\) for \(T\in B\).
+\end{lemma}
+\begin{proof}
+For every factor triple,
+\[
+ \lvert a_i b_j c_k\rvert
+ \leq \nn a\,\nn b\,\nn c.
+\]
+Applying the triangle inequality to any finite decomposition of \(T\)
+gives \(\lvert T_{ijk}\rvert\leq c(L)\).
+This is a lower bound for every element of the nonempty set \(D(T)\);
+hence it is at most its infimum. The real-part bound follows from
+\(\lvert\operatorname{Re}z\rvert\leq\lvert z\rvert\).
+\end{proof}
+
+Let \(E=e_0\otimes e_0\otimes e_0\).
+The empty decomposition and nonnegative costs give \(\nu(0)=0\).
+The one-term decomposition of \(E\) has cost \(1\), while
+\(E_{000}=1\); Lemma~\ref{lem:bound} therefore gives \(\nu(E)=1\).
+In particular,
+\[
+ 0,E\in B,\qquad \operatorname{Re}0_{000}=0,\qquad
+ \operatorname{Re}E_{000}=1.
+\]
+These are exact equalities, not numerical estimates.
+
+\section{The polynomial obstruction}
+
+\begin{lemma}\label{lem:ray}
+If a real polynomial \(p\) on \(\R^n\) is bounded in absolute value on a
+cone \(C\), then \(p(x)=p(0)\) for every \(x\in C\).
+\end{lemma}
+\begin{proof}
+Fix \(x\in C\). Substitution \(X_i=x_i t\) gives the univariate polynomial
+\(q_x(t)=p(tx)\). Cone closure makes \(q_x\) bounded for every \(t\geq0\).
+A nonconstant real polynomial is unbounded in absolute value as
+\(t\to+\infty\), by its leading term. Thus \(q_x\) is constant, and
+\[
+ p(x)=q_x(1)=q_x(0)=p(0).
+\]
+No homogeneity of \(p\), degree restriction, or interior point of \(C\)
+is assumed.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Suppose \(P(C)=B\). The real polynomial
+\[
+ p(x)=\operatorname{Re}(P(x)_{000})
+\]
+is bounded by \(1\) in absolute value on \(C\), by Lemma~\ref{lem:bound}.
+Lemma~\ref{lem:ray} makes it equal to \(p(0)\) everywhere on \(C\).
+The image equality supplies \(x_0,x_E\in C\) with \(P(x_0)=0\)
+and \(P(x_E)=E\). Hence \(p(x_0)=0\) and \(p(x_E)=1\), a contradiction.
+\end{proof}
+
+Only one coordinate is needed for the contradiction.
+More generally, coordinatewise application of Lemma~\ref{lem:ray}
+shows that a bounded polynomial image of a nonempty cone is a singleton.
+
+\section{The matrix condition and the word minimum}
+
+For a real linear pencil \(L:\R^n\to\operatorname{Mat}_4(\R)\), define
+\[
+ C_L=\{x:L(x)\text{ is positive semidefinite}\}.
+\]
+The PSD condition includes symmetry. The usual pencils with symmetric
+coefficient matrices are included in this definition.
+One has \(0\in C_L\), since \(L(0)=0\). If \(x\in C_L\) and \(t\geq0\),
+then \(L(tx)=tL(x)\) is symmetric and
+\[
+ v^{\mathsf T}L(tx)v=t\,v^{\mathsf T}L(x)v\geq0
+ \quad\text{for all }v\in\R^4.
+\]
+Thus \(C_L\) is a cone, and Theorem~\ref{thm:main} rules out \(P(C_L)=B\).
+Lean proves this closure directly from the genuine matrix PSD predicate.
+The general theorem also rules out any further generalized matrix
+description whose domain is an actual cone.
+
+For completeness, the formalization separately treats the literal
+attained-minimum reading
+\[
+ B_{\min}=\{T:\text{some }r\in D(T)\text{ is least in }D(T)
+                         \text{ and }r\leq1\}.
+\]
+An attained least cost equals \(\inf D(T)\), so \(B_{\min}\subseteq B\).
+The costs \(0\) for the zero tensor and \(1\) for \(E\) are attained
+least costs, giving \(0,E\in B_{\min}\).
+The proof of Theorem~\ref{thm:main} works unchanged for every set
+\(B'\) with \(\{0,E\}\subseteq B'\subseteq B\), and therefore for
+\(B_{\min}\). No unproved global attainment theorem is used.
+
+The argument concerns the cone and polynomial map stated in both
+languages. An affine section, normalization, or rational parametrization
+would require a different statement.
+
+\section{Formal verification and scope}
+
+The project uses Lean 4.19.0 and Mathlib v4.19.0, pinned by the supplied
+toolchain and dependency manifest.
+\texttt{NuclearNorm.lean} defines the cost set and proves the tensor bounds
+and exact points. \texttt{PolynomialCone.lean} proves the ray substitution,
+constancy, and complex-coefficient correspondence.
+\texttt{Solution.lean} combines them and proves the \(4\times4\) PSD case.
+The main declaration is
+\[
+ \texttt{TLMC1478.conjecture00000001478\_false}.
+\]
+It is the negation of the existential representation by any genuine cone.
+The whole source conjunction implies this existential assertion, so its
+negation disproves the original conjecture.
+
+The author build and strict source replays pass.
+\texttt{AuthorAudit.lean} checks all explicitly declared objects and
+results. The submission's additional verification records document
+the independent rebuild, the audit of all compiled mathematical
+declarations and their dependencies, and checks of the verification
+tools themselves. Reproduction instructions and precise results are
+in \texttt{README.md} and \texttt{VERIFICATION.md}.
+Proofs may depend only on the standard foundational axioms
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+No admitted proof, custom axiom, or \texttt{native\_decide} is used.
+
+All mathematical computations are covered by the Lean proofs.
+No numerical optimization, external symbolic calculation, or auxiliary
+numerical program supplies a premise. The disproof needs neither all
+abstract norm axioms nor global attainment: the standard cost formula
+and the separately proved minimum-ball result suffice.
+Verification here is local; acceptance remains a maintainer decision.
+\end{document}

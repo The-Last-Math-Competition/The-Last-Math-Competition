@@ -1,0 +1,44 @@
+--- v1/NuclearNorm.lean
++++ v2/NuclearNorm.lean
+@@ -16,9 +16,9 @@
+ abbrev FactorTriple := Vector × Vector × Vector
+ 
+ /-- The coordinate array of a pure tensor. Zero factors are allowed in decompositions. -/
+-def rankOne (a b c : Vector) : Tensor := fun i j k => a i * b j * c k
+-
+-def termTensor (v : FactorTriple) : Tensor := rankOne v.1 v.2.1 v.2.2
++noncomputable def rankOne (a b c : Vector) : Tensor := fun i j k => a i * b j * c k
++
++noncomputable def termTensor (v : FactorTriple) : Tensor := rankOne v.1 v.2.1 v.2.2
+ 
+ def termCost (v : FactorTriple) : ℝ := ‖v.1‖ * ‖v.2.1‖ * ‖v.2.2‖
+ 
+@@ -30,7 +30,7 @@
+ /-- The usual complex tensor nuclear (projective) norm, as its infimum formula. -/
+ noncomputable def nuclearNorm (T : Tensor) : ℝ := sInf (decompositionCosts T)
+ 
+-def nuclearBall : Set Tensor := {T | nuclearNorm T ≤ 1}
++noncomputable def nuclearBall : Set Tensor := {T | nuclearNorm T ≤ 1}
+ 
+ theorem termCost_nonneg (v : FactorTriple) : 0 ≤ termCost v := by
+   exact mul_nonneg (mul_nonneg (norm_nonneg _) (norm_nonneg _)) (norm_nonneg _)
+@@ -201,7 +201,7 @@
+     exact ⟨L, hsum, hcost⟩
+ 
+ /-- Literal attained-minimum version of the source's wording. -/
+-def minimumNuclearBall : Set Tensor :=
++noncomputable def minimumNuclearBall : Set Tensor :=
+   {T | ∃ r, IsLeast (decompositionCosts T) r ∧ r ≤ 1}
+ 
+ /-- Any attained minimum is the same value as the usual infimum definition. -/
+--- v1/Solution.lean
++++ v2/Solution.lean
+@@ -14,7 +14,7 @@
+   im : Fin 2 → Fin 2 → Fin 2 → MvPolynomial (Fin n) ℝ
+ 
+ /-- Evaluation uses all sixteen real coordinates of the eight complex entries. -/
+-def TensorPolynomialMap.eval {n : ℕ} (P : TensorPolynomialMap n)
++noncomputable def TensorPolynomialMap.eval {n : ℕ} (P : TensorPolynomialMap n)
+     (x : Fin n → ℝ) : Tensor :=
+   fun i j k => ⟨MvPolynomial.eval x (P.re i j k), MvPolynomial.eval x (P.im i j k)⟩
+ 
