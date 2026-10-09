@@ -1,0 +1,125 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Ang}{\mathcal A}
+\title{Disproof of Conjecture 00000001569\\\large Arbitrarily large point sets with at most two angles}
+\author{C0ldSmi1e}
+\date{9 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The conjecture asserts a uniform lower bound of $n^2-O(n)$ for the number
+of distinct angles determined by an $n$-point set. Neither language of the
+original requires noncollinearity. We give an explicit $n$-point subset of
+the Euclidean plane with at most two angle values, for every $n$. These
+sets violate the claimed bound for every linear error constant and every
+asymptotic threshold. Lean 4 formalizes the actual Euclidean angles and
+the full quantified negation.
+\end{abstract}
+
+\section{Statement and conventions}
+The English original states: ``The angle set of a point set is the set of
+all angles it determines. Conjecture: An n-point set determines at least
+n\textsuperscript{2} $-$ O(n) distinct angles; and the lower bound is attained
+by the equidistribution of arguments of lattice families.'' The Chinese
+version has the same lower-bound assertion and supplies no additional
+restriction on the point sets. Both are included in \texttt{ORIGINAL.md}.
+
+We use the ordinary planar Euclidean interpretation. For a finite set
+$S\subset\mathbb R^2$, let
+\[
+ \Ang(S)=\{\angle abc : a,b,c\in S\text{ are pairwise distinct}\}.
+\]
+Here $b$ is the vertex and $\angle abc\in[0,\pi]$ is the usual unsigned
+Euclidean angle between $a-b$ and $c-b$, in radians. Equal angle values
+are counted only once. All rays are nonzero. We include the collinear
+values $0$ and $\pi$; a convention excluding these values can only decrease
+our counterexamples' angle counts. The source does not explicitly name the
+ambient dimension or orientation; our convention is stated rather than
+silently built into the argument. No general-position condition is assumed.
+
+The standard uniform meaning of the lower-bound clause is
+\begin{equation}\label{eq:claim}
+ \exists C\in\mathbb R_{\ge0}\ \exists N\in\mathbb N\
+ \forall n\ge N\ \forall S\subset\mathbb R^2\text{ finite},\quad
+ |S|=n\ \Longrightarrow\ n^2-Cn\le |\Ang(S)|.
+\end{equation}
+The constant $C$ and threshold $N$ are independent of both $n$ and $S$.
+We disprove this clause. The additional lattice-attainment phrase is not
+precisely defined in the source and is not given an invented formalization:
+the failure of a necessary conjunct already refutes the stated conjunction.
+
+\section{The counterexample family}
+For each natural number $n$, set
+\[
+ S_n=\{(j,0):j\in\mathbb Z,\ 0\le j<n\}.
+\]
+The first coordinate makes these $n$ points distinct, so $|S_n|=n$.
+Every three points are collinear. At any vertex of a pairwise-distinct
+triple, the two nonzero rays either point in the same direction or in
+opposite directions. Their angle is respectively $0$ or $\pi$. Therefore
+\begin{equation}\label{eq:two}
+ \Ang(S_n)\subseteq\{0,\pi\},\qquad |\Ang(S_n)|\le2
+ \quad\text{for every } n\in\mathbb N.
+\end{equation}
+This includes $n<3$, where there are no qualifying triples.
+
+\begin{theorem}
+For every real number $C$ and every $N\in\mathbb N$, there exist
+$n\ge N$ and a finite planar set $S$ with $|S|=n$ such that
+\[
+ |\Ang(S)|<n^2-Cn.
+\]
+Consequently, \eqref{eq:claim} is false.
+\end{theorem}
+\begin{proof}
+By the Archimedean property, choose $m\in\mathbb N$ with
+$m>\max(C,2)$. Put $r=\max(N,m)$ and $n=r+1$. Then $n\ge N$,
+$r>C$ and $r>2$, hence $n-C>1$ and $n>3$. It follows that
+\[
+ n^2-Cn=n(n-C)>n>3>2\ge |\Ang(S_n)|.
+\]
+Taking $S=S_n$ proves the assertion. In particular it provides a strict
+violation for any nonnegative $C$ and any threshold $N$ proposed in
+\eqref{eq:claim}, which is its negation.
+\end{proof}
+
+\section{Formalization and verification scope}
+The project pins Lean 4.19.0 and Mathlib v4.19.0. The manifest records
+every dependency revision. In \texttt{Solution.lean},
+\texttt{Plane} is \texttt{EuclideanSpace} over the reals in dimension two.
+The finite set \texttt{angleSet} takes the image of all pairwise-distinct
+triples under Mathlib's \texttt{EuclideanGeometry.angle}; the theorem
+\path|mem_angleSet_iff| proves its precise membership characterization.
+Thus the counted values are genuine angles, not a discrete surrogate.
+
+The declarations \path|configuration_card| and
+\path|configuration_angleSet_card_le| establish the size and
+angle-count bounds. The geometry step proves the x-axis collinear and
+uses Mathlib's collinearity characterization by angles $0$ or $\pi$.
+The theorem \path|arbitrarily_large_counterexamples| proves the full
+statement above for every real $C$; \path|not_uniformQuadraticLowerBound|
+negates \eqref{eq:claim}. Finally, \path|original_conjunction_false|
+shows that adjoining any proposition for the attainment clause cannot
+make the conjunction true. It makes no independent claim about a
+particular lattice-equidistribution mechanism.
+
+The submission supplies the full Lean source, pinned project, axiom
+inspection, reproducible verification instructions, and validation
+records. The proof is deductive and requires no numerical experiment or
+external computation. Local verification and independent semantic review
+are reported separately from any subsequent maintainer acceptance.
+
+\paragraph{Source identity.}
+The original is \texttt{conjectures/00000001569.md} at the repository commit below; the second identifier is its Git blob.
+\begin{quote}\small\ttfamily
+9b795e7a94a6076e49a65a6489e1caf9153abd23\\
+ec72f71c9bee352ef1bcb0201554f357dc7ff480
+\end{quote}
+\end{document}

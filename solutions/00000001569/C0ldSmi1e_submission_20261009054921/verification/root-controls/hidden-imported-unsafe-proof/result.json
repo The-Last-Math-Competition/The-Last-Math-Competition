@@ -1,0 +1,40 @@
+{
+  "control": "hidden-imported-unsafe-proof",
+  "expected_rejection": "Unsafe proof dependency: Hidden.unsafeTrue",
+  "result": "PASS",
+  "fixture_modules": {
+    "ImportedBridge": "import Lean\nopen Lean Elab Command\nunsafe def Hidden.unsafeTrue : True := True.intro\nrun_cmd do\n  let decl : Declaration := .thmDecl {\n    name := `Hidden.safeBridge, levelParams := [], type := mkConst ``True,\n    value := mkConst `Hidden.unsafeTrue }\n  match (← getEnv).addDeclCore 0 decl none false with\n  | .ok env => setEnv env\n  | .error _ => throwError \"fixture insertion failed\"\n",
+    "Solution": "import ImportedBridge\ntheorem Public.root : True := Hidden.safeBridge\n"
+  },
+  "records": [
+    {
+      "label": "compile-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "build"
+      ],
+      "cwd": "/private/tmp/tlmc1569-root-controls-verification/hidden-imported-unsafe-proof/fresh-project",
+      "started_utc": "2026-10-09T05:37:41.973777+00:00",
+      "exit_code": 0,
+      "completed_utc": "2026-10-09T05:37:43.249498+00:00",
+      "stdout": "✔ [2/5] Built ImportedBridge\n✔ [3/5] Built Solution\n✔ [4/5] Built AuthorAudit\nBuild completed successfully.\n",
+      "stderr": ""
+    },
+    {
+      "label": "audit-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "cwd": "/private/tmp/tlmc1569-root-controls-verification/hidden-imported-unsafe-proof/fresh-project",
+      "started_utc": "2026-10-09T05:37:43.250023+00:00",
+      "exit_code": 1,
+      "completed_utc": "2026-10-09T05:37:45.760800+00:00",
+      "stdout": "AUDITED Public.root: theorem; execution=false; axioms=[]\nAudit.lean:18:0: error: Unsafe proof dependency: Hidden.unsafeTrue\n",
+      "stderr": ""
+    }
+  ]
+}
