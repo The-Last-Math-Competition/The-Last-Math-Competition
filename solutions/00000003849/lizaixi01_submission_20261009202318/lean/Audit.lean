@@ -1,0 +1,20 @@
+import Main
+
+#check CrystalCounterexample.Crystal
+#check CrystalCounterexample.Crystal.dual
+#check CrystalCounterexample.Crystal.Iso
+#check CrystalCounterexample.Witness.component_operators
+#check CrystalCounterexample.Witness.seminormal
+#check CrystalCounterexample.A2.paired_reflections_closed
+#check CrystalCounterexample.Standard.standard_weight_correspondence
+#check CrystalCounterexample.witness_centrallySymmetric
+#check CrystalCounterexample.Witness.not_selfDual
+#check CrystalCounterexample.original_iff_false
+#print axioms CrystalCounterexample.Crystal.dual
+#print axioms CrystalCounterexample.Witness.crystal
+#print axioms CrystalCounterexample.Witness.seminormal
+#print axioms CrystalCounterexample.A2.paired_reflections_closed
+#print axioms CrystalCounterexample.Witness.not_selfDual
+#print axioms CrystalCounterexample.witness_centrallySymmetric
+#print axioms CrystalCounterexample.original_sufficient_direction_false
+#print axioms CrystalCounterexample.original_iff_false
