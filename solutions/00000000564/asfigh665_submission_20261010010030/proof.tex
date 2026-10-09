@@ -1,0 +1,125 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=28mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\newtheorem{proposition}{Proposition}
+\newcommand{\Cat}{\operatorname{Cat}}
+\title{A type $A_2$ counterexample to conjecture 00000000564}
+\author{asfigh665}
+\date{October 10, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Conjecture 00000000564 asserts that the specialization $F_i(1)$ of an
+$F$-polynomial divides the corresponding generalized Catalan number.
+In the principal-coefficient cluster algebra of type $A_2$, a single
+mutation produces $F_i=1+y_1$. Its value at $y_1=y_2=1$ is $2$,
+whereas the type $A_2$ generalized Catalan number is $5$.
+Thus the asserted divisibility already fails in rank two.
+\end{abstract}
+
+\section{Conventions and the precise instance}
+For a finite Coxeter group $W$ of rank $n$, Coxeter number $h$, and
+exponents $e_1,\ldots,e_n$, the generalized Catalan number is
+\[
+  \Cat(W)=\prod_{j=1}^{n}\frac{h+e_j+1}{e_j+1}.
+\]
+Here ``generalized'' refers to the extension to finite Coxeter types;
+there is no additional Fuss parameter in the conjecture.
+In type $A_2$, $W\cong S_3$, $h=3$, and $(e_1,e_2)=(1,2)$.
+These are equivalently the standard type $A_2$ degrees $(2,3)$.
+For a direct check of the Coxeter data, the simple reflections in the
+simple-root basis and their product are
+\[
+ s_1=\begin{pmatrix}-1&1\\0&1\end{pmatrix},\qquad
+ s_2=\begin{pmatrix}1&0\\1&-1\end{pmatrix},\qquad
+ C=s_1s_2=\begin{pmatrix}0&-1\\1&-1\end{pmatrix}.
+\]
+The matrix $C$ has order $3$ and characteristic polynomial $t^2+t+1$,
+whose roots are the two nontrivial cube roots of unity. This gives
+$h=3$ and exponents $1,2$; these matrix and coefficient computations
+are also checked in Lean.
+Consequently
+\begin{equation}\label{eq:catalan}
+  \Cat(A_2)=\frac{3+1+1}{1+1}\frac{3+2+1}{2+1}
+           =\frac52\cdot\frac63=5.
+\end{equation}
+
+We use the standard definition of $F$-polynomials for a cluster algebra
+with principal coefficients: for a cluster variable $x_{i;t}$, its
+$F$-polynomial is obtained by setting all initial cluster variables
+$x_1,\ldots,x_n$ equal to $1$, while retaining the coefficient variables
+$y_1,\ldots,y_n$. Thus $F_i(1)$ means specialization of all coefficient
+variables to $1$.
+
+\section{One mutation gives the counterexample}
+Consider the rank-two initial exchange matrix and its principal extension
+\[
+ B=\begin{pmatrix}0&1\\-1&0\end{pmatrix},
+ \qquad
+ \widetilde B=
+ \begin{pmatrix}0&1\\-1&0\\1&0\\0&1\end{pmatrix}.
+\]
+Its Cartan companion is
+$\left(\begin{smallmatrix}2&-1\\-1&2\end{smallmatrix}\right)$,
+the Cartan matrix of type $A_2$. The frozen variables associated with
+the last two rows are $y_1,y_2$.
+For an initial seed with principal coefficients, the exchange relation
+at index $k$ is
+\begin{equation}\label{eq:exchange}
+ x_k x_k'=
+ y_k\prod_{j=1}^{n}x_j^{[b_{jk}]_+}
+ +\prod_{j=1}^{n}x_j^{[-b_{jk}]_+},
+ \qquad [a]_+=\max(a,0).
+\end{equation}
+This is also the normalized principal-coefficient relation because
+$y_k\mathbin{\oplus}1=1$ in the initial tropical semifield.
+Reading the first column of $\widetilde B$ and mutating at $k=1$ yields
+\[
+  x_1x_1'=y_1+x_2,\qquad x_1'=\frac{y_1+x_2}{x_1}.
+\]
+Specializing $x_1=x_2=1$ gives the actual $F$-polynomial of this
+cluster variable:
+\begin{equation}\label{eq:f}
+  F_{1;\mu_1(t_0)}(y_1,y_2)=y_1+1,
+  \qquad F_{1;\mu_1(t_0)}(1,1)=2.
+\end{equation}
+Only this single initial mutation is needed; there is no extrapolation
+from numerical experiments.
+
+\begin{proposition}
+Conjecture 00000000564 is false for the standard finite-type generalized
+Catalan number.
+\end{proposition}
+\begin{proof}
+The seed above has finite type $A_2$. Equations~\eqref{eq:catalan} and
+\eqref{eq:f} give an $F$-polynomial whose specialization equals $2$
+and whose corresponding generalized Catalan number equals $5$.
+An integer multiple of $2$ is even, while $5$ is odd; hence $2$ does
+not divide $5$. This contradicts the asserted universal divisibility.
+\end{proof}
+
+\section{Formal verification}
+The accompanying dependency-free Lean~4 project makes the initial
+principal-coefficient mutation formula explicit, computes its
+specialization for the displayed rank-two seed, and computes the
+Catalan product using exact rational arithmetic. It then proves
+nondivisibility and refutes the divisibility statement for this
+particular type and mutation. A universal conjecture about all finite
+types and their $F$-polynomials necessarily includes this instance.
+The standard identification of the displayed Cartan matrix and Coxeter
+data with type $A_2$ is stated explicitly above; the formalization uses
+that concrete standard data, rather than a library of general cluster
+algebras or finite Coxeter groups.
+The submission README gives the build commands, theorem names,
+and their correspondence with the equations in this report.
+
+\section*{Definition reference}
+The principal-coefficient definition of $F$-polynomials and the exchange
+relation used here are standard. See S.~Fomin and A.~Zelevinsky,
+\emph{Cluster algebras IV: Coefficients}, available at
+\href{https://arxiv.org/abs/math/0602259}{arXiv:math/0602259}.
+All computations needed for the counterexample have been included.
+\end{document}
