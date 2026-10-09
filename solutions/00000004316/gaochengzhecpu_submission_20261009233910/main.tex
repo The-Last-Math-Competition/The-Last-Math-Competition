@@ -1,0 +1,74 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{hidelinks}
+\setlength{\emergencystretch}{2em}
+\newtheorem{theorem}{Theorem}
+\title{Disproof of Conjecture 00000004316\\Two local-density interpretations}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\noindent\textbf{Source and scope.} The conjecture calls local density the density of quadratic-form representability at a prime; the Chinese wording specifically refers to existence of representations. It asserts a universal product value $1/2$, but specifies neither a particular form nor a target, and gives no positivity or local-solubility restriction. We first treat the proportion of right-hand sides that have a representation. We then separately treat the customary normalized number of representations of a fixed target. These are different densities and are not interchanged.
+
+\section*{1. Existence density: every target is represented}
+Let $Q(x,y)=xy$ over $\mathbb Z$. This is an integral, nondegenerate quadratic form. Its integral polar bilinear form is
+\[
+ B_Q((x,y),(u,v))=Q(x+u,y+v)-Q(x,y)-Q(u,v)=xv+uy,
+\]
+with matrix $\left(\begin{smallmatrix}0&1\\1&0\end{smallmatrix}\right)$ and determinant $-1$. Thus it is not a degenerate zero form. It is indefinite, which is allowed because the source imposes no positive-definiteness condition.
+
+For $q\geq1$, define the represented residue set and its proportion by
+\[
+ E_Q(q)=\{a\in\mathbb Z/q\mathbb Z:\exists x,y\in\mathbb Z/q\mathbb Z,
+       \ xy=a\},\qquad d_Q(q)=\frac{\#E_Q(q)}q.
+\]
+\begin{theorem}
+Every local existence density for $Q(x,y)=xy$ equals $1$, and its prime-ordered product exists and equals $1$, not $1/2$.
+\end{theorem}
+\begin{proof}
+For every residue class $a$, the pair $(a,1)$ gives $Q(a,1)=a$. Hence $E_Q(q)=\mathbb Z/q\mathbb Z$, its actual cardinality is $q$, and $d_Q(q)=1$. For every prime $p$ this gives
+\[
+ \delta_p=\lim_{h\to\infty}d_Q(p^h)=1,
+ \qquad
+ \prod_{\substack{p\leq N\\p\text{ prime}}}\delta_p=1.
+\]
+The empty initial product is also $1$. Thus the product converges to $1\ne1/2$.
+\end{proof}
+This main counterexample directly addresses existence for a varying right-hand side. All its local factors genuinely exist. It does not rely on an obstructed target or an undefined product.
+
+\section*{2. Fixed-target density: a zero local factor}
+For the separate, customary fixed-target interpretation, take the positive-definite nondegenerate integral form $F(x,y)=x^2+y^2$ and target $t=3$. Define
+\[
+ R(q)=\#\{(x,y)\in(\mathbb Z/q\mathbb Z)^2:x^2+y^2\equiv3\pmod q\},
+ \qquad
+ \sigma_p=\lim_{h\to\infty}\frac{R(p^h)}{p^h},
+\]
+when the latter limit exists. Here the count is of representing pairs for one target, not of represented right-hand sides.
+
+Every square modulo $4$ is $0$ or $1$, so two squares cannot sum to $3$ modulo $4$. Reduction modulo $4$ shows $R(q)=0$ whenever $4\mid q$. Consequently
+\[
+ R(2^h)=0\quad(h\geq2),\qquad \sigma_2=0.
+\]
+\begin{theorem}
+There is no family of real fixed-target local-density limits for $F(x,y)=3$ whose prime-ordered product converges to $1/2$.
+\end{theorem}
+\begin{proof}
+For any such family $(L_p)_p$, uniqueness of the limit at $2$ forces $L_2=0$. Every partial product over primes $p\leq N$ is therefore zero for $N\geq2$. These products tend to zero, excluding the limit $1/2$ by uniqueness.
+\end{proof}
+This negates the combined existence-and-value assertion without assuming convergence of the other local factors. The source does not restrict fixed targets to locally soluble ones. A statement with such a restriction or a different normalization would be different. Neither argument needs to assess the additional convergence-rate claim because the asserted universal value already fails.
+
+\section*{Lean correspondence}
+Both proofs are in one \texttt{Main.lean} and one library. The main argument is in namespace \texttt{Conjecture4316.ExistenceDensity}. Its \texttt{splitForm} is an actual Mathlib integral \texttt{QuadraticForm}, with evaluation proved to be $x_0x_1$. Its actual polar bilinear form has the stated coordinate matrix and determinant $-1$; its kernel is separately proved trivial.
+
+The finite set \texttt{represented q} consists of \texttt{Fin q} targets with an existential modular representation. A bridge theorem identifies the counted multiplication with evaluation of the actual form. The witness is the target representative together with $1\bmod q$, also covering $q=1$. Lean proves that this set is the full residue universe and has cardinality $q$. The genuine density is therefore $q/q=1$ for positive $q$. All prime-power local limits and all finite prime products are then proved equal to one. The formal proof both constructs a family of existing factors and excludes any consistent family with product limit $1/2$.
+
+The original fixed-target proof is retained in namespace \texttt{Conjecture4316}. Its \texttt{Q} is the actual form $x_0^2+x_1^2$. Its \texttt{Solutions q} subtype counts canonical residue pairs representing $3$, with form evaluation explicitly connected to the count. The modulo-$4$ obstruction is checked over every residue pair and transferred to every multiple of $4$. Lean proves the counts at $2^{e+2}$ vanish, the factor at $2$ is zero, and all sufficiently long prime products vanish. Omitting the initial exponents does not change the local limit.
+
+\section*{Reproduction and source}
+Inside \texttt{lean/}, run \texttt{lake build}, then
+\begin{verbatim}
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The project pins Lean 4.19.0, Mathlib, and all transitive revisions. Actual fresh-build logs, standard axiom dependencies, source hashes, compiler results, PDF inspection, and development/review history accompany the submission. No numerical approximation or auxiliary program is required. Compile with \texttt{tectonic main.tex}.
+
+The unchanged bilingual statement is included as \texttt{SOURCE.md}; see \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000004316.md}{The Last Math Competition, Conjecture 00000004316}. Its upstream commit and SHA-256 provenance are recorded in \texttt{verification/}.
+\end{document}
