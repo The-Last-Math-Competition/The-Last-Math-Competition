@@ -1,0 +1,9 @@
+# Pre-submission public eligibility check
+
+The original conjecture, both current contribution-rule sections, and metadata were checked against upstream main `9b795e7a94a6076e49a65a6489e1caf9153abd23`. Metadata records conjecture 00000001663 as neither proved nor disproved, with no first solver or submission timestamp; its solution directory is absent from that main commit.
+
+Candidate-specific path/history checks covered 2,086 observed public commit identities: 1,729 locally available tips with a complete 1,842-commit parent closure and 9,548 tree objects, plus 357 exact tips checked through complete GitHub API path/history responses. No prior submission for this candidate was found in that observed scope. Earlier candidates' absence results were not reused.
+
+The current public reconciliation ran through 2026-10-09 14:51:52 UTC. It refreshed source/rules/status, pull requests, issues, comments, reviews, discussions, public forks and refs, and fourteen exact-ID/topic queries. All eight positive textual leads were inspected and classified: seven concern different explicit conjectures; issue #154 discusses general literature policy without identifying a public solution to this conjecture. The issue mentions an undisclosed larger list; this check does not assert anything about the unavailable contents of that list. No new candidate-specific claim or unresolved history gap was found. Root independently replayed the raw request bindings and complete catalog/claim/history reconstruction.
+
+These checks concern the observed public repository records. They do not establish the absence of private, deleted, inaccessible, or future work, and do not constitute maintainer acceptance. Any activity arising after the stated cutoff requires reconciliation before publication. Detailed operational receipts are retained separately from the mathematical evidence.

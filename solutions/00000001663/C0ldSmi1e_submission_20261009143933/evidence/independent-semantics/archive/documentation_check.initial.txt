@@ -1,0 +1,96 @@
+"""Independent integrity and documentation-consistency check, not a fresh proof replay."""
+from pathlib import Path
+import hashlib
+import json
+
+AUTHOR = Path('/private/tmp/tlmc1663-author/delivery')
+REVIEW = Path('/private/tmp/tlmc1663-independent-semantics')
+MANIFEST_HASH = '3dcf24191f6eff29298a1f5cc7ca5383845fb3d88271adc0af74719e81bbd315'
+
+
+def sha(path):
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def read(path):
+    return json.loads(path.read_text())
+
+
+manifest_path = AUTHOR / 'evidence/DELIVERABLE_HASHES.json'
+assert sha(manifest_path) == MANIFEST_HASH
+manifest = read(manifest_path)
+actual = set()
+for p in AUTHOR.rglob('*'):
+    assert not p.is_symlink(), p
+    if p.is_file() and p != manifest_path:
+        actual.add(str(p.relative_to(AUTHOR)))
+assert actual == set(manifest), (actual - set(manifest), set(manifest) - actual)
+for rel, expected in manifest.items():
+    assert sha(AUTHOR / rel) == expected, rel
+
+previous = read(REVIEW / 'reviewed-source-hashes.json')
+for rel, expected in previous.items():
+    assert manifest[rel] == expected, rel
+assert manifest['REPORT.md'] == '67e9249d09cc7f66e0b3074eccba6692d2c5381e370cb2ecc1e11ffb41a182a6'
+assert manifest['VERIFICATION.md'] == '0168c27a07e4a24e7c06547c00b1f82b01a4a4003606b860ab8a205ed6385529'
+
+locator = read(AUTHOR / 'evidence/FINAL_RUN.json')
+receipt_path = AUTHOR / locator['receipt_relative']
+assert sha(receipt_path) == locator['receipt_sha256']
+receipts = []
+for p in sorted(AUTHOR.glob('evidence/**/receipt.json')):
+    receipt = read(p)
+    assert receipt['status'] == 'VERIFIED'
+    assert receipt['owned_cache_reused'] is False
+    assert receipt['shared_dependency_cache_reused'] is True
+    for rel, expected in receipt['evidence_hashes'].items():
+        assert sha(p.parent / rel) == expected, (p, rel)
+    for rel, expected in receipt['own_compiled'].items():
+        assert sha(p.parent / 'workspace' / rel) == expected, (p, rel)
+    audit = (p.parent / 'audit.log').read_text().splitlines()
+    assert sum(s.startswith('OWNED\t') for s in audit) == 62
+    assert sum(s.startswith('REACHABLE\t') for s in audit) == 4575
+    assert [s for s in audit if s.startswith('AUDIT_OK\t')] == [
+        'AUDIT_OK\towned=62\treachable=4575\taxioms=[Quot.sound, Classical.choice, propext]']
+    for name in ('build-mathematical.log', 'build-verification.log'):
+        assert 'Build completed successfully.' in (p.parent / name).read_text()
+    assert read(p.parent / 'finite-checks.json') == read(REVIEW / 'finite-checks.json')
+    imports = read(p.parent / 'import-fingerprints.json')
+    external = [r for r in imports if r['provider'] != 'owned']
+    assert len(imports) == 4065 and len(external) == 4060
+    assert sum(r['source_status'] == 'available' for r in external) == 2788
+    assert sum(r['source_status'] == 'unavailable' for r in external) == 1272
+    assert sum(r['compiled_bytes'] for r in external) == 2869927664
+    assert external == read(AUTHOR / 'IMPORTS.lock.json')
+    receipts.append(dict(path=str(p.relative_to(AUTHOR)), sha256=sha(p), run_id=receipt['run_id']))
+assert len(receipts) == 3
+
+negative = read(AUTHOR / 'evidence/negative-controls/results.json')
+assert negative['status'] == 'NEGATIVE_CONTROLS_OK'
+assert len(negative['controls']) == 11
+assert sum(r['status'] == 'REJECTED_AS_REQUIRED' for r in negative['controls']) == 10
+assert sum(r['status'] == 'FRESH_RUN_EXECUTED' for r in negative['controls']) == 1
+source = read(AUTHOR / 'evidence/source-check-portable.json')
+assert source['status'] == 'SOURCE_PINS_ONLY' and len(source['packages']) == 9
+assert source == read(REVIEW / 'final-source-check.log')
+
+pdf_bindings = read(REVIEW / 'latex-pdf-reviewed-hashes.json')
+for path, expected in pdf_bindings.items():
+    assert sha(Path(path)) == expected, path
+
+print(json.dumps(dict(
+    status='DOCUMENTATION_AND_EVIDENCE_CONSISTENCY_OK',
+    scope='Read-only integrity check of frozen supplied evidence; not a new full strict replay',
+    author_manifest_sha256=MANIFEST_HASH,
+    author_files_verified=len(manifest),
+    report_sha256=manifest['REPORT.md'],
+    verification_sha256=manifest['VERIFICATION.md'],
+    replay_sha256=manifest['scripts/replay.py'],
+    unchanged_previously_reviewed_sources=list(previous),
+    verified_author_receipts=receipts,
+    recorded_negative_controls=11,
+    external_compiled_modules=4060,
+    available_external_sources=2788,
+    unavailable_runtime_sources=1272,
+    source_and_pdf_bindings_unchanged=True,
+), indent=2))

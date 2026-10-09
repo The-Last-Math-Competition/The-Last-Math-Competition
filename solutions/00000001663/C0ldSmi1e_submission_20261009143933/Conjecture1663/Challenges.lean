@@ -1,0 +1,134 @@
+import Conjecture1663.Proof
+
+/-! Definition checks and boundary tests, all proved by the kernel. -/
+noncomputable section
+
+namespace Conjecture1663
+
+/-- The deletion labelling is a bijection onto precisely the surviving vertices. -/
+theorem deletion_vertices_exact {n : ℕ} (v : Fin (n + 1)) :
+    Function.Injective v.succAbove ∧
+      Set.range v.succAbove = {v}ᶜ :=
+  ⟨Fin.succAbove_right_injective, Fin.range_succAbove v⟩
+
+/-- Relating our fixed-card vertex type to the usual induced subgraph. -/
+noncomputable def deletionInducedIso {n : ℕ} (G : Graph (n + 1)) (v : Fin (n + 1)) :
+    deleteVertex G v ≃g G.induce {w | w ≠ v} where
+  toEquiv := finSuccAboveEquiv v
+  map_rel_iff' := by intros; rfl
+
+theorem deck_card {n : ℕ} (G : Graph (n + 1)) : (deck G).card = n + 1 := by
+  simp [deck]
+
+theorem deleteVertex_empty {n : ℕ} (v : Fin (n + 1)) :
+    deleteVertex (⊥ : Graph (n + 1)) v = ⊥ := by
+  ext a b
+  simp [deleteVertex]
+
+/-- Empty graphs have n+1 identical cards, and all copies are retained. -/
+theorem empty_deck {n : ℕ} : deck (⊥ : Graph (n + 1)) =
+    Multiset.replicate (n + 1) (unlabelled (⊥ : Graph n)) := by
+  simp [deck, deleteVertex_empty]
+
+/-- Every isomorphism carries deleted cards to the corresponding unlabelled cards. -/
+noncomputable def deletionIso {n : ℕ} {G H : Graph (n + 1)} (e : G ≃g H)
+    (v : Fin (n + 1)) : deleteVertex G v ≃g deleteVertex H (e v) := by
+  let f : {w : Fin (n + 1) // w ≠ v} ≃ {w : Fin (n + 1) // w ≠ e v} :=
+    Equiv.subtypeEquiv e.toEquiv (by intro w; exact not_congr e.injective.eq_iff.symm)
+  let g : G.induce {w | w ≠ v} ≃g H.induce {w | w ≠ e v} :=
+    { toEquiv := f
+      map_rel_iff' := by intro a b; exact e.map_adj_iff }
+  exact (deletionInducedIso G v).trans (g.trans (deletionInducedIso H (e v)).symm)
+
+theorem deck_iso {n : ℕ} {G H : Graph (n + 1)} (e : G ≃g H) : deck G = deck H := by
+  unfold deck
+  calc
+    _ = Finset.univ.val.map (fun v => unlabelled (deleteVertex H (e v))) := by
+      apply Multiset.map_congr rfl
+      intro v _
+      exact (unlabelled_eq_iff _ _).mpr ⟨deletionIso e v⟩
+    _ = (Finset.univ.val.map e.toEquiv).map (fun v => unlabelled (deleteVertex H v)) :=
+      by
+      simpa only [Function.comp_def] using (Multiset.map_map
+        (fun v => unlabelled (deleteVertex H v)) e.toEquiv Finset.univ.val).symm
+    _ = _ := by rw [Multiset.map_univ_val_equiv]
+
+/-- No hidden fixed-labelling convention: distance zero is exactly isomorphism. -/
+theorem editDistance_eq_zero_iff {n : ℕ} (G H : Graph n) :
+    editDistance G H = 0 ↔ Nonempty (G ≃g H) := by
+  classical
+  constructor
+  · intro h
+    obtain ⟨f, hf⟩ := editDistance_attained G H
+    rw [h] at hf
+    have same : ∀ a b, a < b → (G.Adj a b ↔ H.Adj (f a) (f b)) := by
+      intro a b hab
+      by_contra hn
+      have hm : (a, b) ∈ (Finset.univ : Finset (Fin n × Fin n)).filter
+          (fun p => p.1 < p.2 ∧ ¬(G.Adj p.1 p.2 ↔ H.Adj (f p.1) (f p.2))) := by
+        simp [hab, hn]
+      have hz := Finset.card_eq_zero.mp hf
+      rw [hz] at hm
+      exact Finset.not_mem_empty _ hm
+    refine ⟨{ toEquiv := f, map_rel_iff' := ?_ }⟩
+    intro a b
+    rcases lt_trichotomy a b with hab | hab | hab
+    · exact (same a b hab).symm
+    · subst b; simp
+    · exact (G.adj_comm a b).trans ((same b a hab).trans (H.adj_comm _ _)) |>.symm
+  · rintro ⟨e⟩
+    exact editDistance_iso e
+
+/-- A concrete one-edge graph on three vertices. -/
+noncomputable def oneEdge : Graph 3 where
+  Adj a b := (a = 0 ∧ b = 1) ∨ (a = 1 ∧ b = 0)
+  symm := by intro a b h; tauto
+  loopless := by intro a h; rcases h with h | h <;> omega
+
+/-- The same unlabelled graph with its nonisolated pair moved. -/
+noncomputable def relabelledEdge : Graph 3 := oneEdge.comap (Equiv.swap 1 2 : Fin 3 ≃ Fin 3)
+
+noncomputable def relabelledEdgeIso : relabelledEdge ≃g oneEdge :=
+  SimpleGraph.Iso.comap (Equiv.swap 1 2) oneEdge
+
+theorem different_labels : oneEdge ≠ relabelledEdge := by
+  intro h
+  have h01 : oneEdge.Adj 0 1 := Or.inl ⟨rfl, rfl⟩
+  rw [h] at h01
+  simp [relabelledEdge, oneEdge, SimpleGraph.comap_adj] at h01
+
+/-- Even two unequal labelled graphs can have the same deck and zero distance. -/
+theorem distinct_labelled_counterexample :
+    oneEdge ≠ relabelledEdge ∧ deck oneEdge = deck relabelledEdge ∧
+      editDistance oneEdge relabelledEdge = 0 :=
+  ⟨different_labels, deck_iso relabelledEdgeIso.symm,
+    editDistance_iso relabelledEdgeIso.symm⟩
+
+/-- An actual edge insertion has cost one, not two for the two orientations. -/
+theorem single_edge_cost_one :
+    edgeEditCost (⊥ : Graph 3) oneEdge (Equiv.refl _) = 1 := by
+  classical
+  unfold edgeEditCost
+  have hset : ((Finset.univ : Finset (Fin 3 × Fin 3)).filter
+      (fun p => p.1 < p.2 ∧ ¬((⊥ : Graph 3).Adj p.1 p.2 ↔
+        oneEdge.Adj p.1 p.2))) = {(0, 1)} := by
+    ext ⟨a, b⟩
+    fin_cases a <;> fin_cases b <;> simp [oneEdge, Prod.ext_iff]
+  simpa using congrArg Finset.card hset
+
+theorem empty_not_iso_oneEdge : ¬Nonempty ((⊥ : Graph 3) ≃g oneEdge) := by
+  rintro ⟨e⟩
+  have h := e.map_adj_iff (v := e.symm 0) (w := e.symm 1)
+  simp [oneEdge] at h
+
+theorem single_edge_distance_one : editDistance (⊥ : Graph 3) oneEdge = 1 := by
+  have upper := editDistance_le_cost (⊥ : Graph 3) oneEdge (Equiv.refl _)
+  rw [single_edge_cost_one] at upper
+  have nonzero : editDistance (⊥ : Graph 3) oneEdge ≠ 0 :=
+    fun h => empty_not_iso_oneEdge ((editDistance_eq_zero_iff _ _).mp h)
+  omega
+
+/-- The refutation makes no inference about the truth value of reconstruction. -/
+theorem full_claim_false_even_if_reconstruction (_h : Reconstruction) : ¬OriginalClaim := originalClaim_false
+
+end Conjecture1663

@@ -1,0 +1,128 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs,tabularx,array}
+\usepackage{enumitem}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newtheorem{proposition}{Proposition}
+\newcommand{\deck}{\mathcal D}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+\setlist{nosep,leftmargin=*}
+\title{A diagonal obstruction to reconstruction rigidity\\[0.4em]\large Disproof of the literal strengthened conjecture 00000001663}
+\author{C0ldSmi1e}
+\date{9 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The added rigidity assertion in conjecture 00000001663 requires two graphs with the same vertex-deleted deck to have edit distance at least two. It contains no distinctness condition. A graph paired with itself has the same deck and distance zero; the empty graph on three vertices is an explicit counterexample. We formalize genuine multiset decks and unlabelled unit-cost edge-edit distance in Lean 4, and prove the negation of the complete stated conjunction. This does not prove or disprove the classical Kelly--Ulam reconstruction conjecture.
+\end{abstract}
+
+\section{The statement being refuted}
+The source first names the Kelly--Ulam reconstruction conjecture for graphs of order at least three, then states:
+\begin{quote}
+The reconstruction conjecture holds; strengthened (reconstruction rigidity): two graphs with the same deck have edit distance $\geq 2$ --- the reconstruction data are locally rigid.
+\end{quote}
+The complete bilingual source is preserved in \code{source/ORIGINAL.md}. Neither language assumes distinct graphs, nonisomorphic graphs, or positive distance. We preserve both asserted parts. With the graph and distance conventions below, write
+\begin{align*}
+R &: \quad \forall N\geq3\;\forall G,H,\quad \deck(G)=\deck(H)\Longrightarrow G\cong H,\\
+Q &: \quad \forall N\geq3\;\forall G,H,\quad \deck(G)=\deck(H)\Longrightarrow d(G,H)\geq2.
+\end{align*}
+Here $G,H$ range over finite simple undirected graphs of order $N$. The full target is $R\land Q$. We prove $\neg Q$ and hence $\neg(R\land Q)$, without assuming or establishing either truth value for $R$.
+
+\section{Faithful graph, deck, and distance definitions}
+A graph is simple and undirected: no loops, multiple edges, directions, weights, or connectedness assumption. Reconstruction is up to graph isomorphism.
+
+For a vertex $v$, the card $G-v$ is the induced graph on all remaining vertices. The deck is the multiset
+\[
+ \deck(G)=\bigl[\,[G-v]_{\cong}:v\in V(G)\,\bigr].
+\]
+There is one card for each deleted vertex. Isomorphic cards are identified, but repeated cards retain their multiplicity.
+
+For equal-order graphs we declare the ordinary unlabelled unit-cost \emph{edge-edit} convention. Choose a bijection $f:V(G)\to V(H)$ and count the unordered pairs whose adjacency disagrees. Each addition or deletion of one undirected edge costs one. With labels $0,\ldots,N-1$ used only for representation, this is
+\[
+ c_f(G,H)=\#\{(u,v):u<v,\ (u\sim_G v)\not\leftrightarrow(f(u)\sim_H f(v))\},
+ \qquad d(G,H)=\min_f c_f(G,H).
+\]
+The order test counts each unordered pair once. The minimum ranges over every vertex bijection, so labels are not part of the observed data. Vertex insertions and deletions are not allowed in this equal-order edge-edit convention. The identity bijection exists, so the set of attained natural-number costs is nonempty.
+
+The conclusion below only needs the property $d(G,G)=0$. Thus the diagonal obstruction also applies to any other distance convention with zero self-distance. No metric convention can justify silently adding a distinctness hypothesis to the source.
+
+\section{The counterexample and complete proof}
+\begin{proposition}
+For every finite simple graph $G$, $\deck(G)=\deck(G)$ and $d(G,G)=0$.
+\end{proposition}
+\begin{proof}
+The deck equality is reflexivity of multiset equality. Under the identity vertex bijection, every adjacency agrees with itself, so the set counted by $c_{\mathrm{id}}(G,G)$ is empty. Therefore $c_{\mathrm{id}}(G,G)=0$. Since every cost is nonnegative and $d$ is the minimum of these costs, $0\leq d(G,G)\leq0$.
+\end{proof}
+
+\begin{proposition}
+The rigidity assertion $Q$ and the full conjunction $R\land Q$ are false.
+\end{proposition}
+\begin{proof}
+Let $G=H$ be the empty graph on three vertices. The order restriction is satisfied. Its deck consists of three copies of the empty graph on two vertices, so the decks are equal. By the preceding proposition, $d(G,H)=0$. The asserted lower bound would give $2\leq0$, which is impossible. Thus $\neg Q$. The second conjunct of $R\land Q$ would imply $Q$, so $\neg(R\land Q)$ as well.
+\end{proof}
+
+This is a refutation of the statement as written, not a pair of nonisomorphic graphs with the same deck. An added nonisomorphism hypothesis would define a different problem. Even a requirement that labelled adjacency relations be unequal would not remove the obstruction under the declared distance: the one-edge graphs on three vertices with edge sets $\{\{0,1\}\}$ and $\{\{0,2\}\}$ are unequal as labelled graphs but isomorphic. They have equal decks and distance zero; the Lean challenge module proves this separately.
+
+\section{Lean correspondence}
+The project uses Lean 4.19.0 and Mathlib v4.19.0, with exact dependency revisions pinned in \code{lake-manifest.json}. Graphs are \code{SimpleGraph (Fin N)}. The conjecture uses $N=n+1$ and $2\leq n$, representing exactly the allowed orders $N\geq3$. Every finite vertex set admits an enumeration; quotient cards and minimization over bijections preserve the ordinary unlabelled interpretation.
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{0.36\linewidth}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Mathematical component & Lean declarations in \code{Conjecture1663} \\
+\midrule
+Isomorphism classes of cards & \code{graphSetoid}, \code{Unlabelled}, \code{unlabelled_eq_iff} \\
+Induced vertex deletion & \code{deleteVertex}, \code{deletion_vertices_exact}, \code{deletionInducedIso} \\
+Multiset deck and multiplicities & \code{deck}, \code{deck_card}, \code{empty_deck} \\
+Unit edge cost and attained minimum & \code{edgeEditCost}, \code{editDistance}, \code{editDistance_attained}, \code{editDistance_le_cost} \\
+Classical and added assertions & \code{Reconstruction}, \code{ReconstructionRigidity} \\
+Full stated conjunction & \code{OriginalClaim} \\
+Zero self-distance & \code{editDistance_self} \\
+Explicit order-three witness & \code{order_three_counterexample} \\
+Negations of the added and full assertions & \code{not_reconstructionRigidity}, \code{originalClaim_false} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The two minimum lemmas establish attainment and comparison with every possible bijection, rather than merely postulating a bound. The main theorem is
+\[
+ \code{Conjecture1663.originalClaim_false :}\quad \neg\code{OriginalClaim}.
+\]
+The second root, \code{Verification.lean}, spells out the full quantified conjunction again in the following theorem:
+\begin{center}
+\code{Verification1663.exact_original_negation}
+\end{center}
+It also checks the smallest admitted witness separately.
+
+\section{Challenge cases and reproduction}
+The kernel-checked challenge module verifies the following properties of the definitions:
+\begin{enumerate}
+\item Deletion enumerates precisely the surviving vertices, injectively, and yields the usual induced subgraph.
+\item The deck has $N$ cards; an empty graph retains all $N$ equal cards rather than collapsing them to a set.
+\item Graph isomorphisms induce equal multiset decks.
+\item Edit distance is zero if and only if the graphs are isomorphic.
+\item Distinct labelled, isomorphic one-edge graphs have equal decks and distance zero.
+\item A single unordered edge insertion has cost and distance exactly one, checking the units and ruling out a constant-zero distance definition.
+\end{enumerate}
+
+The auxiliary Python program enumerates every labelled simple graph and every ordered pair at orders two, three, and four. It canonicalizes cards and minimizes edge cost over all permutations, checking multiplicity, self-distance, symmetry, the fixed-labelling upper bound, and zero distance exactly for isomorphic graphs. At orders three and four it also checks equal-deck pairs. Order two is a useful excluded boundary case: an empty graph and a one-edge graph have identical decks of singleton cards and distance one. These finite calculations supplement the universal Lean proof; they do not prove classical reconstruction at arbitrary orders.
+
+The supplied \code{VERIFICATION.md} gives the reproduction commands and actual results. The replay builds both owned roots afresh with warnings treated as errors, replays their sources, runs the declaration audit and the finite calculation, and records hashes of sources, executable tools, imported compiled modules, and available imported sources. Archived failed attempts are plain text, outside imported roots.
+
+\section{Trust boundary and provenance}
+The mathematical and verification roots contain no admitted proofs, \code{native_decide}, custom axioms, unsafe definitions, or partial definitions. The audit inventories owned declarations by originating module, including generated declarations, and follows constants in types and available values transitively. It also calls Lean's axiom collector. The only permitted logical axioms are \code{propext}, \code{Classical.choice}, and \code{Quot.sound}. The audit is a separate metaprogram; it supplements kernel checking and is not imported into the mathematical proof.
+
+During development, the audit detected compiler-stage declarations using Lean's erased-proof axiom \code{lcProof}. The theorem proofs did not depend on those stages. Explicit noncomputability annotations suppress executable compilation of the mathematical definitions, without changing their mathematical values or proof statements. The final all-declaration audit requires no compiler-stage exemption. The unsuccessful audit and the insufficient section-level annotation attempt are retained for transparency.
+
+The replay reuses pinned neutral dependency caches; it does not rebuild the entire Lean runtime or all of Mathlib. Compiled objects and available source files are fingerprinted, and unavailable runtime source files are disclosed in the verification evidence. These hashes identify the tested artifacts; they do not independently establish a source-to-binary build correspondence. The trust boundary includes the Lean kernel, permitted standard axioms, dependency objects, and execution environment. Python computations are outside the trusted proof.
+
+The mathematical author started from only the supplied bilingual conjecture, contribution rules, and toolchain/dependency pins, with access to the neutral standard library. No earlier solution, repository history, selector analysis, or other problem's proof was used. The author independently chose this disproof. Independent review, eligibility checks, and publication are coordinated separately; local validation is not maintainer acceptance.
+
+\end{document}

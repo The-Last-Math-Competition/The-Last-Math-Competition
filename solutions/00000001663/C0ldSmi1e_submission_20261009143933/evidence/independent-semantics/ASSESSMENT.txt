@@ -1,0 +1,83 @@
+INDEPENDENT SEMANTIC ASSESSMENT — CONJECTURE 00000001663
+Date: 2026-10-09
+Reviewer: independent semantic subagent, working without further agents
+Status: mathematical result accepted for the literal strengthened conjunction; final verification-document consistency pending author completion.
+
+SCOPE AND INDEPENDENCE
+I read ORIGINAL.md, RULES.en.md, and RULES.zh-CN.md supplied under /private/tmp/tlmc1663-author-input. After the root announced the revised mathematical freeze, I read every line of the frozen mathematical definitions, proofs, challenges, Verification.lean, and REPORT.md. I also inspected the project configuration and the current audit and finite-check source. I read relevant SimpleGraph.comap and Fin.succAbove definitions from the explicitly allowed neutral Mathlib tree. I did not read other conjectures, prior submissions, repository history, other reviewers' reports, selector notes, or external mathematical sources. I made no edits to the author's source. A separate copied project was built under this assessment directory using the allowed pinned runtime and neutral dependency tree.
+
+EXACT MATHEMATICAL BYTES
+Conjecture1663.lean
+  a61a09529497d19b1b48c2a05825bdf22dd4e942275eb30e03910bf02958619b
+Conjecture1663/Definitions.lean
+  0a2fb8747321037202af6fabb839ede0dc32213eb90b488fb5392eecb44a699f
+Conjecture1663/Proof.lean
+  0e3ab02df842c1a141430210db0fd7ffa0f56b34614dbff12a6cf98922d9eb81
+Conjecture1663/Challenges.lean
+  42bb0f992ce59e4462fb13005265c177087bfc9861d4821f2289c51514ae4eba
+Verification.lean
+  666cc03080769541074c1fa8128e2b814316d8a560a8e89243253ef6c4c3c6b8
+REPORT.md initially read
+  67e9249d09cc7f66e0b3074eccba6692d2c5381e370cb2ecc1e11ffb41a182a6
+The exact source and configuration bindings are also stored in reviewed-source-hashes.json. The four mathematical hashes agree with evidence/MATH_FROZEN.json. The preserved English/Chinese source and rules are byte-identical to my supplied input files; see report-and-input-hashes.initial.json.
+
+BILINGUAL AND QUANTIFIER REVIEW
+The English text says the classical reconstruction conjecture holds, then adds a strengthening requiring edit distance at least two between two graphs with the same deck. The Chinese text has the same conjunction/strengthening structure and the same lower bound. Neither supplies a distinctness or nonisomorphism hypothesis. The English word deck and the named Kelly-Ulam setting support the usual multiset interpretation; the Chinese 点删图集 wording does not explicitly settle multiplicity, but the chosen multiset convention is the standard reconstruction object. In any event, the diagonal witness has equal decks under either a multiset or set reading.
+
+The Graph n type is precisely the standard Mathlib simple undirected loopless graph on Fin n. The quantified order n+1 with 2 <= n covers exactly all finite orders at least three. Using a standard finite vertex set does not remove any finite graph isomorphism type. There is no connectedness, distinctness, nonisomorphism, sparsity, reconstructibility, or other convenient extra hypothesis. Reconstruction is correctly expressed as equal decks implying a graph isomorphism, not equality of labelled adjacency relations.
+
+DEFINITION REVIEW
+1. graphSetoid identifies graphs by an actual graph isomorphism. Quotient equality is proved equivalent to that relation.
+2. deleteVertex pulls adjacency back along v.succAbove. The allowed Mathlib sources define comap as precisely this adjacency pullback; succAbove is injective and enumerates exactly the complement of v. deletionInducedIso additionally identifies this card with the usual induced graph on surviving vertices.
+3. deck maps the full vertex finset's underlying multiset to unlabelled cards. It therefore includes one card per deleted vertex and retains repetitions. deck_card and empty_deck check both facts; deck_iso checks invariance under graph isomorphism.
+4. edgeEditCost counts unordered differing pairs exactly once using u < v. It excludes loops and does not count both orientations. The existential in editCost_exists is genuine, witnessed by the identity permutation. Nat.find chooses the least attained natural cost; attained and le_cost establish the claimed minimum over all vertex bijections.
+5. This is an ordinary unlabelled unit edge-edit convention. The original does not uniquely specify an edit-distance convention, and the report explicitly states the one used. The decisive diagonal obstruction is robust under ordinary alternative edit distances, since they also assign zero cost to making no change. editDistance_eq_zero_iff proves the chosen distance vanishes exactly for isomorphic graphs. single_edge_distance_one verifies that it is not the constant-zero function and that one edge costs one.
+
+PROOF REVIEW
+For any graph G, the identity is a graph isomorphism. It changes no adjacency, so its edge-edit cost is zero. The least cost is a natural number bounded above by zero, hence editDistance G G = 0. Also deck G = deck G by reflexivity. Applying the proposed universal rigidity clause at n=2 to the empty graph on Fin 3 twice therefore gives 2 <= 0. This contradiction proves not_reconstructionRigidity. Its use of the second conjunct proves originalClaim_false without assuming or deciding the classical reconstruction assertion. Verification1663.exact_original_negation spells out the exact two quantified clauses again and proves their conjunction false. I found no gap or irrelevant replacement statement.
+
+The challenge with oneEdge and relabelledEdge is also faithful: the first graph has edge {0,1}, the second {0,2}; they are unequal labelled adjacency relations but isomorphic. Thus they have equal decks and zero minimized edge distance. This demonstrates why merely adding labelled inequality would not repair the statement under the declared unlabelled metric. It is not a nonisomorphic equal-deck counterexample.
+
+INTERPRETIVE LIMITS
+This is a disproof of the literal strengthening, and therefore of the complete written conjunction. It neither proves nor disproves the classical Kelly-Ulam reconstruction conjecture. Informal wording such as two graphs can be intended to mean two distinct unlabelled graphs; that would add nonisomorphism and is a different assertion. I do not certify a resolution of that repaired/intended reading. The report repeatedly and accurately preserves this boundary. I found no mathematical overclaim in its title, result, proof, or source-to-theorem table.
+
+INDEPENDENT EXECUTION
+The exact copied owned sources were freshly compiled from an initially absent owned build directory with the allowed Lean 4.19.0 runtime and package manifest, retaining dependency caches only. Both Conjecture1663 and Verification targets passed with warningAsError enabled. The printed axioms for the main negation, zero-distance characterization, deck invariance, and exact quantified negation were propext, Classical.choice, and Quot.sound.
+
+I reran scripts/Audit.lean on that fresh project with warnings as errors. It completed AUDIT_OK with 62 owned declarations and 4575 reachable declarations, admitting only Quot.sound, Classical.choice, and propext. I read the audit implementation: roots are selected by originating module; types and available bodies are traversed; forbidden axioms, unsafe/non-safe definitions, missing constants, and exhausted traversal are rejected. This is supplemental execution evidence, not an independent rebuild or verification of the Lean compiler/kernel.
+
+I reran the supplied finite checks. All assertions passed for every labelled simple graph and ordered pair at orders 2, 3, and 4: respectively 2/8/64 graphs and 4/64/4096 ordered pairs. Equal-deck ordered pair counts were 4/20/556; nonisomorphic equal-deck ordered pair counts were 2/0/0. These checks are limited to those orders and do not establish classical reconstruction at all orders. The universal diagonal proof, rather than the enumeration, is decisive.
+
+Evidence files: fresh-build.log, fresh-audit.log, finite-checks.json, reviewed-source-hashes.json. No author-owned compiled object was copied. Existing neutral dependency compiled objects and the pinned runtime remain part of the trust boundary; I did not rebuild them or authenticate their provenance from an external source.
+
+OPEN DOCUMENTATION ITEM AT THIS SNAPSHOT
+The report section on replay and final evidence referred in present tense to VERIFICATION.md and scripts/replay.py, but neither existed in the inventory at first review. I promptly notified the author and root. This is a completion/documentation item, not a defect in the mathematical proof. A later addendum will record final consistency if the author supplies those files. No publication readiness, rule compliance of a final PR package, PDF verification, competition eligibility, or maintainer acceptance is asserted by this review.
+
+LATEX AND PDF REVIEW ADDENDUM — 2026-10-09
+The root explicitly expanded this read-only review to the complete root-authored solution.tex and its matching four-page export. This authorization does not extend to reading any other prior proof or review. I read all source text and visually inspected every page image, final-1.png through final-4.png. I used the PDF review skill read-only, without an artifact marker, source edit, rendering command, or export.
+
+The LaTeX report faithfully explains the frozen formal definitions, quantified conjunction, edge-edit convention, diagonal contradiction, and exact theorem correspondence. Its abstract, result, and conclusion clearly limit the result to the literal strengthening and refrain from settling classical reconstruction. The distinct-labelled example is correctly separated from a nonisomorphic counterexample. The discussions of finite checks and the trust boundary are appropriately limited. The statements about promised replay documentation still require the final consistency check already identified above.
+
+All four pages are legible and complete. I found no clipping, overlapping text, malformed mathematical symbols, table overflow, or missing visible content. The table of Lean declarations is readable and contained within its column widths. Paragraph breaks between pages do not omit content. The source and the displayed pages agree in their mathematical content.
+
+Reviewed source SHA256: bb544cab00f7bc0f549b5fbfd470ae40483829e8a54364d7164ce3f6614b2684
+Reviewed PDF SHA256: 867088bb6f28c98713cd2952d714a37e8e60ba32b012d28b1950b2071f1eef1e
+The full absolute paths and all four rendered-page hashes are saved in latex-pdf-reviewed-hashes.json. No mathematical or layout correction is requested for these exact source/PDF bytes. This addendum supersedes the earlier statement that this review did not include PDF verification; all other scope and independence limits remain in force.
+
+FINAL DOCUMENTATION-CONSISTENCY ADDENDUM — 2026-10-09
+Final disposition: ACCEPTED FOR THE LITERAL STRENGTHENED CONJUNCTION. The earlier pending documentation item is closed. Earlier assessment text is preserved as a historical snapshot, not silently revised.
+
+The root supplied the frozen declared author sub-bundle in /private/tmp/tlmc1663-author/delivery, with manifest SHA256 3dcf24191f6eff29298a1f5cc7ca5383845fb3d88271adc0af74719e81bbd315. REPORT.md is unchanged at 67e9249d09cc7f66e0b3074eccba6692d2c5381e370cb2ecc1e11ffb41a182a6. VERIFICATION.md is 0168c27a07e4a24e7c06547c00b1f82b01a4a4003606b860ab8a205ed6385529. scripts/replay.py is 2a7d16a59d50e6dcc7601774671db7e9e772e771d7ede4e390ab654fe3e1b2ef.
+
+I read the full verification guide, replay implementation, fingerprint implementation, negative-control implementation/results, portable source checker, export boundary, README, final run locator, and recorded final receipt/build logs. I independently checked the SHA256 of every one of the 91 manifest-bound files, all three archived successful receipts and their bound logs/owned compiled objects, unchanged mathematical/configuration/audit/finite-check sources, and the final report/source/PDF bindings. The declared source and execution evidence match the report's claims. The recorded audit counts, finite outputs, 4060 external compiled modules, 2788 available external sources, 1272 unavailable runtime sources, and 2869927664 external compiled bytes agree with the actual logs and inventory.
+
+I executed the delivered replay command in existing-receipt validation mode. It performed its strict preflight and returned EXISTING_RECEIPT_INTEGRITY_ONLY for the final run eae2d80bb11b4d5fba3934a52f6ff676. I also executed the delivered portable source checker against the allowed neutral packages; it returned SOURCE_PINS_ONLY for nine clean pinned dependencies. These are deliberately not reported as a new full strict replay. The independent fresh Lean build, audit, and finite run described earlier remain separate actual reviewer evidence. I inspected but did not rerun the eleven author negative controls during this final documentation pass; their stored results and fresh-run receipt were checked for consistency and integrity.
+
+The verification prose accurately distinguishes strict runtime/cache fingerprint replay from cross-platform source compilation. It expressly discloses unavailable runtime sources, cache reuse, lack of a complete independent source-to-binary rebuild, and the limits of a locally replaceable manifest. It does not promote a pin-only or old-receipt check to a fresh-build claim. The replay creates a new owned workspace and invokes both builds, audit, and finite program; its implementation does not take old success logs as a shortcut. These now-existing files support the previously conditional verification paragraphs in REPORT.md and solution.tex. No report correction is requested.
+
+During exact inventory checking, I found two unlisted generated Python caches in the temporary author export: scripts/__pycache__/fingerprints.cpython-314.pyc and scripts/__pycache__/replay.cpython-314.pyc. The first strict inventory check rejected them; its actual log and initial checker source are preserved. I notified the root. This was an export-inventory issue, not a mathematical or declared-source change. The root installed only the 91 declared files plus their manifest and excluded both caches. I independently verified every installed declared file, absence of symlinks and __pycache__ anywhere in the personal submission folder, and exact equality of the installed LaTeX/PDF to the reviewed hashes. installation-confirmation.json records that check. The final consistency conclusion applies to that declared, correctly installed sub-bundle, not the two excluded generated files.
+
+No mathematical source changed, no further theorem or conjecture was investigated, and no publication, external comment, commit, push, artifact edit, or additional agent was used in this follow-up. This review still does not certify classical reconstruction, an intended nonisomorphic-pair repair, competition eligibility, or maintainer acceptance.
+
+COMPACT REVIEW DELIVERY
+The delivery/ subdirectory contains only this assessment, exact hash records, actual reviewer logs/results, the small documentation-consistency checker, and its initial failed-inventory version as archival text. It contains no build caches, compiled objects, symlinks, PDFs, dependency checkouts, or executable invalid Lean fixtures. The separate local fresh/ project used earlier is intentionally excluded. DELIVERY_SHA256.json inventories every delivered file other than itself.

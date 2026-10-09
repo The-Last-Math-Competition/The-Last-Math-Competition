@@ -1,0 +1,75 @@
+import Mathlib.Combinatorics.SimpleGraph.Maps
+import Mathlib.Data.Fin.Basic
+import Mathlib.Data.Fintype.Perm
+import Mathlib.Data.Multiset.MapFold
+import Mathlib.Tactic
+
+/-!
+Finite simple undirected graphs, decks of unlabelled vertex-deleted cards,
+and ordinary unlabelled unit-cost edge-edit distance.
+The vertex order in the conjecture is `n + 1`; its hypothesis is `2 ≤ n`.
+-/
+namespace Conjecture1663
+
+abbrev Graph (n : ℕ) := SimpleGraph (Fin n)
+
+/-- Isomorphism, not equality of labelled adjacency relations. -/
+def graphSetoid (n : ℕ) : Setoid (Graph n) where
+  r G H := Nonempty (G ≃g H)
+  iseqv := ⟨fun G => ⟨SimpleGraph.Iso.refl⟩,
+    fun ⟨e⟩ => ⟨e.symm⟩, fun ⟨e⟩ ⟨f⟩ => ⟨e.trans f⟩⟩
+
+/-- An isomorphism class of graphs of one fixed order. -/
+abbrev Unlabelled (n : ℕ) := Quotient (graphSetoid n)
+
+def unlabelled {n : ℕ} (G : Graph n) : Unlabelled n := Quotient.mk _ G
+
+theorem unlabelled_eq_iff {n : ℕ} (G H : Graph n) :
+    unlabelled G = unlabelled H ↔ Nonempty (G ≃g H) := Quotient.eq
+
+/-- `v.succAbove` lists every vertex other than `v` exactly once. -/
+def deleteVertex {n : ℕ} (G : Graph (n + 1)) (v : Fin (n + 1)) : Graph n :=
+  G.comap v.succAbove
+
+/-- One card per deleted vertex; multiset mapping preserves repeated cards. -/
+def deck {n : ℕ} (G : Graph (n + 1)) : Multiset (Unlabelled n) :=
+  (Finset.univ : Finset (Fin (n + 1))).val.map (fun v => unlabelled (deleteVertex G v))
+
+/-- Unit cost for each unordered pair whose adjacency changes under `f`.
+The test `u < v` counts each unordered pair once, without loops. -/
+noncomputable def edgeEditCost {n : ℕ} (G H : Graph n) (f : Fin n ≃ Fin n) : ℕ := by
+  classical
+  exact ((Finset.univ : Finset (Fin n × Fin n)).filter
+    (fun p => p.1 < p.2 ∧ ¬(G.Adj p.1 p.2 ↔ H.Adj (f p.1) (f p.2)))).card
+
+theorem editCost_exists {n : ℕ} (G H : Graph n) :
+    ∃ k : ℕ, ∃ f : Fin n ≃ Fin n, edgeEditCost G H f = k :=
+  ⟨edgeEditCost G H (Equiv.refl _), Equiv.refl _, rfl⟩
+
+/-- Minimum of the unit edge cost over all vertex bijections.
+`Nat.find` gives the exact attained minimum, rather than an infimum bound. -/
+noncomputable def editDistance {n : ℕ} (G H : Graph n) : ℕ :=
+  Nat.find (editCost_exists G H)
+
+theorem editDistance_attained {n : ℕ} (G H : Graph n) :
+    ∃ f : Fin n ≃ Fin n, edgeEditCost G H f = editDistance G H :=
+  Nat.find_spec (editCost_exists G H)
+
+theorem editDistance_le_cost {n : ℕ} (G H : Graph n) (f : Fin n ≃ Fin n) :
+    editDistance G H ≤ edgeEditCost G H f :=
+  Nat.find_min' (editCost_exists G H) ⟨f, rfl⟩
+
+/-- The named Kelly–Ulam reconstruction assertion, on all orders at least three. -/
+def Reconstruction : Prop :=
+  ∀ (n : ℕ), 2 ≤ n → ∀ G H : Graph (n + 1),
+    deck G = deck H → Nonempty (G ≃g H)
+
+/-- The added assertion as written: no distinctness or nonisomorphism hypothesis. -/
+def ReconstructionRigidity : Prop :=
+  ∀ (n : ℕ), 2 ≤ n → ∀ G H : Graph (n + 1),
+    deck G = deck H → 2 ≤ editDistance G H
+
+/-- The complete original conjecture is the conjunction of both assertions. -/
+def OriginalClaim : Prop := Reconstruction ∧ ReconstructionRigidity
+
+end Conjecture1663
