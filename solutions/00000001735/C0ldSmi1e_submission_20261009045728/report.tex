@@ -1,0 +1,128 @@
+\documentclass[11pt]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\N}{\mathbb N}
+\newtheorem*{theorem}{Theorem}
+\title{Disproof of Conjecture 00000001735\\[0.35em]
+\large An attained maximum cannot have finitely many maximizing right-hand sides}
+\author{C0ldSmi1e}
+\date{October 9, 2026}
+\begin{document}
+\maketitle
+\vspace{-1.2em}
+
+\section{The statement and the counting convention}
+
+Both versions of the original conjecture assert that the maximum solution count
+for $X^3-2Y^3=k$ is $12$ and that only finitely many $k$ attain $12$.
+They also promise an explicit finite list through an unspecified unit-group
+torsion condition. We disprove the conjunction of the maximum and finiteness
+assertions, which is a necessary part of the full statement.
+
+We use the ordinary integer-solution interpretation of a Thue equation:
+\[
+ S_k=\{(x,y)\in\Z^2:x^3-2y^3=k\},\qquad N(k)=\#S_k,
+ \qquad k\in\Z.
+\]
+Solutions are distinct ordered pairs. Signs and zero coordinates are included.
+Neither language restricts solutions to primitive pairs, restricts $k$ to
+cube-free integers, or identifies parameters up to multiplication by cubes.
+None of those additional restrictions is imposed here. The customary alternative
+of requiring $k\ne0$ is also treated below.
+
+\begin{theorem}
+If $N(k)\le12$ for every integer $k$ and $N(k_0)=12$ for some integer $k_0$,
+then infinitely many integers $k$ have $N(k)=12$. Consequently the conjecture,
+as stated, is false.
+\end{theorem}
+
+\begin{proof}
+First $S_0=\{(0,0)\}$. Indeed, $x^3=2y^3$ with $y\ne0$ would also have
+$x\ne0$. Taking absolute values and comparing exponents of the prime $2$
+in the two positive integers gives
+\[
+ 3v_2(|x|)=1+3v_2(|y|),
+\]
+which is impossible modulo $3$. Thus $y=0$ and then $x=0$.
+In particular $N(0)=1$, so a parameter $k_0$ with $N(k_0)=12$ is nonzero.
+
+For every nonzero integer $t$, homogeneity gives an injective map
+\[
+ S_{k_0}\longrightarrow S_{t^3k_0},\qquad (x,y)\longmapsto(tx,ty),
+\]
+because $(tx)^3-2(ty)^3=t^3(x^3-2y^3)$ and multiplication by $t$ is
+injective on integers. Hence $N(t^3k_0)\ge12$. The assumed global upper bound
+forces $N(t^3k_0)=12$.
+
+Take $t=n+1$ for $n\in\N$. The parameters $(n+1)^3k_0$ are pairwise distinct:
+one may cancel the nonzero $k_0$, and cubing integers is injective.
+They form an infinite subset of the claimed finite set of maximizers.
+\end{proof}
+
+\newpage
+\section{Scope of the disproof}
+
+The conclusion is the incompatibility of the two assertions. We do not determine
+the actual numerical maximum, prove that the number $12$ is attained, or compute
+an actual list of maximizing parameters.
+
+For the parameter domain $\Z\setminus\{0\}$, an upper bound of $12$ extends
+to all integers because $N(0)=1$. Excluding zero does not change the set of
+twelve-solution parameters. This variant is separately formalized and refuted.
+
+The undefined torsion-condition phrase is not given an invented meaning.
+Whatever additional enumeration assertion it expresses, the full source still
+implies the maximum-and-finiteness core refuted above. In particular a finite
+explicit list cannot repair that contradiction.
+
+\section{Formalization and reproduction}
+
+The Lean project uses Lean 4.19.0 and Mathlib v4.19.0, with dependency revisions
+pinned in its manifest. In \nolinkurl{lean/Solution.lean},
+\nolinkurl{Conjecture1735.solutionSet} is exactly the displayed subset of
+$\Z\times\Z$ and \nolinkurl{solutionCount} is
+\nolinkurl{Cardinal.mk (solutionSet k)}. Using cardinal numbers counts the whole
+set even before its finiteness is known; it never assigns an artificial finite
+count to an infinite set. A count equal to the finite cardinal $12$ is the
+ordinary statement that there are exactly twelve solutions.
+
+\nolinkurl{MaximumIsTwelve} means a universal upper bound of twelve together
+with actual attainment. \nolinkurl{Conjecture} conjoins it with
+\nolinkurl{Set.Finite} of the full set of attaining parameters. The main endpoints
+are:
+\begin{itemize}
+ \item \nolinkurl{Conjecture1735.maximum_twelve_implies_infinite_maximizers}:
+ the asserted maximum implies \nolinkurl{Set.Infinite} of the maximizer set;
+ \item \nolinkurl{Conjecture1735.conjecture_false}:
+ the unconditional negation of \nolinkurl{Conjecture};
+ \item \nolinkurl{Conjecture1735.nonzero_conjecture_false}:
+ the unconditional negation of the nonzero-parameter variant.
+\end{itemize}
+
+The zero-fiber argument, scaling map, injection, cardinal inequality, and infinite
+range are all proved in Lean. No search bound, numerical experiment, auxiliary
+mathematical program, or unproved finiteness theorem is used. The submitted
+inspection file expands the definitions and prints endpoint types and axiom
+dependencies. The portable verifier rebuilds the project, replays the inspection
+and full compiled-declaration audit with warnings treated as errors, and checks
+the source, dependency, and declaration records. Its accompanying controls test
+the rejection of invalid or altered verification inputs. Exact commands and
+results are recorded in \nolinkurl{README.md} and \nolinkurl{VERIFICATION.md}.
+
+The original bilingual source is included as \nolinkurl{ORIGINAL.md}, with
+its exact hash recorded in the verification manifest.
+The author derived the scaling argument from that source before an accidental
+exposure to unrelated task-status summaries; the access record discloses that
+event. A fresh reviewer independently identified the same argument before
+reading the proof. Full provenance and local verification records accompany
+the submission; local validation is distinct from maintainer acceptance.
+
+\end{document}

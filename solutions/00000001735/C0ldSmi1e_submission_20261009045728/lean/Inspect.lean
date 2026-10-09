@@ -1,0 +1,27 @@
+import Solution
+
+#print Conjecture1735.solutionSet
+#print Conjecture1735.solutionCount
+#print Conjecture1735.MaximumIsTwelve
+#print Conjecture1735.Conjecture
+#print Conjecture1735.NonzeroConjecture
+
+#check Conjecture1735.zero_fiber
+#check Conjecture1735.solutionCount_zero
+#check Conjecture1735.scaleSolution_injective
+#check Conjecture1735.solutionCount_le_scaled
+#check Conjecture1735.scaled_rhs_injective
+#check Conjecture1735.infinite_maximizers_of_nonzero_maximizer
+#check Conjecture1735.maximum_twelve_implies_infinite_maximizers
+#check Conjecture1735.conjecture_false
+#check Conjecture1735.nonzero_conjecture_false
+
+#print axioms Conjecture1735.zero_fiber
+#print axioms Conjecture1735.solutionCount_zero
+#print axioms Conjecture1735.scaleSolution_injective
+#print axioms Conjecture1735.solutionCount_le_scaled
+#print axioms Conjecture1735.scaled_rhs_injective
+#print axioms Conjecture1735.infinite_maximizers_of_nonzero_maximizer
+#print axioms Conjecture1735.maximum_twelve_implies_infinite_maximizers
+#print axioms Conjecture1735.conjecture_false
+#print axioms Conjecture1735.nonzero_conjecture_false
