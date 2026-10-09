@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{No negative Waring singular series\\\large Disproof of Conjecture 00000004152}
+\author{gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Every finite real Waring singular series defined by the Euler product of local representation densities is nonnegative. Each local factor is nonnegative as well. Thus fourth powers cannot have a negative singular series or a negative local factor, contrary to both assertions of the conjecture.
+\end{abstract}
+
+\section*{Statement and conventions}
+The source defines the Waring singular series as the local Euler product for representations as sums of $k$th powers. It asserts that the smallest $k$ admitting a negative value is $4$, and that a negative value for fourth powers comes from the factor at a single prime.
+
+Fix positive integers $k,s$ and a target integer $a\geq0$. For $q\geq1$, put
+\[
+ R_{k,s}(a;q)=\#\left\{(x_1,\ldots,x_s)\in(\mathbb Z/q\mathbb Z)^s:
+  \sum_{i=1}^{s}x_i^k=a\pmod q\right\}.
+\]
+Whenever it exists as a finite real number, the standard local density is
+\[
+ \sigma_p=\lim_{h\to\infty}p^{h(1-s)}R_{k,s}(a;p^h).
+\]
+If these local factors exist and the prime-ordered product converges, the Euler-product singular series is
+\[
+ \mathfrak S_{k,s}(a)=\lim_{N\to\infty}
+       \prod_{\substack{p\leq N\\p\text{ prime}}}\sigma_p.
+\]
+These are representation counts, local-density limits, and ordinary Euler-product limits. We make no assertion about a regularized value assigned to a divergent expression; the source specifies no such regularization.
+
+\begin{theorem}
+Every existing finite local factor $\sigma_p$ is nonnegative. Every existing finite Euler-product singular series $\mathfrak S_{k,s}(a)$ is nonnegative.
+\end{theorem}
+\begin{proof}
+The cardinality $R_{k,s}(a;p^h)$ is a nonnegative integer, and $p^{h(s-1)}>0$. Hence every normalized count
+\[
+ \frac{R_{k,s}(a;p^h)}{p^{h(s-1)}}
+\]
+is nonnegative. The closedness of $[0,\infty)$ gives $\sigma_p\geq0$ whenever the limit exists. Every finite product of such factors is therefore nonnegative. Applying the same closedness argument to the sequence of finite products proves $\mathfrak S_{k,s}(a)\geq0$.
+\end{proof}
+
+\section*{Consequence}
+The theorem applies to every $k$, including $k=4$. Thus no fourth-power instance has a negative Euler-product singular series, and no prime supplies a negative local factor. A zero factor, caused by a local obstruction, can give a zero product; it cannot change the sign. Failure of convergence does not create a negative value either. Consequently there is no smallest power with the property alleged in the source, and the conjecture is false.
+
+\section*{Formal verification}
+The Lean project defines \texttt{WaringSolutions} as the actual finite subtype of residue tuples satisfying the congruence. The tuple entries are \texttt{Fin q}, the canonical representatives $0,\ldots,q-1$; \texttt{solutionCount} is their \texttt{Nat.card}. The density uses $h=e+1$, which discards only the exponent-zero term.
+
+\texttt{IsLocalFactor} uses \texttt{Filter.Tendsto} of those normalized counts. No sign condition is included in this definition. \texttt{eulerPartial} is the product over the actual primes in $\{0,\ldots,N\}$. \texttt{IsWaringSingularSeries} requires the existence of the local limits and the limit of these products. The theorem \texttt{waring\_singular\_series\_nonnegative} proves the sign from these definitions, and the two final theorems negate the negative fourth-power global and local assertions separately.
+
+The project is pinned to Lean 4.19.0 and a fixed Mathlib commit. Its proof contains no added axioms or proof placeholders; the printed theorem dependencies are the standard \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. The result is conditional only on the existence of the limits that define the alleged negative value. Establishing convergence for all possible parameter choices is unnecessary for this disproof.
+
+\section*{Source}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000004152.md}{The Last Math Competition, Conjecture 00000004152}. The submission includes the exact bilingual source and its SHA-256 provenance record.
+\end{document}
