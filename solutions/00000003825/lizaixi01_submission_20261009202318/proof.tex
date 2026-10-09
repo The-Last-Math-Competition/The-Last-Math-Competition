@@ -1,0 +1,76 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\title{Infinitely many finite irreducible A\texorpdfstring{$_1$}{1} word crystals\\over one fixed alphabet}
+\author{Local formalization of conjecture 00000003825}
+\date{8 October 2026}
+\begin{document}
+\maketitle
+\vspace{-12mm}
+\paragraph{Source and conclusion.}
+The source explicitly defines its ``monomial crystal'' as a crystal arrow structure on an alphabet monoid; the Chinese text says monoid crystal. We use that definition, with the fixed alphabet $\{1,2\}$ and its entire free monoid. The final claim that this alphabet admits only finitely many irreducible finite crystals is false. No general dominant-weight classification is assumed.
+
+\paragraph{The ambient word crystal.}
+The letter crystal has weights $\mathrm{wt}(1)=1$, $\mathrm{wt}(2)=-1$, an arrow $f(1)=2$, its inverse $e(2)=1$, and undefined other arrows. Its string functions are
+\[
+(\varepsilon(1),\varphi(1))=(0,1),\qquad
+(\varepsilon(2),\varphi(2))=(1,0).
+\]
+We use the conventional reverse factor reading: the written word $uv$ represents $v\otimes u$. The tensor functions are
+\begin{align*}
+\varepsilon(u,v)&=\varepsilon(v)+\max\{\varepsilon(u)-\varphi(v),0\},\\
+\varphi(u,v)&=\varphi(u)+\max\{\varphi(v)-\varepsilon(u),0\},\\
+\mathrm{wt}(u,v)&=\mathrm{wt}(u)+\mathrm{wt}(v).
+\end{align*}
+The operator $e$ acts on $u$ when $\varepsilon(u)>\varphi(v)$ and otherwise on $v$; $f$ acts on $u$ when $\varepsilon(u)\geq\varphi(v)$ and otherwise on $v$. Undefined arrows propagate. These are the standard tensor rules with reversed factors, cancelling a $2$ to the left of a $1$.
+
+The Lean construction proves all rank-one crystal axioms for this tensor product, constructs words of every length from the same two-letter crystal, and proves their disjoint union is equivalent to \texttt{List Bool}. Transport through that equivalence produces an actual crystal on the whole free monoid, including unsorted words and the empty word. Thus the ambient object and its arrows are not supplied as assumed bridges.
+
+\paragraph{An admissible family for every highest weight.}
+Fix any integer $k\geq0$. For $0\leq i\leq k$ let
+\[
+w_i=1^{k-i}2^i.
+\]
+Induction using the ambient tensor rule gives
+\[
+\varepsilon(1^a2^b)=b,\quad \varphi(1^a2^b)=a,
+\quad \mathrm{wt}(1^a2^b)=a-b,
+\]
+and, for every $a,b\geq0$,
+\[
+f(1^{a+1}2^b)=1^a2^{b+1},\qquad
+e(1^a2^{b+1})=1^{a+1}2^b.
+\]
+Consequently $B(k)=\{w_0,\ldots,w_k\}$ is a genuine closed subcrystal of this one ambient monoid crystal. Its arrows are $f(w_i)=w_{i+1}$ for $i<k$ and $e(w_i)=w_{i-1}$ for $i>0$, with undefined endpoints. Its weight is $k-2i$, its epsilon is $i$, and its phi is $k-i$; hence $\varphi=\varepsilon+\mathrm{wt}$. Both-arrow correspondence and all three functions are proved for the concrete embedding, not only its injectivity.
+
+\paragraph{Normality, irreducibility, and size.}
+The family is nonempty for every $k$. Exactly $i$ lowerings from $w_0$ give $w_i$, so all vertices are connected. Any nonempty subset closed under both $e$ and $f$ contains the whole chain, proving irreducibility. For every vertex and every iteration count $n$,
+\[
+e^n(w_i)\text{ is defined}\iff n\leq i,\qquad
+f^n(w_i)\text{ is defined}\iff n\leq k-i.
+\]
+These full string lengths are proved from the crystal data. The highest weight is $k$, and $|B(k)|=k+1$, consistent with the A$_1$ Weyl dimension formula. The alphabet does not depend on $k$.
+
+\paragraph{Infinitely many actual isomorphism classes.}
+The formal quotient identifies actual finite nonempty connected word subcrystals by vertex equivalences preserving $e$, $f$, weight, epsilon and phi. Suppose $B(k)$ and $B(l)$ define the same quotient class. An actual crystal isomorphism then gives a vertex bijection, so $k+1=l+1$ and $k=l$. The map from all natural $k$ into this quotient is injective. Therefore the quotient is infinite, and the fixed-alphabet finiteness conjunct is false.
+
+\paragraph{Formal artifact and scope.}
+The complete theorem is
+\begin{center}
+\texttt{FixedAlphabetA1.fixed\_alphabet\_finiteness\_false}\,:\\
+\texttt{$\neg$ Finite IrreducibleWordCrystalClass}.
+\end{center}
+The package pins Lean 4.33.0 and Mathlib revision
+\begin{center}\small
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\end{center}
+The source hash is
+\begin{center}\small
+\texttt{d42e78b95fd7fee5cac646669c1f43db9}\\
+\texttt{fbca852843f58f65b9c46dd52953bdb}.
+\end{center}
+The proof concerns the explicit alphabet-monoid definition, not an unstated Laurent-monomial model. Independent semantic review and manager acceptance are separate from the worker's compile evidence.
+\end{document}
