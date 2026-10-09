@@ -1,0 +1,66 @@
+FINAL INDEPENDENT SEMANTIC REVIEW — CONJECTURE 00000007788
+
+Verdict: PASS for mathematical validity, original-statement fidelity, and full report-to-Lean correspondence.
+No unresolved semantic defect or report-content defect was found in the exact final bytes identified below. This review is separate from engineering acceptance: I did not personally execute Lean or the verifier, and I do not substitute the author's logs for independent kernel/build evidence. The separately assigned engineering reviewer must supply that certification. This review does not decide PR eligibility, inspect other submissions, authorize publication, or perform maintainer actions.
+
+Evidence and review boundary
+I first read the original bilingual statement and both rule files, and verified their hashes against the independently supplied manifest. The original input manifest hash is 492540a5f2f6544e641ea4eabfd265a5064d89f93287908fc65faef70e7fe9a8; the statement hash is a9f7f8b9409e9429768a897cb68df05fde8a518d8447ad5731c0fc3da37aeca0. The English and Chinese rules hash to 200d9a783c08a5edfd1b508e6942b3b851a63c726506291f6de6a59773f1163a and 7c5b49bb84403feea1eb14d23d48491400c7749d58db345cd317231949a9e82b respectively. The preliminary independent source-scope review was saved before receiving any submission.
+
+I then read every line of the frozen v1 mathematical modules, Audit.lean, declaration inventory, notes, README, verifier and configuration. In v2 I verified all manifest-listed hashes, checked that all three mathematical-module hashes are unchanged, and read the changed Audit.lean and MATHEMATICAL_NOTES.md in full. I read the complete report LaTeX twice, including all five sections and all equations. I visually inspected all three initial PDF renders and all three final PDF renders; the latter contain the corrected command and code spacing. I did not access mutable author work, other submissions, public solutions, network resources, selector notes, or thread history/roster information. I did not supply the independent preliminary proof idea to the author.
+
+Frozen identity
+Proof directory: /private/tmp/tlmc7788-proof-v2
+Proof manifest SHA256: 7c8b54c4e29f55719ad2def3b51fdbe11fe694be389ab9be65a288137973e221
+Report source: /private/tmp/tlmc7788-report/proof.tex
+Report source SHA256: 97e2c7e7ce2154fd6b19b729be6c09ff6df8f7feaefd0a111f30db9809743f5c
+Report PDF: /private/tmp/tlmc7788-report/proof.pdf
+Report PDF SHA256: b2c25966f6ca5bfcfc6fce73eb3a6d33faf6a5d91c9e3880973bd5e8911e5c48
+PDF pages inspected: all 3, as final-page-1.png, final-page-2.png and final-page-3.png supplied alongside that PDF. The hashes were rechecked immediately before writing this review.
+
+Source scope
+Both language versions define K_N as the convex hull of independent points uniform on K. For a solid ball, uniform means normalized volume on that ball; a later reference to spherical measure is not an instruction to replace the sampling law with surface measure. The displayed exponent is well-defined at n=2, so the planar unit disk is an admissible instance without an extra hypothesis. At n=2 the claimed deficit asymptotic is c_2*N^(-2). The conjunction is false if this necessary ball assertion fails; no proof of, or invented definition for, the other spherical-measure, dimension-ratio or simplex-combinatorial clauses is required for a disproof.
+
+Mathematical proof reviewed
+For the normalized-area law on the unit disk, the event E_r that all N points lie in a concentric radius-r disk has probability (r^2)^N. On E_r the convex hull lies in that disk and its normalized area is at most r^2. Almost surely its normalized area is at most 1. The expectation therefore gives
+    D_N >= (1-r^2)(r^2)^N.
+With t=1/[2(N+1)] and r=sqrt(1-t), Bernoulli's inequality yields (1-t)^N >= 1-Nt >= 1/2. Thus
+    D_N >= 1/[4(N+1)],
+    N^2*D_N >= N/8 for N>=1.
+The quadratic normalization diverges to +infinity, excludes every finite real normalized limit, and makes the ratio to any positive c*N^(-2) diverge. This contradicts the source assertion. Every step is elementary and valid; the coarse lower bound does not need to give the true sharp random-polytope rate.
+
+Exact formal-semantic bridges
+1. Distribution and independence. Conjecture7788.lean:17-43 defines the standard Euclidean plane, its closed unit disk, normalized conditional Lebesgue measure, and the finite product of that probability law. Disk area pi is proved, including positivity and finiteness needed for normalization. samples_rectangle records the independent identical marginal law. Finite product laws for each N are sufficient for these expectations; no common infinite sequence is needed.
+2. Genuine hull geometry. Conjecture7788.lean:45-46 uses volume of the actual convexHull of the sample range. At lines 67-81, convexity and convexHull_min prove its containment in any concentric disk containing all samples. Measure monotonicity and the exact disk-area formula yield normalized area <= r^2. No hull-volume surrogate is assumed.
+3. Finite area. Conjecture7788.lean:59-62 proves every finite sample hull has finite measure by compactness. ENNReal.toReal therefore does not silently turn infinite hull measure into zero.
+4. Measurability. HullMeasurable.lean:11-52 proves the weighted-simplex representation, closedness of the joint configuration/point membership graph by projection along a compact simplex, and measurability of hull volume by the theorem on measures of measurable sections. The compact-factor hypothesis that justifies this projection is explicitly present. The proof applies even to the unused N=0 edge case.
+5. Integrability and expectation. Conjecture7788.lean:106-126 proves almost-sure support in the disk, measurability of normalized hull area, domination by 1, and integrability of both normalized and unnormalized hull area. Lines 51-57 prove the exact source correspondence, one minus expected unnormalized volume divided by the disk volume. No nonintegrable-integral default is used.
+6. Radius bound. Conjecture7788.lean:83-104 proves the genuine all-points event probability. Lines 128-153 integrate a measurable, integrable indicator envelope. The helper's integrability hypothesis is supplied by the already-proved theorem when deriving the unconditional bound at lines 155-189.
+7. Quantifiers and asymptotics. GenericRate.lean:12-79 derives divergence and asymptotic inequivalence from a generic reciprocal-linear lower bound. All such hypotheses are discharged for the actual deficit in Conjecture7788.lean:191-214. The conclusion is for all natural sample sizes eventually, not a subsequence. The literal real-power formula is connected to inverse-square powers; eventual nonzero denominators justify equivalence to a ratio limit. source_exponent_dimension_two checks -2/(2-1)=-2. The final positive-constant inequivalence is reinforced by no_finite_normalized_limit, which excludes every real c.
+
+Full report correspondence
+The report's abstract and Section 1 (proof.tex:18-56) state exactly the solid-disk model and the sufficient planar contradiction. Section 2 (59-80) faithfully explains the compact-simplex graph proof, finite area, measurability and both integrability results. Section 3 (82-118) reproduces the same all-points event, indicator envelope, radius choice, Bernoulli bound and N/8 divergence as the Lean modules. Section 4 (121-154) accurately maps the named definitions and final declarations to those mathematical objects. Section 5 (156-172) accurately describes the intended portable verification process and its separation from maintainer decisions. It makes no unsupported claim to prove a sharp rate or to calculate the other conjectural constants.
+
+Final PDF review
+All three final pages are legible and consistently formatted, with no clipping, overlapping text, broken mathematical glyphs or unresolved references observed. The first version incorrectly removed spaces from several code fragments through nolinkurl, including the reproduction command. That issue was reported and is now resolved: proof.tex:160 and page 3 show `python3 verify.py` with the required space; the probability-law application, `samples N` and `deficit N` also retain their intended spaces. Section boundaries now fall cleanly at the page breaks. This was a presentation/reproducibility correction, not a mathematical revision.
+
+Resolved concerns and remaining boundary
+The v1 unsupported `pp.width` audit option has been removed in v2. The source files still contain no direct proof placeholder, custom axiom, unsafe declaration or native-decision bypass on inspection. Audit.lean checks all 40 explicitly named declarations and their transitive axioms against the verifier's whitelist. Whether those exact declarations kernel-check and whether all verification commands finish is the separate engineering review's responsibility; this report does not claim to have run them.
+
+The v1 missing collaboration attribution is resolved in MATHEMATICAL_NOTES.md:39-41, which discloses the generic rate subtask and the primary author's geometric/probabilistic work. I assess the completed module's mathematics independently; I do not personally certify another agent's historical actions. The notes' statement that no LaTeX/PDF existed at that author stage and README's separate report coordination description are compatible with the subsequently supplied report.
+
+There is no numerical simulation, search certificate or auxiliary mathematical computation requiring additional coverage. verify.py is verification infrastructure and has been read in full. The English solver rules explicitly permit disproof, and both language versions' reviewer rules explicitly recognize disproof. The presence of a complete report and the faithful formal mathematical source satisfies the semantic portion of those requirements; final build/axiom and packaging checks remain distinct.
+
+No further semantic correction is requested for these exact bytes. Do not transfer this acceptance automatically to modified mathematical source or report bytes without checking the changes.
+
+EXACT V2 FILE HASHES
+Conjecture7788.lean: 9484eda5d5694500f862c73fa5693b866ea62e489979e56b12cf164f2aba7ad1
+Conjecture7788/HullMeasurable.lean: dc6d57508b9b0eec410fdf91111632868f9e19625ac5a664534ea61831ae97c3
+Conjecture7788/GenericRate.lean: f27f2f5f69436481054b2a5062aa2da87675e8f1d1211807ec4224d3513f2f8a
+Audit.lean: 2c70056c334c02ba6da1a83fb75bbefc9d48957636eba67c785790d80d6b1ba5
+DECLARATIONS.txt: 4d4a658b3fa6937459df5a273cb969b110ed95124477534088ee92511c5cff65
+lean-toolchain: 55e97be96000b5e9e290c9e74482e5e317861499a5540353ce845471bded8cea
+lakefile.toml: 3bfd67caefe58d07acb82f3987d24bd18b6875c1677474da78f782b6d83ea70b
+lake-manifest.json: 56f7aa9722d120b38ffe868179164054411be9398660939609cb8a0c55e48637
+MATHEMATICAL_NOTES.md: 2ba0221ae4956d22df8bb71d337af671b450ea77fdb6eacdf79928c5184a11c7
+README.md: f7383f4b5f435ab4f71153f73673719fac0a42afc8f6f0e7071588c19e543d0d
+verify.py: 791ac285b52a0ddea5a1bd0fe384cc84fd30e19538e3780204031fd5eaa02cce

@@ -1,0 +1,173 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\emergencystretch=2em
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\E}{\mathbb E}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Pp}{\mathbb P}
+\title{Disproof of Conjecture 00000007788\\[3pt]\large A lower bound for the missing area of a random polygon}
+\author{C0ldSmi1e}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+The conjecture predicts an expected volume deficit of order
+$N^{-2/(n-1)}$ for the convex hull of $N$ independent points uniform in
+the Euclidean ball. In dimension two, we prove that the deficit is at
+least $1/[4(N+1)]$. Its quadratic normalization therefore tends to
+$+\infty$, contradicting the asserted inverse-square asymptotic for
+every finite leading constant. The accompanying Lean project formalizes
+the probability law, actual convex-hull area, measurability,
+integrability, quantitative bound, and asymptotic contradiction.
+\end{abstract}
+
+\section{Statement and scope}
+Both language versions define $K_N=\operatorname{conv}(X_1,\ldots,X_N)$,
+where the $X_i$ are independent and uniform on $K$. For a solid
+Euclidean ball, this is normalized volume on the ball. The later
+reference to spherical measure does not change that sampling law.
+Dimension $n=2$ is an admissible instance of the displayed exponent.
+
+Let $B=\{x\in\R^2:\lVert x\rVert\leq1\}$, let $\lambda$ be Lebesgue
+area, and set
+\[
+ \mu(A)=\frac{\lambda(A\cap B)}{\pi},\qquad
+ H_N(x)=\operatorname{conv}\{x_i:1\leq i\leq N\},\qquad
+ D_N=1-\frac{\E_{\mu^{\otimes N}}\lambda(H_N)}{\pi}.
+\]
+The necessary ball assertion of the conjecture gives
+$D_N\sim c_2N^{-2}$ for a finite positive constant $c_2$.
+Refuting this necessary assertion disproves the original conjunction;
+it requires no choice of definitions for its additional constant-ratio
+or simplex corner-measure clauses.
+
+\begin{theorem}\label{thm:main}
+For every integer $N\geq1$,
+\[
+ D_N\geq\frac{1}{4(N+1)}.
+\]
+Consequently $N^2D_N\to+\infty$. In particular, $N^2D_N$ has no finite
+real limit, and $D_N\not\sim cN^{-2}$ for every $c>0$.
+\end{theorem}
+
+\newpage
+\section{Measurability and existence of the expectation}
+For completeness, the expectation above is an ordinary expectation of
+an integrable random variable. For each fixed $N$, put
+\[
+ \Delta_N=\{w\in\R^N:w_i\geq0,\ \textstyle\sum_iw_i=1\}.
+\]
+This simplex is compact, and
+$H_N(x)=\{\sum_iw_ix_i:w\in\Delta_N\}$.
+The set of $(x,y,w)$ with $w\in\Delta_N$ and
+$y=\sum_iw_ix_i$ is closed by continuity of the finite sum.
+Projection along the compact factor $\Delta_N$ is a closed map, so
+\[
+ G_N=\{(x,y):y\in H_N(x)\}
+\]
+is closed. The measurable-section theorem for product measurable
+spaces shows that $x\mapsto\lambda(H_N(x))$ is measurable.
+Each finite hull is compact and has finite area. Under
+$\mu^{\otimes N}$ all sample points lie in $B$ almost surely, and
+convexity gives $H_N\subseteq B$. Thus
+$0\leq\lambda(H_N)/\pi\leq1$ almost surely. Both normalized and
+unnormalized hull area are integrable. The formalization proves these
+facts explicitly before using integral monotonicity.
+
+\section{The elementary lower bound}
+For $0\leq r\leq1$, let
+$E_r=\{x:\lVert x_i\rVert\leq r\text{ for all }i\}$.
+Area scaling and independence give
+\[
+ \mu(rB)=r^2,\qquad \Pp(E_r)=(r^2)^N.
+\]
+On $E_r$, convexity gives $H_N\subseteq rB$, hence
+$\lambda(H_N)/\pi\leq r^2$. Off this event the almost-sure bound by
+$1$ remains valid. Therefore
+\[
+ \frac{\lambda(H_N)}{\pi}
+ \leq1-(1-r^2)1_{E_r}
+ \quad\text{almost surely}.
+\]
+Taking expectations and rearranging proves
+\begin{equation}\label{eq:radius}
+ D_N\geq(1-r^2)(r^2)^N.
+\end{equation}
+Choose
+\[
+ t=\frac{1}{2(N+1)},\qquad r=\sqrt{1-t}.
+\]
+Here $0<t\leq1/2$ and $0\leq r\leq1$. Bernoulli's inequality yields
+\[
+ (r^2)^N=(1-t)^N\geq1-Nt\geq\frac12.
+\]
+Substituting into \eqref{eq:radius} gives
+$D_N\geq t/2=1/[4(N+1)]$.
+For $N\geq1$ it follows that
+\[
+ N^2D_N\geq\frac{N^2}{4(N+1)}\geq\frac N8\longrightarrow+\infty.
+\]
+For each $c>0$, the ratio $D_N/(cN^{-2})=N^2D_N/c$ also tends to
+$+\infty$, and cannot tend to $1$. This proves
+Theorem~\ref{thm:main}. The bound is sufficient for a disproof and makes
+no claim about the sharp asymptotic order of the deficit.
+
+\newpage
+\section{Correspondence with the Lean project}
+The project uses Lean 4.19.0 and Mathlib v4.19.0, pinned by the supplied
+toolchain and dependency manifest. The mathematical modules are
+\nolinkurl{Conjecture7788.lean},
+\nolinkurl{Conjecture7788/HullMeasurable.lean}, and
+\nolinkurl{Conjecture7788/GenericRate.lean}.
+
+The type \nolinkurl{Plane} is \nolinkurl{EuclideanSpace} over $\R$ with two
+coordinates. The definition \nolinkurl{disk} is the closed unit ball.
+\nolinkurl{uniformDisk} is Mathlib's normalized restriction
+\nolinkurl{ProbabilityTheory.cond} applied to \texttt{volume disk}; its probability-measure
+instance follows from the disk area $\pi>0$.
+\texttt{samples N} is the finite product of these probability measures.
+The lemma \nolinkurl{samples_rectangle} records the exact product law.
+
+\nolinkurl{hullArea} is the actual Lebesgue measure of the convex hull of
+the sample range, converted to a real number and divided by $\pi$.
+The project proves finiteness of every such hull measure, its
+measurability, and integrability of both area functions. In particular,
+the use of real-valued integration does not rely on a default value
+for a nonintegrable function. The lemma
+\nolinkurl{deficit_eq_expected_volume_deficit} identifies
+\texttt{deficit N} with the source's exact normalized expected-volume
+deficit.
+
+\nolinkurl{deficit_lower_from_radius} proves \eqref{eq:radius};
+\nolinkurl{deficit_lower} specializes the radius and proves the bound.
+The generic sequence lemmas have their lower-bound hypothesis
+discharged for this exact geometric deficit. The final declarations
+establish quadratic divergence, absence of every finite normalized
+limit, divergence of the ratio to every positive candidate, and
+\nolinkurl{conjecture_00000007788_false}, which negates existence of a
+positive constant with the asserted asymptotic equivalence. The
+real-power exponent $-2/(2-1)=-2$ is checked explicitly.
+
+\section{Reproduction and verification scope}
+The submission includes the complete project, \nolinkurl{Audit.lean}, a
+declaration inventory, source hashes, and the portable
+\nolinkurl{verify.py} script. With the pinned dependencies and Lean tools
+available, run \texttt{python3 verify.py} from the \nolinkurl{lean}
+directory. It checks the source hashes and all nine dependency
+revisions, rebuilds the authored project, replays every authored Lean
+file with warnings treated as errors, and inspects the types and axiom
+dependencies of all named declarations. Raw command results and the
+verification summary accompany the submission.
+
+There are no auxiliary numerical experiments or finite searches in
+this proof: the quantitative and limiting arguments are symbolic.
+Only Lean's standard logical axioms
+\nolinkurl{propext}, \nolinkurl{Classical.choice}, and \nolinkurl{Quot.sound}
+are permitted by the audit. Local verification and independent review
+are documented separately from any later maintainer decision.
+\end{document}

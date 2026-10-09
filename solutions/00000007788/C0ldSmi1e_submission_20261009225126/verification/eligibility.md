@@ -1,0 +1,9 @@
+# Eligibility check for conjecture 00000007788
+
+The current upstream source, both contribution-rule sections and metadata were checked at main commit `9b795e7a94a6076e49a65a6489e1caf9153abd23`. The problem remained marked unsolved, and its solution directory and complete path history on main were empty.
+
+The public submission check covered the complete current PR/issue descriptions and available feedback, twenty focused searches (including four exact-ID searches), public fork/reference identities, relevant and changed-head filenames, and candidate-specific reachable path histories at 2,098 observed commit tips. Of these, 1,732 locally available tips were checked through complete ancestor/tree closure and 366 other tips through exact-commit API path/history queries. No previous submission for this conjecture was found. Public topic lead #735 and newly observed submission #920 concerned different conjectures and mathematical objects; their full descriptions, feedback and filenames were examined to resolve that distinction. Their proof contents did not inform this proof.
+
+A fresh bounded reconciliation completed at 2026-10-09 22:52:01 UTC. The original statement, contribution rules and unsolved status were unchanged; all twenty searches completed, no new candidate tip or claim appeared, and no pending lead or request failure remained. Immutable candidate-specific histories were reused only at the same exact commit identities. This records the observed public state, not inaccessible or undisclosed material and not future repository state.
+
+The frozen capture manifest is `64efa730199811f3303332098a4f76469ff9af470c82374e878c67b5cc1fe78c`, with request provenance digest `f144a2e8f07bfb8a81655f30cd2745c01a989ce2967ac6ecb36544cff00704f8`. The coordinating reviewer independently replayed the raw and semantic evidence. Eligibility checks are separate from mathematical correctness and from maintainer acceptance.
