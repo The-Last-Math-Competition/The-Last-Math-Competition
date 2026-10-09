@@ -1,0 +1,90 @@
+import Conjecture1624
+import Mathlib.Tactic.NormNum
+import Mathlib.Tactic.Linarith
+
+/-! Kernel-checked boundary cases for the definitions, separate from the disproof. -/
+
+open Set MeasureTheory
+
+namespace Conjecture1624.Verification
+
+/-- Positive measure alone does not force a gap: the closed interval is gapless.
+In particular, the exterior complementary half-lines do not count as bounded gaps. -/
+theorem interval_positive_and_gapless :
+    0 < volume (Icc (0 : ℝ) 1) ∧ HasNoGaps (Icc (0 : ℝ) 1) := by
+  constructor
+  · rw [Real.volume_Icc]
+    norm_num
+  · exact (hasNoGaps_iff_ordConnected isClosed_Icc).mpr ordConnected_Icc
+
+/-- The singleton is closed, has empty interior and no gap, but has zero measure.
+This checks that the nontriviality/positive-measure hypothesis cannot be dropped. -/
+theorem singleton_boundary :
+    IsClosed ({0} : Set ℝ) ∧ interior ({0} : Set ℝ) = ∅ ∧
+      HasNoGaps ({0} : Set ℝ) ∧ volume ({0} : Set ℝ) = 0 := by
+  refine ⟨isClosed_singleton, ?_, ?_, measure_singleton 0⟩
+  · exact interior_singleton (0 : ℝ)
+  · exact (hasNoGaps_iff_ordConnected isClosed_singleton).mpr ordConnected_singleton
+
+/-- Two closed bands have a genuine internal gap. -/
+theorem two_bands_gap : IsGap (Icc (0 : ℝ) 1 ∪ Icc 2 3) 1 2 := by
+  refine ⟨by norm_num, Or.inl ⟨by norm_num, le_rfl⟩,
+    Or.inr ⟨le_rfl, by norm_num⟩, ?_⟩
+  intro x hx hmem
+  rcases hmem with hleft | hright
+  · exact (not_le_of_gt hx.1) hleft.2
+  · exact (not_le_of_gt hx.2) hright.1
+
+/-- The interval found above is the full component, with exactly the stated boundary endpoints. -/
+theorem two_bands_component :
+    connectedComponentIn (Icc (0 : ℝ) 1 ∪ Icc 2 3)ᶜ (3 / 2) = Ioo 1 2 := by
+  exact two_bands_gap.component ⟨by norm_num, by norm_num⟩
+
+/-- A smaller omitted interval is not a maximal spectral gap. -/
+theorem proper_subinterval_is_not_gap :
+    Ioo (5 / 4 : ℝ) (7 / 4) ⊆ (Icc (0 : ℝ) 1 ∪ Icc 2 3)ᶜ ∧
+      ¬ IsGap (Icc (0 : ℝ) 1 ∪ Icc 2 3) (5 / 4) (7 / 4) := by
+  constructor
+  · intro x hx
+    apply two_bands_gap.2.2.2
+    constructor <;> linarith [hx.1, hx.2]
+  · intro h
+    have hleft := h.2.1
+    norm_num at hleft
+
+/-- An energy can lie in an open spectral band while the spectrum has a gap elsewhere.
+Thus absence of a gap at one reference energy is strictly weaker than `HasNoGaps`. -/
+theorem reference_energy_does_not_imply_gapless :
+    (1 / 2 : ℝ) ∈ Ioo (0 : ℝ) 1 ∧
+    Ioo (0 : ℝ) 1 ⊆ Icc (0 : ℝ) 1 ∪ Icc 2 3 ∧
+    ¬ HasNoGaps (Icc (0 : ℝ) 1 ∪ Icc 2 3) := by
+  refine ⟨⟨by norm_num, by norm_num⟩, ?_, ?_⟩
+  · intro x hx
+    exact Or.inl ⟨hx.1.le, hx.2.le⟩
+  · intro h
+    exact h ⟨1, 2, two_bands_gap⟩
+
+/-- Closedness matters to the order-convexity characterization: removing a single
+point leaves no *open interval* gap, yet the result is not order convex. -/
+theorem punctured_line_gapless_not_ordConnected :
+    HasNoGaps ({0}ᶜ : Set ℝ) ∧ ¬ OrdConnected ({0}ᶜ : Set ℝ) := by
+  constructor
+  · rintro ⟨a, b, hab⟩
+    obtain ⟨c, hac, hcb⟩ := exists_between hab.1
+    obtain ⟨d, hcd, hdb⟩ := exists_between hcb
+    have hc0 : c = 0 := by simpa using hab.2.2.2 ⟨hac, hcb⟩
+    have hd0 : d = 0 := by simpa using hab.2.2.2 ⟨hac.trans hcd, hdb⟩
+    exact (ne_of_lt hcd) (hc0.trans hd0.symm)
+  · intro h
+    have hm : (-1 : ℝ) ∈ ({0}ᶜ : Set ℝ) := by norm_num
+    have hp : (1 : ℝ) ∈ ({0}ᶜ : Set ℝ) := by norm_num
+    have hz := h.out hm hp (show (0 : ℝ) ∈ Icc (-1) 1 from ⟨by norm_num, by norm_num⟩)
+    simp only [mem_compl_iff, mem_singleton_iff, not_true_eq_false] at hz
+
+/-- The unrestricted-predicate lift really covers even the largest admissible predicates. -/
+theorem unrestricted_extra_predicates (Potential : Type*) (spectrum : Potential → Set ℝ) :
+    ¬ ∃ V : Potential, True ∧ IsRealCantor (spectrum V) ∧
+      0 < volume (spectrum V) ∧ HasNoGaps (spectrum V) ∧ True :=
+  no_source_potential spectrum (fun _ => True) (fun _ => True)
+
+end Conjecture1624.Verification

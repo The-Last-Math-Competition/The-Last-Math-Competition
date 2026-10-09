@@ -1,0 +1,41 @@
+{
+  "status": "FAIL",
+  "controls": [
+    {
+      "name": "axiom",
+      "injection": "\naxiom EngineeringControl.forbidden : True\n",
+      "mutated_source_sha256": "c839d6cbc7894e6a45a6d51d98a2305f90981b7489a52d9711864992d1ca4b98",
+      "expected_rejection_observed": true
+    },
+    {
+      "name": "unsafe",
+      "injection": "\nunsafe def EngineeringControl.unsafeRoot : True := True.intro\n",
+      "mutated_source_sha256": "58aa114beecbfa5ab7c34520bc047e2d59f5e39a8bfbdc90112c74741370794e",
+      "expected_rejection_observed": true,
+      "audit_result": {
+        "status": "FAIL",
+        "forbidden_axioms": [],
+        "unsafe_dependencies": [
+          "EngineeringControl.unsafeRoot"
+        ],
+        "partial_dependencies": []
+      },
+      "audit_gzip": "records/initial-lean-controls-prop/unsafe-dependency-audit.json.gz",
+      "audit_gzip_sha256": "a992e76f9b92c8c72fbc2a7dda82536ee67dbcae3ce36fb4b1f25e663473e56b"
+    },
+    {
+      "name": "partial",
+      "injection": "\npartial def EngineeringControl.partialRoot : Nat := EngineeringControl.partialRoot\n",
+      "mutated_source_sha256": "cb326521a35ca49e0dcaefbd65bf8cb5375f42e7e8f05134951ed50048353517"
+    }
+  ],
+  "restored_positive_audit": true,
+  "source_restored": true
+}
+Traceback (most recent call last):
+  File "/private/tmp/tlmc1624-verifier-engineering/tests/run_lean_controls.py", line 75, in <module>
+    compile_verification(label + '-compile')
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/tlmc1624-verifier-engineering/tests/run_lean_controls.py", line 59, in compile_verification
+    raise RuntimeError(f'Control fixture failed to compile: {label}')
+RuntimeError: Control fixture failed to compile: partial-compile

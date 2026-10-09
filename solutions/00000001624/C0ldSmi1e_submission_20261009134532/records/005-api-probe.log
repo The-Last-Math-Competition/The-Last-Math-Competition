@@ -1,0 +1,54 @@
+Lean.collectAxioms {m : Type → Type} [Monad m] [Lean.MonadEnv m] (constName : Lean.Name) : m (Array Lean.Name)
+Lean.Expr.foldConsts {α : Type} (e : Lean.Expr) (init : α) (f : Lean.Name → α → α) : α
+Lean.Expr.getUsedConstants (e : Lean.Expr) : Array Lean.Name
+Lean.ConstantInfo.value? (info : Lean.ConstantInfo) (allowOpaque : Bool := false) : Option Lean.Expr
+Lean.ConstantInfo.isUnsafe : Lean.ConstantInfo → Bool
+Lean.Environment.getModuleIdxFor? (env : Lean.Environment) (declName : Lean.Name) : Option Lean.ModuleIdx
+Lean.Environment.const2ModIdx (env : Lean.Environment) : Std.HashMap Lean.Name Lean.ModuleIdx
+Lean.Environment.header (env : Lean.Environment) : Lean.EnvironmentHeader
+Lean.Environment.constants (env : Lean.Environment) : Lean.ConstMap
+Lean.ConstantInfo.name (d : Lean.ConstantInfo) : Lean.Name
+Lean.ConstantInfo.type (d : Lean.ConstantInfo) : Lean.Expr
+Set.ordConnected_Icc.{u_1} {α : Type u_1} [Preorder α] {a b : α} : (Set.Icc a b).OrdConnected
+Set.ordConnected_Ici.{u_1} {α : Type u_1} [Preorder α] {a : α} : (Set.Ici a).OrdConnected
+Set.ordConnected_singleton.{u_3} {α : Type u_3} [PartialOrder α] {a : α} : {a}.OrdConnected
+Real.volume_Icc {a b : ℝ} : MeasureTheory.volume (Set.Icc a b) = ENNReal.ofReal (b - a)
+Set.Pairwise.{u_1} {α : Type u_1} (s : Set α) (r : α → α → Prop) : Prop
+Set.Subsingleton.{u} {α : Type u} (s : Set α) : Prop
+Set.Nontrivial.{u} {α : Type u} (s : Set α) : Prop
+IsCompact.{u_1} {X : Type u_1} [TopologicalSpace X] (s : Set X) : Prop
+Perfect.{u_1} {α : Type u_1} [TopologicalSpace α] (C : Set α) : Prop
+IsTotallyDisconnected.{u} {α : Type u} [TopologicalSpace α] (s : Set α) : Prop
+def Lean.ConstantInfo.isUnsafe : Lean.ConstantInfo → Bool :=
+fun x =>
+  match x with
+  | Lean.ConstantInfo.defnInfo v => v.safety == Lean.DefinitionSafety.unsafe
+  | Lean.ConstantInfo.axiomInfo v => v.isUnsafe
+  | Lean.ConstantInfo.thmInfo val => false
+  | Lean.ConstantInfo.opaqueInfo v => v.isUnsafe
+  | Lean.ConstantInfo.quotInfo val => false
+  | Lean.ConstantInfo.inductInfo v => v.isUnsafe
+  | Lean.ConstantInfo.ctorInfo v => v.isUnsafe
+  | Lean.ConstantInfo.recInfo v => v.isUnsafe
+def Lean.ConstantInfo.value? : Lean.ConstantInfo → optParam Bool false → Option Lean.Expr :=
+fun info allowOpaque =>
+  match info with
+  |
+  Lean.ConstantInfo.defnInfo
+      { name := name, levelParams := levelParams, type := type, value := value, hints := hints, safety := safety,
+        all := all } =>
+    some value
+  | Lean.ConstantInfo.thmInfo { name := name, levelParams := levelParams, type := type, value := value, all := all } =>
+    some value
+  |
+  Lean.ConstantInfo.opaqueInfo
+      { name := name, levelParams := levelParams, type := type, value := value, isUnsafe := isUnsafe, all := all } =>
+    if allowOpaque = true then some value else none
+  | x => none
+def Lean.collectAxioms : {m : Type → Type} →
+  [inst : Monad m] → [inst : Lean.MonadEnv m] → Lean.Name → m (Array Lean.Name) :=
+fun {m} [Monad m] [Lean.MonadEnv m] constName => do
+  let env ← Lean.getEnv
+  match StateT.run (ReaderT.run (Lean.CollectAxioms.collect constName) env) { } with
+    | (fst, s) => pure s.axioms
+opaque Lean.Expr.foldConsts : {α : Type} → Lean.Expr → α → (Lean.Name → α → α) → α

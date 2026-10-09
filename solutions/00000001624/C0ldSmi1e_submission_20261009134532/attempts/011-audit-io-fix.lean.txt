@@ -1,0 +1,116 @@
+import Conjecture1624
+import Verification
+import Lean.Util.CollectAxioms
+import Lean.Elab.Command
+
+/-! Audit tooling only. This module is never imported by either proof module. -/
+
+open Lean Elab Command
+
+namespace Conjecture1624Audit
+
+def owner (env : Environment) (n : Name) : String :=
+  match env.getModuleIdxFor? n with
+  | some i => (env.header.moduleNames[i]!).toString
+  | none => "<current-or-kernel>"
+
+def kind : ConstantInfo → String
+  | .axiomInfo _ => "axiom"
+  | .defnInfo _ => "definition"
+  | .thmInfo _ => "theorem"
+  | .opaqueInfo _ => "opaque"
+  | .quotInfo _ => "quotient-primitive"
+  | .inductInfo _ => "inductive"
+  | .ctorInfo _ => "constructor"
+  | .recInfo _ => "recursor"
+
+def references (ci : ConstantInfo) : Array Name := Id.run do
+  let mut refs : NameSet := ci.type.foldConsts {} fun n acc => acc.insert n
+  if let some val := ci.value? true then
+    refs := val.foldConsts refs fun n acc => acc.insert n
+  match ci with
+  | .inductInfo val =>
+    for n in val.ctors do refs := refs.insert n
+    for n in val.all do refs := refs.insert n
+  | .recInfo val =>
+    for rule in val.rules do
+      refs := rule.rhs.foldConsts refs fun n acc => acc.insert n
+    for n in val.all do refs := refs.insert n
+  | _ => pure ()
+  return refs.toArray
+
+def namesJson (ns : Array Name) : Json := toJson (ns.map Name.toString)
+
+def isPartial : ConstantInfo → Bool
+  | .defnInfo val => val.safety == .partial
+  | _ => false
+
+def audit : CoreM Unit := do
+  let env ← getEnv
+  let roots := ((env.constants.toList.filter fun (n, _) =>
+    owner env n == "Conjecture1624" || owner env n == "Verification").map Prod.fst).toArray
+  let roots := roots.qsort Name.quickLt
+  if roots.isEmpty then throwError "No owned declarations were found"
+  let mut seen : NameSet := {}
+  let mut todo := roots
+  let mut rows : Array Json := #[]
+  let mut unsafeNames : Array Name := #[]
+  let mut partialNames : Array Name := #[]
+  let mut axioms : Array Name := #[]
+  while !todo.isEmpty do
+    let n := todo.back!
+    todo := todo.pop
+    if seen.contains n then continue
+    seen := seen.insert n
+    let some ci := env.find? n | throwError "Missing dependency: {n}"
+    let deps := references ci
+    todo := todo ++ deps
+    if ci.isUnsafe then unsafeNames := unsafeNames.push n
+    if isPartial ci then partialNames := partialNames.push n
+    if kind ci == "axiom" then axioms := axioms.push n
+    rows := rows.push (Json.mkObj [
+      ("name", toJson n.toString), ("kind", toJson (kind ci)),
+      ("module", toJson (owner env n)), ("unsafe", toJson ci.isUnsafe),
+      ("partial", toJson (isPartial ci)), ("direct_dependencies", namesJson deps)])
+  axioms := axioms.qsort Name.quickLt
+  let allowed := #[``propext, ``Classical.choice, ``Quot.sound]
+  let forbidden := axioms.filter fun n => !allowed.contains n
+  let mut owned : Array Json := #[]
+  for n in roots do
+    let some ci := env.find? n | throwError "Missing owned declaration: {n}"
+    let ax ← collectAxioms n
+    let ax := ax.qsort Name.quickLt
+    if (ax.filter fun a => !allowed.contains a).size > 0 then
+      throwError "Unexpected collectAxioms result for {n}: {ax}"
+    owned := owned.push (Json.mkObj [
+      ("name", toJson n.toString), ("kind", toJson (kind ci)),
+      ("module", toJson (owner env n)), ("axioms", namesJson ax)])
+  let report := Json.mkObj [
+    ("status", toJson (if forbidden.isEmpty && unsafeNames.isEmpty && partialNames.isEmpty
+      then "PASS" else "FAIL")),
+    ("root_selection", toJson "Every declaration whose source module is Conjecture1624 or Verification, including generated declarations"),
+    ("traversal", toJson "Types, definition/theorem bodies, opaque bodies, inductive families and constructors, recursor families and rule right-hand sides"),
+    ("owned_count", toJson roots.size), ("dependency_count", toJson seen.size),
+    ("owned", Json.arr owned), ("axioms", namesJson axioms),
+    ("forbidden_axioms", namesJson forbidden), ("unsafe_dependencies", namesJson unsafeNames),
+    ("partial_dependencies", namesJson partialNames), ("dependencies", Json.arr rows),
+    ("imported_modules", namesJson env.header.moduleNames)]
+  let _ ← IO.FS.writeFile "records/dependency-audit.json" (report.pretty ++ "\n")
+  if !forbidden.isEmpty || !unsafeNames.isEmpty || !partialNames.isEmpty then
+    throwError "Dependency audit failed; see records/dependency-audit.json"
+  logInfo m!"Audit PASS: {roots.size} owned/generated declarations; {seen.size} transitive declarations; axioms {axioms}; no unsafe or partial dependencies."
+
+end Conjecture1624Audit
+
+run_cmd liftCoreM Conjecture1624Audit.audit
+
+#print axioms Conjecture1624.IsGap.component
+#print axioms Conjecture1624.exists_gap_around
+#print axioms Conjecture1624.exists_omitted_between
+#print axioms Conjecture1624.exists_gap_of_nontrivial
+#print axioms Conjecture1624.hasNoGaps_iff_ordConnected
+#print axioms Conjecture1624.nontrivial_of_positive_volume
+#print axioms Conjecture1624.exists_gap_of_positive_volume
+#print axioms Conjecture1624.positive_measure_cantor_not_gapless
+#print axioms Conjecture1624.no_source_spectrum
+#print axioms Conjecture1624.no_source_potential
