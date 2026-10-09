@@ -1,0 +1,56 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{hidelinks}
+\setlength{\emergencystretch}{2em}
+\newtheorem{proposition}{Proposition}
+\title{Disproof of Conjecture 00000003560\\Brunn--Minkowski equality does not imply congruence}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\noindent\textbf{Claim addressed.} The source identifies the equality-case structure in Brunn--Minkowski with congruence of the summands. Without an additional equal-volume normalization, this is false even for positive-volume compact convex intervals. Congruence means an isometry of the ambient Euclidean space taking one summand onto the other.
+
+\begin{proposition}
+Let $A=[0,1]$ and $B=[0,2]$ in $\mathbb R$. They are compact convex bodies with positive Lebesgue measure. They satisfy equality in the one-dimensional Brunn--Minkowski inequality, but they are not congruent.
+\end{proposition}
+\begin{proof}
+Their Minkowski sum is
+\[
+ A+B=\{a+b:a\in A,\ b\in B\}=[0,3].
+\]
+Indeed, every sum belongs to $[0,3]$. Conversely, if $0\le z\le1$, write $z=z+0$; if $1<z\le3$, write $z=1+(z-1)$. Each is an admissible decomposition.
+
+Writing $|S|$ for Lebesgue measure, the Brunn--Minkowski inequality in dimension $d=1$ is
+\[
+ |A+B|^{1/d}\ge |A|^{1/d}+|B|^{1/d}.
+\]
+Here $|A|=1$, $|B|=2$ and $|A+B|=3$, so equality holds exactly.
+
+An isometry preserves distances and hence diameters. But
+\[
+ \operatorname{diam} A=1,\qquad \operatorname{diam} B=2.
+\]
+Therefore no Euclidean isometry maps $A$ onto $B$.
+\end{proof}
+
+This example exhibits the essential distinction: the intervals are positively homothetic, since $B=2A$, but they are not congruent. Their unequal sizes do not prevent equality in Brunn--Minkowski.
+
+\noindent\textbf{Scope.} The contradiction concerns the source's congruence conclusion for the original summands in exact equality cases. The source states no equal-volume hypothesis or convention of rescaling each summand first. The example does not refute a corrected result formulated up to translations and positive dilations, or a stability statement after separate volume normalization. It does not assess the additional assertion about a genus-dependent rate. Both intervals have nonempty interior and positive finite measure, so the example does not use zero-volume degeneracies.
+
+\section*{Lean correspondence and reproduction}
+The formal sets \texttt{A} and \texttt{B} are actual real closed intervals. Minkowski addition is Mathlib's pointwise addition of sets. The theorem \texttt{minkowski\_sum} proves the set equality $A+B=[0,3]$ by actual witnesses for membership in the sum.
+
+The volumes use the genuine Lebesgue measure \texttt{volume}, evaluated through \texttt{Real.volume\_Icc}. The definition \texttt{BMEquality} is precisely the displayed equality with exponent $1/1$ in dimension one. The proof also checks actual compactness, convexity and strict positivity of both volumes.
+
+The definition \texttt{Congruent} requires a function $f:\mathbb R\to\mathbb R$ satisfying Mathlib's \texttt{Isometry} predicate and $f(A)=B$. The contradiction uses the actual metric diameter and the general theorem that an isometry preserves the diameter of the image. The additional theorem \texttt{are\_homothetic} proves $B=2A$ directly. Finally, \texttt{congruence\_claim\_false} negates the universal congruence conclusion for positive-volume compact convex sets satisfying the equality.
+
+Inside \texttt{lean/}, run \texttt{lake build}, followed by
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+Lean is pinned to 4.19.0 and Mathlib to
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The manifest pins all transitive dependencies. No auxiliary numerical computation is needed. Actual build logs, axiom dependencies, hashes, and PDF checks are included in \texttt{verification/}. Author self-review and delegated-agent adversarial review are recorded separately; no external independent review is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000003560.md}{Conjecture 00000003560 (original bilingual source)}.
+\end{thebibliography}
+\end{document}
