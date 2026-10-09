@@ -1,0 +1,45 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{hidelinks}
+\newtheorem{proposition}{Proposition}
+\title{Disproof of Conjecture 00000008331\\Integer polynomial phases have no square-root cancellation}
+\author{gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\noindent\textbf{Claim addressed.} Both language versions assert square-root cancellation for all nonconstant integer-coefficient polynomials $P$ in Weyl sums for the sequence $P(n)\bmod1$. Integer polynomial values instead give completely aligned phases.
+
+\begin{proposition}
+For every $P\in\mathbb Z[X]$ and every nonnegative integer $N$, the frequency-one Weyl sum
+\[
+ S_P(N)=\sum_{n=0}^{N-1}\exp\bigl(2\pi iP(n)\bigr)
+\]
+equals $N$. In particular, the nonconstant cubic $P(X)=X^3+X+1$ does not satisfy $S_P(N)=O(\sqrt N)$.
+\end{proposition}
+\begin{proof}
+For each integer $n$, the value $P(n)$ is an integer. The identity $\exp(2\pi i m)=1$ for $m\in\mathbb Z$ therefore makes every summand equal to $1$. There are exactly $N$ terms, so $S_P(N)=N$ and $|S_P(N)|=N$.
+
+The specified cubic is nonconstant, as $P(0)=1$ and $P(1)=3$. If $|S_P(N)|\leq C\sqrt N$ held for all sufficiently large $N$ with $C>0$, choose such an integer $N>C^2$. Then $\sqrt N>C$, whence
+\[
+ |S_P(N)|=N>C\sqrt N,
+\]
+a contradiction. Thus this genuine nonconstant integer polynomial violates the claimed cancellation bound.
+\end{proof}
+
+\noindent\textbf{Scope.} The source explicitly concerns $P(n)\bmod1$ and explicitly quantifies over integer-coefficient polynomials. No irrational multiplier of $P$ is present in that definition. An additional irrational coefficient or frequency would be an additional hypothesis and would describe a different class of sums. The obstruction applies to every integer polynomial, including the displayed cubic; it is not a numerical approximation or a special choice of a small sample size. The additional claims about quadratic irrational coefficients and sharp three-quarter-power estimates are not needed for the disproof.
+
+\section*{Lean formalization}
+The project uses Mathlib's actual \texttt{Polynomial $\mathbb Z$}, polynomial evaluation, the complex exponential, and a finite sum over \texttt{Finset.range N}. The definition \texttt{weylSum} is precisely the sum in the proposition, with an immaterial rearrangement of its scalar factors. Mathlib's proved complex-exponential periodicity gives \texttt{integer\_phase\_one}; summing this identity gives \texttt{weylSum\_eq\_count} and the exact complex norm.
+
+The theorem \texttt{cubic\_nonconstant} rules out equality of the displayed polynomial with every constant polynomial, using its evaluations at $0$ and $1$. The theorem \texttt{no\_square\_root\_cancellation} refutes the actual Mathlib asymptotic relation \texttt{Asymptotics.IsBigO} at \texttt{Filter.atTop}, with its arbitrary constant and eventual threshold. The final theorem combines the concrete nonconstant polynomial, the exact Weyl-sum identity, and the failure of the bound. No replacement cancellation statistic is introduced.
+
+\section*{Reproduction and source}
+In \texttt{lean/}, run \texttt{lake build}, then
+\begin{verbatim}
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The project pins Lean 4.19.0 and Mathlib; exact dependency revisions, command logs, source hashes, and review records accompany the submission. All printed axiom dependencies are standard foundational axioms. No auxiliary numerical computation is needed. Compile this document with \texttt{tectonic main.tex}.
+
+The unchanged bilingual statement is included as \texttt{SOURCE.md}; its repository location is \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000008331.md}{conjecture 00000008331}. The source snapshot and its exact hash are recorded in \texttt{verification/}.
+\end{document}
