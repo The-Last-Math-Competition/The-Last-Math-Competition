@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{A scalar-matrix counterexample to Conjecture 00000002343}
+\author{gaochengzhecpu}
+\date{October 9, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+For every random pencil of one-by-one matrices, the number of eigenvalue
+collisions is identically zero, independently of the probability law.
+Its expectation therefore differs from the conjectured value $\pi/4$.
+The supplied Lean project verifies the actual characteristic polynomial,
+absence of repeated roots, collision count, and expectation.
+\end{abstract}
+
+\section{Statement and scope}
+The source conjecture asserts that the expected number of coincidences
+(crossings) of eigenvalue curves of a random matrix pencil $A+\lambda B$
+is $(\pi/4)n$. It imposes no lower dimension restriction beyond being a
+matrix pencil, no asymptotic qualification, and no probability law.
+We refute this asserted equality at the admissible dimension $n=1$.
+The counterexample works for every law of $A$ and $B$, including
+nondegenerate scalar Gaussian laws; it does not rely on choosing
+deterministic random matrices.
+
+At a parameter $\lambda$, a collision of distinct eigenvalue branches
+requires a repeated eigenvalue. For a matrix $M$, this is a common zero
+of its characteristic polynomial $p_M(z)=\det(zI-M)$ and its derivative.
+We show that no such zero exists at any parameter. Consequently, whether
+one counts collision parameters, colliding pairs, or transverse crossings,
+the count in this example is zero.
+
+\section{Counterexample}
+\begin{theorem}
+Let $(\Omega,\mathcal F,\mu)$ be any probability space and let
+$a,b:\Omega\to\mathbb C$ be any scalar random variables.
+For the one-by-one pencil
+\[
+ M_\omega(\lambda)=[a(\omega)+\lambda b(\omega)],\qquad \lambda\in\mathbb R,
+\]
+the collision set is empty for every $\omega$. The expected collision
+count is $0$, not $\pi/4$.
+\end{theorem}
+\begin{proof}
+Fix $\omega$ and $\lambda$. Direct computation of the one-by-one determinant
+gives
+\[
+ p_{M_\omega(\lambda)}(z)=z-a(\omega)-\lambda b(\omega),
+ \qquad p'_{M_\omega(\lambda)}(z)=1.
+\]
+Thus the unique eigenvalue is $a(\omega)+\lambda b(\omega)$, and it is simple.
+Since the derivative is never zero, no common zero of $p$ and $p'$ exists.
+The set of real parameters with a collision is therefore empty.
+Its cardinality $N(\omega)$ is zero, and the random variable $N$ is the
+measurable constant zero. Hence
+\[
+ \mathbb E_\mu[N]=\int_\Omega 0\,d\mu=0.
+\]
+The conjecture instead gives $(\pi/4)\cdot 1>0$, a contradiction.
+\end{proof}
+
+\section{Formal verification}
+The file \texttt{lean/Main.lean} uses Mathlib's actual
+\texttt{Matrix.charpoly} and the Bochner integral.
+It proves the following chain, without a hypothesis asserting the desired
+spectral conclusion:
+\begin{itemize}
+\item \texttt{pencil\_\allowbreak charpoly} evaluates the characteristic polynomial of
+      arbitrary complex one-by-one matrices $A+\lambda B$.
+\item \texttt{pencil\_\allowbreak unique\_\allowbreak eigenvalue} identifies its unique root;
+      \texttt{pencil\_\allowbreak charpoly\_\allowbreak separable} proves separability.
+\item \texttt{collision\_\allowbreak set\_\allowbreak empty} proves that the set defined by
+      simultaneous vanishing of the characteristic polynomial and derivative
+      is empty. Its \texttt{Nat.card} is consequently an ordinary finite
+      cardinality; no convention for infinite cardinalities is used.
+\item \texttt{expected\_\allowbreak crossing\_\allowbreak count\_\allowbreak zero} evaluates the actual integral
+      for every measure and every pair of matrix-valued sample functions.
+      \texttt{conjectured\_\allowbreak expectation\_\allowbreak false} gives the contradiction for
+      every probability measure.
+\end{itemize}
+All final theorems use only Lean's standard logical axioms. The project
+contains no unproved placeholders, custom axioms, or native evaluation
+used as a proof. No auxiliary computation is required.
+
+\paragraph{Reproduction.}
+In \texttt{lean/}, run:
+\begin{verbatim}
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Lean 4.19.0 and the exact Mathlib revision are pinned in the project.
+Run \texttt{tectonic main.tex} from the submission directory to rebuild
+this PDF. The bilingual source is preserved in \texttt{SOURCE.md}.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000002343.md}{Conjecture 00000002343}.
+\bibitem{mathlib} The Mathlib Community, Lean 4 mathematical library,
+\href{https://github.com/leanprover-community/mathlib4/commit/c44e0c8ee63ca166450922a373c7409c5d26b00b}{revision c44e0c8ee63c}.
+\end{thebibliography}
+\end{document}
