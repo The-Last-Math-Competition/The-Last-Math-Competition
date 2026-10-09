@@ -1,0 +1,32 @@
+import Solution
+import AuthorAudit
+import Lean
+
+open Lean Elab Command
+
+/- Verification-only inventory of module-owned declarations, including generated ones. -/
+run_cmd do
+  let env ← getEnv
+  let modules := #[`NuclearNorm, `PolynomialCone, `Solution]
+  let mut rows : Array Json := #[]
+  let mut failures : Array Name := #[]
+  for (name, info) in env.constants.toList.toArray.qsort (fun a b => Name.lt a.1 b.1) do
+    let some idx := env.getModuleIdxFor? name | continue
+    unless modules.contains env.header.moduleNames[idx.toNat]! do continue
+    let axioms ← collectAxioms name
+    let badAxioms := axioms.filter fun a => !#[`propext, `Classical.choice, `Quot.sound].contains a
+    if info.isUnsafe || info.isAxiom || !badAxioms.isEmpty then
+      failures := failures.push name
+    rows := rows.push <| Json.mkObj [
+      ("name", toJson name.toString),
+      ("module", toJson env.header.moduleNames[idx.toNat]!.toString),
+      ("unsafe", toJson info.isUnsafe),
+      ("is_axiom", toJson info.isAxiom),
+      ("axioms", toJson (axioms.qsort Name.lt |>.map Name.toString))]
+  liftIO <| IO.FS.writeFile
+    "/private/tmp/tlmc1478-author-work/revision-2/owned-declarations.json"
+    (Json.pretty (Json.arr rows) ++ "\n")
+  unless failures.isEmpty do
+    throwError "Disallowed owned declaration(s): {failures}"
+  if rows.isEmpty then throwError "No owned declarations inventoried"
+  logInfo m!"PASS: {rows.size} owned declarations; no owned axiom or unsafe declaration; only standard foundational axioms"

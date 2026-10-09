@@ -1,0 +1,105 @@
+{
+  "review_stage": "independent review of frozen author revision 1, before final report and package",
+  "conjecture_id": "00000001478",
+  "verdict": "PASS_FROZEN_MATHEMATICS_PENDING_FINAL_PACKAGE",
+  "mathematical_repairs_required": [],
+  "final_submission_approval": false,
+  "source_sha256": "1b480a1a46f403fa9f6bf21c036cc5dedec53ec71dfe38609e8fce34c13bd716",
+  "freeze_sha256": "908109604c747efff45736309537ef07236a0505d4bfab1a6dd568e91b825e25",
+  "frozen_project": "/private/tmp/tlmc1478-author-work/frozen-project",
+  "independent_project": "/private/tmp/tlmc1478-independent-review/project",
+  "review_basis": [
+    "The original source-only assessment was reread before inspecting the author mathematics.",
+    "Both exact original-language statements and both READMEs were reread in full. Their hashes agree with the source-only assessment.",
+    "Every frozen file was read: NuclearNorm.lean, PolynomialCone.lean, Solution.lean, AuthorAudit.lean, the entire MATHEMATICS.md, lakefile.toml, lake-manifest.json, lean-toolchain, and FREEZE.json.",
+    "The key standard-library definitions and polynomial boundedness theorem were inspected through the specifically permitted pinned library path.",
+    "The frozen files were copied to a separate project and independently built and replayed with warnings treated as errors. Author compiled outputs were not reused."
+  ],
+  "semantic_findings": [
+    {
+      "topic": "Full source-negation coverage",
+      "result": "pass",
+      "analysis": "Both languages necessarily assert existence of a polynomial map whose image of a spectrahedral cone is the nuclear-norm unit ball. The main theorem negates existence for every nonnegative-scaling cone in every finite real dimension. This is a stronger negative assertion, because every source cone is in the larger family; it does not add assumptions to the source to manufacture falsity. The explicitness, 4-by-4 description, and computational consequence are additional requirements on an already-impossible representation. Their underspecified details do not obstruct this disproof. The result does not negate SDP computability through other representations."
+    },
+    {
+      "topic": "Tensor space and rank-one decompositions",
+      "result": "pass",
+      "analysis": "Tensor is the entire array space Fin 2 -> Fin 2 -> Fin 2 -> Complex, without symmetry, reality, or other restrictions. Every factor is EuclideanSpace Complex (Fin 2), whose inspected standard definition is PiLp 2. rankOne is the coordinate product a_i b_j c_k, and termCost is the product of the three genuine Euclidean norms. decompositionCosts quantifies over arbitrary finite lists, with no bound on length and no coordinate constraints built into admissibility. The eight-coordinate expansion proves nonemptiness. Nonnegativity proves boundedness below. Allowing zero pure tensors does not change the cost set: their costs are proved zero, and removing them preserves sums and costs."
+    },
+    {
+      "topic": "Nuclear norm, unit ball, infimum and minimum",
+      "result": "pass",
+      "analysis": "The nuclear norm is defined by the conventional finite-decomposition scalar-cost infimum; the closed ball is the norm sublevel set at 1, independently of any proposed representation. This is a genuine standard definition, not a desired conclusion encoded as a norm. The infimum lemmas explicitly establish the required nonempty and bounded-below premises. Global attainment and equality with an attained-minimum ball are not asserted. Instead, the separate minimumNuclearBall uses an actual IsLeast decomposition cost and is directly ruled out as a polynomial cone image. The proof establishes its inclusion in the infimum ball and exhibits attained least costs at the two tensors needed by the contradiction. Thus the literal minimum wording does not leave an unproved premise in this disproof."
+    },
+    {
+      "topic": "Polynomial maps and fields",
+      "result": "pass",
+      "analysis": "TensorPolynomialMap comprises eight real-part and eight imaginary-part MvPolynomial coordinates, with actual polynomial evaluation. The map class is unrestricted in degree and coefficients and is not limited to linear or homogeneous maps. Its real finite-dimensional parameter space is appropriate for the real symmetric-matrix cone. The helper proves that complex-coefficient polynomials evaluated at real parameters have polynomial real and imaginary parts, and Solution transfers that representation to tensor maps. Thus coefficients and tensor outputs are not inadvertently restricted to real numbers. The real-coordinate class also allows all real polynomial maps, a broader class than a holomorphic-only restriction. No denominator, normalization, or merely assumed polynomial property appears."
+    },
+    {
+      "topic": "Cone and 4-by-4 matrix connection",
+      "result": "pass",
+      "analysis": "IsCone expressly requires zero membership and closure under multiplication by every nonnegative real scalar. Omitting convexity and addition closure broadens the quantified family and makes the negative result stronger. The special spectrahedralCone4 is the actual preimage of Matrix.PosSemidef under a real linear map to 4-by-4 real matrices. The inspected standard PSD predicate requires Hermitian symmetry and a nonnegative quadratic form, which is symmetry and v-transpose A v >= 0 over the reals. The proof derives scaling closure and zero membership from that predicate and linearity. Its pencil family is at least as broad as symmetric pencils; it does not assume the desired cone property as an extra axiom. The general theorem covers any additional genuine-cone version of the unspecified generalized matrix inequality."
+    },
+    {
+      "topic": "Quantifier order and image equality",
+      "result": "pass",
+      "analysis": "The main theorem negates an existential over every natural source dimension, every cone set, and every polynomial map. The source data are selected once, and set-image equality is exact. The contradiction uses containment to obtain bounds for every parameter in the cone and uses surjectivity to obtain preimages of both zero and the unit basis tensor. No tensor-dependent choice of a separate cone/map is substituted. No assumptions of bounded degree, full-dimensionality, nonempty interior, injectivity, closedness, convexity, real tensor entries, or fixed decomposition length are added. The specialized matrix theorem retains an unrestricted parameter dimension."
+    },
+    {
+      "topic": "Proof bridge: decomposition bounds",
+      "result": "pass",
+      "analysis": "The coordinate norm of a pure tensor is bounded by its product cost using genuine Euclidean coordinate inequalities and multiplicativity of the complex norm. List induction and the triangle inequality extend this to any decomposition. Taking the infimum gives the coordinate lower bound on the norm with the correct inequality direction. The zero norm is proved using the empty decomposition and nonnegativity. The basis tensor has a one-term cost of 1 and a coordinate equal to 1, proving norm exactly 1. The same decompositions achieve least costs, as required for the literal-minimum variant. These statements provide two distinct scalar coordinate values within each candidate target set."
+    },
+    {
+      "topic": "Proof bridge: polynomial boundedness and ray restriction",
+      "result": "pass",
+      "analysis": "The inspected Polynomial.abs_isBoundedUnder_iff states that eventual absolute boundedness at positive infinity is equivalent to degree at most zero. The author constructs precisely that eventual bound from the nonnegative-half-line bound, then uses the standard constant-polynomial theorem. rayPolynomial is genuine substitution X_i := x_i X into MvPolynomial, and its evaluation identity is proved by polynomial induction, including the multiplication-by-variable case. Cone scaling supplies the bound at every nonnegative ray parameter. Evaluation at 1 and 0 therefore establishes equality with the common origin value. There is no invalid appeal to boundedness on only a finite interval or finite sample."
+    },
+    {
+      "topic": "Proof bridge: final contradiction",
+      "result": "pass",
+      "analysis": "The proof applies the scalar ray result to the real part of the (0,0,0) coordinate. Image containment in the genuine nuclear ball bounds this polynomial in absolute value by 1 using the complex-coordinate norm. The map must therefore have the same scalar coordinate at all points of the cone. Exact image equality supplies preimages of zero and the basis tensor, whose coordinate values are 0 and 1. The contradiction is valid. The intermediate-set theorem correctly generalizes this argument to any set containing those two tensors and lying inside the ball; its use for the attained-minimum ball does not require an equality of the two balls."
+    },
+    {
+      "topic": "Written mathematics correspondence",
+      "result": "pass for frozen MATHEMATICS.md",
+      "analysis": "The full mathematical narrative matches the inspected definitions, theorem statements, proof dependencies, and limitation statements. Its strongest prose claim about bounded polynomial cone images is supported by the coordinatewise helper. Its statement that no extra mathematical assumptions are used is compatible with the logged standard foundational axioms, which are explicitly identified later in the document. Its nonclaim about SDP computability by other means is essential and correctly stated. The future LaTeX and PDF have not yet been reviewed."
+    }
+  ],
+  "independent_reproduction": {
+    "runtime": "Lean 4.19.0, arm64-apple-darwin23.6.0, commit 6caaee842e94, Release",
+    "pinned_mathlib_revision": "c44e0c8ee63ca166450922a373c7409c5d26b00b",
+    "dependency_handling": "Private APFS copies of permitted standard libraries and caches; no shared-library write access was needed; fresh outputs for all project modules.",
+    "full_default_build": "passed, exit 0; NuclearNorm, PolynomialCone, Solution, and AuthorAudit freshly built",
+    "strict_replay": "lake env lean -DwarningAsError=true passed separately for each of the four source modules, exit 0 each",
+    "audit": "All 54 explicitly declared definitions, abbreviations, structure and theorems are listed by AuthorAudit; the reviewer independently compared this list with source declarations. All 54 printed axiom sets are contained in {propext, Classical.choice, Quot.sound}.",
+    "source_scan": "No custom axiom, sorry/admit proof hole, native_decide, unsafe shortcut, source macro/elaborator override, or implemented_by replacement occurs in the inspected mathematical sources.",
+    "configuration": "The four project libraries are registered; default targets are Solution and AuthorAudit. Manifest and toolchain are pinned and unchanged. No custom build hooks appear in the configuration.",
+    "hash_integrity": "FREEZE.json and all eight listed frozen files matched the released hashes before copying and after replay. The copied project files also match. Original source and both README hashes match the prior source-only assessment.",
+    "evidence": [
+      "/private/tmp/tlmc1478-independent-review/commands.json",
+      "/private/tmp/tlmc1478-independent-review/reproduction-complete.json",
+      "/private/tmp/tlmc1478-independent-review/initial-file-hashes.json",
+      "/private/tmp/tlmc1478-independent-review/axiom-inspection.json",
+      "/private/tmp/tlmc1478-independent-review/logs/build-all.log",
+      "/private/tmp/tlmc1478-independent-review/logs/strict-AuthorAudit.log"
+    ]
+  },
+  "scope_limits": [
+    "This review approves the frozen mathematical development and its frozen Markdown explanation provisionally; it does not approve a final submission package.",
+    "The generic whole-environment declaration/closure verifier is a separate engineering check. The reviewer has not yet inspected its final packaged evidence; AuthorAudit coverage alone is not represented as that stronger check.",
+    "Standard pinned dependency caches were reused in private copies. The reviewer rebuilt all author modules, not the entire standard Lean/Mathlib library from source.",
+    "Global minimum attainment and all nuclear-norm axioms were not formalized. They are not premises of the disproof, and the standard scalar-cost formula plus the direct attained-minimum result supplies the needed semantic coverage.",
+    "The complex-coefficient formal bridge uses real input coordinates. General complex-input realification is not a separately named Lean theorem; the source symmetric-matrix cone is handled through its ordinary finite real coordinates.",
+    "The result concerns an actual cone and an actual polynomial image. An affine slice, bounded spectrahedron, rational or projective map, or normalized image would be a different source statement.",
+    "No claim is made that nuclear-norm SDP computation by other methods is impossible.",
+    "Submission eligibility, predecessor status, publication, and external comments were not investigated or performed."
+  ],
+  "remaining_final_review_requirements": [
+    "Read the complete final LaTeX report and resulting PDF and confirm agreement with the original, all frozen mathematics, and these scope limits.",
+    "Inspect the exact final package, its identity hashes, and the generic verifier's complete declaration/closure and axiom evidence.",
+    "Confirm that final project/configuration bytes are the reviewed bytes or review every recorded change and reproduce any affected validation.",
+    "Only after those checks issue final package-level approval."
+  ]
+}

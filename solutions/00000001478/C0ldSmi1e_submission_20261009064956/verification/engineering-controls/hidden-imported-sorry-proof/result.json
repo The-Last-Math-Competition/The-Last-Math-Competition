@@ -1,0 +1,40 @@
+{
+  "control": "hidden-imported-sorry-proof",
+  "expected_rejection": "Forbidden transitive axiom sorryAx",
+  "result": "PASS",
+  "fixture_modules": {
+    "ImportedBridge": "theorem Hidden.intermediate : False := by sorry\n",
+    "Solution": "import ImportedBridge\ntheorem Public.root : True := False.elim Hidden.intermediate\n"
+  },
+  "records": [
+    {
+      "label": "compile-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "build"
+      ],
+      "cwd": "/private/tmp/tlmc1478-engineering/controls-v2-01/hidden-imported-sorry-proof/fresh-project",
+      "started_utc": "2026-10-09T06:38:19.892910+00:00",
+      "exit_code": 0,
+      "completed_utc": "2026-10-09T06:38:20.549409+00:00",
+      "stdout": "⚠ [2/6] Built ImportedBridge\nwarning: ././././ImportedBridge.lean:1:8: declaration uses 'sorry'\n✔ [3/6] Built Solution\n✔ [5/6] Built AuthorAudit\nBuild completed successfully.\n",
+      "stderr": ""
+    },
+    {
+      "label": "audit-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "cwd": "/private/tmp/tlmc1478-engineering/controls-v2-01/hidden-imported-sorry-proof/fresh-project",
+      "started_utc": "2026-10-09T06:38:20.550329+00:00",
+      "exit_code": 1,
+      "completed_utc": "2026-10-09T06:38:23.241186+00:00",
+      "stdout": "Audit.lean:21:0: error: Forbidden transitive axiom sorryAx in Public.root\n",
+      "stderr": ""
+    }
+  ]
+}

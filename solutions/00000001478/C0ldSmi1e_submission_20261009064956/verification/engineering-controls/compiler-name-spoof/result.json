@@ -1,0 +1,39 @@
+{
+  "control": "compiler-name-spoof",
+  "expected_rejection": "Unsafe authored declaration",
+  "result": "PASS",
+  "fixture_modules": {
+    "Solution": "unsafe def Spoof.match_1._cstage1 : Nat := 1\n"
+  },
+  "records": [
+    {
+      "label": "compile-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "build"
+      ],
+      "cwd": "/private/tmp/tlmc1478-engineering/controls-v2-01/compiler-name-spoof/fresh-project",
+      "started_utc": "2026-10-09T06:38:06.308912+00:00",
+      "exit_code": 0,
+      "completed_utc": "2026-10-09T06:38:06.868731+00:00",
+      "stdout": "✔ [2/5] Built Solution\n✔ [4/5] Built AuthorAudit\nBuild completed successfully.\n",
+      "stderr": ""
+    },
+    {
+      "label": "audit-fixture",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Audit.lean"
+      ],
+      "cwd": "/private/tmp/tlmc1478-engineering/controls-v2-01/compiler-name-spoof/fresh-project",
+      "started_utc": "2026-10-09T06:38:06.869271+00:00",
+      "exit_code": 1,
+      "completed_utc": "2026-10-09T06:38:09.491448+00:00",
+      "stdout": "Audit.lean:21:0: error: Unsafe authored declaration: Spoof.match_1._cstage1\n",
+      "stderr": ""
+    }
+  ]
+}

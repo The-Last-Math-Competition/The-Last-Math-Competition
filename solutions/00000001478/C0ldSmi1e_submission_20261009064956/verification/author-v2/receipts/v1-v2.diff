@@ -1,0 +1,69 @@
+--- v1/NuclearNorm.lean
++++ v2/NuclearNorm.lean
+@@ -16,9 +16,9 @@
+ abbrev FactorTriple := Vector × Vector × Vector
+ 
+ /-- The coordinate array of a pure tensor. Zero factors are allowed in decompositions. -/
+-def rankOne (a b c : Vector) : Tensor := fun i j k => a i * b j * c k
+-
+-def termTensor (v : FactorTriple) : Tensor := rankOne v.1 v.2.1 v.2.2
++noncomputable def rankOne (a b c : Vector) : Tensor := fun i j k => a i * b j * c k
++
++noncomputable def termTensor (v : FactorTriple) : Tensor := rankOne v.1 v.2.1 v.2.2
+ 
+ def termCost (v : FactorTriple) : ℝ := ‖v.1‖ * ‖v.2.1‖ * ‖v.2.2‖
+ 
+@@ -30,7 +30,7 @@
+ /-- The usual complex tensor nuclear (projective) norm, as its infimum formula. -/
+ noncomputable def nuclearNorm (T : Tensor) : ℝ := sInf (decompositionCosts T)
+ 
+-def nuclearBall : Set Tensor := {T | nuclearNorm T ≤ 1}
++noncomputable def nuclearBall : Set Tensor := {T | nuclearNorm T ≤ 1}
+ 
+ theorem termCost_nonneg (v : FactorTriple) : 0 ≤ termCost v := by
+   exact mul_nonneg (mul_nonneg (norm_nonneg _) (norm_nonneg _)) (norm_nonneg _)
+@@ -201,7 +201,7 @@
+     exact ⟨L, hsum, hcost⟩
+ 
+ /-- Literal attained-minimum version of the source's wording. -/
+-def minimumNuclearBall : Set Tensor :=
++noncomputable def minimumNuclearBall : Set Tensor :=
+   {T | ∃ r, IsLeast (decompositionCosts T) r ∧ r ≤ 1}
+ 
+ /-- Any attained minimum is the same value as the usual infimum definition. -/
+--- v1/Solution.lean
++++ v2/Solution.lean
+@@ -14,7 +14,7 @@
+   im : Fin 2 → Fin 2 → Fin 2 → MvPolynomial (Fin n) ℝ
+ 
+ /-- Evaluation uses all sixteen real coordinates of the eight complex entries. -/
+-def TensorPolynomialMap.eval {n : ℕ} (P : TensorPolynomialMap n)
++noncomputable def TensorPolynomialMap.eval {n : ℕ} (P : TensorPolynomialMap n)
+     (x : Fin n → ℝ) : Tensor :=
+   fun i j k => ⟨MvPolynomial.eval x (P.re i j k), MvPolynomial.eval x (P.im i j k)⟩
+ 
+--- v1/MATHEMATICS.md
++++ v2/MATHEMATICS.md
+@@ -77,7 +77,7 @@
+ - `Solution.lean`: polynomial tensor maps, generic contradiction, literal-minimum result, genuine 4 × 4 PSD instance, and main negation.
+ - `AuthorAudit.lean`: `#print axioms` for every one of the 54 explicitly declared objects and results, including all author theorems and helper results.
+ 
+-Actual build, strict replay, and axiom logs are retained under `/private/tmp/tlmc1478-author-work/logs`, with commands and exit codes in `/private/tmp/tlmc1478-author-work/verification-status.json`. All six recorded verification commands returned exit code 0. The final verification consists of the complete default build followed by `lake env lean -DwarningAsError=true` on each of the four source modules. Axiom inspection permits only the standard foundational axioms `propext`, `Classical.choice`, and `Quot.sound`; definitions may require fewer or none. No `sorry`, `admit`, `native_decide`, custom axiom, unsafe proof shortcut, or additional mathematical assumption occurs.
++Actual build, strict replay, and axiom logs are retained under `/private/tmp/tlmc1478-author-work/revision-2/logs`, with commands and exit codes in `/private/tmp/tlmc1478-author-work/revision-2/verification-status.json`. All six recorded verification commands returned exit code 0. The final verification consists of the complete default build followed by `lake env lean -DwarningAsError=true` on each of the four source modules. Axiom inspection permits only the standard foundational axioms `propext`, `Classical.choice`, and `Quot.sound`; definitions may require fewer or none. No `sorry`, `admit`, `native_decide`, custom axiom, unsafe proof shortcut, or additional mathematical assumption occurs.
+ 
+ Failed source attempts remain outside the final project in `/private/tmp/tlmc1478-author-work/scratch` and the helper's `polynomial-scratch`, together with actual failed-build logs. Auxiliary scripts are engineering tools for invoking Lean, recording exit codes, inventories, and hashes; they establish no mathematical facts.
+ 
+@@ -153,3 +153,13 @@
+ | `Solution.lean` | `TLMC1478.spectrahedralCone4_isCone` |
+ | `Solution.lean` | `TLMC1478.nuclearBall_not_polynomial_image_of_spectrahedralCone4` |
+ | `Solution.lean` | `TLMC1478.conjecture00000001478_false` |
++
++## Revision 2: executable-artifact cleanup
++
++Revision 1 remains immutable in `frozen-project`. A later complete inventory of its compiled module-owned declarations found compiler-generated executable helpers and unsafe specialization placeholders that were absent from the safe mathematical dependency closure. The 54 author declarations and all theorem proofs used only standard foundational axioms, but the broader artifact policy excludes these unnecessary generated artifacts as well.
++
++This revision adds the explicit `noncomputable` modifier to exactly five definitions: `rankOne`, `termTensor`, `nuclearBall`, `minimumNuclearBall`, and `TensorPolynomialMap.eval`. Definition bodies, all mathematical statements and proofs, imports, the explicit 54-declaration audit, and the project configuration remain unchanged. The modifier suppresses executable compilation; it introduces no assumption and changes no mathematical meaning. A mechanical comparison verifies that the complete mathematical source equals revision 1 after removing only these modifiers.
++
++The current same-problem engineering diagnostic metadata under `/private/tmp/tlmc1478-engineering/probe-02` was the only additional consulted material. Its generated-declaration inventory and safe-dependency closure were inspected, as was its verification-only probe source. The revision's exact source diff, receipts, and complete module-owned inventory are retained under `/private/tmp/tlmc1478-author-work/revision-2`. All original mathematical provenance and the initial source interpretation remain unchanged.
++
++Revision 2 verification passed: all six build/strict-replay commands returned zero; the unchanged 54 explicit declarations have only the three standard foundational axioms; a separate complete compiled inventory found 75 module-owned declarations, zero owned axioms, and zero unsafe declarations. The inventory verifier itself is engineering-only and is not imported into the mathematical project.
