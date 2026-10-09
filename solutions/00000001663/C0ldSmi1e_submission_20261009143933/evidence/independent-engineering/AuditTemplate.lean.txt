@@ -1,0 +1,69 @@
+__IMPORTS__
+import Lean
+
+open Lean Elab Command in
+run_cmd do
+  let env ← getEnv
+  let own : Array Name := __OWNED__
+  let origin := fun (n : Name) => match env.getModuleIdxFor? n with
+    | some i => env.header.moduleNames[i.toNat]!
+    | none => env.mainModule
+  let mut roots : Array Name := #[]
+  for (n, _) in env.constants.toList do
+    if own.contains (origin n) then roots := roots.push n
+  if roots.isEmpty then throwError "AUDIT_REJECT empty owned declaration set"
+  let allow : Array Name := #[`propext, `Classical.choice, `Quot.sound]
+  for mod in own do
+    IO.println s!"OWNED_MODULE\t{mod}"
+  for mod in env.header.moduleNames do
+    IO.println s!"IMPORTED_MODULE\t{mod}"
+  for n in roots do
+    let some info := env.find? n | throwError "AUDIT_REJECT missing owned declaration {n}"
+    let ax ← Lean.collectAxioms n
+    IO.println s!"OWNED\t{n}\t{origin n}\tbody={info.value?.isSome}\taxioms={ax}"
+    for a in ax do
+      unless allow.contains a do
+        throwError "AUDIT_REJECT collectAxioms root={n} axiom={a}"
+  let mut todo := roots.toList
+  let mut seen : NameSet := {}
+  let mut axset : NameSet := {}
+  let mut nvisited := 0
+  for _ in [:1000000] do
+    match todo with
+    | [] => break
+    | n :: rest =>
+      todo := rest
+      if seen.contains n then continue
+      seen := seen.insert n
+      nvisited := nvisited + 1
+      let some c := env.find? n | throwError "AUDIT_REJECT missing declaration {n}"
+      if c.isUnsafe then throwError "AUDIT_REJECT unsafe declaration {n}"
+      match c with
+      | .defnInfo d =>
+        unless d.safety == .safe do throwError "AUDIT_REJECT partial or unsafe definition {n}"
+      | .axiomInfo _ =>
+        unless allow.contains n do throwError "AUDIT_REJECT reachable axiom {n}"
+        axset := axset.insert n
+      | _ => pure ()
+      let kind := match c with
+        | .axiomInfo _ => "axiom"
+        | .defnInfo _ => "definition"
+        | .thmInfo _ => "theorem"
+        | .opaqueInfo _ => "opaque"
+        | .quotInfo _ => "quotient primitive"
+        | .inductInfo _ => "inductive"
+        | .ctorInfo _ => "constructor"
+        | .recInfo _ => "recursor"
+      IO.println s!"REACHABLE\t{n}\t{origin n}\t{kind}\tbody={c.value?.isSome}"
+      let typedeps := c.type.foldConsts ({} : NameSet) (fun d s => s.insert d)
+      let valdeps := match c.value? with
+        | none => ({} : NameSet)
+        | some v => v.foldConsts ({} : NameSet) (fun d s => s.insert d)
+      for d in typedeps do
+        IO.println s!"EDGE\t{n}\ttype\t{d}"
+        if !seen.contains d then todo := d :: todo
+      for d in valdeps do
+        IO.println s!"EDGE\t{n}\tvalue\t{d}"
+        if !seen.contains d then todo := d :: todo
+  unless todo.isEmpty do throwError "AUDIT_REJECT traversal limit exhausted"
+  IO.println s!"AUDIT_PASS\towned={roots.size}\treachable={nvisited}\taxioms={axset.toList}"
