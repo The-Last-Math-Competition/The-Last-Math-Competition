@@ -1,0 +1,61 @@
+AUDITED Conjecture2187.pathMinimum.eq_1; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathGraph_card_succ._proof_5; safe; axioms = [propext, Classical.choice, Quot.sound]
+AUDITED Conjecture2187.minimumEdges; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.Attainable; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathGraph_card_succ._proof_2; safe; axioms = [propext, Quot.sound]
+AUDITED Conjecture2187.pathMinimum._proof_1; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathMinimum_succ; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.attainable_nonempty; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.ClaimedAsymptotic._proof_2; safe; axioms = []
+AUDITED Conjecture2187.pathMinimum_ratio_tendsto_one._proof_3; safe; axioms = [propext, Quot.sound]
+AUDITED Conjecture2187.minimumEdges_attained; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathMinimum_ratio_not_tendsto_three; safe; axioms = [Quot.sound, propext, Classical.choice]
+AUDITED Conjecture2187.pathGraph_card; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.ClaimedAsymptotic; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathGraph_card_succ; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathGraph_card_succ._proof_7; safe; axioms = [propext, Quot.sound]
+AUDITED Conjecture2187.pathGraph_card_succ._proof_8; safe; axioms = [propext, Quot.sound]
+AUDITED Conjecture2187.conjecture_false; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.conjecture_false._proof_3; safe; axioms = [propext, Quot.sound]
+AUDITED Conjecture2187.pathMinimum_eq; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathGraph_card_succ._proof_4; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.Contains; safe; axioms = []
+AUDITED Conjecture2187.pathGraph_card_succ._proof_1; safe; axioms = [propext, Quot.sound]
+AUDITED Conjecture2187.pathMinimum_ratio_tendsto_one; safe; axioms = [Quot.sound, propext, Classical.choice]
+AUDITED Conjecture2187.pathGraph_card_succ._proof_3; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.minimumEdges_le; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathGraph_card_succ._proof_6; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.edgeCount_le_of_contained; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.edgeCount_le_of_attainable; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.attainable_self; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.minimumEdges_eq; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathMinimum; safe; axioms = [propext, Quot.sound, Classical.choice]
+AUDITED Conjecture2187.pathGraph_card_succ._proof_9; safe; axioms = [propext, Quot.sound]
+PASS: 33 owned declarations checked.
+def Conjecture2187.Contains.{u_1, u_2} : {V : Type u_1} → {W : Type u_2} → SimpleGraph V → SimpleGraph W → Prop :=
+fun {V} {W} H G => ∃ f, Function.Injective ⇑f
+def Conjecture2187.Attainable : {V : Type} → SimpleGraph V → ℕ → Prop :=
+fun {V} H m => ∃ W G, Finite ↑G.edgeSet ∧ Conjecture2187.Contains H G ∧ Nat.card ↑G.edgeSet = m
+def Conjecture2187.minimumEdges : {V : Type} → (H : SimpleGraph V) → [inst : Finite ↑H.edgeSet] → ℕ :=
+fun {V} H [Finite ↑H.edgeSet] => Nat.find ⋯
+def Conjecture2187.ClaimedAsymptotic : Prop :=
+∃ ε,
+  Filter.Tendsto ε Filter.atTop (nhds 0) ∧ ∀ᶠ (n : ℕ) in Filter.atTop, ↑(Conjecture2187.pathMinimum n) = (3 + ε n) * ↑n
+Conjecture2187.minimumEdges_attained {V : Type} (H : SimpleGraph V) [Finite ↑H.edgeSet] :
+  Conjecture2187.Attainable H (Conjecture2187.minimumEdges H)
+Conjecture2187.minimumEdges_le {V : Type} (H : SimpleGraph V) [Finite ↑H.edgeSet] {m : ℕ}
+  (hm : Conjecture2187.Attainable H m) : Conjecture2187.minimumEdges H ≤ m
+Conjecture2187.minimumEdges_eq {V : Type} (H : SimpleGraph V) [Finite ↑H.edgeSet] :
+  Conjecture2187.minimumEdges H = Nat.card ↑H.edgeSet
+Conjecture2187.pathMinimum_eq (n : ℕ) : Conjecture2187.pathMinimum n = n - 1
+Conjecture2187.pathMinimum_succ (n : ℕ) : Conjecture2187.pathMinimum (n + 1) = n
+Conjecture2187.pathMinimum_ratio_tendsto_one :
+  Filter.Tendsto (fun n => ↑(Conjecture2187.pathMinimum n) / ↑n) Filter.atTop (nhds 1)
+Conjecture2187.pathMinimum_ratio_not_tendsto_three :
+  ¬Filter.Tendsto (fun n => ↑(Conjecture2187.pathMinimum n) / ↑n) Filter.atTop (nhds 3)
+Conjecture2187.conjecture_false : ¬Conjecture2187.ClaimedAsymptotic
+'Conjecture2187.minimumEdges_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture2187.pathMinimum_eq' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture2187.pathMinimum_ratio_tendsto_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture2187.pathMinimum_ratio_not_tendsto_three' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Conjecture2187.conjecture_false' depends on axioms: [propext, Classical.choice, Quot.sound]

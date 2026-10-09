@@ -1,0 +1,157 @@
+\documentclass[10pt]{article}
+\usepackage[letterpaper,margin=0.75in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue]{hyperref}
+\usepackage{microtype}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlength{\emergencystretch}{2em}
+\newtheorem{theorem}{Theorem}
+\newcommand{\N}{\mathbb N}
+\newcommand{\R}{\mathbb R}
+\newcommand{\code}[1]{\texttt{\small #1}}
+\title{The containment minimum for paths\\[3pt]
+\large A disproof of Conjecture 00000002187 as written}
+\author{C0ldSmi1e}
+\date{9 October 2026}
+\begin{document}
+\maketitle
+\vspace{-1.1em}
+
+\begin{abstract}
+The conjecture explicitly defines its invariant as the minimum number of
+edges in a graph containing a path. Under that definition, the minimum for
+an $n$-vertex path is exactly $n-1$ for $n\geq1$. Its ratio to $n$ tends to
+$1$, contradicting the asserted coefficient $3$. The submitted Lean 4
+project proves the attained minimum, its exact value, the actual limit,
+and the full negation of the proposed little-$o$ formula.
+\end{abstract}
+
+\section{Statement and scope}
+The English and Chinese originals in \code{ORIGINAL.md} both use ordinary
+containment in their explicit definition. We therefore write
+\[
+ \rho(H)=\min\bigl\{|E(G)|: G\text{ contains a copy of }H,\ |E(G)|<\infty\bigr\}.
+\]
+Graphs are undirected and simple. A copy is an injective map of vertices
+preserving adjacency; nonadjacency need not be preserved. The path $P_n$
+has vertex set $\{0,\ldots,n-1\}$ and consecutive vertices are adjacent.
+The claimed numerical assertion is $\rho(P_n)=(3+o(1))n$ as $n\to\infty$.
+
+The source calls this invariant a size-Ramsey number. The conventional
+definition requires a monochromatic copy in every two-colouring of the
+host's edges~\cite{cfw}. That requirement is absent from the printed
+definition. This submission follows the printed definition and does not
+assert a result for that different, colouring-based invariant.
+The sentence about a Bhamidi--Hoagy--Hoarau network limit specifies no
+network family or limit and is presented as an explanation, not a
+hypothesis restricting the numerical assertion. No such missing
+objects are introduced here.
+
+\section{Exact minimum and disproof}
+\begin{theorem}
+For every simple graph $H$ with finitely many edges, the above minimum
+exists, is attained, and satisfies $\rho(H)=|E(H)|$.
+\end{theorem}
+\begin{proof}
+The host $G=H$, with the identity copy, is admissible. If $f$ embeds a copy
+of $H$ into an admissible $G$, it sends each unordered edge $\{u,v\}$ to
+$\{f(u),f(v)\}$. Injectivity of $f$ implies injectivity of this edge map.
+Consequently $|E(H)|\leq |E(G)|$ for every admissible host, while $H$
+itself attains equality. This proves both minimum semantics and its value.
+\end{proof}
+
+For $n=k+1$, the edges of $P_n$ are precisely
+$\{i,i+1\}$ for $0\leq i<k$. They are distinct, so $|E(P_n)|=k$.
+Thus $\rho(P_n)=n-1$ for every $n\geq1$, and
+\[
+ \frac{\rho(P_n)}{n}=1-\frac1n\longrightarrow1.
+\]
+If a real sequence $\varepsilon_n\to0$ satisfied
+$\rho(P_n)=(3+\varepsilon_n)n$ for all sufficiently large $n$, division
+by positive $n$ would make the same ratio tend to $3$.
+Uniqueness of real limits gives the contradiction $1=3$.
+
+If the index instead counts edges, the path is $P_{n+1}$ in our notation
+and its minimum is exactly $n$. The normalized coefficient is again $1$.
+The discrepancy therefore does not depend on this indexing convention.
+
+\newpage
+\section{Correspondence with the formal theorem}
+The mathematical source is \code{Conjecture2187.lean}. It uses Mathlib's
+\code{SimpleGraph}, unordered edge sets, and \code{pathGraph n} on
+\code{Fin n}. All the following names have prefix \code{Conjecture2187.}
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.10}
+\begin{tabular}{@{}p{0.45\textwidth}p{0.51\textwidth}@{}}
+\toprule
+\normalfont Formal name & Meaning or established result\\
+\midrule
+\code{Contains} & An injective graph homomorphism; ordinary subgraph containment.\\
+\code{Attainable} & An existential host graph with a finite edge set, a copy, and the specified edge count.\\
+\code{minimumEdges} & The least attained natural edge count, defined using \code{Nat.find} and a proved existence statement.\\
+\code{minimumEdges\_attained} & A genuine host attains the minimum.\\
+\code{minimumEdges\_le} & The minimum is no larger than any admissible edge count.\\
+\code{minimumEdges\_eq} & The minimum equals the contained graph's edge count.\\
+\code{pathMinimum\_eq} & $\rho(P_n)=n-1$.\\
+\code{pathMinimum\_succ} & $\rho(P_{n+1})=n$.\\
+\code{pathMinimum\_ratio\_tendsto\_one} & $\rho(P_n)/n\to1$.\\
+\code{conjecture\_false} & The full logical negation of \code{ClaimedAsymptotic}.\\
+\bottomrule
+\end{tabular}
+\endgroup
+
+The proposition \code{ClaimedAsymptotic} is exactly
+\[
+ \exists\varepsilon:\N\to\R,\quad
+ \varepsilon_n\longrightarrow0
+ \quad\land\quad
+ \forall^{\text{eventually}} n\in\N,\quad
+ (\rho(P_n):\R)=(3+\varepsilon_n)(n:\R).
+\]
+The final theorem proves its negation. The proof works with the weaker,
+eventual equality, so it also excludes a reading requiring the equality
+for every index. Ratio calculations are restricted eventually to
+$n\geq1$; no conclusion relies on division by zero.
+
+The extremum ranges over arbitrary host vertex sets in Lean's \code{Type},
+with finite edge sets. Hosts with infinitely many isolated vertices are
+allowed. The lower bound holds for every such host, and the finite path
+attains it. Hence the result also gives exactly the minimum if hosts are
+restricted to finite graphs. Neither the value $n-1$ nor the asserted
+limit is built into the extremum's definition.
+
+\section{Verification and reproduction}
+The project pins Lean 4.19.0 and Mathlib v4.19.0, commit
+\code{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+The author build and the following strict replays passed:
+\begin{quote}\ttfamily\small
+lake build\\
+lake env lean -DwarningAsError=true Conjecture2187.lean\\
+lake env lean -DwarningAsError=true AuthorAudit.lean
+\end{quote}
+Full reproduction instructions and verification records accompany the package.
+The additional audit enumerates every mathematical-module declaration,
+including private and generated declarations, and traverses types and
+proof values. It rejects owned axioms and unsafe or partial declarations;
+only \code{propext}, \code{Classical.choice}, and \code{Quot.sound} may
+occur as axioms in the dependency closure. All reasoning is kernel checked,
+with no admitted proofs, \code{native\_decide}, custom axioms, or external
+numerical computation.
+
+These are local checks and independent review; maintainer acceptance is separate.
+
+\begin{thebibliography}{1}
+\small
+\bibitem{cfw}
+D.~Conlon, J.~Fox, and Y.~Wigderson,
+\emph{Three early problems on size Ramsey numbers},
+arXiv:2111.05420v2 (2023).
+\href{https://arxiv.org/abs/2111.05420v2}{arxiv.org/abs/2111.05420v2}.
+Used only for the conventional definition in the abstract.
+\end{thebibliography}
+\end{document}

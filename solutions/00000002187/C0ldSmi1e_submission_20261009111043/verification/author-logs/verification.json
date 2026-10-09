@@ -1,0 +1,54 @@
+{
+  "utc": "2026-10-09T10:55:51.560530+00:00",
+  "checks": [
+    {
+      "check": "lean-version",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lean",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "logs/lean-version.log"
+    },
+    {
+      "check": "lake-build",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "build"
+      ],
+      "exit_code": 0,
+      "output": "logs/lake-build.log"
+    },
+    {
+      "check": "source-replay",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Conjecture2187.lean"
+      ],
+      "exit_code": 0,
+      "output": "logs/source-replay.log"
+    },
+    {
+      "check": "audit-replay",
+      "command": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "AuthorAudit.lean"
+      ],
+      "exit_code": 0,
+      "output": "logs/audit-replay.log"
+    },
+    {
+      "check": "source-and-manifest-match-input",
+      "source_sha256": "56e81da0707150507ae92a849a5d3807d221fd4608b685726460d9b89f3433b9",
+      "manifest_sha256": "23184bd96e9aba720427b594e1312235abf64aea733dce75b0cf63c33e424db1",
+      "source_identical": true,
+      "manifest_identical": true
+    }
+  ]
+}

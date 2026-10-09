@@ -1,0 +1,25 @@
+{
+  "purpose": "Clarify exact exported declaration safety in the genuine compiled partial-def control; reporting only, not an additional counted control.",
+  "fixture_source": "partial def OutsideNamespace.uncheckedPartial : Nat := 1\n",
+  "observation": "The public definition is safe after compilation; two generated executable stages are unsafe. The production audit rejects _cstage1. No definition with safety.partial was observed, so this run does not claim direct exercise of that added predicate branch.",
+  "reporting_source": "import Conjecture2187\nimport Lean\nopen Lean Elab Command in\nrun_cmd do\n  for (name, info) in (\u2190 getEnv).constants.toList do\n    let some idx := (\u2190 getEnv).getModuleIdxFor? name | continue\n    if (\u2190 getEnv).header.moduleNames[idx.toNat]! != `Conjecture2187 then continue\n    match info with\n    | .defnInfo d => logInfo m!\"{name}: isUnsafe={info.isUnsafe}; safety.safe={d.safety == .safe}; safety.partial={d.safety == .partial}; safety.unsafe={d.safety == .unsafe}\"\n    | _ => logInfo m!\"{name}: non-definition; isUnsafe={info.isUnsafe}\"\n",
+  "reporting_source_sha256": "b0c45785d9c76730be94d415e2fb7dcbae01f49be0aeba23fadf1f3de84ec61e",
+  "command_records": [
+    {
+      "label": "compiled-partial-metadata",
+      "argv": [
+        "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+        "env",
+        "lean",
+        "-DwarningAsError=true",
+        "Metadata.lean"
+      ],
+      "cwd": "/private/tmp/tlmc2187-engineering/partial-metadata/project",
+      "started_utc": "2026-10-09T11:05:41.227991+00:00",
+      "exit_code": 0,
+      "completed_utc": "2026-10-09T11:05:42.858004+00:00",
+      "stdout": "OutsideNamespace.uncheckedPartial._cstage2: isUnsafe=true; safety.safe=false; safety.partial=false; safety.unsafe=true\nOutsideNamespace.uncheckedPartial._cstage1: isUnsafe=true; safety.safe=false; safety.partial=false; safety.unsafe=true\nOutsideNamespace.uncheckedPartial: isUnsafe=false; safety.safe=true; safety.partial=false; safety.unsafe=false\n",
+      "stderr": ""
+    }
+  ]
+}

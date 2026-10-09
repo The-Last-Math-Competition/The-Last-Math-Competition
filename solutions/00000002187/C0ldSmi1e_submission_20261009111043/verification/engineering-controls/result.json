@@ -1,0 +1,652 @@
+{
+  "result": "PASS",
+  "unit_test_count": 25,
+  "unit_tests_pass": true,
+  "unit_test_skipped_count": 1,
+  "unit_test_skipped": [
+    {
+      "test": "test_compiler_artifact_axiom_rejected (__main__.VerifierControls.test_compiler_artifact_axiom_rejected)",
+      "reason": "Frozen candidate has no compiler execution exceptions"
+    }
+  ],
+  "compiled_controls": [
+    {
+      "control": "custom-axiom",
+      "expected_rejection": "Authored axiom declaration",
+      "result": "PASS",
+      "fixture_modules": {
+        "Conjecture2187": "axiom OutsideNamespace.assumed : False\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/custom-axiom/fresh-project",
+          "started_utc": "2026-10-09T11:03:08.008578+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:08.542313+00:00",
+          "stdout": "✔ [2/5] Built Conjecture2187\n✔ [4/5] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/custom-axiom/fresh-project",
+          "started_utc": "2026-10-09T11:03:08.542719+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:10.870714+00:00",
+          "stdout": "Audit.lean:20:0: error: Authored axiom declaration: OutsideNamespace.assumed\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "control": "unsafe-definition",
+      "expected_rejection": "Unsafe authored declaration",
+      "result": "PASS",
+      "fixture_modules": {
+        "Conjecture2187": "unsafe def OutsideNamespace.unchecked : Nat := 1\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/unsafe-definition/fresh-project",
+          "started_utc": "2026-10-09T11:03:10.873049+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:11.389712+00:00",
+          "stdout": "✔ [2/5] Built Conjecture2187\n✔ [4/5] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/unsafe-definition/fresh-project",
+          "started_utc": "2026-10-09T11:03:11.390137+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:13.679559+00:00",
+          "stdout": "Audit.lean:20:0: error: Unsafe authored declaration: OutsideNamespace.unchecked\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "control": "partial-definition",
+      "expected_rejection": "Unsafe authored declaration",
+      "result": "PASS",
+      "fixture_modules": {
+        "Conjecture2187": "partial def OutsideNamespace.uncheckedPartial : Nat := 1\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/partial-definition/fresh-project",
+          "started_utc": "2026-10-09T11:03:13.681970+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:14.247426+00:00",
+          "stdout": "✔ [2/5] Built Conjecture2187\n✔ [4/5] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/partial-definition/fresh-project",
+          "started_utc": "2026-10-09T11:03:14.247886+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:16.596734+00:00",
+          "stdout": "AUDITED OutsideNamespace.uncheckedPartial: definition; axioms=[]\nAudit.lean:20:0: error: Unsafe authored declaration: OutsideNamespace.uncheckedPartial._cstage1\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "control": "compiler-name-spoof",
+      "expected_rejection": "Unsafe authored declaration",
+      "result": "PASS",
+      "fixture_modules": {
+        "Conjecture2187": "unsafe def Spoof.match_1._cstage1 : Nat := 1\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/compiler-name-spoof/fresh-project",
+          "started_utc": "2026-10-09T11:03:16.598907+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:17.168696+00:00",
+          "stdout": "✔ [2/5] Built Conjecture2187\n✔ [4/5] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/compiler-name-spoof/fresh-project",
+          "started_utc": "2026-10-09T11:03:17.169105+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:19.546402+00:00",
+          "stdout": "Audit.lean:20:0: error: Unsafe authored declaration: Spoof.match_1._cstage1\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "control": "sorry-proof",
+      "expected_rejection": "Forbidden transitive axiom sorryAx",
+      "result": "PASS",
+      "fixture_modules": {
+        "Conjecture2187": "theorem OutsideNamespace.unsound : False := by sorry\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/sorry-proof/fresh-project",
+          "started_utc": "2026-10-09T11:03:19.548536+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:20.063606+00:00",
+          "stdout": "⚠ [2/5] Built Conjecture2187\nwarning: ././././Conjecture2187.lean:1:8: declaration uses 'sorry'\n✔ [4/5] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/sorry-proof/fresh-project",
+          "started_utc": "2026-10-09T11:03:20.064088+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:22.430826+00:00",
+          "stdout": "Audit.lean:20:0: error: Forbidden transitive axiom sorryAx in OutsideNamespace.unsound\n",
+          "stderr": ""
+        },
+        {
+          "label": "strict-replay-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Conjecture2187.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/sorry-proof/fresh-project",
+          "started_utc": "2026-10-09T11:03:22.431340+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:22.828785+00:00",
+          "stdout": "Conjecture2187.lean:1:8: error: declaration uses 'sorry'\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "control": "hidden-imported-proof-axiom",
+      "expected_rejection": "Forbidden transitive axiom Hidden.assumption",
+      "result": "PASS",
+      "fixture_modules": {
+        "ImportedBridge": "axiom Hidden.assumption : False\ntheorem Hidden.intermediate : True := False.elim Hidden.assumption\n",
+        "Conjecture2187": "import ImportedBridge\ntheorem Public.root : True := Hidden.intermediate\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-proof-axiom/fresh-project",
+          "started_utc": "2026-10-09T11:03:22.831102+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:23.473369+00:00",
+          "stdout": "✔ [2/6] Built ImportedBridge\n✔ [3/6] Built Conjecture2187\n✔ [5/6] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-proof-axiom/fresh-project",
+          "started_utc": "2026-10-09T11:03:23.473859+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:25.918976+00:00",
+          "stdout": "Audit.lean:20:0: error: Forbidden transitive axiom Hidden.assumption in Public.root\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "control": "hidden-imported-type-axiom",
+      "expected_rejection": "Forbidden transitive axiom Hidden.size",
+      "result": "PASS",
+      "fixture_modules": {
+        "ImportedBridge": "axiom Hidden.size : Nat\ndef Hidden.Index := Fin Hidden.size\n",
+        "Conjecture2187": "import ImportedBridge\ntheorem Public.root (_ : Hidden.Index) : True := True.intro\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-type-axiom/fresh-project",
+          "started_utc": "2026-10-09T11:03:25.921275+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:26.579654+00:00",
+          "stdout": "✔ [2/6] Built ImportedBridge\n✔ [3/6] Built Conjecture2187\n✔ [5/6] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-type-axiom/fresh-project",
+          "started_utc": "2026-10-09T11:03:26.580129+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:28.970782+00:00",
+          "stdout": "Audit.lean:20:0: error: Forbidden transitive axiom Hidden.size in Public.root\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "control": "hidden-imported-sorry-proof",
+      "expected_rejection": "Forbidden transitive axiom sorryAx",
+      "result": "PASS",
+      "fixture_modules": {
+        "ImportedBridge": "theorem Hidden.intermediate : False := by sorry\n",
+        "Conjecture2187": "import ImportedBridge\ntheorem Public.root : True := False.elim Hidden.intermediate\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-sorry-proof/fresh-project",
+          "started_utc": "2026-10-09T11:03:28.973191+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:29.637139+00:00",
+          "stdout": "⚠ [2/6] Built ImportedBridge\nwarning: ././././ImportedBridge.lean:1:8: declaration uses 'sorry'\n✔ [3/6] Built Conjecture2187\n✔ [5/6] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-sorry-proof/fresh-project",
+          "started_utc": "2026-10-09T11:03:29.638973+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:31.971970+00:00",
+          "stdout": "Audit.lean:20:0: error: Forbidden transitive axiom sorryAx in Public.root\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "control": "hidden-imported-unsafe-proof",
+      "expected_rejection": "Unsafe proof dependency: Hidden.unsafeTrue",
+      "result": "PASS",
+      "fixture_modules": {
+        "ImportedBridge": "import Lean\nopen Lean Elab Command\nunsafe def Hidden.unsafeTrue : True := True.intro\nrun_cmd do\n  let decl : Declaration := .thmDecl {\n    name := `Hidden.safeBridge, levelParams := [], type := mkConst ``True,\n    value := mkConst `Hidden.unsafeTrue }\n  match (← getEnv).addDeclCore 0 decl none false with\n  | .ok env => setEnv env\n  | .error _ => throwError \"fixture insertion failed\"\n",
+        "Conjecture2187": "import ImportedBridge\ntheorem Public.root : True := Hidden.safeBridge\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-unsafe-proof/fresh-project",
+          "started_utc": "2026-10-09T11:03:31.974294+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:33.245777+00:00",
+          "stdout": "✔ [2/6] Built ImportedBridge\n✔ [3/6] Built Conjecture2187\n✔ [5/6] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-unsafe-proof/fresh-project",
+          "started_utc": "2026-10-09T11:03:33.246271+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:35.675126+00:00",
+          "stdout": "AUDITED Public.root: theorem; axioms=[]\nAudit.lean:20:0: error: Unsafe proof dependency: Hidden.unsafeTrue\n",
+          "stderr": ""
+        }
+      ]
+    },
+    {
+      "control": "hidden-imported-lcProof-proof",
+      "expected_rejection": "Forbidden transitive axiom lcProof",
+      "result": "PASS",
+      "fixture_modules": {
+        "ImportedBridge": "import Lean\nopen Lean Elab Command\nrun_cmd do\n  let decl : Declaration := .thmDecl {\n    name := `Hidden.safeBridge, levelParams := [], type := mkConst ``True,\n    value := mkApp (mkConst `lcProof) (mkConst ``True) }\n  match (← getEnv).addDeclCore 0 decl none false with\n  | .ok env => setEnv env\n  | .error _ => throwError \"fixture insertion failed\"\n",
+        "Conjecture2187": "import ImportedBridge\ntheorem Public.root : True := Hidden.safeBridge\n"
+      },
+      "records": [
+        {
+          "label": "compile-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "build"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-lcProof-proof/fresh-project",
+          "started_utc": "2026-10-09T11:03:35.679653+00:00",
+          "exit_code": 0,
+          "completed_utc": "2026-10-09T11:03:36.929818+00:00",
+          "stdout": "✔ [2/6] Built ImportedBridge\n✔ [3/6] Built Conjecture2187\n✔ [5/6] Built AuthorAudit\nBuild completed successfully.\n",
+          "stderr": ""
+        },
+        {
+          "label": "audit-fixture",
+          "argv": [
+            "/private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lake",
+            "env",
+            "lean",
+            "-DwarningAsError=true",
+            "Audit.lean"
+          ],
+          "cwd": "/private/tmp/tlmc2187-engineering/controls-01/hidden-imported-lcProof-proof/fresh-project",
+          "started_utc": "2026-10-09T11:03:36.930293+00:00",
+          "exit_code": 1,
+          "completed_utc": "2026-10-09T11:03:39.302270+00:00",
+          "stdout": "Audit.lean:20:0: error: Forbidden transitive axiom lcProof in Public.root\n",
+          "stderr": ""
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "dependency_mutation_control": {
+    "result": "PASS",
+    "expected_rejection": "Wrong revision or modified dependency: mathlib",
+    "unchanged_revision": "65bddb1ab4fa9bc6e37fb9952830d62f0e8f9102",
+    "restored_clean": true,
+    "scope": "Isolated synthetic tracked Git dependency; shared checkouts untouched",
+    "records": [
+      {
+        "label": "mutation-git-init",
+        "argv": [
+          "git",
+          "-c",
+          "init.templateDir=",
+          "init",
+          "-q",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.843779+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.857996+00:00",
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-git-add",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "add",
+          "tracked-fixture.txt"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.858413+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.869595+00:00",
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-git-commit",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "-c",
+          "user.name=Verifier Fixture",
+          "-c",
+          "user.email=verifier-fixture@example.invalid",
+          "-c",
+          "core.hooksPath=/dev/null",
+          "commit",
+          "-q",
+          "-m",
+          "Temporary dependency mutation control"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.869948+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.897567+00:00",
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-initial-head",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.897957+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.907329+00:00",
+        "stdout": "65bddb1ab4fa9bc6e37fb9952830d62f0e8f9102\n",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-clean-before-revision-mathlib",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.907885+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.917131+00:00",
+        "stdout": "65bddb1ab4fa9bc6e37fb9952830d62f0e8f9102\n",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-clean-before-tracked-mathlib",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.917519+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.926968+00:00",
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-dirty-revision-mathlib",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.927441+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.936396+00:00",
+        "stdout": "65bddb1ab4fa9bc6e37fb9952830d62f0e8f9102\n",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-dirty-tracked-mathlib",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.936808+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.947613+00:00",
+        "stdout": " M tracked-fixture.txt\n",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-unchanged-head",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.948035+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.958167+00:00",
+        "stdout": "65bddb1ab4fa9bc6e37fb9952830d62f0e8f9102\n",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-clean-after-revision-mathlib",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "rev-parse",
+          "HEAD"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.958644+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.967837+00:00",
+        "stdout": "65bddb1ab4fa9bc6e37fb9952830d62f0e8f9102\n",
+        "stderr": ""
+      },
+      {
+        "label": "mutation-clean-after-tracked-mathlib",
+        "argv": [
+          "git",
+          "-C",
+          "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture/.lake/packages/mathlib",
+          "status",
+          "--porcelain",
+          "--untracked-files=no"
+        ],
+        "cwd": "/private/tmp/tlmc2187-engineering/controls-01/dependency-mutation-fixture",
+        "started_utc": "2026-10-09T11:03:07.968186+00:00",
+        "exit_code": 0,
+        "completed_utc": "2026-10-09T11:03:07.977645+00:00",
+        "stdout": "",
+        "stderr": ""
+      }
+    ]
+  },
+  "revision_mismatch_control": {
+    "result": "PASS",
+    "expected_rejection": "Wrong revision or modified dependency: mathlib",
+    "note": "Expected revision changed only in memory; actual checkouts remain untouched."
+  },
+  "input_sha256": {
+    "ORIGINAL.md": "56e81da0707150507ae92a849a5d3807d221fd4608b685726460d9b89f3433b9",
+    "lean/Audit.lean": "4fa6bf5f4c85361ae35b5ab03128869a5aa691e9ef1ecc7002e63b06917c2ca5",
+    "lean/AuthorAudit.lean": "f88e34a9fefb7e2aa05e4c45f96296e50581a9f105e35914170de88d20edf3b3",
+    "lean/Conjecture2187.lean": "b49d2db1d8a23c25c074c6effb7a3a833692fafe89a2563567c27c7705d5236b",
+    "lean/lake-manifest.json": "23184bd96e9aba720427b594e1312235abf64aea733dce75b0cf63c33e424db1",
+    "lean/lakefile.toml": "338934abf0b891b285e44d18379d81caa1941df89083b996d9a210c0c7192370",
+    "lean/lean-toolchain": "55e97be96000b5e9e290c9e74482e5e317861499a5540353ce845471bded8cea",
+    "test_verify.py": "c77551011117e659215e8a509595e7c58a2b8febfe0790144465a518269beb2e",
+    "verification/author-freeze.json": "12e6c8ffd226ddd321d5fd2151df0f39b940dd3fe23e28ac160ebb4b77da97e5",
+    "verification/author-logs/audit-replay.log": "8cec440fc704b53c624ccdce741ec575a93a4caeafca8daed7d812df3deef8b5",
+    "verification/author-logs/lake-build-initial.log": "784b4740082ac89d23425712bd332c2b31f0d7a458fb20aab29914849f104352",
+    "verification/author-logs/lake-build.log": "84b8bca66c70d2f774dc905789de63fc0e7335255f369be9d817c4368218c198",
+    "verification/author-logs/lean-version.log": "adae83ba7663543abb21a1527013239eb469a7dbff15bea8c52d90901b42cc65",
+    "verification/author-logs/source-replay.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "verification/author-logs/verification.json": "5356a755cb713e2e011b044f72224418b29644f6e682c6638c0175b0f18485d8",
+    "verification/author-mathematics.md": "c313e30dc02606cd24b3590a6440459ca44d7a65ffa04834f2af27a95b526965",
+    "verification/author-original-lakefile.toml": "3f69b0a50f6de0ed1d73ce74eefcd0a8c523ad553458be7544d5051c7f56649b",
+    "verification/compiled-inventory.json": "7d4c2a84fca0cbb04c1821f96303acbd27bed04c4613ba9a4a45caadd38848cd",
+    "verification/pinned-dependencies.json": "23184bd96e9aba720427b594e1312235abf64aea733dce75b0cf63c33e424db1",
+    "verify.py": "a846314ab4aa1b5686fa6dd2701f33616c3eb939135c9a09e4b6ab7453234972"
+  },
+  "inputs_unchanged": true,
+  "pins_clean_before_and_after": true
+}
