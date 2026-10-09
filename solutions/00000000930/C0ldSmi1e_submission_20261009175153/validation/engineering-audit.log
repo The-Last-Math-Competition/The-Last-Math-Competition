@@ -1,0 +1,38 @@
+AUDIT PASS rootCount=1 reachableCount=43286 axioms=[propext, Classical.choice, Quot.sound] unsafe=0 partial=0 missing=0
+AUDIT PASS rootCount=1 reachableCount=43906 axioms=[Quot.sound, propext, Classical.choice] unsafe=0 partial=0 missing=0
+AUDIT PASS rootCount=59 reachableCount=44056 axioms=[Quot.sound, propext, Classical.choice] unsafe=0 partial=0 missing=0
+FIXED SIGNATURE Bergman930.l2Space_isClosed : IsClosed ↑Bergman930.l2Space; universeParameters=[]; topLevelBinders=0
+FIXED SIGNATURE Bergman930.reducing_cardinality : Cardinal.mk Bergman930.ReducingSubspace =
+  2; universeParameters=[]; topLevelBinders=0
+FIXED SIGNATURE Bergman930.not_continuum : Cardinal.mk Bergman930.ReducingSubspace ≠
+  Cardinal.continuum; universeParameters=[]; topLevelBinders=0
+'Bergman930.l2Space_isClosed' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bergman930.l2Space_complete' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bergman930.isReducing_iff_adjoint' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bergman930.reducing_eq_bot_or_top' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bergman930.reducing_cardinality' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Bergman930.not_continuum' depends on axioms: [propext, Classical.choice, Quot.sound]
+Bergman930.reducing_eq_bot_or_top : ∀ (M : Submodule ℂ ↥Bergman930.l2Space), Bergman930.IsReducing M → M = ⊥ ∨ M = ⊤
+Bergman930.isReducing_iff_adjoint : ∀ (M : Submodule ℂ ↥Bergman930.l2Space),
+  Bergman930.IsReducing M ↔
+    IsClosed ↑M ∧
+      (∀ f ∈ M, Bergman930.bergmanShift f ∈ M) ∧ ∀ f ∈ M, (ContinuousLinearMap.adjoint Bergman930.bergmanShift) f ∈ M
+def Bergman930.disk : Set ℂ :=
+Metric.ball 0 1
+def Bergman930.area : MeasureTheory.Measure ℂ :=
+MeasureTheory.volume.restrict Bergman930.disk
+def Bergman930.space : Submodule ℂ (ℂ → ℂ) :=
+{
+  carrier :=
+    {f |
+      DifferentiableOn ℂ f Bergman930.disk ∧ MeasureTheory.MemLp f 2 Bergman930.area ∧ ∀ z ∉ Bergman930.disk, f z = 0},
+  add_mem' := @Bergman930.space._proof_2, zero_mem' := Bergman930.space._proof_3,
+  smul_mem' := Bergman930.space._proof_4 }
+def Bergman930.l2Space : Submodule ℂ ↥(MeasureTheory.Lp ℂ 2 Bergman930.area) :=
+LinearMap.range Bergman930.toL2
+def Bergman930.bergmanShift : ↥Bergman930.l2Space →L[ℂ] ↥Bergman930.l2Space :=
+Bergman930.l2Shift.mkContinuous 1 Bergman930.bergmanShift._proof_3
+def Bergman930.IsReducing : Submodule ℂ ↥Bergman930.l2Space → Prop :=
+fun M => IsClosed ↑M ∧ (∀ f ∈ M, Bergman930.bergmanShift f ∈ M) ∧ ∀ f ∈ Mᗮ, Bergman930.bergmanShift f ∈ Mᗮ
+def Bergman930.ReducingSubspace : Type :=
+{ M // Bergman930.IsReducing M }

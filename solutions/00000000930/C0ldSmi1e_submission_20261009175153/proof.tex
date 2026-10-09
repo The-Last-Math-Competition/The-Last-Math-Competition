@@ -1,0 +1,329 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\setlength{\emergencystretch}{2em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newcommand{\D}{\mathbb D}
+\newcommand{\C}{\mathbb C}
+\newcommand{\A}{A^2(\D)}
+\newcommand{\ip}[2]{\langle #1,#2\rangle}
+\newcommand{\norm}[1]{\lVert #1\rVert}
+\newcommand{\Lean}[1]{\texttt{\detokenize{#1}}}
+\title{The Bergman shift has exactly two reducing subspaces\\
+\large A disproof of conjecture 00000000930}
+\author{Independent mathematical submission}
+\date{}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For the ordinary unweighted Bergman shift, the closed complex reducing
+subspaces are exactly $\{0\}$ and the whole Bergman space. Their cardinality is
+therefore $2$, not the cardinality of the continuum. We prove this directly on
+square-integrable holomorphic functions by division by $z-w$. The accompanying
+Lean 4 project also proves the analytic completeness bridge, the equivalence of
+two standard reducing-subspace definitions, and the exact cardinality statement.
+\end{abstract}
+
+\section{Statement, conventions, and conclusion}
+The supplied English statement is:
+\begin{quote}
+Definition: The Bergman shift ($M_z$ on $A^2$). Conjecture: The lattice of
+reducing subspaces of the Bergman shift has the cardinality of the continuum,
+each indexed by Blaschke products (a complete classification of reducing
+subspaces).
+\end{quote}
+The Chinese statement specifies the same operator and the same
+continuum-cardinality and Blaschke-indexing assertions.
+
+Let $\D=\{z\in\C:|z|<1\}$ and let $dA=dx\,dy$ be unnormalized planar
+Lebesgue area. Set
+\[
+ \A=\left\{ f:\D\to\C:\ f\text{ is holomorphic and }
+                    \int_\D |f(z)|^2\,dA(z)<\infty\right\}.
+\]
+Our inner product is conjugate-linear in the first variable:
+\[
+ \ip f g=\int_\D \overline{f(z)}g(z)\,dA(z).
+\]
+Using $dA/\pi$ instead multiplies this inner product by a positive constant
+and leaves its topology, orthogonality, and reducing subspaces unchanged.
+The operator in question is exactly
+\[
+ S=M_z,\qquad (Sf)(z)=zf(z).
+\]
+It is bounded, with $\norm{Sf}_2\leq\norm f_2$.
+
+A reducing subspace means a closed complex linear subspace $M\subseteq\A$
+for which $S(M)\subseteq M$ and $S(M^\perp)\subseteq M^\perp$.
+Equivalently, it is a closed complex linear subspace invariant under both
+$S$ and its Hilbert-space adjoint $S^*$; this equivalence is proved below and
+in Lean.
+
+\begin{theorem}\label{thm:main}
+The complete collection of closed complex reducing subspaces of $M_z$ on
+$\A$ is $\{\{0\},\A\}$. In particular, its cardinality is exactly $2$, and
+is not the cardinality $\mathfrak c$ of the continuum.
+\end{theorem}
+This disproves a necessary, explicit clause of the conjecture and hence
+disproves the conjecture as a conjunction. The Blaschke-product sentence does
+not specify an indexing map or an equivalence relation on labels. No such map
+or equivalence relation is invented here; the disproof is the failure of the
+continuum-cardinality clause for the actual operator.
+
+\section{The analytic Hilbert-space bridge}
+For completeness we give the analytic facts required to apply orthogonal
+projection to every closed subspace in the statement. These facts are also
+proved in the accompanying project, rather than supplied as hypotheses.
+
+\begin{lemma}[Area mean value]\label{lem:mean}
+If $f$ is holomorphic on a neighborhood of $\overline{B(w,r)}$ and $r>0$, then
+\[
+ \int_{B(w,r)}f(z)\,dA(z)=\pi r^2 f(w).
+\]
+\end{lemma}
+\begin{proof}
+Cauchy's integral formula, with $z=w+\rho e^{i\theta}$, gives
+\[
+ \int_0^{2\pi} f(w+\rho e^{i\theta})\,d\theta=2\pi f(w)
+ \quad(0<\rho\leq r).
+\]
+Integrating radially and using polar coordinates and Fubini gives
+\[
+ \int_{B(w,r)}f\,dA
+ =\int_0^r\rho\!\int_{-\pi}^{\pi}f(w+\rho e^{i\theta})\,d\theta\,d\rho
+ =\pi r^2 f(w).
+\]
+Changing the angular interval does not change the integral because the
+integrand is $2\pi$-periodic. Continuity on the closed disk makes the polar
+integrand integrable on its compact parameter rectangle. Translation handles
+an arbitrary center $w$.
+\end{proof}
+
+\begin{lemma}[Evaluation estimate]\label{lem:eval}
+Write $C=\norm{1}_{L^2(\D,dA)}$, a fixed finite constant. If
+$\overline{B(w,r)}\subset\D$ and $r>0$, then every $f\in\A$ satisfies
+\[
+ |f(w)|\leq\frac{C}{\pi r^2}\norm f_2.
+\]
+\end{lemma}
+\begin{proof}
+The area mean-value formula, the triangle inequality, and Cauchy--Schwarz give
+\[
+ \pi r^2|f(w)|
+ \leq\int_{B(w,r)}|f|\,dA
+ \leq\int_\D|f|\,dA
+ \leq C\norm f_2.
+\]
+The final inequality is the real $L^2$ inner-product inequality applied to
+$1$ and $|f|$.
+\end{proof}
+
+\begin{proposition}\label{prop:hilbert}
+The natural inclusion of $\A$ into $L^2(\D,dA)$ is injective and has closed
+range. Consequently $\A$ is a Hilbert space with the displayed inner product.
+\end{proposition}
+\begin{proof}
+Two continuous functions on the open disk that agree almost everywhere agree
+everywhere: if their difference were nonzero at a point, continuity would
+make it nonzero on a nonempty open set of positive area. This proves
+injectivity.
+
+Suppose $f_n\in\A$ converge to $u$ in $L^2$. They are $L^2$-Cauchy. Fix
+$0<t<1$ and put $r=(1-t)/2>0$. For every $w\in B(0,t)$,
+$\overline{B(w,r)}\subset\D$. Lemma~\ref{lem:eval} applied to $f_m-f_n$
+therefore gives
+\[
+ \sup_{w\in B(0,t)}|f_m(w)-f_n(w)|
+ \leq\frac{C}{\pi r^2}\norm{f_m-f_n}_2.
+\]
+Thus $(f_n)$ is uniformly Cauchy on every smaller disk. It has a pointwise
+limit $g$ on $\D$, with locally uniform convergence. The locally uniform
+limit theorem for holomorphic functions makes $g$ holomorphic.
+
+Convergence in $L^2$ implies convergence in measure, so some subsequence
+converges almost everywhere to a representative of $u$. The same subsequence
+converges pointwise on $\D$ to $g$. Uniqueness of limits gives $g=u$ almost
+everywhere. Hence $g$ is square integrable and represents $u$, proving that
+the range is closed. Completeness follows from completeness of $L^2$.
+\end{proof}
+
+\section{Local division and the commutant}
+\begin{lemma}[Division inside $A^2$]\label{lem:division}
+For $f\in\A$ and $w\in\D$, define
+\[
+ q(z)=\begin{cases}
+ \dfrac{f(z)-f(w)}{z-w},&z\ne w,\\[4pt]
+ f'(w),&z=w.
+ \end{cases}
+\]
+Then $q\in\A$ and
+\[
+ f-f(w)1=(S-wI)q.
+\]
+\end{lemma}
+\begin{proof}
+The removable singularity theorem makes $q$ holomorphic. Its continuity at
+$w$ gives numbers $r>0$ and $C_0\geq0$ such that $|q(z)|\leq C_0$ for
+$|z-w|<r$. Outside that neighborhood,
+\[
+ |q(z)|\leq r^{-1}\bigl(|f(z)|+|f(w)|\bigr).
+\]
+Thus everywhere on the disk,
+\[
+ |q(z)|\leq C_0+r^{-1}\bigl(|f(z)|+|f(w)|\bigr).
+\]
+The right side is in $L^2$, since $f\in L^2$ and the disk has finite area.
+Therefore $q\in\A$. The stated identity holds pointwise, including at $w$.
+\end{proof}
+
+\begin{lemma}\label{lem:multiplier}
+Let $P:\A\to\A$ be any complex-linear map satisfying $PS=SP$. Then
+\[
+ (Pf)(w)=f(w)(P1)(w)\qquad(f\in\A,\ w\in\D).
+\]
+\end{lemma}
+\begin{proof}
+Apply $P$ to the identity in Lemma~\ref{lem:division} and commute it with
+$S-wI$:
+\[
+ Pf-f(w)P1=(S-wI)Pq.
+\]
+Evaluation at $w$ annihilates the right side.
+\end{proof}
+No boundedness assumption on $P$ is used in this lemma.
+
+\begin{proposition}\label{prop:idempotent}
+If $P:\A\to\A$ is complex linear, $PS=SP$, and $P^2=P$, then $P=0$ or
+$P=I$.
+\end{proposition}
+\begin{proof}
+Put $h=P1$. By Lemma~\ref{lem:multiplier}, $P$ acts pointwise as
+multiplication by $h$. The equation $P^2 1=P1$ gives
+\[
+ h(w)(h(w)-1)=0\qquad(w\in\D).
+\]
+Both $h$ and $h-1$ are holomorphic, and the disk is connected. The identity
+principle therefore implies that $h$ vanishes identically or that $h-1$
+vanishes identically. The pointwise formula for $Pf$ then gives $P=0$ or
+$P=I$, respectively.
+\end{proof}
+
+\section{Every closed reducing subspace and the exact cardinality}
+First verify the equivalence of reducing-subspace conventions. If $M$ is
+closed, Proposition~\ref{prop:hilbert} gives $M^{\perp\perp}=M$. If
+$S(M^\perp)\subseteq M^\perp$, then for $x\in M$ and $y\in M^\perp$,
+\[
+ \ip{y}{S^*x}=\ip{Sy}{x}=0,
+\]
+so $S^*x\in M^{\perp\perp}=M$. Conversely, if $S^*(M)\subseteq M$, then
+for $x\in M^\perp$ and $y\in M$,
+\[
+ \ip{y}{Sx}=\ip{S^*y}{x}=0,
+\]
+so $Sx\in M^\perp$. Together with $S(M)\subseteq M$, these are exactly
+the two stated definitions.
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Let $M$ be any closed reducing subspace. The Hilbert projection theorem
+provides the orthogonal direct sum
+\[
+ \A=M\oplus M^\perp.
+\]
+Let $P$ be projection onto the first summand. For $u\in M$ and
+$v\in M^\perp$, the two invariances give
+\[
+ PS(u+v)=Su=SP(u+v).
+\]
+Thus $P$ is a complex-linear idempotent commuting with $S$.
+Proposition~\ref{prop:idempotent} implies $P=0$ or $P=I$, hence
+$M=\{0\}$ or $M=\A$.
+
+Both subspaces are closed and reducing. They are distinct because the
+constant function $1$ belongs to $\A$ and is not zero. Sending
+$\mathrm{false}$ to $\{0\}$ and $\mathrm{true}$ to $\A$ is consequently a
+bijection from the two-element Boolean type onto the entire collection of
+reducing subspaces. The cardinality is exactly $2$. Since every finite
+cardinal is strictly smaller than $\mathfrak c$, it is not $\mathfrak c$.
+\end{proof}
+
+\section{Formalization and reproducibility}
+The portable project is in \Lean{lean/}. It pins Lean 4.19.0 and
+Mathlib v4.19.0, at commit
+\begin{center}
+\small\Lean{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+\end{center}
+Run \Lean{lake build} from that directory. The
+project-level option \Lean{warningAsError = true} makes warnings fatal.
+All included project modules are reachable from the default target.
+
+The definitions preserve the original analytic objects:
+\begin{itemize}[leftmargin=*]
+\item \Lean{Bergman930.space} consists of actual complex functions,
+  holomorphic on \Lean{disk} and in \Lean{MemLp} at exponent $2$ for
+  restricted planar Lebesgue measure. They are zero outside the disk solely
+  to choose a unique representative of a function defined on $\D$.
+\item \Lean{toL2_injective} and \Lean{functionEquivL2} identify those
+  functions exactly with \Lean{l2Space}, the range in genuine area-$L^2$.
+  \Lean{inner_toL2} proves the displayed integral inner-product formula.
+  \Lean{l2Space_isClosed} proves closedness and supplies its completeness.
+\item \Lean{shift} is pointwise multiplication by $z$;
+  \Lean{bergmanShift} is this same operator transported to \Lean{l2Space},
+  with its contraction bound checked. The reducing predicate uses this
+  space's inherited $L^2$ topology and orthogonal complement.
+\end{itemize}
+
+\begin{samepage}
+The principal checked statements, all in namespace \Lean{Bergman930}, are:
+\begin{center}
+\begin{tabular}{ll}
+Mathematical assertion & Lean declaration\\\hline
+Local division & \Lean{division_identity}\\
+Commuting maps act pointwise & \Lean{commuting_map_apply}\\
+Commuting idempotents are trivial & \Lean{commuting_idempotent_eq_zero_or_id}\\
+Area mean value & \Lean{disk_mean}\\
+$L^2$ evaluation estimate & \Lean{evaluation_bound}\\
+Actual Bergman completeness & \Lean{l2Space_isClosed}\\
+Adjoint-definition equivalence & \Lean{isReducing_iff_adjoint}\\
+All closed reducing subspaces & \Lean{reducing_eq_bot_or_top}\\
+Exact cardinality $2$ & \Lean{reducing_cardinality}\\
+Failure of continuum cardinality & \Lean{not_continuum}
+\end{tabular}
+\end{center}
+\end{samepage}
+
+In particular, the final theorem is
+\[
+ \Lean{Cardinal.mk Bergman930.ReducingSubspace}\ne
+ \Lean{Cardinal.continuum}.
+\]
+The preceding exact-cardinality theorem has right side $2$.
+The type \Lean{ReducingSubspace} is a subtype of \emph{all} complex
+submodules of the genuine Bergman Hilbert space satisfying
+\Lean{IsReducing}; it is not an enumeration used as a definition.
+
+\Lean{Verification.lean} prints the concrete definitions, the principal
+theorem types, and their axiom dependencies. Fresh compilation of all owned
+source modules succeeds with warnings treated as errors. The inspected
+statements depend only on the standard Lean axioms
+\Lean{propext}, \Lean{Classical.choice}, and \Lean{Quot.sound}.
+There are no custom axioms, unfinished proofs, \Lean{native_decide} calls,
+or unsafe or partial proof dependencies in the submitted source.
+
+The trust boundary is explicit: the supplied precompiled objects of the
+pinned standard dependencies are trusted imports; every owned source module
+is freshly elaborated and checked. Three standard Mathlib modules absent
+from that local precompiled cache were also freshly compiled from unchanged
+pinned source. The final portable project uses their canonical Mathlib
+imports and includes no renamed copies or dependency cache. Exact commands,
+exit codes, raw outputs, and source hashes accompany the verification
+record. No numerical computation is needed for the disproof.
+
+\end{document}
