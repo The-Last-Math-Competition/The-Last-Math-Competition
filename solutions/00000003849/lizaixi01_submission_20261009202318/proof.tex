@@ -1,0 +1,175 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\wt}{\operatorname{wt}}
+\newcommand{\eps}{\varepsilon}
+\title{A nine-vertex counterexample to the crystal duality criterion}
+\author{Source 00000003849: local formalization package}
+\date{8 October 2026}
+\begin{document}
+\maketitle
+
+\noindent\textbf{Claim addressed.} The source asserts that a crystal is
+isomorphic to its arrow-reversal dual if and only if its weight set is centrally
+symmetric, together with a polynomial-time verification claim. The finite
+counterexample below refutes the sufficient direction. Both source languages
+say weight \emph{set}, with no connectedness or irreducibility restriction.
+No complexity theorem is established here.
+
+\section*{The root datum and crystal convention}
+Use the type-$A_2$ weight lattice $P=\Z^2$ in fundamental-weight coordinates.
+The simple roots and their coroot pairings are
+\[
+ \alpha_1=(2,-1),\qquad \alpha_2=(-1,2),\qquad
+ \langle(a,b),\alpha_1^\vee\rangle=a,\quad
+ \langle(a,b),\alpha_2^\vee\rangle=b.
+\]
+Thus the Cartan matrix has diagonal entries $2$ and off-diagonal entries $-1$.
+The six roots are $\pm\alpha_1$, $\pm\alpha_2$ and
+$\pm(\alpha_1+\alpha_2)$, with corresponding coroots
+$\pm(1,0)$, $\pm(0,1)$ and $\pm(1,1)$. The pairing of the weight and coweight
+lattices is the standard dot product. Lean checks that corresponding roots and
+coroots pair to $2$, are distinct, and are closed under the corresponding
+simultaneous reflections. In particular, the simple reflections are
+\[
+ s_1(a,b)=(-a,a+b),\qquad s_2(a,b)=(a+b,-b).
+\]
+
+We use the finite-type Kashiwara crystal convention. A crystal consists of a
+weight map, partial operators $e_i,f_i$ and integer string functions
+$\eps_i,\varphi_i$. The partial inverse relation and lowering relations are
+\begin{align*}
+ f_i(x)=y&\iff e_i(y)=x,\\
+ \wt(y)&=\wt(x)-\alpha_i, &
+ \eps_i(y)&=\eps_i(x)+1, &
+ \varphi_i(y)&=\varphi_i(x)-1,
+\end{align*}
+with the corresponding raising relations and
+$\varphi_i(x)=\eps_i(x)+\langle\wt(x),\alpha_i^\vee\rangle$.
+The absent vertex is Lean's \texttt{Option.none}. These are a specialization of
+the usual abstract axioms to finite string values, not assumed admissibility.
+All axioms are proved for the constructed crystal. Exact nonzero operator
+string lengths are also proved, so the example is seminormal.
+
+\section*{The actual finite crystal}
+Let $S$ have three vertices $p_0,p_1,p_2$, weights
+\[
+ (1,0),\qquad (-1,1),\qquad (0,-1),
+\]
+and arrows $p_0\xrightarrow{1}p_1\xrightarrow{2}p_2$.
+For each color, the raising operator is the reverse partial arrow; its string
+functions are $0$ or $1$ according to whether the corresponding arrow exists.
+This is the standard fundamental $A_2$ crystal $B(\omega_1)$.
+For an explicit weight correspondence, the standard $GL_3$ weights $e_1,e_2,e_3$
+map under
+\[
+ (u_1,u_2,u_3)\longmapsto (u_1-u_2,u_2-u_3)
+\]
+to the three listed weights. The same map sends the two $GL_3$ simple roots
+to $\alpha_1,\alpha_2$, and kills the central direction. These identities are
+also proved in Lean. The name of the component is therefore supported by its
+precise graph and weight correspondence; quantum-group representation theory
+is not needed as an unproved premise.
+
+For any crystal $C$, its dual $C^\vee$ has
+\[
+ \wt^\vee_C(v)=-\wt_C(v),\quad
+ e_i^\vee=f_i^C,\quad f_i^\vee=e_i^C,\quad
+ \eps_i^\vee=\varphi_i^C,\quad
+ \varphi_i^\vee=\eps_i^C.
+\]
+The generic Lean construction proves all crystal axioms for this dual.
+The dual of $S$ has highest weight $(0,1)$ and is the standard dual component
+$B(\omega_2)$.
+
+Set $B=S\sqcup S\sqcup S^\vee$. Its vertex set is
+$\{0,1,2\}\times\{0,1,2\}$. The first coordinate selects the component.
+All operators preserve that coordinate. The two first components use $S$;
+the last uses the actual constructed dual. Lean proves the component
+correspondence for weights, both operators and both string functions.
+
+\begin{center}
+\begin{tabular}{ccc}
+\hline
+Component & Weights at positions $0,1,2$ & Arrows\\
+\hline
+$0$ & $(1,0),(-1,1),(0,-1)$ & $0\xrightarrow{1}1\xrightarrow{2}2$\\
+$1$ & $(1,0),(-1,1),(0,-1)$ & $0\xrightarrow{1}1\xrightarrow{2}2$\\
+$2$ & $(-1,0),(1,-1),(0,1)$ & $2\xrightarrow{2}1\xrightarrow{1}0$\\
+\hline
+\end{tabular}
+\end{center}
+
+\section*{Symmetry and non-isomorphism}
+The weight \emph{set} of $B$ is
+\[
+ \{\pm(1,0),\;\pm(-1,1),\;\pm(0,-1)\}.
+\]
+It is invariant under negation, hence centrally symmetric with centre zero.
+Lean states this for the actual set $\operatorname{range}(\wt_B)$, using the
+definition $\exists c\in P\;\forall w\in P:\;w\in X\iff 2c-w\in X$.
+
+\begin{lemma}
+No bijection $g:B\to B$ satisfies $\wt_B(g(v))=-\wt_B(v)$ for every vertex.
+\end{lemma}
+\begin{proof}
+The distinct vertices $(0,0)$ and $(1,0)$ both have weight $(1,0)$.
+The only vertex of weight $(-1,0)$ is $(2,0)$. The required condition would
+send both distinct vertices to $(2,0)$, contradicting injectivity.
+\end{proof}
+
+\begin{theorem}
+The admissible nine-vertex crystal $B$ has centrally symmetric weight set, but
+$B^\vee$ is not isomorphic to $B$ as a crystal.
+\end{theorem}
+\begin{proof}
+A crystal isomorphism is an actual bijection preserving weights, both crystal
+operators and both string functions. If $g:B^\vee\to B$ were such an
+isomorphism, weight preservation and the definition of the dual would give
+$\wt_B(g(v))=\wt_B^\vee(v)=-\wt_B(v)$, contrary to the lemma.
+The reverse isomorphism direction is excluded by the same proved bridge.
+\end{proof}
+
+This refutes the universal sufficient direction and the source's iff already
+within nonempty finite-type $A_2$ crystals. A counterexample in that subclass
+also refutes an assertion made for unqualified crystals. It does not replace
+the conjecture by a connected-crystal assertion or a multiset assertion.
+The algorithmic conjunct need not be resolved to refute a conjunction whose
+iff conjunct is false.
+
+\section*{Formal artifact correspondence}
+The Main module imports the formal crystal source. In the namespace
+\texttt{CrystalCounterexample}, the key declarations are listed below.
+\begin{quote}\ttfamily\small
+package/CrystalCounterexample.lean\\
+original\_sufficient\_direction\_false\\
+original\_iff\_false\\
+Crystal; Crystal.dual; Crystal.Iso\\
+Witness.crystal; Witness.seminormal\\
+witness\_centrallySymmetric; Witness.not\_selfDual
+\end{quote}
+
+Preparation compiles use official Lean 4.33.0 and fixed mathlib revision
+\begin{quote}\ttfamily\small
+db584cd6d46c92f209a44c0f1c829460d327499d
+\end{quote}
+Printed transitive axiom dependencies are limited to the standard three:
+\begin{quote}\ttfamily\small
+propext; Classical.choice; Quot.sound
+\end{quote}
+Preparation evidence is not manager acceptance:
+independent source-semantic review and a clean deterministic gate remain
+separate steps. No polynomial-time result is claimed.
+
+\begin{thebibliography}{1}
+\bibitem{marberg}
+E. Marberg, \emph{Combinatorics of crystal bases}, MATH 6150I, Lecture 5,
+HKUST, Spring 2020. Definitions 2.1 and 3.4 and Section 4 supply the standard
+crystal, dual and isomorphism conventions.
+\url{https://www.math.hkust.edu.hk/~emarberg/teaching/2020/Math6150I/lectures/05_Math6150I_Spring2020.pdf}
+\end{thebibliography}
+\end{document}
