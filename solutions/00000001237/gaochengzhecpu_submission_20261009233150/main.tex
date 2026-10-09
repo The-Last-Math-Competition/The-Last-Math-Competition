@@ -1,0 +1,116 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{A three-step chip-firing counterexample to Conjecture 00000001237}
+\author{gaochengzhecpu}
+\date{October 9, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+On the directed triangle with three unit-length arcs, a single chip
+travels around the cycle. Its least return period is three, whereas the
+least common multiple of the arc lengths is one. The counterexample
+has exactly one legal firing at each step, so it applies to both
+parallel chip firing and one-vertex-at-a-time chip firing.
+\end{abstract}
+
+\section{The proposed formula}
+The source defines the chip-firing period to be the length of the
+recurrent oscillation and asserts that, on a directed cycle, this period
+equals the least common multiple of the arc lengths.
+We take the ordinary directed cycle on the labeled vertices
+$V=\mathbb Z/3\mathbb Z$, with arcs
+\[
+ 0\longrightarrow1,\qquad1\longrightarrow2,\qquad2\longrightarrow0.
+\]
+Every arc has length one. This is also a valid instance of the formula
+if lengths are treated as explicit positive integral edge data.
+The graph is strongly connected and each vertex has indegree and
+outdegree one.
+
+\section{The chip-firing dynamics}
+A configuration is a function $c:V\to\mathbb N$.
+A vertex $v$ can fire when $c(v)$ is at least its outdegree. Firing
+subtracts that outdegree from $c(v)$ and sends one chip along each
+outgoing arc. In our graph a firing moves one chip from $v$ to $v+1$.
+Let $e_v$ denote the configuration with one chip at $v$ and zero elsewhere.
+
+\begin{theorem}
+Starting from $e_0$, chip firing has least positive return period three.
+The least common multiple of the arc lengths is one. Hence the proposed
+period formula is false.
+\end{theorem}
+\begin{proof}
+In $e_v$, vertex $v$ is legal and both other vertices are illegal.
+Its unique legal firing produces $e_{v+1}$. The entire orbit is therefore
+\[
+ (1,0,0)\ \longmapsto\ (0,1,0)\ \longmapsto\ (0,0,1)
+ \ \longmapsto\ (1,0,0).
+\]
+The first three configurations are distinct. The first positive return
+is thus at time three. Exactly one vertex is legal at every state in
+this orbit, so simultaneous firing of all legal vertices yields the
+same transitions as sequential firing.
+On the other hand, the three arc lengths are $1,1,1$, whose least common
+multiple is $1$. Since $3\neq1$, the asserted equality fails.
+\end{proof}
+
+\paragraph{Counting convention.}
+The period here counts firings (equivalently, parallel time steps) until
+the same configuration returns on the same fixed vertex set.
+The configurations are not identified under graph rotations.
+The source asks for the length of a recurrent oscillation, not for the
+number of completed laps or the number of firings of one designated
+vertex. Under the stated configuration-return notion the cycle above
+has period three.
+
+\section{Formal verification}
+\texttt{lean/Main.lean} defines the actual finite arc set, its lengths,
+outdegrees, configurations, legal vertices, and chip-firing updates.
+The parallel update subtracts the chips sent by a legal vertex and sums
+the chips received along incoming arcs; it is not defined by declaring
+a three-cycle. A separate \texttt{fire} function implements the usual
+single-vertex update.
+\begingroup\raggedright
+\begin{itemize}
+\item \texttt{arc\_\allowbreak count}, \texttt{one\_\allowbreak outgoing\_\allowbreak arc}, and
+      \texttt{one\_\allowbreak incoming\_\allowbreak arc} check the actual directed triangle.
+      \texttt{directed\_\allowbreak cycle\_\allowbreak strongly\_\allowbreak connected} gives paths of
+      length at most two between all vertex pairs.
+\item \texttt{unique\_\allowbreak legal\_\allowbreak vertex} and
+      \texttt{one\_\allowbreak chip\_\allowbreak transition} prove legality and the exact update.
+      \texttt{parallel\_\allowbreak equals\_\allowbreak unique\_\allowbreak legal\_\allowbreak firing} relates the
+      parallel and sequential conventions in this orbit.
+\item \texttt{actual\_\allowbreak period} computes Mathlib's
+      \texttt{Function.minimalPeriod} as three.
+      \texttt{arc\_\allowbreak lengths\_\allowbreak lcm} computes the finite-set lcm as one.
+      \texttt{conjectured\_\allowbreak period\_\allowbreak formula\_\allowbreak false} is their inequality.
+\end{itemize}
+\endgroup
+Finite computations are checked by Lean's kernel through ordinary
+\texttt{decide}. No auxiliary numerical script is required. No unproved
+placeholders, custom axioms, or native evaluation are used as proofs.
+
+\paragraph{Reproduction.}
+In \texttt{lean/}, run:
+\begin{verbatim}
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Lean 4.19.0 and the exact Mathlib revision are pinned.
+Run \texttt{tectonic main.tex} from the submission directory for the PDF.
+The exact bilingual conjecture is in \texttt{SOURCE.md}.
+
+\begingroup\raggedright
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000001237.md}{Conjecture 00000001237}.
+\bibitem{mathlib} The Mathlib Community, Lean 4 mathematical library,
+\href{https://github.com/leanprover-community/mathlib4/commit/c44e0c8ee63ca166450922a373c7409c5d26b00b}{revision c44e0c8ee63c}.
+\end{thebibliography}
+\endgroup
+\end{document}
