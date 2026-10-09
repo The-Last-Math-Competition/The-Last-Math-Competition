@@ -1,0 +1,41 @@
+CovolumeSpectrum.scale_tendsto_zero : ∀ (c : Real),
+  Filter.Tendsto.{0, 0} (CovolumeSpectrum.scale c) Filter.atTop.{0} (nhds.{0} 0)
+@CovolumeSpectrum.asymptotic_iff_ratio : ∀ {v : Nat → Real} {c : Real},
+  Ne.{1} c 0 →
+    Iff (Asymptotics.IsEquivalent.{0, 0} Filter.atTop.{0} v (CovolumeSpectrum.scale c))
+      (Filter.Tendsto.{0, 0} (fun k => HDiv.hDiv.{0, 0, 0} (v k) (CovolumeSpectrum.scale c k)) Filter.atTop.{0}
+        (nhds.{0} 1))
+@CovolumeSpectrum.rank_strictMono : ∀ {S : Set.{0} Real} {v : Nat → Real},
+  (∀ (n : Nat), CovolumeSpectrum.HasRank S n (v n)) → StrictMono.{0, 0} v
+@CovolumeSpectrum.no_rankedAsymptotic : ∀ {S : Set.{0} Real},
+  HasSubset.Subset.{0} S (Set.Ici.{0} 0) → Not (CovolumeSpectrum.RankedAsymptotic S)
+@CovolumeSpectrum.limit_spectrum_nonnegative : ∀ {C S : Set.{0} Real},
+  HasSubset.Subset.{0} C (Set.Ici.{0} 0) →
+    HasSubset.Subset.{0} S (closure.{0} C) → HasSubset.Subset.{0} S (Set.Ici.{0} 0)
+@CovolumeSpectrum.limit_nonnegative.{u_1} : ∀ {ι : Type u_1} {l : Filter.{u_1} ι} [inst : Filter.NeBot.{u_1} l]
+  {f : ι → Real} {x : Real},
+  (∀ᶠ (i : ι) in l, LE.le.{0} 0 (f i)) → Filter.Tendsto.{u_1, 0} f l (nhds.{0} x) → LE.le.{0} 0 x
+@CovolumeSpectrum.no_numericalConjecture : ∀ {S : Set.{0} Real},
+  HasSubset.Subset.{0} S (Set.Ici.{0} 0) → Not (CovolumeSpectrum.NumericalConjecture S)
+@CovolumeSpectrum.no_full_conjunction : ∀ {C S : Set.{0} Real},
+  HasSubset.Subset.{0} C (Set.Ici.{0} 0) →
+    HasSubset.Subset.{0} S (closure.{0} C) → ∀ (rest : Prop), Not (And (CovolumeSpectrum.NumericalConjecture S) rest)
+@CovolumeSpectrum.finiteMeasureValues_nonnegative.{u_1,
+    u_2} : ∀ {ι : Type u_1} {X : ι → Type u_2} [inst : (i : ι) → MeasurableSpace.{u_2} (X i)]
+  (μ : (i : ι) → MeasureTheory.Measure.{u_2} (X i)),
+  HasSubset.Subset.{0} (CovolumeSpectrum.finiteMeasureValues.{u_1, u_2} μ) (Set.Ici.{0} 0)
+@CovolumeSpectrum.no_measure_spectrum_conjunction.{u_1,
+    u_2} : ∀ {ι : Type u_1} {X : ι → Type u_2} [inst : (i : ι) → MeasurableSpace.{u_2} (X i)]
+  (μ : (i : ι) → MeasureTheory.Measure.{u_2} (X i)) {S : Set.{0} Real},
+  HasSubset.Subset.{0} S (closure.{0} (CovolumeSpectrum.finiteMeasureValues.{u_1, u_2} μ)) →
+    ∀ (rest : Prop), Not (And (CovolumeSpectrum.NumericalConjecture S) rest)
+@CovolumeSpectrum.finite_liminf_nonnegative.{u_1} : ∀ {ι : Type u_1} {l : Filter.{u_1} ι} {f : ι → Real} {x : Real},
+  (∀ᶠ (i : ι) in l, LE.le.{0} 0 (f i)) → Eq.{1} (Filter.liminf.{0, u_1} (fun i => ↑(f i)) l) ↑x → LE.le.{0} 0 x
+@CovolumeSpectrum.no_liminf_spectrum_conjunction : ∀ {C S : Set.{0} Real},
+  HasSubset.Subset.{0} C (Set.Ici.{0} 0) →
+    (∀ (x : Real),
+        Membership.mem.{0, 0} S x →
+          ∃ f,
+            And (∀ (n : Nat), Membership.mem.{0, 0} C (f n))
+              (Eq.{1} (Filter.liminf.{0, 0} (fun n => ↑(f n)) Filter.atTop.{0}) ↑x)) →
+      ∀ (rest : Prop), Not (And (CovolumeSpectrum.NumericalConjecture S) rest)

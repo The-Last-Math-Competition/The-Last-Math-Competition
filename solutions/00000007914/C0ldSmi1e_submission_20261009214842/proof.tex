@@ -1,0 +1,186 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\setlength{\emergencystretch}{3em}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\cl}{\operatorname{cl}}
+\title{A numerical obstruction to Conjecture 00000007914}
+\author{C0ldSmi1e}
+\date{9 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The asserted asymptotic for the increasing finite ranks of a covolume
+spectrum is impossible. We prove a stronger statement for every set of
+nonnegative real numbers, allowing zero and every real leading constant.
+The contradiction concerns the numerical assertions themselves and does
+not use any classification of arithmetic Fuchsian or triangle groups.
+The accompanying Lean 4 project checks the exact rank argument, the
+logarithmic asymptotic, and the nonnegativity interfaces for volumes and limits.
+\end{abstract}
+
+\section{Original assertion and scope}
+The English original defines $S_{\rm arith}$ as the ``limit-from-below
+spectrum'' of covolumes $\operatorname{vol}(\Gamma\backslash H)$ of
+arithmetic Fuchsian groups. It asserts that $S_{\rm arith}$ is well ordered
+(no descending chains), and that its $k$-th element satisfies
+\begin{equation}\label{eq:source}
+ v_k\sim c\,k^{-1}(\log k)^{-2/3}\qquad(k\longrightarrow\infty).
+\end{equation}
+It additionally asserts that the smallest noncompact arithmetic triangle
+group is $(2,3,7)$ and makes a next-smallest trichotomy claim with covolume
+ratio $3/7$. Both language versions contain the same displayed asymptotic
+and ordered-spectrum assertions. The exact bilingual source is included
+as \texttt{conjecture.md}.
+
+This report disproves the conjunction by refuting its finite-rank
+asymptotic. It makes no separate claim about the triangle groups,
+the trichotomy, or well-ordering in isolation. Throughout, an element's
+rank means its rank in the inherited increasing numerical order, as in
+the original well-order assertion. The formula is treated as an
+asymptotic for the elements themselves, not for a reciprocal or a
+counting function.
+
+\section{Universal obstruction}
+For $S\subseteq\R$, say that $x$ has finite rank $n$ if $x\in S$ and the
+\emph{entire} predecessor set
+\[
+ P_S(x)=\{y\in S:y<x\}
+\]
+is finite and has cardinality $n$. The first element has rank zero.
+This definition neither counts groups with repeated equal covolumes nor
+requires all of $S$ to have finite rank.
+
+\begin{lemma}\label{lem:rank}
+If $v_k$ has rank $k-1$ in $S$ for each integer $k\geq1$, then
+$v_m<v_n$ whenever $1\leq m<n$.
+\end{lemma}
+\begin{proof}
+If $v_n\leq v_m$, then $P_S(v_n)\subseteq P_S(v_m)$.
+Their finite cardinalities would give $n-1\leq m-1$, a contradiction.
+\end{proof}
+
+For a fixed $c\in\R$, put
+\[
+ g_c(k)=c\,k^{-1}(\log k)^{-2/3}\quad(k\geq2).
+\]
+The logarithm is natural and the power is the usual real power of the
+positive number $\log k$.
+\begin{lemma}\label{lem:limit}
+For every $c\in\R$, $g_c(k)\longrightarrow0$ as $k\longrightarrow\infty$.
+If $c\ne0$ and $v_k/g_c(k)\longrightarrow1$, then $v_k\longrightarrow0$.
+\end{lemma}
+\begin{proof}
+The reciprocal $k^{-1}$ tends to zero. Also $\log k$ tends to positive
+infinity, so $(\log k)^{-2/3}$ tends to zero. The product, multiplied by
+the fixed constant $c$, therefore tends to zero. In the second assertion,
+write $v_k=(v_k/g_c(k))g_c(k)$ for $k\geq2$ and take limits.
+\end{proof}
+
+\begin{theorem}\label{thm:main}
+Let $S\subseteq[0,\infty)$. There is no sequence whose $k$-th term has
+rank $k-1$ in $S$ for every $k\geq1$ and which satisfies
+\eqref{eq:source} in the ordinary ratio-limit sense, for any nonzero
+real constant $c$.
+\end{theorem}
+\begin{proof}
+Lemma~\ref{lem:rank} gives $0\leq v_1<v_2$ and $v_k\geq v_2>0$
+for every $k\geq2$. Lemma~\ref{lem:limit} gives $v_k\to0$.
+Passing to the limit in the eventual inequality $v_2\leq v_k$ gives
+$v_2\leq0$, contradicting $v_2>0$.
+\end{proof}
+
+Zero is allowed in $S$: it is strict separation of the first two finite
+ranks that supplies a positive lower bound. No monotonicity of the
+comparison function is transferred through asymptotic equivalence; only
+its limit is transferred. No exhaustion of a transfinite well-order by a
+sequence is assumed. The asserted asymptotic presupposes arbitrarily
+large finite ranks, which is all that is relevant here.
+
+\section{Why the obstruction applies to covolumes}
+A covolume is a nonnegative measure value. Finite covolumes can therefore
+be regarded as nonnegative real numbers without any geometric
+classification or positive lower-bound theorem. More explicitly, let
+$(X_i,\mu_i)$ be \emph{any} family of measured spaces and put
+\[
+ C=\{\mu_i(X_i):\mu_i(X_i)<\infty\}\subseteq\R.
+\]
+Then $C\subseteq[0,\infty)$. The Lean interface uses extended-nonnegative
+real measures and excludes the infinite value before conversion to a
+real number. In particular, it never turns an infinite covolume into a
+spurious real zero.
+
+The source does not specify the operation called ``limit-from-below
+spectrum.'' We do not choose one favorable construction. The result
+holds for every nonnegative real set, and in particular for every
+$S\subseteq\cl(C)$: the closed half-line $[0,\infty)$ contains $C$ and
+therefore its closure. This covers raw covolumes, their closure,
+one-sided accumulation values, and arbitrary selections of such values.
+Strict positivity of a raw covolume is \emph{not} promoted to strict
+positivity of a limit.
+
+The Chinese wording can also be read as a lower-limit (\emph{liminf})
+spectrum. A finite liminf of a sequence of nonnegative covolumes remains
+nonnegative: every tail has nonnegative infimum, so the supremum of
+those tail infima is nonnegative. Thus the same obstruction applies to
+that reading as well. Infinite spectrum values cannot serve as terms of
+the stated real asymptotic. No interpretation that retains covolumes or
+their ordinary finite limits can introduce negative real values.
+
+Consequently the actual arithmetic covolumes and the ordinary limiting
+readings of the source all satisfy the necessary nonnegative condition.
+Theorem~\ref{thm:main} rules out the displayed rank asymptotic for any such
+spectrum. Conjoining further well-ordering or triangle-group assertions
+cannot repair the contradiction.
+
+\clearpage
+\section{Formal statement and verification interface}
+The project pins Lean 4.19.0 and Mathlib v4.19.0 at revision
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}\end{center}
+The main file is \texttt{lean/CovolumeSpectrum.lean}.
+
+\begin{itemize}
+\item \texttt{HasRank} uses a finite set whose membership is exactly
+membership in the full predecessor set, and whose cardinality is the
+specified rank. \texttt{rank\_strictMono} proves Lemma~\ref{lem:rank}.
+\item \texttt{scale} is the literal displayed reciprocal-logarithmic
+expression with exponent $-(2/3)$ in $\R$.
+\texttt{scale\_tendsto\_zero} proves its limit.
+\item \texttt{asymptotic\_iff\_ratio} identifies Mathlib's asymptotic
+equivalence with the ordinary ratio limit whenever $c\ne0$.
+The totalized values at indices zero and one are irrelevant to the
+filter at infinity.
+\item \texttt{no\_rankedAsymptotic} proves the universal obstruction.
+It even allows every $c\in\R$ under Mathlib's extended definition
+$v-g=o(g)$. For $c=0$, this requires eventual equality to zero and is
+also impossible; the ordinary ratio definition itself excludes $c=0$.
+\item \texttt{no\_numericalConjecture} also includes the original
+well-foundedness requirement. \texttt{no\_full\_conjunction} permits
+an arbitrary proposition for all remaining source clauses.
+\item \texttt{finiteMeasureValues\_nonnegative}\\
+\texttt{no\_measure\_spectrum\_conjunction}\\
+These lemmas supply the general
+measure-volume interface and the closure-of-volume-values conclusion.
+The geometric quotient construction is not assumed as an additional
+theorem: the universal obstruction applies to any family of measures.
+\item \texttt{finite\_liminf\_nonnegative} works with the
+extended-real liminf and an explicitly finite real value.
+\texttt{no\_liminf\_spectrum\_conjunction} handles selections of finite
+sequential lower limits directly, without imposing closure as an extra
+assumption or requiring a separate boundedness hypothesis.
+\end{itemize}
+
+The source-to-formal correspondence uses only the ordinary meanings of
+volume, finite numerical rank, and asymptotic equivalence. The
+unnecessary arithmetic classifications are not formalized and are not
+claimed as verified. The exact commands, theorem-dependency output,
+independent review, and final validation records accompany the package.
+These are local verification results; maintainer acceptance is separate.
+
+\end{document}

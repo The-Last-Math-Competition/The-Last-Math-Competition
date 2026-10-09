@@ -1,0 +1,15 @@
+import CovolumeSpectrum
+
+#print axioms CovolumeSpectrum.scale_tendsto_zero
+#print axioms CovolumeSpectrum.asymptotic_iff_ratio
+#print axioms CovolumeSpectrum.rank_strictMono
+#print axioms CovolumeSpectrum.no_rankedAsymptotic
+#print axioms CovolumeSpectrum.limit_spectrum_nonnegative
+#print axioms CovolumeSpectrum.limit_nonnegative
+#print axioms CovolumeSpectrum.no_numericalConjecture
+#print axioms CovolumeSpectrum.no_full_conjunction
+#print axioms CovolumeSpectrum.finiteMeasureValues_nonnegative
+#print axioms CovolumeSpectrum.no_measure_spectrum_conjunction
+
+#print axioms CovolumeSpectrum.finite_liminf_nonnegative
+#print axioms CovolumeSpectrum.no_liminf_spectrum_conjunction
