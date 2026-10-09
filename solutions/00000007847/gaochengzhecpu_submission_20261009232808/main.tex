@@ -1,0 +1,63 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{hidelinks}
+\newtheorem{proposition}{Proposition}
+\title{Disproof of Conjecture 00000007847\\An integral optimum contradicts the exact rounding ratio}
+\author{gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\noindent\textbf{Claim addressed.} The conjecture asserts that independent rounding of the LP relaxation of a binary integer program has expected approximation ratio exactly
+\[
+  1-\left(1-\frac1m\right)^m,
+\]
+where $m$ is the number of constraint rows. The following example has $m=2$, a unique LP optimum, a positive integer optimum, and a feasible rounded solution on every outcome.
+
+\begin{proposition}
+There is a one-variable, two-row binary integer program whose independent rounding has expected approximation ratio $1$, whereas the conjectured expression is $3/4$.
+\end{proposition}
+\begin{proof}
+Take
+\[
+ A=\begin{pmatrix}1\\1\end{pmatrix},\qquad
+ b=\begin{pmatrix}1\\2\end{pmatrix},\qquad c=1.
+\]
+The integer program and its usual LP relaxation are
+\[
+ \max\{x:x\leq1,\ x\leq2,\ x\in\{0,1\}\},\qquad
+ \max\{x:x\leq1,\ x\leq2,\ 0\leq x\leq1\}.
+\]
+Both have the unique maximizer $x^*=1$ and optimal objective value $1$. In particular, the denominator in the approximation ratio is positive. The two displayed rows are distinct inequalities. Redundant rows are allowed by the source, which puts no irredundancy condition on $A$.
+
+Independent Bernoulli rounding samples a binary variable $Y$ with
+\[
+ \mathbb P(Y=1)=x^*=1,\qquad \mathbb P(Y=0)=0.
+\]
+Independence imposes no extra restriction in one coordinate. Both possible binary values are feasible. Consequently the actual profit-to-integer-optimum ratio is $Y/1$, and
+\[
+ \mathbb E\!\left[\frac{cY}{\operatorname{OPT}_{\rm IP}}\right]=1.
+\]
+Normalizing by the LP optimum gives the same result, since the two optima agree. But for the actual row count $m=2$ the claimed value is
+\[
+ 1-\left(1-\frac12\right)^2=\frac34\ne1.
+\]
+This contradicts the asserted exact expectation.
+\end{proof}
+
+\noindent\textbf{Scope.} This refutes the exact instance-wise equality for $r(A)$ in the source. An approximate lower bound or a worst-case guarantee for a separately specified family would be a different statement. The example uses a unique relaxed optimizer, so choosing another optimal LP solution cannot change its rounding law. No feasibility repair, dependence convention, or zero optimum is involved. The other assertions about deterministic rounding and asymptotic advantage are not needed.
+
+\section*{Lean formalization}
+The submitted project uses a real vector indexed by \texttt{Fin 1} and two constraint rows indexed by \texttt{Fin 2}. The definitions \texttt{LPFeasible} and \texttt{IPFeasible} use the actual matrix inequalities and the binary-coordinate conditions. The objective is its finite linear sum. Lean proves feasibility, optimality, and uniqueness of $x^*=1$, and proves that every binary rounded outcome is integer-feasible.
+
+The law \texttt{roundingLaw} is Mathlib's \texttt{PMF.bernoulli 1}. Its induced probability measure is used in the Bochner integral defining the expected ratio. Lean verifies that the coordinate expectation equals the LP solution. It then computes the expectation of the actual objective divided by the proved optimum and shows that this expectation differs from the conjectured formula. The ratio is not assigned a numerical value by definition.
+
+\section*{Reproduction and source}
+In \texttt{lean/}, run \texttt{lake build}, then
+\begin{verbatim}
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The project pins Lean 4.19.0 and Mathlib; exact dependency revisions, command logs, source hashes, and review records accompany the submission. All printed axiom dependencies are standard foundational axioms. No auxiliary numerical computation is needed. Compile this document with \texttt{tectonic main.tex}.
+
+The unchanged bilingual statement is included as \texttt{SOURCE.md}; its repository location is \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000007847.md}{conjecture 00000007847}. The source snapshot and its exact hash are recorded in \texttt{verification/}.
+\end{document}
