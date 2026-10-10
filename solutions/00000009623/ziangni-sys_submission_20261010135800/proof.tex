@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\title{A permutative cellular automaton with positive propagation speed}
+\author{Ziang Ni (\texttt{ziangni-sys})}
+\date{10 October 2026}
+\setlength{\emergencystretch}{2em}
+\begin{document}
+\maketitle
+\noindent\textbf{Disproof of conjecture 00000009623.}
+The conjecture asserts that a surjective cellular automaton has zero
+damage propagation speed if and only if its rule is a permutative
+factor. The binary coordinate shift refutes this clause.
+
+Let $X=\{0,1\}^{\mathbb Z}$ have the product topology, with the finite
+alphabet discrete, and define $F:X\to X$ by
+\[
+ (Fx)_i=x_{i+1}.
+\]
+Each output coordinate is a coordinate projection, so $F$ is continuous.
+It commutes with the one-dimensional shift, being that shift itself.
+Its inverse is $(F^{-1}x)_i=x_{i-1}$, so it is surjective. Its finite
+neighborhood is $\{1\}$ and its local rule is $f(b)=b$. This rule is a
+permutation of the binary alphabet and hence is permutative. Even if a
+symmetric radius-one neighborhood is used, it is right-permutative:
+fixing the other coordinates, the map of the rightmost coordinate to
+the output is the identity permutation.
+
+For every configuration $x$, let $y$ differ from $x$ only at site $j$,
+where its bit is flipped. Induction gives
+\[
+ (F^t x)_i=x_{i+t},\qquad
+ (F^t y)_i\ne(F^t x)_i\ \Longleftrightarrow\ i=j-t.
+\]
+Thus the damage travels left by exactly $t$ sites in $t$ iterations.
+Its leftward spatial propagation speed is
+\[
+ \lim_{t\to\infty}\frac{|(j-t)-j|}{t}=1.
+\]
+This is spatial displacement, not the count of damaged sites, which
+remains one.
+
+The same conclusion follows from the directional half-line front
+used for cellular-automaton Lyapunov exponents. Suppose $x,y$ agree on
+$[j,\infty)\cap\mathbb Z$, Their iterates agree on
+$[j-t,\infty)\cap\mathbb Z$. This boundary is sharp: flip $x$ at
+$j-1$ to produce $y$; the disagreement is exactly at $j-1-t$.
+Hence the left-moving boundary advances exactly $t$ sites. Reversing
+orientation swaps the two directional exponents; one is $1$ and the
+other $0$, so the propagation speed does not vanish.
+
+These identities hold for \emph{every} configuration, so they also
+hold almost surely under the fair Bernoulli product measure (indeed
+under any measure on $X$). There is no exceptional set or probabilistic
+limit to estimate. This surjective permutative factor has positive
+propagation speed, contradicting the claimed equivalence. The other
+conjuncts need not be settled.
+
+\paragraph{Lean coverage.}
+The project formalizes actual bi-infinite Boolean configurations with
+the product topology, continuity, surjectivity, shift commutation,
+permutativity, the exact iteration formula, the unique damage site,
+and both the half-line bound and its sharpness for every configuration.
+The normalized displacement equals one at every positive time.
+Lean 4.19.0 and Mathlib are pinned; printed theorem audits contain only
+standard logical axioms.
+\end{document}
