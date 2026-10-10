@@ -1,0 +1,154 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\Z}{\mathbb Z}
+\title{A nonnumerical multiplier in an odd-order difference set\\
+\large Disproof of Conjecture 00000008412}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+We exhibit a $(27,13,6)$ difference set in $(\Z/3\Z)^3$ preserved by
+the coordinate cycle $(a,b,c)\mapsto(b,c,a)$. This is a group
+automorphism and a nonnumerical multiplier. The ambient group has
+no even-order subgroup or subgroup quotient, and no index-two
+subgroup. Thus nonnumerical multipliers are not confined to the
+asserted $(16,6,2)$ exception or its index-two extension.
+All finite difference counts and the automorphism are verified in Lean.
+\end{abstract}
+
+\section*{Definitions and scope}
+For an additive finite group $G$, a $(v,k,\lambda)$ difference set
+is a $k$-element subset $D$ with $|G|=v$ such that each nonzero
+$g\in G$ occurs exactly $\lambda$ times as $x-y$ with $(x,y)\in D^2$.
+A multiplier is an automorphism $\sigma$ of $G$ such that
+$\sigma(D)=D+t$ for some $t\in G$. In an abelian group a multiplier
+is numerical if $\sigma(x)=nx$ for an integer $n$. These are the
+usual abelian conventions; see \'{O} Cath\'{a}in, Section 3.1.
+
+We refute the only-if direction of the conjecture's second clause:
+the restriction of nonnumerical multipliers to the stated even-order
+exception. The source does not separately define ``coexists.''
+The exclusion proved here covers an exception in the ambient group,
+a subgroup, a quotient of a subgroup, or an index-two extension
+of a group of order $16$. Indeed, no even-order group section is
+possible. We do not assign a meaning involving unrelated groups to
+that word. No claim about the two other clauses is needed.
+
+\section*{The difference set}
+Let $G=(\Z/3\Z)^3$, with coordinatewise addition and subtraction,
+and let $D$ be the following set of thirteen triples:
+\[
+\begin{split}
+D=\{&(0,0,1),(0,1,0),(0,1,1),(0,1,2),\\
+    &(1,0,0),(1,0,1),(1,1,0),(1,1,1),\\
+    &(1,2,0),(1,2,2),(2,0,1),(2,1,2),(2,2,1)\}.
+\end{split}
+\]
+Its elements are distinct. For $g\in G$ write
+$N(g)=\#\{(x,y)\in D^2:x-y=g\}$. Direct subtraction modulo $3$
+gives the full table below. The row is the first coordinate of $g$;
+the column is its last two coordinates.
+\[
+\begin{array}{c|rrrrrrrrr}
+ &00&01&02&10&11&12&20&21&22\\\hline
+0&13&6&6&6&6&6&6&6&6\\
+1&6&6&6&6&6&6&6&6&6\\
+2&6&6&6&6&6&6&6&6&6
+\end{array}
+\]
+For example, for $g=(0,0,1)$ the six possible first entries $x$
+are $(0,1,0)$, $(0,1,1)$, $(0,1,2)$, $(1,0,1)$, $(1,1,1)$, and $(1,2,0)$;
+each has $y=x-g\in D$. Each table entry can equivalently be obtained
+by testing $x-g\in D$ for the thirteen displayed $x$.
+Thus $D$ is a nontrivial $(27,13,6)$ difference set.
+
+\section*{A multiplier that is not numerical}
+Define $T(a,b,c)=(b,c,a)$. This map is additive, has inverse
+$T^{-1}(a,b,c)=(c,a,b)$, and satisfies $T^3=1$. The displayed set
+$D$ is a union of the following $T$-orbits:
+\[
+\begin{gathered}
+\{(1,1,1)\},\\
+\{(0,0,1),(0,1,0),(1,0,0)\},\\
+\{(0,1,1),(1,1,0),(1,0,1)\},\\
+\{(0,1,2),(1,2,0),(2,0,1)\},\\
+\{(1,2,2),(2,2,1),(2,1,2)\}.
+\end{gathered}
+\]
+Consequently $T(D)=D$, so $T$ is a multiplier with translation $0$.
+It is not numerical: for every integer $n$,
+\[
+ T(1,0,0)=(0,0,1)\ne(n\bmod3,0,0)=n(1,0,0).
+\]
+This excludes every integer scalar map, and therefore also all
+numerical automorphisms with the usual coprimality condition.
+
+\section*{Excluding the proposed exception}
+The ambient group has order $27$, not $16$ or $32$. More strongly,
+if $S\le G$ and $K\le S$, Lagrange's theorem gives
+\[
+ |S/K|\mid |S|\mid27.
+\]
+Hence every such group section has odd order. In particular neither
+an order-$16$ group supporting a $(16,6,2)$ difference set nor its
+order-$32$ index-two extension can occur in any such section.
+Also $[G:S]\mid27$, so $G$ has no subgroup of index two.
+
+\begin{theorem}
+A nontrivial difference set can have a nonnumerical multiplier in
+an odd-order group having no even-order group section. Thus the
+claimed restriction to the $(16,6,2)$ exception or its index-two
+extension in Conjecture 00000008412 is false.
+\end{theorem}
+\begin{proof}
+The difference set $D\subseteq(\Z/3\Z)^3$ and its multiplier $T$
+have exactly these properties.
+\end{proof}
+
+\section*{Formal correspondence and reproduction}
+Lean uses the actual product additive group
+\texttt{ZMod 3}\,$\times$\,\texttt{ZMod 3}\,$\times$\,\texttt{ZMod 3}.
+The predicate \texttt{IsDifferenceSet} counts ordered pairs with
+their actual group difference. The full $(27,13,6)$ property is
+kernel checked. The map \texttt{cycle} is a genuine additive
+equivalence with an explicit inverse; its additivity, its cube,
+and preservation of $D$ are proved. The multiplier predicate allows
+translations. The theorem \texttt{cycle\_not\_numerical} quantifies
+over all integers, not just selected residues.
+
+The theorem \texttt{no\_even\_section} uses Mathlib's Lagrange theorem
+for arbitrary subgroups and subgroup quotients. Together with the
+index-two exclusion it proves the structural facts in the final
+\texttt{counterexample}. These are group properties, not tests on
+a list of guessed subgroup orders.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. In \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The submitted project is rebuilt in a fresh directory. There are
+no proof placeholders, custom axioms, or external computational
+oracles. The accompanying \texttt{verify.py} reproduces the original
+orbit-union search and all finite counts using Python's standard
+library; Lean does not trust its output. Run \texttt{python verify.py}
+for that check and \texttt{tectonic main.tex} to regenerate the PDF.
+The author performed a separate adversarial self-review; no
+independent reviewer or subagent was used.
+
+\section*{References}
+\begin{enumerate}
+\item The Last Math Competition, Conjecture 00000008412. Its exact
+bilingual source and upstream provenance are included in the submission.
+\item P. \'{O} Cath\'{a}in, \emph{Inequivalence of difference sets:
+On a remark of Baumert}, Electronic Journal of Combinatorics
+20(1) (2013), P38, Section 3.1.
+\href{https://www.combinatorics.org/ojs/index.php/eljc/article/download/v20i1p38/pdf/}{Publisher's full text}.
+\end{enumerate}
+\end{document}
