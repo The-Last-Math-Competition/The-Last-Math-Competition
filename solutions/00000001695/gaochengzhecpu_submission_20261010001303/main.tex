@@ -1,0 +1,124 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{The normalization obstruction in prime-time averages\\Conjecture 00000001695}
+\author{gaochengzhecpu}
+\date{October 9, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Use the constant observable on the unit circle rotated by $\sqrt2$.
+This is a measure-preserving linear polynomial phase with a badly
+approximable coefficient. With the source's normalization by $N$, its
+prime-time average stays at least $1/4$ away from its integral for every
+$N\geq16$. The asserted rate fails for every nonnegative constant at
+arbitrarily large $N$.
+\end{abstract}
+
+\section{An admissible rotation}
+Let $X=\mathbb R/\mathbb Z$ with normalized Haar measure $\mu$, let
+$T(x)=x+\sqrt2\pmod1$, and let $f(x)=1$. Then $T$ preserves $\mu$ and
+$T^p(x)=x+p\sqrt2\pmod1$, a linear polynomial phase. In particular
+$\int_X f\,d\mu=1$. The coefficient satisfies the following explicit
+bad-approximation condition.
+
+\begin{lemma}
+For every $p\in\mathbb Z$ and integer $q\geq1$,
+\[
+ \left|\sqrt2-\frac pq\right|\geq\frac{1}{5q^2}.
+\]
+\end{lemma}
+\begin{proof}
+If the left side is at least one, the assertion follows from $q\geq1$.
+Otherwise $|p/q|<\sqrt2+1<3$, so $|\sqrt2+p/q|<5$.
+The integer $2q^2-p^2$ is nonzero: equality would make $\sqrt2$ rational.
+Consequently
+\[
+ 1\leq|2q^2-p^2|
+ =q^2\left|\sqrt2-\frac pq\right|
+       \left|\sqrt2+\frac pq\right|
+ <5q^2\left|\sqrt2-\frac pq\right|.
+\]
+This gives the required inequality.
+\end{proof}
+
+\section{The prime-counting obstruction}
+Write $\pi(N)=\#\{p\leq N:p\text{ is prime}\}$. The average in the source is
+\[
+ A_N(x)=\frac1N\sum_{p\leq N}f(T^p x)=\frac{\pi(N)}{N}.
+\]
+An elementary sieve using only the parity of primes gives the convenient
+bound $2\pi(N)\leq N+4$ for $N\geq2$. Thus for $N\geq16$,
+\[
+ \frac{\pi(N)}N\leq\frac12+\frac2N\leq\frac34,
+ \qquad
+ \left|A_N(x)-\int_X f\,d\mu\right|\geq\frac14.
+\]
+No prime number theorem or quantitative distribution theorem is needed.
+
+\newpage
+\section{Every proposed constant fails}
+\begin{theorem}
+For every $C\geq0$, every natural threshold $N_0$, and every $x\in X$,
+there is an integer $N\geq\max(N_0,16)$ such that
+\[
+ C\frac{\log\log N}{\sqrt N\log N}
+ <\left|A_N(x)-\int_X f\,d\mu\right|.
+\]
+\end{theorem}
+\begin{proof}
+For $N\geq2$, $\log N>0$ and $\log(\log N)\leq\log N$. Therefore
+\[
+ C\frac{\log\log N}{\sqrt N\log N}\leq\frac C{\sqrt N}.
+\]
+Choose an integer $N>(4C+1)^2+N_0+16$. Then $N\geq N_0$, $N\geq16$,
+and $\sqrt N>4C$, so $C/\sqrt N<1/4$. Apply the preceding uniform
+lower bound on the error.
+\end{proof}
+Thus no nonnegative constant works even eventually. The observable is
+smooth and bounded, so regularity cannot repair this estimate.
+
+\paragraph{Scope.}
+The counterexample uses the stated normalization $1/N$ and integral.
+There is no zero-mean hypothesis. A $\pi(N)$ normalization or logarithmic
+prime weights give different expressions, outside this disproof's scope.
+
+\section{Formal verification}
+Lean uses the actual \texttt{UnitAddCircle}, Haar volume, Bochner integral,
+function iteration, prime finsets, square root, and logarithm.
+\begingroup\raggedright
+\begin{itemize}
+\setlength{\itemsep}{3pt}
+\item \texttt{sqrt\_\allowbreak two\_\allowbreak badly\_\allowbreak approximable}
+proves the explicit $1/(5q^2)$ bound. The rotation preserves measure and its
+iterates are the displayed linear phase.
+\item \texttt{actual\_\allowbreak average} and \texttt{actual\_\allowbreak integral}
+compute the prime sum and integral. \texttt{prime\_\allowbreak count\_\allowbreak bound}
+uses the sieve with modulus two; \texttt{error\_\allowbreak lower\_\allowbreak bound}
+proves the resulting uniform error bound.
+\item \texttt{arbitrarily\_\allowbreak large\_\allowbreak failure} proves the theorem for
+every $C\geq0$, threshold, and point. The final \texttt{counterexample}
+combines it with the actual rotation and bad-approximation property.
+\end{itemize}
+\endgroup
+Only standard logical axioms are used, with no unproved placeholders,
+custom axioms, native evaluation, or numerical experiments.
+
+\paragraph{Reproduction.}
+In \texttt{lean/}, run:
+\begin{verbatim}
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Lean 4.19.0 and an exact Mathlib revision are pinned. Run
+\texttt{tectonic main.tex} to rebuild this PDF.
+
+\paragraph{Sources.}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/9b795e7a94a6076e49a65a6489e1caf9153abd23/conjectures/00000001695.md}{Conjecture 00000001695};
+\href{https://github.com/leanprover-community/mathlib4/commit/c44e0c8ee63ca166450922a373c7409c5d26b00b}{Mathlib c44e0c8ee63c}.
+\end{document}
