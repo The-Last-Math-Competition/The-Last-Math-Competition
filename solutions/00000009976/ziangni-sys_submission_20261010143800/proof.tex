@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\setlength{\emergencystretch}{2em}
+\title{An infinite prime chain inside a localization of a PI ring}
+\author{Ziang Ni (\texttt{ziangni-sys})}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+\noindent\textbf{Disproof of conjecture 00000009976.}
+The conjecture asserts finiteness of prime localization chains,
+with a bound polynomial in the polynomial identity degree. A
+commutative polynomial ring provides an actual infinite chain in a
+single localization, with fixed identity degree.
+
+Let
+\[
+ R=\mathbb Q[X_0,X_1,X_2,\ldots].
+\]
+This ring is commutative, so it satisfies the nonzero polynomial
+identity $UV-VU=0$ of degree two in the free associative algebra.
+Thus it is a PI ring. If ``PI degree'' denotes the conventional PI
+degree of a commutative domain, that degree is one instead; either
+convention gives a fixed finite degree here.
+
+For each $n\geq0$, let $\kappa_n:R\to R$ be the substitution
+\[
+ \kappa_n(X_i)=\begin{cases}0&i<n,\\X_i&i\geq n,\end{cases}
+ \qquad P_n=\ker\kappa_n.
+\]
+Because the target ring is an integral domain, $P_n$ is prime.
+Equivalently $P_n=(X_0,\ldots,X_{n-1})$, and its quotient is the
+polynomial ring in the remaining variables. If $m\leq n$ then
+$\kappa_n\kappa_m=\kappa_n$, hence $P_m\subseteq P_n$.
+Moreover
+\[
+ X_n\in P_{n+1},\qquad X_n\notin P_n.
+\]
+Thus $P_0\subsetneq P_1\subsetneq P_2\subsetneq\cdots$ is an
+infinite strict chain of prime ideals.
+
+Let $\varepsilon:R\to\mathbb Q$ evaluate every $X_i$ at zero, and
+let $M=\ker\varepsilon$. It is prime (indeed maximal, since
+$\varepsilon$ is surjective), and $\varepsilon\kappa_n=\varepsilon$
+shows that every $P_n\subseteq M$.
+
+Now use the actual localization $R_M=(R\setminus M)^{-1}R$.
+Prime localization correspondence is the order isomorphism
+\[
+ \{\text{prime ideals of }R_M\}\ \cong\
+ \{\text{prime ideals of }R\text{ contained in }M\}.
+\]
+Its inverse extends an ideal to $R_M$, and contraction recovers the
+original prime ideal. Consequently $Q_n=P_nR_M$ is prime and
+\[
+ Q_0\subsetneq Q_1\subsetneq Q_2\subsetneq\cdots.
+\]
+For completeness, strictness cannot disappear: if $Q_n=Q_{n+1}$,
+contracting both sides would give $P_n=P_{n+1}$, contradicting the
+variable witness above. This is an infinite prime chain inside a
+single localization of a ring with fixed PI degree. In particular
+there are finite initial chains of every length, so no finite
+polynomial bound in that degree can hold.
+
+The asserted chain finiteness is therefore false. We need not
+dispute the separate spectral-space claim or assign a meaning to
+the source's unspecified comparison topology: its explicit
+finiteness clause already fails. A Noetherian or finite-dimensional
+restriction would be additional to the bilingual source, which
+imposes neither.
+
+\paragraph{Lean coverage.}
+The project uses the actual ring of multivariate polynomials in
+countably many variables over $\mathbb Q$. It constructs substitution
+homomorphisms, their prime kernels, containment in the same prime
+$M$, and strictness from actual variables. Crucially it then uses
+the standard library's prime order isomorphism for the actual ring
+\texttt{Localization.AtPrime M}, producing a formal infinite strict
+chain of localized prime ideals. It also proves the fixed degree-two
+commutator identity. Lean 4.19.0 and Mathlib are publicly pinned;
+printed theorem audits use only standard logical axioms.
+\end{document}
