@@ -1,0 +1,90 @@
+import Mathlib.Data.Real.Archimedean
+import Mathlib.Order.Monotone.Basic
+import Mathlib.Tactic.Linarith
+import Mathlib.Tactic.Positivity
+import Mathlib.Tactic.Ring
+
+namespace Sequence214
+
+def diff (u : ℕ → ℝ) (n : ℕ) : ℝ := u (n + 1) - u n
+
+lemma linear_upper (u : ℕ → ℝ) (a : ℝ)
+    (h : ∀ n, diff u n ≤ a) (n : ℕ) : u n ≤ u 0 + (n : ℝ) * a := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    have hn := h n
+    dsimp [diff] at hn
+    push_cast
+    nlinarith
+
+lemma nonneg_slope (u : ℕ → ℝ) (a : ℝ)
+    (hu : ∀ n, 0 ≤ u n) (h : ∀ n, diff u n ≤ a) : 0 ≤ a := by
+  by_contra ha
+  have ha' : a < 0 := lt_of_not_ge ha
+  obtain ⟨n, hn⟩ := exists_nat_gt (u 0 / (-a))
+  have hm : u 0 < (n : ℝ) * (-a) :=
+    (div_lt_iff₀ (neg_pos.mpr ha')).mp hn
+  have hlin := linear_upper u a h n
+  have hzero := hu n
+  nlinarith
+
+lemma diff_nonneg_of_antitone (u : ℕ → ℝ)
+    (hu : ∀ n, 0 ≤ u n) (hd : Antitone (diff u)) (n : ℕ) :
+    0 ≤ diff u n := by
+  apply nonneg_slope (fun k => u (n + k)) (diff u n)
+  · intro k
+    exact hu (n + k)
+  · intro k
+    have hk := hd (Nat.le_add_right n k)
+    simpa only [diff, Nat.add_assoc] using hk
+
+lemma second_nonneg (u : ℕ → ℝ)
+    (hu : ∀ n, 0 ≤ u n) (hd : Antitone (diff (diff u))) (n : ℕ) :
+    0 ≤ diff (diff u) n := by
+  by_contra hn
+  have hn' : diff (diff u) n < 0 := lt_of_not_ge hn
+  have htail : ∀ k, diff (diff u) (n + k) ≤ diff (diff u) n := by
+    intro k
+    exact hd (Nat.le_add_right n k)
+  have hanti : Antitone (diff (fun k => u (n + k))) := by
+    apply antitone_nat_of_succ_le
+    intro k
+    have hk := htail k
+    dsimp [diff] at hk ⊢
+    simp only [Nat.add_assoc] at *
+    linarith
+  have hnonneg : ∀ k, 0 ≤ diff u (n + k) := by
+    intro k
+    have hk := diff_nonneg_of_antitone (fun k => u (n + k))
+      (fun k => hu (n + k)) hanti k
+    simpa only [diff, Nat.add_assoc] using hk
+  have hbad : 0 ≤ diff (diff u) n := by
+    apply nonneg_slope (fun k => diff u (n + k)) (diff (diff u) n) hnonneg
+    intro k
+    simpa only [diff, Nat.add_assoc] using htail k
+  linarith
+
+lemma first_nonpos (u : ℕ → ℝ)
+    (hsub : ∀ c : ℝ, 0 < c → ∃ C : ℝ, ∀ n, u n ≤ C + c * (n : ℝ))
+    (hd : Monotone (diff u)) (n : ℕ) : diff u n ≤ 0 := by
+  by_contra hn
+  have hn' : 0 < diff u n := lt_of_not_ge hn
+  let c := diff u n / 2
+  have hc : 0 < c := by dsimp [c]; positivity
+  obtain ⟨C, hC⟩ := hsub c hc
+  have hnonneg : ∀ k, 0 ≤ C + c * ((n + k : ℕ) : ℝ) - u (n + k) := by
+    intro k
+    linarith [hC (n + k)]
+  have hs : 0 ≤ c - diff u n := by
+    apply nonneg_slope (fun k => C + c * ((n + k : ℕ) : ℝ) - u (n + k))
+      (c - diff u n) hnonneg
+    intro k
+    have hk := hd (Nat.le_add_right n k)
+    dsimp [diff] at hk ⊢
+    simp only [Nat.add_assoc, Nat.cast_add, Nat.cast_one] at *
+    nlinarith
+  dsimp [c] at hs
+  linarith
+
+end Sequence214
