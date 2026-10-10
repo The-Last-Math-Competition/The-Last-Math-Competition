@@ -1,0 +1,36 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xurl}
+\sloppy
+\let\oldus\_ \renewcommand{\_}{\oldus\allowbreak}
+\newtheorem{lemma}{Lemma}
+\title{Conjecture 00000004391: the half graph is not the minimizer of the spectral radius}
+\date{}
+\begin{document}
+\maketitle
+
+\section*{Statement and what is proved}
+Conjecture: among graphons of fixed edge density the maximum spectral radius is attained only by the twin-clique graphon and the minimum only by the half-graph graphon, both unique up to zero-measure modification. We refute the \emph{minimum} clause, hence the conjunction. The maximum (twin-clique) clause is not formalized.
+
+\section*{Definitions (as in the Lean statement block)}
+A graphon is a symmetric measurable $W:\mathbb{R}^2\to[0,1]$ (only $[0,1]^2$ matters). Its density is $\int_0^1\!\int_0^1 W(x,y)\,dy\,dx$. Its integral operator is $(T_Wf)(x)=\int_0^1 W(x,y)f(y)\,dy$. A real $\lambda$ is an eigenvalue if some $f\in L^2$ of $(0,1]$, not a.e.\ zero, satisfies $T_Wf=\lambda f$ a.e.\ on $(0,1]$. Two readings of ``spectral radius'' are used: $\rho(W)=\sup\{\lambda\}$ (``largest eigenvalue'', Lean \texttt{spectralRadius}) and $\rho_{\mathrm{abs}}(W)=\sup\{|\lambda|\}$ (\texttt{spectralRadiusAbs}); \texttt{sSup} of a set that is not bounded above would be $0$ in Lean, so boundedness is proved (Lemma 1). Two half-graph conventions: $H_A(x,y)=\mathbf 1[x+y\le1]$ (density $1/2$), and the bipartite half graph $H_B(x,y)=1$ iff ($x\le\frac12$ and $x+\frac12\le y$) or ($y\le\frac12$ and $y+\frac12\le x$) (density $1/4$). The minimum clause for $H$ and a radius $\rho$ (Lean \texttt{MinPart}): for every graphon $W$ with density equal to that of $H$, $W$ minimizes $\rho$ among such graphons iff $W=H$ a.e.\ on $[0,1]^2$. Lean \texttt{Conjecture} is the disjunction of \texttt{MinPart} over the four (radius, convention) pairs; \texttt{Claim} $=\neg$\texttt{Conjecture}.
+
+\section*{Proof}
+\begin{lemma}[bound] If $W\le c$ everywhere and $\lambda$ is an eigenvalue, then $|\lambda|\le c$. (Lean \texttt{eig\_abs\_le}.)\end{lemma}
+\emph{Proof.} Let $M=\int_0^1|f|>0$. Then $|T_Wf(x)|\le\int_0^1 W(x,y)|f(y)|\,dy\le cM$, so $|\lambda||f(x)|\le cM$ a.e.; integrating, $|\lambda|M\le cM$. $\square$
+
+\begin{lemma}[constant graphon] For $p\in[0,1]$ the constant graphon $W\equiv p$ has density $p$, eigenvalue $p$ (take $f\equiv1$), hence by Lemma 1 $\rho=\rho_{\mathrm{abs}}=p$. (Lean \texttt{density\_const}, \texttt{rad\_const}, \texttt{radAbs\_const}.)\end{lemma}
+
+\begin{lemma}[$H_A$] $H_A$ has density $1/2$ and, with $f(y)=\cos(\pi y/2)$, $T f(x)=\int_0^{1-x}\cos(\pi y/2)\,dy=\frac2\pi\sin(\frac\pi2(1-x))=\frac2\pi f(x)$ for $x\in(0,1]$. Hence $\rho(H_A),\rho_{\mathrm{abs}}(H_A)\ge 2/\pi>1/2$. (Lean \texttt{density\_half}, \texttt{half\_eig}, \texttt{rad\_half\_ge}, \texttt{radAbs\_half\_ge}, \texttt{two\_div\_pi\_gt}; $\pi<4$ is \texttt{Real.pi\_lt\_four}.)\end{lemma}
+
+\begin{lemma}[$H_B$] $H_B$ has density $\int_0^1|x-\frac12|dx=1/4$. Let $g(y)=\cos(\pi y)$ for $y<\frac12$ and $g(y)=\sin(\pi y-\frac\pi2)$ for $y\ge\frac12$. For $x\le\frac12$: $T g(x)=\int_{x+1/2}^1\sin(\pi y-\frac\pi2)\,dy=\frac1\pi\cos(\pi x)=\frac1\pi g(x)$. For $x>\frac12$: $Tg(x)=\int_0^{x-1/2}\cos(\pi y)\,dy=\frac1\pi\sin(\pi x-\frac\pi2)=\frac1\pi g(x)$. Hence $\rho,\rho_{\mathrm{abs}}\ge1/\pi>1/4$. (Lean \texttt{halfOpBip}, \texttt{density\_bip}, \texttt{bip\_eig}, \texttt{rad\_bip\_ge}, \texttt{radAbs\_bip\_ge}, \texttt{one\_div\_pi\_gt}.)\end{lemma}
+
+\paragraph{Conclusion.} Suppose \texttt{MinPart} $\rho\,H$ with $H\in\{H_A,H_B\}$ of density $p\in\{1/2,1/4\}$. Applying the ``iff'' to $W=H$ (trivially $H=H$ a.e.) shows $H$ minimizes $\rho$ among graphons of density $p$; in particular $\rho(H)\le\rho(\text{const}_p)=p$, contradicting $\rho(H)>p$ from Lemmas 2--4. (Lean \texttt{not\_minPart}, \texttt{main}.)
+
+\section*{Lean theorem and audit}
+Main theorem: \texttt{C4391.main : C4391.Claim}, where \texttt{Claim := $\neg$ Conjecture}. File \texttt{lean/Conjecture4391/Basic.lean} (identical to the compiled \texttt{Tlmc/C4391.lean}). \texttt{\#print axioms C4391.main}: \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}. No \texttt{sorry}, no \texttt{native\_decide}.
+
+\section*{Scope of the refutation}
+Refuted: the minimum clause under both radius readings and both half-graph conventions above, with density fixed to that of the half graph. Not refuted: the maximum clause; half graphs of other densities or other normalizations; complex eigenvalues (the operator is self-adjoint with real spectrum, so real scalars are the standard reading). No literature is cited.
+\end{document}
