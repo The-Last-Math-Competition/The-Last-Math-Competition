@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\setlength{\emergencystretch}{2em}
+\title{A unique hypergraph decomposition at every prime order}
+\author{Ziang Ni (\texttt{ziangni-sys})}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+\noindent\textbf{Disproof of conjecture 00000008437.}
+The conjecture claims double-exponential numbers of decompositions
+of a complete $t$-uniform hypergraph into specified isomorphism
+classes when the number $v$ of vertices is prime. It imposes no
+exclusion of single-edge block classes. That permitted class has
+exactly one decomposition at every order.
+
+Take $t=2$. The complete $2$-uniform hypergraph $K_v^{(2)}$ has vertex
+set $V=\{0,\ldots,v-1\}$ and edge set
+\[
+ E=\{e\subseteq V:|e|=2\}.
+\]
+Specify the block isomorphism class $H$ consisting of a single
+$2$-edge on its two incident vertices. Each copy is indexed by one
+edge $e\in E$, and its edge set is $\{e\}$. All such blocks are
+isomorphic to $H$; unused ambient vertices are not part of a block's
+vertex support.
+
+A standard unordered decomposition is a collection $\mathcal D$ of
+edge-disjoint copies of $H$ covering all of $E$. Coverage forces the
+block $\{e\}$ to occur for each $e\in E$: any block containing $e$
+has only one edge and hence must equal $\{e\}$. Conversely every block
+of $\mathcal D$ has that form. Therefore necessarily
+\[
+ \mathcal D=\big\{\{e\}:e\in E\big\}.
+\]
+This collection is indeed a decomposition: its singleton edge sets
+are pairwise disjoint and their union is $E$. Thus the exact number
+of decompositions is
+\[
+ N_H(v)=1\qquad\text{for every }v.
+\]
+In particular this holds for every prime $v$, including arbitrarily
+large primes. A constant function cannot have double-exponential
+growth along the primes. For example, for every positive $c$, the
+lower bound $N_H(v)\geq\exp(\exp(cv))$ fails at every positive prime;
+more generally $N_H$ does not even tend to infinity. This refutes the
+first conjunct, so no assertion about automorphism fixed-point
+spectra is needed.
+
+\paragraph{Scope.}
+This uses an admissible specified isomorphism class in the actual
+complete hypergraph. A theorem restricted to nontrivial multi-edge
+blocks would require a hypothesis absent from both source languages.
+If decompositions were artificially ordered, the count would instead
+be $\binom v2!$; even that is bounded by
+$\exp(O(v^2\log v))$ and is not double-exponential in $v$. The usual
+unordered convention gives the stronger exact count above.
+
+\paragraph{Lean coverage.}
+The project represents actual edges as two-element subsets of
+$\mathrm{Fin}(v)$, blocks as finite edge sets, and decompositions as
+unordered finite families satisfying the one-edge block condition,
+coverage, and pairwise disjointness. It proves existence and uniqueness,
+the exact cardinality one, and counterexamples at arbitrarily large
+primes. Lean 4.19.0 and Mathlib are publicly pinned; theorem audits
+use only standard logical axioms.
+\end{document}
