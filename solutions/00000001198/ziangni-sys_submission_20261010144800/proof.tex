@@ -1,0 +1,78 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\newtheorem{theorem}{Theorem}
+\title{A unit-coefficient counterexample to 00000001198}
+\author{Ziang Ni (\texttt{ziangni-sys})}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+The conjecture says that Zonal Littlewood--Richardson coefficients are
+nonnegative alternating sums of even integers. Its English and Chinese
+statements do not exclude the empty partition. That coefficient alone
+contradicts the claimed parity restriction.
+
+\paragraph{The actual polynomial and normalization.}
+Write $Z_\lambda$ for the normalized Zonal polynomials, that is, the
+Jack parameter-two specialization. The empty partition $\varnothing$
+has weight zero. Its normalized polynomial is
+\[
+ Z_\varnothing(x_1,\ldots,x_m)=1.
+\]
+This is the actual degree-zero symmetric polynomial, rather than an
+auxiliary scalar model. For the standard Zonal normalization, the
+NIST Digital Library of Mathematical Functions, equations
+\href{https://dlmf.nist.gov/35.4.E4}{35.4.4} and
+\href{https://dlmf.nist.gov/35.4.E6}{35.4.6}, explicitly include the zero
+partition. The latter identity at degree zero has exactly one summand
+and reads $Z_\varnothing(T)=(\operatorname{tr}T)^0=1$.
+Equivalently, in monic Jack normalization the zero partition has the
+single monomial $m_\varnothing=1$ and no lower terms. The usual integral
+normalization multiplies this by an empty product, also $1$.
+Thus the example is independent of these standard normalization choices.
+
+Define the LR coefficients by actual multiplication and expansion in
+this homogeneous basis:
+\[
+ Z_\lambda Z_\mu
+   =\sum_{|\nu|=|\lambda|+|\mu|}c_{\lambda\mu}^{\nu}Z_\nu.
+\]
+When $\lambda=\mu=\varnothing$, the only weight-zero partition is
+$\nu=\varnothing$. Consequently
+\[
+ 1=Z_\varnothing^2=c_{\varnothing\varnothing}^{\varnothing}
+ Z_\varnothing,
+ \qquad c_{\varnothing\varnothing}^{\varnothing}=1.
+\]
+The coefficient is unique: extraction of the constant monomial
+coefficient from the polynomial equality gives $1=c$.
+
+\begin{theorem}
+The parity assertion in 00000001198 is false.
+\end{theorem}
+\begin{proof}
+For any integers $a_0,\ldots,a_{r-1}$,
+\[
+ \sum_{j=0}^{r-1}(-1)^j(2a_j)
+ =2\sum_{j=0}^{r-1}(-1)^ja_j
+\]
+is even. The LR coefficient above is $1$, which is odd, so it is no
+such alternating sum. Requiring the sum to be nonnegative does not
+remove this obstruction. Allowing arbitrary signs instead of strictly
+alternating signs also preserves evenness.
+\end{proof}
+
+\paragraph{Scope and Lean verification.}
+This disproves the stated even-integer clause, without asserting that
+Zonal LR positivity or any corrected matching interpretation is false.
+The source imposes no positive-weight restriction. The Lean project
+uses actual multivariate polynomials over $\mathbb Q$ in an arbitrary
+variable type. It constructs $Z_\varnothing$ as the zero-exponent
+monomial with coefficient $1$, proves permutation invariance, proves
+that every degree-zero polynomial lies in the constant basis, and
+extracts the unique LR unit coefficient from multiplication. It then
+proves the alternating-sum parity obstruction by induction on a list
+of integers. All printed axiom audits use only the permitted standard
+Lean axioms. The project pins Lean 4.19.0 and mathlib commit
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{document}
