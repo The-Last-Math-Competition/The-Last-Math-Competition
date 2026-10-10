@@ -1,0 +1,32 @@
+Archive: conjecture302-engineering-evidence.tar.gz
+SHA-256: ece2e93fcac9f470cbcfbbc86f85e36dfd73fc44c590f6c4a877b309f9a16c98
+Expanded manifest SHA-256: a489c8b2a59ff0b52cad415c5e869c86fdf6b9009c19c17273b215d46cd31dc7
+Counts: 263 manifest targets; 264 files including manifest; 4 directories; 268 archive members.
+Sizes: 3,433,771 compressed bytes; 6,133,760 tar bytes; 5,941,040 expanded file bytes.
+Validation: deterministic construction repeated byte-for-byte; every archived payload matches the frozen manifest; frozen source bytes remain unchanged.
+
+Place the archive in an empty working directory. Verify its SHA-256
+against archive_sha256 in this receipt before extraction, using for example:
+
+python3 -c 'import hashlib; print(hashlib.sha256(open("conjecture302-engineering-evidence.tar.gz", "rb").read()).hexdigest())'
+
+Extract:
+
+python3 -m tarfile -e conjecture302-engineering-evidence.tar.gz extracted
+
+Check the expanded manifest itself and all 263 manifest targets:
+
+python3 - <<'PY'
+import hashlib, json
+from pathlib import Path
+root = Path("extracted/final-evidence")
+manifest_path = root / "EVIDENCE_SHA256.json"
+data = manifest_path.read_bytes()
+assert hashlib.sha256(data).hexdigest() == "a489c8b2a59ff0b52cad415c5e869c86fdf6b9009c19c17273b215d46cd31dc7"
+manifest = json.loads(data)
+assert len(manifest) == 263
+assert {str(p.relative_to(root)) for p in root.rglob("*") if p.is_file()} == set(manifest) | {"EVIDENCE_SHA256.json"}
+for name, expected in manifest.items():
+    assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, name
+print("PASS: manifest and all 263 evidence targets match")
+PY
