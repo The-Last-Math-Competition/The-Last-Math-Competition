@@ -1,0 +1,119 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\title{Disproof of Conjecture 00000001473\\\large Integer-programming proximity with bounded input entries}
+\author{C0ldSmi1e}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+A three-variable pure integer linear program with integral input of maximum absolute value $\Delta=10$ has unique integer and real-relaxation optima at infinity distance $50>3\Delta$. An equivalent nonnegative equality formulation has four variables and still violates the proposed bound: $50>4\Delta$. Lean verifies the full optimization problems, uniqueness, a relaxation vertex, complete input magnitudes, and the exact distances.
+\end{abstract}
+
+\section{Claim and counterexample}
+Both language versions of conjecture 00000001473 assert
+$\|x^*-\bar x\|_\infty\le n\Delta$, where $\Delta$ is the maximal absolute value of the data, together with a sharpness claim. We disprove the upper-bound conjunct. This refutes the stated conjunction without claiming that its separate sharpness sentence is false under every interpretation.
+
+We use ordinary finite pure integer linear optimization: all decision coordinates are integral, and the real relaxation retains every constraint while permitting real coordinates. Here $n$ is the number of decision coordinates in the displayed representation. We include \emph{all} finite numerical input in $\Delta$: matrix entries, right-hand sides, objective coefficients and constant, and finite variable bounds. Absent bounds introduce no numerical data. The parameter is not replaced by a determinant or subdeterminant.
+
+Consider Form A:
+\[
+\begin{array}{ll}
+\text{minimize} & x\\[2pt]
+\text{subject to} & -10x+y=0,\qquad -10y+z=0,\\
+                 & -2x\le-1,\qquad (x,y,z)\in\mathbb Z^3.
+\end{array}
+\]
+There are no additional variable bounds. The objective vector is $(1,0,0)$, its constant is $0$, and the right-hand sides are $0,0,-1$. Every input magnitude is at most $10$, and a coefficient of magnitude $10$ occurs. Thus $n=3$ and $\Delta=10$.
+
+\section{Exact optima, vertex, and distance}
+The real feasible set is exactly
+\[
+ F_A=\{(t,10t,100t):t\ge\tfrac12\}.
+\]
+Indeed, the inequality forces $t=x\ge1/2$, and the equalities determine $y,z$; the converse follows by substitution. The objective is $t$, so its unique minimum is attained at $\bar x_A=(1/2,5,50)$.
+
+The integer feasible set is exactly
+$\{(k,10k,100k): k\in\mathbb Z,\ k\ge1\}$.
+An integer first coordinate satisfying $2k\ge1$ must be at least $1$, and conversely every such $k$ gives an integer feasible point. Thus the attained unique integer optimum is $x_A^*=(1,10,100)$.
+
+The relaxed optimum is a vertex. If it is a strict convex combination of two feasible points with first coordinates $u,v\ge1/2$, then, for $0<\lambda<1$,
+\[
+ 0=\lambda(u-\tfrac12)+(1-\lambda)(v-\tfrac12).
+\]
+Both nonnegative terms vanish. Hence $u=v=1/2$, and the equalities force both points to equal $\bar x_A$. Finally,
+\[
+ \boxed{\|x_A^*-\bar x_A\|_\infty
+ =\max\{\tfrac12,5,50\}=50>30=3\cdot10=n\Delta.}
+\]
+The values $50$ and $100$ in the solutions are derived values, not input coefficients. Unique optima also eliminate distinctions between arbitrary, nearest, or existential choices of optimal solutions.
+
+\section{Explicit standard formulations}
+The following four forms are separately certified in Lean. Each uses its own dimension and complete data inventory.
+\begin{center}
+\begin{tabular}{@{}llllrr@{}}
+\toprule
+Form & Constraints & Variable domain & $n$ & $\Delta$ & $n\Delta$\\
+\midrule
+A & Mixed & Free & 3 & 10 & 30\\
+B & Inequalities only & Free & 3 & 10 & 30\\
+C & Inequalities only & Nonnegative & 3 & 10 & 30\\
+D & Equalities only & Nonnegative & 4 & 10 & 40\\
+\bottomrule
+\end{tabular}
+\end{center}
+All four have distance $50$. ``Free'' means no separate sign bound; all variables remain integral in the integer program and real in the relaxation.
+
+\paragraph{Forms B and C.}
+For Form B, minimize $x$ over $(x,y,z)\in\mathbb Z^3$ subject to $Av\le b$, with
+\[
+ A=\begin{pmatrix}
+ -2&0&0\\-10&1&0\\10&-1&0\\0&-10&1\\0&10&-1
+ \end{pmatrix},\qquad
+ b=\begin{pmatrix}-1\\0\\0\\0\\0\end{pmatrix}.
+\]
+The opposite pairs of inequalities express exactly the two equalities of Form A. Thus the real and integer feasible sets and objective are unchanged. Form C adds the three lower bounds $0$ and no upper bounds. They are redundant: the row constraints already give $x\ge1/2$, $y=10x\ge5$, and $z=100x\ge50$. These added zero data leave $\Delta=10$ and $n=3$. The optima and vertex from Section 2 apply to both forms.
+
+\paragraph{Form D.}
+Use four coordinates $(x,y,z,s)$, all nonnegative integers, with objective $x$ and equalities
+\[
+ \begin{pmatrix}-10&1&0&0\\0&-10&1&0\\2&0&0&-1\end{pmatrix}
+ \begin{pmatrix}x\\y\\z\\s\end{pmatrix}
+ =\begin{pmatrix}0\\0\\1\end{pmatrix}.
+\]
+The objective coefficients are $(1,0,0,0)$, the objective constant is $0$, the four lower bounds are $0$, and there are no upper bounds. The full input maximum is again $\Delta=10$, but the added slack is a decision coordinate, so $n=4$.
+
+The real feasible set is exactly
+\[
+ F_D=\{(t,10t,100t,2t-1):t\ge\tfrac12\}.
+\]
+The third equality and $s\ge0$ give $t\ge1/2$; the remaining equations determine $y,z$. Conversely the displayed points are nonnegative and satisfy every row. The map $(x,y,z)\mapsto(x,y,z,2x-1)$ is a bijection from $F_A$ to $F_D$, with inverse projection to the first three coordinates. It preserves the objective and integrality in both directions.
+
+Consequently the unique optima are
+\[
+ \bar x_D=(\tfrac12,5,50,0),\qquad x_D^*=(1,10,100,1).
+\]
+The same first-coordinate argument proves the vertex condition. In its actual four-coordinate norm,
+\[
+ \boxed{\|x_D^*-\bar x_D\|_\infty
+ =\max\{\tfrac12,5,50,1\}=50>40=4\cdot10.}
+\]
+The feasible regions are unbounded rays, but both optima are finite and attained; the source imposes no bounded-region hypothesis. We check these four named formulations, without asserting invariance under arbitrary padding, rescaling, or other encodings.
+
+\section{Formal correspondence and reproduction}
+The supplied \texttt{ORIGINAL.md} preserves the exact bilingual source. The project uses Lean 4.19.0 and Mathlib v4.19.0, pinned at commit
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+
+In \texttt{Proximity.lean}, \texttt{ILP} records integral rows, optional finite bounds, the objective vector, and its constant. \texttt{feasible} interprets the real system; \texttt{intFeasible} restricts that identical system to coordinatewise integer casts. Optimality compares the objective with \emph{every} feasible point. The unique-optimal predicates additionally identify every other optimum. The vertex predicate is the usual strict convex-combination condition used above.
+
+The function \texttt{data} lists every finite input entry, and \texttt{delta} takes their maximum absolute value. The distance uses Mathlib's standard norm on $\mathrm{Fin}(n)\to\mathbb R$, the coordinate supremum norm. Four feasible-set equivalences and four certificate theorems establish each form's unique optima, vertex, $\Delta=10$, norm $50$, and strict violation. Separate lemmas verify the row/domain conversions and slack maps.
+
+The hypothesis-free theorem \texttt{not\_universalUpperBound} negates the universal bound over genuine optimization problems. The theorem \texttt{not\_uniqueVertexUpperBound} also negates its restriction to unique optima with a relaxed vertex. Finally, \texttt{not\_source\_conjunction} refutes the conjunction with an arbitrary sharpness proposition; it does not assume that proposition is true.
+
+The proof contains no admitted theorem, custom axiom, or \texttt{native\_decide}. Its final theorem dependencies are only \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. The small data maxima use kernel-checked \texttt{decide}. The supplementary \texttt{exact\_audit.py} uses exact rational arithmetic to inspect all data, point feasibility, objectives, distances, and independent active systems. Global optimality and uniqueness are established by Lean, not inferred from finite point checks.
+
+For a fresh verification, run \texttt{python3 verify.py} from the \texttt{lean} directory; optional toolchain and stock-library paths are documented in the submission README. The driver rebuilds local modules, replays all authored Lean sources with warnings treated as errors, audits compiled declarations and their dependencies, and runs the exact arithmetic and rejection controls. Preserved verification records distinguish reuse of pinned stock-library artifacts from fresh compilation of the submitted proof, and local verification from maintainer acceptance.
+\end{document}

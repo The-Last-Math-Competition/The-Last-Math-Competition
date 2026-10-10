@@ -1,0 +1,90 @@
+structure Proximity.ILP (n : ℕ) : Type
+number of parameters: 1
+fields:
+  Proximity.ILP.equalities : List (Proximity.Row n)
+  Proximity.ILP.inequalities : List (Proximity.Row n)
+  Proximity.ILP.lower : Fin n → Option ℤ
+  Proximity.ILP.upper : Fin n → Option ℤ
+  Proximity.ILP.cost : Fin n → ℤ
+  Proximity.ILP.constant : ℤ
+constructor:
+  Proximity.ILP.mk {n : ℕ} (equalities inequalities : List (Proximity.Row n)) (lower upper : Fin n → Option ℤ)
+    (cost : Fin n → ℤ) (constant : ℤ) : Proximity.ILP n
+def Proximity.ILP.feasible : {n : ℕ} → Proximity.ILP n → (Fin n → ℝ) → Prop :=
+fun {n} P x =>
+  (∀ r ∈ P.equalities, r.eval x = ↑r.rhs) ∧
+    (∀ r ∈ P.inequalities, r.eval x ≤ ↑r.rhs) ∧
+      (∀ (i : Fin n) (b : ℤ), P.lower i = some b → ↑b ≤ x i) ∧ ∀ (i : Fin n) (b : ℤ), P.upper i = some b → x i ≤ ↑b
+def Proximity.ILP.intFeasible : {n : ℕ} → Proximity.ILP n → (Fin n → ℤ) → Prop :=
+fun {n} P x => P.feasible (Proximity.intCast x)
+def Proximity.ILP.objective : {n : ℕ} → Proximity.ILP n → (Fin n → ℝ) → ℝ :=
+fun {n} P x => ∑ i, ↑(P.cost i) * x i + ↑P.constant
+def Proximity.ILP.data : {n : ℕ} → Proximity.ILP n → List ℤ :=
+fun {n} P =>
+  List.flatMap Proximity.Row.data (P.equalities ++ P.inequalities) ++ List.filterMap id (List.ofFn P.lower) ++
+        List.filterMap id (List.ofFn P.upper) ++
+      List.ofFn P.cost ++
+    [P.constant]
+def Proximity.ILP.delta : {n : ℕ} → Proximity.ILP n → ℕ :=
+fun {n} P => List.foldl max 0 (List.map Int.natAbs P.data)
+def Proximity.ILP.vertex : {n : ℕ} → Proximity.ILP n → (Fin n → ℝ) → Prop :=
+fun {n} P x =>
+  P.feasible x ∧
+    ∀ (y z : Fin n → ℝ),
+      P.feasible y → P.feasible z → ∀ (t : ℝ), 0 < t → t < 1 → x = t • y + (1 - t) • z → y = x ∧ z = x
+def Proximity.Certificate : {n : ℕ} → Proximity.ILP n → (Fin n → ℤ) → (Fin n → ℝ) → Prop :=
+fun {n} P xi xr =>
+  P.uniqueIntegerOptimal xi ∧
+    P.uniqueRealOptimal xr ∧
+      P.vertex xr ∧ P.delta = 10 ∧ ‖Proximity.intCast xi - xr‖ = 50 ∧ ↑n * ↑P.delta < ‖Proximity.intCast xi - xr‖
+def Proximity.UniversalUpperBound : Prop :=
+∀ (n : ℕ) (P : Proximity.ILP n) (xi : Fin n → ℤ) (xr : Fin n → ℝ),
+  P.integerOptimal xi → P.realOptimal xr → ‖Proximity.intCast xi - xr‖ ≤ ↑n * ↑P.delta
+def Proximity.UniqueVertexUpperBound : Prop :=
+∀ (n : ℕ) (P : Proximity.ILP n) (xi : Fin n → ℤ) (xr : Fin n → ℝ),
+  P.uniqueIntegerOptimal xi → P.uniqueRealOptimal xr → P.vertex xr → ‖Proximity.intCast xi - xr‖ ≤ ↑n * ↑P.delta
+Proximity.mixedFree_certificate : Proximity.Certificate Proximity.mixedFree Proximity.integer3 Proximity.real3
+Proximity.inequalityFree_certificate : Proximity.Certificate Proximity.inequalityFree Proximity.integer3 Proximity.real3
+Proximity.inequalityNonnegative_certificate :
+  Proximity.Certificate Proximity.inequalityNonnegative Proximity.integer3 Proximity.real3
+Proximity.equalityNonnegative_certificate :
+  Proximity.Certificate Proximity.equalityNonnegative Proximity.integer4 Proximity.real4
+Proximity.three_coordinate_form_equivalence (x : Fin 3 → ℝ) :
+  (Proximity.mixedFree.feasible x ↔ Proximity.inequalityFree.feasible x) ∧
+    (Proximity.mixedFree.feasible x ↔ Proximity.inequalityNonnegative.feasible x) ∧
+      Proximity.mixedFree.objective x = Proximity.inequalityFree.objective x ∧
+        Proximity.mixedFree.objective x = Proximity.inequalityNonnegative.objective x
+Proximity.slack_feasible_iff (x : Fin 3 → ℝ) :
+  Proximity.equalityNonnegative.feasible (Proximity.addSlack x) ↔ Proximity.mixedFree.feasible x
+Proximity.integer_slack_feasible_iff (x : Fin 3 → ℤ) :
+  Proximity.equalityNonnegative.intFeasible (Proximity.addIntegerSlack x) ↔ Proximity.mixedFree.intFeasible x
+Proximity.dropSlack_feasible (x : Fin 4 → ℝ) (h : Proximity.equalityNonnegative.feasible x) :
+  Proximity.mixedFree.feasible (Proximity.dropSlack x)
+Proximity.dropSlack_addSlack (x : Fin 3 → ℝ) : Proximity.dropSlack (Proximity.addSlack x) = x
+Proximity.addSlack_dropSlack (x : Fin 4 → ℝ) (h : Proximity.equalityNonnegative.feasible x) :
+  Proximity.addSlack (Proximity.dropSlack x) = x
+Proximity.slack_objective (x : Fin 3 → ℝ) :
+  Proximity.equalityNonnegative.objective (Proximity.addSlack x) = Proximity.mixedFree.objective x
+theorem Proximity.not_universalUpperBound : ¬Proximity.UniversalUpperBound :=
+fun h =>
+  let_fun hc := Proximity.mixedFree_certificate;
+  not_le_of_gt hc.right.right.right.right.right
+    (h 3 Proximity.mixedFree Proximity.integer3 Proximity.real3 hc.left.left hc.right.left.left)
+theorem Proximity.not_uniqueVertexUpperBound : ¬Proximity.UniqueVertexUpperBound :=
+fun h =>
+  let_fun hc := Proximity.equalityNonnegative_certificate;
+  not_le_of_gt hc.right.right.right.right.right
+    (h 4 Proximity.equalityNonnegative Proximity.integer4 Proximity.real4 hc.left hc.right.left hc.right.right.left)
+theorem Proximity.not_source_conjunction : ∀ (sharpnessClause : Prop),
+  ¬(Proximity.UniversalUpperBound ∧ sharpnessClause) :=
+fun sharpnessClause a => And.casesOn a fun h right => Proximity.not_universalUpperBound h
+'Proximity.mixedFree_certificate' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Proximity.inequalityFree_certificate' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Proximity.inequalityNonnegative_certificate' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Proximity.equalityNonnegative_certificate' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Proximity.not_universalUpperBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Proximity.not_uniqueVertexUpperBound' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Proximity.not_source_conjunction' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Proximity.slack_feasible_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Proximity.integer_slack_feasible_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+'Proximity.three_coordinate_form_equivalence' depends on axioms: [propext, Classical.choice, Quot.sound]
