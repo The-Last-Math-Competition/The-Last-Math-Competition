@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\newtheorem{theorem}{Theorem}
+\title{A trace-norm vertex that is not a partial permutation}
+\author{Ziang Ni (\texttt{ziangni-sys})}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+\noindent\textbf{Conjecture 00000007151.}
+The source asserts that the extremal body of the trace norm in
+Schatten $p$ has vertices at partial permutation matrices.
+With the usual norm-unit-body and unsigned partial-permutation
+conventions, this is false already for real $1\times1$ matrices.
+Neither language imposes entrywise positivity or a dimension restriction.
+
+\paragraph{Actual matrix norm.}
+For a real matrix $A$, its singular values are the nonnegative square
+roots of the eigenvalues of $A^T A$; its trace norm is their sum.
+Take the one-dimensional real matrix space $M_1(\mathbb R)$.
+For $A=[a]$, actual matrix multiplication gives $A^TA=[a^2]$.
+Its sole eigenvalue is $a^2$: multiplication on a vector $[v]$ is
+$[a^2v]$, and a nonzero eigenvector forces the eigenvalue to be $a^2$.
+Thus its sole singular value is $\sqrt{a^2}=|a|$, and
+\[
+ \|[a]\|_1=|a|,\qquad
+ B=\{A\in M_1(\mathbb R):\|A\|_1\le1\}
+   =\{[a]:-1\le a\le1\}.
+\]
+This is the actual trace-norm unit body. It is a line segment,
+so the word ``vertex'' is unambiguous here. Choosing $p=1$ already
+suffices; in fact every one-dimensional Schatten norm has the same
+unit body.
+
+\begin{theorem}
+The matrix $V=[-1]$ is an exposed vertex of $B$, but is not a standard
+partial permutation matrix.
+\end{theorem}
+\begin{proof}
+Consider the nonzero matrix linear functional $\ell([a])=-a$.
+For every $[a]\in B$, one has $\ell([a])\le1$, with equality
+if and only if $a=-1$. Therefore its maximizing face on $B$ is
+exactly $\{V\}$, so $V$ is exposed.
+For completeness, suppose $V=tA+(1-t)C$ with $A,C\in B$ and
+$0<t<1$. Writing $A=[a]$ and $C=[c]$, we get
+\[
+ 0=t(a+1)+(1-t)(c+1).
+\]
+Both summands are nonnegative and their multipliers are positive;
+hence $a=c=-1$. This also proves extremality directly.
+
+A standard partial permutation matrix has entries in $\{0,1\}$,
+with at most one $1$ in each row and each column. In dimension one
+the only such matrices are $[0]$ and $[1]$. The entry $-1$ of $V$
+is neither $0$ nor $1$, proving the claimed exclusion.
+\end{proof}
+
+\paragraph{Scope and formal verification.}
+The example uses the usual unsigned partial-permutation definition,
+not a modified definition allowing negative signs. The statement
+contains no positivity condition that would remove $V$.
+The Lean project uses actual \texttt{Matrix Unit Unit}\,$\mathbb R$,
+actual transpose/multiplication and vector action, the uniquely
+computed Gram eigenvalue, and its singular-value trace norm.
+It proves the singleton maximizing face of an actual linear functional,
+membership in mathlib's \texttt{extremePoints}, and failure of the
+full zero-one row/column partial-permutation conditions.
+The final existential theorem gives the counterexample.
+Lean 4.19.0 and mathlib commit
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b} are pinned;
+the printed axiom audits contain only the permitted standard axioms.
+\end{document}
