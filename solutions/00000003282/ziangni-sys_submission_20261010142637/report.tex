@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue}
+\title{Strict log-convexity and the normalized Gamma characterization\\A proof of Conjecture 00000003282}
+\author{ziangni-sys}\date{10 October 2026}
+\begin{document}\maketitle
+\begin{abstract}
+On the positive real axis, the Gamma function is strictly log-convex and is the unique positive log-convex function satisfying the factorial recurrence and the normalization at one. More generally, every positive log-convex recurrence solution is exactly $f(1)\Gamma$. We give the complete classical characterization, including an elementary strictness argument from the recurrence, and formalize it for Mathlib's actual Gamma function.
+\end{abstract}
+
+\section{Precise characterization}
+Both versions of the source invoke the Bohr--Mollerup characterization and a uniqueness constant equal to one. Its standard, precise meaning is the following theorem on $(0,\infty)$.
+
+\medskip\noindent\textbf{Theorem.} The function $\Gamma$ is positive, satisfies
+\[
+\Gamma(1)=1,\qquad \Gamma(x+1)=x\Gamma(x)\quad(x>0),
+\]
+and $\log\Gamma$ is strictly convex. If $f:(0,\infty)\to(0,\infty)$ satisfies the same recurrence and has convex logarithm, then
+\[
+f(x)=f(1)\Gamma(x)\quad(x>0).
+\]
+Consequently $f(1)=1$ makes $f=\Gamma$, with multiplicative constant exactly one. Equivalently, positivity, normalized recurrence, and strict log-convexity characterize $\Gamma$.
+
+All these characterizing hypotheses are essential to the formulation: strict log-convexity alone is not a uniqueness condition. The theorem is a positive-real characterization, the usual meaning of Bohr--Mollerup; Gamma's meromorphic continuation is not log-convex on its complex domain. The factorial values follow immediately by induction from the normalized recurrence.
+
+\section{Existence and strictness}
+For $x>0$, Euler's integral is
+\[
+\Gamma(x)=\int_0^\infty t^{x-1}e^{-t}\,dt.
+\]
+It converges, is positive, and gives $\Gamma(1)=1$. Integration by parts gives the recurrence; the boundary terms vanish because $t^xe^{-t}\to0$ at infinity and $t^x\to0$ at zero.
+
+For $x,y>0$ and $a,b>0$ with $a+b=1$, H\"older's inequality gives
+\begin{align*}
+\Gamma(ax+by)
+ &=\int_0^\infty(t^{x-1}e^{-t})^a(t^{y-1}e^{-t})^b\,dt\\
+ &\le \Gamma(x)^a\Gamma(y)^b.
+\end{align*}
+Taking logarithms proves convexity of $L(x)=\log\Gamma(x)$.
+
+Here strictness follows without analyzing equality in H\"older. The recurrence says
+\[
+L(x)=L(x+1)-\log x.
+\]
+The first function on the right is convex, as a translate of $L$. The second is strictly convex on $(0,\infty)$, since $(-\log x)''=1/x^2>0$. Their sum is strictly convex. Explicitly, for $x\ne y$ and $a,b>0$, $a+b=1$, convexity of $L$ and strict concavity of the logarithm give
+\begin{align*}
+L(ax+by)
+ &=L(a(x+1)+b(y+1))-\log(ax+by)\\
+ &<aL(x+1)+bL(y+1)-a\log x-b\log y\\
+ &=aL(x)+bL(y).
+\end{align*}
+This proves the strict log-convexity asserted in the conjecture.
+
+\section{Uniqueness, including the constant}
+Suppose $f>0$ has convex logarithm and satisfies the recurrence. Put $c=f(1)>0$. Induction yields $f(n)=c(n-1)!$ for positive integers $n$.
+
+Fix $0<x\le1$ and an integer $n\ge2$. The increasing secant slopes of the convex function $\log f$ give
+\[
+\log f(n)+x\log(n-1)
+ \le\log f(n+x)
+ \le\log f(n)+x\log n.
+\]
+For the upper bound use convexity between $n$ and $n+1$; for the lower bound compare the slope from $n-1$ to $n$ with that from $n$ to $n+x$. Repeated recurrence also gives
+\[
+f(n+x)=f(x)\prod_{k=0}^{n-1}(x+k).
+\]
+Therefore, with
+\[
+A_n(x)=\frac{(n-1)!}{\prod_{k=0}^{n-1}(x+k)},
+\]
+we have the two-sided estimate
+\[
+cA_n(x)(n-1)^x\le f(x)\le cA_n(x)n^x.
+\]
+The already established properties of $\Gamma$ give the same estimates with $c=1$. Dividing positive quantities consequently yields
+\[
+\left(\frac{n-1}{n}\right)^x
+\le\frac{f(x)}{c\Gamma(x)}
+\le\left(\frac{n}{n-1}\right)^x.
+\]
+Both endpoints tend to one, so $f(x)=c\Gamma(x)$ for $0<x\le1$. For an arbitrary $y>0$, write $y=x+m$ with $0<x\le1$ and a nonnegative integer $m$. Repeated recurrence for both functions extends this identity to $y$. This proves the complete classification.
+
+If $f(1)=1$, then $c=1$ and $f=\Gamma$. Conversely $\Gamma$ has every required property. A multiple $c\Gamma$ can have value one at one only when $c=1$, because $\Gamma(1)=1$. This is the precise normalization and uniqueness constant in the source.
+
+\section{Formal proof and reproduction}
+The Lean project uses Mathlib's actual \texttt{Real.Gamma}. It proves strict log-convexity from translated convexity and strict concavity of \texttt{Real.log}, verifies all characterizing properties, proves normalized uniqueness, and normalizes an arbitrary positive recurrence solution by division by $f(1)$ to prove the full multiplicative classification. Its final biconditional says that the full characterization holds exactly when the function agrees with Gamma at every positive real argument.
+
+The formal proof uses Mathlib's established Gamma integral, recurrence, log-convexity, and Bohr--Mollerup theorem. That theorem is a proved library result, not an axiom or a hypothesis asserting uniqueness. The report above supplies the classical complete uniqueness argument. No claim is made about arbitrary values of the totalized Lean functions outside the positive real axis.
+
+Run \texttt{lake build} in \texttt{lean/}, using Lean 4.19.0. The public Mathlib dependency is pinned to
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The build prints axiom audits for strictness, the Gamma properties, normalized uniqueness, the rescaling classification, the constant-one theorem, and the final characterization. No proof placeholders, custom axioms, or native evaluation shortcuts are used.
+\end{document}
