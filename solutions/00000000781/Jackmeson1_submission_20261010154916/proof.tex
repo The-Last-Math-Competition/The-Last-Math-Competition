@@ -1,0 +1,89 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xurl}
+\let\oldus\_
+\renewcommand{\_}{\oldus\allowbreak}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Zp}{\mathbb{Z}_p}
+
+\title{A disproof of Conjecture 00000000781\\[2pt]
+\large The closed-subgroup lattice of $1+p\Zp$}
+\date{}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\section{The conjecture and the reading}
+
+\begin{quote}
+\emph{Definition:} The lattice of closed subgroups of $1+p\Zp$ is the combinatorial structure of the
+multiplicative group. \emph{Conjecture:} This subgroup lattice is isomorphic to a quotient lattice of the
+integers; the isomorphism is the valuation stratification; and the isomorphism preserves the stratified
+structure of the valuation filtration.
+\end{quote}
+
+\textbf{Reading.} Neither the English nor the Chinese text restricts $p$ (in particular, neither says
+``odd''), so the statement is read for every prime $p$; we refute it at $p=2$. The conclusion is a
+conjunction, so it suffices to refute the first clause, the existence of an isomorphism. The lattice is the set
+of closed subgroups of $U_1(p)=\{u\in\Zp^\times : p \mid u-1\}$ ordered by inclusion (the topology is the
+subspace topology from the unit group); a lattice isomorphism is the same as an order isomorphism.
+
+\textbf{Convention for ``quotient lattice of the integers''.} This is not a defined term. We formalize four
+readings (Lean: \texttt{C781.QuotientLatticeOfInt}): a lattice $L$ that is a surjective lattice-homomorphic
+image of (a) the chain $(\Z,\le)$, (b) the subgroup lattice of $\Z$, (c) its order dual (the divisibility
+lattice), or (d) a lattice isomorphic to the subgroup lattice of $\Z/n\Z$. Other senses are not covered,
+and the statement for odd $p$ (where it is plausibly true) is not addressed.
+
+\section{Proof}
+
+\begin{lemma}[Distributivity]
+Every lattice in (a)--(d) is distributive.
+\end{lemma}
+\begin{proof}
+A surjective lattice homomorphic image of a distributive lattice is distributive. The chain is distributive.
+Every subgroup of $\Z$ is $n\Z$, with $n\Z\cap m\Z=\mathrm{lcm}(n,m)\Z$ and $n\Z+m\Z=\gcd(n,m)\Z$; the
+identity $\gcd(\mathrm{lcm}(a,b),\mathrm{lcm}(a,c))=\mathrm{lcm}(a,\gcd(b,c))$ is checked on prime
+factorizations, giving distributivity of the subgroup lattice of $\Z$, hence of its dual. For
+$\Z/n\Z$, pulling back along the surjection $\Z\to\Z/n\Z$ is an order embedding preserving meets and joins into
+the subgroup lattice of $\Z$. (Lean: \texttt{distrib\_of\_surj}, \texttt{dual\_distrib}, \texttt{gcd\_lcm\_key},
+\texttt{subZ\_distrib}, \texttt{subZMod\_distrib}, \texttt{quotient\_distrib}.)
+\end{proof}
+
+\begin{lemma}[A diamond at $p=2$]
+Let $\rho:\Z_2\to\Z/8$ be reduction and, for $a\in\{3,5,7\}$, $H_a=\{u\in U_1(2):\rho(u)\in\{1,a\}\}$. Then
+$H_a$ is a closed subgroup, $H_7\cap H_3=H_7\cap H_5=\{\rho=1\}$, and the only closed subgroup containing
+$H_7$ and $H_a$ ($a=3,5$) is $U_1(2)$.
+\end{lemma}
+\begin{proof}
+$\rho$ is continuous (its fibres are balls of radius $2^{-3}$) into a discrete space, so $H_a=\rho^{-1}\{1,a\}$
+is closed; it is a subgroup because $a^2=1$ in $\Z/8$. Every $u\in U_1(2)$ has $\rho(u)=1+2s$, so
+$\rho(u)\in\{1,3,5,7\}$. If a closed subgroup $X$ contains $H_7$ and $H_a$, then it contains $-1$
+($\rho(-1)=7$); if $\rho(u)$ is neither $1,7$ nor $a$, then $\rho(-u)=a$, so $-u\in X$ and $u=(-1)(-u)\in X$.
+(Lean: \texttt{pi8\_cont}, \texttt{Hres}, \texttt{top\_of}, \texttt{isLUB\_pair}, \texttt{isGLB\_pair}.)
+\end{proof}
+
+\begin{lemma}[Main theorem]
+There is no order isomorphism from the closed subgroups of $1+2\Z_2$ onto a lattice as in (a)--(d).
+\end{lemma}
+\begin{proof}
+Suppose $e$ is one. An order isomorphism carries meets and joins (as greatest lower bounds and least upper
+bounds) to meets and joins, so by Lemma 2, $e(H_7)\wedge e(H_3)=e(H_7)\wedge e(H_5)$ and
+$e(H_7)\vee e(H_3)=e(H_7)\vee e(H_5)$. Since $L$ is distributive (Lemma 1), cancellation gives
+$e(H_3)=e(H_5)$, so $H_3=H_5$. But $3$ is a unit of $\Z_2$ with $3-1=2$, so $3\in H_3\setminus H_5$. Contradiction.
+\end{proof}
+
+\section{Lean and audit}
+
+File \texttt{Conjecture781/Basic.lean} (identical to \texttt{Tlmc/C781.lean}). The statement block defines
+\texttt{U1}, \texttt{QuotientLatticeOfInt}, \texttt{Conjecture p} (there is a lattice $L$ with
+\texttt{QuotientLatticeOfInt L} and an order isomorphism \texttt{ClosedSubgroup (U1 p)} $\simeq_o L$) and
+\texttt{Claim := not (forall p prime, Conjecture p)}. The theorem is \texttt{C781.main : C781.Claim}.
+Axioms: only \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}; no \texttt{sorry}.
+
+\textbf{Python check.} The same diamond exists in $(\Z/8)^\times$: subgroups $\{1,3\},\{1,5\},\{1,7\}$ meet
+pairwise in $\{1\}$ and join to everything (attempt file \texttt{check\_code}).
+
+\end{document}
