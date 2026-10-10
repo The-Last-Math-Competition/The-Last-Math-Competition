@@ -1,0 +1,169 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{pdftitle={A Carlitz rank counterexample for conjecture 1043},pdfauthor={Galaxy-0}}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newcommand{\F}{\mathbb F}
+\newcommand{\PP}{\mathbb P}
+\newcommand{\rk}{\operatorname{Crk}}
+\title{A Carlitz rank counterexample for conjecture 1043}
+\author{Galaxy-0}
+\date{9 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The permutation $(7\ 8)(9\ 10)$ of $\F_{11}$ has standard Carlitz rank greater than four. We give a structural proof and a complete, independently structured Lean 4.31.0 verification. The explicit polynomial
+\[
+p(x)=x-(x-7)^{10}+(x-8)^{10}-(x-9)^{10}+(x-10)^{10}
+\]
+is a permutation polynomial inducing this counterexample. Thus the universal rank bound in the first clause of conjecture 1043 is false under the established meaning of Carlitz rank.
+\end{abstract}
+
+\section{Statement and meaning of rank}
+The official conjecture asserts a universal upper bound of four for permutation rank over prime fields, followed by a further claim about a norm-basis decomposition. It describes Carlitz rank using the phrase ``AB-expression layers,'' but does not define $A$ or $B$ or cite another source. We do not supply an invented interpretation of those letters.
+
+We use the established Carlitz-rank definition: for a permutation $f$ of $\F_q$, with $q>2$, its rank is the least number $k$ of copies of
+\[
+ I(x)=x^{q-2},\qquad I(0)=0,
+\]
+in a composition
+\[
+ f=\theta_0\circ I\circ\theta_1\circ I\circ\cdots\circ I\circ\theta_k,
+ \qquad \theta_i(x)=a_i x+c_i,\quad a_i\ne0.
+\]
+The actual definition appears in Ding's primary research paper \cite[Section 4, after Theorem 10]{ding}, which attributes it to Aksoy et al.\ \cite{aksoy}. This is the standard meaning of the mathematical term used by the official statement. The undefined shorthand remains a source limitation and is not asserted to have an independently verified meaning here.
+
+Refuting the first universal clause suffices to refute its conjunction with the additional decomposition clause. We neither need nor claim to classify the latter clause. We prove an explicit failure over one prime field, rather than infer a universal result from finitely many tested fields. No exact value of the counterexample's rank is claimed.
+
+\section{The counterexample}
+Let $f$ fix $0,1,2,3,4,5,6$, exchange $7$ with $8$, and exchange $9$ with $10$, all in $\F_{11}$. It is an involution and hence a bijection. The displayed polynomial $p$ induces $f$: for every $a\in\F_{11}$, the function $1-(x-a)^{10}$ is the indicator of $a$. Adding the indicators at $7$ and $9$ and subtracting those at $8$ and $10$ gives exactly $p(x)-x$. These identities are also checked on every residue by Lean, so no unformalized interpolation theorem is required.
+
+\begin{theorem}\label{thm:main}
+There is no standard Carlitz expression for $f$ with at most four inversions.
+\end{theorem}
+
+\section{A structural proof}
+All compositions are read right to left. Extend each field permutation to $\PP^1(\F_{11})=\F_{11}\cup\{\infty\}$ by fixing $\infty$. Write $J$ for projective reciprocal, which exchanges $0$ and $\infty$, and put $\tau_b=(b\ \infty)$. On all twelve points,
+\[
+ I=J\circ\tau_0.
+\]
+This identity includes both exceptional points; it does not confuse the zero-fixed inversion $I$ with projective reciprocal $J$.
+
+\begin{lemma}\label{lem:star}
+Every affine/inversion expression $g$ using $k$ inversions has a representation
+\[
+ g=M\circ\tau_{b_1}\circ\cdots\circ\tau_{b_k},
+\]
+where $M$ is a M\"obius transformation and all $b_i$ are finite points.
+\end{lemma}
+\begin{proof}
+An initial affine map is itself M\"obius. Postcomposing a representation with another affine map $L$ simply replaces $M$ by $L\circ M$.
+
+For an inversion step, take $b=g^{-1}(0)$. This point is finite since $g$ fixes $\infty$. Conjugation of transpositions gives
+\[
+ \tau_0\circ g=g\circ\tau_b.
+\]
+Indeed $g(b)=0$ and $g(\infty)=\infty$. Therefore
+\[
+ I\circ g=J\circ\tau_0\circ g
+          =J\circ g\circ\tau_b
+          =(J\circ M)\circ\tau_{b_1}\circ\cdots\circ\tau_{b_k}\circ\tau_b.
+\]
+The map $J\circ M$ is M\"obius. Induction proves the assertion for every expression, without restricting its nonzero affine slopes or its translations.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Suppose $f=M\circ S$ is supplied by Lemma~\ref{lem:star} with $k\le4$. The product $S=\tau_{b_1}\circ\cdots\circ\tau_{b_k}$ has support contained in
+\[
+ T=\{\infty,b_1,\ldots,b_k\},\qquad |T|\le5.
+\]
+The support of $f$ is $U=\{7,8,9,10\}$, of size four. If $x\notin T\cup U$, then $S(x)=x=f(x)$ and consequently $M(x)=x$. At least $12-5-4=3$ distinct projective points have this property.
+
+A M\"obius transformation with three distinct fixed points is the identity. To see this directly, a matrix $\left(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\right)$ with nonzero determinant sends $[u:v]$ to $[au+bv:cu+dv]$. Its fixed points satisfy
+\[
+ cu^2+(d-a)uv-bv^2=0.
+\]
+A nonzero homogeneous quadratic on a projective line has at most two distinct zeros. Thus three fixed points force $c=b=0$ and $d=a$, which is the identity projective map. It follows that $M$ is the identity and $f=S$.
+
+Every moved finite point of $S$ must appear among $b_1,\ldots,b_k$. Since $f$ moves four finite points, $k\ge4$. Hence $k=4$ and the $b_i$ are all distinct, exactly the four points of $U$ in some order. But the rightmost transposition sends $\infty$ to $b_4$, and the other three transpositions fix $b_4$. Therefore $S(\infty)=b_4\ne\infty$, contradicting $f(\infty)=\infty$.
+\end{proof}
+
+\section{Complete formal verification}
+The Lean project proves Theorem~\ref{thm:main} through a separate algebraic normal form and a kernel-checked finite certificate. Its underlying model is \texttt{Fin 11} with core Lean's modular arithmetic; it does not assume an abstract field library. Primality of $11$, the identity $I(x)=x^9$, the nonzero reciprocal law, bijectivity, and the polynomial representation are all proved.
+
+\subsection{Expression coverage}
+The inductive predicate \texttt{Represents k f} starts with any affine map of nonzero slope and has the step
+\[
+ g(x)=aI(f(x))+b,\qquad a\ne0,
+\]
+which increments $k$ by one. This is exactly the arbitrary alternating expression defining standard Carlitz rank. \texttt{RankAtMost n f} means that some such expression has inversion count $k\le n$; no minimal-rank assumption is inserted into a hypothesis.
+
+For a list of outer-first translations, define
+\[
+ E_{[]}(u,v;x)=ux+v,\qquad
+ E_{b::B}(u,v;x)=I(E_B(u,v;x))+b.
+\]
+The theorem \texttt{normal\_affine} proves, by induction on the entire list, that every affine postcomposition $sE_B+t$, with $s\ne0$, has another such normal form of the same length. The inductive step uses
+\[
+ sI(y)=I(s^{-1}y),
+\]
+including $y=0$, and distributivity. The theorem \texttt{complete\_normal\_form} then proves by expression induction that every \texttt{Represents k f} has a normal form with list length $k$. All translation coefficients, including zero, are allowed. The normalized initial slope is even allowed to vanish, enlarging the excluded family rather than restricting coverage.
+
+\subsection{The finite certificate and lower ranks}
+The stripping map $J_b(y)=I(y-b)$ reverses one outer layer because
+\[
+ J_b(I(y)+b)=I(I(y))=y
+\]
+on every residue, including zero. Thus stripping all normalized layers gives an affine map $h$, necessarily satisfying
+\[
+ h(x)=(h(1)-h(0))x+h(0)\quad\text{for every }x\in\F_{11}.
+\]
+For every triple and every quadruple of stripping parameters, Lean's ordinary \texttt{decide} constructs a kernel-checked proof that the stripped witness violates this equation. The complete parameter counts are $11^3=1331$ and $11^4=14641$. There is no native-decision shortcut, admitted statement, or external computation axiom.
+
+The following first-failure counts provide an auxiliary reproducibility check. The Python checker recomputes them using modular exponentiation, separately from the Lean inverse table.
+\begin{center}
+\begin{tabular}{lrrrrrrrrr}
+\toprule
+Layers / first $x$ & 2&3&4&5&6&7&8&9&10\\
+\midrule
+3 &1182&103&16&10&8&10&0&2&0\\
+4 &13010&1118&150&68&40&249&6&0&0\\
+\bottomrule
+\end{tabular}
+\end{center}
+Both rows exhaust all tuples and leave zero affine survivors. The executable checker is auxiliary; the Lean theorems themselves establish the universal finite claims.
+
+Finally, $I\circ I$ is the identity, including at zero. Adding two inversion steps pads ranks $0$ and $2$ to $4$, and rank $1$ to $3$. The verified exclusions for $3$ and $4$ therefore rule out every inversion count at most four.
+
+\subsection{Main theorems and trust boundary}
+\noindent\texttt{rank\_exceeds\_four} proves that \texttt{RankAtMost 4 witness} is false.
+
+\noindent\texttt{standard\_carlitz\_bound\_false} negates the bound for all bijections of \texttt{Fin 11}.
+
+\noindent\texttt{polynomial\_counterexample} proves jointly that the explicit polynomial is bijective and that its rank-at-most-four predicate is false.
+
+The project uses Lean 4.31.0 with bundled \texttt{Std} and no external dependency. Principal-theorem audits report only the standard logical axioms \texttt{propext} and \texttt{Quot.sound}; no additional axiom is introduced. The structural argument above is an independent human-readable proof; the formal theorem does not assume the projective-line lemma or any cited theorem about Carlitz ranks.
+
+\section{Reproduction}
+From the submission directory, run \texttt{bash verify.sh} with Lean 4.31.0 and Lake on \texttt{PATH}. The script copies the source-only Lean project into a fresh temporary directory, runs \texttt{lake --no-cache build}, runs \texttt{lake env lean Check.lean}, and executes \texttt{reproduce.py}. Logs are written under \texttt{logs/}. To rebuild this document, run \texttt{bash build\_pdf.sh} (or, on a standard TeX installation, \texttt{pdflatex solution.tex} twice). No package installation is needed for the Lean project.
+
+\begin{thebibliography}{9}
+\bibitem{official}
+The Last Math Competition, conjecture 00000001043.
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000001043.md}.
+Accessed 9 October 2026.
+\bibitem{aksoy}
+E. Aksoy, A. \c{C}e\c{s}melio\u{g}lu, W. Meidl and A. Topuzo\u{g}lu,
+\emph{On the Carlitz rank of permutation polynomials},
+Finite Fields and Their Applications 15 (2009), 428--440.
+\url{https://doi.org/10.1016/j.ffa.2009.02.006}.
+\bibitem{ding}
+Z. Ding, \emph{Connecting two types of representations of a permutation of $\F_q$}, Section 4, definition following Theorem 10.
+\url{https://arxiv.org/html/2103.09064v1}.
+\end{thebibliography}
+\end{document}
