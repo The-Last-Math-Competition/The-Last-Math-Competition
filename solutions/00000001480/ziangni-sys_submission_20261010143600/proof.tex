@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Dependent logarithmic constraints with zero duality gap\\\large Disproof of Conjecture 00000001480}
+\author{ziangni-sys}\date{10 October 2026}
+\begin{document}\maketitle
+\noindent\textbf{Result.} Log-linear independence of the constraints is not necessary for zero duality gap. Two duplicate monomial constraints give a counterexample already on the cone of one-by-one positive-definite matrices.
+
+\section*{The stated criterion}
+The English conjecture says that the criterion for zero duality gap of geometric-programming-type problems over the positive-definite matrix cone is log-linear independence of the constraints. The Chinese version explicitly says that this is a necessary and sufficient condition. Neither statement excludes duplicate or redundant constraints. We disprove necessity. A geometric program in dimension one is a special case of the stated matrix-cone class, since $[x]$ is positive definite exactly when $x>0$.
+
+\section*{An actual geometric program on the cone}
+Consider the monomial geometric program
+\[
+ \min_{x>0} x
+ \quad\text{subject to}\quad
+ x^{-1}\le1,\qquad x^{-1}\le1.
+\]
+The variable is the positive-definite matrix $[x]$; its sole entry is the objective and its inverse entry defines both constraints. The feasible set is $x\ge1$, and the minimum is $1$, attained at $x=1$. There are strictly feasible points, for example $x=2$; the duplicates do not introduce any lack of interior feasibility.
+
+Write $x=e^y$ with unrestricted $y\in\mathbb R$. Every scalar positive-definite matrix is represented in this way, using $y=\log x$. Taking logarithms of the objective and constraints gives
+\[
+ \min_{y\in\mathbb R} y
+ \quad\text{subject to}\quad
+ g_1(y)=-y\le0,\qquad g_2(y)=-y\le0.
+\]
+The feasible set is $y\ge0$, and the logarithmic primal optimum is $0$, attained at $y=0$. The original primal optimum is its exponential, $1$.
+
+\section*{The genuine Lagrangian dual}
+For multipliers $\lambda_1,\lambda_2\ge0$ the logarithmic Lagrangian is
+\[
+ \mathcal L(y,\lambda)=y-\lambda_1 y-\lambda_2 y
+ =(1-\lambda_1-\lambda_2)y.
+\]
+Its infimum over all real $y$ is
+\[
+ q(\lambda)=\inf_{y\in\mathbb R}\mathcal L(y,\lambda)
+ =\begin{cases}
+ 0,&\lambda_1+\lambda_2=1,\\
+ -\infty,&\lambda_1+\lambda_2\ne1.
+ \end{cases}
+\]
+The second case follows by letting $y$ go to the appropriate signed infinity. In the first case the Lagrangian is identically zero. Thus the true dual supremum is $0$, attained at $(\lambda_1,\lambda_2)=(1,0)$, and the logarithmic gap is $0-0=0$.
+
+Exponentiating the finite logarithmic dual values gives the usual original-scale geometric dual bound. Its supremum is $e^0=1$, attained by the same multipliers. The original-scale gap is therefore $1-1=0$. Values of $q=-\infty$ exponentiate to zero and cannot alter this supremum. No logarithmic objective is subtracted from an original-scale objective.
+
+For a direct bound independent of the explicit case classification, any finite Lagrangian infimum $d$ satisfies $d\le\mathcal L(0,\lambda)=0$. Consequently all corresponding original-scale dual values $e^d$ are at most one. The witness above attains one. The Lean proof uses exactly this actual-infimum argument.
+
+\section*{Dependence and contradiction}
+The logarithmic constraint functions satisfy
+\[
+ 1\cdot g_1+(-1)\cdot g_2=0.
+\]
+The coefficient vector is nonzero. Hence the constraints are log-linearly dependent, even as full functions rather than merely at a single point. We have exhibited a zero-gap geometric program on the positive-definite cone with dependent logarithmic constraints, contradicting the necessity direction of the proposed biconditional. Removing duplicates may give a different formulation, but the stated criterion applies to the given constraints and does not impose such a preprocessing convention.
+
+\section*{Formal verification}
+Lean defines the actual one-by-one matrices $[e^y]$, proves positive definiteness, evaluates their monomial constraints, and proves the logarithmic objective and feasibility bridges. It verifies the true Lagrangian infimum at the dual witness, bounds all finite true infima, and proves the original primal greatest lower bound and dual least upper bound are both one. It proves the constraint family is not linearly independent and packages the zero-gap counterexample.
+
+Run \texttt{lake build} in \texttt{lean/}. The project pins Lean 4.19.0 and Mathlib commit
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}\end{center}
+The full build prints final theorem axiom audits. There are no admitted results, custom axioms, or unchecked computations.
+\end{document}
