@@ -1,0 +1,213 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\floor}[1]{\left\lfloor #1\right\rfloor}
+\title{A transcendental real with Sturmian partial quotients\\\large Conjecture 00000000347}
+\author{Independent proof and Lean 4 formalization}
+\date{9 October 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The conjecture is true. We construct an injective family of ordinary continued-fraction reals indexed by irrational slopes in $(0,1)$. Every fractional partial-quotient word in this family has exactly $n+1$ distinct factors of length $n$. Since the family is uncountable and the algebraic reals are countable, one member is transcendental. The proof uses elementary floor identities, a finite-word counting argument, and the contraction mapping theorem. The accompanying Lean theorems prove the complete existence assertion under both indexing conventions: testing the fractional partial-quotient word beginning at $a_1$, or testing the full sequence beginning at $a_0$. The two conventions use reciprocal witnesses.
+\end{abstract}
+
+\section{Statement and conventions}
+The bilingual source asserts the existence of a transcendental $\alpha$ whose partial-quotient sequence is Sturmian, explicitly meaning complexity $n+1$. We use ordinary real regular continued fractions
+\[
+ \alpha=[a_0;a_1,a_2,\ldots].
+\]
+The source leaves the initial index implicit. We first test the fractional word $a_1a_2a_3\cdots$, with integer part $a_0$ separated. Its positions are relabeled from zero when convenient, without adding or removing letters. We then prove a companion assertion for the full word $a_0a_1a_2\cdots$, using the reciprocal real. Thus neither interpretation of the source depends on an arbitrary prefix insertion or deletion. For $n\geq1$, its factor set is
+\[
+ \mathcal F_\alpha(n)=
+ \{(a_{j+1},a_{j+2},\ldots,a_{j+n}):j\in\N\}.
+\]
+The required equality is $|\mathcal F_\alpha(n)|=n+1$ for every positive integer $n$. Transcendence means that no nonzero polynomial over $\Q$ vanishes at $\alpha$. Our alphabet will be the two positive integers $1,2$.
+
+For complete clarity, the ordinary algorithm is defined by
+\[
+ x_0=\alpha,\qquad a_j=\floor{x_j},\qquad
+ x_{j+1}=\{x_j\}^{-1},\qquad \{x\}=x-\floor{x}.
+\]
+We prove $\{x_j\}>0$ at every stage, so the reciprocal is always taken at a positive, nonzero remainder. No artificial continuation of a terminated expansion is involved.
+
+\section{Mechanical words and exact factor complexity}
+For an irrational $t\in(0,1)$ put
+\[
+ F_t(k)=\floor{kt},\qquad b_t(k)=F_t(k+1)-F_t(k)\quad(k\in\N).
+\]
+Since $0<t<1$, every letter $b_t(k)$ is either $0$ or $1$. Let $p_t(n)$ denote the number of distinct contiguous length-$n$ factors of this binary word; $p_t(0)=1$.
+
+\begin{lemma}\label{upper}
+For every $n\in\N$, $p_t(n)\leq n+1$.
+\end{lemma}
+\begin{proof}
+For a factor starting at $j$, define its cumulative counts
+\[
+ C_j(k)=F_t(j+k)-F_t(j),\qquad 0\leq k\leq n.
+\]
+These are exactly the sums of its first $k$ letters. Writing $r_j=\{jt\}$, the floor translation identity gives
+\[
+ C_j(k)=\floor{kt+r_j}.
+\]
+Hence
+\[
+ G_j(k)=C_j(k)-\floor{kt}\in\{0,1\}.
+\]
+Associate to this occurrence the rank
+\[
+ R_j=\sum_{k=1}^n G_j(k)\in\{0,1,\ldots,n\}.
+\]
+If $r_j\leq r_\ell$, then $G_j(k)\leq G_\ell(k)$ for every $k$. If additionally $R_j=R_\ell$, equality holds in every coordinate. The same conclusion follows with $j,\ell$ reversed when $r_\ell\leq r_j$. Thus equal ranks imply equal cumulative counts, and therefore equal letters, since
+\[
+ b_t(j+k)=C_j(k+1)-C_j(k).
+\]
+Choose one occurrence for each distinct factor. Their ranks must be distinct, yielding the claimed bound. In fact the rank depends only on the factor, because each $C_j(k)$ does.
+\end{proof}
+
+\begin{lemma}\label{aperiodic}
+No two distinct suffixes of $b_t$ are equal.
+\end{lemma}
+\begin{proof}
+Suppose $j<\ell$ and $b_t(j+k)=b_t(\ell+k)$ for all $k\geq0$. Summing the first $k$ equalities gives
+\[
+ F_t(j+k)-F_t(j)=F_t(\ell+k)-F_t(\ell).
+\]
+Set $q=\ell-j>0$ and $c=F_t(\ell)-F_t(j)\in\Z$. The preceding identity, followed by induction, gives
+\[
+ F_t(j+mq)=F_t(j)+mc\quad(m\in\N).
+\]
+Because $F_t(u)\leq ut<F_t(u)+1$, this implies
+\[
+ F_t(j)-jt\leq m(qt-c)<F_t(j)+1-jt
+ \quad(m\in\N).
+\]
+A nonzero real multiplied by arbitrarily large natural numbers cannot remain between fixed bounds. Therefore $qt=c$, contradicting irrationality of $t$.
+\end{proof}
+
+\begin{lemma}\label{lower}
+Let $w$ be a one-sided infinite word over a finite alphabet. If no two distinct suffixes are equal, its factor complexity satisfies $p_w(n)\geq n+1$ for every $n\in\N$.
+\end{lemma}
+\begin{proof}
+Deleting the last letter maps length-$(n+1)$ factors onto length-$n$ factors. Therefore $p_w(n+1)\geq p_w(n)$. If these two numbers were equal, the surjective map between the finite sets would be injective. Consequently every length-$n$ factor would have a unique right extension.
+
+There are only finitely many length-$n$ factors and infinitely many starting positions, so two positions $j<\ell$ have equal length-$n$ factors. Unique extension gives equal length-$(n+1)$ factors. Deleting the first letter then gives equal length-$n$ factors at $j+1,\ell+1$. Repeating proves equal letters at $j+k,\ell+k$ for all $k\geq0$, contrary to the hypothesis. Thus $p_w(n+1)>p_w(n)$ for every $n\geq0$. Induction from $p_w(0)=1$ proves the result. The same reasoning applies at $n=0$, where there is one empty factor.
+\end{proof}
+
+Lemmas~\ref{upper}--\ref{lower} give
+\begin{equation}\label{complexity}
+ p_t(n)=n+1\qquad(n\in\N).
+\end{equation}
+
+\begin{lemma}\label{injective}
+The map $t\mapsto b_t$ is injective on irrational slopes in $(0,1)$.
+\end{lemma}
+\begin{proof}
+If $b_t=b_s$, summing the first $k$ letters and using $F_t(0)=F_s(0)=0$ gives $F_t(k)=F_s(k)$ for every $k$. The defining floor inequalities imply
+\[
+ -1<k(t-s)<1\qquad(k\in\N).
+\]
+The Archimedean property forces $t=s$.
+\end{proof}
+
+\section{Realizing the words as ordinary continued fractions}
+For every binary word $b:\N\to\{0,1\}$, we construct a real whose ordinary continued-fraction digits are $d_n=1+b(n)\in\{1,2\}$.
+
+Let $I=[1/3,3/4]$ and let $X=I^{\N}$ with the supremum metric. This is a nonempty complete metric space: the interval is closed in $\R$, all sequences are uniformly bounded, and uniform limits remain in $I$. Define
+\[
+ (T_b r)_n=\frac1{d_n+r_{n+1}}.
+\]
+Since $4/3\leq d_n+r_{n+1}\leq11/4$, the result lies in $I$. For $x,y\in I$ and $d\in\{1,2\}$,
+\[
+ \left|\frac1{d+x}-\frac1{d+y}\right|
+ =\frac{|x-y|}{(d+x)(d+y)}
+ \leq\frac9{16}|x-y|.
+\]
+Thus $T_b$ is a contraction. The contraction mapping theorem supplies a fixed sequence $r$, with
+\begin{equation}\label{tails}
+ r_n=\frac1{d_n+r_{n+1}},\qquad r_n\in[1/3,3/4].
+\end{equation}
+Set $\alpha_b=r_0$. Then $0<\alpha_b<1$, so $a_0=0$. From~\eqref{tails},
+\[
+ \alpha_b^{-1}=d_0+r_1.
+\]
+Inductively, the ordinary complete quotients satisfy
+\[
+ x_{n+1}=r_n^{-1}=d_n+r_{n+1}.
+\]
+Their integer parts are $a_{n+1}=d_n$, and their fractional parts are $r_{n+1}>0$. At index zero the fractional part is $r_0>0$ as well. This proves all of the following for the same real:
+\[
+ \alpha_b=[0;1+b(0),1+b(1),\ldots],\qquad
+ a_{n+1}=1+b(n),\qquad \{x_j\}>0.
+\]
+In particular the expansion is infinite and regular. This is also an injective map $b\mapsto\alpha_b$: equal reals have identical deterministic floor-and-invert sequences, hence identical digits and identical binary words.
+
+\section{Transcendence by uncountability}
+The set of irrational slopes in $(0,1)$ is uncountable, because the interval is uncountable and the rationals are countable. Lemma~\ref{injective} and the injectivity of the preceding realization show that
+\[
+ t\longmapsto\alpha_{b_t}
+\]
+is injective. Hence its image is uncountable. The algebraic real numbers are countable: there are countably many rational-coefficient polynomials, and every nonzero polynomial has only finitely many real roots. At least one $\alpha_{b_t}$ is therefore transcendental.
+
+Finally, the coding $0\mapsto1$, $1\mapsto2$ is injective, so it induces a bijection between factors of $b_t$ and factors of the fractional partial-quotient word of $\alpha_{b_t}$. Equation~\eqref{complexity} proves the exact required factor count.
+
+\begin{theorem}
+There exists a transcendental real $\alpha$ with ordinary continued fraction $\alpha=[0;a_1,a_2,\ldots]$ such that $a_j\in\{1,2\}$ for all $j\geq1$ and
+\[
+ |\mathcal F_\alpha(n)|=n+1\qquad\text{for every integer }n\geq1.
+\]
+\end{theorem}
+
+\section{The convention including the integer part}
+The source does not specify whether the word begins at $a_0$ or $a_1$. The preceding construction also resolves the convention beginning at $a_0$, with a different real. For a transcendental witness $\alpha=\alpha_{b_t}$ above, set $\beta=\alpha^{-1}$. If $x_j(\alpha)$ and $x_j(\beta)$ are the actual ordinary complete quotients, then
+\[
+ x_n(\beta)=x_{n+1}(\alpha)\qquad(n\in\N).
+\]
+Indeed, at $n=0$ this follows from $a_0(\alpha)=0$, and the induction step applies the same fractional-part inverse to both sides. Taking floors gives
+\[
+ a_n(\beta)=a_{n+1}(\alpha)=1+b_t(n)\qquad(n\in\N).
+\]
+All fractional remainders remain strictly positive. Consequently the full partial-quotient sequence of $\beta$, including its integer part, has exactly the binary coding whose complexity was already proved. Explicitly, if
+\[
+ \mathcal G_\beta(n)=
+ \{(a_j(\beta),\ldots,a_{j+n-1}(\beta)):j\in\N\},
+\]
+then $|\mathcal G_\beta(n)|=n+1$ for every $n\geq1$. Finally, $\beta$ is transcendental: if $\beta$ were algebraic, closure of algebraic numbers under inversion would make $\alpha=\beta^{-1}$ algebraic.
+
+\begin{theorem}
+There exists a transcendental real $\beta=[a_0;a_1,a_2,\ldots]$ such that every $a_j$ belongs to $\{1,2\}$, including $a_0$, and its full partial-quotient sequence has exactly $n+1$ distinct factors of length $n$ for every $n\geq1$.
+\end{theorem}
+The two theorems therefore cover both indexing conventions. They do not assert that the same real must satisfy both conventions: their witnesses are related by $\beta=1/\alpha$.
+
+\section{Formalization and verification scope}
+The Lean sources use Lean~4.19.0 and Mathlib at the pinned commit:
+\begin{center}
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+\end{center}
+The modules correspond to the argument as follows:
+\begin{itemize}
+\item \texttt{WordCombinatorics.lean}: contiguous factors, finite factor complexity, and Lemma~\ref{lower}.
+\item \texttt{Mechanical.lean}: the floor-defined binary words, the rank upper bound, aperiodicity, injectivity, and exact complexity for every natural length.
+\item \texttt{CFRealization.lean}: the complete metric space, contraction, genuine ordinary partial-quotient recursion, nontermination, and injectivity.
+\item \texttt{Proof.lean}: uncountability, algebraic countability, factors of the actual integer-valued partial quotients, and both complete existence theorems.
+\end{itemize}
+The fractional-word theorem is \texttt{SturmianCF.conjecture00000000347}. It states transcendence over $\Q$, integer part zero, strictly positive remainders at every algorithm stage, positive partial quotients equal to $1$ or $2$, and finite actual factor sets of cardinality exactly $n+1$ for every $n>0$.
+
+The companion theorem is \texttt{conjecture00000000347\_including\_integer\_part} in the same namespace. It proves the full-sequence convention for the reciprocal witness, using an explicit identity of complete quotients and the stock theorem that inverses of algebraic numbers are algebraic.
+
+The factor set is a set of functions \texttt{Fin n $\to$ $\mathbb Z$}, obtained from all starting positions in the actual continued-fraction digit sequence. Cardinality is \texttt{Set.ncard}; finiteness is separately proved in the final assertion. The binary factor complexity used internally is connected to this set by an explicitly proved injective coding and equality of cardinalities.
+
+Both final theorems were compiled with \texttt{-DwarningAsError=true}. Each printed axiom footprint is precisely \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}, the standard classical foundations used by Mathlib. No admitted proof, custom axiom, \texttt{native\_decide}, or external numerical assumption is used. Development failures are retained as failures in the accompanying logs. The replay materials record source hashes, exact commands, and exit statuses. Two missing cached stock Mathlib modules are compiled from unmodified stock source into a private build overlay; the shared stock library is not modified.
+
+No prior solution of the conjecture or external mathematical solution source was consulted. The mathematical references used during development were the stock Mathlib definitions and theorems for floors, finite cardinality, the contraction mapping theorem, and countability of algebraic numbers. The argument itself is fully given above and is checked by the included Lean development.
+
+\end{document}
