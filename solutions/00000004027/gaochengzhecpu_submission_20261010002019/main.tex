@@ -1,0 +1,182 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Prob}{\mathbb P}
+\title{Zero mean does not imply a symmetric\\rough L\'evy-area sign law\\
+\large Disproof of Conjecture 00000004027}
+\author{gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+A planar pure-area rough path has zero first level and second-level increments
+$\mathbb X_{s,t}=A(t-s)J$, where $J$ is the standard antisymmetric matrix and
+$A$ takes the values $2,-1,-1$ on three equiprobable outcomes.
+Every entry of $\E\mathbb X_{s,t}$ vanishes for every time interval.
+Nevertheless, the area sign law is constantly
+$\frac13\delta_1+\frac23\delta_{-1}$.
+Reflection leaves the entire mean tensor unchanged and reverses the sign bias.
+This disproves both the asserted sufficient condition and the claim that the
+asymmetry is determined by that mean.
+\end{abstract}
+
+\section*{The assertion and the rough-path convention}
+The source claims that, for rough planar drivers, the area sign distribution
+converges to a symmetric law if and only if the second level has zero mean,
+and that its asymmetry is a functional of that mean. No stationarity,
+independence, mixing, or nondegeneracy hypothesis is stated. The example
+below satisfies zero mean for the \emph{whole tensor at all times}, not merely
+for its antisymmetric part or at selected endpoints.
+
+We use the standard weak geometric step-2 rough-path convention.
+Its increments $(X_{s,t},\mathbb X_{s,t})$ satisfy
+\begin{align*}
+X_{s,t}&=X_{s,u}+X_{u,t},\\
+\mathbb X_{s,t}&=\mathbb X_{s,u}+\mathbb X_{u,t}
+                  +X_{s,u}\otimes X_{u,t},\\
+\mathbb X_{s,t}^{ij}+\mathbb X_{s,t}^{ji}&=X_{s,t}^iX_{s,t}^j,
+\end{align*}
+with bounds $|X_{s,t}|\leq C|t-s|^{1/2}$ and
+$|\mathbb X_{s,t}|\leq C|t-s|$ on compact time intervals.
+We use maximum coordinate norms; finite-dimensional norm equivalence makes
+this choice immaterial. These bounds also imply every weaker rough-path
+H\"older regularity $1/3<\alpha<1/2$ locally.
+
+Pure-area paths are standard rough enhancements of the zero first-level
+path. For the terminology, see Caravenna, Gubinelli, and Zambotti,
+\emph{Lectures on rough paths}, version 14 May 2025,
+Section 11.4, Lemma 11.9: an additive second level with the required regularity
+gives a pure-area rough path, and antisymmetry gives weak geometricity.
+All defining identities and bounds needed here are checked directly below.
+
+\section*{A genuine pure-area rough driver}
+Let $\Omega=\{0,1,2\}$ with probability $1/3$ at each point, and set
+\[
+A(0)=2,\qquad A(1)=A(2)=-1,
+\qquad J=\begin{pmatrix}0&1\\-1&0\end{pmatrix}.
+\]
+For each outcome define, for every $s,t\in\mathbb R$,
+\[
+X_{s,t}=0,\qquad \mathbb X_{s,t}=A(t-s)J.
+\]
+Both levels vanish on the diagonal. Additivity of $t-s$ proves Chen's
+identity, since its cross term is zero. Antisymmetry of $J$ proves the shuffle
+identity. Entrywise,
+\[
+|X_{s,t}^i|=0,\qquad
+|\mathbb X_{s,t}^{ij}|\leq |A|\,|t-s|.
+\]
+Thus every outcome is a weak geometric rough path, with the stated regularity;
+one can even use the common deterministic constant $C=2$.
+The second level is an enhanced rough-path component, rather than the
+classical iterated integral of the identically zero smooth path.
+
+\begin{theorem}
+The whole second-level mean vanishes on every interval, but its area sign
+law is nonsymmetric and remains unchanged on every nondegenerate interval.
+\end{theorem}
+\begin{proof}
+Since $\E A=(2-1-1)/3=0$,
+\[
+\E\mathbb X_{s,t}^{ij}=(t-s)J_{ij}\E A=0
+\quad\text{for all }s,t,i,j.
+\]
+Use the conventional antisymmetric normalization of L\'evy area,
+\[
+L_{s,t}=\frac{\mathbb X_{s,t}^{12}-\mathbb X_{s,t}^{21}}2=A(t-s).
+\]
+For every $s<t$, its sign equals that of $A$ and never vanishes. Hence
+\[
+\operatorname{Law}(\operatorname{sgn}L_{s,t})
+=\frac13\delta_1+\frac23\delta_{-1}.
+\]
+This law is unequal to its reflection. It is constant, so its limit is the
+same nonsymmetric law. In particular, both the long-time interpretation
+$L_{0,t}$ as $t\to\infty$ and the small-time interpretation as $t\downarrow0$
+fail. The same holds along any sequence of nondegenerate intervals.
+A different positive normalization of area does not change the sign.
+\end{proof}
+
+\section*{The entire mean cannot determine the asymmetry}
+Replace $A$ by $-A$. All rough-path conditions still hold, and the complete
+function $(s,t,i,j)\mapsto\E\mathbb X_{s,t}^{ij}$ is still identically zero.
+But the reflected area has sign law
+$\frac23\delta_1+\frac13\delta_{-1}$.
+Consequently the signed asymmetry
+\[
+b=\Prob(L_{s,t}>0)-\Prob(L_{s,t}<0)
+=\E[\operatorname{sgn}L_{s,t}]
+\]
+equals $-1/3$ for the first driver and $1/3$ for its reflection.
+No functional of the entire mean tensor, explicit or otherwise, can recover
+this asymmetry for every driver. This also explains the basic obstruction:
+zero mean balances magnitudes, whereas symmetric signs balance probabilities.
+
+\section*{Connection with actual smooth signatures}
+For completeness, the supplied Lean file also checks the smooth planar loop
+\[
+\gamma_a(u)=\bigl(u-u^2,\;60a(u^2-u^3)\bigr),\qquad 0\leq u\leq1.
+\]
+It starts and ends at zero, and direct integration gives its actual second
+signature
+\[
+\int_0^1 \gamma_a^i(u)\,d\gamma_a^j(u)=aJ_{ij}.
+\]
+The file proves all four entries, using actual derivatives and interval
+integrals. It also defines concatenation with the prefix increments and
+proves that $N$ repeated copies have second signature $NaJ$.
+These loops are supplementary: their interior-time diagonal means need not
+vanish, so the all-time counterexample above does not use that property.
+
+The same loops give the usual smooth-lift approximation of the pure-area
+example with a loss of regularity. On each cell of a mesh of size $1/n$,
+traverse $n^{-1/2}\gamma_a$, rescaled in time. The first-level excursion is
+$O(n^{-1/2})$, and each completed cell contributes exactly $aJ/n$.
+On compact intervals the resulting lifts have uniform $1/2$-H\"older bounds
+and converge uniformly, in both levels, to $(0,a(t-s)J)$.
+Interpolation therefore gives convergence in every weaker
+$\alpha$-H\"older rough-path topology, $1/3<\alpha<1/2$.
+Piecewise smooth loops may be smoothed without changing the limit.
+Thus the example also lies in the geometric class at any such exponent
+(and in $p$-variation for $2<p<3$). The approximation and interpolation
+argument in this paragraph is a mathematical explanation, not a theorem
+formalized in the accompanying Lean project.
+
+\section*{Exact formalization scope}
+The primary formalization is in the namespace \texttt{PureArea}.
+Its structure \texttt{IsWeakGeometricHalf} spells out the actual two Chen
+identities, diagonal conditions, shuffle identity, and H\"older bounds.
+The theorem \path{genuine_weak_geometric_rough_path} proves every field;
+\path{all_time_whole_tensor_mean_zero} quantifies over arbitrary real
+times and both tensor indices. This is a definition-level verification;
+it does not claim an existing Mathlib rough-path library.
+
+The probability space is normalized counting measure on \texttt{Fin 3}.
+The area is extracted from the second tensor, and its sign law is an actual
+measure pushforward. The file proves the complete law is constant, its two
+atom masses are $1/3$ and $2/3$, and it differs from its reflected measure.
+It further proves that along any sequence of nondegenerate intervals the two
+atom probabilities cannot have a common limit. For laws supported on
+$\{-1,1\}$ this is exactly the necessary probability condition for a
+symmetric limiting law. No general topology of weak convergence of measures
+is developed. Finally, the reflection argument formally rules out an
+arbitrary functional of the full mean tensor that returns expected sign.
+
+The project uses Lean 4.19.0 and Mathlib at a fixed commit. The printed
+dependencies contain only the standard axioms \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}.
+There are no added axioms, proof placeholders, or numerical oracles.
+
+\section*{Sources}
+\begin{enumerate}
+\item \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/9b795e7a94a6076e49a65a6489e1caf9153abd23/conjectures/00000004027.md}{The Last Math Competition, Conjecture 00000004027}.
+The exact bilingual source bytes and their commit and SHA-256 provenance
+are included with the submission.
+\item F. Caravenna, M. Gubinelli, and L. Zambotti,
+\href{https://www.lpsm.paris/_media/users/zambotti/bookcgz.pdf}{\emph{Lectures on rough paths}},
+version 14 May 2025, Section 11.4, Lemma 11.9.
+\end{enumerate}
+\end{document}
