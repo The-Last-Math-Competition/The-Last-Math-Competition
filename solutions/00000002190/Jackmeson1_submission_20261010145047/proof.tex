@@ -1,0 +1,22 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xurl}
+\sloppy
+\let\oldus\_ \renewcommand{\_}{\oldus\allowbreak}
+\begin{document}
+\section*{Conjecture 00000002190: disproof}
+\textbf{Conjecture.} ``The Sperner capacity of $C_{2k+1}$ equals $\cos(\pi/(2k+1))$.''
+
+\paragraph{Reading.} $C_{2k+1}$ is the cycle on \texttt{Fin (2k+1)}, with vertex $i$ adjacent to $i+1 \bmod (2k+1)$. The conjecture is for all $k\ge 1$; we refute it at $k=1$, where $\cos(\pi/3)=1/2$.
+For a digraph with arc relation $E$ a \emph{Sperner code} of length $n$ is a set $S$ of words in $V^n$ such that for every ordered pair $x\neq y$ in $S$ there is a coordinate $i$ with $E(x_i,y_i)$. $M_n$ is the largest size of such a code. ``Capacity $=c$ in unit $u$'' means $u(M_n^{1/n})\to c$, with $u=\mathrm{id}$ (exponential units), $u=\log_2$ (bits) or $u=\ln$ (nats). An orientation of $C_{2k+1}$ has arcs only along cycle edges and exactly one direction on each edge $\{i,i+1\}$ (Lean: \texttt{IsOrientation}); the conjecture is read as ``for some orientation''. We also treat the undirected zero-error (Shannon) capacity: a code in which distinct words have a coordinate with distinct non-adjacent letters.
+Conventions: capacity is a limit; the proof bounds the $\liminf$ from below, so $\limsup$ and $\sup$ readings fail as well. Not refuted: base-4 logarithm at $k=1$ for the cyclic triangle (capacity $2$ would give exactly $1/2$), and nat units at individual $k\ge2$ (not needed).
+
+\section*{Proof}
+\textbf{Sperner.} Any orientation has an arc $a\to b$, $a\neq b$ (Lean: \texttt{xor} at vertex $0$). For $T\subseteq[n]$ let $w_T$ be $b$ on $T$ and $a$ elsewhere. If $|T|=|T'|=\lfloor n/2\rfloor$ and $T\neq T'$, then $T'\not\subseteq T$, so some $j\in T'\setminus T$ has $(w_T(j),w_{T'}(j))=(a,b)$. Hence $M_n\ge\binom{n}{\lfloor n/2\rfloor}$, and since $\sum_i\binom ni=2^n$ with $n+1$ terms, none exceeding the middle one, $2^n\le (n+1)M_n$ (\texttt{arc\_bound}). So $M_n^{1/n}\ge 2/(2^{1/n}n^{1/n})\to 2$ (\texttt{g\_le}, \texttt{g\_tendsto}), using $n+1\le 2n$. For a unit $u$ monotone on $(0,\infty)$ and continuous at $2$, a limit $c$ satisfies $c\ge u(2)$ (\texttt{reading\_ge}). Now $u(2)=2,\,1,\,\ln 2>0.69$ for id, $\log_2$, $\ln$, all exceeding $\cos(\pi/3)=1/2$ (\texttt{sperner\_refuted}).
+
+\textbf{Shannon.} In $C_3=K_3$ any two distinct letters are adjacent, so a code has at most one word and $M_n=1$ (\texttt{shannon\_M}). Then $u(M_n^{1/n})=u(1)\in\{1,0,0\}\neq 1/2$ (\texttt{shannon\_refuted}).
+
+\section*{Lean}
+File \texttt{lean/Conjecture2190/Basic.lean} (namespace \texttt{C2190}); statement block between the STATEMENT markers; main theorem \texttt{C2190.main : Claim}, where \texttt{Claim} is the conjunction of $\neg$\texttt{ConjSperner} and $\neg$\texttt{ConjShannon} in the three units. \texttt{\#print axioms C2190.main}: propext, Classical.choice, Quot.sound. No sorry, no native\_decide.
+\end{document}
