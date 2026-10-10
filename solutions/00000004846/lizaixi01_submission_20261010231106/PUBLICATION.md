@@ -1,0 +1,9 @@
+# Conjecture 00000004846: noninteger subgroup distortion
+
+This AI-assisted submission gives an actual finitely generated group and embedded Heisenberg subgroup with genuine word-metric distortion coarsely equivalent to degree 3/2. It refutes the integer-only spectrum clause and therefore the unchanged original conjunction. The separate hyperbolic and Baumslag-Solitar assertions are not independently settled. No mathematical novelty or worldwide priority is claimed.
+
+The proof, LaTeX and PDF are exact frozen bytes from the completed 10 October 2026 local validation. A separate original-first semantic/PDF reviewer passed the full two-page report and all source obligations. Independent mechanical compilation, the full target type/axiom audit and official fresh kernel replay subsequently passed. Publication reuses these exact-source receipts and rehashes the frozen files; it does not claim a new compilation or organizer acceptance.
+
+Lean 4.33.0 and all Mathlib dependency revisions are pinned in `lean-toolchain`, `lakefile.toml` and `lake-manifest.json`. In this directory run `lake build +Main`; `lake env lean Audit4846.lean` displays the declaration audits. With the matching official checker available, `lake env leanchecker --fresh --verbose Main` replays the imported closure. Dependency retrieval/build is a reviewer operation, not performed during publication.
+
+`report.tex`, `report.pdf`, all eight Lean source/audit modules, the three project configuration files, and `original.md` are included. `VERIFICATION.json` records the exact theorem and verification scope; `SHA256.json` binds each publication file. No external numerical or auxiliary computation is needed by the proof. AI assistance: Codex authored the formalization and report, with an independent Codex review and deterministic Lean validation.
