@@ -1,0 +1,129 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\C}{\mathbb C}
+\title{A uniform pole-free disk for cubic Ihara zeta functions\\
+\large Disproof of Conjecture 00000007915}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+For every finite cubic simple graph, all Ihara poles have modulus at
+least $1/2$. The circle proposed in the source has radius
+$1/(2\sqrt2)<1/2$. A fixed positive gap separates every pole of every
+such graph from that circle, ruling out the asserted equidistribution
+even after only nontrivial poles are retained.
+\end{abstract}
+
+\section*{The asserted circle and the actual operator}
+For $k=3$, the source proposes pole equidistribution on
+\[
+ S_r=\{u\in\C:|u|=r\},\qquad r=\frac1{2\sqrt2}.
+\]
+We use the unrescaled Ihara variable $u$ appearing in that assertion.
+Let $D(G)$ be the oriented edges of a finite simple graph. Define its
+nonbacktracking matrix by
+\[
+ B_{(a,b),(c,d)}=
+ \begin{cases}1,&b=c\text{ and }d\ne a,\\0,&\text{otherwise.}\end{cases}
+\]
+If $G$ is cubic, each row has exactly two entries equal to $1$:
+at the current endpoint there are three neighbors, of which immediate
+reversal excludes one. In particular, every row sum is at most $2$.
+The Hashimoto formula stated as the framework of the source is
+\[
+ \zeta_G(u)=\frac{1}{P_G(u)},\qquad P_G(u)=\det(I-uB).
+\]
+This identifies the operator we use with the genuine Ihara function.
+Because the numerator is $1$ and $P_G(0)=1$, its finite poles are
+exactly the zeros of $P_G$, counted with multiplicity. The determinant
+formula is also recorded, for example, in\footnote{\href{https://www.kurims.kyoto-u.ac.jp/~kyodo/kokyuroku/contents/pdf/2120-10.pdf}{\emph{The Ihara Zeta function and Quantum Walk}, Theorem 3 (Hashimoto--Bass).}}
+the standard graph-zeta literature.
+
+\section*{A bound uniform over all cubic graphs}
+\begin{lemma}
+For every finite cubic simple graph $G$, $P_G(u)\ne0$ whenever
+$|u|<1/2$.
+\end{lemma}
+\begin{proof}
+If $P_G(u)=0$, there is a nonzero vector $x\in\C^{D(G)}$ such that
+$(I-uB)x=0$, or $x=uBx$. Choose a coordinate $a$ for which
+$M=|x_a|=\max_e|x_e|>0$. The row bound gives
+\[
+ M=|u|\,|(Bx)_a|
+   \le |u|\sum_{e:B_{a,e}=1}|x_e|
+   \le 2|u|M.
+\]
+Dividing by $M>0$ yields $|u|\ge1/2$, a contradiction.
+\end{proof}
+
+Set $\delta=1/2-r>0$. For every pole $u$ and every $w\in S_r$,
+the reverse triangle inequality gives
+\[
+ |u-w|\ge |u|-|w|\ge\tfrac12-r=\delta.
+\]
+The same $\delta$ works for every graph size and every realization
+of a random cubic graph. These bounds apply to all poles, and hence
+also to any collection selected by nontrivial spectral parameters.
+
+\section*{Why this disproves equidistribution}
+This is a uniform obstruction, rather than an atypical finite example.
+Define the bounded continuous function
+\[
+ \varphi(z)=\max\left\{0,\,1-
+          \frac{\bigl||z|-r\bigr|}{\delta}\right\}.
+\]
+It equals $1$ at every point of $S_r$ and $0$ at every possible pole,
+since those poles have modulus at least $1/2=r+\delta$.
+Every normalized empirical pole measure therefore integrates
+$\varphi$ to $0$, as does its expectation. Any probability measure
+supported on $S_r$, in particular uniform angular measure, integrates
+$\varphi$ to $1$. Weak convergence to such a measure is impossible.
+The argument also rules out convergence in probability or almost
+surely for random empirical measures: the test integral is identically
+zero at every stage. Deleting trivial poles or changing multiplicities
+cannot produce mass in the separated neighborhood of the circle.
+Thus the first assertion of the source fails already at $k=3$.
+
+\section*{Correspondence with Lean}
+The matrix \texttt{nonbacktracking} is built on actual
+\texttt{SimpleGraph.Dart} objects. The theorem
+\texttt{successors\_\allowbreak{}card\_\allowbreak{}le} injects its legal successor set into
+the current vertex's neighbor set with the reverse endpoint erased;
+actual graph degree $3$ supplies the bound $2$.
+The proof of \texttt{ihara\_\allowbreak{}denominator\_\allowbreak{}nonzero} uses Mathlib's
+equivalence between zero matrix determinant and a nonzero kernel
+vector, then the actual maximum-coordinate argument above.
+The final theorem \texttt{uniform\_\allowbreak{}separation\_\allowbreak{}from\_\allowbreak{}claimed\_\allowbreak{}circle}
+gives the positive gap for every genuine denominator root.
+The complete graph $K_4$ formally witnesses that the cubic hypothesis
+is realizable.
+
+The formal result is the universal graph-determinant obstruction.
+The Hashimoto identification of this denominator with Ihara zeta and
+the bounded-continuous-test definition of weak convergence are the
+explicit mathematical bridges supplied above. The Lean file does not
+claim to formalize the general Ihara Euler-product theorem or a
+random-graph limit theorem.
+
+\section*{Reproduction}
+The project pins Lean 4.19.0 and Mathlib commit
+\\\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\par
+From \texttt{lean/}, run \texttt{lake build} and
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+On a new machine, \texttt{lake exe cache get} retrieves the official
+pinned dependency artifacts. The submission itself is checked in a fresh
+build directory. Printed dependencies use only the standard
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+No additional axioms, proof placeholders, or numerical oracles are used.
+Run \texttt{tectonic main.tex} to reproduce the PDF; no auxiliary numerical
+script is needed. Build logs, source hashes, and visual-review records
+are included under \texttt{verification/}.
+\section*{Conjecture source}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000007915.md}{The Last Math Competition, Conjecture 00000007915}. The exact bilingual source and its commit and SHA-256 are preserved in this submission.
+\end{document}
