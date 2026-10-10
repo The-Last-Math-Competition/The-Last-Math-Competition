@@ -1,0 +1,79 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{Gap convexity is not equivalent to operator monotonicity\\
+\large Disproof of Conjecture 00000003809}
+\author{gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+On the compact convex interval $C=[0,1]$, the smooth monotone operator $F(x)=2x-x^2$ has the nonconvex primal gap $2x^2-x^3$. For the other common convention, the nonmonotone operator $K(x)=-x$ has the convex dual gap $1-x$. Both gaps are computed from their actual defining suprema. Thus neither convention gives the claimed equivalence between gap convexity and monotonicity.
+\end{abstract}
+
+\section*{The assertion and the two conventions}
+The source asserts that solutions of variational inequalities are gap minima and that gap convexity is equivalent to monotonicity. It does not specify a gap convention. We refute the asserted equivalence, using the usual primal gap, and additionally check the usual dual gap. A failure of this equivalence is enough to disprove the conjunction; no denial of the usual gap-minimization principle is needed.
+
+In one real dimension, an operator $f:C\to\mathbb R$ is monotone precisely when
+\[
+ (f(x)-f(y))(x-y)\geq0 \quad\text{for all }x,y\in C.
+\]
+The standard primal and dual gaps are, respectively,
+\[
+ g_f(x)=\sup_{y\in C} f(x)(x-y),\qquad
+ h_f(x)=\sup_{y\in C} f(y)(x-y),\qquad x\in C.
+\]
+These are genuine suprema over the feasible set. The first is the usual gap for the Stampacchia variational inequality; the second is the usual dual, or Minty, gap. In general the dual formulation requires additional conditions to recover every solution of the primal inequality. We do not assume such an equivalence for a nonmonotone operator.
+
+\section*{A monotone operator with a nonconvex primal gap}
+\begin{theorem}
+For $F(x)=2x-x^2$ on $C=[0,1]$, $F$ is monotone but $g_F$ is not convex on $C$.
+\end{theorem}
+\begin{proof}
+For $x,y\in C$,
+\[
+ (F(x)-F(y))(x-y)=(x-y)^2(2-x-y)\geq0.
+\]
+Moreover $F(x)=x(2-x)\geq0$. Therefore $F(x)(x-y)$ is maximized over $y\in[0,1]$ at $y=0$, and the actual supremum is
+\[
+ g_F(x)=F(x)x=2x^2-x^3.
+\]
+Convexity would require the midpoint inequality at $x=2/3$ and $y=1$. Instead,
+\[
+ g_F\!\left(\frac56\right)=\frac{175}{216}
+ >\frac{172}{216}
+ =\frac12\left(g_F\!\left(\frac23\right)+g_F(1)\right).
+\]
+Thus $g_F$ is nonconvex, although the operator is monotone. All points used lie in the same compact convex feasible interval.
+\end{proof}
+
+\section*{A convex dual gap of a nonmonotone operator}
+\begin{theorem}
+For $K(x)=-x$ on $C=[0,1]$, $K$ is not monotone but $h_K$ is convex on $C$.
+\end{theorem}
+\begin{proof}
+At $x=0,y=1$ the monotonicity expression is
+\[
+ (K(0)-K(1))(0-1)=-1<0.
+\]
+For arbitrary $x,y\in C$,
+\[
+ (1-x)-K(y)(x-y)=(1-y)(1+y-x)\geq0.
+\]
+Equality is attained at $y=1$, so the actual dual supremum is $h_K(x)=1-x$. This affine function is convex on $C$.
+\end{proof}
+
+For the primal convention, the implication from monotonicity to convexity fails. For the dual convention, the reverse implication fails. The counterexamples use smooth polynomials and a nonempty compact convex domain; they do not rely on nonattainment, discontinuity, or ill-defined suprema.
+
+\section*{Formal verification}
+The Lean project defines the interval $C$, both polynomial operators, and both gap functions using the real \texttt{sSup} of their actual images over $C$. The supremum formulas follow from formally proved \texttt{IsGreatest} statements: attainment at $0$ for the primal example and at $1$ for the dual example, together with bounds for every feasible $y$.
+
+\texttt{OperatorMonotone} is exactly the one-dimensional inner-product monotonicity condition displayed above. \texttt{F\_operator\_monotone} proves that condition; the project also proves ordinary order monotonicity on $C$. Convexity and its negation use Mathlib's \texttt{ConvexOn}, with the actual supremum functions as arguments. The two counterexample theorems and the final theorem negate the proposed universal equivalence under each convention.
+
+The project is pinned to Lean 4.19.0 and a fixed Mathlib commit. Its theorem dependencies are the standard \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. It uses no added axioms, proof placeholders, or numerical oracle. No auxiliary computation is needed beyond the exact rational arithmetic checked in Lean.
+
+\section*{Source}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000003809.md}{The Last Math Competition, Conjecture 00000003809}. The exact bilingual source and its commit and SHA-256 provenance are included.
+\end{document}
