@@ -1,0 +1,20 @@
+import Proof
+
+#print axioms SturmianCF.length_add_one_le_complexity
+#print axioms SturmianCF.complexity_le_length_add_one
+#print axioms SturmianCF.mechanical_aperiodic
+#print axioms SturmianCF.mechanical_injective
+#print axioms SturmianCF.mechanical_complexity
+#print axioms CFRealization.realOfWord_injective
+#print axioms CFRealization.partialQuotient_succ
+#print axioms CFRealization.completeQuotient_fract_pos
+#print axioms SturmianCF.exists_transcendental_slope
+#print axioms SturmianCF.quotientFactors_ncard
+#print axioms SturmianCF.conjecture00000000347
+
+#print axioms CFRealization.inverse_completeQuotient_shift
+#print axioms CFRealization.inverse_partialQuotient
+#print axioms CFRealization.inverse_completeQuotient_fract_pos
+#print axioms SturmianCF.transcendental_inverse
+#print axioms SturmianCF.wholeQuotientFactors_inverse
+#print axioms SturmianCF.conjecture00000000347_including_integer_part
