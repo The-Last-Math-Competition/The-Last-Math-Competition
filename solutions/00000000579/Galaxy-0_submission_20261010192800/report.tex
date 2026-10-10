@@ -1,0 +1,109 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{A four cycle counterexample to conjecture 00000000579}
+\author{Galaxy-0}
+\date{10 October 2026}
+\begin{document}
+\sloppy
+\maketitle
+\begin{abstract}
+The simple cycle on four vertices disproves the conjectured integer divisibility. Its graphic matroid has Kazhdan--Lusztig polynomial $1+2t$, its dual has polynomial $1$, and the absolute value of its chromatic polynomial at $-1$ is $14$. The difference at $t=1$ is $2$, which is not divisible by $14$. A self-contained Lean 4 project derives the values from the defining recurrence, checks an actual graphic rank function, and verifies the existence of recurrence solutions.
+\end{abstract}
+
+\section{The assertion being refuted}
+The English statement asserts, for every graphic matroid $M(G)$, that
+\[
+ P_{M(G)}(1)-P_{M(G)^*}(1)
+ \quad\hbox{is an integer multiple of}\quad |\chi_G(-1)|.
+\]
+The Chinese statement asserts the same integer-multiple condition. The further requirement that the multiplier be a spanning-tree deletion count cannot rescue a failure of integer divisibility. We refute the displayed necessary condition without assigning a meaning to that additional count.
+
+Here $\chi_G$ is the chromatic polynomial. If instead it were read as the characteristic polynomial of the graphic matroid, the same example and the same absolute value apply. Both readings are checked below.
+
+\section{The graph and its two rank functions}
+Let $V=\{0,1,2,3\}$ and let edge $i$ join $i$ to $i+1$ modulo $4$. Thus $G=C_4$ is a connected simple graph with four edges. Every proper edge subset is a forest. The rank of its cycle matroid $M$ is
+\[
+ r(S)=4-c(V,S)=\min(3,|S|),\qquad S\subseteq E,
+\]
+where $c(V,S)$ counts connected components, including isolated vertices. Therefore $M=U_{3,4}$. The usual dual-rank formula gives
+\[
+ r^*(S)=|S|+r(E\setminus S)-r(E)=\min(1,|S|),
+\]
+so $M^*=U_{1,4}$. These are ordinary matroids; no special convention for a degenerate graph is needed.
+
+\section{Deriving the Kazhdan Lusztig polynomials}
+For a loopless matroid $N$, its Kazhdan--Lusztig polynomial is characterized by the rank-zero value $1$, the strict bound $\deg P_N<r(N)/2$ at positive rank, and the recurrence
+\begin{equation}\label{rec}
+ t^{r(N)}P_N(t^{-1})=\sum_{F\text{ flat of }N}\chi_{N|F}(t)P_{N/F}(t).
+\end{equation}
+This is the defining characterization of Elias, Proudfoot and Wakefield, Theorem 2.2 \cite{epw}. In rank one and two the degree bound makes $P_N$ constant; the highest coefficient of \eqref{rec} makes that constant $1$.
+
+For $U_{3,4}$ the flats are the empty set, the four singletons, the six two-element subsets, and $E$. Their restrictions have characteristic polynomials, respectively,
+\[
+ 1,\qquad t-1,\qquad (t-1)^2,\qquad
+ \chi_M(t)=t^3-4t^2+6t-3.
+\]
+All nonempty-flat contractions have rank at most two, hence KL polynomial $1$. Write $P_M(t)=a+bt$. Equation \eqref{rec} becomes
+\begin{align*}
+ at^3+bt^2
+  &=a+bt+4(t-1)+6(t-1)^2+(t^3-4t^2+6t-3)\\
+  &=t^3+2t^2+(b-2)t+(a-1).
+\end{align*}
+Comparison of coefficients gives $a=1$ and $b=2$. Conversely, these values satisfy the whole identity. Thus
+\[
+ P_M(t)=1+2t,\qquad P_{M^*}(t)=1.
+\]
+The second equality follows from the rank-one calculation, or directly from $t=1+(t-1)$ for $U_{1,4}$.
+
+\section{The divisibility contradiction}
+The chromatic polynomial of $C_4$ is
+\[
+ \chi_G(t)=(t-1)^4+(t-1)=t^4-4t^3+6t^2-3t.
+\]
+In particular $\chi_G(-1)=14$. This can also be obtained from the subset inclusion-exclusion formula
+\[
+ \chi_G(t)=\sum_{S\subseteq E}(-1)^{|S|}t^{c(V,S)},
+\]
+which is the formula used in Lean. On the matroid-characteristic reading,
+\[
+ \chi_M(-1)=(-1)^3-4(-1)^2+6(-1)-3=-14,
+\]
+and its absolute value is again $14$.
+\begin{theorem}
+Conjecture 00000000579 is false.
+\end{theorem}
+\begin{proof}
+For $G=C_4$, the claimed difference is $(1+2)-1=2$. There is no integer $z$ with $2=14z$. Thus the integer-multiple assertion already fails. Any stronger requirement on that integer multiplier also fails.
+\end{proof}
+
+\section{Formalization and semantic coverage}
+The project imports only Lean's \texttt{Std}; it does not require Mathlib. The ground set has four edges, with subsets represented by \texttt{Fin 16} bit masks. The following bridges are included.
+\begin{enumerate}
+\item \texttt{adjacent} uses the explicit cycle edges above. \texttt{reachable} recursively computes walks of bounded length. Theorems \texttt{reach\_stabilizes}, \texttt{reach\_later}, and \texttt{connectivity\_exact} establish that four rounds equal connectivity by an arbitrary finite walk. Components are counted by their least vertex, including isolated vertices.
+\item \texttt{graphic\_rank\_certificate} checks $4-c(V,S)=\min(3,|S|)$ for every subset. \texttt{graphicDualRank} is the actual dual formula; \texttt{graphic\_dual\_eq} identifies it with the verified rank table. The rank-zero, cardinality, monotonicity and submodularity axioms are checked for both tables.
+\item For an interval $A\subseteq B$ with $A$ flat in $M|B$, \texttt{chi} computes the characteristic polynomial of $(M|B)/A$ as
+\[
+ \sum_{A\subseteq S\subseteq B}(-1)^{|S|-|A|}t^{r(B)-r(S)}.
+\]
+The ground set is $B\setminus A$: the formula introduces no extra contracted elements.
+\item \texttt{coeff} represents every polynomial allowed by the strict degree bound at ranks zero through three. \texttt{IsKL} imposes rank-zero normalization and every coefficient, indexed by an arbitrary natural number, of \eqref{rec} for each loopless interval. At nonflat intervals unused data have no role in the recurrence.
+\item \texttt{c0\_origin}, \texttt{c1\_origin}, and \texttt{dual\_c0} derive the relevant coefficients for \emph{any} family satisfying these axioms. They do not assume the desired polynomials. The theorems concern normalized coefficients, not the unused entries of the raw family.
+\item \texttt{proposed\_isKL} and \texttt{dual\_proposed\_isKL} prove nonvacuity by constructing solutions on all relevant intervals. Finite checking handles coefficients zero through three. The general theorem \texttt{rhs\_tail} proves every higher coefficient vanishes, so no finite-degree cutoff is an assumption.
+\item \texttt{chromatic\_coefficients}, \texttt{chromatic\_value}, and \texttt{characteristic\_coefficients} verify the inclusion-exclusion evaluations. \texttt{graphic\_counterexample} states the contradiction for the actual graph and dual-rank functions. \texttt{counterexample\_exists} includes existence of the recurrence families.
+\end{enumerate}
+All finite checks use kernel-reduced \texttt{decide}; symbolic steps use ordinary proof terms and \texttt{omega}. No \texttt{native\_decide}, proof holes, added axioms, external oracle, or opaque computational certificate is used. The printed dependencies of the main theorem are only the standard logical axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. The Python verifier is supplementary and is not trusted by Lean.
+
+\section{Reproduction}
+With Lean 4.31.0 available, run \texttt{lake build}. For direct verification run \texttt{lean Submission/Basic.lean}. Run \texttt{python3 verify.py} for a separate exhaustive arithmetic check. Rebuild this report with \texttt{pdflatex report.tex}. The included build logs record the actual checks performed for this submission.
+
+\begin{thebibliography}{9}
+\bibitem{statement} The Last Math Competition, conjecture 00000000579, retrieved 10 October 2026. \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000000579.md}{Original bilingual conjecture}.
+\bibitem{epw} B. Elias, N. Proudfoot and M. Wakefield, \emph{The Kazhdan--Lusztig polynomial of a matroid}, Theorem 2.2, arXiv:1412.7408v3 (2016). \url{https://arxiv.org/abs/1412.7408}.
+\end{thebibliography}
+\end{document}
