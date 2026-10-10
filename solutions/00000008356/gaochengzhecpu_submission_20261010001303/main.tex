@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\C}{\mathbb C}
+\title{Metric lengths change the Jacobian lattice determinant\\
+\large Disproof of Conjecture 00000008356}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+A triangle whose three edges have length $1/2$ has Jacobian cycle-lattice
+Gram determinant $3/2$, whereas its ordinary spanning-tree count is $3$.
+Thus the stated unweighted equality fails for metric graphs without
+a unit-length normalization. The alternative convention of lattice
+determinant as Euclidean covolume gives $\sqrt{3/2}$ and also fails.
+\end{abstract}
+
+\section*{Definitions and scope}
+The source asserts that the determinant of the Jacobian lattice of a
+metric graph equals its spanning-tree count. Here the latter has its
+ordinary meaning: each spanning tree of the specified finite graph
+is counted once. The source imposes no unit-length normalization.
+
+For an oriented metric graph with positive edge lengths $\ell_e$, the
+integral cycle lattice is
+\[
+ L=H_1(G,\Z)=\ker(\partial:\Z^{E}\longrightarrow\Z^{V}),
+ \qquad Q(z,w)=\sum_{e\in E}\ell_e z_e w_e.
+\]
+The real cycle space modulo this lattice, with this length pairing,
+is the metric Jacobian model. For an integral basis $b_1,\ldots,b_g$,
+the Gram determinant is $\det(Q(b_i,b_j))$. It is independent of the
+integral basis because a basis change has determinant $\pm1$.
+This is the usual metric length pairing; see Mikhalkin--Zharkov,
+Section 6.1 and Lemma 6.1\footnote{\href{https://arxiv.org/abs/math/0612267}{G. Mikhalkin and I. Zharkov, \emph{Tropical curves, their Jacobians and Theta functions}.}}.
+
+\section*{The counterexample}
+Let $G=K_3$ on vertices $0,1,2$, with oriented edges
+$e_0:0\to1$, $e_1:1\to2$, and $e_2:2\to0$. Set every
+$\ell_e=1/2$. In these coordinates,
+\[
+ \partial(z_0,z_1,z_2)=(z_2-z_0,z_0-z_1,z_1-z_2).
+\]
+Consequently $\partial z=0$ exactly when $z_0=z_1=z_2$, so
+$L=\Z(1,1,1)$ and $b=(1,1,1)$ is an integral basis.
+Its length Gram matrix and determinant are
+\[
+ [Q(b,b)]=[\tfrac12+\tfrac12+\tfrac12]=[\tfrac32],
+ \qquad \det_J(G)=\tfrac32.
+\]
+Every spanning tree of the triangle has exactly two edges, and every
+two-edge subset is a spanning tree. There are exactly three such
+subsets. Hence
+\[
+ \boxed{\det_J(G)=\tfrac32\ne3=\tau(G).}
+\]
+If determinant denotes Euclidean covolume instead, the left side is
+$\sqrt{3/2}\ne3$, since equality would imply $3/2=9$.
+
+The missing lengths are essential. For this triangle the metric
+tree-complement expression is
+$\sum_T\prod_{e\notin T}\ell_e=3/2$; it counts each omitted edge
+with its length and is not the unweighted tree count $3$.
+With unit edge lengths the Gram determinant would indeed be $3$.
+Thus the counterexample concerns exactly the unnormalized metric-graph
+equality stated in the source. Replacing its right side by a weighted
+enumerator gives a different statement. Failure of the first asserted
+equality suffices; the other clauses are not needed.
+
+\section*{Correspondence with Lean}
+The Lean object \texttt{K3} is an actual \texttt{SimpleGraph}.
+The subtype \texttt{SpanningTree} consists of its spanning connected
+acyclic subgraphs, and \texttt{spanning\_\allowbreak{}tree\_\allowbreak{}count} proves its
+cardinality is $3$ via an exhaustive finite edge-mask bijection.
+The theorem \texttt{oriented\_\allowbreak{}edges\_\allowbreak{}are\_\allowbreak{}actual} checks that the
+chosen oriented edges enumerate the edges of that same graph.
+
+The linear map \texttt{boundary} comes from the actual incidence
+matrix. Its kernel \texttt{CycleLattice} is equipped with an explicit
+linear equivalence to $\Z$, giving the actual Mathlib
+\texttt{Basis} named \texttt{cycleBasis}. The matrix \texttt{gram}
+evaluates the edge-length pairing on this basis.
+The final theorems \texttt{determinant\_\allowbreak{}ne\_\allowbreak{}spanning\_\allowbreak{}tree\_\allowbreak{}count}
+and \texttt{covolume\_\allowbreak{}ne\_\allowbreak{}spanning\_\allowbreak{}tree\_\allowbreak{}count} establish both
+convention-specific inequalities. The formalized object is the
+metric cycle lattice; no unrelated scalar is assigned the name
+``Jacobian determinant.''
+
+\section*{Reproduction}
+The project pins Lean 4.19.0 and Mathlib commit
+\\\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\par
+From \texttt{lean/}, run \texttt{lake build} and
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+On a new machine, \texttt{lake exe cache get} retrieves the official
+pinned dependency artifacts. The submission itself is checked in a fresh
+build directory. Printed dependencies use only the standard
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+No additional axioms, proof placeholders, or numerical oracles are used.
+Run \texttt{tectonic main.tex} to reproduce the PDF; no auxiliary numerical
+script is needed. Build logs, source hashes, and visual-review records
+are included under \texttt{verification/}.
+\section*{Conjecture source}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000008356.md}{The Last Math Competition, Conjecture 00000008356}. The exact bilingual source and its commit and SHA-256 are preserved in this submission.
+\end{document}
