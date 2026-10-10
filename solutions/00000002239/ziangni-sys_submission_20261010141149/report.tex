@@ -1,0 +1,76 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue}
+\title{Four shared small functions do not imply uniqueness\\A disproof of Conjecture 00000002239}
+\author{ziangni-sys}\date{10 October 2026}
+\begin{document}\maketitle
+\begin{abstract}
+We construct two distinct nonconstant meromorphic functions on the complex plane sharing four distinct finite constant small functions, counting multiplicities. The shared values are $2/3,1,3/4,1/2$. Their canonical Nevanlinna characteristics vanish identically, and local analytic units prove equality of the actual zero multiplicities. This disproves the four-target uniqueness assertion in both versions of the source.
+\end{abstract}
+
+\section{Statement and construction}
+The source enumerates the targets $a_1,a_2,a_3,a_5$: this is a list of four functions, despite the skipped subscript. We disprove precisely that four-target assertion. It should not be conflated with uniqueness statements involving five distinct shared values or with four-value conclusions allowing a nonidentity fractional linear transformation.
+
+Put $E(z)=e^z$ and define
+\[
+ F(z)=\frac{E(z)+2}{E(z)+3},\qquad
+ G(z)=\frac{1+2E(z)}{1+3E(z)}.
+\]
+These are meromorphic functions on $\mathbb C$, as quotients of entire functions with denominators not identically zero. They are nonconstant: at $z=0$ both equal $3/4$, whereas at $z=\log 2$ their values are $4/5$ and $5/7$, respectively. In particular, $F\not\equiv G$.
+
+Choose the four distinct constant functions with values
+\[
+(a_1,a_2,a_3,a_5)=(2/3,1,3/4,1/2).
+\]
+They are all finite, so the example does not use infinity as a small function.
+
+\section{Exact shared divisors}
+Write $D_1=E+3$ and $D_2=1+3E$. Straight algebra gives
+\begin{align*}
+ F-\tfrac23&=\frac{E}{3D_1},&
+ G-\tfrac23&=\frac{1}{3D_2},\\
+ F-1&=-\frac1{D_1},&G-1&=-\frac{E}{D_2},\\
+ F-\tfrac34&=\frac{E-1}{4D_1},&
+ G-\tfrac34&=-\frac{E-1}{4D_2},\\
+ F-\tfrac12&=\frac{E+1}{2D_1},&
+ G-\tfrac12&=\frac{E+1}{2D_2}.
+\end{align*}
+Since $E$ never vanishes, both functions omit $2/3$ and $1$. Their corresponding zero divisors are therefore both empty; omitted values are shared counting multiplicities in the usual definition.
+
+The $3/4$-points of both functions are exactly the solutions of $E(z)=1$. At these points $D_1=D_2=4$. The $1/2$-points of both functions are exactly the solutions of $E(z)=-1$. There $D_1=2$ and $D_2=-2$. In particular, neither denominator vanishes at any shared finite-value preimage.
+
+The identities
+\[
+ F-\tfrac34=-\frac{D_2}{D_1}(G-\tfrac34),\qquad
+ F-\tfrac12=\frac{D_2}{D_1}(G-\tfrac12)
+\]
+hold on a neighborhood of every relevant preimage. The multiplier is analytic and nonzero there. Multiplication by such a unit preserves analytic vanishing order: if $u(z_0)\ne0$, then
+\[
+\operatorname{ord}_{z_0}(uh)=\operatorname{ord}_{z_0}u+
+\operatorname{ord}_{z_0}h=\operatorname{ord}_{z_0}h.
+\]
+Thus the two nonempty shared divisors agree with their actual multiplicities, and all four targets are shared CM. One can additionally see that these zeros are simple from $E'=E$, but simplicity is unnecessary for the multiplicity argument.
+
+For clarity about poles, $F$ has poles where $E=-3$, and $G$ has poles where $E=-1/3$. The respective numerators there are $-1$ and $1/3$, so these are genuine poles. No such pole is a finite target preimage. The identities above are used locally where both denominators are nonzero, rather than evaluating meromorphic fractions at poles.
+
+\section{The small-function hypothesis}
+For a constant finite meromorphic function $a$, the usual Nevanlinna characteristic is
+\[
+T(r,a)=m(r,a)+N(r,a)=\log^+|a|=\log\max(1,|a|).
+\]
+Indeed, there are no poles and the circle mean of the constant $\log^+|a|$ equals that constant. Each of our four targets has absolute value at most one. Consequently $T(r,a_j)=0$ for every $r$, and hence
+\[
+T(r,a_j)=o(T(r,F)),\qquad T(r,a_j)=o(T(r,G)).
+\]
+This requires no growth estimate: the zero function is little-$o$ of every function in the standard inequality definition. Thus the example satisfies even the smallness requirement relative to both functions. It violates only the claimed conclusion $F\equiv G$.
+
+\section{Lean coverage and reproduction}
+The accompanying project uses the actual complex exponential and Mathlib's \texttt{MeromorphicAt} and \texttt{AnalyticAt.order}. It proves meromorphy, distinctness, the exact four preimage descriptions, equality of analytic orders via local nonvanishing units, and the characteristic-zero and little-$o$ statements. The definition \texttt{ShareCM} records both the equality of preimages and equality of the analytic orders at each preimage.
+
+Lean division is totalized at zero. This causes no discrepancy here: a zero denominator produces the auxiliary value zero, whereas all four targets are nonzero. The proof of every preimage equivalence explicitly rules out zero denominators, and the CM order witnesses are only constructed at points where the quotients are analytic. The report interprets poles in the usual meromorphic sense. The constant characteristic formula above is the canonical formula, not a substituted growth function.
+
+Run \texttt{lake build} in \texttt{lean/} with Lean 4.19.0. Mathlib is pinned to
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The final theorem is \texttt{FourSharedValues.counterexample}. Its axiom audit, and those of the principal component theorems, contain only \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. No proof placeholders, custom axioms, or native evaluation shortcuts occur.
+\end{document}
