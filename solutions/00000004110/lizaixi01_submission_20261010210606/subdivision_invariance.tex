@@ -1,0 +1,177 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\emergencystretch=3em
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{Subdivision cannot separate graph configuration homotopy types}
+\author{Local formal research package for conjecture 00000004110}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+\noindent\textbf{Result.} For every finite graph and every finite subdivision obtained by
+inserting vertices on edges, the continuous ordered and unordered configuration
+spaces are homeomorphic for every particle count. They are therefore homotopy
+equivalent for every count, in particular at $n=2$. The source-bound refutation
+targets its additional assertion that the four-claw graph is the smallest
+example: no ordinary subdivision of that actual graph can be an example.
+
+\section*{Original and scope}
+The source defines subdivision as inserting vertices on edges. It then asserts
+the existence of a graph and its proper subdivision whose configuration homologies
+are isomorphic for all $n$, but whose configuration spaces are not homotopy
+equivalent already for $n=2$, with the four-claw graph as the smallest example.
+Both language versions express this same claim. The original does not explicitly
+restrict all graphs to finite ones. Our general finite-graph theorem therefore
+does not claim to settle an unrestricted infinite-graph existential by itself.
+Instead, the smallest-example assertion necessarily requires a separation witness
+whose original graph is the four-claw. We disprove that necessary witness clause.
+No additional homology computation or minimality search is needed to refute the
+whole conjunction. Arbitrary edgewise subdivisions of infinitely many original
+edges are outside the formal general theorem's scope.
+
+The formal graph presentation consists of finite vertex and edge types and
+source/target maps. Vertices are discrete. Its realization is the quotient of the
+disjoint union of its vertices and one closed real interval $[0,1]$ per edge,
+identifying the interval's endpoints with the designated vertices. This is the
+standard one-dimensional graph realization. Isolated vertices, loops and parallel
+edges are allowed. Restricting to simple graphs therefore remains covered.
+The result concerns continuous configurations on this realization, not selections
+of combinatorial vertices or a discretized cubical approximation.
+
+\section*{A genuine insertion homeomorphism}
+For an edge $e$ from $u$ to $v$, insert a new vertex $w$ and a second edge. The
+old edge label now ends at $w$, and the new edge runs from $w$ to $v$. All other
+edges and incidences are preserved. On the realization, the collapse to the
+original graph sends the first edge's coordinate $t$ to $t/2$, the second
+edge's coordinate $t$ to $(1+t)/2$, and the new vertex to the original edge's
+midpoint. Original vertices and unaffected edge coordinates remain fixed.
+
+Its inverse sends an original edge point with $t\leq 1/2$ to the first edge at
+$2t$, and with $t>1/2$ to the second edge at $2t-1$. At the dividing point the
+two formulas agree in the quotient: the end of the first edge and the start
+of the second both equal $w$. The formal implementation uses globally defined
+clamped coordinates $\min(1,2t)$ and $\max(0,2t-1)$ to establish continuity
+on the closed halves. The endpoint identifications are checked explicitly;
+quotient lifting yields continuous maps. Direct coordinate calculations, including
+the midpoint and both endpoints, prove both inverse identities. Thus the
+homeomorphism is constructed rather than assumed.
+
+\section*{Presentation identity and finite subdivisions}
+Bijective relabelings of vertices and edges that preserve endpoints induce a
+homeomorphism by applying the vertex bijection and carrying each interval, with
+unchanged coordinate, to its new edge label. The inverse uses the inverse
+bijections. Endpoint compatibility and continuity on each component are proved
+before quotient lifting.
+
+An edge's orientation is a presentation choice for an undirected graph. Reversing
+selected edges swaps their source and target and replaces $t$ by $1-t$. This is
+continuous, preserves the actual endpoint relation and is an involution. The
+formal development further proves that an arbitrary bijection preserving each
+edge's unordered endpoint pair factors through such reorientation and an
+endpoint-preserving relabeling.
+
+The inductive relation \texttt{Subdivision G H k} is the finite closure generated
+by these actual presentation identities and one-edge insertions. Its index $k$
+counts edge insertions: identity, relabeling and orientation changes contribute
+zero; insertion contributes one; composition adds counts. A proper subdivision
+has $k>0$. Its definition contains no homeomorphism or homotopy-equivalence
+hypothesis. Induction composes the already constructed elementary homeomorphisms.
+Any finite placement of new vertices in edge interiors gives precisely this
+combinatorial operation; the chosen midpoint parametrization is harmless because
+each resulting edge is a full closed interval with its endpoints glued.
+
+\section*{Every ordinary four-claw subdivision}
+The actual four-claw presentation has vertex type $\operatorname{Fin}(5)$,
+edge type $\operatorname{Fin}(4)$, source constantly $0$ and target $i+1$ for
+edge $i$. Thus it has one center, four distinct leaves and exactly their four
+joining edges.
+
+An ordinary subdivision replaces each edge by a nonempty finite path whose
+interior vertices are fresh and independent from the other replacement paths.
+This is the standard graph-theoretic convention: see Diestel, \emph{Graph Theory},
+sixth edition, Sections 1.3 and 1.7, in the author's
+\href{https://www.math.uni-hamburg.de/home/diestel/books/graph.theory/preview/Ch1.pdf}
+{Chapter 1 preview}.
+The four-claw has only four edges, so its ordinary subdivisions always require
+finitely many insertions, irrespective of whether other graphs in the original
+existential are allowed to be infinite.
+
+The formal path-replacement operation adds $k$ interior vertices indexed by
+$\operatorname{Fin}(k)$ and $k$ fresh edges. The old selected edge becomes the
+first path edge. It joins the original source to interior vertex $0$ when $k>0$;
+fresh edge $j$ joins interior vertex $j$ to $j+1$, or to the original target
+at the final step. For $k=0$ the original edge stays intact. Induction on $k$
+proves this actual path presentation belongs to the insertion closure. At the
+induction step, insert one vertex on the first path edge; the explicit bijections
+shift every old interior index and fresh-edge index by one, and give the new
+vertex and new edge index zero. Every endpoint equation is checked.
+
+Apply this replacement independently to all four original edges with arbitrary
+counts $k_0,k_1,k_2,k_3$. The disjoint-sum label types make all added vertices
+and edges fresh. Ordinary subdivision membership then allows actual vertex and
+edge bijections preserving every unordered endpoint pair, hence arbitrary labels
+and orientations. Its structural witness consists of the four path lengths and
+these incidence bijections; it contains no homeomorphism, homotopy equivalence
+or insertion-closure premise. The proved coverage theorem derives the insertion
+closure, with count $k_0+k_1+k_2+k_3$, from that ordinary finite-path structure.
+This covers the usual four independent finite-path replacement definition;
+independent semantic review must verify this source correspondence.
+
+\section*{Actual configuration spaces}
+For a topological space $X$, define
+\[
+ F_n(X)=\{f:\{0,\ldots,n-1\}\longrightarrow X\mid f\text{ is injective}\},
+\]
+with the subspace topology inherited from the finite product $X^n$.
+The unordered space $C_n(X)$ is the orbit quotient under permutations of the
+indices, with its quotient topology. The formal orbit relation is the actual
+existence of a permutation taking one configuration to the other.
+
+If $h:X\longrightarrow Y$ is a homeomorphism, the coordinatewise map
+$f\mapsto h\circ f$ preserves injectivity. Its inverse is
+$g\mapsto h^{-1}\circ g$; both are continuous in the product/subspace topology.
+It commutes with every index permutation, hence descends to a homeomorphism of
+the unordered orbit quotients, again with a checked continuous inverse. This
+construction works uniformly for every $n\in\mathbb N$, including zero.
+
+\begin{theorem}
+For finite graph presentations $G,H$ and any finite subdivision $H$ of $G$,
+$F_n(|G|)$ and $F_n(|H|)$ are homeomorphic, as are $C_n(|G|)$ and $C_n(|H|)$,
+for every $n\in\mathbb N$.
+\end{theorem}
+\begin{proof}
+Compose the insertion and presentation homeomorphisms and apply the coordinatewise
+and orbit-quotient constructions above.
+\end{proof}
+
+Mathlib's \texttt{ContinuousMap.HomotopyEquiv} consists of continuous maps in
+both directions whose inverse composites are homotopic to the identities. Its
+\texttt{Homeomorph.toHomotopyEquiv} supplies these witnesses from a homeomorphism:
+the composites equal the identities, so constant interval homotopies suffice.
+Applying it to the theorem's constructed homeomorphisms proves the actual
+homotopy equivalences. Therefore the negated existential separation statements
+at $n=2$ follow immediately for both conventions.
+
+\section*{Lean correspondence and verification}
+\begin{enumerate}
+\item \texttt{ConnectedPartial.lean}: actual ordered and unordered configurations,
+endpoint-cell realization, explicit insertion and inverse continuity.
+\item \texttt{Relabeling.lean}: vertex/edge relabeling homeomorphism.
+\item \texttt{Reorientation.lean}: genuine interval reversal and graph-cell identity.
+\item \texttt{Subdivision.lean}: finite graph presentations, actual undirected
+presentation identity, counted insertion closure and configuration homeomorphisms.
+\item \texttt{Disproof.lean}: actual Mathlib homotopy equivalences and both
+finite-graph separation contradictions.
+\item \texttt{PathReplacement.lean}: concrete finite paths and their proved
+membership in the insertion closure.
+\item \texttt{FourClaw.lean}: actual $K_{1,4}$, ordinary four-path subdivision
+coverage and both ordered and unordered four-claw separation contradictions.
+\end{enumerate}
+The package pins Lean 4.33.0 and every public dependency by Git commit. The graph
+and configuration bridges are proved; no central bridge is an extra assumption.
+Independent semantic review and the manager's deterministic build, type, axiom,
+PDF and fresh-environment checks are required before local acceptance. This report
+itself makes no claim of external submission or accepted solve status.
+\end{document}
