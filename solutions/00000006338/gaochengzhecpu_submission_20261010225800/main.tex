@@ -1,0 +1,170 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\Z}{\mathbb Z}
+\title{A cyclic difference set contradicts\\multiplier-order divisibility\\
+\large Disproof of Conjecture 00000006338}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The subset $D=\{3,6,7,12,14\}$ of $\Z/21\Z$ is a nontrivial
+$(21,5,1)$ difference set. Its full multiplier group is
+$\{1,2,4,8,16,11\}$, of order $6$. This order divides none of
+$v=21$, $k=5$, or $\lambda=1$, nor the derived order $k-\lambda=4$
+or the product $vk\lambda=105$. Thus the asserted divisibility of the
+multiplier-group order by the difference-set parameters fails.
+All finite counts and the full multiplier classification are checked in Lean 4.
+\end{abstract}
+
+\section*{The necessary assertion being tested}
+Conjecture 00000006338 contains the assertion that the order of a
+difference-set multiplier group divides the difference-set parameters.
+We use their standard meaning $(v,k,\lambda)$: a $k$-element subset
+of a group of order $v$ represents each nonzero element exactly
+$\lambda$ times as an ordered difference.
+It suffices to refute this necessary conjunct; the other assertions
+about number-field units and fixed-point counts need not be resolved.
+
+For a cyclic group written additively, the standard multiplier group is
+\[
+ M(D)=\{m\in(\Z/v\Z)^\times:
+          mD=D+a\text{ for some }a\in\Z/v\Z\}.
+\]
+Thus a multiplier is allowed to send the difference set to a translate.
+It is not restricted in advance to fixing the set. All additive
+automorphisms of a cyclic group have this numerical form: an additive
+map is determined by the image of $1$, and it is an automorphism exactly
+when that image is a unit. This agrees with the abelian convention in
+\'{O} Cath\'{a}in, Definition 16 and the discussion following it.
+
+\section*{A genuine difference set and its design}
+All arithmetic below is modulo $21$. Set
+\[
+       D=\{3,6,7,12,14\}.
+\]
+The off-diagonal entries of the following table are the ordered
+differences $d-e$:
+\[
+\begin{array}{c|rrrrr}
+ d\backslash e&3&6&7&12&14\\\hline
+ 3 & -&18&17&12&10\\
+ 6 & 3&-&20&15&13\\
+ 7 & 4&1&-&16&14\\
+12 & 9&6&5&-&19\\
+14 &11&8&7&2&-
+\end{array}
+\]
+Every residue from $1$ to $20$ occurs exactly once. Therefore $D$ is
+a $(21,5,1)$ difference set. It is nontrivial, since $20>5>1>0$.
+
+Its developed design has points $\Z/21\Z$ and blocks $D+a$.
+These $21$ blocks are distinct: their sums are $5a$, because
+$\sum_{d\in D}d=42=0$, and multiplication by $5$ is invertible modulo $21$.
+Every block has five points. For distinct points $x,y$, the unique
+ordered pair $(d,e)\in D^2$ satisfying $d-e=x-y$ supplies the unique
+block with translation $a=x-d=y-e$. Consequently this is a symmetric
+$2$-$(21,5,1)$ design, not merely a set with the same cardinality.
+
+\section*{Computing the full multiplier group}
+Suppose that a unit $m$ is a multiplier, with $mD=D+a$.
+Multiplication by $m$ permutes the elements of $D$ onto those of $mD$.
+Summing both sides gives
+\[
+       0=m\sum_{d\in D}d=\sum_{d\in D}(d+a)=5a.
+\]
+Since $5$ is a unit modulo $21$, necessarily $a=0$.
+Thus in this example every multiplier fixes $D$, a conclusion derived
+from the usual translate-allowing definition.
+
+The powers of $2$ modulo $21$ are
+\[
+       1,2,4,8,16,11,1.
+\]
+They form a six-element subgroup $H$ of the unit group, and
+$2D=\{6,12,14,3,7\}=D$. Hence every element of $H$ fixes $D$.
+The full unit group is the disjoint union
+\[
+\begin{split}
+ U&=H\sqcup(-H),\\
+ H&=\{1,2,4,8,16,11\},\qquad
+ -H=\{20,19,17,13,5,10\}.
+\end{split}
+\]
+These are exactly the residues coprime to $21$.
+For each $m\in-H$, one has
+\[
+       mD=-D=\{7,9,14,15,18\}\ne D.
+\]
+No such $m$ is a multiplier, because any allowed translation was
+already proved to be zero. This proves $M(D)=H$ and $|M(D)|=6$.
+
+\begin{theorem}
+The multiplier-order divisibility assertion in Conjecture 00000006338
+is false.
+\end{theorem}
+\begin{proof}
+For the difference set above, the full multiplier group has order $6$,
+whereas
+\[
+       6\nmid21,\qquad 6\nmid5,\qquad 6\nmid1.
+\]
+Thus the order divides none of the standard parameters. Even if one
+also considers the derived order or the product of parameters,
+$6\nmid(5-1)=4$ and $6\nmid21\cdot5\cdot1=105$.
+The claimed universal divisibility therefore fails on this nontrivial
+cyclic difference-set design.
+\end{proof}
+
+\section*{Formal correspondence and reproduction}
+The Lean project uses Mathlib's ring \texttt{ZMod 21}, finite sets,
+unit group, additive homomorphisms and subgroups. The function
+\texttt{differenceCount} counts actual ordered pairs with a prescribed
+difference. The development into blocks is explicitly constructed;
+Lean checks its block count, block sizes and unique pair incidence.
+
+The predicate \texttt{IsMultiplier} includes coprimality and an
+existential translation. The complete classification is checked over
+all residues and all translations. The finite set of six units is
+given its actual subgroup structure, and
+\texttt{group\_is\_full\_multiplier\_group} proves that its membership
+is equivalent to the defining multiplier predicate.
+\texttt{all\_automorphism\_multipliers} also verifies the correspondence
+for arbitrary additive automorphisms, using their value at $1$.
+The order is the cardinality of this subgroup, not a number assigned
+by a separate definition. The final theorem combines the difference-set
+property, full group identification, order and failed divisibilities.
+
+Finite checks use kernel-checked decision procedures. No external
+numerical oracle is used. The accompanying \texttt{verify.py} regenerates
+the tables and counts as a supplementary check; the Lean proof does
+not depend on its output. The author performed a separate adversarial
+self-review. No independent reviewer or subagent was used.
+
+The project pins Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+In \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The dependency cache command is needed only when the pinned official
+dependencies are absent. The submitted project itself is rebuilt in
+a fresh directory. Run \texttt{python verify.py} for the supplementary
+calculation and \texttt{tectonic main.tex} for the PDF. Exact source,
+build logs, axiom dependencies, hashes and review records accompany
+the submission.
+
+\section*{References}
+\begin{enumerate}
+\item The Last Math Competition, Conjecture 00000006338.
+The exact bilingual source is reproduced in \texttt{SOURCE.md}.
+\item P. \'{O} Cath\'{a}in, \emph{Inequivalence of difference sets:
+On a remark of Baumert}, Electronic Journal of Combinatorics 20(1)
+(2013), P38, Definition 16 and its following discussion.
+\href{https://www.combinatorics.org/ojs/index.php/eljc/article/download/v20i1p38/pdf/}{Publisher's full text}.
+\end{enumerate}
+\end{document}
