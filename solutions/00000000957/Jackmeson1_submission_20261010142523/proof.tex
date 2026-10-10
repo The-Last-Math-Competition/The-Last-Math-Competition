@@ -1,0 +1,29 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xurl}
+\sloppy
+\let\oldus\_ \renewcommand{\_}{\oldus\allowbreak}
+\newtheorem{lemma}{Lemma}
+\begin{document}
+\section*{Conjecture 00000000957: frame potential local minima}
+
+\paragraph{Conjecture.} ``Local minima of FP occur at $r$-fold repetitions of orthogonal bases for frames of redundancy $r$; and the classification of minima is complete at integer redundancy.''
+
+\paragraph{Reading.} A frame is $N=rd$ unit-norm vectors $\varphi_1,\dots,\varphi_N\in\mathbb R^d$ spanning $\mathbb R^d$ (lower bound $A\|x\|^2\le\sum_i\langle x,\varphi_i\rangle^2$, $A>0$), $r\ge1$ the integer redundancy. $\mathrm{FP}(\Phi)=\sum_{i,j}\langle\varphi_i,\varphi_j\rangle^2$, and local minimality is with respect to the topology of the space of unit-norm $N$-tuples. An $r$-fold repetition of an orthonormal basis is a tuple with $\varphi_i=s_i e_{f(i)}$, $s_i\in\{\pm1\}$, $(e_k)$ orthonormal, $|f^{-1}(k)|=r$ for all $k$ (signs allowed, which is more generous than the strict notion, so refuting it refutes the strict one). The ``classification is complete'' clause is read as: every local minimum is of this form. This is the statement \texttt{C957.Conjecture}. Not refuted: the converse (repeated orthonormal bases are local minima, which is true), readings without the unit-norm constraint, complex scalars, non-integer $r$. No literature is used.
+
+\paragraph{Counterexample.} $d=2$, $r=3$, $N=6$: the vectors $u_0=(1,0)$, $u_1=(\tfrac12,\tfrac{\sqrt3}2)$, $u_2=(-\tfrac12,\tfrac{\sqrt3}2)$, each taken twice (the doubled Mercedes-Benz frame).
+
+\begin{lemma}[Lean \texttt{C957.fp\_eq}]
+For unit vectors $\varphi_i=(x_i,y_i)\in\mathbb R^2$ put $a_i=x_i^2-y_i^2$, $b_i=2x_iy_i$. Then $\mathrm{FP}=\tfrac{N^2}{2}+\tfrac12\big((\sum a_i)^2+(\sum b_i)^2\big)$.
+\end{lemma}
+\begin{proof}
+Using $x_i^2+y_i^2=1=x_j^2+y_j^2$ one has $2(x_ix_j+y_iy_j)^2=1+a_ia_j+b_ib_j$, because the difference equals $(x_i^2+y_i^2)(x_j^2+y_j^2)-1$. Sum over $i,j$.
+\end{proof}
+
+Hence $\mathrm{FP}\ge N^2/2=18$ on all unit-norm 6-tuples. For the doubled Mercedes-Benz frame $\sum a_i=2(1-\tfrac12-\tfrac12)=0$ and $\sum b_i=2(0+\tfrac{\sqrt3}2-\tfrac{\sqrt3}2)=0$, so $\mathrm{FP}=18$: a global minimum, hence a local one (\texttt{C957.mb\_isMin}, \texttt{C957.mb\_isLocalMin}). It is a frame, indeed $\sum_i\langle x,\varphi_i\rangle^2=3\|x\|^2$ (\texttt{C957.mb\_isFrame}).
+
+It is not a signed repetition of an orthonormal basis (\texttt{C957.mb\_not\_repeated}): if $\varphi_0=s_0e_a$, $\varphi_1=s_1e_b$ with $(e_k)$ orthonormal, then $\langle\varphi_0,\varphi_1\rangle=s_0s_1\langle e_a,e_b\rangle\in\{0,\pm1\}$, but $\langle u_0,u_1\rangle=\tfrac12$.
+
+\paragraph{Lean.} File \texttt{Conjecture957/Basic.lean} (namespace \texttt{C957}); the statement block defines \texttt{FP}, \texttt{IsFrame}, \texttt{IsRepeatedONB}, \texttt{Conjecture} and \texttt{Claim := $\neg$ Conjecture}; the main theorem is \texttt{C957.main : C957.Claim}. Convention: \texttt{inner} is the real Euclidean inner product on \texttt{EuclideanSpace $\mathbb R$ (Fin d)}. Axiom audit (\texttt{\#print axioms C957.main}): \texttt{propext, Classical.choice, Quot.sound}; no \texttt{sorry}, no \texttt{native\_decide}.
+\end{document}

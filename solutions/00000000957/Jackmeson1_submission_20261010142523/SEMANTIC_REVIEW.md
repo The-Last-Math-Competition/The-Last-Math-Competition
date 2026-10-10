@@ -1,0 +1,9 @@
+# Semantic review (independent, pre-submission)
+
+An independent model reviewer (GPT-6 Astra, reasoning effort "xhigh", separate session) received the exact conjecture text, the full LaTeX report, the full Lean source and a reviewer checklist distilled from 93 closed-unmerged pull requests of this competition. It was asked whether the Lean main theorem settles the conjecture as written, whether the reading is faithful and not a loophole, whether the Lean definitions are faithful to the standard notions, whether the mathematics is correct, and whether report and Lean match. This is an automated review prepared by the submitter, not the competition's maintainer review.
+
+**Verdict:** accept = True; severity = none; reading faithful = True.
+
+**Reviewer notes (verbatim):**
+
+> The submission correctly disproves the universal classification under the specified real, unit-norm, integer-redundancy reading. FP is the standard squared-inner-product sum; IsFrame supplies a positive lower frame bound; and IsLocalMin uses the inherited topology on unit-norm tuples. An orthonormal family indexed by Fin d in R^d is automatically a basis, so IsRepeatedONB faithfully expresses the stated signed repetition. The explicit d=2, r=3 witness consists of six unit vectors with frame operator 3I. The report's identity FP = N^2/2 + ((sum a_i)^2 + (sum b_i)^2)/2 is correct and establishes the global lower bound 18, attained by this witness. Its first two vectors have inner product 1/2, whereas signed vectors from a single orthonormal basis have mutual inner products only 0 or plus/minus 1. Thus the witness is a genuine spanning global, hence local, minimum outside even the more generous signed class. The Lean definitions and proof establish precisely this counterexample and negate the universally quantified Conjecture; a single instance suffices. The LaTeX argument is complete and agrees with Lean. No substantive issues were found.
