@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{xurl}
+\let\oldus\_
+\renewcommand{\_}{\oldus\allowbreak}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newcommand{\Q}{\mathbb{Q}}
+
+\title{A disproof of Conjecture 00000008524\\[2pt]
+\large The degree of the differential dimension polynomial}
+\date{}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\section{The conjecture and the reading}
+
+\begin{quote}
+\emph{Conjecture:} The differential dimension polynomial has rational coefficients; its degree is the number of
+variables and its leading coefficient is an integral multiple of $1/n!$. (differential Hilbert polynomial)
+\end{quote}
+
+\paragraph{Setting.} Fix $n\ge 0$ differential indeterminates and $m\ge 0$ commuting derivations
+$\delta_1,\dots,\delta_m$ over $\Q$. The differential polynomial ring is $\Q\{y_1,\dots,y_n\}=\Q[y_{j,\theta}]$
+with $j<n$, $\theta\in\mathbb{N}^m$ (Lean: \texttt{DRing n m}), $\delta_k y_{j,\theta}=y_{j,\theta+e_k}$
+(\texttt{delta}). A \emph{differential ideal} is an ideal stable under all $\delta_k$ (\texttt{IsDiffIdeal}); we
+only consider proper ones. Write $|\theta|=\sum_k\theta_k$ (\texttt{ord}) and
+$R_t=\Q[y_{j,\theta}:|\theta|\le t]$. For a differential ideal $I$ put
+\[
+\omega_I(t)=\dim_{\mathrm{Krull}}\, R_t/(I\cap R_t)\qquad(\texttt{omega, Trunc}).
+\]
+For a prime $I$ with generic zero $\eta$ this is the transcendence degree of $\Q(\eta_{j,\theta}:|\theta|\le t)$
+over $\Q$, i.e.\ Kolchin's dimension function. A \emph{dimension polynomial} of $I$ is $P\in\Q[X]$ with
+$\omega_I(t)=P(t)$ for all large $t$ (\texttt{IsDimPoly}).
+
+\paragraph{Readings of ``the number of variables''.} The number $N$ is read as $m$ (number of derivations) or as
+$n$ (number of differential indeterminates); the same $N$ is used in ``leading coefficient an integral
+multiple of $1/N!$''. \texttt{Conjecture N} states: every proper differential ideal has a dimension polynomial
+$P$ with $\deg P=N$ and $\mathrm{lc}(P)=z/N!$ for some $z\in\mathbb{Z}$. (Rationality of the coefficients holds
+by $P\in\Q[X]$.) Convention: $\deg$ is Mathlib's \texttt{natDegree}, so constants have degree $0$.
+
+\section{The refutation}
+
+\begin{theorem}\label{thm:main}
+For every $N:\mathbb{N}\to\mathbb{N}\to\mathbb{N}$ with $N(1,1)\ne0$, \texttt{Conjecture N} is false
+(\texttt{C8524.not\_conj}). In particular \texttt{Conjecture} fails for $N=m$ and for $N=n$
+(\texttt{C8524.main : Claim}).
+\end{theorem}
+
+\begin{proof}
+Take $n=m=1$ (ordinary case, one unknown $y$, $y_k=\delta^k y$). Let $\varphi:\Q\{y\}\to\Q[X]$ be the
+$\Q$-algebra map with $y_0\mapsto X$ and $y_k\mapsto0$ for $k>0$ (\texttt{phi}), and $W=\ker\varphi=[y']$
+(\texttt{W}). It is prime (kernel to a domain, \texttt{W\_prime}), proper, and differential: the composite
+$\varphi\circ\delta$ vanishes identically, by induction on polynomials ($\varphi(\delta y_k)=\varphi(y_{k+1})=0$ and
+the Leibniz rule), so $p\in W\Rightarrow\delta p\in W$ (\texttt{phi\_delta}, \texttt{W\_diff}).
+
+Let $\psi_t:R_t\to\Q[X]$ be the restriction of $\varphi$. It is surjective ($X$ is in the image), and
+$W\cap R_t=\ker\psi_t$ (\texttt{trunc\_eq}, \texttt{psi\_surj}). Hence $R_t/(W\cap R_t)\cong\Q[X]$ and
+$\omega_W(t)=\dim\Q[X]=\dim\Q+1=1$ for every $t$ (\texttt{omega\_W}; Mathlib's
+\texttt{Polynomial.ringKrullDim\_of\_isNoetherianRing}).
+
+If $P$ were a dimension polynomial of $W$, then $P(t)=1$ for all large $t$, so $P-1$ has infinitely many roots
+and $P=1$ (\texttt{Polynomial.eq\_of\_infinite\_eval\_eq}). Then $\deg P=0\neq N(1,1)$. So the degree clause
+fails for $W$, and \texttt{Conjecture N} is false. For $N=m$ and $N=n$ we have $N(1,1)=1$. \qed
+\end{proof}
+
+\section{Scope and Lean audit}
+
+Refuted: the clause ``degree equals the number of variables'' under the two readings $N=m$, $N=n$ (indeed any
+$N$ with $N(1,1)\neq0$), in the sense of Krull-dimension truncations above, with the witness a prime differential
+ideal. Not refuted: the clauses on rational coefficients and the $1/N!$ multiple (they hold for the witness), and a
+reading with $N(1,1)=0$. Lean file \texttt{Conjecture8524/Basic.lean} (statement block followed by the proof);
+theorems \texttt{C8524.not\_conj}, \texttt{C8524.main}. Axioms: only \texttt{propext}, \texttt{Classical.choice},
+\texttt{Quot.sound}; no \texttt{sorry}.
+
+\end{document}
