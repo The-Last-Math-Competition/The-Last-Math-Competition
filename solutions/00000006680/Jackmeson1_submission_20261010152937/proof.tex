@@ -1,0 +1,89 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{xurl}
+\let\oldus\_
+\renewcommand{\_}{\oldus\allowbreak}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{Proof of Conjecture 00000006680\\[2pt]
+\large Two transport problems with the same optimal value and different dual structure}
+\date{}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\section{The conjecture and the reading}
+
+\begin{quote}
+\emph{Definition:} The optimal value and the dual structure are two layers.
+\emph{Conjecture:} There exist two transport problems with the same optimal value but different dual
+structures, and the separation is realized by an explicit degenerate cost pair with the same value but different
+support.
+\end{quote}
+
+We prove it for finite discrete (Kantorovich) transport. A transport problem is $(\mu,\nu,c)$ with probability
+vectors $\mu\in\mathbb R^m$, $\nu\in\mathbb R^n$ and cost $c\in\mathbb R^{m\times n}$.
+\begin{itemize}
+\item A plan is $\pi\ge 0$ with row sums $\mu$ and column sums $\nu$; its cost is $\sum_{i,j}c_{ij}\pi_{ij}$;
+ the \emph{optimal value} is the infimum of this over plans (\texttt{optValue}).
+\item Dual: potentials $(u,v)$ with $u_i+v_j\le c_{ij}$; objective $\sum\mu_iu_i+\sum\nu_jv_j$; an optimal dual
+ solution maximises it among feasible pairs (\texttt{IsDualOpt}). \texttt{StrongDuality}: some optimal dual
+ solution attains the optimal value.
+\item \emph{Dual structure} (layer two) is read as: the optimal dual solution is unique up to the gauge
+ $(u,v)\mapsto(u+t,v-t)$ (\texttt{DualUniqueModGauge}); two problems have different dual structure if this holds
+ for one and fails for the other.
+\item \emph{Support} is read in two ways, both proved: (A) the family of supports of optimal plans
+ (\texttt{optSuppFamily}); (B) the support $\{c_{ij}\neq0\}$ of the cost matrix (\texttt{costSupp}).
+\end{itemize}
+The cost pair is degenerate (it has zero entries and admits several optimal plans).
+
+\section{The pair}
+
+Take $m=n=2$, $\mu=\nu=(\tfrac12,\tfrac12)$ and $C_{a,b}=\begin{pmatrix}0&0\\a&b\end{pmatrix}$, $0\le a\le b$.
+Plans are exactly $P_x=\begin{pmatrix}x&\frac12-x\\ \frac12-x&x\end{pmatrix}$, $0\le x\le\frac12$
+(this is the one-parameter description of $2\times2$ doubly stochastic matrices used for Conjecture 00000006320,
+rescaled by $\tfrac12$). Its cost is $a(\tfrac12-x)+bx\ge a/2$, so the optimal value is $a/2$, attained at $x=0$;
+$P_x$ is optimal iff $(b-a)x=0$.
+
+\emph{Dual.} For feasible $(u,v)$, $(u_0+v_1)+(u_1+v_0)\le 0+a$, so the objective is $\le a/2$; $u=(0,a),v=(0,0)$
+is feasible and attains it, so the dual value equals the primal value, and $(u,v)$ is optimal iff it is feasible
+with $u_0+v_1=0$, $u_1+v_0=a$.
+
+\emph{Pair 1:} $C_{0,0}$ (zero cost) and $C_{0,1}$. Both have value $0$ and no duality gap.
+\begin{itemize}
+\item $C_{0,0}$: every $P_x$ is optimal, in particular the full-support $P_{1/4}$. $C_{0,1}$: optimal plans need
+ $x=0$, so $P_{1/4}$ is not optimal, and no optimal plan has full support. Hence the families of optimal supports differ (A).
+\item Cost supports are $\emptyset$ and $\{(1,1)\}$, which differ (B).
+\item For $a=b$: optimality plus feasibility force $u_0+v_0=0$, $u_1+v_1=a$, so every optimal dual is the gauge
+ shift by $t=u_0$ of $(0,a),(0,0)$: unique mod gauge. For $a<b$ the pair $u=(0,b)$, $v=(a-b,0)$ is also optimal
+ and is not a gauge shift of $(0,a),(0,0)$ (it would need $t=0$ from $u_0$, but $v_0$ differs): not unique.
+\end{itemize}
+\emph{Pair 2 (nonzero):} $C_{1,1},C_{1,2}$: value $1/2$, same cost support, but different optimal-plan supports
+and dual structure (\texttt{main\_nonzero}); this covers readers who object to the zero cost.
+
+\section{Lean}
+
+File \texttt{lean/Conjecture6680/Basic.lean} (about 250 lines, one marked statement block). The statement block
+defines everything above and \texttt{Claim := ConjectureA $\wedge$ ConjectureB}; the theorems are
+\texttt{C6680.main : Claim} and \texttt{C6680.main\_nonzero}. Axioms: only \texttt{propext},
+\texttt{Classical.choice}, \texttt{Quot.sound} (see \texttt{verification/axioms.txt} after the pull-request
+build). No \texttt{sorry}, no \texttt{native\_decide}.
+
+\emph{Reuse.} The one-parameter description of $2\times2$ plans and the diagonal/anti-diagonal support idea are
+adapted from our own accepted solution of conjecture 00000006320 (lemmas \texttt{Omega2\_form},
+\texttt{Omega2\_bounds}); GPL-3.0, same author. The transport objects and duality are new.
+
+\section{Conventions and limits}
+Marginals are the uniform $(\tfrac12,\tfrac12)$; the dual structure is read as uniqueness modulo the gauge, and
+``different'' as unique versus non-unique. Readings not covered: dual structure read as the set of complementary-slackness
+supports of dual optimizers, or as the set of dual-feasible polytope faces; these are not formalized.
+
+\end{document}
