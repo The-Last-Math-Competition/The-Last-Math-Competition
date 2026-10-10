@@ -1,0 +1,5 @@
+import Disproof
+
+#print axioms IsoperimetricCorrection.zero_on_volume_interval
+#print axioms IsoperimetricCorrection.no_nonnegative_convex_double_zero
+#print axioms IsoperimetricCorrection.no_shape_requirements

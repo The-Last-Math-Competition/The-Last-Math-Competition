@@ -1,0 +1,176 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\title{A Disproof of Conjecture 00000004607:\\
+Convexity, Nonnegativity, and Two Endpoint Zeros}
+\author{Independent solution}
+\date{October 9, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The numerical properties asserted for the concavity correction are mutually
+inconsistent on every volume interval $[0,V]$ with $0<V<\infty$. A convex
+nonnegative function with zero values at the two endpoints must vanish
+throughout the interval, whereas the conjecture requires that only the endpoints
+be zeros. This obstruction uses neither symmetry nor a formula for the
+correction. The proof is formalized with Mathlib's ordinary real convexity.
+\end{abstract}
+
+\section{What the original statement asserts}
+The English statement defines the isoperimetric profile as the minimal interface
+area needed to enclose a given volume. It then asserts that its concavity
+correction is an explicit nonnegative function of volume, ``vanishing only at
+zero and at the total volume,'' and that the function is convex and symmetric.
+The Chinese statement asserts the same properties; its zero-set clause
+specifically refers to zero volume and total volume as the two points where
+the function is zero. The parenthetical descriptions in both languages also
+refer to two zeros. The complete, unaltered bilingual statement is reproduced
+in \texttt{provenance/ORIGINAL.md}.
+
+Consequently, if $V>0$ is the finite total volume and $c$ is the asserted
+real-valued function, the following are necessary properties:
+\begin{align}
+&c\text{ is convex on }[0,V], \label{eq:convex}\\
+&c(v)\geq 0\quad(0\leq v\leq V), \label{eq:positive}\\
+&c(v)=0\quad\Longleftrightarrow\quad v=0\text{ or }v=V
+  \quad(0\leq v\leq V). \label{eq:zeros}
+\end{align}
+In particular, both endpoint values are zero. The usual volume-complement
+symmetry would be $c(V-v)=c(v)$. We include this in the final formal statement,
+but the contradiction does not depend on how symmetry is interpreted, because
+\eqref{eq:convex}--\eqref{eq:zeros} alone are impossible.
+
+Neither language defines the operation called a concavity correction. We do
+not supply a definition of that operation, identify it with a particular
+deficit, or assume a relation between it and a chosen profile. Instead, we
+disprove necessary properties that the text itself explicitly imposes on its
+output. Any proposed definition satisfying the original conclusion would have
+to produce a function satisfying \eqref{eq:convex}--\eqref{eq:zeros}.
+
+\section{The obstruction}
+\begin{theorem}\label{thm:zero}
+Let $V\geq 0$ be a real number. If $c:[0,V]\to\mathbb R$ is convex and
+nonnegative and $c(0)=c(V)=0$, then $c(v)=0$ for every $v\in[0,V]$.
+\end{theorem}
+\begin{proof}
+If $V=0$, the interval has only its zero endpoint. If $V>0$, fix $v\in[0,V]$
+and set $t=v/V\in[0,1]$. Then $v=(1-t)0+tV$, so convexity gives
+\[
+ c(v)\leq(1-t)c(0)+tc(V)=0.
+\]
+Nonnegativity gives the reverse inequality, hence $c(v)=0$.
+\end{proof}
+
+\begin{corollary}\label{cor:no}
+For every real $V>0$, no real-valued function on $[0,V]$ satisfies
+\eqref{eq:convex}--\eqref{eq:zeros}. In particular, no explicit symmetric
+function satisfies all of the properties in the conjecture.
+\end{corollary}
+\begin{proof}
+Theorem~\ref{thm:zero} implies $c(V/2)=0$. But $0<V/2<V$, contradicting
+\eqref{eq:zeros}. Requiring a formula or symmetry cannot restore existence.
+\end{proof}
+
+Equivalently, just the midpoint case of convexity already gives
+\[
+ 0\leq c(V/2)\leq \tfrac12c(0)+\tfrac12c(V)=0,
+\]
+while the prescribed zero set and nonnegativity require $c(V/2)>0$.
+There are no smoothness, continuity, differentiability, or strict-convexity
+assumptions in this argument.
+
+\section{Why the volume interval is a legitimate setting}
+Finite positive total volume is the ordinary nondegenerate interpretation of
+the text's two endpoint volumes. It is not a curvature hypothesis or a
+geometric restriction introduced to obtain a special formula. For example,
+the flat square torus $(\mathbb R/\mathbb Z)^2$, with its standard product
+area measure, has total area $1$. For every $v\in[0,1]$, the image of
+$[0,v)\times[0,1)$ has area $v$. For $0<v<1$ it is a strip bounded by two
+circles of finite total length $2$; at the endpoints one uses the empty set
+and the whole torus. Thus every volume in $[0,1]$ is admissible in a standard
+compact, connected, smooth isoperimetric setting. In the usual infimum
+formulation of the profile, these competitors make its value finite and
+nonnegative. No computation of the profile or existence theorem for
+minimizers is used in the disproof.
+
+More abstractly, if the domain of volumes is convex and contains $0$ and $V$,
+it necessarily contains the whole interval between them, in particular $V/2$.
+This is also built into Mathlib's \texttt{ConvexOn} predicate. The claimed
+convexity therefore cannot evade the midpoint merely by discarding interior
+volumes. Restricting the domain to the two endpoints would change the usual
+meaning of convexity and would not describe the example above.
+
+When $V=0$, the two endpoints coincide and the identically zero function on
+the singleton interval presents no contradiction. This degenerate case cannot
+establish a claim about two distinct zeros in positive volume. Infinite total
+volume is not a second real endpoint, and the formula $V-v$ is then not a
+real-valued reflection of a bounded interval. The original text supplies no
+alternative definitions for that case. Our disproof concerns every finite
+positive total volume, which includes the concrete ordinary setting just
+described. It makes no claim that all conceivable isoperimetric spaces have
+finite volume. In particular, no infinite-volume extension can rescue the
+asserted conclusion in this finite-volume setting.
+
+\clearpage
+\section{Lean formalization and its boundary}
+The project is pinned to Lean 4.19.0 and Mathlib commit
+\begin{center}
+\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+\texttt{Disproof.lean} contains these theorems in the namespace
+\texttt{IsoperimetricCorrection}:
+\begin{itemize}
+\item \texttt{zero\_on\_volume\_interval}: Theorem~\ref{thm:zero}, for every
+real $V\geq0$.
+\item \texttt{no\_nonnegative\_convex\_double\_zero}:\\
+The nonexistence in
+Corollary~\ref{cor:no}, for every real~\mbox{$V>0$}.
+\item \texttt{no\_shape\_requirements}: nonexistence with the additional
+condition $c(V-v)=c(v)$, again for every real~\mbox{$V>0$}.
+\end{itemize}
+The definition \texttt{ShapeRequirements} groups these explicitly stated
+numerical properties; it is not a definition of a concavity correction.
+The function is represented as $f:\mathbb R\to\mathbb R$, with every
+hypothesis restricted to $[0,V]$. Values outside the interval are immaterial;
+any function defined only on the interval can be extended there arbitrarily.
+
+The formal proof uses the stock predicates \texttt{ConvexOn} and
+\texttt{Set.Icc}. It obtains the upper bound on each value from
+\texttt{ConvexOn.le\_on\_segment} and \texttt{Icc\_subset\_segment}, combines
+it with nonnegativity, and applies the exact zero-set condition at $V/2$.
+The only positivity hypothesis on the total volume in the final theorems is
+$0<V$. No hypothesis asserts the desired conclusion or a geometric theorem
+that has not been established.
+
+The Lean project does not formalize the geometry of the torus, the
+isoperimetric profile, a specific correction operator, or an interpretation
+of ``explicit.'' These are unnecessary for the universal scalar obstruction;
+the torus paragraph only verifies in ordinary mathematics that the volume
+domain has a familiar geometric realization. The logical passage from the
+bilingual prose to the necessary scalar properties is explained above,
+rather than hidden as an extra axiom.
+
+\section{Verification and provenance}
+The entire project was built against pre-existing stock Mathlib dependencies;
+this is not a claim that all of Mathlib was rebuilt. Each source file was also
+replayed with \texttt{warningAsError=true}. The axiom audit of all three final
+theorems reports only \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. There are no admitted proofs, custom axioms, or uses of
+\texttt{native\_decide}. Build outputs, exit codes, and the unsuccessful
+development attempts are preserved under \texttt{verification/} and
+\texttt{provenance/}, as described in \texttt{README.md}.
+
+The author input was restricted to the original bilingual statement, both
+competition rule files, and stock Lean configuration. The statement's SHA-256
+is recorded in \texttt{provenance/INPUTS.json}. No prior solution, public claim
+history, selector material, or other author project was used as mathematical
+input. The mathematical argument is the elementary endpoint inequality above;
+there are no auxiliary numerical computations or external mathematical sources.
+\end{document}
