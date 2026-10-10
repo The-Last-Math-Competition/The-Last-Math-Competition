@@ -1,0 +1,80 @@
+\pdfoutput=1
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[10pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\setlength{\emergencystretch}{4em}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=black]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{A Face Count Counterexample to Conjecture 00000007147}
+\author{Galaxy-0 \quad AI-assisted submission}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The associahedron on four letters has eleven nonempty faces, or twelve faces when the empty face is included. There are only five full planar binary trees on four leaves. Thus its face set cannot be counted by those binary trees, and its face lattice cannot be the corresponding Tamari lattice. A self-contained Lean 4 project verifies the standard combinatorial face model, exhaustive binary-tree enumeration, and impossibility of an injection from faces into trees.
+\end{abstract}
+
+\section{The claim and its scope}
+Conjecture 00000007147 identifies associahedral face counting with binary trees and the associated poset with the Tamari lattice. The Chinese version explicitly refers to the face lattice. This report addresses that literal face claim. The familiar corrected statement about \emph{vertices} is true: full binary trees index the vertices, and an orientation of the edges induces Tamari order. It does not identify the entire face lattice with Tamari order.
+
+We use the standard combinatorial definition: nonempty faces of the associahedron on four letters are the sets of pairwise noncrossing diagonals of a convex pentagon, ordered by reverse inclusion. The set containing no diagonals is the whole polytope. An additional least element represents the empty polytope face. This is the usual dissection model, equivalently the model of planar trees which need not be binary; see \cite{MTTV,McC}. The distinction between all faces and binary-tree vertices is essential.
+
+\section{The finite counterexample}
+Label the pentagon cyclically by $0,1,2,3,4$, and write $ij$ for a diagonal. The diagonal set is
+\[
+D=\{02,03,13,14,24\}.
+\]
+Two diagonals cross exactly when their endpoints strictly alternate around the boundary. The compatible two-diagonal sets are precisely
+\[
+\{02,03\},\quad\{02,24\},\quad\{03,13\},\quad
+\{13,14\},\quad\{14,24\}.
+\]
+There are no compatible sets of three or more diagonals. Therefore there are one, five, and five compatible sets of sizes zero, one, and two. They correspond respectively to the whole pentagon, its edges, and its vertices. The number of nonempty faces is $1+5+5=11$; adjoining the empty face gives $12$.
+
+The full binary parenthesizations of $abcd$ are
+\[
+((ab)c)d,\quad (a(bc))d,\quad (ab)(cd),\quad
+ a((bc)d),\quad a(b(cd)).
+\]
+These are the five elements of the four-leaf Tamari lattice.
+
+\begin{theorem}
+The face-count and face-lattice identifications in conjecture 00000007147 fail for the two-dimensional associahedron on four letters.
+\end{theorem}
+\begin{proof}
+The two finite sets have cardinalities $11$ and $5$, or $12$ and $5$ with the empty face included. Neither permits a bijection. In fact there is no injection from the nonempty face set to the binary-tree set. A poset or lattice isomorphism would induce such an injection. Even the proper nonempty faces number $10$, so omitting both the empty face and whole polytope cannot rescue the count. The vertex-only count $5$ is a different, valid statement.
+\end{proof}
+
+\newpage
+\section{Formal verification and semantic correspondence}
+The file \texttt{lean/Main.lean} imports only the bundled \texttt{Std} library. Its definitions and proofs cover the actual finite objects, rather than merely asserting $11\ne5$.
+
+\begin{enumerate}
+\item \texttt{Tree} is the recursive datatype with constructors leaf and ordered binary node. The functions \texttt{nodes} and \texttt{leaves} count internal vertices and leaves. Their relationship is proved for every tree. The recursive list \texttt{trees n} is proved to contain a tree if and only if its internal-node count is $n$. Its list at $n=3$ is duplicate-free and has length five.
+\item Pentagon vertices are \texttt{Fin 5}. The five diagonal endpoint pairs are checked against the geometric combinatorial criterion: increasing endpoints, not boundary neighbors. \texttt{diagonal\_complete} and \texttt{diagonal\_injective} establish exhaustive, nonredundant enumeration.
+\item A mask in \texttt{Fin 32} represents a subset of the five diagonals. Extensionality and surjectivity of this representation are proved. Compatibility is the universal condition that no two selected diagonals have strictly alternating endpoints. All masks satisfying it are enumerated; the count by subset size is $(1,5,5)$, and larger subsets are excluded.
+\item \texttt{Face} is the subtype of compatible masks. \texttt{faceLe} is reverse inclusion of selected diagonals; reflexivity, transitivity, and antisymmetry are proved. The zero mask is proved to be the greatest face. \texttt{FullFace} adjoins a separate empty face. Their exhaustive, duplicate-free lists have lengths eleven and twelve.
+\item A finite-list pigeonhole lemma is proved by induction. It proves \texttt{no\_injection\_faces\_to\_binary}, then \texttt{no\_face\_tamari\_bijection} and \texttt{no\_full\_face\_tamari\_bijection}. The latter theorems rule out maps with a left inverse, which is stronger than ruling out bijections. \texttt{conjectured\_count\_false} also proves both numerical count mismatches.
+\end{enumerate}
+
+\paragraph{Formalization boundary.}
+The formal object is the standard \emph{combinatorial} associahedron, defined by its compatible-diagonal face poset. Lean does not construct a convex hull or prove a general realization theorem for associahedra. The conventional identification of this combinatorial model with the faces of any geometric associahedron is stated explicitly and sourced above. The proof does not assume the disputed face count or any enumeration result. Tamari's order itself need not be formalized: no order on the five binary trees can be isomorphic to an eleven- or twelve-element face poset.
+
+\paragraph{Reproduction and trust.}
+Use Lean \texttt{4.31.0}; the project has no external dependencies. From \texttt{lean/}, run \texttt{lake build}, followed by \texttt{lake env lean -DwarningAsError=true Main.lean}. The printed theorem audits use only the standard foundational axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. There are no admitted proofs, custom axioms, native decision procedures, or numerical oracles. The separate standard-library Python script \texttt{reproduce.py} enumerates all diagonal subsets and binary trees independently; it is supplementary and is not trusted by Lean.
+
+\begin{thebibliography}{9}
+\bibitem{MTTV} N. Masuda, H. Thomas, A. Tonks, and B. Vallette.
+\emph{The diagonal of the associahedra}. Journal de l'\'Ecole polytechnique -- Math\'ematiques 8 (2021), 121--146. Section 1.1, Definitions 1--2, distinguishes the Tamari order on binary trees from the face lattice on general planar trees.
+\url{https://www.numdam.org/item/10.5802/jep.142.pdf}
+\bibitem{McC} T. McConville. \emph{Enumerative properties of grid associahedra}.
+S\'eminaire Lotharingien de Combinatoire 78B (2017), Article 61. Introduction: the associahedron's face lattice is described by partial triangulations of a polygon.
+\url{https://www.mat.univie.ac.at/~slc/wpapers/FPSAC2017/61%20McConville.pdf}
+\bibitem{TLMC} The Last Math Competition. Conjecture 00000007147, bilingual source.
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000007147.md}
+\end{thebibliography}
+\end{document}
