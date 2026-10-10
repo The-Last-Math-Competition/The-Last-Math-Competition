@@ -1,0 +1,71 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\setlength{\emergencystretch}{2em}
+\title{Zonotope faces are not counted by arrangement regions}
+\author{Ziang Ni (\texttt{ziangni-sys})}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+\noindent\textbf{Disproof of conjecture 00000007132.}
+The conjecture equates the face count of a zonotope with the region
+count of its hyperplane arrangement. The square already refutes this
+for total faces and even for nonempty proper faces.
+
+Let $e_1=(1,0)$ and $e_2=(0,1)$ in $\mathbb R^2$. The zonotope
+\[
+ Z=[-e_1,e_1]+[-e_2,e_2]=[-1,1]^2
+\]
+is the Minkowski sum of two actual line segments: each point $(x,y)$
+is the sum $(x,0)+(0,y)$, and these sums are precisely the points
+satisfying $-1\leq x,y\leq1$.
+
+The associated central hyperplane arrangement consists of
+$e_1^\perp=\{x=0\}$ and $e_2^\perp=\{y=0\}$. Its complement has four
+regions, namely the four open quadrants. Each quadrant is convex and
+nonempty, hence connected. A connected subset of the complement
+cannot contain points with opposite signs in either coordinate:
+a coordinate projection is continuous, and the intermediate value
+theorem would give a point with coordinate zero. Consequently the
+four quadrants are exactly the connected components, and the region
+count is $4$.
+
+The nonempty proper faces of $Z$ are its four vertices and its four
+edges, for a total of $8$. These are genuine exposed faces: a face is
+the set of maximizers of a linear functional $ax+by$ on $Z$.
+If both coefficients are nonzero, the unique maximizing vertex is
+$(\operatorname{sgn}a,\operatorname{sgn}b)$. If exactly one coefficient
+is zero, the maximizers form the corresponding edge. If both are
+zero, the face is $Z$ itself. This also classifies all exposed faces
+of this polytope. The usual total nonempty face count is $9$; counting
+the empty face gives $10$. None of $8,9,10$ equals $4$.
+
+For the contradiction it suffices to exhibit five distinct nonempty
+proper faces: the right, left, top, and bottom edges, together with
+$(1,1)$. Their exposing coefficient pairs are respectively
+\[
+ (1,0),\quad(-1,0),\quad(0,1),\quad(0,-1),\quad(1,1).
+\]
+All are different and are strict subsets of the square.
+
+\paragraph{The valid related theorem.}
+The familiar region correspondence counts \emph{vertices} of the
+zonotope, rather than all its faces. Here both the vertex count and
+the arrangement region count are $4$. We do not refute that theorem.
+The characteristic polynomial of the two-axis arrangement is
+$(q-1)^2$, whose evaluation at $q=-1$ gives $4$ regions; it does not
+give the total face count claimed in the source.
+
+\paragraph{Lean coverage.}
+The project defines the actual square and its generating coordinate
+segments and proves the Minkowski-sum equality. It uses the standard
+argmax definition of exposed faces of real linear functionals, proves
+five explicit exposing identities, injectivity of the five-face
+family, and properness and nonemptiness. It defines the four actual
+quadrant sets, proves each connected, and applies the intermediate
+value theorem to prohibit axis crossings by any connected subset
+of the complement. The accompanying explanation identifies these
+sets with the four regions. Lean 4.19.0 and Mathlib are pinned, and
+printed audits use only standard logical axioms.
+\end{document}
