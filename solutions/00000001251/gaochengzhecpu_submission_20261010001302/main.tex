@@ -1,0 +1,134 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{Product stationary laws at capacity two\\A disproof of Conjecture 00000001251}
+\author{gaochengzhecpu}
+\date{October 9, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+On the three-site cycle, capacity-two partial exclusion has a full-support
+product stationary law with one-site distribution $\operatorname{Bin}(2,1/2)$.
+For the alternative convention of unit-rate legal jumps, the product of
+three uniform laws on $\{0,1,2\}$ is stationary. Both examples contradict
+the assertion that product stationarity requires capacity one.
+\end{abstract}
+
+\section{A nondegenerate three-site example}
+The source defines $k$-exclusion by the capacity $k$ at each site and asserts
+that product stationary states occur only at $k=1$. Consider the three-cycle
+with sites $0,1,2$, so every pair of distinct sites is adjacent. Its state
+space is $\Omega=\{0,1,2\}^3$. A legal jump $i\to j$ decreases $\eta_i$ by one
+and increases $\eta_j$ by one, requiring $\eta_i>0$ and $\eta_j<2$.
+Every other coordinate remains unchanged.
+
+First use the partial-exclusion rates
+\[
+ c_{ij}(\eta)=\eta_i(2-\eta_j),\qquad i\ne j.
+\]
+The off-diagonal generator $Q(\eta,\xi)$ sums these rates over the legal
+jumps producing $\xi$; its diagonal is minus the total exit rate.
+Define
+\[
+ u(0)=\frac14,\quad u(1)=\frac12,\quad u(2)=\frac14,
+ \qquad \pi(\eta)=u(\eta_0)u(\eta_1)u(\eta_2).
+\]
+All 27 states have positive mass, and their masses sum to one.
+
+\begin{theorem}
+The law $\pi$ is a product stationary distribution for this capacity-two
+process. Moreover,
+\[
+ \mathbb E_\pi\eta_i=1,\qquad
+ \mathbb E_\pi(\eta_0\eta_1\eta_2)=1,
+ \qquad
+ \mathbb E_\pi(\eta_0\eta_1\eta_2)-\prod_{i=0}^2\mathbb E_\pi\eta_i=0.
+\]
+\end{theorem}
+\begin{proof}
+For a legal jump, write $a=\eta_i\in\{1,2\}$ and
+$b=\eta_j\in\{0,1\}$. The destination has coordinates $a-1,b+1$.
+The binomial weights satisfy
+\[
+ u(a)u(b)a(2-b)=u(a-1)u(b+1)(b+1)(3-a).
+\]
+Multiplying by the unaffected site's weight gives detailed balance between
+this jump and its reverse. Summing over jumps yields
+$\pi(\eta)Q(\eta,\xi)=\pi(\xi)Q(\xi,\eta)$. Thus
+\[
+ \sum_{\eta\in\Omega}\pi(\eta)Q(\eta,\xi)
+ =\pi(\xi)\sum_{\eta\in\Omega}Q(\xi,\eta)=0.
+\]
+For a finite continuous-time chain, this stationarity equation implies
+$\pi e^{tQ}=\pi$ for every $t\geq0$, by the exponential power series.
+The three coordinates are independent with mean one, giving all the
+stated correlation identities.
+\end{proof}
+
+\newpage
+\section{The unit-rate convention also has a counterexample}
+Another common $k$-exclusion convention assigns rate one to each legal
+directed jump. Keep exactly the same state space and legal moves, and call
+its generator $Q_U$. Each legal jump has a legal reverse of the same rate,
+so $Q_U(\eta,\xi)=Q_U(\xi,\eta)$. Consequently the full-support law
+\[
+ \pi_U(\eta)=\frac1{27}=\prod_{i=0}^2\frac13
+\]
+satisfies detailed balance and $\pi_U Q_U=0$. It is the product of three
+uniform laws on $\{0,1,2\}$, with capacity $2\ne1$.
+
+Both examples are genuine particle-moving processes. For example,
+$(1,0,0)\to(0,1,0)$ has rate two in the first process and rate one in the
+second. Neither law is a point mass. Total particle number is conserved;
+these are stationary grand-canonical product laws, mixing the invariant
+particle-number sectors. The source does not require a fixed total particle
+number or an extremal stationary law. Full independence also removes every
+mixed three-site correlation deficit that measures failure of factorization.
+
+\section{Formal verification and scope}
+Lean uses the finite state space \texttt{Fin 3 $\times$ Fin 3 $\times$ Fin 3},
+with actual coordinate occupations, legal single-particle moves, both rate
+functions, and both generators. Exact finite computations verify detailed
+balance for all pairs of states and both stationarity equations.
+
+\begingroup\raggedright
+\begin{itemize}
+\setlength{\itemsep}{3pt}
+\item \texttt{capacity\_\allowbreak two}, \texttt{weighted\_\allowbreak balance}, and
+\texttt{generator\_\allowbreak row\_\allowbreak sum} verify admissibility and balance.
+\item \texttt{occupation\_\allowbreak marginals} and \texttt{product\_\allowbreak formula}
+identify the normalized binomial product law. The three-point calculation
+is \texttt{three\_\allowbreak point\_\allowbreak deficit\_\allowbreak zero}.
+\item \texttt{probabilityMass} and \texttt{uniformProbabilityMass} are actual
+Mathlib probability mass functions, with full support.
+\item \texttt{probabilityMass\_\allowbreak stationary} and
+\texttt{uniformProbabilityMass\_\allowbreak stationary} prove their stationarity
+equations against the corresponding generators after conversion to real
+probabilities.
+\end{itemize}
+\endgroup
+The finite-chain stationarity criterion used is exactly $\pi Q=0$.
+Lean verifies that criterion and the generator conditions; it does not
+construct a separate space of continuous-time sample paths.
+All checked results use only Lean's standard logical axioms. No
+unproved placeholders, custom axioms, native evaluation, or external
+numerical certificates are used.
+
+\paragraph{Reproduction.}
+In \texttt{lean/}, run:
+\begin{verbatim}
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Lean 4.19.0 and an exact Mathlib revision are pinned. Rebuild this PDF with
+\texttt{tectonic main.tex}. The exact bilingual source and its provenance
+are supplied as separate files.
+
+\paragraph{Sources.}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/9b795e7a94a6076e49a65a6489e1caf9153abd23/conjectures/00000001251.md}{Conjecture 00000001251};
+\href{https://github.com/leanprover-community/mathlib4/commit/c44e0c8ee63ca166450922a373c7409c5d26b00b}{Mathlib c44e0c8ee63c}.
+\end{document}
