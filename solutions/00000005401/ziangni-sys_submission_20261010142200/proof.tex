@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Infinite periodic-point counts for the identity map\\\large Disproof of Conjecture 00000005401}
+\author{ziangni-sys}\date{10 October 2026}
+\begin{document}\maketitle
+\noindent\textbf{Result.} The two-variable polynomial identity map has infinitely many fixed points under every positive iterate. Thus its periodic-point counts fall outside the stated finite growth classification.
+
+\section*{The statement and its missing hypothesis}
+The English version defines periodic-point counting as the number of fixed points of each period and asserts that the growth classification of two-variable dynamical systems has exactly three values: zero, linear, and exponential. The Chinese version says likewise, describing the first type as zero-order. Either interpretation of that first type is a finite counting growth type. Neither version requires isolated periodic points or finite fixed-point sets.
+
+A numerical count with zero, constant, linear, or exponential growth must in particular be finite for each sufficiently large positive period. The example below has an infinite fixed-point set for every positive period, so no finite numerical count or finite asymptotic growth bound of any of these types exists. One cannot repair this by assigning zero to an infinite count or by counting components instead of points: those would change the defined object.
+
+\section*{A genuine two-variable polynomial system}
+Let
+\[
+ F:\mathbb R^2\longrightarrow\mathbb R^2,\qquad F(x,y)=(x,y).
+\]
+Its two coordinate polynomials are exactly $X_1$ and $X_2$, and it is a smooth polynomial dynamical system. For every integer $n\ge1$,
+\[
+ F^n=\mathrm{id},\qquad
+ \operatorname{Fix}(F^n)=\mathbb R^2.
+\]
+For example, the distinct points $(r,r)$, $r\in\mathbb R$, belong to every fixed-point set. Thus every count $\#\operatorname{Fix}(F^n)$ is infinite, including arbitrarily large $n$. It is therefore neither zero-order finite, linear, nor exponential finite growth.
+
+The phenomenon persists on a compact invariant phase space: restrict the same map to the unit square $[0,1]^2$. It fixes the whole square under every iterate. The diagonal points $(r,r)$ with $r\in[0,1]$ form an infinite subset of every fixed-point set. Compactness alone therefore cannot supply the missing hypothesis.
+
+\section*{Fixed points of an iterate and least periods}
+The conjecture explicitly defines the count through fixed points of each period, which is the convention $\#\operatorname{Fix}(F^n)$. If instead one interprets a period as the least positive period, every point in the example has least period one, since $F$ is the identity. The exact-period-one set is still the entire plane (or square), hence infinite. For least periods $n>1$ it is empty. This alternative convention does not restore a finite count at every period; in the stated iterate convention, all positive periods are infinite. A classification restricted to systems with isolated or finite periodic-point sets would be a different conjecture.
+
+This falsifies the asserted universal three-valued classification. The additional claims involving cohomological realizations, entropy, and Euler-characteristic slopes are not needed to refute the conjunction.
+
+\section*{Formal verification}
+The Lean project represents the real plane by functions from \texttt{Fin 2} to $\mathbb R$. It defines the map and its two multivariate coordinate polynomials and verifies the evaluation identity. It proves the actual function-iterate formula, infinitude of every true fixed-point set using an explicit injective real-line embedding, the negation of finite periodic counting, the exact-period-one statement, and infinitude on the invariant unit square.
+
+Run \texttt{lake build} in \texttt{lean/}. The project publicly pins Lean 4.19.0 and Mathlib commit
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}\end{center}
+The full build prints final theorem axiom audits and contains no admitted result, custom axiom, or unchecked computation.
+\end{document}
