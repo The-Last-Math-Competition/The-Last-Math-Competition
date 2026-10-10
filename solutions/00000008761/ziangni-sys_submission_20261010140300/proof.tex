@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\title{Conjecture 00000008761 is false under its stated definition}
+\author{Ziang Ni (\texttt{ziangni-sys})}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+The English and Chinese statements define $SK_1$ as the kernel of
+$\det:GL(R)\longrightarrow R^\times$ and assert its vanishing under a
+nilradical condition. We disprove this vanishing clause using precisely
+that definition.
+
+Take the commutative field $R=\mathbb Q$. Its nilradical is zero: if
+$x^m=0$ for $m>0$, the absence of zero divisors implies $x=0$.
+Consequently it also satisfies any nilpotent-annihilation condition on
+its nilradical: the zero ideal is annihilated already by the nilpotent
+zero element. Passing to the reduced ring changes nothing.
+
+Consider the actual invertible matrix
+\[
+ U=\begin{pmatrix}1&1\\0&1\end{pmatrix},\qquad
+ U^{-1}=\begin{pmatrix}1&-1\\0&1\end{pmatrix}.
+\]
+Direct multiplication gives $UU^{-1}=U^{-1}U=I_2$, and
+$\det U=1$. However $U\ne I_2$, because its $(1,2)$ entry is $1$
+rather than $0$. Thus the determinant kernel is nontrivial.
+
+This also works if $GL(R)$ denotes the stable general linear group.
+For every $n\geq0$, the block diagonal matrix
+$U_n=\operatorname{diag}(U,I_n)$ has determinant $1$ and retains the same
+nonzero off-diagonal entry. Every standard stabilization is injective:
+$\operatorname{diag}(A,1)=\operatorname{diag}(B,1)$ implies $A=B$
+by restricting to the original block. Hence the class of $U$ never
+becomes the identity in the direct limit. It is a nonidentity element of
+the stable determinant kernel as well.
+
+The claimed vanishing is therefore false. A false conjunct disproves
+the whole conjecture; the subsequent claim about noncommutative
+counterexamples need not be resolved.
+
+\paragraph{Definition and formalization.}
+The usual algebraic $K$-theory group $SK_1$ is instead a determinant
+kernel \emph{after quotienting by elementary matrices}. Our matrix is
+elementary and becomes trivial in that quotient. We make no claim
+against a vanishing theorem for that different definition. The source
+explicitly defines the unquotiented kernel, and that is the statement
+refuted here.
+
+The accompanying Lean project uses actual rational matrices and
+the general linear group type. Its final theorem proves that
+$\operatorname{nilradical}(\mathbb Q)=0$ and, for every $n$, there is a
+nonidentity invertible $(2+n)$-dimensional matrix of determinant one.
+The block indices $\mathrm{Fin}(2)\sqcup\mathrm{Fin}(n)$ express ordinary
+stabilization. All axiom audits use only Lean's standard logical axioms.
+\end{document}
