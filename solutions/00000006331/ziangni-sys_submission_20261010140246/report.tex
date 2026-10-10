@@ -1,0 +1,63 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue}
+\title{Infinitely many constructed Hadamard orders\\A disproof of Conjecture 00000006331}
+\author{ziangni-sys}\date{10 October 2026}
+\begin{document}\maketitle
+\begin{abstract}
+The finiteness clause for the Hadamard construction spectrum is false: Sylvester's elementary doubling construction produces Hadamard matrices of order $2^n$ for every $n\ge0$. We prove the sign and row-orthogonality conditions for the actual recursively constructed matrices and show that their orders are unbounded. The accompanying Lean project proves these facts for all $n$, including the infinitude of the attainable-order spectrum.
+\end{abstract}
+
+\section{The clause being disproved}
+The English statement says that the smallest missing order is given by gap-filling paths of the construction spectrum ``and the spectrum is finite.'' The Chinese statement likewise asserts that the construction spectrum is finite. We use the standard order-spectrum meaning
+\[
+\mathcal H=\{m\in\mathbb N:\text{a Hadamard matrix of order }m\text{ can be constructed}\}.
+\]
+In particular, an explicit matrix construction contributes its actual order to this spectrum. The proof below disproves finiteness under this attainable-order interpretation. The source supplies no separate definition restricting the spectrum to a particular finite search range or a finite set of primitive building blocks.
+
+This is not a claim about the set of \emph{missing} orders, and it does not settle existence at every positive order divisible by four. Nor does it classify Paley constructions or the source's unspecified gap-filling paths. One false conjunct suffices to disprove the stated conjunction.
+
+\section{Matrices of every power-of-two order}
+A Hadamard matrix of order $m$ is a square matrix $H$ with entries in $\{1,-1\}$ satisfying
+\[
+\sum_{k=1}^{m}H_{ik}H_{jk}=m\,\mathbf 1_{i=j}.
+\]
+Define actual integer matrices recursively by
+\[
+H_0=(1),\qquad
+H_{n+1}=\begin{pmatrix}H_n&H_n\\H_n&-H_n\end{pmatrix}.
+\]
+Inductively, $H_n$ has $2^n$ rows and columns and every entry is $1$ or $-1$.
+
+For completeness, index its rows and columns by $I_0=\{*\}$ and $I_{n+1}=\{0,1\}\times I_n$, and set
+\[
+H_{n+1}((a,x),(b,z))=(-1)^{ab}H_n(x,z).
+\]
+The inner product of two rows is
+\begin{align*}
+&\sum_{b\in\{0,1\}}\sum_{z\in I_n}
+ H_{n+1}((a,x),(b,z))H_{n+1}((c,y),(b,z))\\
+&\quad=\left(\sum_{b\in\{0,1\}}(-1)^{ab}(-1)^{cb}\right)
+ \left(\sum_{z\in I_n}H_n(x,z)H_n(y,z)\right)\\
+&\quad=(2\mathbf1_{a=c})(2^n\mathbf1_{x=y})
+ =2^{n+1}\mathbf1_{(a,x)=(c,y)}.
+\end{align*}
+The base case is immediate, so this proves the exact Hadamard identity for every $n$. Equivalently, $H_nH_n^{\mathsf T}=2^n I_{2^n}$.
+
+\section{The spectrum cannot be finite}
+Every $2^n$ belongs to $\mathcal H$ by the explicit construction. Given any $N\in\mathbb N$, choose $n=N+1$. The elementary inequality $n<2^n$ gives
+\[
+N<2^{N+1}\in\mathcal H.
+\]
+Thus $\mathcal H$ is unbounded, and hence infinite. Even if one discards the orders one and two and restricts to positive multiples of four, the subfamily $2^{n+2}$ is still unbounded. This directly contradicts the finite construction-spectrum clause.
+
+\section{Formalization and reproduction}
+The Lean project defines the recursive index types and the integer matrices themselves. It proves their cardinalities, sign-valued entries, and full row-inner-product identities by induction. An explicit finite equivalence reindexes the matrices onto $\operatorname{Fin}(2^n)$, giving precisely the ordinary finite square-matrix definition of Hadamard order. Finally, it proves that every bound is exceeded by an actual Hadamard order, and contradicts the maximum of any proposed finite spectrum.
+
+The principal theorems are \texttt{entries\_sign}, \texttt{row\_inner}, \texttt{sylvester\_is\_hadamard}, and \texttt{construction\_spectrum\_infinite}. No matrix existence or orthogonality hypothesis is assumed. There are no proof placeholders, custom axioms, or native evaluation shortcuts.
+
+Use Lean 4.19.0 and run \texttt{lake build} in the \texttt{lean/} directory. Mathlib is pinned to commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The final build prints the axiom dependencies of the principal theorems. Only standard Lean/Mathlib logical axioms are permitted. The argument is entirely symbolic; no numerical search or external certificate is required.
+\end{document}
