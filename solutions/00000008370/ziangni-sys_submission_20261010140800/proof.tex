@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\setlength{\emergencystretch}{2em}
+\title{A nonintegral metrized graph with rational canonical Green values}
+\author{Ziang Ni (\texttt{ziangni-sys})}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+\noindent\textbf{Disproof of conjecture 00000008370.}
+We refute the universal transcendence assertion for nonintegral
+real-weight graphs by constructing the continuous Arakelov--Green
+function on a metrized segment.
+
+Let $\Gamma=[0,r]$ with its ordinary path metric, for $r>0$. It is a
+connected metrized graph consisting of one edge of length $r$. Its
+effective resistance is $\rho(x,y)=|x-y|$. With the standard graph
+Laplacian convention
+\[
+ \Delta f=-f''\,dx-\sum_p\Big(\sum_{v\text{ outgoing at }p}D_vf(p)\Big)\delta_p,
+\]
+the derivative jump of $|x-y|$ at an interior $y$ is $2$, while the
+endpoint terms are $\delta_0+\delta_r$. Thus
+\[
+ \Delta_x\rho(x,y)=\delta_0+\delta_r-2\delta_y.
+\]
+The same formula holds at $y=0,r$ after combining coincident atoms.
+The canonical measure, defined by
+$\mu_{\mathrm{can}}=\tfrac12\Delta_x\rho(x,y)+\delta_y$, is therefore
+\[
+ \mu_{\mathrm{can}}=\tfrac12(\delta_0+\delta_r).
+\]
+This is the continuous metrized-graph canonical measure, not a
+replacement by a finite-matrix normalization. For the standard
+Laplacian and canonical measure definitions, see Baker--Faber,
+\emph{Metrized Graphs, Laplacian Operators, and Electrical Networks},
+\S3 and \S7, especially Definition 9 and the interval example preceding
+Theorem 11; available at
+\href{https://arxiv.org/abs/math/0407428}{arXiv:math/0407428}.
+
+Define the full kernel, for all $x,y\in\Gamma$, by
+\[
+ g(x,y)=\frac r4-\frac12|x-y|.
+\]
+It is continuous and symmetric. Fix an interior point $y$.
+The $x$-derivatives are $1/2$ for $x<y$ and $-1/2$ for $x>y$.
+The negative derivative jump is $1$, and the negative outward endpoint
+slopes give $-\delta_0/2-\delta_r/2$. Consequently
+\[
+ \Delta_xg(x,y)=\delta_y-\mu_{\mathrm{can}}.
+\]
+For $y=0$ the constant edge derivative is $-1/2$, giving
+$\Delta g=(\delta_0-\delta_r)/2$; for $y=r$ it is $1/2$, giving
+the opposite measure. These are exactly the same Green equation.
+Furthermore, for every $0\leq y\leq r$,
+\[
+ \int_\Gamma g(x,y)\,d\mu_{\mathrm{can}}(x)
+ =\frac12\left(\frac r4-\frac y2+\frac r4-\frac{r-y}{2}\right)=0.
+\]
+Thus this kernel has precisely the defining Green equation and
+normalization of the canonical Arakelov--Green function. Uniqueness
+also follows directly: the difference of two such functions has zero
+Laplacian, hence zero edge second derivative and zero endpoint slopes;
+it is constant, and zero canonical mean makes that constant zero.
+
+Take $r=1/2$. The edge length is positive and nonintegral, while
+\[
+ g(0,0)=\frac18\ne0.
+\]
+This is rational and therefore algebraic, contrary to universal
+transcendence on nonintegral real-weight graphs. The other conjuncts
+are irrelevant once this assertion fails. This example does not use
+zero Green values, a vertex-only surrogate, or an assumed Green
+certificate.
+
+\paragraph{Lean coverage.}
+The project defines the full real kernel on the interval and proves
+its actual derivatives on both affine pieces. It computes endpoint
+fluxes from those derivatives and verifies the distributional graph
+Laplacian against arbitrary test functions, including both endpoint
+cases, as well as its canonical mean zero. It proves positivity and
+nonintegrality of the length and the nonzero algebraic diagonal value.
+The finite atomic signed measure is represented by its action on test
+functions; the continuous second-derivative contribution is zero
+because the proven derivatives are constant on each piece.
+Lean 4.19.0 and Mathlib are pinned, with printed standard-axiom audits.
+\end{document}
