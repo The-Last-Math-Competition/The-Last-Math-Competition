@@ -1,0 +1,165 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\Z}{\mathbb Z}
+\title{A triangle contradicts the proposed\\flag-complex chromatic conversion\\
+\large Disproof of Conjecture 00000004227}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The clique complex of the complete graph $K_3$ is a filled triangle.
+It has exactly one spanning two-tree, also of torsion weight one.
+Its clique number is $3$, while its chromatic polynomial
+$P(q)=q(q-1)(q-2)$ satisfies $P(-1)=-6$.
+Thus the stated conversion with constant one fails. Absolute values or
+the usual parity correction give $6$, and also fail. In fact no evaluation
+at a negative integer, even after taking its absolute value, equals the
+two-tree count in this example.
+\end{abstract}
+
+\section*{The statement and its evaluation point}
+The source proposes a conversion of the two-tree count of a graph's flag
+complex into an evaluation of its chromatic polynomial at a negative integer,
+with conversion constant $1$ and point determined by the clique number
+minus $2$. Write $\omega(G)$ for the usual clique number, the maximum size
+of a clique. The corresponding negative point is
+$-(\omega(G)-2)$. We test that claimed unit conversion directly.
+The paper also checks absolute values and the opposite sign of the point,
+so the contradiction does not depend on a sign convention. No unspecified
+linear combination of several evaluations is assumed to be the proposed
+formula; the source gives no such combination or its coefficients.
+
+\section*{A flag complex of dimension exactly two}
+Let $G=K_3$ on vertices $0,1,2$. Every subset of the vertex set is a clique,
+so its clique complex $K$ consists of all subsets of $\{0,1,2\}$.
+It contains exactly three edges and the one triangular face $012$.
+In particular it is a flag complex of dimension $2$, and $\omega(G)=3$.
+There are no higher-dimensional faces to truncate.
+
+We use simplicial spanning two-trees: a subcomplex keeps the entire
+one-skeleton, has no rational two-cycle, and every one-cycle is a
+boundary of a selected triangular two-chain. These are the chain versions
+of the standard homological spanning-tree conditions; see
+Duval--Klivans--Martin, Section 1.2. The direct calculation below also
+settles the integral homology and therefore the usual torsion weighting.
+
+Orient the edges as $01,02,12$ and the face as $012$. The boundary matrices
+are
+\[
+B_1=\begin{pmatrix}-1&-1&0\\1&0&-1\\0&1&1\end{pmatrix},
+\qquad
+B_2=\begin{pmatrix}1\\-1\\1\end{pmatrix}.
+\]
+They come from $\partial_1[u,v]=[v]-[u]$ and
+$\partial_2[a,b,c]=[b,c]-[a,c]+[a,b]$, so $B_1B_2=0$.
+For $z=(z_0,z_1,z_2)^T$, the equation $B_1z=0$ says
+\[
+z_1=-z_0,\qquad z_2=z_0,
+\qquad z=z_0(1,-1,1)^T.
+\]
+Consequently $\ker B_1=\operatorname{im} B_2$, and $B_2$ is injective.
+
+\begin{theorem}
+The number of spanning two-trees of $K$ is $\tau_2(K)=1$.
+The torsion-weighted count is also $1$.
+\end{theorem}
+\begin{proof}
+Keeping its unique triangular face gives an injective top boundary and
+fills every one-cycle by the displayed formula. It is therefore a
+spanning two-tree. Omitting that face leaves the full triangular
+one-skeleton with the nonzero one-cycle $(1,-1,1)^T$ and no two-face
+to fill it, and hence is not a spanning two-tree. These are the only
+two possible face selections.
+
+The same calculation holds with integral coefficients: every integral
+cycle is the boundary of the integer two-chain with coefficient $z_0$.
+Thus the unique tree has $H_1(K;\Z)=0$, and its weight
+$|\operatorname{Tor}H_1(K;\Z)|^2$ equals $1$.
+The count is unchanged if that standard weighting is intended.
+\end{proof}
+
+\section*{The actual chromatic polynomial}
+A proper coloring of $K_3$ assigns distinct colors to all three vertices.
+For $n\geq3$ available labeled colors there are $n(n-1)(n-2)$ such
+colorings; for $n=0,1,2$ there are none and this polynomial also vanishes.
+Thus, for every nonnegative integer $n$, the polynomial
+\[
+P(q)=q(q-1)(q-2)
+\]
+evaluates to the actual number of proper colorings. A polynomial over
+$\Q$ is determined by its values at all nonnegative integers, so this
+identifies the chromatic polynomial, including its evaluations at
+negative arguments.
+
+Since $-(\omega(G)-2)=-1$, the claimed conversion gives
+\[
+\boxed{\tau_2(K)=1\ne-6=P(-1).}
+\]
+Taking $|P(-1)|$, or the parity-corrected value $(-1)^3P(-1)$, gives
+$6\ne1$. If the phrase ``clique number minus two'' is read as the
+positive argument instead, $P(1)=0\ne1$.
+More generally, for every integer $m\geq1$,
+\[
+P(-m)=-m(m+1)(m+2)\leq-6,\qquad |P(-m)|\geq6.
+\]
+No negative integer evaluation, with either overall sign, equals $1$.
+This rules out changing the negative evaluation point as a repair of
+the unit-conversion claim on this graph. Different normalization factors
+or unspecified combinations would constitute different formulas.
+
+\section*{Formal correspondence and reproduction}
+The supplied Lean project uses Mathlib's actual \texttt{SimpleGraph},
+clique predicate, clique number and proper-coloring type.
+The complex is defined by filtering vertex subsets by the graph's
+clique predicate. Its downward closure, exact dimension and the unique
+two-face enumeration are checked.
+
+An explicit equivalence identifies proper colorings with embeddings of
+the three-vertex type into the color type. The theorem
+\path{chromatic_counts} therefore establishes the counting property for
+\emph{every} natural color count; \path{chromatic_unique} proves uniqueness
+using infinitely many evaluation points. The polynomial is not substituted
+for a graph object without proving its defining property. This definition-level
+characterization is used because the pinned Mathlib version does not provide
+a general graph chromatic-polynomial object.
+
+The actual oriented simplices define both boundary linear maps over $\Q$.
+The predicate \path{IsSpanningTwoTree} uses their kernels, fillings and
+the support of a selected-face chain. The theorem \path{tree_iff_full}
+classifies every mask, and the resulting cardinality is proved to be $1$.
+The final theorems compare that count with the polynomial evaluation,
+its absolute value and the alternate positive argument.
+\path{no_negative_integer_unit_conversion} treats all negative integers.
+The integral-homology interpretation is proved above by the same explicit
+integer filling; no imported Lean homology theorem is claimed.
+
+The project pins Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+In \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The cache command fetches official dependencies when absent. The submission
+itself is rebuilt in a fresh directory, and its printed theorem dependencies
+use only Lean's standard foundational axioms. No proof placeholders,
+additional axioms or native numerical oracles are used.
+Run \texttt{tectonic main.tex} to regenerate the PDF.
+The exact bilingual source, its provenance, and build and review records
+are included. This work received a separate adversarial self-review pass
+by its author; no independent reviewer is claimed.
+
+\section*{References}
+\begin{enumerate}
+\item The Last Math Competition,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/9b795e7a94a6076e49a65a6489e1caf9153abd23/conjectures/00000004227.md}{Conjecture 00000004227}, exact source reproduced in this submission.
+\item A. M. Duval, C. J. Klivans and J. L. Martin,
+\href{https://www.dam.brown.edu/people/cklivans/SST.pdf}{\emph{Simplicial matrix-tree theorems}},
+Section 1.2, for the simplicial tree convention.
+\end{enumerate}
+\end{document}
