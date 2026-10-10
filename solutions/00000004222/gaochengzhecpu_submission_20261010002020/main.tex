@@ -1,0 +1,177 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\Z}{\mathbb Z}
+\title{Four tetrahedral spanning trees versus a fourth derivative of 24\\
+\large Disproof of Conjecture 00000004222}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The boundary of a tetrahedron has four two-dimensional spanning trees.
+Its top-dimensional Laplacian acts on four faces, so its monic
+characteristic polynomial has fourth derivative $4!=24$ everywhere,
+including at $1$. This disproves the stated equality.
+\end{abstract}
+
+\section*{Statement and conventions}
+The conjecture asserts that a higher-dimensional tree count equals the
+derivative at $1$ of a Laplacian characteristic polynomial, with derivative
+order equal to the number of faces in that dimension. We use the ordinary
+derivative of the characteristic polynomial $\det(tI-L)$, and the
+unweighted combinatorial Laplacian on that dimension's chains.
+No rescaling or reduced characteristic polynomial is specified in the source.
+
+For a two-dimensional complex with complete one-skeleton, a spanning
+two-tree keeps all vertices and edges and selects triangular faces such
+that the selected boundary map is injective over $\Q$ and its image is
+$\ker\partial_1$. These are the chain descriptions of vanishing rational
+$H_2$ and $H_1$. This agrees with the usual simplicial spanning-tree
+conditions here; see Duval--Klivans--Martin, Section 1.2.\footnote{\href{https://www.dam.brown.edu/people/cklivans/SST.pdf}{A. M. Duval, C. J. Klivans, and J. L. Martin, \emph{Simplicial matrix-tree theorems}, Section 1.2.}}
+We also check below that every tree in this example has trivial integral
+$H_1$, so a squared torsion-order weight does not change the count.
+
+\section*{The actual chain complex}
+Let $K=\partial[0,1,2,3]$, the family of all proper subsets of four
+vertices. Its six increasing oriented edges and four increasing oriented
+faces are, respectively,
+\[
+ (01,02,03,12,13,23),\qquad (123,023,013,012).
+\]
+Use the usual boundaries $\partial_1[u,v]=[v]-[u]$ and
+$\partial_2[a,b,c]=[b,c]-[a,c]+[a,b]$. Their matrices are
+\[
+ B_1=\begin{pmatrix}
+ -1&-1&-1&0&0&0\\
+ 1&0&0&-1&-1&0\\
+ 0&1&0&1&0&-1\\
+ 0&0&1&0&1&1
+ \end{pmatrix},\qquad
+ B_2=\begin{pmatrix}
+ 0&0&1&1\\0&1&0&-1\\0&-1&-1&0\\
+ 1&0&0&1\\-1&0&1&0\\1&1&0&0
+ \end{pmatrix}.
+\]
+Direct calculation gives $B_1B_2=0$. Set
+$\sigma=(1,-1,1,-1)^T$. Solving $B_2x=0$ gives
+\[
+ x_2+x_3=0,\quad x_1-x_3=0,\quad x_0+x_3=0,
+ \qquad x=x_0\sigma.
+\]
+Thus $\ker B_2=\Q\sigma$, and every nonzero two-cycle uses all four faces.
+For any one-cycle $z=(z_0,\ldots,z_5)^T$, the first three rows of
+$B_1z=0$ imply
+\[
+ z_2=-z_0-z_1,\qquad z_4=z_0-z_3,\qquad z_5=z_1+z_3.
+\]
+Consequently $a=(z_3,z_1,z_0,0)^T$ satisfies $B_2a=z$.
+
+\begin{lemma}
+A subset of the four triangular faces is a spanning two-tree precisely
+when it omits exactly one face. Therefore $\tau_2(K)=4$.
+\end{lemma}
+\begin{proof}
+If face $v$ is omitted, every supported two-cycle is a scalar multiple
+of $\sigma$ with its $v$-coordinate zero, hence is zero.
+For a one-cycle $z$, take the filling $a$ above and define
+\[
+ x=a-(a_v\sigma_v)\sigma.
+\]
+Since $\sigma_v^2=1$, this has $x_v=0$, while
+$B_2x=B_2a=z$. Thus omitting one face gives a spanning two-tree.
+
+Selecting every face fails injectivity because $\sigma\ne0$ is a cycle.
+If distinct faces $v,w$ are omitted, let $e_v$ denote the $v$th coordinate
+vector. The one-cycle $B_2e_v$ cannot have a supported filling $x$:
+otherwise $B_2(x-e_v)=0$, so $x-e_v=c\sigma$.
+Its $w$-coordinate forces $c=0$, whereas its $v$-coordinate is $-1$,
+a contradiction. This proves the classification and count.
+\end{proof}
+
+All displayed filling formulas have integer coefficients. For integral
+$z$, both $a$ and $x$ are integral, so every integral one-cycle is a
+boundary in each of the four trees. The same kernel argument rules out
+integral two-cycles. In particular, $H_1(T;\Z)=0$ for every counted tree
+$T$, and the usual weight $|\operatorname{Tor}H_1(T;\Z)|^2$ equals $1$.
+Geometrically, these four complexes are also the four closed disks
+obtained by removing one open face of the tetrahedral sphere.
+
+\section*{The prescribed derivative}
+There are no three-dimensional faces, so the top-dimensional Hodge
+Laplacian is exactly
+\[
+ L_2=B_2^TB_2\in M_4(\Q),\qquad p(t)=\det(tI_4-L_2).
+\]
+Every $4\times4$ matrix has a monic characteristic polynomial of degree
+$4$. Hence $p(t)=t^4+c_3t^3+c_2t^2+c_1t+c_0$, and
+\[
+ \boxed{\tau_2(K)=4\ne24=p^{(4)}(1),\qquad f_2(K)=4.}
+\]
+One also commonly uses the up-down Laplacian $L_1^{\mathrm{up}}=B_2B_2^T$
+on edges, as in the cited simplicial matrix-tree theorem. This convention
+also contradicts the claimed derivative order. Indeed, multiplication
+of the displayed matrix gives
+\[
+ B_2^TB_2=4I_4-\sigma\sigma^T,\qquad \sigma^T\sigma=4.
+\]
+Thus its eigenvalues are $4,4,4,0$. The $6\times6$ matrix $B_2B_2^T$
+has the same nonzero eigenvalues and three zero eigenvalues. Therefore
+\[
+ p_{\mathrm{up}}(t)=t^3(t-4)^3=t^6-12t^5+48t^4-64t^3,
+ \qquad p_{\mathrm{up}}^{(4)}(1)=360-1440+1152=72\ne4.
+\]
+Here the derivative order remains the number of two-faces, namely $4$.
+This supplementary convention check is a paper calculation; the Lean
+proof below formalizes the $4\times4$ top-dimensional Laplacian.
+
+The contradiction concerns the derivative and derivative order stated in
+the source. It does not invoke, or refute, a distinct identity involving
+reduced Laplacians, normalized coefficients, or products of nonzero
+eigenvalues. Even division by $4!$ would give $1$, not the count $4$.
+
+\section*{Correspondence with Lean}
+The finite family \texttt{tetrahedron} is proved downward closed.
+The actual two-faces are enumerated bijectively by \texttt{faceSet};
+the six increasing edges are enumerated by \texttt{tail} and \texttt{head}.
+The matrices \texttt{B\_\allowbreak{}1} and \texttt{B\_\allowbreak{}2} (written with Unicode
+subscripts in the source) are defined from the displayed simplicial
+boundary formulas, before their entries are computed.
+Their linear maps satisfy \texttt{boundary\_\allowbreak{}boundary}.
+
+\texttt{IsSpanningTwoTree} uses those actual rational boundary maps and
+the support of a selected-face chain. The theorem
+\texttt{tree\_\allowbreak{}iff\_\allowbreak{}one\_\allowbreak{}missing} proves the classification; the finite
+cardinality \texttt{treeCount} is then proved equal to $4$.
+The object \texttt{characteristic} is Mathlib's actual
+\texttt{Matrix.charpoly} of \texttt{L\_\allowbreak{}2}.
+\texttt{fourth\_\allowbreak{}derivative} uses monicity, the polynomial degree, and
+the coefficient formula for iterated derivatives. The final theorem
+\texttt{tree\_\allowbreak{}count\_\allowbreak{}ne\_\allowbreak{}prescribed\_\allowbreak{}derivative} substitutes the actual
+cardinality of the face type as the derivative order.
+The formal proof is over $\Q$; the integral-homology and topological
+interpretations above are supplied by the explicit integer filling
+argument on paper, rather than claimed as imported Lean homology results.
+
+\section*{Reproduction}
+The project pins Lean 4.19.0 and Mathlib commit
+\\\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\par
+From \texttt{lean/}, run \texttt{lake build} and
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+On a new machine, \texttt{lake exe cache get} retrieves the official
+pinned dependency artifacts. The submission is checked in a fresh
+build directory. Printed dependencies use only the standard
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+No additional axioms, proof placeholders, or numerical oracles are used.
+Run \texttt{tectonic main.tex} to reproduce the PDF; no auxiliary numerical
+script is needed. Logs, hashes, and visual-review records are included
+under \texttt{verification/}.
+
+\section*{Conjecture source}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000004222.md}{The Last Math Competition, Conjecture 00000004222}.
+The exact bilingual source and its commit and SHA-256 are preserved in
+this submission.
+\end{document}
