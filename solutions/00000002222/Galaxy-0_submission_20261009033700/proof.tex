@@ -1,0 +1,99 @@
+\pdfoutput=1
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[10pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{Coloring and Clique Numbers of Residue Ring Graphs}
+\author{Galaxy-0}
+\date{October 9, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+For every positive modulus $n\le1000$, the nonzero-zero-divisor graph of $\mathbb Z/n\mathbb Z$ has equal chromatic and clique numbers. The proof supplies, for each of the 1000 moduli, a proper coloring and a clique of the same cardinality. A self-contained Lean 4 project checks every certificate and proves the general optimality argument. It also proves that the arithmetic vertex enumeration is precisely the usual nonzero-zero-divisor definition, and that compression by gcd types preserves the absence of edges. Thus the finite verification proves conjecture 00000002222 without relying on an external solver.
+\end{abstract}
+\section{The graph and the theorem}
+For a positive integer $n$, use representatives $0,1,\ldots,n-1$. A vertex is an integer $x$ such that
+\[
+ 0<x<n\quad\hbox{and}\quad
+ \exists y\ (0<y<n\ \hbox{and}\ xy\equiv0\pmod n).
+\]
+Two distinct vertices $x,y$ are adjacent exactly when $xy\equiv0\pmod n$. In particular zero is excluded and loops are not edges. A proper coloring is a cover of the vertex set by independent sets; the least size of such a cover is the usual chromatic number. Covers and partitions give the same minimum, since assigning a vertex to any containing class can only delete vertices from independent sets.
+
+A clique is a list of distinct vertices whose distinct pairs are all adjacent. Its maximum size is the clique number. The empty graph has both numbers zero. This covers $n=1$ and all prime moduli in the range.
+\begin{theorem}
+For every integer $n$ with $1\le n\le1000$,
+\[
+ \chi\bigl(\Gamma(\mathbb Z/n\mathbb Z)\bigr)
+ =\omega\bigl(\Gamma(\mathbb Z/n\mathbb Z)\bigr).
+\]
+\end{theorem}
+The assertion concerns the standard positive moduli. No claim about arbitrary finite rings is needed, and no modulus in the specified positive range is skipped.
+\section{Two general mathematical lemmas}
+\begin{lemma}
+For $0<x<n$, the residue $x$ is a zero divisor if and only if $\gcd(n,x)>1$.
+\end{lemma}
+\begin{proof}
+If $d=\gcd(n,x)>1$, then $y=n/d$ satisfies $0<y<n$ and $n\mid xy$, because $d\mid x$. Conversely, if $n\mid xy$ and $\gcd(n,x)=1$, then $n\mid y$, which is impossible for $0<y<n$. Since $n>0$, its gcd with $x$ is positive. These arguments are formalized in \texttt{vertex\_iff\_gcd}.
+\end{proof}
+\begin{lemma}
+Every clique has size at most the number of classes in any proper coloring.
+\end{lemma}
+\begin{proof}
+Choose for each clique vertex a color class containing it. Adjacent distinct vertices cannot choose the same independent class. This is an injection from the clique into the list of classes, so its cardinality is at most the number of classes. The Lean proof supplies the finite list cardinality argument, including the case of repeated classes in a cover. Consequently a clique and a proper coloring of the same size certify both optima.
+\end{proof}
+\section{How the certificates are constructed}
+The following recipe explains the supplied witnesses; the proof of the finite theorem relies on checking each witness, not on assuming the recipe correct. Factor a composite modulus as
+\[
+ n=\prod_i p_i^{a_i},\qquad
+ d=\prod_i p_i^{\lceil a_i/2\rceil},\qquad M=n/d.
+\]
+Start with the nonzero multiples of $d$, namely $d,2d,\ldots,(M-1)d$. They form a clique and each starts a separate color class. For every odd exponent $a_i$, create one extra color class and add the vertex
+\[
+ b_i=n/p_i^{(a_i+1)/2}
+\]
+to the clique. These additional vertices are distinct from the core and from each other; their pairwise products, and their products with core vertices, are divisible by $n$.
+
+For a vertex $x$ outside the core, choose the first index $i$ for which $p_i^{\lceil a_i/2\rceil}$ does not divide $x$. If $a_i$ is odd, assign $x$ to the extra class for $i$. If $a_i$ is even, assign it to the core class whose first member is
+\[
+ c_i=n/p_i^{a_i/2}.
+\]
+This core member exists and is nonzero. Two noncore vertices assigned to the same $i$ have $p_i$-valuation sum strictly below $a_i$, so they are nonadjacent. In the even case the product of the core member $c_i$ with any assigned noncore vertex also has valuation below $a_i$. Thus these are independent classes.
+
+Prime moduli and $n=1$ are handled separately by empty witnesses. For example, at $n=12$ a matching clique is $\{6,4\}$ and a two-coloring is obtained by the recipe; at $n=36$, the clique $\{6,12,18,24,30\}$ has size five and the construction supplies five independent classes. The generator checks all of its own arithmetic assertions before writing the Lean data.
+\section{A small trusted checker with complete semantic coverage}
+The formal checker verifies five conditions for every modulus:
+\begin{enumerate}
+\item Sorting the concatenation of all color classes gives exactly the gcd-defined vertex list.
+\item Every color class is independent, using the sound compression described below.
+\item Every listed clique member is an actual vertex.
+\item Every two clique members in list order are distinct and their product is zero modulo $n$.
+\item The clique size equals the number of color classes.
+\end{enumerate}
+The sorted-list equality also rules out omitted vertices and unwanted entries. The sort is a structurally recursive merge sort, and membership preservation is proved in Lean.
+
+For a color class $a::L$, the checker directly checks that $a$ is nonadjacent to every member of $L$. It then forms the distinct gcd types
+\[
+ D=\{\gcd(n,x):x\in L\}
+\]
+and checks $n\nmid de$ for every ordered pair $d,e\in D$, including equal types. This compression is exact for the implication used because
+\[
+ n\mid xy\quad\Longleftrightarrow\quad
+ n\mid\gcd(n,x)\gcd(n,y).
+\]
+The Lean standard-library divisibility theorem proves this equivalence. Therefore every two tail members are nonadjacent. Separating the first member permits a core vertex whose square is zero, since self-loops are irrelevant. The theorem \texttt{independentCheck\_sound} formally proves the compressed check sufficient for the ordinary pairwise independence condition.
+
+\texttt{check\_sound} combines these facts with the universal clique-versus-coloring inequality. The main proposition explicitly asserts that there is a common integer $k$, attained by a coloring and a clique, that is a lower bound for \emph{all} colorings and an upper bound for \emph{all} cliques. This is exactly equality of the two graph invariants, rather than merely equality of two heuristic output numbers.
+\section{Formal verification and files}
+\texttt{Basic.lean} contains definitions and all generic soundness proofs. Files \texttt{Cert00.lean} through \texttt{Cert19.lean} contain 50 moduli each. Each certificate is established by Lean's kernel using \texttt{decide}. The range lemmas combine the individual checked results, and \texttt{Main.lean} proves \texttt{TLMC2222.conjecture2222} for every positive $n\le1000$.
+
+The project uses Lean 4.31.0, imports only \texttt{Std}, and requires no downloaded mathematical library. Run \texttt{lake build}. The included build logs and axiom output record the actual verification. There are no proof placeholders, additional axioms, native-decision oracles, or kernel bypasses. The final theorem uses only the usual foundational axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+The Python program \texttt{generate.py --all} regenerates all 1000 certificates deterministically. Python is not trusted by the proof: incorrect generated data would cause the relevant Lean certificate theorem to fail. The exact bilingual source is included as \texttt{source.md}; the public statement is \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000002222.md}{TLMC conjecture 00000002222}.
+\section{Earlier computational evidence}
+Historical \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/6}{PR 6}, a triage contribution, already reported a Python computation confirming the equality for the 831 composite moduli up to 1000. It explicitly did not package conjecture 00000002222 as a solution submission, noting the missing formalization. That numerical verdict is consistent with this work. The present submission supplies a complete independent certificate construction, a proved checker, and Lean kernel verification of every positive modulus in the specified range. No claim of first discovery of the underlying equality is made.
+\end{document}
