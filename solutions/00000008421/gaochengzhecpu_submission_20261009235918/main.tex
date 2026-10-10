@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{A bounded correction to the covering bound\\
+\large Disproof of Conjecture 00000008421}
+\author{gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+For every integer $t\geq2$, the genuine covering number satisfies
+$C(t+2,t+1,t)=t+1$. Its ratio to the elementary counting bound is
+$2(t+1)/(t+2)$, so its relative correction is $t/(t+2)<1$.
+This cannot be $\Theta(\log t)$. The counterexamples have strictly
+interior parameters $t+2>t+1>t\geq2$. The Lean project verifies the
+covering families, their optimality, the binomial ratio, and the failure
+of every eventual positive logarithmic lower bound.
+\end{abstract}
+
+\section*{The claim and the parameter regime}
+The source defines $C(n,k,t)$ as the minimum number of $k$-element
+blocks needed to cover all $t$-element subsets of an $n$-element set.
+It asserts
+\[
+ C(n,k,t)=\frac{\binom nt}{\binom kt}\bigl(1+\Theta(\log t)\bigr),
+\]
+with the correction stated for $t\geq2$. A positive
+$\Theta(\log t)$ correction requires, in particular, a constant $c>0$
+and a threshold beyond which the relative correction is at least
+$c\log t$. We disprove even that necessary lower bound along the
+admissible infinite family $n=t+2$, $k=t+1$, $t\to\infty$.
+The source specifies no additional growth restriction excluding this
+family. No claim about a different, restricted asymptotic regime is needed.
+
+\section*{The exact covering number}
+\begin{theorem}
+For every integer $t\geq0$,
+\[
+ C(t+2,t+1,t)=t+1.
+\]
+\end{theorem}
+\begin{proof}
+Let $V$ be a set of $t+2$ vertices. Every $(t+1)$-element block is
+uniquely $B_v=V\setminus\{v\}$ for some $v\in V$. Thus any family of
+distinct blocks corresponds bijectively to a set $S\subseteq V$ of
+chosen omitted vertices; the number of blocks is $|S|$.
+
+Each $t$-element subset is $V\setminus\{a,b\}$ for two distinct
+vertices $a,b$. It is contained in $B_v$ exactly when $v\in\{a,b\}$.
+Consequently the family covers every $t$-subset if and only if $S$
+meets every pair of distinct vertices. This holds exactly when
+$|V\setminus S|\leq1$: two omitted choices would give an uncovered
+pair, while a set missing at most one vertex meets every pair.
+It follows that every cover has at least $t+1$ blocks. Choosing all
+omitted vertices except one gives a cover with exactly $t+1$ blocks.
+Repeated blocks cannot improve a minimum, so considering distinct
+blocks loses no generality.
+\end{proof}
+
+\section*{Failure of the proposed correction}
+The counting bound for this family is
+\[
+ L_t=\frac{\binom{t+2}{t}}{\binom{t+1}{t}}
+     =\frac{(t+2)(t+1)/2}{t+1}=\frac{t+2}{2}.
+\]
+Therefore its relative correction is exactly
+\[
+ E_t=\frac{C(t+2,t+1,t)}{L_t}-1
+     =\frac{2(t+1)}{t+2}-1
+     =\frac{t}{t+2}<1.
+\]
+For every $c>0$ and every threshold $T$, there exists an integer
+$t\geq\max\{T,2\}$ such that $c\log t>1$, because $\log t\to\infty$.
+For that $t$, $E_t<1<c\log t$. Hence no eventual lower estimate
+$E_t\geq c\log t$ with $c>0$ can hold. In particular $E_t$ is not
+$\Theta(\log t)$, which disproves the displayed equality in the
+conjecture. The additional description of that correction cannot
+restore the failed equality.
+
+\section*{Formal correspondence and reproduction}
+The predicate \texttt{Covers} in \texttt{lean/Main.lean} uses actual
+finite families of subsets of \texttt{Fin N}: each block has the
+specified size, and every subset of the target size must be contained
+in a block. The function \texttt{coveringNumber} is the infimum in
+$\mathbb N$ of the cardinalities of those actual covering families.
+The proof provides a feasible family before identifying this infimum.
+
+The theorem \texttt{block\_representation} proves the unique
+omitted-vertex representation of every block. The lower bound
+\texttt{cover\_lower\_bound} applies to every covering family, not
+only to the displayed construction. The explicit family
+\texttt{optimalFamily} supplies the matching upper bound.
+The resulting theorem \texttt{coveringNumber\_exact} computes the
+minimum, while \texttt{countingBound\_exact} proves the actual
+binomial ratio. The theorems \texttt{excess\_exact} and
+\texttt{no\_eventual\_log\_lower\_bound} establish the relative
+correction and the quantified contradiction for every $c>0$ and
+every threshold. The final theorem is
+\texttt{conjecture8421\_false}. Lean's variable \texttt{n} is the
+paper's parameter $t$, so its ambient vertex count is \texttt{n+2}.
+
+The project is pinned to Lean 4.19.0 and a fixed Mathlib commit.
+From \texttt{lean/}, run \texttt{lake build}, then
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+On a new machine, \texttt{lake exe cache get} retrieves the official
+pinned dependency artifacts. The submitted proof itself is verified
+in a fresh build directory. Printed theorem dependencies use only
+the standard \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}; there are no added axioms, proof placeholders,
+or numerical oracles. Run \texttt{tectonic main.tex} to reproduce
+the PDF. No auxiliary numerical script is required.
+
+\section*{Source}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000008421.md}{The Last Math Competition, Conjecture 00000008421}.
+The exact bilingual source, its commit, and its SHA-256 are preserved
+in the submission.
+\end{document}
