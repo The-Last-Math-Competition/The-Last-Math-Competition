@@ -1,0 +1,300 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{listings}
+\setlength{\emergencystretch}{2em}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\mumin}{\mu}
+\newcommand{\suppset}{S}
+\title{A good LDP rate with nonconvex level sets\\
+\large Disproof of the unqualified convexity assertion in Conjecture 00000002821}
+\author{Independent formal solution}
+\date{9 October 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+A constant sequence of symmetric two-point probability measures satisfies a
+large deviation principle at speed $n+1$ with rate zero at $-1$ and $1$, and
+$+\infty$ elsewhere. This rate is proper, nonnegative, lower semicontinuous,
+and good. Every finite nonnegative sublevel is the compact but nonconvex set
+$\{-1,1\}$; its exact zero level is the same set. Thus the assertion that LDP
+rate level sets are always compact and convex is false, even after adding
+goodness. The accompanying Lean project verifies the actual probability
+measures and the complete open/closed LDP bounds, using the extended logarithm
+at probability zero. It does not assign invented meanings to the undefined
+extreme-point counting or affine-degeneration wording.
+\end{abstract}
+
+\section{Source and precise logical scope}
+
+The supplied English source states:
+\begin{quote}
+Definition: Compactness and convexity of LDP level sets: the regularity layer
+of rate functions. Conjecture: Convex-hull rigidity of level sets: level sets
+of the rate are compact and convex, with the number of extreme points of the
+hull an exponential-type finite value of the level; the extreme-point
+structure degenerates for affine rates. (level set extreme point spectrum)
+\end{quote}
+The supplied Chinese version likewise asserts compactness and convexity of
+the rate's level sets, then the finite exponential-type count and affine
+degeneration. Both versions were read before selecting the example. Neither
+specifies a Cram\'er setting, sample means, a convexity hypothesis on the rate,
+an ambient finite-dimensional restriction beyond an unspecified space, a
+formula for ``exponential-type,'' or a definition of ``degenerates.''
+
+We refute the explicit compact-and-convex assertion under the standard meaning
+of an LDP rate. An example on the usual real line suffices for an unqualified
+claim. The necessary consequence being refuted is:
+\begin{equation}\label{eq:claim}
+\begin{gathered}
+\text{For every sequence of probability measures satisfying an LDP}\\
+\text{with a proper good rate }I,\quad
+\{x:I(x)\le r\}\text{ is convex for every finite }r\ge0.
+\end{gathered}
+\end{equation}
+Adding ``good'' and ``proper'' here narrows the class of potential
+counterexamples: the example meets both conditions. Thus it refutes the
+unqualified assertion as well as this more restricted necessary consequence.
+We also handle the alternate convention that ``level set'' means
+$\{x:I(x)=r\}$, by a nonconvex exact zero level. For sublevels, the obstruction
+occurs at every finite positive level as well, so it is not confined to the
+boundary level zero.
+
+The nouns following ``Definition'' do not provide a mathematical hypothesis
+restricting the problem to convex rates or already-convex sublevels. If such
+a restriction was intended, it is an additional hypothesis absent from the
+supplied text, and our result does not purport to settle that amended problem.
+Nor do we claim a formalization of the undefined counting or degeneration
+phrases. No such choice is necessary: a conjunction containing the false
+convexity assertion is false. We make no independent assertion here about an
+extreme-point growth law or affine degeneration.
+
+\section{Definitions and conventions}
+
+The state space is $\R$ with its usual topology and Borel sigma algebra.
+A rate function takes values in $[0,+\infty]$ and is lower semicontinuous.
+We call it \emph{proper} when it is finite at some point. We call it
+\emph{good} when every sublevel $\{I\le r\}$ for finite $r\ge0$ is compact.
+The extended logarithm has $\log 0=-\infty$ and agrees with the ordinary real
+logarithm on positive finite arguments. Infima of empty sets of rates are
+$+\infty$. All limits of logarithmic probabilities below take place in the
+extended real line $[-\infty,+\infty]$ with its order topology.
+
+For a positive speed $a_n\to+\infty$, the LDP means that for every open
+$G\subseteq\R$ and every closed $F\subseteq\R$,
+\begin{align}\label{eq:lower}
+ -\inf_{x\in G}I(x)&\le
+ \liminf_{n\to\infty}\frac{1}{a_n}\log\mu_n(G),\\
+ \limsup_{n\to\infty}\frac{1}{a_n}\log\mu_n(F)&\le
+ -\inf_{x\in F}I(x).\label{eq:upper}
+\end{align}
+This is the definition encoded by \texttt{HasLDP}. It additionally records
+that every $\mu_n$ is a probability measure, the speed is positive and tends
+to infinity, and $I$ is lower semicontinuous. The formal infimum is an infimum
+in $[0,+\infty]$, followed by its canonical embedding in the extended reals
+and negation. In particular, empty sets and infinite rates are included.
+
+\section{The example and its regularity}
+
+Set
+\[
+ S=\{-1,1\},\qquad
+ \mu=\tfrac12\delta_{-1}+\tfrac12\delta_1,\qquad
+ \mu_n=\mu\quad(n\in\N),\qquad a_n=n+1,
+\]
+and define
+\[
+ I(x)=\begin{cases}0,&x\in S,\\+\infty,&x\notin S.\end{cases}
+\]
+Here $\N$ starts at zero. The shift in the speed ensures every denominator
+is positive, while $a_n\to+\infty$. Dirac measures are Borel probability
+measures and the two weights sum to one, hence every $\mu_n$ is a genuine
+probability measure. Equivalently, one may realize the same laws by taking
+one symmetric random variable with values $-1$ and $1$ and using it at
+every index; no independence or sample-mean assumption is part of the LDP.
+
+\begin{lemma}\label{lem:regularity}
+The function $I$ is a proper good rate. For every finite $r\ge0$,
+$\{I\le r\}=S$, and $\{I=0\}=S$.
+\end{lemma}
+\begin{proof}
+At either point of $S$, the rate is zero, so $I$ is proper and its minimum
+is zero. Off $S$, it is infinite. These observations give the two stated set
+equalities. The set $S$ is finite, hence compact and closed. All finite
+nonnegative sublevels are consequently compact and closed; the sublevel at
+$+\infty$ is the whole space. Thus every sublevel in the ordered codomain
+$[0,+\infty]$ is closed, which is the closed-sublevel characterization of
+lower semicontinuity. This proves goodness and the rate-function property.
+\end{proof}
+
+\section{Verification of the genuine LDP}
+
+\begin{lemma}\label{lem:log}
+For a finite $p\in[0,+\infty)$,
+\[
+ \frac{1}{n+1}\log p\ \longrightarrow
+ \begin{cases}-\infty,&p=0,\\0,&p>0.\end{cases}
+\]
+\end{lemma}
+\begin{proof}
+If $p=0$, the extended logarithm is $-\infty$. Multiplication by the strictly
+positive finite number $1/(n+1)$ leaves it $-\infty$ at every index.
+If $p>0$, its logarithm is a finite real constant. The real sequence
+$1/(n+1)$ tends to zero, so the real product tends to zero. The canonical
+embedding of the reals into the extended reals is continuous, giving the
+stated extended-real limit. In particular, a totalized real logarithm at
+zero is never used in this argument.
+\end{proof}
+
+\begin{proposition}\label{prop:eventwise}
+For every set $A\subseteq\R$, including the empty set,
+\[
+ \lim_{n\to\infty}\frac{1}{n+1}\log\mu_n(A)
+ =-\inf_{x\in A} I(x).
+\]
+For nonmeasurable sets the left side uses the measure's outer-measure
+extension; the LDP itself uses only open and closed sets.
+\end{proposition}
+\begin{proof}
+For any set $A$, the two Dirac atoms give
+\[
+ \mu(A)=\tfrac12\mathbf1_{\{-1\in A\}}
+       +\tfrac12\mathbf1_{\{1\in A\}}.
+\]
+If $A\cap S\ne\varnothing$, then $\mu(A)$ is $1/2$ or $1$, and
+$\inf_{x\in A}I(x)=0$: nonnegativity gives the lower bound and an atom in
+$A$ attains zero. Lemma~\ref{lem:log} gives limit zero, as required.
+If $A\cap S=\varnothing$, then $\mu(A)=0$ and every rate in $A$ is infinite,
+so its infimum is $+\infty$. This remains true for $A=\varnothing$ under the
+empty-infimum convention. The normalized logarithm is identically
+$-\infty$ and has that limit, which is precisely minus the rate infimum.
+\end{proof}
+
+\begin{theorem}\label{thm:ldp}
+The sequence $(\mu_n)$ satisfies the LDP at speed $a_n=n+1$ with the proper
+good rate $I$ defined above.
+\end{theorem}
+\begin{proof}
+The probability, speed, and regularity conditions were checked above.
+For each open $G$, Proposition~\ref{prop:eventwise} identifies its logarithmic
+limit, and hence its liminf, with $-\inf_G I$; this gives
+\eqref{eq:lower} with equality. For each closed $F$ the same proposition
+identifies its limsup with $-\inf_F I$, giving \eqref{eq:upper} with equality.
+No set or endpoint exception is required.
+\end{proof}
+
+\section{Failure of convexity}
+
+\begin{theorem}\label{thm:counterexample}
+Every finite nonnegative sublevel of the proper good LDP rate $I$ above is
+nonconvex. Its exact zero level is also nonconvex. Consequently
+\eqref{eq:claim}, and hence the source's unqualified compact-and-convex
+assertion, is false.
+\end{theorem}
+\begin{proof}
+Both $-1$ and $1$ belong to $S$, but their midpoint
+$\tfrac12(-1)+\tfrac12(1)=0$ does not. Thus $S$ is not convex.
+Lemma~\ref{lem:regularity} identifies every indicated sublevel and the exact
+zero level with $S$. Theorem~\ref{thm:ldp} verifies all LDP hypotheses.
+For the formal negation of the universal statement, take the positive
+finite level $r=1$ in this example.
+\end{proof}
+
+\section{Formal verification and reproducibility}
+
+The project pins Lean \texttt{v4.19.0} and Mathlib revision
+\begin{center}\small\ttfamily
+c44e0c8ee63ca166450922a373c7409c5d26b00b.
+\end{center}
+All authored mathematical source is contained in these four files:
+\begin{description}[style=nextline]
+\item[\texttt{Conjecture2821/Basic.lean}]
+Defines the actual measure, rate and support; proves probability mass one,
+properness, lower semicontinuity, compactness of all finite sublevels,
+the two nonconvexity statements, and the two possible rate infima.
+\item[\texttt{Conjecture2821/Limits.lean}]
+Proves the general normalized extended-logarithm limit in
+Lemma~\ref{lem:log}, with the zero-probability case explicit.
+\item[\texttt{Conjecture2821/LDP.lean}]
+Defines the standard LDP bounds, proves the valid speed and the eventwise
+limit, and assembles the LDP and disproof. The main declarations are
+\texttt{eventwise\_limit}, \texttt{laws\_have\_LDP}, \texttt{counterexample},
+and \texttt{not\_all\_good\_ldp\_sublevels\_convex}.
+\item[\texttt{Conjecture2821.lean}]
+Imports the complete proof and prints the axiom dependencies of the main
+results and supporting regularity statements.
+\end{description}
+
+The theorem \texttt{counterexample} has no mathematical hypotheses: it
+proves, for the displayed definitions, the conjunction of an actual LDP,
+goodness, properness, nonconvexity of every finite nonnegative sublevel, and
+nonconvexity of the exact zero level. The final negation theorem quantifies
+over arbitrary measure sequences, speeds, and nonnegative extended-real
+rates on $\R$. Its assumptions are the exact LDP predicate, goodness, and
+properness; its refuted conclusion is convexity of every finite nonnegative
+sublevel. Thus the formal theorem does not assume any disputed conclusion
+or replace the rate with an unrelated model.
+
+From this directory, with the pinned toolchain and dependency available,
+run \texttt{lake build}, or run \texttt{bash verify.sh} for a full build and
+a warnings-as-errors replay of every authored Lean file. A first setup may
+use Mathlib's normal \texttt{lake exe cache get} to obtain compiled
+dependencies. The committed manifest pins all transitive revisions; no
+local absolute path is needed by the portable project. The local authoring
+environment used read-only stock dependencies and a private build overlay
+for the one missing unchanged stock module,
+\texttt{Mathlib.Analysis.\allowbreak{}SpecialFunctions.\allowbreak{}Log.\allowbreak{}ENNRealLog}.
+
+Successful compilation and a separate warnings-as-errors replay were
+performed on all authored files. The axiom lists for the logarithmic limit,
+the LDP, the counterexample, and the universal negation contain exactly
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}, the
+standard logical foundations used by Mathlib. There are no added axioms,
+admissions, unchecked mathematical roots, or numerical decision shortcuts.
+No numerical computation or mathematical auxiliary script is needed; the
+build scripts only orchestrate Lean compilation and preserve logs. Failed
+main-author attempts are retained in original logs separately from successful
+verification logs. A helper's first two failure-log files were overwritten
+during its initial iterations; its evidence explicitly labels the preserved
+transcript copies and fresh reproductions, rather than calling them original
+raw captures. None of these failures is counted as a successful check.
+
+\section{Provenance and limitations}
+
+The exact bilingual source, the two contribution-rule files, and the pinned
+configuration were supplied through a clean input bundle. Its checksum
+manifest has SHA-256
+\begin{center}\small\ttfamily
+67647a5e3e405c079ce8f515bc45528a29bb3be717027254d86acadf4b5eeb3f.
+\end{center}
+The exact source file has SHA-256
+\begin{center}\small\ttfamily
+65fad91a6f07e55a7fb2d2d9919044df04597c6b5ace3d8780cf4abc59edc876.
+\end{center}
+The input files are frozen separately with their individual checksums.
+Only that bundle, the allowed stock Lean/Mathlib distribution, and the new
+current-task authoring files were used. A clean helper derived only the
+normalization lemma from the same inputs and the current independently
+developed two-atom construction; its source was inspected and independently
+recompiled in the main private build. No previous solution, repository
+history, other conjecture, source review, selector output, or internet
+material informed this argument. Compiler logs and authored-source hashes
+accompany the evidence package.
+
+The mathematical limitation is the source's unspecified extra wording:
+this report does not formalize an exponential counting formula or a meaning
+of degeneration, and makes no claim about a different conjecture in which
+convexity is imposed as a hypothesis. The source's explicit unqualified
+convexity assertion is already disproved by the full LDP above.
+\end{document}
