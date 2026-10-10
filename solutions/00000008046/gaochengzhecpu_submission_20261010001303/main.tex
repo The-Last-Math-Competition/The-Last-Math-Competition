@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\C}{\mathbb C}
+\title{A compact semialgebraic function without exponential Fourier decay\\
+\large Disproof of Conjecture 00000008046}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The characteristic function of $[0,1]$ is definable, compactly supported,
+and subanalytic. Nevertheless, its Fourier transform has modulus
+$1/(\pi(n+1/2))$ at frequency $n+1/2$. This excludes every eventual
+bound $Ce^{-c|\xi|}$ with $c>0$, disproving the claimed implication
+from subanalyticity to exponential Fourier decay.
+\end{abstract}
+
+\section*{The function satisfies the stated hypotheses}
+The source concerns definable compactly supported functions and claims
+that exponential Fourier decay holds if and only if the function is
+subanalytic. No continuity or differentiability hypothesis is imposed.
+Consider
+\[
+ f(x)=\mathbf1_{[0,1]}(x).
+\]
+Its support is exactly the compact interval $[0,1]$. Its real graph is
+\[
+ \{(x,y):0\le x\le1,\ y=1\}
+ \;\cup\;
+ \{(x,y):(x<0\ \text{or}\ x>1),\ y=0\}.
+\]
+This finite Boolean combination of polynomial conditions makes the
+graph semialgebraic, hence definable in the ordered real field and in
+the expansions appearing in the source. Polynomial functions are
+real analytic, so the displayed description is also semianalytic.
+Locally a semianalytic set is subanalytic by the definition using
+projections of relatively compact semianalytic sets (restrict to a
+bounded coordinate neighborhood and use the identity projection).
+Thus the graph, and hence the function in the standard graph sense,
+is subanalytic. The discontinuities at $0,1$ do not violate any
+hypothesis in the source. Also $f\in L^1(\R)$ since $\int|f|=1$.
+
+\section*{The genuine Fourier integral}
+Use the convention
+\[
+ \widehat f(\xi)=\int_{\R}f(x)e^{-2\pi i x\xi}\,dx.
+\]
+For $\xi\ne0$, direct integration on the support gives
+\[
+ \widehat f(\xi)=\int_0^1e^{-2\pi i x\xi}\,dx
+       =\frac{e^{-2\pi i\xi}-1}{-2\pi i\xi}.
+\]
+At $\xi_n=n+1/2$ for $n=0,1,\ldots$, the exponential is $-1$.
+Consequently
+\[
+ \widehat f(\xi_n)=\frac{-i}{\pi\xi_n},\qquad
+ |\widehat f(\xi_n)|=\frac1{\pi\xi_n}.
+\]
+These are exact integral values, not an approximation or an
+assumption about a generic Fourier decay model.
+
+\section*{Failure of every exponential bound}
+Suppose constants $C>0$, $c>0$, and $R\in\R$ gave
+$|\widehat f(\xi)|\le Ce^{-c|\xi|}$ for every $|\xi|\ge R$.
+For sufficiently large $n$, the positive frequency $\xi_n$ exceeds
+$R$, so the exact values above imply
+\[
+ 1\le\pi C\xi_n e^{-c\xi_n}.
+\]
+But $x e^{-cx}\to0$ as $x\to+\infty$ for every $c>0$.
+The right side therefore tends to zero, a contradiction.
+Indeed the same contradiction excludes a bound on just the positive
+tail $\xi\ge R$. The alternative Fourier convention
+$\int f(x)e^{-i x\xi}\,dx$ only rescales frequency and gives the
+same failure. Thus this admissible subanalytic function disproves
+the stated ``if'' direction, which suffices to refute the equivalence.
+
+\section*{Correspondence with Lean}
+The function \texttt{f} in \texttt{lean/Main.lean} is the actual
+interval indicator, viewed in $\C$. The theorem
+\texttt{graph\_\allowbreak{}description} proves the displayed finite polynomial
+description, including that its imaginary coordinate is zero.
+This is the explicit certificate for the semialgebraic and subanalytic
+hypotheses. Those general geometric categories are not renamed or
+replaced by an unrelated predicate in the Lean file.
+
+The theorem \texttt{compact\_\allowbreak{}support} proves genuine Mathlib compact
+support. The theorem \texttt{integral\_\allowbreak{}formula} evaluates
+\texttt{Real.fourierIntegral} using its actual Bochner integral,
+restriction to $[0,1]$, the equality of closed/open-endpoint integrals
+under Lebesgue measure, and the exponential antiderivative.
+The theorems \texttt{fourier\_\allowbreak{}at\_\allowbreak{}frequency} and
+\texttt{norm\_\allowbreak{}fourier\_\allowbreak{}at\_\allowbreak{}frequency} give the exact half-integer
+values. Finally \texttt{no\_\allowbreak{}exponential\_\allowbreak{}bound} quantifies over
+arbitrary real $C,R$ and every $c>0$, using the actual exponential
+limit and arbitrarily large half-integer frequencies. It is stronger
+than the contradiction needed for positive $C$.
+
+\section*{Reproduction}
+The project pins Lean 4.19.0 and Mathlib commit
+\\\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\par
+From \texttt{lean/}, run \texttt{lake build} and
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+On a new machine, \texttt{lake exe cache get} retrieves the official
+pinned dependency artifacts. The submission itself is checked in a fresh
+build directory. Printed dependencies use only the standard
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+No additional axioms, proof placeholders, or numerical oracles are used.
+Run \texttt{tectonic main.tex} to reproduce the PDF; no auxiliary numerical
+script is needed. Build logs, source hashes, and visual-review records
+are included under \texttt{verification/}.
+\section*{Conjecture source}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000008046.md}{The Last Math Competition, Conjecture 00000008046}. The exact bilingual source and its commit and SHA-256 are preserved in this submission.
+\end{document}
