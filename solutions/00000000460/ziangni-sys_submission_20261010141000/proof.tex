@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\title{Two constant symmetric-function statistics have different laws\\\large Disproof of Conjecture 00000000460}
+\author{ziangni-sys}\date{10 October 2026}
+\begin{document}\maketitle
+\noindent\textbf{Result.} The asserted common asymptotic distribution of all bounded-degree equivariant matching statistics is false. The allowed constant symmetric functions $0$ and $1$ have different deterministic laws at every size.
+
+\section*{The source statement}
+Both language versions define a matching symmetric-function statistic as an equivariant map from perfect matchings to the ring of symmetric functions. They assert that all such statistics of bounded degree have asymptotically the same distribution on uniform random matchings, followed by a Gaussian-free-field joint-limit assertion. There is no centering, scaling, nonconstant restriction, or restriction to positive degree in the statement. We falsify the first assertion, which suffices to disprove the conjunction.
+
+\section*{Actual matchings and actual symmetric functions}
+For $n\ge0$ take the labeled vertex set $V_n=\{0,1\}\times\{1,\ldots,n\}$. A perfect matching is equivalently a permutation $m$ of $V_n$ satisfying $m^2=\mathrm{id}$ and $m(v)\ne v$ for every vertex. Its pairs are $\{v,m(v)\}$. Conversely every perfect matching gives exactly this involution, so uniform measure on these involutions is precisely uniform measure on perfect matchings. The set $\mathcal M_n$ is finite and nonempty: pair $(0,i)$ with $(1,i)$. This includes the unique empty matching at $n=0$.
+
+Relabeling by a vertex permutation $r$ sends $m$ to $rmr^{-1}$ and preserves both conditions. Symmetric functions can be realized as compatible families of symmetric polynomials $F_k(x_1,\ldots,x_k)$ satisfying
+\[
+ F_{k+1}(x_1,\ldots,x_k,0)=F_k(x_1,\ldots,x_k).
+\]
+The constants $\mathbf0$ and $\mathbf1$ are members of the usual bounded-degree symmetric-function ring: every component is respectively the constant polynomial zero or one, is invariant under every variable permutation, and satisfies this stability relation. Both have total degree at most zero (including the conventional degree bound for the zero polynomial).
+
+Define $T_0(m)=\mathbf0$ and $T_1(m)=\mathbf1$ for every matching. They are equivariant: relabeling the input does not alter a constant output, and permutation of variables fixes both symmetric functions. Their degree bounds are uniform in $n$. These are therefore statistics of the actual class in the conjecture, rather than substitute numerical statistics.
+
+\section*{The separated distributions}
+Under uniform measure $\mu_n$ on $\mathcal M_n$, the pushforward laws of $T_0,T_1$ are respectively $\delta_{\mathbf0}$ and $\delta_{\mathbf1}$ at every size. In particular, use the same constant-coefficient observable
+\[
+ L(F)=F_1(0),\qquad \phi(x)=\min\{1,\max\{0,x\}\}.
+\]
+The map $\phi$ is bounded and continuous, $\phi(0)=0$, and $\phi(1)=1$. Under the coefficient topology on symmetric functions, $\phi\circ L$ is a bounded continuous cylinder observable. Its expectations satisfy, for every $n$,
+\[
+ \mathbb E_{\mu_n}[\phi(L(T_0))]=0,
+ \qquad \mathbb E_{\mu_n}[\phi(L(T_1))]=1.
+\]
+Thus the laws cannot converge to the same weak limit: a single fixed bounded continuous observable separates them by one. More directly, their scalar coordinate laws are exactly $\delta_0$ and $\delta_1$, and the probability assigned to the value zero differs by one at every $n$.
+
+Consequently the literal universal common-distribution assertion is false. This counterexample does not address a different conjecture in which statistics are centered or rescaled, and does not require analysis of the proposed Gaussian free field.
+
+\section*{Lean verification and reproduction}
+The Lean project defines perfect matchings as fixed-point-free involutive permutations, constructs the explicit matching and relabeling operation, and uses the actual finite uniform probability mass function. It models the two symmetric functions by stable symmetric-polynomial families, proves degree zero and equivariance under variable and vertex permutations, and computes the pushforward coordinate laws. It also verifies the bounded continuous test and its separated laws, and proves that the probability difference cannot tend to zero.
+
+Run \texttt{lake build} in \texttt{lean/}. Lean 4.19.0 and Mathlib are publicly pinned; the Mathlib commit is
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}\end{center}
+The build prints theorem axiom audits. No admitted results, custom axioms, or unchecked computation are used.
+\end{document}
