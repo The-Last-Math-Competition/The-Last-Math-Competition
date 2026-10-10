@@ -1,0 +1,33 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xurl}
+\sloppy
+\let\oldus\_ \renewcommand{\_}{\oldus\allowbreak}
+\newtheorem{lemma}{Lemma}
+\begin{document}
+\section*{Conjecture 00000007685 is false: the leading coefficient of $J_q$ is not $\Gamma(1/4)^2/(2\pi^{3/2})$}
+
+\paragraph{Statement.} For $q\in(0,1)$ let $\theta(w)=\sum_{n\in\mathbb Z}q^{n^2}w^n$, $T(z)=\theta(zq)/\theta(z)$ and
+\[
+J_q=\int_0^1 T(z)\,d_qz=(1-q)\sum_{n\ge0}q^nT(q^n)
+\]
+(Jackson measure $(1-q)\sum z q^n f(zq^n)$ at $z=1$). The conjecture asserts (i) $J_q$ is transcendental for algebraic $q\in(0,1)$ and (ii) the leading coefficient of the Puiseux expansion of $J_q$ in $q-1$ is $c=\Gamma(1/4)^2/(2\pi^{3/2})\approx1.18034$.
+
+\paragraph{Reading.} Clause (ii) is formalised as: there are real $\alpha$ and $L$ with $J_q/(1-q)^\alpha\to L$ as $q\to1^-$ and $|L|=c$. Taking $|L|$ makes the branch or sign of $(q-1)^\alpha$ irrelevant, so this is weaker than the conjecture and refuting it refutes (ii). Clause (i) is not decided. The package proves $\neg((\mathrm i)\wedge(\mathrm{ii}))$ by refuting (ii) only.
+
+\paragraph{Proof.} Put $a_n=\theta(q^n)$. Substituting $k\mapsto k+1$ gives $\theta(q^2w)=q^{-1}w^{-1}\theta(w)$ (Lean: \texttt{theta\_shift}), so $a_{n+2}=q^{-1}q^{-n}a_n$. With $b_n=q^nT(q^n)=q^na_{n+1}/a_n$ this yields $b_{n+2}=qb_n$ (\texttt{b\_step}). Let $r=\theta(q)/\theta(1)$; then $b_0=r$ and $b_1=1/r$, so $b_{2m}=q^mr$, $b_{2m+1}=q^m/r$ and
+\[
+J_q=(1-q)\sum_m q^m(r+1/r)=r+\frac1r\qquad(\texttt{J\_eq}).
+\]
+Termwise, $q^{k^2}\le q^{k^2+k}+q^{(k-1)^2+(k-1)}$ and $q^{k^2+k}\le q^{k^2}+q^{(k+1)^2}$; summing over $k\in\mathbb Z$ (after the shifts $k\mapsto k\pm1$) gives $\theta(1)\le2\theta(q)$ and $\theta(q)\le2\theta(1)$, i.e.\ $1/2\le r\le2$. Summability of $q^{k^2}$ is proved by comparison with $q^{|k|}$; that of $q^{k^2+k}$ from the second inequality. Hence $2\le J_q\le4$ on $(0,1)$ (\texttt{J\_bounds}). These bounds are all the disproof uses. (Numerically $J_q$ approaches $2$ as $q\to1^-$, but this is neither proved here nor needed.)
+
+Now suppose $J_q/(1-q)^\alpha\to L$. If $\alpha>0$, then $J_q=(J_q/(1-q)^\alpha)(1-q)^\alpha\to L\cdot0=0$, contradicting $J_q\ge2$. If $\alpha=0$, $L\ge2$. If $\alpha<0$, $0\le J_q(1-q)^{-\alpha}\le4(1-q)^{-\alpha}\to0$, so $L=0$. Finally $0<c<2$: convexity of $\Gamma$ between $\Gamma(1)=\Gamma(2)=1$ gives $\Gamma(5/4)\le1$, so $\Gamma(1/4)=4\Gamma(5/4)\le4$, and $(\pi^{3/2})^2=\pi^3>27$ gives $\pi^{3/2}>4$, so $c\le16/(2\pi^{3/2})<2$ (\texttt{c\_bounds}). So $|L|=c$ is impossible in all three cases.
+
+\paragraph{Lean.} File \texttt{lean/Conjecture7685/Basic.lean} (compiled with Lean 4.33.1, Mathlib v4.33.1). Definitions \texttt{theta}, \texttt{T}, \texttt{J}, \texttt{c}, \texttt{TranscConj}, \texttt{LeadCoeffConj}, \texttt{Conjecture}, \texttt{Claim} $=\neg$\texttt{Conjecture}. Main theorem \texttt{C7685.main : Claim}. Auxiliary: \texttt{J\_eq}, \texttt{J\_bounds}, \texttt{c\_bounds}.
+
+\paragraph{Conventions.} $\theta$ is the Lean \texttt{tsum} over $\mathbb Z$ (summable for $q\in(0,1)$, proved); powers $q^{n^2}$, $w^n$ are integer powers of reals; $\mathbb N$ starts at $0$. Not refuted: clause (i), transcendence of $J_q$.
+
+\paragraph{Axiom audit.} \texttt{\#print axioms C7685.main}: see \texttt{verification/} produced by \texttt{make\_pr.py}; only \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound} are allowed and checked there.
+
+\end{document}
