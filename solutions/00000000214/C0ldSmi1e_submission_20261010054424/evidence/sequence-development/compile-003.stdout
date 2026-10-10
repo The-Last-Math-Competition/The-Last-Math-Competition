@@ -1,0 +1,65 @@
+Sequence03.lean:98:2: error: dsimp made no progress
+Sequence03.lean:154:40: error: type mismatch
+  ↑M + j
+has type
+  ℝ : outParam Type
+but is expected to have type
+  ℕ : Type
+Sequence03.lean:156:60: error: application type mismatch
+  linear_lower (fun t => f (M + t)) a hsteps j
+argument
+  j
+has type
+  ℝ : Type
+but is expected to have type
+  ℕ : Type
+Sequence03.lean:159:6: error: linarith failed to find a contradiction
+case a
+f : ℕ → ℝ
+hzero : ∀ (n : ℕ), 0 ≤ f n
+hunbounded : ∀ (C : ℝ), ∃ n, C < f n
+hno_affine_lower : ∀ (a : ℝ), 0 < a → ∀ (b : ℝ), ∃ n, f n < b + a * ↑n
+N : ℕ
+hN : ∀ (n : ℕ), N ≤ n → f (n + 3) - 3 * f (n + 2) + 3 * f (n + 1) - f n ≤ 0
+u : ℕ → ℝ := fun k => f (N + k)
+hu : ∀ (k : ℕ), 0 ≤ u k
+hanti2 : Antitone (diff (diff u))
+hmono1 : Monotone (diff u)
+k : ℕ
+hk : ¬diff u k ≤ 0
+hk' : 0 < diff u k
+a : ℝ := diff u k
+M : ℕ := N + k
+ha : 0 < a
+hsteps : ∀ (j : ℕ), a ≤ diff (fun t => f (M + t)) j
+j : ℝ
+hj : f M + ↑sorry * a ≤ f (M + sorry)
+hz : 0 ≤ f M
+a✝ : j * a > f sorry
+⊢ False failed
+Sequence03.lean:169:6: error: linarith failed to find a contradiction
+case neg.intro
+f : ℕ → ℝ
+hzero : ∀ (n : ℕ), 0 ≤ f n
+hunbounded : ∀ (C : ℝ), ∃ n, C < f n
+hno_affine_lower : ∀ (a : ℝ), 0 < a → ∀ (b : ℝ), ∃ n, f n < b + a * ↑n
+N : ℕ
+hN : ∀ (n : ℕ), N ≤ n → f (n + 3) - 3 * f (n + 2) + 3 * f (n + 1) - f n ≤ 0
+u : ℕ → ℝ := fun k => f (N + k)
+hu : ∀ (k : ℕ), 0 ≤ u k
+hanti2 : Antitone (diff (diff u))
+hmono1 : Monotone (diff u)
+k : ℕ
+hk : ¬diff u k ≤ 0
+hk' : 0 < diff u k
+a : ℝ := diff u k
+M : ℕ := N + k
+ha : 0 < a
+hsteps : ∀ (j : ℕ), a ≤ diff (fun t => f (M + t)) j
+hlower : ∀ (j : ℝ), j * a ≤ f sorry
+j : ℕ
+hnm : ¬M + j ≤ M
+hmn : M ≤ M + j
+hj : ↑j * a ≤ f sorry
+hn : f (M + j) < -a * ↑M + a * (↑M + ↑j)
+⊢ False failed

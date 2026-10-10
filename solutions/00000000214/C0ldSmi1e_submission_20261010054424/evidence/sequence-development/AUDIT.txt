@@ -1,0 +1,88 @@
+Sequence214 generic sequence proof audit
+
+Scope
+-----
+Read mathematical/task context only from /private/tmp/tlmc214-clean-author-input,
+parent-agent messages, and the read-only stock Mathlib tree at
+/private/tmp/tlmc-standard-library-419/mathlib. No repository content, earlier
+submission, or prior mathematical proof attempt was read. No Git command or
+external mathematical source was used. All writes were under this directory.
+
+Final source
+------------
+Sequence.lean
+SHA-256: b259471a8ec79e39ed1bd7c55db90763aa4f893510624962f61f1676a864c453
+199 lines; four narrow imports.
+
+Main result
+-----------
+Sequence214.not_eventually_negative_third takes:
+  f : Nat -> Real
+  hzero : forall n, 0 <= f n
+  hunbounded : forall C : Real, exists n, C < f n
+  hno_affine_lower : forall a : Real, 0 < a -> forall b : Real,
+    exists n : Nat, f n < b + a * (n : Real)
+and proves the impossibility of a tail with
+  f(n+3) - 3*f(n+2) + 3*f(n+1) - f(n) < 0.
+
+Sequence214.not_eventually_nonpos_third proves the stronger conclusion where
+the tail condition uses <= 0. A full-sublinear corollary is also included.
+
+Proof idea
+----------
+On a tail with nonpositive third differences, second differences decrease.
+If a second difference were negative, first differences on that tail would
+decrease. A nonnegative sequence with decreasing first differences must have
+nonnegative first differences: any negative first difference gives a negative
+affine upper bound far enough out. The same negative second difference would
+then force those nonnegative first differences eventually negative. Thus all
+second differences on the original tail are nonnegative. First differences
+therefore increase. A positive first difference would give a positive affine
+lower bound on the tail; nonnegativity absorbs the finite initial prefix to
+give a global affine lower bound. Thus first differences are nonpositive and
+the tail decreases. The finite prefix and decreasing tail give a global upper
+bound, contradicting unboundedness.
+
+Compilation
+-----------
+Exact final command (the script sets the complete pinned LEAN_PATH):
+  zsh /private/tmp/tlmc214-sequence/run-lean.sh Sequence.lean 005
+Result: exit 0; compile-005.stdout and compile-005.stderr empty.
+
+Exact dependency audit command:
+  zsh /private/tmp/tlmc214-sequence/run-lean.sh SequenceAudit.lean 006
+Result: exit 0; compile-006.stderr empty; compile-006.stdout reports only
+  [propext, Classical.choice, Quot.sound]
+for all three main theorems. No custom axioms or incomplete proof declarations.
+
+Compiler binary:
+  /private/tmp/tlmc310-runtime/lean-4.19.0-darwin_aarch64/bin/lean
+Stock Mathlib path:
+  /private/tmp/tlmc-standard-library-419/mathlib
+
+Attempts retained
+-----------------
+Sequence01.lean / compile-001.*: failed because one negative-difference
+  hypothesis was not unfolded before linarith.
+Sequence02.lean / compile-002.*: helper lemmas compile, exit 0.
+Sequence03.lean / compile-003.*: failed because one dsimp made no progress and
+  a quantified index in a lower-bound statement needed its Nat type explicit.
+Sequence04.lean / compile-004.*: complete theorem compiles, exit 0.
+Sequence.lean / compile-005.*: cleaned final source compiles, exit 0.
+SequenceAudit.lean / compile-006.*: final source plus axiom audit, exit 0.
+No failed Lean source or compiler log was overwritten.
+
+Other verification
+------------------
+verification-001.*: shasum -a 256 Sequence.lean; exit 0.
+verification-002.*: wc -l Sequence.lean; exit 0, 199 lines.
+verification-003.*: rg -n 'sorry|admit|native_decide|^axiom' Sequence.lean;
+  exit 1 (no matches), no stdout or stderr.
+
+Command output recording
+------------------------
+All compilation, copy, inspection, and verification commands after directory
+creation have distinct .stdout, .stderr, and .exit files. The initial setup
+tool results are retained separately in INITIAL_COMMANDS.txt. Tool-level
+apply_patch results were empty success objects, and the resulting sources are
+retained. run-lean.sh refuses to overwrite existing compiler log files.

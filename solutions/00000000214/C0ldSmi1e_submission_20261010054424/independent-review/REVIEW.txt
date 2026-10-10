@@ -1,0 +1,377 @@
+Independent semantic audit of conjecture 00000000214
+Date: 2026-10-09
+Reviewer: independent review_214 agent
+
+VERDICT
+
+The current mathematical sources and the complete report contain a valid
+disproof of the mandatory eventual-negativity assertion for the ordinary
+integer partition function and the conventional third forward difference.
+The standard backward difference is separately covered. No mathematical gap,
+unproved target assumption, incorrect quantifier, or required mathematical
+repair was found. The stronger proved assertion is that strict positivity
+occurs beyond every cutoff. It does not claim eventual positivity.
+
+This is a source-level mathematical and semantic verdict for the exact files
+in SOURCE-HASHES.json. Fresh compiler/kernel/dependency verification is being
+performed separately by the verify_214 agent. This reviewer has not run Lean
+and does not pass off author-provided build claims as an independent build.
+The separate verifier's results belong to its distinct engineering report.
+No statement here asserts publication eligibility or maintainer acceptance.
+
+SCOPE AND SOURCE CONTROL
+
+I read the exact English and Chinese statement, both supplied rule files,
+the supplied toolchain/manifests, all four current mathematical Lean modules,
+the umbrella import, CheckAxioms.lean, lakefile.lean, the current project
+manifest/toolchain, the full report.tex, README.md and PROVENANCE.md.
+I examined the stock Mathlib definition of Nat.Partition, its Fintype and
+inhabited/zero instances, and the relevant stock logarithm theorems. The
+canonical project was not modified.
+
+The only mathematical inputs were the clean statement/rules bundle, the
+current same-problem author's sources/report, and stock Mathlib v4.19.0.
+I did not read development snapshots, archived failed proofs, prior candidate
+proofs, repository mathematical submissions, selection notes, or Git history.
+A directory inventory exposed filenames of archived proof-development
+records; their contents were not read. A collaboration-agent status inventory
+incidentally returned unrelated task summaries; they were not used as source
+material or as mathematical evidence for this review.
+
+SOURCE-HASHES.json records exact byte sizes and SHA-256 digests for 26
+reviewed/configuration/source-fidelity files, with independent snapshots.
+SOURCE-FIDELITY.json confirms every declared clean-input hash and the exact
+byte identity of the author's copied bilingual statement and two rule files.
+SOURCE-TOKEN-SCAN.json records the absence of forbidden source tokens in
+every current Lean source and lakefile.lean. It supplements, rather than
+replaces, a complete manual reading of the current proof sources.
+
+1. THE SOURCE ASSERTION AND ITS QUANTIFIERS
+
+The English explicitly states that the third difference of log p(n) is
+eventually negative. The Chinese likewise states “三阶差分最终为负”. Both
+therefore impose this necessary claim under the usual increasing-index
+difference convention:
+
+  exists N in Nat, for all n in Nat,
+    N <= n implies log p(n+3) - 3 log p(n+2)
+      + 3 log p(n+1) - log p(n) < 0.
+
+Disproof.lean:13 defines EventualNegativity with exactly these existential
+and universal quantifiers and a strict inequality. There is no finite bound
+on the quantified indices, no sample-only witness, and no special choice of
+cutoff concealed in the target. Disproof.lean:16 proves its negation without
+theorem hypotheses. In particular, this is not merely a counterexample at one
+small n, which would not refute an eventual statement.
+
+Disproof.lean:21 proves the stronger exact statement
+
+  for all N in Nat, exists n in Nat, N <= n and 0 < thirdDifference n.
+
+The generic theorem first denies an eventually nonpositive tail. Classical
+negation over the real order yields strict-positive witnesses at arbitrarily
+large indices. This is stronger than the nonnegative witnesses needed merely
+to refute eventual strict negativity. The conversion in the formal source
+preserves the cutoff premise N <= n and has no omitted restriction.
+
+The source's phrase about being stronger than log-concavity is not used as a
+hypothesis. Neither log-concavity nor a claimed theorem about its threshold is
+assumed. Failure of an explicit necessary conjunct suffices to disprove the
+conjunction, irrespective of the other qualitative descriptions.
+
+2. DIFFERENCE CONVENTION AND UNDEFINED LAYER LANGUAGE
+
+The explicit formal difference is diff u n = u(n+1) - u(n). Its third iterate
+expands to the polynomial used in thirdDifference, with coefficients
+(-1, 3, -3, 1) at successive increasing indices. The generic proof obtains
+antitonicity of the second differences by this exact expansion; no sign or
+index shift is lost.
+
+For n >= 3 the usual backward difference is
+
+  f(n) - 3 f(n-1) + 3 f(n-2) - f(n-3) = Delta^3 f(n-3).
+
+Disproof.lean:31 separately refutes eventual negativity of this expression.
+Given a claimed backward cutoff N, it applies the claim at n+3 for each
+n >= N. Then n+3 >= N and n+3 >= 3, and natural subtraction simplifies to the
+correct forward indices. Thus all three subtractions avoid truncation
+problems. The backward theorem's explicit 3 <= n premise is appropriate.
+
+The supplied source does not state a formula for the difference operator.
+The report transparently adopts the conventional forward operator and also
+addresses the standard backward operator. A deliberately reversed operator
+f(n)-f(n+1) would negate an odd-order difference and would be a different
+claim; the submission does not purport to cover that reversal. This is a
+limit of the source's terse specification, not a sign error in the proof.
+Under both ordinary forward and backward conventions the refutation is
+faithful. Starting partition indices at 1 instead of 0 only discards finitely
+many terms and cannot change either eventual assertion.
+
+The English “convexification layer” and the Chinese wording “负的组合为凸化层”
+are not accompanied by a definition, construction, hypothesis, or alternate
+difference convention in either language. The report correctly flags this
+absence and does not invent an auxiliary object. The ordinary reading makes
+the asserted negativity a necessary conjunct; its proved failure suffices.
+The proof makes no mathematical claim about a separately defined layer.
+If a future source revision changes the underlying sequence or difference
+operator, that would require a fresh source-fidelity assessment.
+
+The conventional meaning of p(n) is reinforced by the source's explicit
+partition parenthetical in both languages. The natural logarithm is the
+usual formal choice. Any usual logarithm base greater than 1 differs by a
+positive constant, so the sign interpretation is unchanged. No unusual base
+or reversed-index convention is silently used to obtain the result.
+
+3. ACTUAL MATHEMATICAL OBJECTS
+
+PartitionBounds.lean:11 defines partitionCount n as
+Fintype.card (Nat.Partition n). The stock definition is a structure with a
+Multiset Nat, a proof that all its members are strictly positive, and a
+proof that its sum is n. Equality is equality of the multiset; order of parts
+does not create distinct partitions. The stock Fintype instance is produced
+from finite compositions via a proved surjection, so this cardinality is
+the number of actual integer partitions, not an arbitrary surrogate.
+
+The stock inhabited instance gives the one-part partition after deleting
+zeros. It is valid also at n=0. Stock UniquePartitionZero confirms that the
+empty partition is the only partition of zero. Consequently p(0)=1, and no
+undefined logarithm is reached. Growth.lean:7 defines partitionLog as the
+real logarithm of this exact positive natural cardinality cast to Real.
+
+No synthetic partition recurrence, unproved asymptotic formula, arbitrary
+sequence parameter, or unconstrained counting function replaces p in the
+capstone theorems. All casts preserve positivity and the ordinary real
+ordering. Naturals are used only for indices and finite combinatorial data.
+
+4. PARTITION BOUNDS: ALL DECLARATIONS
+
+parts_card_le: summing the lower bound 1 over each positive part gives a total
+number of parts at most n. This includes the empty multiset.
+
+part_le: a member of a multiset of nonnegative naturals is at most the sum,
+hence at most n.
+
+largeParts: filters exactly those parts a with not (a <= k), equivalently
+a > k. The complementary small-part filter and this filter sum to the
+original multiset.
+
+large_card_le: the filtered sum is at most n. Every filtered member is at
+least k+1, so card * (k+1) <= n <= k*k. This implies card <= k. The bound is
+loose but valid; no strict-bound optimization is required. If k=0, the
+assumption forces n=0 and the multiset is empty.
+
+Code: the codomain is exactly
+  (Fin(k+1) -> Fin(n+1)) x Fin(k+1) x (Fin k -> Fin(n+1)).
+The first coordinate records multiplicities for 0 through k. Including the
+unused zero count only enlarges the codomain and is harmless. Each count is
+at most the total number of parts, hence at most n. The second coordinate
+records the number of large parts, at most k. The last coordinate stores the
+increasingly sorted large parts, padded by zero to length k. Each real entry
+is an actual part bounded by n, and the padding zero belongs to Fin(n+1).
+
+encode_injective: equality of codes first gives equality of large-part
+cardinalities. Equal cardinalities give equal sorted-list lengths. Every
+index of either sorted list is less than k by large_card_le, so equality of
+the padded coordinate functions gives equality at every genuine list index.
+Equal sorted lists imply equal large-part multisets. For each a <= k, the
+first coordinate gives equal multiplicities. For a > k, equal large
+multisets give equal multiplicities in the original partitions. Multiset
+extensionality and Nat.Partition.ext finish the injection. This genuinely
+reconstructs all parts and has no assumption of injectivity built into the
+definition.
+
+partition_count_bound: Fintype.card_le_of_injective is applied to that proved
+injection. The codomain cardinality simplifies to
+  (n+1)^(k+1) * ((k+1) * (n+1)^k).
+The parentheses match the nested product type. At k=n=0 this equals 1,
+correctly bounding the unique partition of zero; Fin 0 functions are unique.
+
+hookPartition: for each i : Fin n, the parts are one copy of i+1 and
+n-(i+1) copies of 1. Since i<n, natural subtraction equals the intended
+n-i-1 and the sum is n. All parts are positive, including when i=0.
+
+hook_injective: the number of parts is 1+(n-(i+1)) = n-i; equality of these
+counts determines i for i<n. This handles the all-ones partition at i=0
+and the single-part partition at i=n-1. There is no duplicate endpoint.
+
+nat_le_partitionCount: cardinality of Fin n and the proved injection give
+p(n)>=n. For n=0, the domain is empty and the inequality remains valid.
+
+partitionCount_pos: the stock inhabited instance supplies positive finite
+cardinality for every n. This is separate from p(n)>=n, so the n=0 case does
+not incorrectly infer strict positivity from the vacuous lower bound.
+
+5. LOGARITHMIC GROWTH: ALL DECLARATIONS
+
+partitionLog_nonneg: a positive natural count is at least 1 after casting,
+which is the actual hypothesis of stock Real.log_nonneg. It does not merely
+assume that log of a positive number is nonnegative.
+
+partitionLog_unbounded: for arbitrary real C, choose a natural n>exp(C).
+Then p(n)>=n>exp(C)>0, and strict monotonicity of log gives log p(n)>C.
+Thus unboundedness is proved with the exact forall C exists n quantifiers.
+
+partitionLog_bound: all log arguments are proved positive before using log
+monotonicity and log-product identities. Taking logs of the combinatorial
+bound produces (2k+1) log(n+1)+log(k+1). The natural exponents and casts are
+handled without changing the bound.
+
+partitionLog_square_bound: setting n=k*k and using
+k*k+1 <= (k+1)^2 produces (4k+3) log(k+1). Multiplication by 2k+1 preserves
+order because k>=0. The bound is also correct at k=0.
+
+partitionLog_no_affine_lower: for arbitrary real a>0 and b, stock
+Real.isLittleO_log_id_atTop supplies an eventual bound
+  abs(log x) <= (a/28) abs(x).
+Choose a natural k>max(max(M,1),-2b/a). Then k>1, k+1>=M and k+1>0, so
+absolute values reduce to ordinary nonnegative log(k+1) and k+1. For k>=1,
+  (4k+3)(k+1)=4k^2+7k+3 <= 14k^2.
+This yields f(k^2) <= (a/2)k^2. The strict choice k>-2b/a implies
+-2b<ak<=ak^2, hence (a/2)k^2 < b+ak^2. Therefore n=k^2 is a valid strict
+witness, including when b is negative or zero. Division uses a>0 throughout.
+
+Only a subsequence of square indices is bounded in the final growth
+argument. That is enough to violate every proposed global positive affine
+lower bound. The generic theorem asks for exactly this violation; it does
+not demand a proved all-index asymptotic or eventual growth estimate.
+No Hardy--Ramanujan formula, log-concavity assertion, partition monotonicity,
+or numerical computation is assumed or needed.
+
+6. GENERIC SEQUENCE OBSTRUCTION: ALL DECLARATIONS
+
+linear_upper: induction telescopes a uniform upper bound A on first
+differences to u(n)<=u(0)+nA. It works for any real A.
+
+nonneg_slope: if u>=0 and all first differences are <=A<0, choose
+n>u(0)/(-A). The preceding bound is negative, contradicting u(n)>=0.
+Thus a uniform first-difference upper bound on a nonnegative sequence must
+be nonnegative. The division has positive denominator -A.
+
+diff_nonneg_of_antitone: if diff u is antitone, every first difference in
+the tail starting at n is bounded above by diff u n. Apply nonneg_slope to
+that nonnegative shifted sequence. This proves diff u n>=0 for each n.
+
+second_nonneg: assume diff(diff u) is antitone and suppose one value at n
+is negative. All later second differences are bounded above by this same
+negative value; in particular the tail's first differences are antitone.
+The preceding lemma makes those first differences nonnegative. Now apply
+nonneg_slope to this nonnegative first-difference sequence, whose increments
+are bounded by the original negative second difference. Contradiction.
+It follows that all second differences are nonnegative. This argument does
+not incorrectly infer the sign solely from monotonicity; nonnegativity of
+the underlying sequence is essential and is explicitly supplied.
+
+linear_lower: apply linear_upper to -u with upper bound -A to derive
+u(n)>=u(0)+nA when all first differences are >=A.
+
+bounded_prefix: an induction constructs a real bound for every finite
+prefix 0..N by taking a maximum. This includes N=0 and n=N exactly.
+
+not_eventually_nonpos_third: suppose a nonpositive third-difference tail
+begins at N and set u(k)=f(N+k). Its second differences are antitone.
+second_nonneg makes them nonnegative, hence its first differences are
+monotone. If some first difference at k equals a>0, every later first
+difference is at least a. With M=N+k, linear_lower and f(M)>=0 give
+f(M+j)>=ja. For n<=M, f(n)>=0>=a(n-M). For n>=M, write n=M+j and use the
+tail bound. Thus f(n)>=-aM+an globally. The quantified no-affine-lower
+hypothesis applied at a and b=-aM contradicts this. The explicit split at
+n<=M is crucial and is present; the global witness cannot escape into the
+finite prefix.
+
+Therefore all tail first differences are <=0, so the tail is antitone and
+bounded above by f(N). bounded_prefix supplies a bound through N, including
+f(N), and hence a bound for every f(n). This contradicts the specified
+unboundedness. No eventual negativity or target conclusion was assumed
+except locally inside this legitimate contradiction argument.
+
+not_eventually_negative_third: strict-negative tails are nonpositive tails,
+so the stronger theorem directly refutes them.
+
+no_affine_lower_of_sublinear: this optional helper is also valid. Given a>0,
+use an all-index upper bound with slope a/2 and choose
+n>(C-b)/(a/2). Then f(n)<b+an. Its stronger input is not assumed anywhere
+for the actual partition sequence.
+
+not_eventually_negative_third_of_sublinear: this optional wrapper correctly
+composes the preceding helper and the generic negative-tail theorem. It is
+not the theorem used in the concrete capstone. Its presence therefore does
+not hide an unproved sublinearity obligation in the actual application.
+
+7. COMPLETE INSTANTIATION AND TRUST BOUNDARY
+
+The instantiation is explicit and exhaustive:
+  f                 := TLMC214.partitionLog
+  nonnegativity     := TLMC214.partitionLog_nonneg
+  unboundedness     := TLMC214.partitionLog_unbounded
+  no affine lower   := TLMC214.partitionLog_no_affine_lower.
+
+Each supplied hypothesis has precisely the type demanded by the generic
+theorem. No inference is made from a numerical surrogate. No extra theorem
+hypothesis, section variable, instance assumption about growth, or target
+axiom survives into TLMC214.disproof, positive_arbitrarily_late, or
+backward_disproof.
+
+I manually inspected every current mathematical source and the full import
+and configuration surface. There are no sorry/admit terms, declared custom
+axioms, unsafe/partial mathematical definitions, native_decide calls,
+implemented_by/extern overrides, local notation replacing the target, or
+custom tactic implementation in the submitted current sources. Imports
+outside the project are ordinary named Mathlib modules. The only project
+option is warningAsError=true. All expected mathematical proof obligations
+are completed in ordinary Lean proof terms generated by standard tactics.
+
+Classical real analysis and finite cardinality legitimately use Lean's
+usual foundational axioms. CheckAxioms.lean requests the capstone axiom
+lists. A token scan alone cannot establish the transitive compiled axiom
+closure, and this report deliberately leaves that claim to the fresh
+independent verifier. The README/report's statement that only propext,
+Classical.choice and Quot.sound occur is consistent with the source
+inspection but is not treated here as independent machine evidence.
+
+8. REPORT CORRESPONDENCE AND BOUNDARIES
+
+I read report.tex in full, including its abstract, statement and scope,
+partition bounds, logarithmic argument, generic sequence argument, formal
+correspondence table, and verification/provenance statements.
+
+The readable mathematical proof matches the current Lean development.
+Every substantive mathematical claim in the proof is represented by one of
+the declarations reviewed above. The report's proof of reconstruction of
+the partition code, the square-subsequence choice, and the global-prefix
+case in the sequence argument all agree with the formal proof. Its exact
+English quotation and supplied bilingual-source SHA-256 match the clean
+input. No erroneous numerical constant, sign, index, or quantifier was found.
+
+The report accurately limits its result: it proves arbitrarily late strict
+positivity, not eventual positivity and not a numerical threshold. Its
+reference to a stock logarithm limit is an elementary real-analysis import,
+not an imported result about the partition function. The assertion of a
+fully formalized mathematical proof is supported semantically by the source
+inspection, with machine validation separately assigned.
+
+No numerical auxiliary code participates in the mathematical proof. I have
+not executed provenance/build wrappers or inspected archived development
+attempts, as these are not current mathematical sources and independent
+machine replay is a separate task. I have not checked a rendered PDF or its
+visual layout. README.md lists report.pdf, but that file was absent in the
+initial author-directory inventory; the parent is responsible for its
+export/package check. This artifact observation is not a mathematical gap.
+
+There are no required mathematical repairs. This verdict is limited to the
+hashed current sources and standard interpretation of the supplied source;
+it does not resolve the original statement's missing definition of a layer,
+any unrelated publication/eligibility issue, or any future source changes.
+
+9. FINAL REPORT FORMATTING SUPPLEMENT
+
+After the original review scope was set, the root explicitly authorized
+inspection of /private/tmp/tlmc214-submission/report.tex. I read that complete
+file and compared it byte-for-byte with the author's frozen original. The
+only change is replacing the single long displayed pair of definitions with
+an aligned display on two lines. The definitions and all mathematical text
+are unchanged. The semantic approval therefore also applies to the revised
+report with SHA-256
+  0e09516f8168e74ac1697970b1ab16e938ce94597fbd3337b485b0cbf6203e16.
+FINAL-REPORT-REVIEW.json and FINAL-REPORT-DIFF.txt record the exact files,
+hashes, authorization, and formatting difference. PDF compilation and
+visual inspection remain separately performed by the parent.

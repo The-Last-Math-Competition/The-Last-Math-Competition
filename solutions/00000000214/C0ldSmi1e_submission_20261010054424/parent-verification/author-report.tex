@@ -1,0 +1,161 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\title{Disproof of Conjecture 00000000214\\\large Positive third differences of the partition logarithm occur arbitrarily late}
+\author{Personal submission}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Let $p(n)$ be the number of integer partitions of $n$ and put $f(n)=\log p(n)$.
+For every $N$ there is an $n\ge N$ such that $\Delta^3 f(n)>0$.
+Consequently, the third difference is not eventually negative.
+The proof uses a finite encoding of actual partitions and an elementary principle for real sequences. It uses neither a partition asymptotic formula nor a finite numerical test of an eventual assertion. All mathematical steps are formalized in Lean 4.19.0 with Mathlib v4.19.0.
+\end{abstract}
+
+\section{Statement and scope}
+The supplied English statement reads:
+\begin{quote}
+Definition: The third difference of log p(n). Conjecture: The third difference is eventually negative, a strengthening of the proven log-concavity; and the negativity is settled by the convexification layer. (partition log third difference negative)
+\end{quote}
+The exact bilingual source is included as \texttt{source/ORIGINAL.md}; its SHA-256 is
+\begin{center}\small\texttt{101ccf808d4022fc597cef8e3c222960742ea86822643ef052f6b1cb62437347}.\end{center}
+Here an integer partition is a finite multiset of positive integers whose sum is $n$. We use the standard forward difference
+\[
+\Delta f(n)=f(n+1)-f(n),\qquad
+\Delta^3f(n)=f(n+3)-3f(n+2)+3f(n+1)-f(n).
+\]
+The source's necessary eventual-negativity assertion is
+\begin{equation}\label{eq:claim}
+\exists N\in\N\;\forall n\in\N\quad
+ n\ge N\ \Longrightarrow\ \Delta^3\log p(n)<0.
+\end{equation}
+We disprove this assertion for the actual partition-count sequence. The standard backward third difference at $n\ge3$ equals the forward third difference at $n-3$, so its eventual-negativity assertion is disproved as well.
+The phrase ``convexification layer'' has no definition in the supplied source. No interpretation of that phrase is introduced or used: the failure of the necessary assertion \eqref{eq:claim} suffices to refute the stated conjecture. Nor is any log-concavity result assumed.
+
+\begin{theorem}\label{thm:main}
+For every $N\in\N$, there exists $n\ge N$ for which
+\[
+\log p(n+3)-3\log p(n+2)+3\log p(n+1)-\log p(n)>0.
+\]
+In particular, \eqref{eq:claim} is false.
+\end{theorem}
+
+\section{Elementary bounds for actual partitions}
+There is at least one partition of every $n$, including the empty partition of zero. Thus $p(n)\ge1$ and $f(n)\ge0$.
+For $n>0$ and each $i\in\{0,\ldots,n-1\}$, consider the partition consisting of one part $i+1$ and $n-i-1$ parts equal to $1$. Its number of parts is $n-i$, so these $n$ partitions are distinct. Therefore
+\begin{equation}\label{eq:lower}
+p(n)\ge n\qquad(n\in\N).
+\end{equation}
+It follows that $f$ is unbounded above: for any real $C$, choose $n>e^C$ and use $p(n)\ge n$.
+
+\begin{lemma}\label{lem:count}
+If $n,k\in\N$ and $n\le k^2$, then
+\[
+p(n)\le(n+1)^{k+1}(k+1)(n+1)^k.
+\]
+\end{lemma}
+\begin{proof}
+Every part of a partition of $n$ is at most $n$, and its total number of parts is at most $n$. Call a part small when it is at most $k$, and large otherwise.
+Every large part is at least $k+1$; hence there can be at most $k$ large parts, since $k+1$ of them would have sum at least $(k+1)^2>n$.
+Encode a partition by:
+\begin{enumerate}
+\item the multiplicities of each of $0,1,\ldots,k$, each in $\{0,\ldots,n\}$;
+\item the number of large parts, in $\{0,\ldots,k\}$;
+\item the large parts in increasing order, padded with zeros to a list of length $k$, each entry in $\{0,\ldots,n\}$.
+\end{enumerate}
+This encoding is injective. The stored number of large parts identifies the length of the unpadded sorted list, and its entries recover the large-part multiset. The small-part multiplicities recover the other multiset. Their union is the original partition. The codomain has the displayed cardinality. This also covers $k=0$, which forces $n=0$.
+\end{proof}
+Taking logarithms of Lemma~\ref{lem:count}, with positive arguments, gives
+\begin{equation}\label{eq:logbound}
+f(n)\le(2k+1)\log(n+1)+\log(k+1)\qquad(n\le k^2).
+\end{equation}
+As $k^2+1\le(k+1)^2$, in particular
+\begin{equation}\label{eq:square}
+f(k^2)\le(4k+3)\log(k+1).
+\end{equation}
+
+\begin{lemma}\label{lem:noaffine}
+For every $a>0$ and every $b\in\R$, there exists $n\in\N$ such that
+\[
+f(n)<b+an.
+\]
+\end{lemma}
+\begin{proof}
+The elementary real limit $\log x/x\to0$ as $x\to\infty$ implies that there is an $M\in\R$ such that
+\[
+|\log x|\le\frac a{28}|x|\qquad(x\ge M).
+\]
+Choose an integer $k>\max\{M,1,-2b/a\}$. Then
+$\log(k+1)\le a(k+1)/28$, and
+$(4k+3)(k+1)\le14k^2$. Equation~\eqref{eq:square} yields
+\[
+f(k^2)\le\frac a2 k^2.
+\]
+Since $-2b<ak\le ak^2$, this is strictly smaller than $b+ak^2$. Take $n=k^2$.
+The cited elementary limit is the stock Mathlib theorem
+\texttt{Real.isLittleO\_log\_id\_atTop}, applied through its explicit eventual bound. No asymptotic fact about $p$ is imported.
+\end{proof}
+
+\section{The sequence obstruction}
+\begin{lemma}\label{lem:sequence}
+Let $f:\N\to\R$ be nonnegative and unbounded above. Suppose that for every $a>0$ and every $b\in\R$ there exists $n$ such that $f(n)<b+an$. Then its third differences cannot be nonpositive throughout a tail.
+\end{lemma}
+\begin{proof}
+We first record two elementary facts about a nonnegative sequence $u$.
+If $\Delta u(j)\le A$ for all $j$, telescoping gives
+$u(j)\le u(0)+jA$. This forces $A\ge0$, since otherwise the right side is negative for some integer $j$.
+Consequently, if $\Delta u$ is nonincreasing, then $\Delta u(m)\ge0$ for each $m$: apply the preceding fact to the tail $u(m+j)$ with upper bound $A=\Delta u(m)$.
+
+Now assume $\Delta^2u$ is nonincreasing. It must be nonnegative everywhere. Indeed, if $\Delta^2u(m)<0$, then on the tail starting at $m$ the first differences are nonincreasing, so they are nonnegative by the preceding paragraph. But this nonnegative first-difference sequence has all its first differences bounded above by the negative constant $\Delta^2u(m)$, a contradiction to the same elementary fact.
+
+Suppose for contradiction that $\Delta^3f(n)\le0$ for all $n\ge N$, and let $u(j)=f(N+j)$. Then $\Delta^2u$ is nonincreasing. By the previous paragraph, $\Delta^2u\ge0$, so $\Delta u$ is nondecreasing.
+If $\Delta u(k)=a>0$ for some $k$, write $M=N+k$. Every first difference on the tail beginning at $M$ is at least $a$. Telescoping and nonnegativity imply
+\[
+f(M+j)\ge ja\qquad(j\in\N).
+\]
+For $n\le M$, nonnegativity gives $f(n)\ge0\ge a(n-M)$, and for $n\ge M$ the displayed inequality gives the same lower bound. Hence
+$f(n)\ge-aM+an$ for every $n$, contrary to the hypothesis with $b=-aM$.
+Thus $\Delta u\le0$ everywhere. The tail $u$ is nonincreasing and bounded above by $u(0)$. A finite prefix is bounded as well, so $f$ is bounded above, contradicting the other hypothesis.
+\end{proof}
+Applying Lemma~\ref{lem:sequence} to the actual partition logarithm, using \eqref{eq:lower} and Lemma~\ref{lem:noaffine}, proves
+\[
+\neg\exists N\;\forall n\ge N,\quad \Delta^3\log p(n)\le0.
+\]
+Classical negation yields Theorem~\ref{thm:main}. This proves arbitrarily late strict positivity; it makes no claim that positivity is eventual and gives no numerical cutoff.
+
+\section{Formal correspondence and verification}
+The formal definition is
+\[
+\texttt{partitionCount n}=\texttt{Fintype.card (Nat.Partition n)},\qquad
+\texttt{partitionLog n}=\texttt{Real.log (partitionCount n :}\;\R\texttt{)}.
+\]
+Mathlib's \texttt{Nat.Partition n} is precisely a multiset of positive natural numbers with sum $n$. Thus the theorem binds the actual mathematical objects, with no growth, monotonicity, or recurrence assumption left as a hypothesis.
+
+\begin{center}
+\begin{tabular}{ll}
+\textbf{File} & \textbf{Role}\\\hline
+\texttt{TLMC214/PartitionBounds.lean} & Actual partitions, injections, cardinality bounds\\
+\texttt{TLMC214/Growth.lean} & Logarithms, unboundedness, Lemma~\ref{lem:noaffine}\\
+\texttt{TLMC214/Sequence.lean} & Generic sequence Lemma~\ref{lem:sequence}\\
+\texttt{TLMC214/Disproof.lean} & Concrete negation and strict-positive witnesses
+\end{tabular}
+\end{center}
+The theorem \texttt{TLMC214.disproof} has conclusion
+\texttt{\(\neg\) TLMC214.EventualNegativity}.
+The theorem \texttt{TLMC214.positive\_arbitrarily\_late} quantifies over every cutoff $N$ and supplies a later index with strictly positive third difference. The theorem \texttt{TLMC214.backward\_disproof} handles the standard backward convention by an index shift.
+
+The project pins Lean 4.19.0 and Mathlib commit
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The build treats warnings as errors. Separate source replays and the \texttt{CheckAxioms.lean} audit are described in the README and retained in the evidence directory. The capstone declarations depend only on the usual Lean foundations \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. There are no admitted goals, custom axioms, native-decision shortcuts, numerical experiments, or auxiliary numerical computations.
+
+The exact input, fresh mathematical development, failed proof attempts, command receipts, and final source hashes are retained for provenance. Neither maintainer acceptance nor publication eligibility is asserted by this report.
+\end{document}
