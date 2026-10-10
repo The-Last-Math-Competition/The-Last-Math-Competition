@@ -1,0 +1,96 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{hidelinks,pdfauthor={idealistichacker},pdftitle={Disproof of conjecture 00000007842}}
+\setlength{\emergencystretch}{1em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{Disproof of Conjecture 00000007842\\\large The lower bound and concentration claims are incompatible}
+\author{GitHub: \texttt{idealistichacker}\\\small AI-assisted submission; no institutional affiliation claimed}
+\date{October 10, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The conjecture simultaneously requires every graph's blanket-to-cover expected-time ratio to be at least $4/3$ and claims concentration at $\log 3/2$ on tree-like graphs. Both conventional parses of that logarithmic expression are at most $1$. A fixed neighborhood of either proposed limit therefore has probability zero at every size, and cannot have probability tending to one. This disproves the conjunction without calculating any blanket time, choosing a branching model, or asserting a replacement spectrum.
+\end{abstract}
+
+\section{The exact necessary subclaims}
+Write the quantity in the common displayed definition of both source languages as
+\[
+ \theta(G)=\frac{\mathbb E[T_{\mathrm{blanket}}(G)]}{\mathbb E[T_{\mathrm{cov}}(G)]}.
+\]
+Where the ratio is real-valued, the claimed interval implies the necessary condition
+\begin{equation}\label{lower}
+ \theta(G)\geq \frac43\quad\hbox{for every eligible graph }G.
+\end{equation}
+Let $G_n$ denote any random tree-like graph at size $n$; a deterministic family is also allowed. The standard meaning of concentration at a constant $a$ entails
+\begin{equation}\label{concentration}
+ \mathbb P\bigl(|\theta(G_n)-a|<\varepsilon\bigr)\longrightarrow 1
+ \quad\hbox{for every }\varepsilon>0.
+\end{equation}
+The source additionally claims an upper bound, endpoint attainability and a branching threshold. We do not need these additional clauses: the full conjecture implies \eqref{lower} and \eqref{concentration}, so disproving that necessary conjunction disproves the full conjecture.
+
+\section{A definition-independent contradiction}
+Here and throughout, $\log$ is the natural logarithm. The two conventional parses of the source's unparenthesized expression are
+\[
+ a_1=\frac{\log 3}{2},\qquad a_2=\log\!\left(\frac32\right).
+\]
+\begin{samepage}
+\begin{lemma}
+Both $a_1$ and $a_2$ are at most $1$.
+\end{lemma}
+\begin{proof}
+For $x>0$, $\log x\leq x-1$. Thus $\log 3\leq2$, giving $a_1\leq1$, and $\log(3/2)\leq1/2$, giving $a_2\leq1/2\leq1$. These are exact inequalities, not decimal approximations.
+\end{proof}
+\end{samepage}
+
+\begin{theorem}\label{impossibility}
+Let $X_n$ be arbitrary real-valued quantities on any sequence of probability spaces. If $X_n(\omega)\geq4/3$ for every $n$ and every outcome $\omega$, they cannot concentrate at any constant $a\leq1$ in the sense of \eqref{concentration}.
+\end{theorem}
+\begin{proof}
+For every $n,\omega$, $X_n(\omega)-a\geq4/3-1=1/3$. Hence
+\[
+ \bigl\{\omega:|X_n(\omega)-a|<1/6\bigr\}=\varnothing.
+\]
+The probability of this event equals $0$ for every $n$. A constant zero sequence cannot converge to $1$. Applying the positive tolerance $\varepsilon=1/6$ contradicts \eqref{concentration}.
+\end{proof}
+Take $X_n=\theta(G_n)$ and $a=a_1$ or $a_2$. Condition \eqref{lower} gives the hypothesis of Theorem~\ref{impossibility} under every sampling law supported on eligible graphs. Therefore neither reading of the source's proposed concentration constant is compatible with its universal lower bound. In particular, interpreting ``tree-like'' as any narrower graph family, choosing a different branching threshold, or imposing an upper bound cannot repair this contradiction.
+
+\section{Lean statement and definition bridges}
+The project pins Lean 4.33.1 and Mathlib revision
+\begin{center}\small\texttt{0df444a360eaa60ab8c11dca51a86af692955474}.\end{center}
+The formalization directly uses real logarithms, actual Mathlib measures, and topological limits. In \texttt{Main.lean},
+\begin{itemize}
+ \item \texttt{LowerBound} is the pointwise inequality $4/3\leq X_n(\omega)$.
+ \item \texttt{ConcentratesTo} is a broader necessary neighborhood-mass condition. The probability wrapper additionally requires every law to be a normalized probability measure and every random variable to be measurable. Its projection to the core condition is proved.
+ \item \texttt{empty\_neighborhood} proves the $1/6$ event is empty. \path{zero_neighborhood_probability} applies the actual measure of the empty set.
+ \item \path{numeric_claims_impossible} proves the negation of the conjunction for every $a\leq1$; the two logarithm theorems specialize it to both parses.
+ \item \path{graph_indexed_obstruction} substitutes any graph statistic along any sampling map. The source-facing probability negation theorems substitute the exact ratio of two expected-time functions and negate the source's two necessary numerical clauses.
+\end{itemize}
+The obstruction is stronger than needed: it holds for arbitrary measures and arbitrary maps, without assuming probability normalization or measurability, because the relevant event is empty and therefore measurable and has measure zero. Its specialization to probability measures and actual measurable graph statistics is immediate. This is not a claim that arbitrary maps are legitimate random-walk models.
+
+Varying-size ensembles can use one common sample space: all admissible finite labelled graphs, with the size-specific law supported on graphs of that size and the identity sampling map. The standard substantive concentration claim supplies an actual sequence of probability laws, not a vacuous assertion about an unspecified empty class.\par
+No stochastic model or expectation calculation is omitted as a premise of the proof: the result holds for \emph{every possible} pair of real expected-time functions. Once the original common ratio definition is substituted, its asserted lower bound and concentration are incompatible regardless of those functions' values. There is no external existence or efficiency hypothesis to discharge. The source's additional assertions need not be formalized separately because they can only strengthen an already false conjunction.
+
+\section{Reproduction, trust and limits}
+Run \verb|reproduce.py --repo <checkout> --lake <lake>| from the submission directory. The script verifies the exact bilingual source blob and SHA-256, the pinned Git dependency manifest, builds the project, replays the source with warnings treated as errors, and audits every public theorem. An explicitly selected offline mode first checks every materialized dependency's exact Git HEAD, origin and clean tracked source; it does not silently change a Git dependency to a local-path dependency.
+
+The permitted transitive foundational dependencies are \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}; \texttt{Check.lean} prints all public theorem footprints. There are no proof placeholders, new assumptions declared as constants, or native evaluation in the submission proof. Auxiliary Python checks are finite numerical regressions only, not graph simulation or proof of the infinite statement.
+
+This establishes inconsistency of the stated conjecture, not the correct blanket-time spectrum, a particular failing graph, or which individual clause must be corrected. Internal independent AI review is not human review, organizer acceptance, a score, or an award.
+
+\section*{Frozen source}
+Upstream commit: \path{9b795e7a94a6076e49a65a6489e1caf9153abd23}.\\
+Conjecture Git blob: \path{075b190a8cb157c3cbb46db832e7ddc4e64ada51}.\\
+Raw SHA-256: \path{09751ed8def1feb0f573fb27567c1aba7f7f43682ca4419240f03d70c1fb0c70}.\\
+The exact English and Chinese bytes are included in \texttt{source.md}; no original conjecture or organizer metadata is modified.
+
+\begin{thebibliography}{9}
+\raggedright
+\bibitem{source} The Last Math Competition, conjecture \texttt{00000007842}, frozen bilingual source \texttt{source.md} at the Git blob above.
+\bibitem{mathlib} The Mathlib contributors, \emph{Mathlib}, revision above. The proof uses \texttt{Real.log\_le\_sub\_one\_of\_pos}, the empty-set measure identity and uniqueness of limits in the real topology.
+\end{thebibliography}
+\end{document}
