@@ -1,0 +1,92 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xurl}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\let\oldus\_
+\renewcommand{\_}{\oldus\allowbreak}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\title{A disproof of Conjecture 00000001305\\[2pt]
+\large The Kobayashi pseudodistance of $\C^2\setminus\Z^2$ vanishes identically}
+\date{}
+\begin{document}
+\sloppy
+\maketitle
+
+\section{The conjecture and its reading}
+
+Conjecture 00000001305 reads: \emph{Definition:} the Kobayashi metric $d_K$. \emph{Conjecture:} on the domain in
+$\C^2$ whose complement is the lattice $\Z^2$ (an ``Eisenstein complement''), $d_K$ degenerates in the horizontal
+direction but not in the vertical direction (mixed hyperbolicity).
+
+Let $D=\C^2\setminus\Z^2$, where $\Z^2=\{(m,n):m,n\in\Z\}\subset\C^2$. We read $d_K$ as the Kobayashi
+\emph{pseudodistance} of $D$. ``Degenerates in a direction'' means: $d_K(p,q)=0$ for all $p,q\in D$ differing only
+in that coordinate; ``does not degenerate'' means $d_K(p,q)>0$ for all distinct $p,q\in D$ differing only in the
+other coordinate. Since the text does not say which coordinate is horizontal, we treat both assignments
+(Reading A: first coordinate horizontal; Reading B: the reverse). We prove more: $d_K\equiv 0$ on $D\times D$, so
+no reading that asks for positive $d_K$ between some pair of distinct points of $D$ can hold.
+
+\section{Definitions (as formalised in Lean)}
+
+\begin{definition}[Poincare distance] For $a,b$ in the open unit disc $\Delta$,
+$\rho(a,b)=\operatorname{artanh}\bigl|\tfrac{a-b}{1-\bar a b}\bigr|=\tfrac12\log\tfrac{1+x}{1-x}$ with
+$x=|\tfrac{a-b}{1-\bar a b}|$ (curvature $-4$ normalisation; another normalisation multiplies $\rho$ by a positive
+constant and changes neither vanishing nor positivity).
+\end{definition}
+
+\begin{definition}[Kobayashi pseudodistance] A \emph{chain} from $p$ to $r$ in $D$ is a finite sequence
+$p=p_0,p_1,\dots,p_k=r$ together with holomorphic maps $f_j:\Delta\to D$ and points $a_j,b_j\in\Delta$ with
+$f_j(a_j)=p_{j-1}$, $f_j(b_j)=p_j$; its length is $\sum_j\rho(a_j,b_j)$ (the empty chain, $p=r$, has length $0$).
+$d_K(p,r)$ is the infimum of the lengths of all chains, in $[0,\infty]$.
+\end{definition}
+
+In Lean (\texttt{Conjecture1305/Basic.lean}): \texttt{C1305.D}, \texttt{C1305.poincare}, \texttt{C1305.IsDisc},
+the inductive predicate \texttt{C1305.Chain}, and \texttt{C1305.dK} (an infimum in \texttt{ENNReal}). The
+holomorphy of a disc is \texttt{DifferentiableOn} $\C$ on the open unit ball, as a map $\C\to\C\times\C$.
+
+\section{Proof}
+
+\begin{lemma}[one link] Let $f:\C\to\C^2$ be entire with $f(\C)\subset D$, $f(0)=p$, $f(1)=q$, and let $R>1$. Then
+$d_K(p,q)\le\operatorname{artanh}(1/R)$.
+\end{lemma}
+\emph{Proof.} $g(z)=f(Rz)$ maps $\Delta$ holomorphically into $D$, $g(0)=p$, $g(1/R)=q$, and
+$\rho(0,1/R)=\operatorname{artanh}(1/R)$. The one-link chain has that length. (Lean: \texttt{dK\_le}.) \qed
+
+\begin{lemma}[entire curves] For distinct $p,q\in D$ there is an entire $f:\C\to D$ with $f(0)=p$, $f(1)=q$.
+\end{lemma}
+\emph{Proof.} Write $u=q-p$. If $u_1\ne0$ put
+$f_s(t)=(p_1+tu_1,\ p_2+tu_2+s\,t(t-1))$. For $t\in\{0,1\}$, $f_s(t)\in\{p,q\}\subset D$. For $t\notin\{0,1\}$, if
+$f_s(t)=(m,n)\in\Z^2$ then $t=(m-p_1)/u_1$ is determined by $m$ and $s=(n-p_2-tu_2)/(t(t-1))$ is determined by
+$(m,n)$. So the bad $s$ lie in a countable set, and since $\C$ is uncountable some $s$ is good. If $u_1=0$ then
+$u_2\ne0$; exchange the two coordinates ($D$ is invariant under the swap) and repeat. (Lean: \texttt{core},
+\texttt{exists\_curve}.) \qed
+
+\begin{theorem}\label{thm:zero} $d_K(p,q)=0$ for all $p,q\in D$.
+\end{theorem}
+\emph{Proof.} If $p=q$ the empty chain gives $0$. Otherwise, for $\varepsilon>0$ pick $R=1+1/\tanh\varepsilon>1$;
+then $1/R<\tanh\varepsilon$, so $\operatorname{artanh}(1/R)<\varepsilon$, and Lemmas 1 and 2 give
+$d_K(p,q)\le\varepsilon$. (Lean: \texttt{dK\_eq\_zero}.) \qed
+
+\begin{theorem}[Lean: \texttt{C1305.main}, of type \texttt{C1305.Claim}] Neither Reading A nor Reading B holds,
+and $d_K=0$ on $D\times D$.
+\end{theorem}
+\emph{Proof.} Both readings require positive $d_K$ between distinct points of $D$ sharing a coordinate. The points
+$(i,0),(i,1)$ (first coordinate $i\notin\Z$) and $(0,i),(1,i)$ lie in $D$ and are distinct, but Theorem~\ref{thm:zero}
+gives distance $0$. This is exactly the elementary disc $z\mapsto(i,Rz)$. \qed
+
+\section{Scope, conventions and audit}
+
+Conventions: $d_K$ is the pseudodistance with the full Poincare distance and chains of arbitrary finite length;
+$d_K=\infty$ would be recorded if no chain existed (not relevant here). The reading ``horizontal/vertical''
+is covered in both coordinate assignments. \textbf{Not formalised:} the infinitesimal Kobayashi--Royden metric; the
+same discs have derivative $R$ in the $w$-direction at $(i,0)$, so it also vanishes there, but this is argued
+informally only.
+
+Lean audit: Lean 4.33.1 / Mathlib v4.33.1; the main theorem uses only \texttt{propext}, \texttt{Classical.choice},
+\texttt{Quot.sound}; no \texttt{sorry}, no \texttt{native\_decide}. No literature is cited.
+
+\end{document}
