@@ -1,0 +1,57 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xurl}
+\sloppy
+\let\oldus\_ \renewcommand{\_}{\oldus\allowbreak}
+\newtheorem{lemma}{Lemma}
+\begin{document}
+\title{Conjecture 00000003968: the graceful-labeling counts of caterpillars have no rational generating function}
+\author{}
+\date{}
+\maketitle
+
+\section*{Statement and reading}
+\textbf{Conjecture.} The generating function of the number of graceful labelings of $n$-vertex caterpillar trees is a rational function, with denominator given by the partition function of the caterpillar spine length.
+
+\textbf{Verdict: disproved.} We prove that the ordinary generating function $\sum_n a_n z^n$ is not rational, for four counting conventions $a_n$. The clause about the denominator (``partition function of the spine length'') has no precise meaning and is not formalized; refuting rationality refutes the conjunction.
+
+\paragraph{Definitions (Lean: \texttt{C3968.IsCaterpillar}, \texttt{IsGraceful}).}
+A \emph{graceful labeling} of a graph $G$ with $n$ vertices is a bijection $f:V\to\{0,\dots,n-1\}$ such that for each $d\in\{1,\dots,n-1\}$ exactly one edge $\{u,v\}$ has $|f(u)-f(v)|=d$. A \emph{caterpillar} is a tree with a path $S$ (an induced subgraph isomorphic to the path graph on $k$ vertices) such that every vertex lies on $S$ or is adjacent to a vertex of $S$ (equivalently, deleting all leaves leaves a path). \emph{Rational} (\texttt{C3968.Rational}) means $Q\cdot A=P$ in $\mathbb{Q}[[z]]$ for polynomials $P,Q$ with $Q\neq 0$.
+
+\paragraph{Counting conventions refuted (all in Lean).}
+(A) \texttt{classCount}: sum over isomorphism classes of caterpillars on $\{0..n-1\}$ (one representative each) of the number of graceful bijections. (B) \texttt{pairCount}: pairs (caterpillar on $\{0..n-1\}$, graceful bijection). (C) \texttt{edgeSetCount}: labelings up to automorphism, i.e.\ graceful caterpillar edge sets on the label set $\{0..n-1\}$. (D) \texttt{complementCount}: as (C), with an edge set identified with its complement $x\mapsto n-1-x$.
+\emph{Not refuted:} the exponential generating function; (A) and (B) with a labeling identified with its complement (this at most halves the count, so the same argument applies, but it is not in Lean).
+
+\section*{Proof}
+\begin{lemma}[exponential bound; \texttt{rational\_bound}]
+If $Q A=P$ with $Q\neq 0$, then $a_n\le M R^n$ for some $M>0,R\ge 1$.
+\end{lemma}
+\begin{proof}
+Write $Q=X^kQ_1$ with $Q_1(0)\ne 0$. For $n>\deg P$ the coefficient of $z^{n+k}$ gives $\sum_{i+j=n} q_i a_j=0$, so $a_{m+1}=-\sum_{i+j=m}(q_{i+1}/q_0)a_j$ for $m+1>\deg P+1$. Put $c=\sum_i|q_{i+1}/q_0|$, $R=c+1$, and $M=1+\sum_{j\le \deg P+2}a_j$. Strong induction gives $a_{m+1}\le c\,M R^m\le M R^{m+1}$.
+\end{proof}
+
+\begin{lemma}[family; \texttt{fam}, \texttt{fam\_tree}, \texttt{fam\_cat}, \texttt{fam\_graceful}]
+Let $s\ge1$, $n=12s$ and $\tau$ a permutation of $\{0..s-1\}$. Define a parent map on $\{0..n-1\}$: for $v<4s$, $v\ne0$: $\mathrm{par}(v)=n-v$; $\mathrm{par}(0)=0$; for $4s\le v<7s$: $4s-1$; for $7s\le v<8s$: $v+3s+1+\tau(v-7s)$; for $v\ge 8s$: $n-1-v$. The graph $G_\tau$ has edges $\{v,\mathrm{par}(v)\}$, $v\ne0$. It is a caterpillar with graceful identity labeling.
+\end{lemma}
+\begin{proof}
+\emph{Tree} (\texttt{tree\_of\_par}): the rank $2v$ (low $v<4s$), $n-1-v\mapsto 2(n-1-v)+1$ (high), $n+v$ (leaf) strictly decreases along $\mathrm{par}$ and $0$ is the root, so $G_\tau$ is connected with $n-1$ edges. \emph{Caterpillar}: the vertices $<4s$ or $\ge 8s$ form the zigzag path $0,n-1,1,n-2,\dots$ (edges: $u+v\in\{n-1,n\}$, $u<4s\le 8s\le v$); every other vertex is a leaf attached to it. \emph{Graceful}: the differences are $n-1,\dots,4s+1$ on the spine, $1,\dots,3s$ on the leaves $4s..7s-1$ (attached to $4s-1$), and $3s+1+\tau(q)$ on the leaf $7s+q$, which runs over $3s+1,\dots,4s$ exactly once. The proof in Lean (\texttt{fam\_adj} characterizes adjacency, then existence and uniqueness of the edge of each difference $d$) uses \texttt{omega}.
+\end{proof}
+
+\begin{lemma}[\texttt{catOf\_inj}, \texttt{edgeSet\_ge}, \texttt{pair\_ge}, \texttt{class\_ge}, \texttt{complement\_ge}]
+For $s\ge1$, each of the four counts at $n=12s$ is at least $s!$.
+\end{lemma}
+\begin{proof}
+$\tau\mapsto G_\tau$ is injective (the neighbour of the leaf $7s+q$ among the high vertices is $10s+1+q+\tau(q)$), giving $s!$ graceful edge sets: this is (C). For (B) use $(G_\tau,\mathrm{id})$. For (A), choose an isomorphism from the representative of the class of $G_\tau$ to $G_\tau$; the map $\tau\mapsto$ (class, labeling) is injective because pulling the representative back along the labeling recovers $G_\tau$. For (D) the class of $G_\tau$ is $\{G_\tau,\overline{G_\tau}\}$ and $\overline{G_\tau}\ne G_{\tau'}$ for all $\tau,\tau'$: in $\overline{G_\tau}$ vertex $0$ is adjacent to $n-2$ (as $1\sim n-1$ in $G_\tau$), while in $G_{\tau'}$ it is not. So distinct $\tau$ give distinct classes.
+\end{proof}
+
+\begin{lemma}[\texttt{not\_rational\_of\_fact}]
+If $a_{12s}\ge s!$ for all $s\ge1$, the series is not rational.
+\end{lemma}
+\begin{proof}
+Otherwise $s!\le a_{12s}\le M(R^{12})^s$ for all $s$, contradicting $x^s/s!\to0$ for $x=R^{12}$.
+\end{proof}
+
+\section*{Lean}
+The main theorem is \texttt{C3968.main : C3968.Claim}, where \texttt{Claim} states that none of \texttt{classCount}, \texttt{pairCount}, \texttt{edgeSetCount}, \texttt{complementCount} has a rational generating function. The statement block is at the top of \texttt{lean/Conjecture3968/Basic.lean}. Axiom audit: \texttt{\#print axioms C3968.main} lists only \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}; no \texttt{sorry}, no \texttt{native\_decide}. The definition of a graceful labeling follows the standard one (an injection of the vertices into $\{0,\dots,|E|\}$ inducing a bijection of the edges onto $\{1,\dots,|E|\}$); for a tree with $n$ vertices and labels in $\{0..n-1\}$ this is the formalized condition. A Python check of the family for $s\le3$ is in the attempt record.
+\end{document}
