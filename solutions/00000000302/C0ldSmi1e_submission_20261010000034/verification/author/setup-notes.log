@@ -1,0 +1,17 @@
+Setup failures retained from tool output (transcribed; these were not successful checks).
+
+1. The first command requested a working directory before it existed; no shell process ran:
+exec_command failed: CreateProcess { message: "Rejected(\"Failed to create unified exec process: No such file or directory (os error 2)\")" }
+The directories and files were then created from /private/tmp.
+
+2. The initial API probe confirmed a missing stock object file:
+/private/tmp/tlmc302-author/Check.lean:1:0: error: object file '././.lake/packages/mathlib/.lake/build/lib/lean/Mathlib/NumberTheory/Transcendental/Liouville/Measure.olean' of module Mathlib.NumberTheory.Transcendental.Liouville.Measure does not exist
+
+3. The first private stock-library copy omitted Git metadata. Lake could not validate it, deleted that incomplete private copy, and attempted a network clone, which failed. Live execution session ID was 18213; final exit code 1:
+info: mathlib: URL has changed; deleting '././.lake/packages/mathlib' and cloning again
+info: mathlib: cloning https://github.com/leanprover-community/mathlib4.git
+error: external command 'git' exited with code 128
+
+4. The private stock-library copy was recreated with the metadata required by Lake. Successful dependency build ran in session 37996 and is preserved in dependency-build.log. All copied stock source/config files were then hash-compared with the permitted original library and dependencies. The shared stock source was not modified.
+
+The scratch API probes and intermediate proof edits also had expected development errors (unknown API names, one elaboration timeout, and an equality/propositional-equivalence mismatch). Those probes are not submission sources. The complete final source was rebuilt and replayed with warnings as errors; its final logs are authoritative for verification.

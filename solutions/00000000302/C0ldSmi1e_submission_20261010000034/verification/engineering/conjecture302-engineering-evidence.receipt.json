@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "created_utc": "2026-10-10T00:13:57.460126+00:00",
+  "archive_filename": "conjecture302-engineering-evidence.tar.gz",
+  "archive_sha256": "ece2e93fcac9f470cbcfbbc86f85e36dfd73fc44c590f6c4a877b309f9a16c98",
+  "expanded_manifest_path": "final-evidence/EVIDENCE_SHA256.json",
+  "expanded_manifest_sha256": "a489c8b2a59ff0b52cad415c5e869c86fdf6b9009c19c17273b215d46cd31dc7",
+  "manifest_target_count": 263,
+  "regular_file_count_including_manifest": 264,
+  "directory_count": 4,
+  "total_tar_member_count": 268,
+  "archive_bytes": 3433771,
+  "uncompressed_tar_bytes": 6133760,
+  "expanded_file_bytes_including_manifest": 5941040,
+  "manifest_bytes": 36957,
+  "determinism": "USTAR; paths sorted; file mode 0644; directory mode 0755; uid/gid/mtime zero; owner/group empty; gzip filename empty, mtime zero, level 9. Two independently constructed byte sequences matched.",
+  "validation": "All archive members and payload bytes matched the exact frozen file set; all source bytes rechecked unchanged after packaging. No links or extra members.",
+  "instructions": "Place the archive in an empty working directory. Verify its SHA-256\nagainst archive_sha256 in this receipt before extraction, using for example:\n\npython3 -c 'import hashlib; print(hashlib.sha256(open(\"conjecture302-engineering-evidence.tar.gz\", \"rb\").read()).hexdigest())'\n\nExtract:\n\npython3 -m tarfile -e conjecture302-engineering-evidence.tar.gz extracted\n\nCheck the expanded manifest itself and all 263 manifest targets:\n\npython3 - <<'PY'\nimport hashlib, json\nfrom pathlib import Path\nroot = Path(\"extracted/final-evidence\")\nmanifest_path = root / \"EVIDENCE_SHA256.json\"\ndata = manifest_path.read_bytes()\nassert hashlib.sha256(data).hexdigest() == \"a489c8b2a59ff0b52cad415c5e869c86fdf6b9009c19c17273b215d46cd31dc7\"\nmanifest = json.loads(data)\nassert len(manifest) == 263\nassert {str(p.relative_to(root)) for p in root.rglob(\"*\") if p.is_file()} == set(manifest) | {\"EVIDENCE_SHA256.json\"}\nfor name, expected in manifest.items():\n    assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, name\nprint(\"PASS: manifest and all 263 evidence targets match\")\nPY\n"
+}

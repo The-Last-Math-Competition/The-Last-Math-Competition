@@ -1,0 +1,87 @@
+A proof of conjecture 00000000302
+C0ldSmi1e
+Prepared with Codex assistance
+Abstract
+For every positive exponent parameter, the exponent-badly-approximable set in the conjecture has
+full Lebesgue measure in the real line. Its Hausdorﬀ dimension, and that of the intersection at parameters
+1/3 and 1/2, is therefore one. The complete argument is formalized in Lean 4.19.0 with Mathlib v4.19.0.
+1 Statement and conventions
+The English and Chinese source deﬁne IIα = {ξ : ∃c > 0, |ξ − p/q |> c/q 2+α } and ask whether
+dimH(II1/ 3 ∩ II1/ 2) = dim H(II1/ 2).
+The source leaves the domains and quantiﬁers on p, q implicit. We make the usual meaning of the named
+Diophantine set explicit:
+IIα =
+{
+x ∈ R : ∃c ∈ R, c > 0, ∀p ∈ Z, ∀q ∈ N>0, c
+q2+α <
+⏐⏐⏐⏐x − p
+q
+⏐⏐⏐⏐
+}
+.
+The positive constant is uniform in both p and q; it may depend on x and α. All positive denominators
+are included, with no coprimality restriction. Powers are real powers and dimension is the ordinary metric
+Hausdorﬀ dimension on R. The argument does not restrict x to a unit interval. The exact bilingual source
+accompanies the submission as ORIGINAL.md.
+Theorem 1. For every α > 0, IIα has full Lebesgue measure and dimH(IIα ) = 1 . For every α, β > 0,
+dimH(IIα ∩ IIβ) = 1 = dim H(IIβ).
+In particular, conjecture 00000000302 is true under the conventional quantiﬁers above.
+2 A full-measure approximation bound
+Lemma 1. Fix s > 2. For almost every x ∈ R, there is no real C for which inﬁnitely many denominators
+q ≥ 1 admit an integer p with
+x ̸= p/q, |x − p/q |< C/q s.
+Proof. Fix m ∈ Z and a positive integer K. On [m, m + 1], let Eq consist of the points within K/q s of some
+p/q . Since K/q s ≤ K, only numerators in the integer interval from (m − K)q to (m + 1 + K)q contribute.
+There are at most (1 + 2K)q + 1 of them. Thus
+|Eq| ≤ 2K
+(
+(1 + 2K)q + 1
+)
+q−s,
+∞∑
+q=1
+|Eq|< ∞ ,
+because 1 − s < − 1 and − s < − 1. The ﬁrst Borel–Cantelli lemma makes the inﬁnitely-often exceptional
+set null. Take a countable union over m ∈ Z and K ≥ 1. Every real C is bounded above by some such K,
+proving the claim on all of R.
+1
+
+3 One strict constant for every denominator
+Fix α > 0 and set s = 2 + α. Choose an irrational x satisfying Lemma 1; this holds almost everywhere
+because the rationals are countable. Applying the lemma at C = 1 gives N ∈ N such that
+|x − p/q | ≥ q−s for every q ≥ max(1, N ) and every p ∈ Z.
+For each ﬁxed q > 0, the closed lattice q−1Z does not contain x, so its distance from x is positive. There are
+only ﬁnitely many denominators 1 ≤ q ≤ N . Hence some ε > 0 satisﬁes
+|x − p/q | ≥ ε (1 ≤ q ≤ N, p ∈ Z).
+When this denominator range is empty, choose any positive ε. Put c = min(1 , ε )/ 2 > 0. For q ≥ N , with
+q > 0,
+c/q s < 1/q s ≤ |x − p/q |.
+For 1 ≤ q < N , we have qs ≥ 1, and therefore
+c/q s ≤ c < ε ≤ |x − p/q |.
+These two cases prove the required strict inequality for all numerators and all positive denominators. Thus
+IIα has full Lebesgue measure.
+4 Hausdorﬀ dimension and the conjecture
+A full-measure subset S ⊆ R agrees almost everywhere with R and has inﬁnite Lebesgue measure. In the
+normalization used by Mathlib, one-dimensional Hausdorﬀ measure on R equals Lebesgue measure. It follows
+that dimH S ≥ 1. Monotonicity and dimH R = 1 give the reverse inequality.
+The intersection of two full-measure sets has full measure: its complement is a union of two null sets.
+Apply the preceding paragraph ﬁrst to IIβ and then to IIα ∩ IIβ. This proves Theorem 1; substituting
+α = 1/ 3 and β = 1/ 2 proves the original equality.
+5 Formal correspondence and reproduction
+The ﬁle lean/Conjecture302.lean deﬁnes Conjecture302.II exactly as in Section 1.
+The theorem mem_II_of_not_liouvilleWith proves the strict uniform-constant argument. The full-
+measure statement is ae_mem_II; dimH_II and dimH_inter_II prove the dimension results. The ﬁnal
+theorem Conjecture302.conjecture has precisely the requested equality as its type, with no additional
+hypotheses.
+The measure input is Mathlib’s theorem ae_not_liouvilleWith, whose deﬁnition uses actual integer
+numerators, natural denominators tending to inﬁnity, and real approximation errors. Mathlib proves it
+from convergent power-series bounds and Borel–Cantelli. Its bounded-denominator separation theorem for
+irrational numbers supplies the ﬁnite-denominator step. Dimension is Mathlib’s genuine dimH, valued in
+[0, ∞ ], and the proof obtains the exact ﬁnite value one.
+The project pins Lean 4.19.0 and Mathlib commit
+c44e0c8ee63ca166450922a373c7409c5d26b00b.
+The included audit prints all seven theorem types and their axiom dependencies. No auxiliary numerical
+computation is needed. Reproduction instructions, complete compiler output, independent semantic and en-
+gineering review records, and artifact hashes accompany the submission. Local veriﬁcation and independent
+model review are separate from maintainer acceptance.
+2
