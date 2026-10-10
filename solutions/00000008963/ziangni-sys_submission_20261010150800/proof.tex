@@ -1,0 +1,82 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\newtheorem{theorem}{Theorem}
+\title{An identity-jump counterexample to 00000008963}
+\author{Ziang Ni (\texttt{ziangni-sys})}
+\date{10 October 2026}
+\begin{document}
+\maketitle
+The conjecture describes Riemann--Hilbert reconstruction from jump
+matrices and asserts that its Fredholm solvability criterion is the
+\emph{vanishing} of a determinant. The Chinese text explicitly says
+that the determinant equals zero. With the standard Fredholm
+convention $D=\det(I-C)$, the identity-jump problem is a counterexample.
+
+\paragraph{The actual normalized Riemann--Hilbert problem.}
+Let $\Sigma=\{z\in\mathbb C:|z|=1\}$, oriented counterclockwise, and
+choose the scalar jump $J(z)=1$. This is the $1\times1$ matrix case.
+Seek a function $Y$ holomorphic off $\Sigma$, with boundary values
+satisfying $Y_+(z)=Y_-(z)J(z)$, and normalized by $Y(z)\to1$ at
+infinity. The actual function
+\[
+ Y(z)=1\quad(z\in\mathbb C)
+\]
+is entire, has both boundary values equal to $1$, satisfies the jump,
+and has the required normalization. Thus the problem is solvable.
+
+\paragraph{The actual correction operator and determinant.}
+The usual singular-integral equation uses
+\[
+ C_{J-I}f=C_-\bigl(f(J-I)\bigr),\qquad (I-C_{J-I})\mu=I.
+\]
+Here $f(J-I)$ is identically zero for \emph{every} function $f$.
+Its Cauchy transform, side limits and principal value are therefore
+zero. This is a calculation of the actual operator, not an assumption
+of an invertibility certificate. For example, parameterizing the circle
+by $s(t)=e^{it}$ gives the Cauchy transform
+\[
+ \frac1{2\pi i}\int_0^{2\pi}
+  \frac{f(s(t))(J(s(t))-1)}{s(t)-z}\,i s(t)\,dt=0
+ \qquad (z\notin\Sigma).
+\]
+Consequently $C_{J-I}=0$, a rank-zero trace-class operator, and
+$I-C_{J-I}=I$ on the boundary-function space.
+
+For a finite-rank correction $C$, the standard Fredholm determinant
+is the determinant of $I-C$ restricted to any finite-dimensional
+invariant subspace containing the range of $C$. The range here is
+$\{0\}$, so on any such $n$-dimensional subspace the matrix is
+literally $I_n-0$. Thus, independently of the chosen dimension,
+\[
+ D=\det(I-C_{J-I})=\det(I_n)=1\ne0.
+\]
+This is also immediate from the Fredholm series: the zeroth term is
+$1$ and every positive-order minor of the zero kernel vanishes.
+In particular the finite-rank reduction is the standard Fredholm
+determinant, rather than a newly chosen scalar invariant.
+
+\begin{theorem}
+The stated vanishing criterion in 00000008963 is false.
+\end{theorem}
+\begin{proof}
+The normalized identity-jump problem above has an explicit full
+solution, while its standard Fredholm determinant equals $1$.
+Hence solvability does not imply determinant zero.
+\end{proof}
+
+\paragraph{Convention and Lean verification.}
+This counterexample uses the conventional Fredholm determinant
+$\det(I-C)$; it does not rule out artificially defining some different
+quantity that vanishes on solvable data. The familiar invertibility
+criterion uses \emph{nonvanishing}, consistent with this example.
+The Lean project verifies complex differentiability, genuine boundary
+continuity and jump matching, and the constant limit along the
+cobounded filter (normalization at infinity). It computes the actual
+parametrized Cauchy integral with the jump factor, proves that the
+resulting linear operator is zero, and calculates $\det(I_n-0)=1$
+for every finite dimension. Its final theorem combines solvability
+with the nonzero determinant. Lean 4.19.0 and mathlib commit
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b} are pinned.
+All printed axiom audits contain only the permitted standard axioms.
+\end{document}
