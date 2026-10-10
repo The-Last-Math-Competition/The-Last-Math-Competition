@@ -1,0 +1,57 @@
+import Mathlib.Analysis.Convex.Function
+import Mathlib.Tactic.Linarith
+
+/-!+# An obstruction to the shape claims in conjecture 00000004607
+
+This file does not define an isoperimetric profile or a concavity correction.
+It disproves the jointly asserted scalar-function properties for every finite,
+positive total volume, using Mathlib's standard definition of convexity.
+-/
+
+namespace IsoperimetricCorrection
+
+/-- Nonnegativity and convexity force a function with zero endpoint values to
+vanish on the entire volume interval. This also covers total volume zero. -/
+theorem zero_on_volume_interval {V : ℝ} (hV : 0 ≤ V) {f : ℝ → ℝ}
+    (hconv : ConvexOn ℝ (Set.Icc 0 V) f)
+    (hnonneg : ∀ x ∈ Set.Icc 0 V, 0 ≤ f x)
+    (hzero : f 0 = 0) (htotal : f V = 0) :
+    ∀ x ∈ Set.Icc 0 V, f x = 0 := by
+  intro x hx
+  have hupper : f x ≤ 0 := by
+    simpa only [hzero, htotal, max_self] using
+      hconv.le_on_segment ⟨le_rfl, hV⟩ ⟨hV, le_rfl⟩ (Icc_subset_segment hx)
+  exact le_antisymm hupper (hnonneg x hx)
+
+/-- On a positive volume interval the required zero set is incompatible with
+nonnegativity and convexity; symmetry is not needed for the contradiction. -/
+theorem no_nonnegative_convex_double_zero {V : ℝ} (hV : 0 < V) :
+    ¬ ∃ f : ℝ → ℝ,
+      ConvexOn ℝ (Set.Icc 0 V) f ∧
+      (∀ x ∈ Set.Icc 0 V, 0 ≤ f x) ∧
+      (∀ x ∈ Set.Icc 0 V, f x = 0 ↔ x = 0 ∨ x = V) := by
+  rintro ⟨f, hconv, hnonneg, hzeros⟩
+  have hzero : f 0 = 0 := (hzeros 0 ⟨le_rfl, hV.le⟩).2 (Or.inl rfl)
+  have htotal : f V = 0 := (hzeros V ⟨hV.le, le_rfl⟩).2 (Or.inr rfl)
+  have hmid : V / 2 ∈ Set.Icc 0 V := ⟨by linarith, by linarith⟩
+  have hmidzero : f (V / 2) = 0 :=
+    zero_on_volume_interval hV.le hconv hnonneg hzero htotal (V / 2) hmid
+  rcases (hzeros (V / 2) hmid).1 hmidzero with h | h <;> linarith
+
+/-- Exactly the numerical shape requirements extracted from the original text.
+This is not a definition of the unspecified concavity correction. Symmetry means
+invariance under exchanging a volume with its complementary volume. -/
+def ShapeRequirements (V : ℝ) (f : ℝ → ℝ) : Prop :=
+  ConvexOn ℝ (Set.Icc 0 V) f ∧
+  (∀ x ∈ Set.Icc 0 V, 0 ≤ f x) ∧
+  (∀ x ∈ Set.Icc 0 V, f x = 0 ↔ x = 0 ∨ x = V) ∧
+  (∀ x ∈ Set.Icc 0 V, f (V - x) = f x)
+
+/-- The full asserted shape package has no realization at any positive finite
+total volume. In particular, no proposed correction can meet this package. -/
+theorem no_shape_requirements {V : ℝ} (hV : 0 < V) :
+    ¬ ∃ f : ℝ → ℝ, ShapeRequirements V f := by
+  rintro ⟨f, hconv, hnonneg, hzeros, _⟩
+  exact no_nonnegative_convex_double_zero hV ⟨f, hconv, hnonneg, hzeros⟩
+
+end IsoperimetricCorrection
