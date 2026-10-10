@@ -1,0 +1,43 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xurl}
+\sloppy
+\let\oldus\_ \renewcommand{\_}{\oldus\allowbreak}
+\newtheorem{lemma}{Lemma}
+\title{Conjecture 00000001463: $\ell_\infty^n$ does not attain $c\sqrt n$}
+\date{}
+\begin{document}
+\maketitle
+
+\section*{Conjecture and reading}
+\emph{The supremum of the projection constants of $\ell_p^n$ over $p\in[1,\infty]$ is $c\sqrt n$ uniformly (explicit $c$), attained asymptotically by both $\ell_1^n$ and $\ell_\infty^n$.}
+
+Let $\mathbb K\in\{\mathbb R,\mathbb C\}$ and let $\ell_p^n=\mathbb K^n$ with the $p$-norm (Mathlib \texttt{PiLp p}). For a finite-dimensional normed space $E$ (all spaces in the conjecture are of this kind), an isometric embedding $j:E\to X$ into a normed space $X$, put
+\[
+\lambda(E,j)=\inf\{\|P\| : P:X\to X \text{ bounded linear},\ P(jy)=jy\ \forall y,\ P(X)\subseteq j(E)\},
+\]
+and the \emph{absolute projection constant} $\lambda(E)=\sup_{X,j}\lambda(E,j)$ over all Banach spaces $X$ (of the base universe) and isometric embeddings $j$. For finite-dimensional $E$ these real-valued infima and suprema have their intended meaning: Hahn--Banach extensions of coordinate functionals give admissible projections in every superspace, so each infimum is over a nonempty set, and an Auerbach basis bounds them by $\dim E$, so the supremum is over a bounded set. (For infinite-dimensional $E$ a copy need not be complemented, and the real-valued definitions would need existence and boundedness hypotheses; they are not used here.) This is the definition formalized in Lean (\texttt{relProj}, \texttt{absProj}, \texttt{lam}).
+
+\texttt{ConjSharp}: there is a real $c$ with $\sup_p\lambda(\ell_p^n)=c\sqrt n$ for all $n\ge1$, $\lambda(\ell_1^n)/(c\sqrt n)\to1$ and $\lambda(\ell_\infty^n)/(c\sqrt n)\to1$ (any "explicit formula" for $c$ is covered, since $c$ is quantified over all reals).
+\texttt{ConjOrder} (weaker reading of ``attained asymptotically''): $\exists\kappa>0$, $\forall n\ge1$, $\kappa\sqrt n\le\lambda(\ell_\infty^n)$.
+
+\section*{Theorem}
+For $\mathbb K=\mathbb R$ and $\mathbb K=\mathbb C$, neither \texttt{ConjSharp} nor \texttt{ConjOrder} holds. (Lean: \texttt{C1463.main : C1463.Claim}.)
+
+\section*{Proof}
+\begin{lemma}\label{l:one} For every $n$, every Banach (indeed normed) space $X$ and every isometric embedding $j:\ell_\infty^n\to X$, $\lambda(\ell_\infty^n,j)\le1$. (Lean: \texttt{relProj\_le\_one}.)\end{lemma}
+\begin{proof} The coordinate functional $y\mapsto y_i$ transported to $j(\ell_\infty^n)$ through the isometry $j$ has norm $\le1$. By Hahn--Banach (Mathlib \texttt{exists\_extension\_norm\_eq}) it extends to $g_i\in X^*$ with $\|g_i\|\le1$. Put $T x=(g_i x)_{i}$; then $\|Tx\|_\infty\le\|x\|$ and $T(jy)=y$. The map $P=j\circ T$ satisfies $P(jy)=jy$, has range in $j(\ell_\infty^n)$ and $\|P\|\le1$.
+\end{proof}
+Hence $0\le\lambda(\ell_\infty^n)\le1$ (the lower bound because every $\lambda(E,j)$ is an infimum of norms; Lean: \texttt{lam\_infty\_le\_one}, \texttt{lam\_infty\_nonneg}). Write $a_n=\lambda(\ell_\infty^n)\in[0,1]$.
+
+\emph{\texttt{ConjSharp} fails.} Suppose $a_n/(c\sqrt n)\to1$. If $c<0$ the quotients are $\le0$ for $n\ge1$; if $c=0$ they are $0$; neither tends to $1$. If $c>0$ then $a_n/(c\sqrt n)\le1/(c\sqrt n)\to0\ne1$. (Lean: \texttt{not\_sharp}.)
+
+\emph{\texttt{ConjOrder} fails.} If $\kappa\sqrt n\le a_n\le1$ for all $n\ge1$, then $\kappa^2n\le1$ for all $n\ge1$, false for $n>1/\kappa^2$. (Lean: \texttt{not\_order}.)
+
+\section*{Scope and conventions}
+Refuted: both readings above, for $\mathbb R$ and $\mathbb C$, for every real $c$. Not addressed: relative projection constants in a fixed superspace, and the claims about $\ell_1^n$ and the exact supremum (not needed). $\lambda$ is the real-valued \texttt{sSup} of a set of reals; only $0\le\lambda(\ell_\infty^n)\le1$ is used, so no junk-value convention matters. In fact $\lambda(\ell_\infty^n)=1$ since $n\ge1$.
+
+\section*{Lean audit}
+File \texttt{lean/Conjecture1463/Basic.lean} (Lean 4.33.1, Mathlib v4.33.1); main theorem \texttt{C1463.main : C1463.Claim}, $\texttt{Claim}=\neg\texttt{ConjSharp}\,\mathbb R\wedge\neg\texttt{ConjSharp}\,\mathbb C\wedge\neg\texttt{ConjOrder}\,\mathbb R\wedge\neg\texttt{ConjOrder}\,\mathbb C$. Axioms: \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}; no \texttt{sorry}, no \texttt{native\_decide}. No external literature is cited.
+\end{document}
