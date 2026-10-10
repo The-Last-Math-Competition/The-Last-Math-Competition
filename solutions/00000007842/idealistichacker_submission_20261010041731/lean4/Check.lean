@@ -1,0 +1,17 @@
+import Main
+
+#print axioms Conjecture00000007842.half_log_three_le_one
+#print axioms Conjecture00000007842.log_three_halves_le_one
+#print axioms Conjecture00000007842.empty_neighborhood
+#print axioms Conjecture00000007842.zero_neighborhood_probability
+#print axioms Conjecture00000007842.no_concentration_below_one
+#print axioms Conjecture00000007842.numeric_claims_impossible
+#print axioms Conjecture00000007842.conjecture_negation_half_log
+#print axioms Conjecture00000007842.conjecture_negation_log_quotient
+#print axioms Conjecture00000007842.graph_indexed_obstruction
+#print axioms Conjecture00000007842.expected_time_ratio_obstruction
+#print axioms Conjecture00000007842.source_negation_half_log
+#print axioms Conjecture00000007842.source_negation_log_quotient
+#print axioms Conjecture00000007842.probability_concentration_implies_neighborhood_mass
+#print axioms Conjecture00000007842.source_probability_negation_half_log
+#print axioms Conjecture00000007842.source_probability_negation_log_quotient
