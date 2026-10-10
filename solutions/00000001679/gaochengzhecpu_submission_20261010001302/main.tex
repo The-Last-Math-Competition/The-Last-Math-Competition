@@ -1,0 +1,132 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{Paths contradict the proposed acquaintance bound\\Conjecture 00000001679}
+\author{gaochengzhecpu}
+\date{October 9, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+A path on $N$ vertices exposes only $N-1$ unordered pairs of agents at
+each time. Even granting arbitrary rearrangements between times, complete
+acquaintance requires at least $N/2-1$ rounds. For sufficiently large $N$
+this exceeds $1024N/\log N$, disproving the stated universal upper bound.
+\end{abstract}
+
+\section{The actual acquaintance process}
+Place one labeled agent at each vertex of the path $P_N$. Agents become
+acquainted when their occupied vertices are adjacent. At each round the
+usual game permits swaps along a matching of graph edges. Count adjacency
+in the initial configuration as time zero, so $r$ rounds provide $r+1$
+configurations. This convention gives the proposed upper bound its most
+favorable starting point.
+
+For the lower bound we allow an arbitrary permutation of the agents at
+every time. This contains every legal matching-swap schedule and can only
+make acquaintance easier. No assumption about which permutations can be
+reached in a round is needed.
+
+\begin{theorem}
+If all $N$ agents on $P_N$ are acquainted after $r$ rounds, where $N\geq2$,
+then
+\[
+ N\leq2(r+1),\qquad r\geq N/2-1.
+\]
+\end{theorem}
+\begin{proof}
+The path has $N-1$ edges. At each time these expose exactly $N-1$ unordered
+pairs, or $2(N-1)$ ordered pairs of distinct agents. Repeated meetings add
+no new pairs. The union of the ordered pairs exposed at times $0,\ldots,r$
+therefore has size at most $2(r+1)(N-1)$. Complete acquaintance requires all
+$N(N-1)$ ordered pairs of distinct agents. Hence
+\[
+ N(N-1)\leq2(r+1)(N-1).
+\]
+Canceling the positive factor $N-1$ proves the result.
+\end{proof}
+
+\section{Contradiction to the conjectured constant}
+Choose an integer $N\geq4$ with $\log N>4096$; for example, any integer
+larger than $e^{4096}+5$ will do. Then
+\[
+ \frac{1024N}{\log N}<\frac N4\leq\frac N2-1.
+\]
+Thus no schedule completing acquaintance on this connected path can have
+$r\leq1024N/\log N$. This contradicts the conjectured bound
+$a(P_N)\leq2^{10}N/\log N$. The proof is existential and exact, without
+approximating $e^{4096}$ or evaluating a graph of that size.
+The logarithm is natural, as usual; any other fixed base leads to the
+same asymptotic contradiction.
+
+\newpage
+\section{Formal verification}
+Lean represents the graph by Mathlib's actual
+\texttt{SimpleGraph.pathGraph (n + 1)}. It proves that these paths are
+connected. The formal parameter $n$ counts edges, so the paper's vertex
+count is $N=n+1$. A schedule is a function from
+\texttt{Fin (r + 1)} to permutations of \texttt{Fin (n + 1)}, assigning each
+agent its actual position.
+
+The proposition \texttt{AllMet} says that each two distinct agents occupy
+adjacent vertices at some observed time. It is expressed using the
+path graph's adjacency relation, rather than an independently invented
+counting quantity. A finite map \texttt{visiblePair} enumerates each
+time, each path edge, and its two orientations, and then transports the
+edge's endpoints back to agents with the inverse position permutation.
+
+\begingroup\raggedright
+\begin{itemize}
+\item \texttt{adjacent\_\allowbreak is\_\allowbreak visible} proves that every actual
+meeting is in that finite image.
+\item \texttt{counting\_\allowbreak lower\_\allowbreak bound} places all ordered
+distinct-agent pairs inside the image, bounds its cardinality by the
+domain's cardinality, and cancels $n>0$ to obtain $N\leq2(r+1)$.
+\item \texttt{no\_\allowbreak short\_\allowbreak schedule} combines this inequality
+with $N\geq4$, $\log N>4096$, and the conjectured upper bound to obtain a
+contradiction.
+\item \texttt{exists\_\allowbreak bad\_\allowbreak path} constructs a sufficiently
+large natural vertex count through the Archimedean property and uses
+the exact monotonicity of the real logarithm. It quantifies over every
+round count satisfying the claimed bound and every position schedule.
+\end{itemize}
+\endgroup
+
+The formal theorem is stronger than needed: even schedules with
+unrestricted rearrangements fail within the claimed number of rounds.
+Every actual adjacent-swap schedule supplies such a sequence of position
+permutations. Accordingly the proof does not need to compute the exact
+optimal acquaintance time or formalize an optimization algorithm.
+
+\paragraph{Scope.}
+The source gives a universal bound in terms of the number of vertices;
+it imposes no expansion, density, or random-graph hypothesis. The examples
+are ordinary finite connected paths. This disproof addresses that universal
+upper bound; it makes no assertion about the best bounds for separately
+restricted graph families.
+
+\paragraph{Reproduction.}
+In \texttt{lean/}, run:
+\begin{verbatim}
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The project pins Lean 4.19.0 and an exact Mathlib revision. The final
+theorems use only standard logical axioms, with no unproved placeholders,
+custom axioms, native evaluation, or external numerical certificates.
+Run \texttt{tectonic main.tex} to rebuild the PDF. The bilingual source
+and its immutable provenance are included with the submission.
+
+\begingroup\raggedright
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/9b795e7a94a6076e49a65a6489e1caf9153abd23/conjectures/00000001679.md}{Conjecture 00000001679}, revision 9b795e7a94a6.
+\bibitem{mathlib} The Mathlib Community,
+\href{https://github.com/leanprover-community/mathlib4/commit/c44e0c8ee63ca166450922a373c7409c5d26b00b}{Mathlib, revision c44e0c8ee63c},
+module \texttt{Combinatorics.SimpleGraph.Hasse}.
+\end{thebibliography}
+\endgroup
+\end{document}
