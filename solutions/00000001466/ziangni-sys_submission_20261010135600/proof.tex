@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\title{A Gaussian counterexample to the zero Bregman triangle correction\\\large Conjecture 00000001466}
+\author{ziangni-sys}
+\date{10 October 2026}
+\begin{document}\maketitle
+\noindent\textbf{Result.} The assertion that the triangle correction is exactly zero for exponential-family divergences is false. A unit-variance Gaussian exponential family already requires an additive correction of at least one at parameters $0,1,2$.
+
+\section*{Statement and interpretation}
+The English statement claims that the correction term of an optimal triangle-type inequality for Bregman divergences is expressed by a dual KL divergence, and that this correction degenerates to exactly zero for exponential-family divergences. The Chinese version likewise states that the correction is exactly zero for exponential-family divergences.
+
+For an additive triangle correction the underlying inequality is
+\[
+ D(s,u)\le D(s,t)+D(t,u)+C(s,t,u).
+\]
+Its least nonnegative correction is
+$\max\{0,D(s,u)-D(s,t)-D(t,u)\}$. In particular, a correction that is identically zero asserts the ordinary triangle inequality. We disprove this second conjunct using an actual normalized exponential family. The conjecture does not specify another coefficient convention. Our result concerns this ordinary additive triangle reading; it does not assert that every weighted triangle inequality fails. For example, squared Euclidean distance admits the valid factor-two inequality.
+
+\section*{The normalized family and its log partition}
+For $\theta,x\in\mathbb R$ put
+\[
+ p_\theta(x)=\frac{1}{\sqrt{2\pi}}
+ \exp\!\left(-\frac{(x-\theta)^2}{2}\right),
+ \qquad A(\theta)=\frac{\theta^2}{2}.
+\]
+The Gaussian integral, followed by translation, gives
+$\int_{\mathbb R}p_\theta(x)\,dx=1$, and the density is strictly positive. Completing the square gives the exact factorization
+\[
+ p_\theta(x)=p_0(x)\exp\{\theta x-A(\theta)\}.
+\]
+Consequently $\int p_0(x)e^{\theta x}\,dx=e^{A(\theta)}$, so $A$ is the genuine log partition function, not an unrelated quadratic chosen as a surrogate. Its derivative is $A'(\theta)=\theta$, and $A''(\theta)=1$; it is strictly convex.
+
+\section*{The divergence and the contradiction}
+The Bregman divergence of this log partition is
+\[
+ D_A(s,t)=A(s)-A(t)-A'(t)(s-t)=\frac{(s-t)^2}{2}.
+\]
+It is nonnegative and vanishes exactly when $s=t$. At three allowed real parameters,
+\[
+ D_A(0,2)=2,\qquad D_A(0,1)=\frac12,
+ \qquad D_A(1,2)=\frac12.
+\]
+Thus an inequality with correction $c$ requires $2\le1+c$, hence $c\ge1$. Its least nonnegative correction here is exactly one. Zero is impossible, disproving the exponential-family zero-correction assertion and therefore the conjunction in the conjecture.
+
+The divergence is also the Gaussian KL divergence, although this identification is not needed for the disproof. Indeed,
+\[
+ \log\frac{p_s(x)}{p_t(x)}=(s-t)x-\frac{s^2-t^2}{2},
+ \qquad \int x p_s(x)\,dx=s,
+\]
+where the latter identity follows by translating $x=s+y$ and integrating the odd function $y p_0(y)$. Integration yields $\mathrm{KL}(p_s\Vert p_t)=(s-t)^2/2$. In the usual exponential-family duality the Bregman orientation is reversed, but this example is symmetric, so the orientation cannot change the counterexample.
+
+\section*{Formal verification}
+The accompanying Lean project defines the actual Gaussian densities, proves their normalization from Mathlib's Gaussian integral, proves the exponential-family factorization and log-partition integral identity, differentiates $A$, and defines the Bregman divergence through \texttt{deriv A}. It then proves the divergence formula, nonnegativity, the zero criterion, the correction lower bound, and the negation of the universal zero-correction triangle law. The separate KL expectation calculation above is explanatory and is not an additional premise of the formal argument.
+
+The project pins Lean 4.19.0 and Mathlib commit
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}\end{center}
+Run \texttt{lake build} inside \texttt{lean/}. Final theorem axiom audits are printed by that build. There are no admitted results, custom axioms, or unchecked computation.
+\end{document}
