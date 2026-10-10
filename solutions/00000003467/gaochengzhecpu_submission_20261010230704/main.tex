@@ -1,0 +1,164 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Z}{\mathbb Z}
+\title{Equal-size generating sets give\\different Cayley-core edge counts\\
+\large Disproof of Conjecture 00000003467}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+On the same cyclic group $\Z/12\Z$, the inverse-closed generating sets
+$S_1=\{\pm1,\pm3\}$ and $S_2=\{\pm1,\pm2\}$ both have size $4$.
+Their connected Cayley graphs have cores $K_2$ and $K_3$, respectively,
+with $1$ and $3$ edges. Consequently the core edge count is not a
+function of generating-set size even when the group is fixed.
+This disproves the asserted linear dependence in Conjecture 00000003467,
+independently of its specified slope.
+\end{abstract}
+
+\section*{Definitions and scope}
+We use finite simple undirected graphs. For an additive group $G$ and
+a subset $S=-S$ not containing $0$, the Cayley graph has vertex set
+$G$ and adjacency $x\sim y$ if $y-x\in S$.
+A graph homomorphism preserves adjacency. A core of a finite graph is
+a vertex-minimal subgraph to which the graph has a homomorphism.
+Equivalently, it is a retract whose endomorphisms are injective.
+The standard Cayley and core conventions are described in Roberson,
+Introduction and Section 1. We give the necessary correspondence below.
+
+The source asserts a linear dependence on generating-set size for
+abelian groups. We keep the entire group fixed, so its rank and every
+other group invariant remain fixed. Both connection sets below genuinely
+generate the group and the graphs are connected. The source does not
+require generating sets to be irredundant.
+
+\section*{Two Cayley graphs on the same group}
+Let $G=\Z/12\Z$ and put
+\[
+ S_1=\{1,11,3,9\}=\{\pm1,\pm3\},\qquad
+ S_2=\{1,11,2,10\}=\{\pm1,\pm2\}.
+\]
+Both sets have four elements, omit $0$, and are closed under negation.
+Each contains $1$, which generates $G$. In either graph, repeatedly
+following the edge $x\sim x+1$ reaches every vertex, proving connectedness.
+Write $A=\operatorname{Cay}(G,S_1)$ and
+$B=\operatorname{Cay}(G,S_2)$.
+
+For $A$, take the induced edge on vertices $\{0,1\}$ and define
+\[
+ r_2(x)=x\bmod2\in\{0,1\}.
+\]
+This is well-defined on $\Z/12\Z$ because $2$ divides $12$.
+Every difference in $S_1$ is odd, so adjacent vertices have distinct
+images. Thus $r_2$ is a graph homomorphism to this copy of $K_2$.
+It fixes $0$ and $1$, making it a retraction.
+
+For $B$, the vertices $\{0,1,2\}$ form an induced triangle: all their
+nonzero differences lie in $S_2$. Define
+\[
+ r_3(x)=x\bmod3\in\{0,1,2\}.
+\]
+This is well-defined since $3$ divides $12$. None of $1,11,2,10$ is
+zero modulo $3$, so $r_3$ preserves adjacency to $K_3$.
+It fixes the three triangle vertices and is therefore a retraction.
+
+\section*{Why these retracts are the actual cores}
+\begin{lemma}
+If a finite graph $X$ retracts onto a complete graph $K_t$, then $K_t$
+is its core, unique up to graph isomorphism.
+\end{lemma}
+\begin{proof}
+Every homomorphism out of $K_t$ is injective: identifying two vertices
+would turn their edge into a loop. If $X$ maps to a subgraph $Y$, the
+restriction to the displayed $K_t$ therefore forces $|V(Y)|\ge t$.
+Since the retraction onto $K_t$ attains this bound, it is a core.
+For a vertex-minimal choice $Y$, the same restriction is an injection
+from $K_t$ onto its $t$ vertices. It preserves every edge of $K_t$,
+so $Y$ is complete and isomorphic to $K_t$.
+\end{proof}
+
+Applying the lemma to the explicit retractions yields
+\[
+ \operatorname{core}(A)\cong K_2,\qquad
+ \operatorname{core}(B)\cong K_3.
+\]
+In particular their edge counts are exactly $1$ and $3$; they are not
+merely upper bounds inferred from colorings.
+
+\begin{theorem}
+The abelian core-edge-count assertion of Conjecture 00000003467 is false.
+\end{theorem}
+\begin{proof}
+If a function $F_G$ of generating-set size determined the core edge
+count for this fixed group, the two examples would give
+\[
+          F_G(4)=1,\qquad F_G(4)=3,
+\]
+a contradiction. Thus no such function exists, in particular no
+linear or affine formula with slope half the group rank. Failure of
+the abelian assertion already disproves the conjunction; no statement
+about the separate nonabelian bound is needed.
+\end{proof}
+
+\section*{Formal correspondence}
+The Lean project constructs the actual ring \texttt{ZMod 12} and two
+\texttt{SimpleGraph} objects directly from the difference-membership
+Cayley definition. It checks the generating-set sizes, proves their
+additive subgroup closures are the whole group, and proves graph
+connectedness by walks of unit steps. The quotient-color maps and
+inclusions are actual graph homomorphisms, and their left-inverse
+identities are checked.
+
+The local predicate \texttt{IsCore} is the standard injective-endomorphism
+condition; \texttt{IsCoreOf} adds an explicit retraction.
+The theorem \texttt{retraction\_reflects\_adjacency} checks that the
+inclusion identifies an induced subgraph.
+\texttt{core\_minimal} proves the minimum-vertex property against any
+finite subgraph candidate, so the core predicate is connected to the
+usual definition rather than merely naming a convenient retract.
+
+The formal uniqueness proof also covers every finite core satisfying
+this standard predicate. If $H$ is another core and there are
+homomorphisms $f:H\to K_t$ and $g:K_t\to H$, the endomorphism $gf$
+is injective, hence surjective by finiteness. Consequently $g$ is
+surjective; it is also injective because its source is complete.
+It therefore identifies $H$ with $K_t$ as a graph. This is proved in
+\texttt{complete\_core\_unique}, and
+\texttt{complete\_core\_edge\_count} transfers the actual finite edge
+count to any such core. The final counterexample and
+\texttt{no\_function\_of\_generator\_count} use these verified cores
+and Mathlib's unordered edge sets.
+
+\section*{Reproduction}
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. In \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The cache command fetches pinned official dependencies if absent.
+The submitted project itself is built in a fresh directory, with
+warnings treated as errors. Finite calculations are kernel checked;
+no external numerical oracle, extra axiom or proof placeholder is used.
+No auxiliary numerical program is required. Run
+\texttt{tectonic main.tex} to regenerate the PDF.
+The author performed a separate adversarial self-review; no independent
+reviewer or subagent was used. Exact source, provenance, build logs,
+axiom dependencies, hashes and review records accompany this submission.
+
+\section*{References}
+\begin{enumerate}
+\item The Last Math Competition, Conjecture 00000003467.
+The exact bilingual source is reproduced in \texttt{SOURCE.md}.
+\item D. E. Roberson, \emph{Cores of Vertex Transitive Graphs},
+Electronic Journal of Combinatorics 20(2) (2013), P45,
+Introduction and Section 1.
+\href{https://www.combinatorics.org/ojs/index.php/eljc/article/download/v20i2p45/pdf/}{Publisher's full text}.
+\end{enumerate}
+\end{document}
