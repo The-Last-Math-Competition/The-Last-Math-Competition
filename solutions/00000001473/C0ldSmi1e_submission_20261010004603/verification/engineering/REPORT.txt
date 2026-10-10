@@ -1,0 +1,40 @@
+Independent engineering verification: PASS
+Completed UTC: 2026-10-10T00:50:24.409985+00:00
+
+Author boundary and integrity
+The root supplied the frozen author manifest SHA-256 6883face1dac5f4217a7e06a73c963341671a01fc50fe0ee29014d7f2fe32542. All 80 frozen entries were verified by length and SHA-256 before proof inspection and were rechecked unchanged after verification. Original Proximity.lean bytes remain SHA-256 940f2f162a82f7a58f36bb235482565328048bb4fe0baf7aa7fa304fb7921e2c. No author source or repository file was modified.
+
+Fresh build and replay
+The canonical entrypoint is project/verify.py, using only the Python standard library plus installed Git, Lean, and Lake. The final run used a newly created work directory and copied frozen sources only; no authored .olean was copied. Lake build passed. Every one of the five authored Lean files was replayed directly with -DwarningAsError=true and newly emitted .olean: lakefile.lean, Proximity.lean, Audit.lean, Verification/ClosureAudit.lean, ClosureCheck.lean. A generated infrastructure inventory driver was separately replayed with the same option.
+Actual versions:
+Lean (version 4.19.0, arm64-apple-darwin23.6.0, commit 6caaee842e94, Release)
+Lake version 5.0.0-6caaee8 (Lean version 4.19.0)
+
+Dependency source and binary evidence
+All nine dependency revision pins matched the original Lake manifest. All 7,507 tracked files (6,816 in Mathlib) were checked byte for byte against their pinned Git blobs before and after the build. The exported stock source manifests include each Git blob identifier and SHA-256. Source checks reject untracked nonignored Lean source files. Hashes of 4,179 imported compiled modules, the Lean/Lake executables, and available native libraries are recorded in compiled-input-manifest.json.
+Stock compiled caches were copied from the explicitly supplied stock Mathlib checkout. Stock Mathlib, Lean and dependencies were NOT rebuilt from source. The binary hashes provide identity evidence, not an independent proof of correspondence between every stock binary and its source. Online dependency/cache acquisition and other operating systems were not exercised; the documented offline path passed on macOS arm64.
+
+Exhaustive declaration inventory and dependency closure
+Every declaration originating in Proximity and Audit was included: 274 total; Audit contributes zero declarations. Among them are 128 safe kernel roots: 71 theorems (including generated equation and auxiliary proofs), 51 definitions, 2 inductives, 2 constructors, and 2 recursors. Every safe root's full type/body/opaque-value/recursor-rule/inductive-constructor closure passed. Their union contains 11,426 nodes; none is unsafe or missing. The only reached axioms are propext, Classical.choice, and Quot.sound. Lean's collectAxioms result is cross-checked against the exported graph, and Python independently traverses and checks every exported closure.
+The complete graph, including separately identified runtime compiler material, contains 11,667 nodes. Lean emitted 146 unsafe compiler runtime roots with compiler-stage, specialization, or lambda suffixes. They are all inventoried with their edges and 605 runtime findings, rather than omitted or represented as mathematical premises. None occurs in any safe mathematical root's closure. Source checks reject authored unsafe, axiom, sorry, admit and native_decide tokens. The exact full declaration inventory and exact compiler-runtime root list are frozen in verification-manifest.json. Any unsafe node reachable from a safe root still fails verification.
+Infrastructure code is separately inventoried: lakefile has 73 declarations, Verification.ClosureAudit has 298, and ClosureCheck has zero. Its runtime unsafe references and placeholder nodes are reported explicitly and are not treated as proof dependencies. Verification code needs ordinary trusted Lean/Python execution; these inspection tools do not contribute mathematical proof terms.
+All 71 theorem types are retained both as fully explicit pretty-printed expressions and as raw Lean Expr representations. Final theorem types are:
+  Proximity.not_universalUpperBound : Not Proximity.UniversalUpperBound
+  Proximity.not_uniqueVertexUpperBound : Not Proximity.UniqueVertexUpperBound
+  Proximity.not_source_conjunction : forall (sharpnessClause : Prop), Not (And Proximity.UniversalUpperBound sharpnessClause)
+
+Auxiliary computation
+The original exact_audit.py (SHA-256 c646e3d6d760fb40d71972e110730353d1277ece612f9b675f943a542c8b4fea) ran independently and passed. Its exact Fraction arithmetic checks all four programs, finite data maximum 10, exact distance 50, strict margins 20 for the three-coordinate forms and 10 for the four-coordinate form, feasibility, and full active-constraint rank. Global optimality and uniqueness are established by the Lean theorems, not inferred from the script's finite point checks. The original validate.py is retained only in historical evidence; canonical combined-package verification uses verify.py.
+
+Real rejection controls
+All seven controls passed: omitted proof via sorry rejected as warning-as-error; custom axiom rejected by the compiled safe-root audit; unsafe standalone definition rejected by strict-all-root audit and by the independent source guard; unsafe proof dependency rejected by Lean's compiler; native_decide rejected by the compiled safe-root audit and by the source guard; frozen source mutation rejected by its exact hash; unlisted Lean source module rejected by exhaustive inventory. Each compiled test has complete stdout/stderr, exit code and command receipt. Source-guard and mutation/inventory rejection details are in negative-controls.json. Controls are synthetic verification material and are not imported by the mathematical source.
+
+Honest development failures
+The initial neutral infrastructure test failed on an unresolved compiler placeholder (_neutral). The auditor was changed to export missing nodes and reject them for enforced proof roots while preserving infrastructure runtime findings. The first full engineering run then failed because strict-all-root checking included Lean-generated unsafe runtime specializations in the mathematical module. Its full raw error, source snapshot, graph, and failed verification.json are preserved under initial-run. After confirming that all 128 safe roots have complete safe closures and all 146 remaining roots are compiler-generated, the explicit safe-root enforcement mode was added. No mathematical source changed. The final run used a new directory, exact frozen source/inventory checks, all controls, and succeeded.
+
+Reproduction
+python3 verify.py --lean-bin /path/to/lean-4.19.0/bin --stock-mathlib /path/to/pinned/mathlib --work-dir /path/to/new-directory
+Run from, or point to, the delivered project directory. The work directory must not already exist. Omitting --stock-mathlib enables the documented pinned online dependency/cache acquisition path. No submitted .olean is reused.
+
+Report scope
+This is an independent engineering replay and trust audit of the frozen mathematical source and exact auxiliary computation. The root's mathematical referee assesses correspondence with the original conjecture and report. No eligibility, novelty, literature, or publication claim is certified here.
