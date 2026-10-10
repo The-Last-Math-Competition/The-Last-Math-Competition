@@ -1,0 +1,49 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=28mm]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Equal face-coloring counts with opposite matching parities\\\large Disproof of Conjecture 00000003477}
+\author{ziangni-sys}\date{10 October 2026}
+\begin{document}\maketitle
+\noindent\textbf{Result.} The planar trees $K_2$ and $K_{1,3}$ have identical face-coloring class counts but opposite perfect-matching parities. Face-coloring class count therefore does not uniquely determine the parity asserted in the conjecture.
+
+\section*{The source and the two actual graphs}
+Both language versions define the parity through the number of perfect matchings of a planar graph, and assert that this parity is uniquely decided by the class count of face colorings. We disprove that first assertion. No claim about the later nonplanar or Petersen-class assertions is needed.
+
+Let $G_1=K_2$ have vertices $0,1$ and its single edge. Let $G_2=K_{1,3}$ have vertices $0,1,2,3$, center $0$, and edges $01,02,03$. Both have an even number of vertices. Both are connected planar trees: the first is a line segment and the second is a star drawn with three nonintersecting radial segments.
+
+There is exactly one perfect matching of $G_1$, its single edge. There is no perfect matching of $G_2$: each leaf can only be matched to the center, while a matching can use the center only once. Equivalently, a perfect matching is a fixed-point-free involution of the actual vertices that sends every vertex along a graph edge. In the star it would send all three leaves to $0$, contradicting injectivity. Thus
+\[
+ M(G_1)=1,\quad M(G_2)=0,\qquad
+ M(G_1)\bmod2\ne M(G_2)\bmod2.
+\]
+
+\section*{The actual planar faces}
+For completeness, use the standard rotation-system description of the explicit plane embeddings. A dart is an oriented actual edge. The face successor is the local rotation after dart reversal.
+
+For $G_1$, enumerate darts as $(0,1),(1,0)$. The local rotations are the identity because each vertex has degree one. Dart reversal interchanges the two darts, giving one face orbit.
+
+For $G_2$, enumerate darts in order
+\[
+ (0,1),(1,0),(0,2),(2,0),(0,3),(3,0).
+\]
+Choose the local cyclic order $1,2,3$ at the center; the rotations at leaves are trivial. On dart indices $0,\ldots,5$, reversal is
+$(0\ 1)(2\ 3)(4\ 5)$, while the rotation is $(0\ 2\ 4)$ and fixes $1,3,5$. Their composition has the single face cycle
+\[
+ (0\ 1\ 2\ 3\ 4\ 5).
+\]
+These are actual dart operations: reversal swaps the endpoints, and rotation preserves the source vertex. The connected embeddings have $V-E+F=2$ in both cases, agreeing with their explicit planar drawings. Each graph therefore has exactly one face, the unbounded face in the plane.
+
+\section*{The same coloring classes do not determine parity}
+Under the standard convention that face adjacency requires two distinct faces sharing an edge, both face-adjacency graphs are the one-vertex graph with no edges. For a palette of $q$ colors, each has exactly $q$ labeled face colorings. If colorings are identified under permutations of the palette, each has exactly one coloring class for $q\ge1$ and none for $q=0$. The bijection between their singleton face sets induces an equivariant bijection of their coloring sets, so it also identifies these class counts.
+
+A convention that forbids the same color on both sides of a bridge treats a face as adjacent to itself. Then both graphs admit no proper face coloring and again have the same class count, zero. Thus the bridge convention cannot distinguish the graphs. A convention restricted only to bridgeless graphs would impose an additional domain restriction absent from the source.
+
+The input face-coloring class counts agree, but the asserted output matching parities disagree. Therefore no unique decision of parity from those counts is possible, disproving the first conjunct.
+
+\section*{Formal verification}
+Lean defines both actual simple graphs, counts respecting-edge fixed-point-free involutions, and proves the perfect-matching counts $1$ and $0$. It explicitly enumerates the actual dart sets and verifies those enumerations are bijective. It verifies dart reversal, local rotations, and the face-successor rule, computes each face orbit, and constructs the quotient face types. Both are singleton types. Their face-coloring counts agree for every palette size, and a coloring equivalence identifies their colorings; the matching parities differ. Finite decisions use Lean's checked kernel reduction, not unchecked native decisions.
+
+Run \texttt{lake build} in \texttt{lean/}. The project pins Lean 4.19.0 and Mathlib commit
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}\end{center}
+Printed final theorem audits contain only standard axioms. No admitted results, custom axioms, or unsafe code are used.
+\end{document}
