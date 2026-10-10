@@ -1,0 +1,122 @@
+Independent complete semantic source review for candidate 00000000069
+Date: 2026-10-10
+Verdict: PASS_COMPLETE_SEMANTIC_SOURCE_CORRESPONDENCE
+Informal mathematics verdict: VALID for the frozen argument.
+Formal source completeness verdict: All required mathematical links are supplied by proof bodies in the reviewed modules; no construction or target assertion is left as an assumption.
+Independent build/axiom-closure verdict: NOT_PERFORMED_HERE; engineering audit remains separate.
+Publication verdict: NOT_GRANTED_BY_THIS_REVIEW.
+
+Scope and exact bindings
+
+I did not author this solution. I reviewed the complete contents of the six Lean source files below, consisting of 21,959 bytes and 53 declarations (nine definitions and 44 lemmas/theorems). Kernel and Primitive were reviewed first as a separate frozen stage; their full-project copies have identical hashes. The newly reviewed modules were read at 2026-10-10T18:50:44.002459+00:00 through 18:50:44.002909+00:00. I performed no build, source edit, author contact, network access, other-solution read, or alternative construction. A subsequent targeted source scan listed declarations and found no admission/custom-proof-mechanism tokens. All conclusions here concern these exact source bytes.
+
+Root: /private/tmp/tlmc69-root-full-source-v1/
+SHA256SUMS.json: 65a33ea79f270ae691905371961e53101f0754290b9892dd5ee3dd5ad9acb114
+Every reviewed Lean member was independently hashed and matched the manifest:
+- TLMC69/Kernel.lean, 5909 bytes
+  fd4100de0bc33531bbf9e5dcbd15b7b15266fc7b166dc20daafca4a6a8ccf1d0
+- TLMC69/Primitive.lean, 1805 bytes
+  327a8dada63845c5cb4ad8693f4be3a039bb6bc86f4a71490373cb53a7ab13dd
+- TLMC69/KernelIntegrals.lean, 5461 bytes
+  22ac4b312bd6e477671134113a5749e68fd5aa699517db77f16630a77fdb3d6b
+- TLMC69/Approximation.lean, 4655 bytes
+  40606ff32866c89b94e3938b97cffb98e3fe4490d6ef8dcddf4640860633c37f
+- TLMC69/Main.lean, 4110 bytes
+  741fffe3302251bd6d3579d5bca31ff25e36a2044a0625b805fafbc714407cbf
+- TLMC69.lean, 19 bytes
+  3fb13bfdb36c346a480c93608a92fb2889ae9e91cb9599232bbc946bb349e77c
+
+The manifest also lists three configuration files. Their contents were not part of this semantic source review, and their presence in the manifest is not an independent validation of the toolchain or dependency configuration.
+
+Previously read exact original:
+/private/tmp/tlmc69-clean-author-input/original.md
+SHA256 af0f36e6b62ee25a0e8d7eb6a0fbbdb24367113f98631871737859909800cb26
+Both complete rules files were read previously, bound respectively by SHA256
+200d9a783c08a5edfd1b508e6942b3b851a63c726506291f6de6a59773f1163a and
+7c5b49bb84403feea1eb14d23d48491400c7749d58db345cd317231949a9e82b.
+Initial checkpoint, reviewed without following later revisions:
+/private/tmp/tlmc69-proof/verification/mathematical-checkpoint.txt
+SHA256 481369c3484894ec880d89034a50849eeda00af0a50e0388b5d7e6f17c047025
+Prior reviews:
+/private/tmp/tlmc69-independent-math-review.txt
+SHA256 faf09220e5db4a2c3a1d6e784060647eebdb8188a609e630c725f7bd73a4f3b3
+/private/tmp/tlmc69-independent-stage1-lean-review.txt
+SHA256 0201e990cbd2a677c000112f1648fe340765a08901af8ea159edb11034feb75d
+
+1. Exact mathematical target
+
+Both source languages assert the best L1 polynomial approximation rate of |x| on [-1,1] is E_n^* ~ B/n, with additional claims concerning closed form and transcendence of B. Approximation.lean:10 defines
+  l1Error(p) = integral_-1^1 |abs(x) - p.eval(x)| dx.
+The outer absolute value is present. This is the ordinary unweighted real Lebesgue L1 error on the specified interval, not a signed error, a uniform norm, a coefficient norm, a weighted norm, or a numerical surrogate. The fixed integration endpoints are ordered. For every real polynomial, the residual and its absolute value are continuous, so the integral is the usual finite integral; no nonintegrability convention is being exploited.
+
+Approximation.lean:13 defines bestError(n) as the real infimum of exactly the set of l1Error(p) over all real polynomials with p.natDegree<=n. It does not restrict the approximating class to even polynomials, the constructed family, nonnegative polynomials, sampled data, or a caller-provided family. The particular even family is used only to upper-bound this full infimum. The zero polynomial remains admissible even at n=0 under the usual natDegree convention.
+
+Main.lean:73 defines HasInverseLinearRate(B) by B!=0 and convergence of bestError(n)/(B/n) to 1 as n tends to infinity through the naturals. This is the standard ratio meaning of the displayed asymptotic equivalence. The final theorem at Main.lean:77 is
+  not exists B : Real, HasInverseLinearRate(B).
+It therefore rejects every nonzero real comparison constant, not just a particular value or positive constants. Exclusion of B=0 is faithful to ratio asymptotic equivalence, which requires a nonzero comparison sequence eventually. Lean's total division assigns a value at n=0, but changing or defining that single initial term does not affect a limit at infinity. The proof explicitly handles n=0 and does not confuse it with the positive large-degree regime.
+
+Refuting this necessary rate clause disproves the conjunction as written in both languages. The source review does not assert a decision about the ancillary transcendence/closed-form claims for a differently defined constant. No change of conjecture, approximation class, or norm is needed for the displayed disproof.
+
+2. Kernel and primitive, carried forward from stage 1
+
+The exact Q recurrence is Q_0=1, Q_1=3-4X^2 and Q_(n+2)=(2-4X^2)Q_(n+1)-Q_n. The unrestricted natural index n corresponds to the checkpoint's m, with N=2n+1. The stage-1 review checked all ten kernel lemmas: evenness, evaluation N at zero, degree<=2n, the exact sine identity at odd frequency N, the elementary multiple-angle sine bound, |xQ_n(x)|<=1 and |Q_n(x)|<=N on [-1,1], the arcsine upper bound, and Q_n(x)>=N/2 on [0,1/(4N)]. Zero and endpoint cases and the signs of all canceled factors were handled explicitly. There are no hidden section hypotheses or caller assumptions that the desired bounds already hold.
+
+The primitive is the actual coefficientwise real polynomial sum over p.support with coefficients p.coeff(i)/(i+1) and exponent i+1. The six primitive lemmas prove its derivative equals p, evaluation at zero is zero, ordinary derivative of evaluation equals p.eval, the oriented integral identity from zero, degree<=natDegree(p)+1, and oddness when p is even. Its one parity hypothesis is discharged by kernel_even in the later source. It is not an unspecified primitive or an assumed existence witness.
+
+3. KernelIntegrals.lean: all kernel integral obligations
+
+The concrete definitions kernel(n)=Q_n^4, mass(n)=integral_0^1 kernel(n), and moment(n)=integral_0^1 x^2 kernel(n) agree with K, M and J in the checkpoint. The source supplies polynomial evaluation, global nonnegativity, evenness and degree<=8n. It derives the pointwise bounds K<=N^4 and x^4 K<=1 from the already proved Q bounds. The natural exponent four and real coefficients cannot change these into sign-indefinite estimates.
+
+mass_lower uses a=1/(4N), proves 0<=a<=1, compares K on [0,a] with (N/2)^4 using Q_lower, and then enlarges the nonnegative integral to [0,1]. It evaluates the constant integral as N^3/64. mass_pos derives strict positivity, so every later normalization by mass is supported by a proved nonzero denominator.
+
+moment_nonneg proves J>=0. moment_upper splits at a=1/N in (0,1]. On [0,a], it bounds x^2 K by x^2 N^4 and computes its integral N/3. On [a,1], it proves x>0, obtains x^2 K<=1/x^2 from the weighted kernel bound, establishes integrability away from zero, and evaluates the latter integral as N-1 by the derivative of -1/x. The two adjacent integrals are reassembled with their actual integrability witnesses, yielding J<=N/3+(N-1)<=2N. At n=0, a=1 and the second interval is degenerate, which the stated inequalities and integrals still cover. No improper reciprocal integral through zero is used.
+
+These proofs discharge positivity, continuity/integrability, interval inclusion and denominator conditions. They assume no mass or moment estimate from a caller and preserve the checkpoint's constants.
+
+4. Approximation.lean: actual admissible polynomial and exact L1 identity
+
+The approximant is the real polynomial obtained by multiplying X times the concrete primitive of the kernel by the constant inverse mass. approximant_eval explicitly connects evaluation to x*A(x)/M, and approximant_degree proves its degree is at most 8n+2. This is a polynomial object in the same type quantified over by bestError, not merely a real-valued function.
+
+approximant_even follows from the proved kernel parity and polynomial primitive oddness. primitive_kernel_bounds proves 0<=A(x)<=M for x in [0,1], using the actual integral representation and nonnegative kernel. approximant_le derives p_n(x)<=x using mass_pos. The implementation does not need a separate approximant-nonnegativity theorem for the error identity: the sign that permits removal of the residual's absolute value is x-p_n(x)>=0, and that exact sign is proved. This omission of an unused checkpoint observation is not a missing proof obligation.
+
+even_integral is a proved general helper, with explicit continuity and parity hypotheses; the actual error function satisfies both. Its change-of-variable and adjacent-interval calculation have the correct factor two and orientation.
+
+approximant_error_exact:58 proves the equation
+  l1Error(approximant n) = moment(n)/mass(n)
+for every n without extra hypotheses. It applies integration by parts to u(x)=x^2 and v(x)=A(x), with u'=2x and v'=K. Polynomial continuity and the proved primitive derivative supply the analytic premises. The endpoint relation A(1)=M follows from primitive_integral and the mass definition. The resulting identity is J=M-2*integral_0^1 xA(x).
+
+The proof separately rewrites the true L1 error using evenness and, on [0,1], abs(x)=x and p_n(x)<=x. Hence it is exactly twice the integral of x-p_n(x). It splits integrals using genuine interval-integrability, factors out the fixed divisor M, evaluates integral_0^1 x=1/2, and combines these equations to obtain J/M using M>0. Neither absolute value nor the normalization factor is dropped without justification. The expression is the real L1 error originally defined, not a proxy quantity later identified by assertion.
+
+5. Main.lean: infimum, subsequence, and ratio contradiction
+
+l1Error_nonneg is proved for every polynomial. errors_nonempty supplies the zero polynomial for every natural degree bound, and errors_bddBelow supplies zero as a lower bound for all admissible errors. bestError_nonneg and bestError_le therefore use the valid nonempty/bounded-below real infimum rules. No minimizing polynomial, compactness of an optimization space, or attainment assumption is hidden in this step.
+
+approximant_error_bound first rewrites the exact true error as J/M. It uses J>=0, M>=N^3/64>0 and J<=2N with the correct monotonicity of division to derive J/M<=128/N^2. bestError_subsequence_bound then applies the actual degree theorem to the actual approximant and obtains
+  bestError(8n+2) <= 128/(2n+1)^2.
+Thus the formal bound pertains to the full degree-constrained infimum with no hypothesis of the existence of a suitable approximant.
+
+scaled_bound multiplies by the nonnegative degree and uses 8n+2<=4(2n+1) to give an upper bound 512/(2n+1). scaled_subsequence_tendsto_zero uses nonnegativity of bestError, the squeeze theorem, and the proved divergence of 2n+1 to establish
+  (8n+2)*bestError(8n+2) -> 0.
+All natural-to-real casts and the degree indexing in these theorem statements agree with the checkpoint. A bound for every degree or a sharp matching lower bound is not needed for the subsequent contradiction.
+
+no_nonzero_scaled_limit proves that n*bestError(n) cannot tend to any nonzero real B. It proves the natural subsequence 8n+2 is cofinal, composes the proposed full-sequence limit with it, aligns the casts, and applies uniqueness of limits with the just-proved zero limit. The sole B!=0 premise here is the comparison-constant condition required for the proposition being contradicted, not a mathematical gap.
+
+conjecture69_disproof introduces an alleged B with the exact ratio rate. Multiplying the ratio limit by B yields the scaled limit because
+  (bestError(n)/(B/n))*B = n*bestError(n).
+For n>0 this is ordinary field algebra with n and B nonzero. For n=0 the source separately checks the identity under Lean's total division convention. The result contradicts no_nonzero_scaled_limit. Thus the final statement really negates the ratio asymptotic and does not merely prove an unrelated upper bound or an abstract sequence theorem under assumed kernel properties.
+
+The root TLMC69.lean consists only of import TLMC69.Main, so its ordinary project entry point imports this complete chain.
+
+6. Hypotheses, names, admissions, and dependency scope
+
+I found no ambient section variables or typeclass assumptions that turn the final theorem into a conditional result. Natural-index and polynomial lemmas quantify over their actual mathematical inputs. Interval, parity and continuity premises occur only on the appropriate general helper lemmas and are supplied at their uses. Kernel construction, positivity, exact integral identities, admissibility and infimum properties are all proved from their concrete definitions. No final assumption states that the target conjecture is false or that the required kernel/approximant exists.
+
+All project mathematical declarations remain in the TLMC69 namespace. Real, Polynomial, intervalIntegral, sInf and Tendsto retain their standard imported meanings in the reviewed text. There is no local notation, alternate instance, namespace trick, redefinition of a standard object, or shadow declaration that substitutes an easier error norm or rate. The source has no axiom/constant/opaque result placeholder, sorry, admit, unsafe declaration, custom syntax/elaborator/tactic, initializer, run_tac, native_decide, or kernel-check bypass. The ordinary noncomputable section does not weaken proof checking. The small decidable natural parity fact is proved with ordinary decide, not an untrusted native proof shortcut. The remaining tactics are standard proof-producing algebra/order/induction tools.
+
+The three #print axioms commands in Main are diagnostics, not assumptions. Their presence alone is not evidence about the actual generated declaration closure. This review did not execute them, independently compile the source, or inspect all transitive Mathlib dependencies. The engineering audit must establish that the frozen source elaborates with the pinned stock toolchain/dependencies, that the imported modules resolve to the intended exact files, and that the final declarations have only permitted trusted axioms with no sorryAx or custom/admitted dependency. Author-reported compilation is not being relabeled as an independent test here.
+
+7. Findings and remaining gates
+
+No semantic or mathematical gap was found in these frozen six modules. They faithfully implement the reviewed construction and close every mathematical obligation that was still open in the initial checkpoint: kernel mass/moment estimates, positive normalization, a true polynomial primitive, admissible polynomial degree, exact genuine L1 error, degree-constrained infimum, and the final nonzero ratio-rate contradiction. The informal proof and these formal source statements agree with the exact bilingual necessary rate clause.
+
+This is a complete source-level semantic PASS, with independent compilation and trusted-dependency closure deliberately left to the separate engineering audit. A final report/PDF must still faithfully state the same definitions, constants, quantifiers and scope, and all publication/eligibility/package gates remain parent-owned. No report or PDF was read in this review. Any later change to the six source hashes, mathematical statement or imported dependency identity needs corresponding revalidation; this verdict is bound to the manifest and source hashes listed above.

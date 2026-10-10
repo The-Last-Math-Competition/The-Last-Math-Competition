@@ -1,0 +1,192 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{microtype}
+\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newcommand{\dd}{\,dx}
+\title{Disproof of the stated $L^1$ rate in Conjecture 00000000069}
+\author{Independent solution}
+\date{October 10, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+For best unweighted $L^1$ polynomial approximation of $|x|$ on $[-1,1]$, we construct polynomials of degree at most $8m+2$ with error at most $128/(2m+1)^2$. Consequently no nonzero real $B$ can satisfy the conjecture's necessary assertion $E_n^*\sim B/n$. All mathematical steps, including the connection to the actual degree-constrained $L^1$ infimum, are formalized in Lean 4.19.0 with stock Mathlib v4.19.0.
+\end{abstract}
+
+\section{Statement and conventions}
+The supplied English statement reads:
+\begin{quote}
+Conjecture: The Bernstein constant: the best $L^1$ polynomial approximation rate of $|x|$ on $[-1,1]$ satisfies $E_n^*\sim B/n$; conjecture that $B$ admits a closed-form expression and that its transcendence can be decided.
+\end{quote}
+The supplied Chinese statement also explicitly specifies $L^1$. We use its ordinary unweighted meaning: for every $n\in\N$,
+\[
+ \mathcal E(p)=\int_{-1}^{1}\bigl||x|-p(x)\bigr|\dd,
+ \qquad E_n^*=\inf\{\mathcal E(p):p\in\R[X],\ \deg p\le n\}.
+\]
+The zero polynomial is admissible at every degree. In Lean the constraint is \texttt{p.natDegree $\le$ n}; the zero polynomial has natural degree zero, which has exactly the same admissibility effect for these nonnegative degree bounds. The integral uses Lebesgue measure. There are no coefficient restrictions or parity restrictions in the infimum. Our explicit competitors happen to be even.
+
+We interpret asymptotic equivalence by its usual ratio convention:
+\[
+ E_n^*\sim B/n\quad\Longleftrightarrow\quad
+ B\ne0\ \text{ and }\ \lim_{n\to\infty}\frac{E_n^*}{B/n}=1.
+\]
+A zero comparison function cannot define this asymptotic equivalence. Its harmless value at $n=0$ is irrelevant to the limit. Replacing $dx$ by the probability normalization $dx/2$ would only scale the errors by a fixed factor and would leave the disproof unchanged.
+
+We refute the rate clause, which is necessary for the full statement as written. We neither assign a numerical value to a ``Bernstein constant'' nor formalize an unspecified meaning of ``closed form'' or ``can be decided.'' No conclusion about the corresponding uniform-norm problem is asserted. The upper bound proved here is sufficient for the contradiction; we make no claim to have established a sharp global asymptotic rate or optimal constants.
+
+\begin{theorem}\label{thm:main}
+For every $m\in\N$,
+\[
+ 0\le E_{8m+2}^*\le\frac{128}{(2m+1)^2}.
+\]
+In particular, there is no nonzero real $B$ for which $E_n^*\sim B/n$.
+\end{theorem}
+
+\section{An elementary polynomial kernel}
+Define real polynomials by
+\[
+ Q_0(X)=1,\qquad Q_1(X)=3-4X^2,\qquad
+ Q_{m+2}(X)=(2-4X^2)Q_{m+1}(X)-Q_m(X).
+\]
+Write $N=2m+1$. Direct induction proves that $Q_m$ is even, that
+$\deg Q_m\le2m$, and that $Q_m(0)=N$.
+
+\begin{lemma}\label{lem:q}
+For every real $t$,
+\[
+ Q_m(\sin t)\sin t=\sin(Nt).
+\]
+For $|x|\le1$ we have
+\[
+ |xQ_m(x)|\le1,\qquad |Q_m(x)|\le N.
+\]
+For $0\le x\le1/(4N)$ we also have $Q_m(x)\ge N/2$.
+\end{lemma}
+\begin{proof}
+The sine identity follows by the same recurrence, using
+\[
+ \sin((N+2)t)+\sin((N-2)t)
+ =2\sin(Nt)\cos(2t),\qquad \cos(2t)=1-2\sin^2t.
+\]
+The initial cases are the identities for $\sin t$ and $\sin(3t)$.
+Sine addition and $|\cos t|\le1$ give, by induction on the nonnegative integer $k$,
+\[
+ |\sin(kt)|\le k|\sin t|.
+\]
+Substitute $t=\arcsin x$ in the first identity. The two global bounds follow from $|\sin(Nt)|\le1$ and $|\sin(Nt)|\le N|x|$, dividing by $|x|$ when $x\ne0$. The case $x=0$ uses $Q_m(0)=N$.
+
+For the local lower bound, first suppose $0<x\le1/(4N)$ and again set $t=\arcsin x$. On $[0,\pi/2]$ the elementary bounds
+\[
+ \frac{2u}{\pi}\le\sin u\le u
+\]
+show that $x\le t\le2x$, where $\pi<4$ was used for the latter inequality. Thus $0\le Nt\le1/2\le\pi/2$, so
+\[
+ xQ_m(x)=\sin(Nt)\ge\frac{2Nt}{\pi}
+ \ge\frac{Nt}{2}\ge\frac{Nx}{2}.
+\]
+Division by $x$ proves the assertion. At zero it follows directly from $Q_m(0)=N$.
+\end{proof}
+
+Set
+\[
+ K_m(X)=Q_m(X)^4,\qquad
+ M_m=\int_0^1K_m(x)\dd,\qquad
+ J_m=\int_0^1x^2K_m(x)\dd.
+\]
+The kernel is an even, nonnegative polynomial of degree at most $8m$.
+
+\begin{lemma}\label{lem:moments}
+For every $m\in\N$, with $N=2m+1$,
+\[
+ M_m\ge\frac{N^3}{64}>0,\qquad 0\le J_m\le2N.
+\]
+\end{lemma}
+\begin{proof}
+On $[0,1/(4N)]$, Lemma~\ref{lem:q} gives $K_m(x)\ge(N/2)^4$. Positivity of the kernel therefore yields
+\[
+ M_m\ge\frac{1}{4N}\left(\frac N2\right)^4=\frac{N^3}{64}.
+\]
+The global bounds in that lemma yield $K_m(x)\le N^4$ and $x^4K_m(x)\le1$ on $[0,1]$. Split the second moment at $a=1/N\le1$. Then
+\begin{align*}
+ J_m
+ &\le N^4\int_0^{1/N}x^2\dd+\int_{1/N}^1\frac{1}{x^2}\dd\\
+ &=\frac N3+(N-1)\le2N.
+\end{align*}
+Its nonnegativity follows from its nonnegative integrand. All functions integrated here are continuous on the relevant closed intervals; the reciprocal-square term is only used where $x\ge1/N>0$.
+\end{proof}
+
+\section{A polynomial competitor and its exact $L^1$ error}
+Let $A_m$ be the polynomial antiderivative of $K_m$ with $A_m(0)=0$. Explicitly, if $K_m(X)=\sum_i c_iX^i$, then
+\[
+ A_m(X)=\sum_i\frac{c_i}{i+1}X^{i+1},\qquad
+ A_m(x)=\int_0^x K_m(t)\,dt.
+\]
+Because $K_m$ is even, $A_m$ is odd. Define
+\[
+ p_m(X)=\frac{XA_m(X)}{M_m}.
+\]
+This is a well-defined even real polynomial of degree at most $8m+2$. For $0\le x\le1$, positivity of $K_m$ gives
+$0\le A_m(x)\le A_m(1)=M_m$, and hence $0\le p_m(x)\le x$.
+By evenness, $0\le p_m(x)\le|x|$ for every $x\in[-1,1]$.
+
+Integration by parts, applied to $x^2$ and $A_m(x)$, gives
+\[
+ J_m=\int_0^1x^2 A_m'(x)\dd
+ =M_m-2\int_0^1xA_m(x)\dd.
+\]
+It follows, using the established sign of the error and evenness, that the actual $L^1$ error is exactly
+\begin{align*}
+ \mathcal E(p_m)
+ &=2\int_0^1\left(x-\frac{xA_m(x)}{M_m}\right)\dd\\
+ &=1-\frac{M_m-J_m}{M_m}
+ =\frac{J_m}{M_m}
+ \le\frac{2N}{N^3/64}=\frac{128}{N^2}.
+\end{align*}
+This identity is the bridge from the polynomial construction to the requested norm; it is proved in Lean, not assumed.
+
+\section{Infimum and asymptotic contradiction}
+The admissible set defining $E_n^*$ is nonempty and bounded below by zero, since it contains the zero polynomial and every $L^1$ error is nonnegative. The degree bound on $p_m$ therefore proves
+\[
+ 0\le E_{8m+2}^*\le\mathcal E(p_m)\le\frac{128}{(2m+1)^2}.
+\]
+Multiplying and using $8m+2\le4(2m+1)$ gives
+\[
+ 0\le(8m+2)E_{8m+2}^*
+ \le\frac{512}{2m+1}\longrightarrow0.
+\]
+Now suppose $B\ne0$ and $E_n^*/(B/n)\to1$. For every positive $n$,
+\[
+ nE_n^*=B\,\frac{E_n^*}{B/n},
+\]
+so $nE_n^*\to B$. The sequence $8m+2$ is cofinal in $\N$; restricting this limit to that sequence would give $(8m+2)E_{8m+2}^*\to B$. Uniqueness of limits forces $B=0$, a contradiction. This completes the proof of Theorem~\ref{thm:main} and refutes the necessary rate clause in the supplied conjecture.
+
+\section{Formalization and reproducibility}
+The project pins Lean~4.19.0 and Mathlib revision
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b} (v4.19.0).
+The correspondence between the argument and its Lean source is:
+\begin{center}
+\begin{tabular}{ll}
+\textbf{Source module} & \textbf{Contents}\\\hline
+\texttt{TLMC69.Kernel} & Recurrence, degree, parity, sine identity, pointwise bounds\\
+\texttt{TLMC69.Primitive} & Polynomial antiderivative and its integral identity\\
+\texttt{TLMC69.KernelIntegrals} & Positive mass and second-moment bounds\\
+\texttt{TLMC69.Approximation} & True $L^1$ definitions, competitor, exact error\\
+\texttt{TLMC69.Main} & Infimum bounds and asymptotic disproof
+\end{tabular}
+\end{center}
+The final theorem is \texttt{TLMC69.conjecture69\_disproof}. Its conclusion is
+\[
+ \neg\exists B\in\R,\quad B\ne0\ \land\
+ \lim_{n\to\infty}\frac{E_n^*}{B/n}=1.
+\]
+All authored proof modules are rebuilt and replayed with warnings treated as errors. The verification script also prints the axiom dependencies of every authored lemma and theorem. They are limited to the ordinary Lean foundations \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}; no custom axiom, unfinished proof, or native decision procedure is used.
+
+The proof requires no auxiliary numerical computation, external mathematical theorem citation, fitted constant, or experimental estimate. The accompanying Python utility checks exact input hashes and inventories source files; it has no role in the mathematical proof. Exact copies of the bilingual conjecture, both complete rule files, and the supplied toolchain and dependency manifest are retained under \texttt{source/}. Consulted inputs and author verification records are supplied separately. Formal verification and this disproof concern mathematical validity; they do not assert competition acceptance or publication.
+\end{document}

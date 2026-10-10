@@ -1,0 +1,31 @@
+Independent author checkpoint, 2026-10-10. NOT a verified complete submission.
+Inputs consulted: exact original.md, both full RULES files, toolchain and manifest from clean-author-input; stock Mathlib4 sources (Chebyshev, trigonometric bounds/inverse, polynomial degree/derivative, interval integration, Fourier AddCircle for assessment only). No external mathematical sources, prior submissions or other author work consulted.
+
+Source: both languages say best L¹ polynomial approximation to |x| on [-1,1] has E_n* ~ B/n, and conjecture closed form/transcendence decision for B. Ordinary convention: degree at most n, real coefficients, unweighted Lebesgue measure, E_n=inf_p ∫_-1¹ ||x|-p(x)| dx. Asymptotic equivalence to B/n requires B ≠ 0. I seek to refute the necessary rate clause, not to answer the uniform-norm Bernstein-constant problem. Probability-normalized dx/2 gives the same contradiction by constant scaling.
+
+Derived construction:
+Q_0(X)=1; Q_1(X)=3-4X²;
+Q_(m+2)(X)=(2-4X²) Q_(m+1)(X)-Q_m(X).
+Then Q_m is even, degree ≤2m, Q_m(0)=N=2m+1, and
+  Q_m(sin t) sin t = sin(Nt).
+Hence for |x|≤1: |x Q_m(x)|≤1 and |Q_m(x)|≤N.
+The latter follows from |sin(Nt)|≤N|sin t|, by induction using sine addition. At x=0 use the explicit evaluation.
+For 0≤x≤1/(4N): Q_m(x)≥N/2. Proof: t=arcsin x satisfies x≤t≤2x; 0≤Nt≤1/2≤π/2; sin(Nt)≥(2/π)Nt≥Nt/2≥Nx/2. Divide by x if nonzero, and handle zero separately.
+
+Set K_m=Q_m^4, M_m=∫_0¹ K_m, J_m=∫_0¹ x²K_m.
+K_m is an even nonnegative polynomial of degree ≤8m. Its bounds imply
+ M_m≥∫_0^(1/(4N)) (N/2)^4 dx=N³/64>0.
+Split J at a=1/N. On [0,a], x²K≤N⁴x², giving N/3. On [a,1], x²K≤1/x², giving N-1. Thus 0≤J≤4N/3≤2N.
+
+Let A_m be the polynomial antiderivative of K_m with A_m(0)=0. It is odd and degree ≤8m+1; A_m(x)=∫_0ˣ K_m.
+Define p_m(X)=X A_m(X)/M_m, an even real polynomial of degree ≤8m+2. For x∈[0,1], 0≤A_m(x)≤M_m, so 0≤p_m(x)≤x. Symmetry gives 0≤p_m(x)≤|x| on [-1,1].
+Integration by parts gives
+ ∫_0¹ x A_m(x) dx = (M_m - J_m)/2.
+Thus its genuine unweighted L¹ error is
+ ∫_-1¹ (|x|-p_m(x))dx=1-(M_m-J_m)/M_m=J_m/M_m≤128/N².
+No fitted numerical constant or proxy norm enters this construction.
+
+Therefore 0≤E_(8m+2)≤128/(2m+1)², so (8m+2)E_(8m+2)→0.
+If E_n ~ B/n for B≠0, then n E_n→B; restricting to the cofinal subsequence 8m+2 gives B=0, a contradiction. Could equivalently prove no positive B has this rate; nonnegative errors exclude negative B. This necessary clause refutes the conjunction stated in the original regardless of informal closed-form/decidability clauses.
+
+Lean status at this checkpoint: faithful l1Error and bestError definitions saved in TLMC69/Main.lean. Q recurrence and degree/evenness/trigonometric/bound lemmas being compiled and debugged in TLMC69/Kernel.lean. None of the kernel integral bounds, antiderivative bridge, true L¹ error identity, degree-constrained infimum step, or limit contradiction is yet verified. They remain explicit obligations, not assumptions allowed in a final theorem. Project uses a private cloned stock Mathlib tree; shared stock tree not modified.

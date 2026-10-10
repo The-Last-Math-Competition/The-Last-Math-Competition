@@ -1,0 +1,50 @@
+Independent stage-1 semantic source review for candidate 00000000069
+Date: 2026-10-10
+Verdict: PASS_STAGE1_SEMANTIC_CORRESPONDENCE
+Compilation/dependency verdict: NOT_INDEPENDENTLY_TESTED_IN_THIS_REVIEW
+Complete disproof/publication verdict: NOT_CLAIMED
+
+Scope and exact frozen bindings:
+- /private/tmp/tlmc69-root-stage1-source/SHA256SUMS.json
+  SHA256 e711bee3e620570e1bdb0a3ecdef5c4c32b27dc85cabb94600f826845be6d66c
+- /private/tmp/tlmc69-root-stage1-source/TLMC69/Kernel.lean
+  SHA256 fd4100de0bc33531bbf9e5dcbd15b7b15266fc7b166dc20daafca4a6a8ccf1d0
+  5909 bytes, read 2026-10-10T18:49:00.726419+00:00
+- /private/tmp/tlmc69-root-stage1-source/TLMC69/Primitive.lean
+  SHA256 327a8dada63845c5cb4ad8693f4be3a039bb6bc86f4a71490373cb53a7ab13dd
+  1805 bytes, read 2026-10-10T18:49:00.726579+00:00
+Both module hashes were computed from the bytes read and matched their exact manifest members. This review uses the initial mathematical checkpoint already reviewed at SHA256 481369c3484894ec880d89034a50849eeda00af0a50e0388b5d7e6f17c047025, and the original/rules bound in /private/tmp/tlmc69-independent-math-review.txt. I did not reread a later checkpoint, inspect the active author tree, build/edit a project, or contact the author.
+
+Kernel.lean: correspondence and hypotheses
+
+TLMC69.Q is an actual recursively defined polynomial over the reals, indexed by an unrestricted natural number. Its initial values 1 and 3-4X^2 and its second-order recurrence (2-4X^2)Q_(n+1)-Q_n are exactly those in the checkpoint. Polynomial numerals are constant polynomials; no unrelated scalar sequence is substituted.
+
+Q_even proves evaluation parity for every real x. Q_zero proves evaluation at zero equals 2n+1, with the natural index coerced into the reals. Q_degree proves the polynomial natDegree bound 2n in the natural numbers. The supporting quad_degree lemma covers arbitrary real coefficients and does not introduce an additional hypothesis. The two-step inductions and multiplication/subtraction degree estimates match the informal argument, including n=0 and n=1.
+
+Q_sin asserts precisely Q_n(sin t)*sin t=sin((2n+1)t), for every real t and every natural n. The proof follows the initial/triple-angle cases and the double-angle sine recurrence. Cast manipulations in the induction do not alter the integer frequency. abs_sin_nat_mul_le separately proves the elementary multiple-angle bound for every natural frequency and real t, using sine addition and absolute cosine bounds.
+
+Q_mul_bound and Q_bound have exactly the required domain hypothesis x in the real interval [-1,1]. Their conclusions are |x Q_n(x)|<=1 and |Q_n(x)|<=2n+1. The inverse sine step is justified by those interval endpoints; Q_bound handles x=0 before cancellation of |x|, so it has no hidden nonzero-domain restriction.
+
+arcsin_le_twice proves arcsin(x)<=2x on [0,1], which is stronger than the small interval needed. It uses the chord sine estimate and positive pi bounds. Q_lower assumes only x in [0,1/(4(2n+1))] and proves Q_n(x)>=(2n+1)/2. Its proof establishes positivity of 2n+1, the upper bound x<=1, and then handles x=0 separately. For x>0 it proves nonnegativity and the required pi/2 upper bound on (2n+1)arcsin x, together with x<=arcsin x. The final inequality follows without adding a hypothesis that Q is positive. All divisions in these source proofs have corresponding positive-denominator or nonzero-factor reasoning.
+
+The kernel module consists of the concrete Q definition and ten proved lemmas. There are no ambient variables or section hypotheses that silently become assumptions of these bounds. The explicitly stated interval hypotheses are precisely the hypotheses used by the checkpoint.
+
+Primitive.lean: real polynomial and analytic bridge
+
+TLMC69.primitive maps an arbitrary real polynomial p to the finite sum of monomials X^(i+1) with coefficients p.coeff(i)/(i+1), over p.support. The exponent is a natural number; the coefficient denominator is in the reals. Thus this is a genuine polynomial antiderivative rather than an unspecified differentiable function or an axiom of existence. Natural i guarantees that the real denominator i+1 is positive.
+
+derivative_primitive proves the polynomial derivative identity for every p. primitive_zero proves evaluation at zero equals zero. primitive_deriv uses the ordinary derivative of polynomial evaluation to give HasDerivAt with derivative p.eval(x), for every real x. No differentiability assumption is supplied by a caller.
+
+primitive_integral proves evaluation of this same polynomial at x equals the real interval integral from 0 to x of p.eval. The integral has the ordinary volume/Lebesgue measure default; no weighting or discrete proxy appears. It is an oriented interval integral and is asserted for every real x, including x<0. The proof supplies the derivative and interval-integrability facts from polynomial continuity and applies the fundamental theorem of calculus with the zero normalization.
+
+primitive_degree proves natDegree(primitive p)<=natDegree(p)+1. Its support-based proof bounds the degree of every monomial; p=0 causes no exception. primitive_odd has the one explicit, necessary hypothesis that p's evaluation is even on all reals, and concludes that the primitive's evaluation is odd. Its interval-change-of-variable and interval-reversal steps have the correct signs. That hypothesis will need to be discharged for Q_n^4 in the later construction; it is not an assumption of the existence of the desired approximant.
+
+These six lemmas provide exactly the primitive facts needed by the checkpoint. They do not yet define K, M, J or the approximating polynomial, prove integral bounds, or establish the final approximation/asymptotic statement.
+
+Source trust and completeness boundary
+
+I read both complete source files. The only declarations are the two concrete definitions and the sixteen lemmas described above. They use the TLMC69 namespace and ordinary stock Polynomial/Real/integral notation. I found no local axiom, constant standing in for a mathematical result, sorry, admit, unsafe declaration, native_decide shortcut, custom tactic/elaborator/macro, runtime proof injection, initializer, or kernel-check bypass option. There is no redefinition of the error norm, interval, primitive, or sine under misleading standard names in these files. The noncomputable section is the ordinary annotation needed for real-valued mathematical objects and is not an admission mechanism. The duplicate trigonometric Bounds import is harmless.
+
+This is a semantic review of source bytes, not a build or transitive dependency audit. Successful elaboration and kernel checking have been reported by the author but were not independently established here. The later engineering audit must resolve TLMC69.Kernel to the bound source, pin the intended stock Mathlib/toolchain, check all imports and generated declarations, and inspect theorem axiom/dependency closure. Merely inspecting these imports cannot rule out a modified dependency tree.
+
+No stage-1 semantic gap was found relative to the frozen checkpoint. Full mathematical verification remains contingent on the later integral bounds, actual approximant, true L1 error identity, degree-constrained infimum and asymptotic contradiction, plus independent build/dependency checks and final source/report correspondence. This scoped PASS does not certify a full disproof or authorize publication.

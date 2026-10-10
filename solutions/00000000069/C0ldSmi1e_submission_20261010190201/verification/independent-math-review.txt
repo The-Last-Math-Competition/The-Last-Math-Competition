@@ -1,0 +1,92 @@
+Independent semantic review of candidate 00000000069
+Review date: 2026-10-10
+Verdict: PASS_INFORMAL_MATHEMATICS_FOR_THE_FROZEN_CHECKPOINT
+Formal verification verdict: NOT_REVIEWED_AND_EXPLICITLY_UNFINISHED
+Publication verdict: NOT_GRANTED
+
+I did not author this argument. I read only the four files listed below. I did not read Lean implementation files, reports, other solution projects, public mathematical material, or author/helper messages; I did not contact the author, use network access, or propose another construction. The source and rules were read in full. This review analyzes only the initial checkpoint bytes obtained at the time below, irrespective of any later checkpoint changes.
+
+Exact inputs, SHA-256 and byte counts:
+1. /private/tmp/tlmc69-clean-author-input/original.md
+   af0f36e6b62ee25a0e8d7eb6a0fbbdb24367113f98631871737859909800cb26
+   400 bytes; read 2026-10-10T18:46:00.771641+00:00.
+2. /private/tmp/tlmc69-clean-author-input/RULES.en.md
+   200d9a783c08a5edfd1b508e6942b3b851a63c726506291f6de6a59773f1163a
+   3519 bytes; read 2026-10-10T18:46:00.771719+00:00.
+3. /private/tmp/tlmc69-clean-author-input/RULES.zh-CN.md
+   7c5b49bb84403feea1eb14d23d48491400c7749d58db345cd317231949a9e82b
+   3115 bytes; read 2026-10-10T18:46:00.771746+00:00.
+4. /private/tmp/tlmc69-proof/verification/mathematical-checkpoint.txt
+   481369c3484894ec880d89034a50849eeda00af0a50e0388b5d7e6f17c047025
+   3171 bytes; read 2026-10-10T18:46:00.771771+00:00.
+
+The following checks concern the submitted construction, with m a nonnegative integer and N=2m+1>=1.
+
+1. Source fidelity and the target assertion.
+
+Both exact language versions explicitly state best L1 polynomial approximation of |x| on [-1,1] with E_n^* ~ B/n, followed by claims concerning closed form and transcendence of B. The checkpoint uses the ordinary meaning: real polynomials of degree at most n, unweighted Lebesgue L1 error integral of abs(abs(x)-p(x)), and infimum over that class. This is a faithful interpretation of the stated L1 approximation problem. Scaling the measure to dx/2 changes only a fixed factor and does not affect the contradiction. The argument attacks the stated necessary rate clause. Refuting that clause suffices to disprove the conjunction; it does not need to resolve the ancillary claims about B.
+
+Asymptotic equivalence f_n ~ B/n in its ordinary ratio sense requires B nonzero. B=0 is not a repair of that assertion because the ratio to B/n would be undefined. The checkpoint expressly records this point and does not substitute a weaker statement about a possibly zero limit for the written asymptotic equivalence.
+
+2. Polynomial recurrence, parity, degree, and value at zero.
+
+The initial polynomials Q_0=1 and Q_1=3-4X^2 are even and have degrees at most 0 and 2. Multiplication by 2-4X^2 in the recurrence preserves evenness and increases degree by at most 2. Thus Q_(m+2) has degree at most max(2+2(m+1),2m)=2(m+2). At zero, q_0=1, q_1=3, q_(m+2)=2q_(m+1)-q_m, so induction gives q_m=2m+1=N. No zero-polynomial degree convention creates an issue here; Q_m(0)>0 also proves Q_m is nonzero.
+
+3. Trigonometric representation and global bounds.
+
+For m=0 the identity Q_m(sin t) sin t=sin((2m+1)t) is immediate. For m=1 it is the triple-angle identity. For the induction step, 2-4 sin^2(t)=2 cos(2t), and
+  2 cos(2t) sin((2m+3)t)-sin((2m+1)t)=sin((2m+5)t).
+This is precisely the recurrence after multiplying by sin t; it is valid even when sin t=0, since no cancellation is needed in the induction.
+
+For every integer k>=0, |sin(kt)|<=k|sin t| follows by sine addition and the bounds |cos t|, |cos(kt)|<=1. Given x in [-1,1], choose t=arcsin x. Then |x Q_m(x)|=|sin(Nt)|<=1. If x is nonzero, the multiple-angle bound gives |x||Q_m(x)|<=N|x| and permits division by |x|. At x=0, Q_m(0)=N supplies the same bound. Therefore |Q_m(x)|<=N throughout the required closed interval, including both endpoints and zero.
+
+4. The local lower bound and constants.
+
+For 0<=x<=1/(4N), t=arcsin x belongs to [0,pi/2]. The standard elementary sine bounds on this interval give x=sin t<=t and x=sin t>=2t/pi, hence t<=pi*x/2<=2x. Consequently 0<=Nt<=1/2<=pi/2. Applying the same chord lower bound and pi<=4 yields
+  sin(Nt)>=2Nt/pi>=Nt/2>=Nx/2.
+When x>0, Q_m(x)x=sin(Nt) therefore yields Q_m(x)>=N/2; at x=0 the evaluation N gives the claim separately. The checkpoint's uses of division and interval bounds are legitimate. In particular, its lower estimate is a signed bound on Q_m near zero, not an invalid inference from an absolute-value bound.
+
+5. Positivity and integral bounds.
+
+K_m=Q_m^4 is an even, nonnegative real polynomial of degree at most 8m. All relevant integrands are continuous on the compact intervals, so their integrals exist. Since 1/(4N)<=1, the lower bound in item 4 implies
+  M_m=integral_0^1 K_m >= (1/(4N))*(N/2)^4=N^3/64>0.
+This computation has the stated factor 64, so subsequent division by M_m is justified.
+
+For J_m=integral_0^1 x^2 K_m, nonnegativity gives J_m>=0. Put a=1/N, which belongs to (0,1]. On [0,a], |Q_m|<=N gives x^2 K_m<=N^4 x^2, whose integral is N/3. On [a,1], |x Q_m(x)|<=1 gives x^4 K_m<=1, and x is strictly positive, so x^2 K_m<=x^(-2). Its integral is 1/a-1=N-1. Thus
+  J_m <= N/3+(N-1) <= 4N/3 <= 2N.
+For m=0, a=1 and the second integral is the zero-length interval integral, so the argument also handles that edge case. No singular integral at zero is used in the second estimate.
+
+6. Polynomial antiderivative and admissible approximant.
+
+Over the reals each polynomial coefficient has an antiderivative coefficient divided by a positive integer. There is therefore a polynomial A_m with derivative K_m and A_m(0)=0. Since K_m is even, its antiderivative with this normalization is odd; its degree is at most 8m+1. The fundamental theorem of calculus yields A_m(x)=integral_0^x K_m. For x in [0,1], positivity of K_m and inclusion of integration intervals give 0<=A_m(x)<=M_m, with A_m(1)=M_m.
+
+The checkpoint's polynomial p_m=X*A_m/M_m is well-defined over the reals, even, and of degree at most 8m+2. For x in [0,1], 0<=p_m(x)<=x. By evenness this becomes 0<=p_m(x)<=|x| on [-1,1]. Scalar division by the positive real constant M_m does not change polynomiality or increase degree.
+
+7. Exact true L1 error, including the sign and factor of two.
+
+Because p_m<=|x| throughout the integration interval, the actual L1 integrand abs(abs(x)-p_m(x)) equals |x|-p_m(x). Both terms are even. Integration by parts, using A_m'=K_m, A_m(1)=M_m and the zero endpoint factor, gives
+  integral_0^1 x A_m(x) dx
+    = [x^2 A_m(x)/2]_0^1 - (1/2) integral_0^1 x^2 K_m(x) dx
+    = (M_m-J_m)/2.
+Therefore
+  integral_-1^1 abs(abs(x)-p_m(x)) dx
+    = 2 integral_0^1 (x-x A_m(x)/M_m) dx
+    = 1-(M_m-J_m)/M_m
+    = J_m/M_m.
+The displayed identity is for the genuine unweighted L1 error, with the correct factor of two. It is not a signed proxy without an established sign or a change of norm. Combining the verified estimates gives J_m/M_m<=128/N^2 exactly as claimed.
+
+8. Infimum and asymptotic contradiction.
+
+For every degree bound n>=0 the admissible set is nonempty (it contains the zero polynomial). All its L1 errors are nonnegative and finite, so the infimum is a finite nonnegative real number. No minimizing polynomial or attainment theorem is needed. The explicit p_m is admissible at n_m=8m+2, so
+  0<=E_(8m+2)^*<=128/(2m+1)^2.
+Since 8m+2<=4(2m+1), multiplication by the positive degree gives
+  0<=(8m+2)E_(8m+2)^*<=512/(2m+1) -> 0.
+If E_n^* ~ B/n with a nonzero real B, the ratio definition implies nE_n^* -> B. The sequence n_m=8m+2 tends to infinity, so this asserted limit would also hold on that subsequence. Uniqueness of the real limit would force B=0, contradicting B nonzero. The proof does not require an estimate for every n or a sharp lower bound for E_n^*. Nonnegative errors are also incompatible with a negative limiting B, but the subsequence contradiction already covers every nonzero B.
+
+9. Gaps and formalization boundary.
+
+I find no gap in the frozen informal mathematics. Its suppressed steps are standard elementary inductions, sine inequalities, polynomial antiderivative/FTC facts, positivity of integrals, integration by parts, and an elementary infimum/limit argument; items 2-8 above check those steps on the actual proposed construction and all relevant endpoints. The displayed constants, signs, parities, degrees and quantifiers are consistent.
+
+This does not establish a completed Lean proof. I have not read or compiled Lean files. The checkpoint itself says that the recurrence-related lemmas are still being compiled/debugged, and that the integral bounds, antiderivative bridge, genuine L1 identity, degree-constrained infimum step and limit contradiction remain unverified. Each must be discharged for the actual real-polynomial and integral definitions in a final project. A theorem that assumes these obligations, proves only an abstract error-sequence statement, or changes the norm/approximating class would not certify this informal proof. The exact mathematical argument is sound; the correspondence and completeness of the eventual Lean artifact remain open review obligations.
+
+The English rules expressly permit a complete disproof. Both rules require full report review, complete compiling Lean without sorry or other incompleteness, matching source definitions and requirements, and complete auxiliary checks. This narrow checkpoint review does not satisfy those final artifact obligations and grants no publication clearance. Any subsequent change to the mathematical construction or claimed theorem requires review of its new exact bytes; this verdict remains bound exclusively to checkpoint hash 481369c3484894ec880d89034a50849eeda00af0a50e0388b5d7e6f17c047025.
