@@ -1,0 +1,36 @@
+import Main
+import Costs
+#print axioms TLMC3980.mem_assignments
+#print axioms TLMC3980.sum_map_two
+#print axioms TLMC3980.assignments_length
+#print axioms TLMC3980.check_sound
+#print axioms TLMC3980.check_complete
+#print axioms TLMC3980.Formula.encode_length
+#print axioms TLMC3980.encodeProof_length
+#print axioms TLMC3980.truth_tautology
+#print axioms TLMC3980.translate_decode
+#print axioms TLMC3980.translate_verifies
+#print axioms TLMC3980.translate_length
+#print axioms TLMC3980.shortest_exists
+#print axioms TLMC3980.shortest_unique
+#print axioms TLMC3980.tagged_shortest_equal
+#print axioms TLMC3980.no_self_separation
+#print axioms TLMC3980.no_tagged_separation
+#print axioms TLMC3980.otherTruth_tautology
+#print axioms TLMC3980.systems_distinct
+#print axioms TLMC3980.conjecture3980_false
+#print axioms TLMC3980.distinct_pair_version_false
+#print axioms TLMC3980.vars_le_size
+#print axioms TLMC3980.lookupMeter_value
+#print axioms TLMC3980.lookupMeter_steps
+#print axioms TLMC3980.evalMeter_value
+#print axioms TLMC3980.evalMeter_steps
+#print axioms TLMC3980.evalTableMeter_value
+#print axioms TLMC3980.evalTableMeter_steps
+#print axioms TLMC3980.assignmentsMeter_value
+#print axioms TLMC3980.pow_two_pos
+#print axioms TLMC3980.assignmentsMeter_steps
+#print axioms TLMC3980.doublingWork_bound
+#print axioms TLMC3980.table_length_le_volume
+#print axioms TLMC3980.proof_component_bounds
+#print axioms TLMC3980.checkerWorkBudget_polynomial
