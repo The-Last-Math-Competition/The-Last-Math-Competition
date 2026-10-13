@@ -1,0 +1,47 @@
+{
+  "checked": "2026-10-13T19:48:00Z",
+  "id": "00000003869",
+  "exact": {
+    "issues": []
+  },
+  "keyword": {
+    "issues": [
+      {
+        "url": "https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/483",
+        "title": "Disproof of conjecture 00000001685 (even subdivisions of K_{3,3} are not Pfaffian)",
+        "issue_number": 483,
+        "body": "## Submission\r\n`solutions/00000001685/jilint777_submission_20261004144326/`\r\n\r\n## Claim refuted\r\nThe conjecture says the minimal families of nonplanar Pfaffian graphs are the Möbius ladders M_{2k} and **the even subdivisions of K_{3,3}**. So every even subdivision of K_{3,3} would be a Pfaffian graph. This is false: **no even subdivision of K_{3,3} is Pfaffian**, including K_{3,3} itself, which is also the Möbius ladder on 6 vertices.\r\n\r\n## Proof summary\r\n- K_{3,3} has 6 perfect matchings, and every edge lies in exactly 2 of them. Reversing one edge flips the Pfaffian terms of exactly the matchings through it. So the parity of the number of negative terms is the same for every orientation.\r\n- That parity is 3, which is odd. A Pfaffian orientation would need 0 or 6 negative terms. Hence |Pf(A_D)| ∈ {0, 4} for all 2^9 orientations, while #PM = 6.\r\n- Subdividing an edge twice keeps 6 matchings, even edge counts and odd parity, so by induction every even subdivision fails. This holds under every reading: K_{3,3} included or excluded, some or all edges subdivided.\r\n- Both definitions of Pfaffian are covered: |Pf| = #PM, and Kasteleyn's same-sign definition.\r\n- For M_{2k}: in the vertex-count convention, M_6 ≅ K_{3,3} also fails. In the rung-count convention, no claim is made.\r\n- Obstruction reading (Little's theorem): if the families were meant as minimal *non*-Pfaffian obstructions, the Möbius clause fails anyway, because V8 = M_8 is Pfaffian (`M8_pfaffian`, `obstruction_reading_false`).\r\n- Secondary result (report and verify.py only): V_8 with one edge subdivided twice is nonplanar and Pfaffian, and it lies in neither family.\r\n\r\n## Lean 4.19.0 (core only)\r\n- **Definitions, from scratch:** graphs, perfect matchings, orientations, signed Pfaffian terms, `Pf`, `IsPfaffian`, and `IsPfaffian'` (Kasteleyn's form).\r\n- **General theorem:** `not_pfaffian_of_invariant`, the parity obstruction, holds for all loopless graphs.\r\n- **Instances:** `K33_not_pfaffian`, `S_not_pfaffian` (one edge subdivided twice), and `M6_not_pfaffian`.\r\n- **Main theorem:** `conjecture_00000001685_false : ¬ ∀ G, EvenSubdivisionK33 G → Q G ∧ IsPfaffian G`, for any extra property Q such as nonplanar or minimal. Variants cover Kasteleyn's definition, proper subdivisions only, and the full conjunction.\r\n- **Non-vacuity:** `K4_pfaffian` and `M8_pfaffian` (the Wagner graph) give explicit Pfaffian orientations.\r\n- **Audit:** no sorry, no native_decide, no added axioms.\r\n- **Scope:** Lean's K₃,₃ and S suffice for every reading in which the clause applies to all even subdivisions. **Not in Lean:** the induction over all even subdivisions, and invariance under relabelling.\r\n\r\n## verify.py (stdlib, independent method)\r\nIt uses det(A_D) = Pf² and runs an exhaustive orientation search on:\r\n- K_{3,3} (512 orientations);\r\n- S (2048);\r\n- K_{3,3} with two edges subdivided twice (8192);\r\n- M_10 (32768).\r\n\r\nIt also checks the parity obstruction on 515 even subdivisions.\r\n\r\n## Report\r\nComplete proof, the readings and the limitations.\r\n\r\nNo previous submission exists for this conjecture.",
+        "state": null,
+        "user": null,
+        "assignees": null,
+        "labels": null,
+        "milestone": null,
+        "state_reason": null,
+        "comments": null,
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null,
+        "display_url": "https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/483",
+        "display_title": "Disproof of conjecture 00000001685 (even subdivisions of K_{3,3} are not Pfaffian)"
+      },
+      {
+        "url": "https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/484",
+        "title": "Disproof of conjecture 00000001196 (largest shifted LR coefficient of Q_(k)Q_(k) is 2, not 2^(k-1))",
+        "issue_number": 484,
+        "body": "## Submission\r\n`solutions/00000001196/jilint777_submission_20261004143853/`\r\n\r\n## Claim\r\nConjecture 00000001196 defines M(λ,μ) as the largest Littlewood–Richardson coefficient of Schur Q-functions. It claims M(λ,μ) ≤ min(2^{ℓ(λ)}, 2^{ℓ(μ)}, f^ν), and that M((k),(k)) = 2^{k−1} exactly.\r\n\r\n## Counterexample\r\nFor every k ≥ 1:\r\n\r\n`Q_(k)Q_(k) = 2 Σ_{j=0}^{k−1} Q_(2k−j,j)` and `P_(k)P_(k) = P_(2k) + 2 Σ_{j=1}^{k−1} P_(2k−j,j)`\r\n\r\n(The report gives a hand proof via Q(t)Q(−t) = 1.) So M((k),(k)) = 2 for all k ≥ 2 in both standard normalisations. The smallest counterexample is **k = 3**: `Q_3Q_3 = 2Q_6 + 2Q_51 + 2Q_42`, so M((3),(3)) = 2 ≠ 4.\r\n\r\nAll eight mixed normalisations (X_k·Y_k in the Z-basis, X, Y, Z ∈ {P, Q}) are covered. At k = 3, either the value clause fails, or the bound clause's consequence M ≤ 2^{ℓ((3))} = 2 fails. So the conjecture is false under every reading. In fact its two clauses contradict each other for every k ≥ 3.\r\n\r\n## What is in the submission\r\n- **Lean 4.19.0, core library only.**\r\n  - In Z[x1,x2,x3]: `q_r` from the generating function ∏(1+x_i t)/(1−x_i t), `Q_ν` by Schur's Pfaffian, and `P_ν = 2^{−ℓ}Q_ν`.\r\n  - All eight expansions at k = 3 are proved as polynomial identities.\r\n  - Uniqueness of the coefficients is proved by triangularity; existence in Γ is Theorem 1 of the report.\r\n  - Main theorem: `conjecture_00000001196_false (X Y Z : Norm) : ¬ (ValueAt 3 X Y Z ∧ BoundAt 3 X Y Z)` (k = 3, where the three-variable expansion is unique), plus `value_clause_false_P/Q` for every k ≥ 3 in the standard readings, and non-vacuity lemmas.\r\n  - No sorry, no native_decide, no added axioms.\r\n- **verify.py (stdlib).** Computes Q_ν and P_ν independently from marked shifted tableaux, cross-checks the Pfaffian definition, and expands all products for k = 1..5 under every reading.\r\n- **report.pdf.** Contains the hand proof for general k, the three-variable computation, the uniqueness argument, and a precise statement of formal scope.\r\n\r\nNo previous submission exists for this conjecture.",
+        "state": null,
+        "user": null,
+        "assignees": null,
+        "labels": null,
+        "milestone": null,
+        "state_reason": null,
+        "comments": null,
+        "created_at": null,
+        "updated_at": null,
+        "closed_at": null,
+        "display_url": "https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/484",
+        "display_title": "Disproof of conjecture 00000001196 (largest shifted LR coefficient of Q_(k)Q_(k) is 2, not 2^(k-1))"
+      }
+    ]
+  }
+}

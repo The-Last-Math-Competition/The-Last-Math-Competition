@@ -1,0 +1,116 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue]{hyperref}
+\renewcommand{\labelitemi}{$\bullet$}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\crs}{\operatorname{cr}}
+\newcommand{\nest}{\operatorname{nest}}
+\newcommand{\inv}{\operatorname{inv}}
+\title{Crossing signs in the Fredholm--Pfaffian expansion\\\large A proof of TLMC conjecture 00000003869}
+\author{Galaxy-0 (AI-assisted submission)}
+\date{13 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+At every finite order, the Pfaffian expansion is indexed by perfect matchings. We prove that its permutation sign is $(-1)$ raised to the number of crossing pairs of edges. More precisely, the endpoint permutation has inversion number equal to the crossing number plus twice the nesting number. A direct algorithm computes crossings with exactly $n(n-1)/2$ edge-pair tests for a matching of $2n$ endpoints. The accompanying Lean 4 project proves these statements for arbitrary $n$, including complete duplicate-free enumeration of the matchings and a coefficient-independent formal expansion identity.
+\end{abstract}
+\section{Statement and conventions}
+The conjecture concerns the skew kernel of the $\beta=1$ Fredholm--Pfaffian expansion: each expanded monomial corresponds to a matching, its combinatorial sign is $(-1)^{\crs}$, and the crossing count is polynomial-time computable. This is a classical combinatorial Pfaffian identity, for which we provide a self-contained proof and formal verification. These are finite algebraic statements at every order. They do not assert convergence for arbitrary kernels.
+
+Label the endpoints $0,1,\ldots,2n-1$ in their matrix order. A perfect matching is a partition of these endpoints into two-element sets. Orient each pair from smaller to larger endpoint and sort pairs by increasing first endpoint. This gives its unique canonical presentation
+\[
+ M=((a_1,b_1),\ldots,(a_n,b_n)),\qquad
+ a_i<b_i,\quad a_1<\cdots<a_n.
+\]
+Its flattened endpoint list $\sigma_M=(a_1,b_1,\ldots,a_n,b_n)$ is a permutation of the endpoint labels. Conversely, any such list whose endpoints are a permutation defines a perfect matching. These constructions are inverse: orientation of each pair is forced, and the increasing order of their distinct first endpoints is forced. Thus this encoding neither omits nor duplicates matchings.
+
+For $i<j$, call the two edges crossing when
+$a_i<a_j<b_i<b_j$, and nesting when $a_i<a_j<b_j<b_i$. Let $\crs(M)$ and $\nest(M)$ count these respective pairs. The definition counts pairs of arcs with alternating endpoints; it does not depend on artifacts of a drawing, such as several crossings drawn at a single point.
+
+\section{The sign identity}
+\begin{lemma}
+For every canonical perfect matching,
+\[
+\inv(\sigma_M)=\crs(M)+2\nest(M).
+\]
+\end{lemma}
+\begin{proof}
+There is no inversion inside a block $(a_i,b_i)$ because $a_i<b_i$. Every inversion therefore belongs to a unique pair of distinct blocks. Fix $i<j$. Their endpoints are distinct and $a_i<a_j$. Exactly three arrangements are possible:
+\[
+\begin{array}{c|c|c}
+\text{endpoint order}&\text{type}&\text{cross-block inversions}\\\hline
+ a_i<b_i<a_j<b_j&\text{separated}&0\\
+ a_i<a_j<b_i<b_j&\text{crossing}&1\\
+ a_i<a_j<b_j<b_i&\text{nesting}&2.
+\end{array}
+\]
+In the middle case the only inversion is $(b_i,a_j)$. In the last case the inversions are $(b_i,a_j)$ and $(b_i,b_j)$. Summing over all block pairs proves the identity. The empty matching is included, with all counts zero.
+\end{proof}
+\begin{theorem}
+For every $n\geq0$ and every perfect matching $M$ on $2n$ ordered endpoints,
+\[
+\operatorname{sgn}(\sigma_M)=(-1)^{\crs(M)}.
+\]
+\end{theorem}
+\begin{proof}
+The permutation sign is $(-1)^{\inv(\sigma_M)}$. The lemma shows that the two exponents differ by the even number $2\nest(M)$.
+\end{proof}
+
+\section{Pfaffians and the Fredholm expansion}
+For a skew-symmetric $2n\times2n$ matrix $A$, use the standard canonical-matching definition
+\begin{equation}\label{pf}
+\operatorname{Pf}(A)=\sum_{M}\operatorname{sgn}(\sigma_M)
+                     \prod_{(a,b)\in M} A_{ab}.
+\end{equation}
+This definition is given explicitly in Appendix A of He~\cite{he}. It is a definition by permutation sign, not a definition by crossings. The preceding theorem proves the nontrivial replacement
+\[
+\operatorname{Pf}(A)=\sum_M(-1)^{\crs(M)}\prod_{(a,b)\in M}A_{ab}.
+\]
+The formula is valid over any commutative coefficient ring, in particular over the real or complex numbers. It is an identity of formal signed monomials before any entries are substituted. Specialization may make several monomials numerically equal or zero, but this does not change their indexing as expansion terms.
+
+For a $2\times2$ skew kernel $K(x,y)$, place the two indices $(x_i,1)$ and $(x_i,2)$ consecutively for each $i=1,\ldots,n$. The customary expansion has the form
+\[
+\operatorname{Pf}(J+K)=\sum_{n=0}^{\infty}\frac1{n!}
+  \int_{X^n}\operatorname{Pf}\bigl([K(x_i,x_j)]_{i,j=1}^{n}\bigr)
+  \,d\mu(x_1)\cdots d\mu(x_n).
+\]
+At every fixed $n$ and fixed tuple of points, applying (\ref{pf}) gives exactly one signed product for every perfect matching of the $2n$ matrix indices. The theorem gives its crossing sign. The outer $1/n!$, integrations, and any deliberately chosen convention such as $J-K$ are separate coefficients; for $J-K$ replacing $K$ by $-K$ contributes the additional factor $(-1)^n$. The sign claimed here is the matching's combinatorial sign, not the numerical sign of its evaluated product. A kernel entry itself may be negative.
+
+The statement is termwise for every finite order, so no exchange of infinite sums or integrals is needed. Whenever a Fredholm series is well-defined, the replacement preserves each coefficient; the same conclusion applies to the formal Fredholm series. No universal analytic convergence claim is made or used.
+
+\section{A polynomial crossing algorithm}
+Given the canonical list, visit each pair of edges $i<j$ once and add one precisely when $a_i<a_j<b_i<b_j$. The algorithm examines exactly
+\[
+T(n)=\sum_{i=1}^n(n-i)=\frac{n(n-1)}2
+\]
+pairs and returns $\crs(M)$. Each test uses at most three comparisons. Labels below $2n$ have $O(\log(n+1))$ bits; the running counter has $O(\log(n+1))$ bits too. Thus the bit complexity is $O(n^2\log(n+1))$ and the word-RAM complexity is $O(n^2)$. Orienting and sorting an initially unordered matching can be done in polynomial time as well. This complexity concerns the sign of one given term, not enumerating all matchings or evaluating a full Pfaffian by expansion.
+
+The Lean implementation includes an instrumented counter returning both the result and the number of edge-pair tests. Its correctness is proved against the mathematical crossing count and the recurrence $T(0)=0$, $T(n+1)=n+T(n)$. The exact identity certified is $2T(n)+n=n^2$, avoiding natural-number subtraction.
+
+\section{Formalization and reproducibility}
+The project uses Lean 4.31.0 and only \texttt{Std}. All indices and list lengths are unbounded natural numbers. The complete matching enumerator generates length-$n$ words from endpoint pairs in $\{0,\ldots,2n-1\}^2$, filters the actual canonical and endpoint-permutation predicates, and removes duplicates. Its use is mathematical enumeration; it is not presented as an efficient Pfaffian algorithm.
+
+The main checked statements are:
+\begin{itemize}
+\item \texttt{mem\_matchings}: enumeration membership is equivalent to the actual perfect-matching predicate;
+\item \texttt{matchings\_nodup} and \texttt{matching\_endpoint\_permutation}: no repeated term and the actual permutation property;
+\item \texttt{inversion\_crossing\_identity}: the exact inversion/crossing/nesting identity;
+\item \texttt{sign\_eq\_neg\_one\_pow}: the parity sign equals the integer power of $-1$;
+\item \texttt{formal\_pfaffian\_expansion}: equality of the lists of formal signed monomials;
+\item \texttt{evaluated\_pfaffian\_expansion}: equality after arbitrary evaluation and finite summation into any coefficient type equipped with addition and zero;
+\item \texttt{crossingCountWithCost\_correct} and \texttt{crossingTests\_exact}: correctness of the instrumented algorithm and its quadratic test count.
+\end{itemize}
+The additional integer-matrix theorem is a specialization, not a restriction of the formal result. The general evaluation map can send $(\varepsilon,M)$ to $\varepsilon\prod A_{ab}$ over the reals, complexes, or another coefficient ring. The analytic interpretation of the Fredholm notation is explained above; an analytic convergence theorem is neither formalized nor needed for this termwise conjecture.
+
+From the \texttt{lean} directory run \texttt{lake build} and \texttt{lake env lean Axioms.lean}. The proof uses no admitted statements, native decision shortcut, or custom axiom. The audited axioms are only Lean's usual logical foundations: propositional extensionality, classical choice, and quotient soundness. The source and this report distinguish proven general theorems from supplemental finite sanity checks.
+
+\begin{thebibliography}{9}
+\bibitem{he} Jimmy He, \emph{Boundary current fluctuations for the half-space ASEP and six-vertex model}, Proceedings of the London Mathematical Society 128 (2024), e12585, Appendix A. \url{https://arxiv.org/html/2303.16335v3}.
+\bibitem{ayyer} Arvind Ayyer, \emph{Determinants and Perfect Matchings}, Journal of Combinatorial Theory, Series A 120 (2013), 304--314. Related background on inversion and crossing signs; not used as an unproved formal premise. \url{https://arxiv.org/abs/1106.1465}.
+\end{thebibliography}
+\end{document}
