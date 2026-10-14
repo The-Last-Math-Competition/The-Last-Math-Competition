@@ -1,0 +1,229 @@
+INDEPENDENT FINAL SOURCE SEMANTIC REVIEW — 00000007302
+Reviewer: /root/scope_7302
+Date: 2026-10-12
+Scope: frozen mathematical source and its correspondence to the exact source
+conjecture. This is not the separate engineering, report/PDF, eligibility, or
+publication review.
+
+VERDICT
+PASS FOR THE ORDINARY NECESSARY DENSITY CLAUSE. No blocking mathematical or
+source-semantic issue was found in the frozen Lean source. It proves that
+the extreme points of the nuclear-norm closed unit ball in the genuine real
+tensor product of three Euclidean two-dimensional spaces are not dense in
+that ball. The actual tensor/norm bridge required by phase 1 is present and
+proved, rather than assumed or replaced by an unrelated norm.
+
+This verdict retains the phase-1 scope: the short bilingual conjecture is
+underspecified, and the source does not uniquely define its parameter-space
+clause. The theorem rigorously refutes the ordinary necessary density
+assertion, thereby refuting the stated conjunction on that ordinary reading.
+It does not settle boundary density, density of convex combinations, or an
+invented identification of a decomposition parameter space. The frozen source
+explicitly says this. The eventual report must preserve that accuracy.
+
+READ BOUNDARY AND METHOD
+I independently reread the exact bilingual conjecture and both rules, and
+read every owned source/config file under author/lean, including .gitignore.
+I read PHASE2_PROOF.txt, the frozen-source manifest, capstone list, author
+audit source, author build/strict logs, axiom output, and command records.
+I checked file hashes directly from bytes; all seven frozen manifest entries
+match. I also inspected the needed generic library definitions in the pinned
+runtime/stock7302, as detailed below. I did not read any prior competition
+solution, other candidate, selector notes, Git history/diff, or web solution.
+No mathematical source was changed. No Git or network operation was used.
+
+The author logs report successful build, separate warning-as-error checks of
+all four mathematical roots, and only propext, Classical.choice, Quot.sound
+for all 21 audited entries. I read those logs as author evidence, not as an
+independent clean-build certificate. Root's separate engineering audit must
+provide that certificate. This review establishes source meaning and the
+mathematical validity of the dependency chain.
+
+1. GENUINE TENSOR AND EUCLIDEAN FACTORS
+TensorNuclear.lean:11-12 defines
+  Factor := EuclideanSpace R (Fin 2)
+  Tensor := PiTensorProduct R (fun _ : Fin 3 => Factor).
+DecompositionBridge uses definitionally identical abbreviations. There are
+three actual factors, each two-dimensional over the reals; Tensor is not a
+scalar alias or arbitrary eight-coordinate type renamed tensor.
+
+Pinned Mathlib's PiL2.lean:104 defines EuclideanSpace as PiLp 2, and its
+norm_eq at lines 141-143 gives sqrt(sum of squared coordinate norms). Thus
+the decomposition costs use Euclidean factor norms, not the default sup
+norm on a function type. Pinned PiTensorProduct.lean:81-103 constructs the
+actual tensor product as a quotient by the multilinearity relations;
+tprod at line 278 is its canonical multilinear map. The lift equivalence
+at lines 433-446 is the tensor product universal property.
+
+2. ALL FINITE PURE DECOMPOSITIONS AND THEIR ACTUAL INFIMUM
+DecompositionBridge.lean:28-33 defines the sum and cost of arbitrary finite
+lists of pure tensors. The cost is precisely the sum of products of the
+three Euclidean factor norms. ordinaryCosts at lines 66-67 requires the
+ordinary tensor sum to equal the tensor in question. No restriction on the
+number of summands or artificial preferred basis is imposed.
+
+The library's weighted list uses entries (c,m), with tensor c * tprod(m)
+and cost |c| times the product of factor norms. I inspected the library's
+lifts, mem_lifts_iff, and nonempty_lifts (PiTensorProduct.lean:312-329), and
+projectiveSeminormAux and projectiveSeminorm_apply
+(ProjectiveSeminorm.lean:51-52,108-109). They have exactly that meaning.
+
+The author's absorb operation puts c into factor 0. tprod_absorb and
+cost_absorb prove preservation of both tensor and cost, including negative
+or zero coefficients. Conversely ordinaryToWeighted assigns coefficient 1.
+The two conversions preserve feasibility and cost. Therefore costRange_eq
+at lines 90-100 really proves equality of the full feasible cost sets, and
+projectiveSeminorm_eq_sInf_ordinaryCosts at lines 103-107 equates the library
+seminorm with the ordinary finite-decomposition infimum. It is not a
+one-sided estimate or merely a chosen decomposition's cost.
+
+ordinaryDecomposition_exists proves existence for every tensor, using an
+actual quotient representative and the conversion. ordinaryCost_nonneg,
+ordinaryCosts_nonempty, and ordinaryCosts_bddBelow give nonnegativity,
+nonemptiness, and the zero lower bound. Consequently the real infimum is
+finite and is not relying on Lean's convention for an empty or unbounded
+infimum. Allowing zero pure tensors among summands is harmless: these have
+zero cost and can be omitted. The construction is the ordinary projective
+(tensor nuclear) decomposition norm.
+
+3. SEMINORM, DEFINITENESS, AND INSTALLED NORM
+I read the entire pinned ProjectiveSeminorm.lean. Its seminorm construction
+at lines 88-105 proves zero, subadditivity, and scalar control from the
+nonempty bounded-below weighted cost sets; Seminorm.ofSMulLE supplies exact
+absolute scalar homogeneity. This is verified library mathematics, not an
+axiom assumed by the author.
+
+TensorNuclear.lean:14-34 proves the finite coordinate expansion of every
+scalar-valued trilinear map and derives continuity. The eight terms are
+indexed by Fin 3 -> Fin 2. Their coefficient is the product of the three
+factor coordinates. This is the full expansion, not a diagonal-only one.
+
+For projective_definite, every algebraic linear functional phi on Tensor
+pulls back along tprod to such a continuous scalar-valued trilinear map.
+The library bound norm_eval_le_projectiveSeminorm gives
+  |phi(x)| <= projectiveSeminorm(x) * ||f||.
+The actual library proof was inspected at lines 118-139. If the seminorm
+vanishes, all algebraic functionals vanish on x. The author then uses the
+verified algebraic dual separation theorem
+Module.forall_dual_apply_eq_zero_iff, whose definition and prerequisites I
+inspected in Dual/Lemmas.lean:159-195. Over R its needed module hypotheses
+are provided by the genuine tensor module; no extra hypothesis remains in
+the author's theorem.
+
+There is no circularity: continuity here is on the product of the three
+already normed Euclidean factors, with scalar target R. Neither the
+continuity proof nor the library functional bound needs a preexisting norm
+or topology on Tensor. Definiteness is established before the new tensor
+normed-space instances are installed.
+
+nuclearAddGroupNorm adds this proved definiteness to the library seminorm.
+tensorNormedAddCommGroup constructs the metric/normed group from that very
+norm. tensorNormedSpace derives its scalar inequality from the seminorm's
+homogeneity law. norm_eq_projective is definitional equality. I checked
+AddGroupNorm's fields and the to_additive-generated normed group
+construction in the pinned Group/Seminorm.lean and Group/Basic.lean; they
+install the distance and topology from the supplied norm.
+
+Thus the report can truthfully call this a constructed nuclear normed
+space. It must not claim a separate convex-envelope or normalized-atom
+closed-convex-hull equality has been formalized: no such claim is necessary
+for this standard decomposition-norm construction, and the original's
+phrase "convex envelope of low-rank tensors" supplies no precise alternative
+function/domain against which such an equality could be checked.
+
+4. NONZERO TENSOR, NOT AN ASSUMED NONTRIVIALITY INSTANCE
+TensorNuclear.lean:66-78 uses e0 tensor e0 tensor e0 as witness. The product
+of the three zeroth-coordinate functionals is a continuous trilinear map;
+its tensor lift takes this witness to 1 and zero to 0. The proof of
+witness_ne_zero therefore supplies the real Nontrivial Tensor instance.
+It does not assume injectivity of pure-tensor formation or postulate a
+nonzero tensor. Computing the witness's nuclear norm is unnecessary.
+
+5. OFFICIAL EXTREME POINTS AND THE GEOMETRIC PROOF
+GenericExtreme.lean imports Mathlib.Analysis.Convex.Extreme and uses
+Set.extremePoints with scalar field R. The inspected library definition at
+Extreme.lean:60-61 requires membership in the original set and the standard
+open-segment extremity condition. It is not a custom surrogate predicate.
+
+The proof takes a point of norm less than 1, selects y with positive norm
+(1 - ||x||)/2, and puts x+y and x-y in the closed unit ball by the triangle
+inequality. Their midpoint is x. Extremity would force x+y=x and hence
+y=0, contradicting its positive norm. The result places every extreme point
+on the unit sphere. Closedness of that sphere then places their entire
+closure there. All required hypotheses of the generic lemma are actually
+instantiated by the tensor construction and witness above.
+
+6. EXACT NORM, BALL, TOPOLOGY, AND RELATIVE NONDENSITY
+Conjecture7302.lean:20 defines nuclearNorm by the explicit ordinary cost
+infimum, and norm_eq_nuclearNorm at lines 24-26 proves that this is the
+installed norm. nuclearBall is its <= 1 ball; nuclearBall_eq_closedBall
+identifies it with the actual metric closed unit ball.
+
+The closure and sphere appearing in the final declarations use the topology
+of tensorNormedAddCommGroup, constructed from this nuclear norm. There is
+no second ambient norm whose equivalence would need an unproved bridge.
+The theorem zero_not_mem_closure_extremePoints combines the sphere
+inclusion with the fact that zero is not on the unit sphere. The final
+declarations prove both
+  0 in nuclearBall and 0 not in closure(nuclearBall.extremePoints R),
+and
+  not (nuclearBall subset closure(nuclearBall.extremePoints R)).
+Because extreme points belong to the ball, this is precisely the failure
+of their density in the ball with its relative norm topology. It is not
+merely failure of density in the entire ambient tensor space.
+
+7. SOURCE MATCH AND REMAINING REPORT OBLIGATIONS
+The English first conjunct asserts density of extreme points themselves;
+neither language explicitly replaces them by their convex combinations or
+the ball by its boundary. Under the ordinary meaning of density in the
+ball, the counterexample falsifies a necessary claim. A true order-three
+2 by 2 by 2 example meets the ordinary tensor scope and avoids a degenerate
+scalar-only interpretation. The argument actually applies to every genuine
+nonzero real norm ball, so choice of a particular nuclear convention does
+not manufacture the obstruction.
+
+The remaining ambiguity is in the source, not in the Lean conclusion. The
+eventual report must quote both originals, identify the ordinary conventions,
+and state that the separate vague parameter-space clause is not reconstructed.
+It should not advertise a unique formal translation of all supplied words.
+Nor should it claim to disprove density of convex combinations or boundary
+density. Subject to this presentation, no further mathematical source edit
+is required by this review. A report/PDF matching these sources has not yet
+been reviewed, and final rules compliance remains pending until it is.
+
+EXACT REVIEWED HASHES (SHA-256)
+Paths below are relative to 7302/author unless otherwise indicated.
+
+verification/FROZEN_SOURCES.json
+  6d29cf26de8074472b4d1fd262595866c9d5d78a75d9e3c65ed25112b4beacab
+lean/Conjecture7302.lean
+  6cb9c35a2a9975f30c00b4cf30be1240b72752fc750c8eec2d51e42c7440f0ed
+lean/GenericExtreme.lean
+  d5e2a1080fca321dec382c8ed73f89a9cd11b26a5e52319b13b36913f2e087e3
+lean/TensorNuclear.lean
+  cc38094c19d37c6fb578b437a6a3cb0ae9a488302985ee67ef295e39535cf063
+lean/DecompositionBridge.lean
+  5db6f881adc01998bfb9b35d18e579cac3df929d6915d2332a8b1badbce7fa4a
+lean/lakefile.lean
+  d7ae421a0f26cdd9e103d5b19730753f91bdd4c49b0ec2afc926cf8ccdb1e5bb
+lean/lake-manifest.json
+  ef1fbcddc602a0a935ae76e1751d7bb1b4d624cc4c83550b81c43cbd24f46f94
+lean/lean-toolchain
+  55e97be96000b5e9e290c9e74482e5e317861499a5540353ce845471bded8cea
+lean/.gitignore (contains only .lake/)
+  fde850d24186b6e99c8c0debd641fb3ab85198b109eb66f71a1fea02bd6ea1b3
+PHASE2_PROOF.txt
+  183d4aeaea0f4424d5c611f4d31e4487d83afc207b85a52e800c53d2f07edd2d
+
+7302/clean-author-input/00000007302.md
+  805559cc58444930f3bca16b736c36106d2ca4b2df2762c5480c8bf542f2e014
+7302/clean-author-input/RULES.en.md
+  200d9a783c08a5edfd1b508e6942b3b851a63c726506291f6de6a59773f1163a
+7302/clean-author-input/RULES.zh.md
+  7c5b49bb84403feea1eb14d23d48491400c7749d58db345cd317231949a9e82b
+7302/clean-author-input/INPUT_MANIFEST.json
+  6fc4b69df19e80ede83ed087a7aff09e97d8ab5fa388c5fda0a54f5c7c23bf4c
+
+The configuration selects Lean 4.19.0 and Mathlib revision
+c44e0c8ee63ca166450922a373c7409c5d26b00b. This semantic verdict is tied to
+the exact source hashes above; source edits require renewed review.

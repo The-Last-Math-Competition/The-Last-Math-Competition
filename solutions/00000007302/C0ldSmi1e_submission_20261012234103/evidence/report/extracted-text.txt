@@ -1,0 +1,141 @@
+Extreme points are not dense in a tensor nuclear-norm ball
+A counterexample to the ordinary density clause of conjecture 00000007302
+C0ldSmi1e
+October 12, 2026
+Abstract
+IntherealtensorproductofthreeEuclideantwo-dimensionalspaces,equiptensorswiththe
+nuclear norm defined by finite rank-one decomposition costs. The origin belongs to its closed
+unitballbutliesoutsidetheclosureoftheball’sextremepoints. Thusthoseextremepointsare
+notdenserelativetotheball. TheLeanproofconstructstheactualtensornuclearnorm,proves
+its positive definiteness, and establishes the relative non-density conclusion. This refutes the
+ordinary density assertion in the supplied conjecture; its additional, undefined parameter-space
+clause is not reconstructed or independently formalized.
+1 Original statement and interpretation
+The exact English statement is:
+Definition: Thetensornuclearnormastheconvexenvelopeoflow-ranktensors. Conjec-
+ture: Thedensityofextremepointsofthenuclear-normballholds,andthecombination
+of the density is the parameter space of rank-one decompositions. (rank-one-parameter
+nuclear-ball extreme density)
+The exact Chinese statement is:
+定义：张量核范数：低秩张量的凸包络。猜想：核范数的球：核范数球的极点的稠密且
+密的组合为秩一分解的参数空间。（张量核范数秩一参数空间分解极点稠密球）
+The unchanged bilingual source is also supplied as conjecture.md.
+The text does not specify the tensor dimensions, scalar field, topology, or the meaning of its
+parameter-space identification. The phrase about a convex envelope alone is not a complete norm
+definition. We therefore state our conventions explicitly: real Euclidean factors, the usual finite-
+decomposition nuclear (projective) norm, the centered closed unit ball, real convex extreme points,
+and density relative to that ball in its norm topology.
+The English sentence separately asserts density of the extreme points and joins the remaining
+clause by “and.” Under this ordinary reading, the false density assertion already refutes the con-
+junction. Neither language explicitly replaces the extreme points by their convex combinations or
+theball byitsboundary. Wedo not claimto settle those differentassertions, orto providea unique
+formal translation of the entire underspecified sentence. A later clarification of a different intended
+density target would require reconsidering the scope.
+1
+
+2 The genuine tensor nuclear norm
+Let H = R2 with its Euclidean norm and let
+T = H ⊗ RH ⊗ RH.
+More precisely, the implementation uses the algebraic tensor product of the family indexed by
+{0,1,2}. For x ∈ T, define
+ 
+∑N ∑N 
+ν(x) = inf ku k kv k kw k : x = u ⊗v ⊗w , N ≥ 0 . (1)
+ j 2 j 2 j 2 j j j 
+j=1 j=1
+The infimum ranges over arbitrary finite decompositions, with no rank bound or restriction to the
+coordinate decomposition. Empty lists are allowed. Every tensor has a finite decomposition, and
+every cost is nonnegative; hence the feasible cost set is nonempty and bounded below.
+∑
+Mathlib’sPiTensorProduct.projectiveSeminormusesfiniteweightedsums c u ⊗v ⊗w ,
+∑ j j j j j
+with cost |c |ku k kv k kw k . The formal bridge sends such a term to (c u )⊗v ⊗w . This
+j j j 2 j 2 j 2 j j j j
+preserves both the tensor and its cost. Conversely, an ordinary decomposition is a weighted one
+with all coeﬀicients equal to one. The two feasible cost sets are therefore equal, so the library
+seminorm equals (1).
+The library supplies nonnegativity, the triangle inequality, and scalar homogeneity. The re-
+maining point, proved in this submission, is positive definiteness on the actual tensor product.
+Lemma 1. If ν(x) = 0 for x ∈ T, then x = 0.
+Proof. Let ϕ : T → R be any algebraic linear functional and put f(u,v,w) = ϕ(u⊗v⊗w). Every
+trilinear form on H3 is continuous: writing e ,e for the Euclidean basis, its explicit expansion is
+0 1
+( )
+∑ ∏2
+f(m ,m ,m ) = (m ) f(e ,e ,e ).
+0 1 2 i ai a0 a1 a2
+a∈{0,1}{0,1,2} i=0
+This is a finite sum of continuous coordinate products. For every decomposition in (1), the multi-
+linear operator-norm bound gives
+∑
+|ϕ(x)| ≤ kfk ku k kv k kw k .
+j 2 j 2 j 2
+j
+Taking the infimum yields |ϕ(x)| ≤ ν(x)kfk = 0. Thus every algebraic linear functional vanishes
+at x. Algebraic dual separation implies x = 0. Both the continuity expansion and this argument
+are formalized.
+The resulting definite seminorm is installed as the normed additive group structure on T, and
+its scalar homogeneity gives a real normed-space structure. The equality between the installed
+norm and ν is a proved theorem, not an assumption. Every closure below uses precisely this norm
+topology; no unrelated array or ambient norm is substituted.
+The tensor q = e ⊗e ⊗e is nonzero: the linear lift of the trilinear form (u,v,w) 7→ u v w
+0 0 0 0 0 0
+takes q to 1 and the zero tensor to 0. This supplies the nontriviality required in the geometric
+argument.
+2
+
+3 The obstruction to density
+For a convex set B in a real vector space, an extreme point x ∈ B is a point such that if x lies in
+the open segment between a,b ∈ B, then a = b = x. We use Mathlib’s actual Set.extremePoints
+predicate.
+Lemma 2. In any nontrivial real normed space, every extreme point of the closed unit ball belongs
+to the unit sphere.
+Proof. Suppose kxk < 1. Choose a unit vector e and let y = (1−kxk)e/2. Then y 6= 0 and
+1+kxk
+kx+yk, kx−yk ≤ kxk+kyk = < 1.
+2
+The point x is the midpoint of the two distinct ball points x+y and x−y, so it is not extreme.
+Every extreme point already has norm at most one, and therefore has norm exactly one.
+Theorem 1. For the nuclear ball B = {x ∈ T : ν(x) ≤ 1},
+0 ∈ B, 0 ∈/ ext(B), B 6⊆ ext(B).
+In particular, the extreme points are not dense relative to B.
+Proof. Lemma 2 puts all extreme points on the unit sphere of the nuclear norm. That sphere is
+closed, so it contains the closure of those extreme points. The zero tensor belongs to the ball and
+has norm zero, so it is outside that closure.
+For any S ⊆ B, density in the relative topology on B means B ⊆ S, where the closure on the
+right is in T. Thus the displayed negation addresses relative density in the ball, not just density in
+the whole tensor space. It does not require classifying the extreme points or proving uniqueness of
+rank-one decompositions.
+4 Formal statements and verification
+The project is pinned to Lean 4.19.0 and Mathlib v4.19.0, revision
+c44e0c8ee63ca166450922a373c7409c5d26b00b.
+The files have the following roles:
+• TensorNuclear.lean: actual Euclidean factors and tensor product, continuity of trilinear
+forms, positive definiteness, installed nuclear norm, and a concrete nonzero tensor.
+• DecompositionBridge.lean: cost-preserving conversion between weighted and ordinary fi-
+nite decompositions, existence and lower bounds, and equality of their infima.
+• GenericExtreme.lean: Lemma 2 and its general relative non-density consequence.
+• Conjecture7302.lean: the explicit nuclear norm and ball, their equality with the installed
+norm and metric ball, and Theorem 1.
+3
+
+The final declarations in namespace Conjecture7302 are
+nuclear_extremePoints_not_relatively_dense
+nuclear_ball_counterexample.
+The former proves
+( )
+¬ B ⊆ closure(B.extremePoints R) ,
+and the latter supplies the origin as the explicit witness.
+From the supplied lean directory, the ordinary build command is lake build. The auxil-
+iary AxiomAudit.lean prints the dependency axioms of the principal declarations and can be
+replayed with lake env lean -DwarningAsError=true AxiomAudit.lean. The accompanying
+VERIFICATION.md records the separate author and independent checks, exact source hashes, com-
+plete source replay, and dependency audit. This analytic proof requires no numerical search or
+auxiliary numerical calculation. No admitted proofs, custom axioms, or native_decide are used.
+The permitted foundational axioms are only propext, Classical.choice, and Quot.sound.
+Dependency analysis and kernel checking have different roles: the audit inspects declaration
+dependencies, while source compilation checks proofs with Lean’s kernel. Cached library imports
+are pinned and checked; the whole Mathlib library and the Lean runtime are not rebuilt from
+bootstrap. Local validation is distinct from maintainer acceptance. These engineering checks also
+do not remove the interpretation limits stated in Section 1.
+4

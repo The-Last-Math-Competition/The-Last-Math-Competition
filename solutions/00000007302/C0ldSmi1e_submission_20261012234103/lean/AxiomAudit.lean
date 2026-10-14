@@ -1,0 +1,23 @@
+import Conjecture7302
+
+#print axioms DecompositionBridge.ordinaryDecomposition_exists
+#print axioms DecompositionBridge.ordinaryCost_nonneg
+#print axioms DecompositionBridge.ordinaryCosts_nonempty
+#print axioms DecompositionBridge.ordinaryCosts_bddBelow
+#print axioms DecompositionBridge.costRange_eq
+#print axioms DecompositionBridge.projectiveSeminorm_eq_sInf_ordinaryCosts
+#print axioms Conjecture7302.multilinear_continuous
+#print axioms Conjecture7302.projective_definite
+#print axioms Conjecture7302.nuclearAddGroupNorm
+#print axioms Conjecture7302.tensorNormedAddCommGroup
+#print axioms Conjecture7302.tensorNormedSpace
+#print axioms Conjecture7302.witness_ne_zero
+#print axioms Conjecture7302.tensorNontrivial
+#print axioms Conjecture7302.norm_eq_projective
+#print axioms GenericExtreme.extremePoints_closedBall_subset_sphere
+#print axioms GenericExtreme.closedBall_not_subset_closure_extremePoints
+#print axioms Conjecture7302.norm_eq_nuclearNorm
+#print axioms Conjecture7302.nuclearBall_eq_closedBall
+#print axioms Conjecture7302.zero_not_mem_closure_extremePoints
+#print axioms Conjecture7302.nuclear_extremePoints_not_relatively_dense
+#print axioms Conjecture7302.nuclear_ball_counterexample

@@ -1,0 +1,213 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,array}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{xeCJK}
+\setCJKmainfont{FandolSong-Regular.otf}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{2em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\R}{\mathbb R}
+\newcommand{\ext}{\operatorname{ext}}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\title{Extreme points are not dense in a tensor nuclear-norm ball\\
+\large A counterexample to the ordinary density clause of conjecture 00000007302}
+\author{C0ldSmi1e}
+\date{October 12, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+In the real tensor product of three Euclidean two-dimensional spaces, equip tensors
+with the nuclear norm defined by finite rank-one decomposition costs. The origin
+belongs to its closed unit ball but lies outside the closure of the ball's extreme
+points. Thus those extreme points are not dense relative to the ball. The Lean
+proof constructs the actual tensor nuclear norm, proves its positive definiteness,
+and establishes the relative non-density conclusion. This refutes the ordinary
+density assertion in the supplied conjecture; its additional, undefined
+parameter-space clause is not reconstructed or independently formalized.
+\end{abstract}
+
+\section{Original statement and interpretation}
+The exact English statement is:
+\begin{quote}
+Definition: The tensor nuclear norm as the convex envelope of low-rank tensors.
+Conjecture: The density of extreme points of the nuclear-norm ball holds, and the
+combination of the density is the parameter space of rank-one decompositions.
+(rank-one-parameter nuclear-ball extreme density)
+\end{quote}
+The exact Chinese statement is:
+\begin{quote}
+定义：张量核范数：低秩张量的凸包络。猜想：核范数的球：核范数球的极点的稠密且密的组合为秩一分解的参数空间。（张量核范数秩一参数空间分解极点稠密球）
+\end{quote}
+The unchanged bilingual source is also supplied as \code{conjecture.md}.
+
+The text does not specify the tensor dimensions, scalar field, topology, or
+the meaning of its parameter-space identification. The phrase about a convex
+envelope alone is not a complete norm definition. We therefore state our
+conventions explicitly: real Euclidean factors, the usual finite-decomposition
+nuclear (projective) norm, the centered closed unit ball, real convex extreme
+points, and density relative to that ball in its norm topology.
+
+The English sentence separately asserts density of the extreme points and joins
+the remaining clause by ``and.'' Under this ordinary reading, the false density
+assertion already refutes the conjunction. Neither language explicitly replaces
+the extreme points by their convex combinations or the ball by its boundary.
+We do not claim to settle those different assertions, or to provide a unique
+formal translation of the entire underspecified sentence. A later clarification
+of a different intended density target would require reconsidering the scope.
+
+\section{The genuine tensor nuclear norm}
+Let $H=\R^2$ with its Euclidean norm and let
+\[
+ T=H\otimes_{\R}H\otimes_{\R}H.
+\]
+More precisely, the implementation uses the algebraic tensor product of the
+family indexed by $\{0,1,2\}$. For $x\in T$, define
+\begin{equation}\label{eq:nuclear}
+ \nu(x)=\inf\left\{
+ \sum_{j=1}^{N}\|u_j\|_2\|v_j\|_2\|w_j\|_2:
+ x=\sum_{j=1}^{N}u_j\otimes v_j\otimes w_j,\quad N\ge0
+ \right\}.
+\end{equation}
+The infimum ranges over arbitrary finite decompositions, with no rank bound or
+restriction to the coordinate decomposition. Empty lists are allowed. Every
+tensor has a finite decomposition, and every cost is nonnegative; hence the
+feasible cost set is nonempty and bounded below.
+
+Mathlib's \code{PiTensorProduct.projectiveSeminorm} uses finite weighted sums
+$\sum_j c_j\,u_j\otimes v_j\otimes w_j$, with cost
+$\sum_j |c_j|\|u_j\|_2\|v_j\|_2\|w_j\|_2$. The formal bridge sends such a
+term to $(c_ju_j)\otimes v_j\otimes w_j$. This preserves both the tensor and its
+cost. Conversely, an ordinary decomposition is a weighted one with all
+coefficients equal to one. The two feasible cost sets are therefore equal,
+so the library seminorm equals \eqref{eq:nuclear}.
+
+The library supplies nonnegativity, the triangle inequality, and scalar
+homogeneity. The remaining point, proved in this submission, is positive
+definiteness on the actual tensor product.
+
+\begin{lemma}\label{lem:definite}
+If $\nu(x)=0$ for $x\in T$, then $x=0$.
+\end{lemma}
+\begin{proof}
+Let $\phi:T\to\R$ be any algebraic linear functional and put
+$f(u,v,w)=\phi(u\otimes v\otimes w)$. Every trilinear form on $H^3$ is
+continuous: writing $e_0,e_1$ for the Euclidean basis, its explicit expansion is
+\[
+ f(m_0,m_1,m_2)=
+ \sum_{a\in\{0,1\}^{\{0,1,2\}}}
+ \left(\prod_{i=0}^{2}(m_i)_{a_i}\right)
+ f(e_{a_0},e_{a_1},e_{a_2}).
+\]
+This is a finite sum of continuous coordinate products. For every decomposition
+in \eqref{eq:nuclear}, the multilinear operator-norm bound gives
+\[
+ |\phi(x)|\le \|f\|\sum_j\|u_j\|_2\|v_j\|_2\|w_j\|_2.
+\]
+Taking the infimum yields $|\phi(x)|\le\nu(x)\|f\|=0$. Thus every algebraic
+linear functional vanishes at $x$. Algebraic dual separation implies $x=0$.
+Both the continuity expansion and this argument are formalized.
+\end{proof}
+
+The resulting definite seminorm is installed as the normed additive group
+structure on $T$, and its scalar homogeneity gives a real normed-space
+structure. The equality between the installed norm and $\nu$ is a proved
+theorem, not an assumption. Every closure below uses precisely this norm
+topology; no unrelated array or ambient norm is substituted.
+
+The tensor $q=e_0\otimes e_0\otimes e_0$ is nonzero: the linear lift of the
+trilinear form $(u,v,w)\mapsto u_0v_0w_0$ takes $q$ to $1$ and the zero tensor to $0$.
+This supplies the nontriviality required in the geometric argument.
+
+\section{The obstruction to density}
+For a convex set $B$ in a real vector space, an extreme point $x\in B$ is a
+point such that if $x$ lies in the open segment between $a,b\in B$, then
+$a=b=x$. We use Mathlib's actual \code{Set.extremePoints} predicate.
+
+\begin{lemma}\label{lem:sphere}
+In any nontrivial real normed space, every extreme point of the closed unit
+ball belongs to the unit sphere.
+\end{lemma}
+\begin{proof}
+Suppose $\|x\|<1$. Choose a unit vector $e$ and let
+$y=(1-\|x\|)e/2$. Then $y\ne0$ and
+\[
+ \|x+y\|,\ \|x-y\|
+ \le\|x\|+\|y\|=\frac{1+\|x\|}{2}<1.
+\]
+The point $x$ is the midpoint of the two distinct ball points $x+y$ and $x-y$,
+so it is not extreme. Every extreme point already has norm at most one,
+and therefore has norm exactly one.
+\end{proof}
+
+\begin{theorem}\label{thm:counterexample}
+For the nuclear ball $B=\{x\in T:\nu(x)\le1\}$,
+\[
+ 0\in B,\qquad 0\notin\overline{\ext(B)},\qquad
+ B\not\subseteq\overline{\ext(B)}.
+\]
+In particular, the extreme points are not dense relative to $B$.
+\end{theorem}
+\begin{proof}
+Lemma~\ref{lem:sphere} puts all extreme points on the unit sphere of the
+nuclear norm. That sphere is closed, so it contains the closure of those
+extreme points. The zero tensor belongs to the ball and has norm zero,
+so it is outside that closure.
+\end{proof}
+
+For any $S\subseteq B$, density in the relative topology on $B$ means
+$B\subseteq\overline S$, where the closure on the right is in $T$.
+Thus the displayed negation addresses relative density in the ball, not just
+density in the whole tensor space. It does not require classifying the
+extreme points or proving uniqueness of rank-one decompositions.
+
+\section{Formal statements and verification}
+The project is pinned to Lean 4.19.0 and Mathlib v4.19.0, revision
+\begin{center}\small\code{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The files have the following roles:
+\begin{itemize}
+\item \code{TensorNuclear.lean}: actual Euclidean factors and tensor product,
+continuity of trilinear forms, positive definiteness, installed nuclear norm,
+and a concrete nonzero tensor.
+\item \code{DecompositionBridge.lean}: cost-preserving conversion between
+weighted and ordinary finite decompositions, existence and lower bounds,
+and equality of their infima.
+\item \code{GenericExtreme.lean}: Lemma~\ref{lem:sphere} and its general
+relative non-density consequence.
+\item \code{Conjecture7302.lean}: the explicit nuclear norm and ball,
+their equality with the installed norm and metric ball, and
+Theorem~\ref{thm:counterexample}.
+\end{itemize}
+\clearpage
+The final declarations in namespace \code{Conjecture7302} are
+\begin{center}\small
+\code{nuclear_extremePoints_not_relatively_dense}\\[3pt]
+\code{nuclear_ball_counterexample}.
+\end{center}
+The former proves
+\[
+ \neg\bigl(B\subseteq\operatorname{closure}(B.\mathrm{extremePoints}\ \R)\bigr),
+\]
+and the latter supplies the origin as the explicit witness.
+
+From the supplied \code{lean} directory, the ordinary build command is
+\code{lake build}. The auxiliary \code{AxiomAudit.lean} prints the dependency
+axioms of the principal declarations and can be replayed with
+\code{lake env lean -DwarningAsError=true AxiomAudit.lean}.
+The accompanying \code{VERIFICATION.md} records the separate author and
+independent checks, exact source hashes, complete source replay, and dependency
+audit. This analytic proof requires no numerical search or auxiliary numerical
+calculation. No admitted proofs, custom axioms, or \code{native_decide} are used.
+The permitted foundational axioms are only \code{propext},
+\code{Classical.choice}, and \code{Quot.sound}.
+
+Dependency analysis and kernel checking have different roles: the audit
+inspects declaration dependencies, while source compilation checks proofs
+with Lean's kernel. Cached library imports are pinned and checked; the whole
+Mathlib library and the Lean runtime are not rebuilt from bootstrap. Local
+validation is distinct from maintainer acceptance. These engineering checks
+also do not remove the interpretation limits stated in Section~1.
+\end{document}

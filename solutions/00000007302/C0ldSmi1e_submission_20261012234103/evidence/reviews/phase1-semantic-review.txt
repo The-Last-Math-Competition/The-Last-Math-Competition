@@ -1,0 +1,121 @@
+INDEPENDENT PHASE-1 SEMANTIC REVIEW — 00000007302
+Date: 2026-10-12
+Role: semantic reviewer, not mathematical or Lean author.
+
+INPUT BOUNDARY
+Read only clean-author-input/00000007302.md, RULES.en.md, RULES.zh.md,
+INPUT_MANIFEST.json, and author/PHASE1_PLAN.txt. No other candidate,
+submission, selector notes, prior attempt, solution, Git diff, external
+solution, or Mathlib source was inspected. Publication eligibility is outside
+this review. This review creates no mathematical source and changes no input.
+
+VERDICT
+PROCEED CONDITIONALLY with development of a disproof of the ordinary literal
+claim that extreme points themselves are dense in the nuclear-norm ball.
+This is a defensible reading of a necessary assertion in the supplied text,
+not an arbitrary weakening of a well-defined different conjecture. Final
+acceptance must remain contingent on the tensor/norm bridge below and an
+honest statement of the semantic limits. If a unique formal translation of
+every word of the source is demanded, HOLD for clarification: the source
+does not provide one, and neither a Lean build nor this review repairs it.
+
+EXACT TARGET AND LOGIC
+The English original says: "The density of extreme points of the nuclear-norm
+ball holds, and the combination of the density is the parameter space of
+rank-one decompositions." Its first clause separately asserts density of
+extreme points. The second is joined by "and". The Chinese is grammatically
+compressed, but also explicitly associates extreme points and density. It
+does not expressly replace extreme points by their convex combinations or
+replace the ball by its boundary.
+
+The ordinary completion of "dense" here is dense in the ball, with the
+relative topology inherited from the tensor norm. It is not density in the
+entire tensor space. For B the closed unit ball the exact useful negation is
+  not (B subset closure_T(extremePoints_R(B))).
+Producing 0 in B outside that ambient closure establishes this relative
+nondensity. Merely proving that the extreme points are not dense in T would
+not establish the required statement.
+
+Under this reading, falsifying the first conjunct suffices to falsify the
+conjunction. It is unnecessary and inappropriate to fabricate a unique
+rank-one decomposition parameter space in order to do that. No statement
+about density of convex combinations follows from the proposed argument.
+The report should explicitly distinguish that different assertion, which
+the vague word "combination" might have been intended to evoke.
+
+The source does not explicitly quantify over all dimensions or orders. A
+generic assertion about tensor nuclear-norm balls ordinarily includes
+nonzero finite-dimensional tensor spaces. A genuine order-three 2 by 2 by 2
+example therefore supplies a counterexample under ordinary conventions and
+does not rely on a degenerate scalar-only specialization. The theorem also
+shows the density obstruction is inherent to any genuine norm ball in a
+nonzero real normed space, not to a specially chosen nuclear norm.
+
+CONVENTIONS VERSUS REAL AMBIGUITY
+Reasonable conventions to state openly:
+  * real Euclidean factors R^2, tensor order three, and positive-radius ball;
+  * the centered closed unit ball, real convex extreme points;
+  * the usual projective/nuclear norm and its norm topology;
+  * density relative to that ball.
+Unit radius and zero center do not create the obstruction: positive radii
+and translations have the same issue. In the finite-dimensional real model,
+choosing another norm to generate the topology does not change the topology.
+
+Genuine omissions remain. "Convex envelope of low-rank tensors" is not a
+complete norm definition; no scalar function/domain or normalized atomic
+set is given. The target of density is unstated, and the parameter-space
+clause lacks mathematical definitions. Thus the final report should quote
+both versions, identify these conventions, and say precisely what it
+disproves. It should not announce that every possible interpretation or a
+specified parameter-space identification has been settled. Neither boundary
+density nor convex-hull density is an authorized replacement target in this
+submission; if a maintainer later confirms either, scope must be reconsidered.
+
+REQUIRED ACTUAL TENSOR/NORM BRIDGE
+For this submission the generic normed-space theorem is a useful lemma, not
+the final source-matching theorem. The formal dependency chain must reach
+an actual real order-three 2 by 2 by 2 tensor model. Acceptable models include
+an iterated tensor product of Euclidean R^2, or the eight-coordinate array
+space with a proved correspondence to that tensor product and rank-one
+tensors given by outer products.
+
+The final nuclear/projective norm must be tied to finite rank-one
+decompositions with cost the sum of products of the three Euclidean factor
+norms, or to the gauge of normalized rank-one atoms with a proved bridge to
+that construction. It is not enough to rename an arbitrary ambient norm
+"nuclear", assume an unspecified nuclear norm exists, or specialize only to
+R tensor_R R. If an existing verified library construction is used, identify
+its precise definition and show that the final tensor type carries it. If a
+new construction is used, formalize the needed existence, finiteness,
+positive definiteness and norm laws, rather than leave these in prose.
+
+In particular the final chain needs a proved nonzero tensor, genuine normed
+space structure for this norm, the official real extreme-point predicate,
+and the closure in its norm topology. If a standard ambient topology is
+used instead, prove or invoke its agreement with the constructed norm
+topology. An atomic-gauge route must ensure the chosen set and gauge give
+the advertised nuclear ball; arbitrary rank-one atoms without normalization
+do not do so. Any identification of the ball with a closed convex hull in
+the report should be justified, not smuggled in as the source's definition.
+
+MATHEMATICAL CHECK OF THE PLAN
+The proposed elementary argument is sound. In a nonzero real normed space,
+an interior point of the closed unit ball can be perturbed in opposite
+nonzero directions and written as the midpoint of distinct ball points.
+It cannot be extreme. Hence all extreme points lie on the unit sphere.
+That sphere is closed, so their closure misses the origin, which belongs
+to the ball. No description of which rank-one tensors are extreme and no
+decomposition uniqueness theorem is needed.
+
+FINAL REVIEW CONDITIONS
+1. State the ordinary literal reading and the unresolved source wording
+   honestly; use the correct relative-density negation.
+2. Deliver the genuine order-three tensor nuclear-norm bridge above in the
+   Lean dependency chain, with the report matching what is formalized.
+3. Give complete LaTeX source, PDF, and a fully checked Lean project with no
+   proof gaps or unverified norm/translation assumptions, as the rules require.
+4. Do not assert that the vague parameter-space clause was independently
+   formalized or disproved; the logical reliance is solely on a false
+   necessary density clause.
+5. Leave eligibility and any publication decision to the separate root
+   review. This conditional semantic verdict grants neither.

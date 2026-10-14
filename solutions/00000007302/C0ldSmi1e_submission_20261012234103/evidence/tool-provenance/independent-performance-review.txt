@@ -1,0 +1,72 @@
+Independent performance-only verifier review: PASS
+
+Reviewed original verify.py and ClosureAudit.lean.txt in full, the complete v2
+template, and its diff. No mathematical source was read or changed, no original
+verifier/run was changed, and no network or Git operation was performed.
+
+Reviewed original template SHA256:
+65cb76b47ad6bcfa369c446bc16887a8c6ec8409db96c21d17c9f7aca31babbd
+Reviewed candidate template SHA256:
+92d354e60a9c38cbdbc0e6050731afa9d107d3a41495d0c5f3a58e33f32c038f
+The original and candidate Python driver files are byte-identical.
+
+Semantic review
+
+The expression walker retains all original children for applications, lambdas,
+foralls, lets, metadata wrappers, and projections. It still emits constant names
+and projection structure names and ignores the same atomic non-constant forms.
+Std.HashSet ExprStructEq compares full structural equality (including binders),
+so deduplicating repeated nodes cannot hide an emitted name; hash collisions are
+resolved by equality, not treated as equality. The found accumulator is preserved.
+
+The cache stores all four edge categories and their sorted union for each
+reachable declaration in one fixed Environment. The same ci.value? true includes
+opaque values. Recursor RHS expressions, inductive all/ctors, constructor parent,
+and recursor all edges are unchanged. The cache is populated by the original
+closure reachability algorithm starting from the full root set. Per-root closure
+keeps its own seen set, preventing cycle-dependent partial memoization. Missing
+constants stay in closures and remain reported.
+
+Root selection by originating module, every JSON field, sorted name ordering,
+allowed axioms, collectAxioms invocation and discrepancy checking, missing-name
+checking, strict/kernel-only distinction, runtime-helper handling, type rendering,
+and module inventory remain unchanged. The new missing-cache checks are defensive
+assertions: a reachable existing constant is necessarily populated by the cache
+construction. They do not change output for a correctly constructed fixed cache.
+
+Executed independent evidence
+
+run_differential.py compiled separate original and v2 inspectors and identical
+logical fixture modules with the pinned Lean 4.19.0 runtime. It compared complete
+JSON objects for six fixtures under all three audit commands: 18 pairs. All passed.
+A subsequent byte comparison confirmed all 18 JSON pairs are byte-identical;
+see byte-identical-audit-results.json.
+
+The Good fixture has 66 module-owned declarations and 116 reachable declarations.
+It includes a generated valid depth-12 shared Expr DAG, a raw Expr.proj node,
+structure projections, mutual inductive declarations, recursor rules, an opaque
+value, ordinary definitions/theorems, and compiler-generated unsafe helpers.
+The latter also exercise missing _obj reporting. Strict audit rejects those
+runtime roots while kernel-only audit accepts the safe roots, identically.
+Other fixtures cover an unrelated axiom, an axiom hidden through an opaque value,
+sorry, native_decide, and an explicitly unsafe definition. All acceptance,
+rejection, failure order, runtime findings, and graph data agree.
+
+ExpressionDifferential.lean contains the exact expression-walker definitions
+extracted from the two reviewed templates. It compares 128 expressions covering
+every Expr constructor, seeded accumulators, projection-only dependency names,
+and shared expression DAGs. All comparisons passed. The candidate also handled
+a shared depth-80 DAG (over 2^80 tree leaves) and returned the exact two expected
+names. Its recorded Lean process completed in under one second.
+
+The first fixture run intentionally remains in original-trial1 with its failure
+receipt: the harness initially expected strict Good to pass, but generated unsafe
+compiler helpers correctly made it fail. The harness expected-outcome table was
+corrected to the original policy, then both variants were rerun in fresh projects.
+
+Recommendation
+
+The reviewed candidate is suitable for the root agent's approval and a fresh full
+verification run. This review establishes preservation of audit behavior on the
+examined implementation and fixtures; it does not claim the full 1030 audit has
+already completed. Only performance mechanics have been changed.
