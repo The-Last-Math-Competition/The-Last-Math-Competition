@@ -1,0 +1,280 @@
+\pdfmapfile{+lm.map}
+\pdfmapfile{+symbols.map}
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,amsthm,booktabs}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\usepackage{microtype}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Conf}{\operatorname{Conf}}
+\newcommand{\Q}{\mathbb{Q}}
+\title{Chromatic number does not determine\\ configuration-space Betti numbers}
+\author{A counterexample to TLMC conjecture 00000004091}
+\date{14 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The polynomial clause of conjecture 00000004091 is false already for one
+particle. The graphs $K_2$ and $C_4$ both have chromatic number $2$, whereas
+$\Conf_1(K_2)$ and $\Conf_1(C_4)$ have first Betti numbers $0$ and $1$.
+We give the complete elementary argument and a self-contained Lean 4.31.0
+verification of the color-minimality and rational cellular-homology
+certificates. The subdivision-invariance clause is not challenged.
+\end{abstract}
+
+\section{Statement and interpretation}
+The source conjecture \cite{tlmc} concerns the unordered configuration space
+of $n$ pairwise distinct points of a graph. It asserts both subdivision
+invariance of the first Betti number and its expression as a polynomial in
+the graph's chromatic number, of degree exactly $n$.
+There is no restriction $n\geq 2$ in either the English or Chinese statement.
+The polynomial assertion is interpreted in its substantive, universal sense:
+for each $n$, one polynomial works for all graphs. Allowing a different
+polynomial for each individual graph would impose no relation between these
+invariants.
+
+Throughout, a finite graph denotes its usual one-dimensional CW realization,
+not its discrete vertex set. Its first Betti number is
+$\beta_1(G)=\dim_{\Q}H_1(G;\Q)$.
+Both graphs below are finite, simple, nonempty, and connected.
+
+\begin{theorem}
+There is no function of chromatic number alone that equals
+$\beta_1(\Conf_1(G))$ for every finite simple connected graph $G$.
+Consequently the polynomial clause of conjecture 00000004091, and hence
+its conjunction with subdivision invariance, is false.
+\end{theorem}
+
+\section{The one-particle reduction}
+For a topological space $X$, the ordered configuration space is
+\[
+ F_n(X)=\{(x_1,\ldots,x_n)\in X^n:x_i\ne x_j\text{ for }i\ne j\},
+ \qquad \Conf_n(X)=F_n(X)/S_n.
+\]
+This is the standard definition used for graphs \cite[p.~2]{scheirer}.
+When $n=1$, the distinctness requirement has no instances, so $F_1(X)=X^1$.
+Evaluation $(x)\mapsto x$ and insertion $x\mapsto(x)$ are continuous inverse
+maps for the product topology. The group $S_1$ has one element, so every
+orbit is a singleton. The quotient map $q:X^1\to X^1/S_1$ is bijective;
+it is a homeomorphism because the quotient-topology definition says that
+$U$ in the quotient is open exactly when $q^{-1}(U)$ is open. Thus the map
+$[(x)]\mapsto x$ is a natural homeomorphism
+\[
+                         \Conf_1(X)\cong X.
+\]
+Homeomorphism invariance of homology reduces the theorem to the two graph
+calculations below.
+
+\section{Exact graph calculations}
+\subsection{Chromatic numbers}
+The graph $K_2$ has vertices $0,1$ and its single edge joins them. Coloring
+these vertices $0,1$ gives a proper two-coloring. Since the edge endpoints
+must have different colors, one color cannot suffice. Hence $\chi(K_2)=2$.
+
+Let $C_4$ have vertices $0,1,2,3$ and edges
+$\{0,1\},\{1,2\},\{2,3\},\{3,0\}$.
+The parity coloring $i\mapsto i\bmod 2$ is proper. The presence of an edge
+again excludes one color. Thus $\chi(C_4)=2$.
+
+\subsection{Rational cellular homology}
+Choose one orientation for every edge. The cellular chain spaces are
+$C_1(G;\Q)=\Q^{E(G)}$, $C_0(G;\Q)=\Q^{V(G)}$, and $C_2(G;\Q)=0$.
+For an edge $e$ directed from $u$ to $v$, the boundary is
+$\partial_1e=v-u$. Therefore
+\[
+ H_1^{\mathrm{cell}}(G;\Q)
+ =\ker\partial_1/\operatorname{im}\partial_2
+ =\ker\partial_1.
+\]
+This is the standard graph chain description in Hatcher
+\cite[pp.~99--101]{hatcher}. Cellular homology agrees with singular homology
+by Theorem~2.35, and the same comparison with arbitrary coefficients is
+explained in the section beginning on p.~153 \cite{hatcher}.
+
+For $K_2$, orient its edge $0\to1$. The boundary matrix is
+\[
+ B_{K_2}=\begin{pmatrix}-1\\1\end{pmatrix}.
+\]
+A chain with coefficient $a$ has zero boundary precisely when
+$(-a,a)=(0,0)$, which forces $a=0$.
+Thus the kernel has its empty basis and $\beta_1(K_2)=0$.
+
+For $C_4$, use the coherent orientations
+$0\to1\to2\to3\to0$. In this order the boundary matrix is
+\[
+ B_{C_4}=\begin{pmatrix}
+ -1&0&0&1\\
+ 1&-1&0&0\\
+ 0&1&-1&0\\
+ 0&0&1&-1
+ \end{pmatrix}.
+\]
+The kernel equations for $z=(a,b,c,d)$ are
+$d-a=0$, $a-b=0$, $b-c=0$, and $c-d=0$.
+They are equivalent to $a=b=c=d$.
+Hence every cycle has the unique expression
+$a(1,1,1,1)$, and the nonzero all-one chain is a basis.
+It follows that $\beta_1(C_4)=1$.
+
+\subsection{Contradiction}
+If one function $f$ of chromatic number supplied the claimed Betti number,
+these two calculations and the one-particle homeomorphism would give
+\[
+                f(2)=0\qquad\text{and}\qquad f(2)=1,
+\]
+which is impossible. In particular, no polynomial of degree exactly $1$
+can do so for $n=1$. No assertion about degree or polynomial coefficients
+is needed for this contradiction. This proves the theorem.
+
+Subdivision invariance itself is compatible with this argument: subdivision
+does not change the topological realization of the graph, and the induced
+homeomorphism acts on configuration spaces coordinatewise. It is the
+chromatic-determination clause that fails.
+
+\section{Lean verification and its scope}
+The project imports only \texttt{Std} and targets Lean 4.31.0. Its finite
+graph structure stores oriented endpoints and proves that there are no
+loops or repeated undirected edges.
+The source \texttt{Conjecture4091/Basic.lean} contains:
+\begin{itemize}
+\item \texttt{boundary}: the actual incoming-minus-outgoing incidence map,
+with edge coefficients in Lean's exact rational type \texttt{Rat}.
+\item \texttt{IsCycle}: the kernel equations at every vertex.
+\item \texttt{HasFirstBetti G d}: an actual $d$-vector basis of that kernel,
+expressed by spanning and uniqueness of rational linear-combination
+coefficients. Betti values are not assigned as labels.
+\item \texttt{segment\_cycle\_iff} and \texttt{square\_cycle\_iff}: complete
+characterizations of the two incidence kernels, followed by basis
+certificates \texttt{segment\_firstBetti} and \texttt{square\_firstBetti}.
+\item \texttt{HasChromaticNumber}: a legal coloring and a proof that every
+smaller color count is impossible. Both witnesses are certified at $2$.
+\item {\small\texttt{conjecture\_00000004091\_false}}: negation of the necessary
+one-particle consequence that an arbitrary function
+$\mathbb N\to\mathbb N$ determines the first Betti number from chromatic
+number. The contradiction uses the two certificates at the same input $2$.
+\end{itemize}
+\subsection{Explicit bridge to the topological statement}
+For a stored graph $G$, form $|G|$ by taking one point for each stored
+vertex and one copy of $[0,1]$ for each stored edge, identifying $0$ with
+its source and $1$ with its target. This is the finite one-dimensional CW
+realization with exactly the stored vertices and open edges as cells.
+The source and target data of \texttt{segment} give $K_2$; those of
+\texttt{square} give the four edges of $C_4$ listed above.
+
+Sending a rational function on the stored edges to the corresponding
+linear combination of oriented cellular edges is a vector-space
+isomorphism $\Q^{\mathrm{Fin}(G.\mathrm{edges})}\to C_1(|G|;\Q)$;
+the analogous map identifies stored vertex functions with $C_0$.
+Under these maps, the coefficient of a vertex in the cellular boundary
+is exactly the sum on incoming edges minus the sum on outgoing edges.
+Thus Lean's \texttt{boundary} is the cellular boundary, not an assigned
+numerical invariant. Its \texttt{linearCombination} is the ordinary
+rational linear combination in these coordinates. Lean's \texttt{Rat}
+represents the field of rational numbers exactly.
+
+A witness for \texttt{HasFirstBetti G d} is therefore a genuine basis
+of $\ker\partial_1$: every proposed vector lies in the kernel, every
+kernel vector is spanned, and the coefficients are unique. Uniqueness
+implies linear independence by applying it to the zero vector.
+Consequently its $d$ equals $\dim_\Q\ker\partial_1$.
+Because $|G|$ has no cells in dimension two, $\operatorname{im}\partial_2=0$.
+The cellular-to-singular comparison cited above now identifies this
+kernel with $H_1(|G|;\Q)$. Finally, the homeomorphism from Section~2
+identifies it with $H_1(\Conf_1(|G|);\Q)$.
+For colorings, choosing an orientation does not affect whether the two
+endpoints have different colors, so \texttt{HasChromaticNumber} gives the
+usual chromatic minimum of the underlying undirected graph.
+These identifications verify the semantic link for each witness.
+
+The formal dimension certificates use the standard cellular definition of
+first Betti number for a graph. The quotient topology of $\Conf_1$, its
+homeomorphism with $G$, and the general cellular-to-singular comparison
+are mathematical bridges proved or cited above; they are not machine-checked
+by this Std-only project. No such bridge is introduced as a Lean axiom.
+The proof is a semantic counterexample in the graph cellular model,
+with this topological boundary stated explicitly.
+
+The final theorem and basis theorems use only the standard Lean logical
+axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+There are no \texttt{sorry} placeholders, \texttt{native\_decide}, or custom
+axioms. The included build logs record successful compilation and a separate
+\texttt{leanchecker} run.
+
+\section{Independent computation and eligibility}
+The separate \texttt{empirical.py} script performs exact Gaussian elimination
+over Python rational fractions and exhaustive coloring searches. It confirms
+the incidence ranks $1$ and $3$ and kernel dimensions $0$ and $1$ of the two
+witnesses. It also enumerates all $1{,}099$ labeled simple graphs with one
+through five vertices. Among connected bipartite graphs in this range,
+it finds first Betti numbers $0,1,2$ at the same chromatic number $2$.
+These computations are independent corroboration; they are not premises
+of the Lean proof.
+
+At the live check on 14 October 2026 at 19:46 UTC, conjecture 00000004091
+had \texttt{proven=false} and \texttt{disproven=false}; its solutions path
+was absent. All-state searches for the full ID and for Betti/subdivision
+found the earlier, closed, unmerged submission PR~292 \cite{prior}.
+The short-ID and configuration/chromatic searches returned no matches;
+these inconsistent search results are why the prior PR was also fetched
+directly. The response snapshot is retained in
+\path{evidence/eligibility-00000004091.json}. This records a check at that
+time, not acceptance or priority over earlier or later work.
+
+\section{Earlier submission and the present repair}
+The counterexample idea is already present in orionsheep's PR~292 of
+3 October 2026: at one particle, a path and an even cycle have the same
+chromatic number but different first Betti numbers. We credit that earlier
+observation and do not claim it as a new mathematical discovery.
+That PR used $P_4$ and $C_4$; the present proof uses the shorter path $K_2$
+and the same cycle.
+
+The organizer closed PR~292 without merging it. The recorded reason was
+that its Lean statement only conjoined elementary integer equalities and
+inequalities, with no graph, configuration-space, or Betti-number
+objects connecting the arithmetic to the conjecture \cite{prior-review}.
+Inspection of that PR's source confirms the issue:
+\texttt{b1\_C4} and \texttt{b1\_P4} are just arithmetic identities,
+\texttt{same\_chromatic} is the conjunction $2=2\wedge2=2$, and
+\texttt{conjecture\_refuted} merely assembles those statements.
+This is a formalization gap; the elementary paper counterexample is sound.
+
+The present project supplies the missing finite simple graphs, proper
+colorings and minimality proofs, incidence boundary on rational chains,
+and kernel bases with unique coefficients. Its concluding theorem refutes
+a universally quantified dependence on chromatic number using those
+certificates. The exact bridges from this cellular model to the topological
+conjecture are given in Section~4.1. They remain paper mathematics, rather
+than Lean theorems. Thus this submission repairs the graph/chromatic/Betti
+semantic gap but does not claim a full Lean formalization of general
+configuration-space topology. Whether this disclosed boundary meets the
+competition's review standard remains for its reviewers to decide.
+A detailed comparison is included in \texttt{PRIOR\_SUBMISSION.md}.
+
+\clearpage
+\begin{thebibliography}{9}
+\bibitem{tlmc}
+The Last Math Competition, conjecture 00000004091.
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000004091.md}.
+Source blob: \texttt{73f51cfa010d743d7f2363be23ee139f9c819802}.
+\bibitem{hatcher}
+Allen Hatcher, \emph{Algebraic Topology}, Cambridge University Press, 2002.
+Chapter 2, pp.~99--101; Theorem~2.35, pp.~139--140; homology with
+coefficients, p.~153.
+\url{https://pi.math.cornell.edu/~hatcher/AT/ATch2.pdf}.
+\bibitem{scheirer}
+Steven Scheirer, \emph{Topological complexity of unordered configuration
+spaces of certain graphs}, 2019, p.~2.
+\url{https://arxiv.org/pdf/1905.12838}.
+\bibitem{prior}
+orionsheep, PR~292, \emph{Disproof of conjecture 00000004091},
+3 October 2026, closed without merging.
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/292}.
+\bibitem{prior-review}
+lidangzzz, review comment on PR~292, 3 October 2026.
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/292#issuecomment-5968931449}.
+\end{thebibliography}
+\end{document}
