@@ -1,0 +1,81 @@
+\pdfoutput=1
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{A connected chordal counterexample to the clique-tree genus formula\\\large Disproof of Conjecture 00000003484}
+\author{Galaxy-0\\\small AI-assisted submission}
+\date{14 October 2026}
+\renewcommand{\labelitemi}{$\bullet$}
+\begin{document}
+\maketitle
+\begin{abstract}
+The conjecture defines the nodes of a clique tree to be its maximal-clique bags, but subtracts a proposed genus from their number and characterizes zero genus by interval representability. The connected six-vertex 3-sun has four maximal cliques and a clique tree with four bags, yet is not an interval graph. Consequently no genus value can satisfy the two asserted clauses simultaneously. We give a self-contained proof and a Lean 4.31.0 verification, including the graph hypotheses, both counts, the actual interval-intersection semantics, and the contradiction.
+\end{abstract}
+\section{The assertion being refuted}
+The source defines a clique tree as a tree of the maximal cliques of a chordal graph, with those bags as nodes. Its proposed conditions include
+\begin{equation}\label{claim}
+ B=M-h,\qquad h=0\ \Longleftrightarrow\ G\text{ is an interval graph},
+\end{equation}
+where $B$ counts bags and $M$ counts maximal cliques. It also asserts an explicit recursion involving clique-tree embedding counts. Refuting the displayed necessary conditions refutes the conjunction, without interpreting that recursion.
+
+The source does not define ``Helly covering genus''. We do not assign a new meaning to it or assume a value for it. Instead we prove that \emph{no} value can make both conditions hold on the example. We use the conventional clique tree, with each maximal clique appearing once, exactly as in the stated definition. A compressed decomposition with different nodes would change the problem. The Chinese wording may conjoin the recursion with interval representability on the right of the equivalence; that reading still implies that $h=0$ forces interval representability, which is all the contradiction uses.
+
+\section{The graph and its clique tree}
+Let the vertices be $a,b,c,x,y,z$. The vertices $a,b,c$ induce a triangle; $x,y,z$ are pairwise nonadjacent, and their respective neighborhoods are
+\[
+N(x)=\{a,b\},\qquad N(y)=\{b,c\},\qquad N(z)=\{a,c\}.
+\]
+There are no other edges. Thus this is a finite simple connected graph. Every pair of vertices is joined by a path of length at most two.
+\begin{lemma}
+This graph is chordal, and its maximal cliques are exactly
+\[
+C=\{a,b,c\},\quad X=\{a,b,x\},\quad Y=\{b,c,y\},\quad Z=\{a,c,z\}.
+\]
+\end{lemma}
+\begin{proof}
+Consider an induced simple cycle of length at least four. If it contains an outer vertex, the two distinct cycle neighbors of that vertex are its two central neighbors. Those neighbors are adjacent, and are not consecutive in the cycle, so this is a chord. A cycle avoiding all outer vertices would require at least four distinct vertices in the three-vertex center, which is impossible. This proves chordality directly, without appealing to a perfect-elimination-order equivalence.
+
+A clique containing $x$, $y$, or $z$ is contained in $X$, $Y$, or $Z$, respectively. A clique containing no outer vertex is contained in $C$. The four displayed sets are cliques. For each one, every vertex outside it misses some vertex inside it, so it is maximal. Hence the list is complete and has no repetitions.
+\end{proof}
+Make a star with center $C$ and leaves $X,Y,Z$. It is connected and has no simple cycle: each leaf has just one neighbor. The bags containing $a$ are $C,X,Z$; those containing $b$ are $C,X,Y$; those containing $c$ are $C,Y,Z$; each outer vertex occurs in a single bag. In each case these bags induce a connected subtree. This is the running-intersection property, so the star is a clique tree. Both independently certified counts are therefore
+\begin{equation}\label{counts} B=4,\qquad M=4.\end{equation}
+\section{The interval obstruction}
+An interval graph is the intersection graph of nonempty closed real intervals. This usual convention suffices; allowing arbitrary interval endpoint conventions does not enlarge the finite class. Indeed, choose a point in each nonempty represented interval and one point in every intersection corresponding to an edge. For each vertex take the closed convex hull of its finitely many chosen points. It remains inside the original interval, preserves every edge, and creates no nonedge. Thus a finite representation by arbitrary intervals yields one by closed bounded intervals.
+
+\begin{lemma}
+The 3-sun has no interval representation.
+\end{lemma}
+\begin{proof}
+Suppose its six vertices have representing intervals. The three intervals for $x,y,z$ are pairwise disjoint, so they have a left-to-right order. If $x$ is the middle outer interval, the central interval for $c$ meets the two extreme outer intervals $y,z$ but must miss $x$. This is impossible: an interval meeting intervals on both sides of a nonempty middle interval contains points across it and therefore meets it. If $y$ is in the middle, use $a$ instead; if $z$ is in the middle, use $b$. These three cases exhaust the possible middle vertices.
+\end{proof}
+\begin{theorem}
+Conjecture 00000003484 is false.
+\end{theorem}
+\begin{proof}
+The graph is chordal and has the exhibited clique tree. Substituting \eqref{counts} into \eqref{claim} gives $4=4-h$, hence $h=0$. The zero-genus implication would make it an interval graph, contradicting the preceding lemma. The argument uses ordinary numerical subtraction. It also holds for truncated natural-number subtraction: $4=4\mathbin{\dot-}h$ implies $h=0$ because $4>0$.
+\end{proof}
+\section{Machine-checked semantics and scope}
+The project is self-contained and imports \texttt{Std}; no Mathlib dependency is needed. Vertices are \texttt{Fin 6}, with adjacency defined by the actual nine undirected edges. The core predicates and their bridges are explicit:
+\begin{itemize}
+\item \texttt{InducedCycle} uses an injective cyclic vertex map and adjacency if and only if cyclic consecutiveness. \texttt{threeSun\_chordal} excludes such cycles of \emph{every} length at least four, rather than testing bounded lengths or defining chordality as an unproved surrogate.
+\item \texttt{MaximalClique} quantifies over all vertex subsets. \texttt{maximal\_cliques\_complete} proves the four displayed bags enumerate precisely those sets. Their list is complete and without duplicates.
+\item \texttt{CliqueTree} requires symmetric irreflexive edges, connectedness, absence of simple cycles of every length, complete and injective maximal-clique bags, and paths within the bags containing each graph vertex. The explicit star satisfies all fields. Its node list is independently complete and without duplicates.
+\item An endpoint type carries an arbitrary total transitive relation. \texttt{Intersects} means there exists an actual point in both closed intervals. \texttt{intersects\_iff\_endpoints} proves the endpoint-overlap criterion from nonemptiness. \texttt{not\_interval} then excludes representations on \emph{any} such line, in particular the real line. No real-analysis theorem is assumed: the only properties needed are totality and transitivity, which real order has.
+\item \texttt{full\_counterexample} combines connectedness, chordality, the genuine clique tree, both counts, non-representability, and the incompatible genus clauses for both natural and integer values. The formal genus statements cover these two types. The same elementary cancellation for other usual number systems is a written argument, not a separate Lean theorem.
+\end{itemize}
+The closed-interval normalization paragraph is a written finite argument; Lean directly covers the conventional nonempty closed-interval definition. The formalization does not define or evaluate the unspecified embedding recursion or propose a replacement genus. Neither is needed to refute the already inconsistent necessary conditions.
+
+\section{Verification and reproducibility}
+The pinned compiler is Lean 4.31.0. The package includes source, Lake configuration, an axiom audit, and reproducible commands. A separate source-only build with warnings treated as errors and a separate \texttt{leanchecker} kernel replay pass. Authored theorem audits use only the standard Lean axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}, where needed. There are no proof holes, unchecked decision tactics, or user-declared axioms.
+
+An independent Python program enumerates all vertex subsets and the 1,800 ordered possible cycles of lengths four through six. It confirms the maximal cliques, lack of induced long cycles, and running intersection. These are finite cross-checks; they are not substitutes for the universal Lean proofs. The included independent review is an internal mathematical/build audit, not organizer acceptance.
+
+\section*{Source and eligibility}
+Source: \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000003484.md}{Conjecture 00000003484}, bilingual statement. The verified source Git blob is:\par\noindent\texttt{6e8283ae36deff4684090880c4d608259201b28e}. Evidence records main commit:\par\noindent\texttt{cce2d90cb298de9595798eb674d2c80712100532} and checks on 14 October 2026: metadata has neither proven nor disproven set, no solution directory exists, and all-state full-ID and keyword PR searches show no competing submission for this conjecture. These observations do not establish organizer acceptance or guarantee first-solver credit. Publication must recheck eligibility.
+\end{document}
