@@ -1,0 +1,214 @@
+STABLE PARTIAL SOURCE REVIEW — CONJECTURE 00000001030
+Status: complete full-text semantic read of the snapshot listed below;
+final capstone freeze and independent compiler audit remain pending.
+
+Review scope and source identity
+
+The original bilingual conjecture, both neutral-after1741 rule documents,
+and this reviewer's independent mathematical plan are the semantic baseline.
+The reviewer wrote no author Lean source, including LinearProgramming.lean.
+Only this conjecture's currently authorized source and generic pinned Mathlib
+were read; no other problem solution/submission material was consulted.
+
+Exact original paths, snapshot paths, sizes, line counts, and SHA-256 values
+are recorded in stable-source-manifest.json. Full text read:
+  Definitions.lean
+  SurfaceMeasure.lean
+  SphereMoments.lean
+  Icosahedron.lean
+  IcosahedronRigidity.lean
+  LinearProgramming.lean
+  SphereMomentsAudit.lean
+  DesignExactness.lean
+  lakefile.lean, lean-toolchain, and lake-manifest.json
+
+The first seven files and package configuration were snapshotted together.
+DesignExactness was snapshotted after the author announced it was compiled
+and stable. The author confirmed the geometry snapshots match the frozen
+geometry source. Final Theorem.lean was still being assembled and is NOT
+included in this partial verdict. The proof-bearing sources were each read
+in full, not merely scanned for declarations or missing-proof tokens.
+
+No substantive semantic defect found in the stable modules
+
+1. Definitions and the actual integration predicate
+
+E is EuclideanSpace R (Fin 3), E2 is EuclideanSpace R (Fin 2), and S2 is the
+actual unit-sphere subtype of E. This avoids the raw-Pi sup-norm error.
+surface is two-dimensional Hausdorff measure on that metric subtype; sigma
+is its inverse-total-mass scaling. SphericalDesign t X requires nonemptiness
+and equal-weight integration of EVERY real multivariate polynomial with
+totalDegree<=t. X is a Finset, so membership has no multiplicities. The
+generalized internal DesignFor predicate is definitionally the same at sigma.
+
+The sphereIso construction restricts an actual ambient linear isometry
+equivalence and supplies the inverse and isometry proof. Norm/squared-norm/
+inner-product coordinate lemmas expose the correct Euclidean metric.
+
+2. SurfaceMeasure: actual finite positive Hausdorff surface measure
+
+The rational stereographic charts are defined for both hemisphere signs.
+The source proves their unit norm, exact chordal identity, and global
+2-Lipschitz bound. The inverse-chart construction covers the closed positive
+and negative hemispheres, including poles/equator, with positive denominators.
+The coordinate projection is proved 1-Lipschitz, and its image of the sphere
+is proved equal to the closed two-dimensional unit disk using a square-root
+height for the reverse inclusion.
+
+The only Hausdorff-Haar instance introduced is dimension two on E2. Compact
+disk mass is finite there. Two chart images bound ambient H2 sphere mass
+above; projection onto the disk and positivity of its open ball bound it
+strictly below. The implementation does not incorrectly infer H2 local
+finiteness on E3 or infer finite sphere measure merely from compactness.
+
+map_surface explicitly identifies the intrinsic surface pushforward with
+ambient H2 restricted to the sphere. surface_mass_eq transports the positive
+finite mass bounds. The sigma probability instance is constructed only after
+those facts, so inverse normalization is justified. Orthogonal invariance
+comes from the actual sphere isometries preserving Hausdorff measure and
+scaling the measure. Polynomial continuity and compact-sphere integrability
+are proved with respect to sigma. No moments are assumed in this construction.
+
+3. SphereMoments: moment derivation and polynomial support bridge
+
+Coordinate sign reversals and permutations are actual Euclidean linear
+isometries. Invariance proves zero for any monomial with any odd exponent.
+The constant integral uses probability normalization. Coordinate square
+integrals follow from permutation invariance and the sphere equation. The
+fourth/mixed moments follow from the explicit orthogonal coordinate change,
+odd mixed integrals, and the integrated identity
+  x0^4 + x0^2*x1^2 + x0^2*x2^2 = x0^2.
+All uses of additive integral splitting have supplied integrability proofs.
+
+sphereMoment is an internal table that has arbitrary out-of-range behavior,
+but its integral theorem explicitly requires sum_i d_i<=5. Under that bound,
+the odd case is exhaustive; otherwise omega forces each exponent into
+{0,2,4}, and the Cartesian case split eliminates sums exceeding five. The
+remaining ten nonzero cases use the proved constant/quadratic/quartic/mixed
+integrals. Thus all 56 degree-at-most-five monomials are covered.
+
+evalOnSphere_as_sum expands the actual MvPolynomial finite support.
+designFor_of_monomial_exact bounds every supported exponent sum using
+MvPolynomial.le_totalDegree, converts Finsupp sums to the coordinate sum,
+and distributes finite sums and integrals with integrability proofs. This
+is the required backward bridge from a monomial certificate to full
+polynomial exactness. A two-way named equivalence is unnecessary when the
+needed forward applications test explicit polynomials directly, as in
+DesignExactness. The implementation does not redefine 'design' as moments.
+
+4. Icosahedron: exact finite-set witness
+
+phi and r have exact radical definitions and proved positive values and
+algebraic relations. icoVec lists the twelve independently signed cyclic
+coordinate triples. Every vector has norm one. Injectivity is proved for
+the list and its sphere lift; ico is Finset.univ.map of that embedding.
+Consequently card=12 is a cardinality theorem for distinct points, not a
+count of repeated indices. Nonemptiness and the exact finite-sum reindexing
+are separately available.
+
+ico_monomial_table bounds each exponent by five, exhausts all triples, and
+eliminates sums above five. Exact algebra proves every surviving finite
+sum. ico_sphereMonomial_moment puts that result into the same table used by
+the surface-integral theorem, and ico_designFor applies the genuine
+monomial-to-polynomial bridge. The ultimate sigma instantiation still needs
+to appear among final capstones.
+
+5. LinearProgramming: independently reviewed root-authored module
+
+Exact reviewed SHA-256:
+77d5290906e59609e42b6a7be24e727ac720a62c9a4a0d8066ddcc1f69c60205
+
+lpValue(t)=(1+t)(5t^2-1)^2 is nonnegative for t>=-1. Cauchy-Schwarz supplies
+the bound for actual unit-sphere inner products, and the diagonal evaluates
+to 32. The finite-sum inequality isolates an actual member x in X. Given
+the explicit internal hypothesis sum=8|X|/3, real arithmetic and exact casts
+prove |X|>=12.
+
+At cardinality twelve, the two-term finite-sum inequality plus nonnegativity
+forces each distinct-point term to vanish. Product-zero and square-zero
+then give inner=-1 or inner^2=1/5. The inner=-1 condition is proved to imply
+the antipode by the zero norm of the sum.
+
+The antipode lemma assumes the exact second-moment sum=4 and the preceding
+root condition. Assuming no antipode, every erased off-diagonal term is 1/5,
+there are eleven such terms, and the self term is 1. The resulting 16/5=4
+contradiction is explicit. Neither the lower bound nor antipode lemma
+contains a hidden design axiom; their sum hypotheses are visibly internal
+interfaces and are not yet final conjecture statements.
+
+6. DesignExactness discharges the LP sum hypothesis from actual design exactness
+
+Exact reviewed SHA-256:
+a064f594e074e3ba1b3609b0cafbd059c1e2fe1ce7cf9bf8da383e40c195e46b
+
+linearForm is an actual MvPolynomial with proved totalDegree<=1 and an
+evaluation lemma equal to the Euclidean inner product. A proved reflection
+maps an arbitrary unit pole to the coordinate axis; genuine sigma invariance
+therefore transports dot-power integrals to the already proved coordinate
+integrals. There is no assumed rotational transitivity or moment table.
+
+design_sum_dot_pow applies SphericalDesign to linearForm^n with a proved
+totalDegree<=5 whenever n<=5. Nonemptiness proves the real cardinality is
+nonzero before clearing its inverse. design_sum_lpValue expands lpValue
+and applies these actual power-sum identities for n=1,...,5, together with
+the sum of the constant term. It proves the precise 8|X|/3 identity needed
+by LinearProgramming. The exported lower-bound theorem then obtains a
+member from design nonemptiness and applies that module's proved inequality.
+Thus the lower bound is already tied to the original surface-integral
+definition; no LP hypothesis remains in its statement.
+
+7. IcosahedronRigidity: complete geometric consequence of equality data
+
+IsIcosahedral X is exact orthogonal congruence to the displayed coordinate
+finset. It is not a moment-based proxy for the term 'icosahedral'. The
+positive angle is icoA*icoB, with proved square 1/5 and value below one.
+
+Two genuine Submodule reflections align an arbitrary pair at this angle
+with icoVertex 0 and icoVertex 2. The second reflection fixes the already
+aligned pole because the difference of its source/target vectors is
+orthogonal to that pole. The generic reflection_sub theorem includes the
+coincident-vector case, avoiding a missing degeneracy branch.
+
+The explicit two-dot-product equations and the unit norm force every other
+upper point into the four listed coordinate candidates. The inner=-1 case
+with the aligned upper point is excluded because its antipode has negative
+pole product. Antipodal closure transfers negative pole products to positive
+ones, then back to the target set. The two poles are handled separately.
+
+The final internal rigidity lemma does not need an explicit five-upper-count
+theorem. Cardinality twelve lets it choose a point other than a pole and its
+antipode; root data and antipodality provide one positive-angle pair. The
+alignment then maps ALL of X into ico. Injectivity preserves cardinality,
+so two twelve-element finsets with that inclusion are equal. This is a
+valid shorter replacement for the planned upper-set counting step and
+does not weaken the conclusion. The final assembly must still derive root
+data and antipodal closure from SphericalDesign and card=12.
+
+Non-substantive wording observation
+
+The source's plane45 map is
+  ((x+y)/sqrt(2), (x-y)/sqrt(2), z).
+It is an orthogonal involution with determinant -1 (a reflection), rather
+than a plane rotation. Its proof and use only require orthogonal invariance,
+so there is no mathematical defect. Any report describing the exact map
+should call it an 'orthogonal coordinate change' or reflection instead of
+claiming it is a 45-degree rotation.
+
+Current limitations and remaining checks
+
+This partial review has not accepted a final conjecture proof. Final
+capstones must instantiate ico_designFor at the actual sigma, derive all
+rigidity hypotheses from design exactness, state an attained minimum,
+state the twelve-point congruence classification, and state the >=13 bound
+for nonicosahedral designs. The report must preserve the explicit ordinary
+versus exclusion interpretations of the ambiguous parenthetical and must
+not claim existence or an exact minimum at thirteen.
+
+A source token scan found no sorry/admit/custom axiom declarations,
+native_decide, or unsafe constructs in these snapshots. The printed-axiom
+audit file is only an audit command source, not evidence of executed output.
+Independent compilation/axiom validation is intentionally deferred until
+the final frozen portable project to avoid duplicate partial builds, as
+directed by root. Exact hashes must be rechecked against that freeze; any
+changed source must be reread. No publication or prior-solved eligibility
+determination is supplied by this semantic review.

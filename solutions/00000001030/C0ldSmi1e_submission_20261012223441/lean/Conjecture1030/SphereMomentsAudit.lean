@@ -1,0 +1,4 @@
+import Conjecture1030.SphereMoments
+#print axioms Conjecture1030.sphereMonomial_integral
+#print axioms Conjecture1030.designFor_of_monomial_moments
+#print axioms Conjecture1030.coord_pow_integral_le_five

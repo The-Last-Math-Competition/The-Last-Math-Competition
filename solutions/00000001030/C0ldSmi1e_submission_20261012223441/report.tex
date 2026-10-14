@@ -1,0 +1,198 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,array}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{2em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Sph}{\mathbb S^2}
+\newcommand{\ip}[2]{\langle #1,#2\rangle}
+\newcommand{\HH}{\mathcal H^2}
+\newcommand{\code}[1]{\texttt{\detokenize{#1}}}
+\title{Minimum spherical 5-designs on the two-sphere\\\large Conjecture 00000001030: minimum, equality, and the exception}
+\author{C0ldSmi1e}
+\date{October 12, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Every nonempty finite spherical 5-design on the Euclidean unit two-sphere has at least twelve points. The normalized vertices of a regular icosahedron attain twelve, and every twelve-point design is orthogonally congruent to that set. Thus the ordinary minimum is twelve. If the original parenthetical is instead read as excluding icosahedral designs, twelve is impossible: every remaining design has at least thirteen points. We make no claim that thirteen is attained. All of these statements are proved in Lean against normalized two-dimensional Hausdorff surface measure, including the measure and polynomial-exactness bridges.
+\end{abstract}
+
+\section{Original statement and precise scope}
+The supplied English conjecture is:
+\begin{quote}
+The minimal number of points of a spherical 5-design on S\textsuperscript{2} is 12 (with the icosahedron exceptional) (minimal 5-designs, Bannai's count).
+\end{quote}
+The accompanying Chinese statement also places the icosahedron in a parenthetical exception. The exact bilingual source is included as \code{conjecture.md}. To avoid silently choosing the meaning of that parenthetical, we establish both conclusions described in the abstract.
+
+Let $E=\R^3$ with its Euclidean inner product, and let
+$\Sph=\{x\in E:\|x\|_2=1\}$. Write $\sigma$ for normalized Hausdorff surface measure on $\Sph$. A spherical 5-design is a nonempty finite \emph{set} $X\subset\Sph$ such that, for every real polynomial $p$ in three variables of total degree at most five,
+\begin{equation}\label{eq:design}
+ \frac1{|X|}\sum_{x\in X}p(x)=\int_{\Sph}p(u)\,d\sigma(u).
+\end{equation}
+Points are distinct and all weights are equal. Set
+\[
+ \varphi=\frac{1+\sqrt5}{2},\qquad r=\sqrt{\varphi+2},\qquad
+ a=\frac1r,\qquad b=\frac\varphi r,
+\]
+and define the twelve-point coordinate set
+\begin{equation}\label{eq:ico}
+ I=\{(0,\pm a,\pm b),(\pm a,\pm b,0),(\pm b,0,\pm a)\},
+\end{equation}
+where the signs are independent in each family. This is the standard normalized icosahedral vertex set. In the formal statement, ``icosahedral'' means exactly that an orthogonal linear isometry carries $X$ onto $I$.
+
+\begin{theorem}\label{thm:main}
+Every spherical 5-design $X$ satisfies $|X|\ge12$. The set $I$ is such a design and has twelve points. For any spherical 5-design $X$,
+\[
+ |X|=12\quad\Longleftrightarrow\quad \exists U\in O(3),\ U(X)=I.
+\]
+Consequently, no nonicosahedral spherical 5-design has twelve points; each has at least thirteen.
+\end{theorem}
+The last conclusion neither asserts existence of a nonicosahedral design nor identifies that class's exact minimum. It refutes an \emph{attained minimum of twelve} under the exclusion reading.
+
+\section{Surface measure and moments}
+The Lean space is \code{EuclideanSpace} $\R$ \code{(Fin 3)}, so its norm is the Euclidean norm. We take the intrinsic Hausdorff measure $\HH$ on the unit-sphere subtype. The inclusion into $E$ is an isometry, and its pushforward is ambient $\HH$ restricted to the sphere. This bridge is proved rather than assumed.
+
+Here are explicit proofs that its total mass is positive and finite. On the planar unit disk, use the two maps
+\[
+ s_\varepsilon(u)=\frac{(2u_1,2u_2,\varepsilon(1-\|u\|^2))}{1+\|u\|^2},
+ \qquad \varepsilon\in\{1,-1\}.
+\]
+They take values on $\Sph$; their images cover its two closed hemispheres, including the equator. The identity
+\[
+ \|s_\varepsilon(u)-s_\varepsilon(v)\|^2
+ =\frac{4\|u-v\|^2}{(1+\|u\|^2)(1+\|v\|^2)}
+\]
+shows that each is 2-Lipschitz. The planar disk has finite two-dimensional Hausdorff measure, giving finiteness of the sphere's measure. Conversely, orthogonal projection of the sphere onto its first two coordinates is 1-Lipschitz and has image the closed unit disk, whose measure is positive. The Hausdorff image inequality gives positivity of the sphere's measure.
+
+Thus normalization by this finite positive mass defines a probability measure $\sigma$. Orthogonal maps preserve Hausdorff measure and the sphere, hence preserve $\sigma$. Restricted polynomials are continuous on the compact sphere and therefore integrable. These facts are all proved in \code{SurfaceMeasure.lean}; no unproved numerical surface area is needed.
+
+Coordinate sign changes show that any monomial having an odd exponent has integral zero. Coordinate permutations and $u_1^2+u_2^2+u_3^2=1$ give
+\[
+ \int u_i^2\,d\sigma=\frac13.
+\]
+For fourth moments, put $A=\int u_1^4\,d\sigma$ and
+$B=\int u_1^2u_2^2\,d\sigma$. Permutation invariance makes these independent of the selected distinct coordinates. The orthogonal coordinate change
+\[
+ (u_1,u_2,u_3)\longmapsto
+ ((u_1+u_2)/\sqrt2,(u_1-u_2)/\sqrt2,u_3)
+\]
+gives $A=(2A+6B)/4$, so $A=3B$. Multiplying the norm identity by $u_1^2$ and integrating gives $A+2B=1/3$. Therefore
+\begin{equation}\label{eq:moments}
+ \int u_i^4\,d\sigma=\frac15,\qquad
+ \int u_i^2u_j^2\,d\sigma=\frac1{15}\quad(i\ne j).
+\end{equation}
+The displayed coordinate change is an orthogonal reflection, not a proper rotation. Together with the constant moment one and the odd-exponent rule, these formulas exhaust every monomial of total degree at most five. Finite expansion over the support of a multivariate polynomial proves the bridge from these monomial identities to \eqref{eq:design}.
+
+For any fixed unit vector $x$, an orthogonal reflection carries $x$ to the first coordinate vector. Consequently the dot-product moments are
+\begin{equation}\label{eq:dotmoments}
+ \int\ip{x}{u}^{\,k}\,d\sigma(u)=
+ \begin{cases}1&k=0,\\1/3&k=2,\\1/5&k=4,\\0&k=1,3,5.\end{cases}
+\end{equation}
+The Lean polynomial \code{linearForm x} represents $u\mapsto\ip{x}{u}$, with a proved degree bound. Thus design exactness applies to each of its first five powers without adding a separate moment hypothesis to the final theorem.
+
+\section{Lower bound and equality constraints}
+Consider the degree-five polynomial
+\[
+ F(t)=(1+t)(5t^2-1)^2
+     =25t^5+25t^4-10t^3-10t^2+t+1.
+\]
+It is nonnegative on $[-1,1]$, and $F(1)=32$. By \eqref{eq:dotmoments}, its sphere average at any unit pole is
+\[
+ 25\cdot\frac15-10\cdot\frac13+1=\frac83.
+\]
+For a design of size $N$ and a point $x\in X$, exactness therefore gives
+\begin{equation}\label{eq:lp}
+ \frac83N=\sum_{y\in X}F(\ip{x}{y})\ \ge\ F(1)=32.
+\end{equation}
+The inner products lie in $[-1,1]$ by Cauchy--Schwarz, so every summand used in the inequality is nonnegative. This proves $N\ge12$.
+
+If $N=12$, the sum equals its diagonal term. Hence every off-diagonal term is zero, and distinct $x,y\in X$ satisfy
+\begin{equation}\label{eq:roots}
+ \ip{x}{y}=-1\quad\hbox{or}\quad \ip{x}{y}^2=\frac15.
+\end{equation}
+These constraints also imply antipodality. If $-x$ were absent, all eleven off-diagonal squared inner products would equal $1/5$, giving
+\[
+ \sum_{y\in X}\ip{x}{y}^2=1+\frac{11}{5}=\frac{16}{5}.
+\]
+But degree-two exactness gives $12/3=4$, a contradiction. The equality case $\ip{x}{y}=-1$ for unit vectors implies $y=-x$, since $\|x+y\|^2=0$.
+
+\section{A twelve-point design}
+The identities $\varphi^2=\varphi+1$ yield
+\begin{equation}\label{eq:ab}
+ a^2+b^2=1,\qquad a^2b^2=\frac15,\qquad
+ a^4+b^4=\frac35,\qquad b^2-a^2=ab.
+\end{equation}
+Both $a$ and $b$ are positive. The three families in \eqref{eq:ico} have different zero coordinates and contain four distinct points each, so $|I|=12$. Every point has unit norm.
+
+Independent coordinate sign changes preserve $I$, so odd-exponent monomial sums vanish. Its cyclic coordinate symmetry and \eqref{eq:ab} give, for every coordinate $i$ and distinct $i,j$,
+\[
+ \frac1{12}\sum_{v\in I}v_i^2=\frac{4a^2+4b^2}{12}=\frac13,
+ \qquad
+ \frac1{12}\sum_{v\in I}v_i^4=\frac{4a^4+4b^4}{12}=\frac15,
+\]
+\[
+ \frac1{12}\sum_{v\in I}v_i^2v_j^2=\frac{4a^2b^2}{12}=\frac1{15}.
+\]
+The constant average is one. These exhaust the even monomials of degree at most five, and match the actual surface moments. The finite polynomial-support bridge now proves that $I$ is a spherical 5-design.
+
+\section{Rigidity of the equality case}
+Let $c=ab>0$, so $c^2=1/5$ and $c<1$. By \eqref{eq:roots}, distinct points of a twelve-point design have inner product in $\{-1,c,-c\}$, and the set is antipodal. Choose $x\in X$ and a point outside $\{x,-x\}$, which exists because $|X|=12$. Replacing that point by its antipode if necessary gives $y\in X$ with $\ip{x}{y}=c$.
+
+Put $p=(0,a,b)$ and $q=(0,-a,b)$, for which $\ip{p}{q}=c$. Two orthogonal reflections align $(x,y)$ with $(p,q)$. First reflect in $(x-p)^\perp$ to send $x$ to $p$; then reflect in $(R_1y-q)^\perp$ to send $R_1y$ to $q$. The second reflection fixes $p$ because $\ip{p}{R_1y}=\ip{p}{q}$. The construction also handles a zero difference, in which case the corresponding reflection is the identity.
+
+Write $U$ for their composition. Suppose $z\in X$ has $\ip{x}{z}=c$. If $z=y$, its image is $q\in I$. Otherwise $\ip{y}{z}$ cannot be $-1$: that would give $z=-y$ and hence $\ip{x}{z}=-c$. Thus, writing $w=Uz$,
+\[
+ \ip{p}{w}=c,\qquad \ip{q}{w}=c\ \hbox{or}\ -c,\qquad \|w\|=1.
+\]
+Solving the two linear equations and then the norm equation gives exactly
+\[
+ w=(\pm b,0,a)\quad\hbox{or}\quad w=(\pm a,b,0),
+\]
+all belonging to $I$. The pole maps to $p$, its antipode maps to $-p$, and every remaining point with pole inner product $-c$ is the negative of one of the preceding upper points. The set $I$ is antipodal, so $U(X)\subseteq I$. An isometry is injective and both sets have twelve points; consequently $U(X)=I$. This proves rigidity and completes Theorem~\ref{thm:main}.
+
+\section{Formal statements and verification}
+The project pins Lean 4.19.0 and Mathlib v4.19.0 at commit
+\begin{center}\code{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The manifest also pins the transitive dependencies. The main entry point is \code{Conjecture1030.lean}, which imports the final theorem module. The proof is split as follows:
+\begin{center}\small
+\begin{tabular}{@{}p{0.34\textwidth}p{0.60\textwidth}@{}}
+\toprule
+Module & Mathematical responsibility\\\midrule
+\code{Definitions} & Euclidean sphere, genuine measure and polynomial design definition\\
+\code{SurfaceMeasure} & Measure identification, positive finite mass, normalization and invariance\\
+\code{SphereMoments} & Actual integrals and the full polynomial-support bridge\\
+\code{LinearProgramming} & Nonnegative polynomial, bound, equality roots and antipodes\\
+\code{DesignExactness} & Derivation of every finite-sum premise from the actual design definition\\
+\code{Icosahedron} & Twelve vertices and all degree-five discrete moments\\
+\code{IcosahedronRigidity} & Orthogonal pair alignment and coordinate exhaustion\\
+\code{Theorem} & Witness, minimum, rigidity and the exclusion consequence\\\bottomrule
+\end{tabular}
+\end{center}
+The principal declarations, all in namespace \code{Conjecture1030}, are:
+\begin{itemize}
+\item \code{ico_is_spherical_five_design};
+\item \code{spherical_five_design_card_ge_twelve};
+\item \code{spherical_five_design_minimum_twelve};
+\item \code{spherical_five_design_twelve_rigidity};
+\item \code{spherical_five_design_card_twelve_iff};
+\item \code{nonicosahedral_spherical_five_design_card_ge_thirteen};
+\item \code{no_twelve_point_nonicosahedral_spherical_five_design}.
+\end{itemize}
+Their statements contain no unproved surface-moment, finite-sum, or geometric-classification premises. Internal lemmas parameterized by invariant probability measures are instantiated with the proved normalized Hausdorff measure before the final capstones.
+
+The author build and strict source replays have succeeded. Axiom queries for the measure bridges and final theorems report only Lean's standard \code{propext}, \code{Classical.choice}, and \code{Quot.sound}. The final independent engineering evidence is recorded separately in the accompanying verification package; it binds results to source hashes and distinguishes a fresh owned-source build from reused generic dependency artifacts. The implementation uses no admitted proofs, \code{native_decide}, or custom axioms.
+
+An independent Python checker uses exact rational arithmetic in $\mathbb Q(\sqrt5)$ to check all 56 monomials of degree at most five, all 66 pairs, and the coordinate model's convex hull. It finds twenty supporting triangular facets and thirty equal-length edges, with the expected incidences. Negative controls remove a vertex, introduce a duplicate, perturb a coordinate by a nonzero rational amount, and alter a moment target; all are rejected. A global reflection and a rational orthogonal coordinate change are accepted. These finite computations supplement the proof; they do not establish the universal bound or replace the formal integral and rigidity arguments. The formal predicate \code{IsIcosahedral} is coordinate congruence, not an additional convex-hull-facet predicate.
+
+From the submission's \code{lean} directory, the standard build and principal axiom queries are:
+\begin{verbatim}
+lake build
+lake env lean -DwarningAsError=true Audit.lean
+\end{verbatim}
+Run the packaged auxiliary checker with Python 3 according to its README. The included verification instructions give the stricter source replay, dependency-closure audit, and exact output-comparison commands. The complete local verification record is distinct from any later maintainer decision. No claim of a Lean bootstrap rebuild or of rebuilding every Mathlib source is made.
+\end{document}

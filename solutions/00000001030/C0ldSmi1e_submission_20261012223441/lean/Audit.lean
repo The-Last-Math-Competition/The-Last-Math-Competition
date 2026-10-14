@@ -1,0 +1,16 @@
+import Conjecture1030
+
+#print axioms Conjecture1030.map_surface
+#print axioms Conjecture1030.surface_mass_pos
+#print axioms Conjecture1030.surface_mass_lt_top
+#print axioms Conjecture1030.sigmaProbability
+#print axioms Conjecture1030.sigma_orthogonallyInvariant
+#print axioms Conjecture1030.sphereMonomial_integral
+#print axioms Conjecture1030.designFor_of_monomial_moments
+#print axioms Conjecture1030.ico_is_spherical_five_design
+#print axioms Conjecture1030.spherical_five_design_card_ge_twelve
+#print axioms Conjecture1030.spherical_five_design_twelve_rigidity
+#print axioms Conjecture1030.spherical_five_design_card_twelve_iff
+#print axioms Conjecture1030.nonicosahedral_spherical_five_design_card_ge_thirteen
+#print axioms Conjecture1030.spherical_five_design_minimum_twelve
+#print axioms Conjecture1030.no_twelve_point_nonicosahedral_spherical_five_design
