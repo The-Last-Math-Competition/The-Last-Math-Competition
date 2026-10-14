@@ -1,0 +1,121 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\setlength{\emergencystretch}{3em}
+\newtheorem{theorem}{Theorem}
+\title{Four Rational Parking Functions, Not Twelve\\Counterexample to Conjecture 00000000456}
+\author{idealistichacker\\\small AI-assisted proof and reproduction; no affiliation claimed}
+\date{13 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The stated factorial ratio is not the cardinality of standard rational parking
+functions. In the height-first convention, parameters $(m,n)=(3,2)$ give four
+labelled rational Dyck paths, while the displayed ratio is $4!/2!=12$.
+An enumerative positive $q$-refinement cannot specialize at $q=1$ both to the
+actual count and to this ratio. A self-contained pinned Lean project verifies
+actual paths, every-vertex diagonal tests, exhaustive distinct labels, the
+path/column bridge, the four-object count and the closed specialization negation.
+\end{abstract}
+
+\section{The named objects and the necessary clause}
+Both source languages name rational parking functions and describe the factorial
+ratio as their count. The Chinese explicitly states the counting formula; the
+English calls the requested positivity a strengthening of that formula.
+Following the height-first convention of \cite{ALW}, an $(m,n)$ rational parking
+function is a Dyck path from $(0,0)$ to $(n,m)$, with its $m$ north steps labelled
+bijectively by $1,\ldots,m$, increasing from bottom to top within each column.
+We use positive coprime parameters $(m,n)=(3,2)$.
+
+A genuine enumerative $q$-analogue $Q$ must satisfy $Q(1)=|\mathrm{PF}_{m,n}|$.
+The stated counting formula would simultaneously require
+\[
+ Q(1)=\frac{(m+n-1)!}{(m-1)!}.
+\]
+This condition is independent of the chosen statistic. As a bare number, the
+factorial ratio does have a positive $q$-integer product; that numerical fact
+is not denied here. Such a product is not a refinement of the actual object
+count in the counterexample. Dropping the object count would change the assertion.
+
+\section{An exhaustive geometric count}
+Let $c_i$ be the column where the $i$th north step starts, for $i=0,1,2$.
+The path lies above the line $3x=2y$ precisely when
+\[
+ 0\leq c_0\leq c_1\leq c_2<2,\qquad 3c_i\leq2i.
+\]
+Thus $(c_0,c_1,c_2)$ is either $(0,0,0)$ or $(0,0,1)$.
+The column data reconstruct the unique word by inserting east runs before,
+between and after the three north steps. Each horizontal run has its minimum
+diagonal margin at the right endpoint; north steps increase the margin.
+The terminal east run at height three ends at width two and stays above the
+line. This accounts for every vertex and the endpoint, not just north steps.
+
+For $(0,0,0)$ all three labels must increase, giving one labelling. For
+$(0,0,1)$ only the first two must increase, giving three labellings:
+\[
+\begin{array}{c|c|c}
+\text{word}&\text{north labels in path order}&\text{preferences in label order}\\\hline
+NNNEE&(1,2,3)&(0,0,0)\\
+NNENE&(1,2,3)&(0,0,1)\\
+NNENE&(1,3,2)&(0,1,0)\\
+NNENE&(2,3,1)&(1,0,0)
+\end{array}
+\]
+Preferences record the north-step column for each label. Sorting columns and
+sorting labels within each column reconstruct the labelled path; hence no
+object or multiplicity is hidden by this representation.
+
+\begin{theorem}
+For standard rational parking functions at height-first parameters $(3,2)$,
+the actual count is four and the stated factorial ratio is twelve.
+Consequently the claimed enumerative positive $q$-refinement cannot exist.
+\end{theorem}
+\begin{proof}
+The exhaustive count above gives four distinct objects, whereas
+$(3+2-1)!/(3-1)!=24/2=12$. If a required refinement existed, its value at one
+would be both four and twelve, a contradiction.
+\end{proof}
+The convention that lists width first also cannot rescue a universal formula:
+the same paths at $(2,3)$ would give four against twenty-four. The Lean proof
+advertises only the declared height-first witness, not an unverified extra case.
+
+\section{Kernel-checked definition bridges}
+The Lean source imports only the \texttt{Std} library bundled with Lean 4.33.1.
+Actual north/east words have a recursive vertex test and exact step counts.
+The theorem \texttt{word\_universe} covers every length-five word;
+\texttt{raw\_word\_bridge} and \texttt{path\_injective} identify the path and
+column representations without omitting terminal steps.
+Every raw column/label object is enumerated, membership is equivalent to the
+actual validity predicate, the four-element list is exact and has no duplicates.
+Distinct labels in the three-element type use all labels; the same-column
+strict inequalities are enforced before counting.
+
+Finite natural-coefficient lists represent positive polynomials, with ordinary
+Horner evaluation. The theorem \texttt{eval\_at\_one} identifies evaluation
+with the coefficient sum. The final closed specialization theorem rules out
+simultaneous evaluation to the genuine count and the proposed formula.
+Kernel \texttt{decide} is used only on actual finite words, labels and their
+fully specified predicates, not as a replacement for a definition bridge.
+Every advertised theorem has its actual type and transitive axioms printed.
+
+\section{Reproducibility and limits}
+The accompanying Python reproducer independently checks all endpoint-compatible
+words and label permutations, then cleanly rebuilds this pinned project and
+audits every theorem. It has no external package dependencies or network
+bootstrap requirement. Compiler binaries and bundled standard-library modules
+remain trusted; no compiler audit, cross-platform run or human expert endorsement
+is claimed. The submitted PDF is actually compiled from this source; validation
+also recompiles and compares its bytes.
+
+This is a counterexample to a necessary counting clause, not a denial of other
+parking-function positivity theorems or of the bare numerical $q$-integer
+product. No source conjecture or organizer metadata is modified, and no
+affiliation, first-solution credit, score or upstream acceptance is asserted.
+
+\begin{thebibliography}{1}
+\bibitem{ALW} D. Armstrong, N. A. Loehr, G. S. Warrington,
+\emph{Rational Parking Functions and Catalan Numbers},
+arXiv:1403.1845v1 (2014), Sections 3.1--3.2 and Corollary 4.
+\end{thebibliography}
+\end{document}
