@@ -1,0 +1,238 @@
+FINAL FROZEN-SOURCE SEMANTIC REVIEW — conjecture00000002899
+Reviewer: /root/scope_2899
+Verdict: PASS, within the expressly stated coefficient-one interpretation.
+This is a final semantic verdict on the frozen Lean source, not a build/trust
+audit certificate, final report/PDF verdict, eligibility decision, or publication
+approval. Those separate checks are not implied by this document.
+
+1. Reviewed snapshot and reproducible identity
+
+The final source is 2899/review-source/lean. I checked its complete inventory
+against 2899/frozen-review-manifest.json. The manifest's actual SHA-256 is
+
+  9c39ca7507fa1980ad645d519a4a60a97593be999a7d80b7539ce9f8be1bee94.
+
+There are exactly 11 files, with no missing or additional files, and every
+file's actual hash matches the manifest:
+
+Conjecture2899/Asymptotic.lean
+  42cf1a67faf0ce4d60fa2fdfe8ef30188f8b2e21435e4886a29ccca781cfc413
+Conjecture2899/AxiomAudit.lean
+  05d5fbdc702c2deac8fe3f8f068921ecb015a3c5c4953f23473dee99e3042678
+Conjecture2899/Bounds.lean
+  e9ebe002675fbc61330938864fce9afa0087aa575002ded390d4c383b9eb66f9
+Conjecture2899/Counting.lean
+  6de478214c9254cb8766c535491c0a6d8c8b7bd965830a481b27ff9d06294abe
+Conjecture2899/Geometry.lean
+  d61210ea0c6647252622247160b94d121914a28c0e65112f0e74d19fe96424db
+Conjecture2899/Minimum.lean
+  a4e5343a215c21ef01b59e331d788fa6aacb20154d88912b742e76118640cf0f
+Conjecture2899/Squares.lean
+  58639d2b45b27e9f8bea9c8f62009bb01e9081a7b3ddc469392f2c3667f682d7
+Conjecture2899.lean
+  0ad3efab6c7f731636233947e818083ca60b35d9e9feb0279f97a6b7d5972409
+lake-manifest.json
+  ed8c8c787d2f295748a7c5eac7a25f3b2774dc68a7242c5c7671f6588c3670e2
+lakefile.lean
+  90011a35e515ddf103169503cdc478c7627e3d25003eb12d0705944e09b6a6aa
+lean-toolchain
+  55e97be96000b5e9e290c9e74482e5e317861499a5540353ce845471bded8cea
+
+Geometry, Squares, Counting, and Minimum match exactly the byte identities
+already fully reviewed in phase2-preliminary-semantic-review.txt. I read the
+entire final Bounds file: the change is the all-dimension wrapper
+normalized_minimum_upper_bound_in_each_dimension. I also read every line of
+the remaining Asymptotic, AxiomAudit, root module, and three configuration
+files. Thus the final assessment covers the complete current source, reusing
+prior full reads only where cryptographic identity was confirmed.
+
+Additional allowed reads: the exact original and both rules from
+clean-author-input, the phase-1 plan, the current report draft, and generic
+Mathlib excerpts under runtime/stock7302. In particular I inspected the generic
+Nat.exists_infinite_primes declaration and proof and ZMod's natural-cast-zero
+divisibility criterion. The prime theorem explicitly provides a prime p>=n
+for every n, so its application supplies an unbounded family.
+
+No other competition originals, prior solutions, attempts, eligibility notes,
+selector material, PRs, web solutions, or old mathematics were read. I used
+no network, performed no build, edited no proof, and contacted no author or
+other agent except root. This review does not certify external provenance or
+the cleanliness of a dependency checkout merely from its path or manifest.
+
+2. Statement fidelity and interpretation boundary
+
+The exact original asks about sets containing a line in every direction and
+displays the asymptotic lower bound q^d(1-c/q), followed by an attainment claim.
+ProposedEventualLowerBound formalizes the necessary lower-bound component as
+
+  exists c : Real, exists Q : Nat,
+  for every actual finite field F with q=|F|>=Q,
+    q^d(1-c/q) <= minimumKakeyaSize F d.
+
+c is fixed as q grows but may depend on the fixed dimension d, as may Q.
+The final negation holds for every natural d>=2. The natural threshold is
+equivalent to an arbitrary real field-size threshold after taking a natural
+upper bound. Arithmetic in the displayed inequality is real, including its
+division and subtraction. No natural truncation changes its meaning.
+
+This faithfully captures the displayed coefficient-one, fixed-c reading.
+The source does not explicitly resolve the words "of type". If those words
+were intended to suppress an arbitrary leading multiplicative constant and
+mean only Omega(q^d), this is a different assertion and is not refuted here.
+Similarly, c growing with q is outside the reading. This material limitation
+was acknowledged in the plan and is prominently present in the draft report.
+The PASS requires preserving that scope, not declaring all possible readings
+of the informal original false. The undefined attainment method need not be
+formalized to contradict its necessary lower-bound clause.
+
+3. Actual affine geometry and exact counting
+
+Ambient is the genuine coordinate vector space Fin d -> F. IsKakeya requires
+for every nonzero vector a base a with a+t*v in K for every t in F. The
+line_injective and line_card theorems certify that this parameterization has
+exactly |F| distinct points. It therefore denotes a full affine line, not a
+segment or a bounded sample. Quantification over all nonzero vectors covers
+every projective direction; scalar multiples simply reparameterize a line.
+
+The constructed family is exactly the finite set
+
+  {w : F^(n+2) : w_0=0 or exists z, w_1+w_0^2=z^2}.
+
+family_isKakeya uses the whole x_0=0 hyperplane for a direction with v_0=0,
+including directions whose first two entries vanish. For v_0!=0 it sets
+b=v_1/(2*v_0), base coordinate 1 to b^2, and other base coordinates to zero.
+The identity w_1+w_0^2=(b+t*v_0)^2 then supplies every point on the required
+line. The explicit hypothesis (2:F)!=0 and v_0!=0 justify division. Nothing
+assumes that v_1 or a later coordinate is nonzero. All dimensions n+2 and all
+directions in them are covered.
+
+finite_field_square_count symbolically proves a singleton zero fiber and
+two-element nonzero fibers {z,-z}. It obtains 2|S|=q+1 for the actual square
+image. slice_card proves the translation bijection to that image. familyEquiv
+is an explicit equivalence between members of the family and an allowed
+first-coordinate/second-coordinate pair together with a free Fin n -> F
+function, with both inverse laws checked in the source.
+
+Consequently family_card_product counts q^n actual completions of each pair,
+family_card_identity proves 2|K|+q^n=(q^2+2q)q^n, and family_card_real yields
+
+  |K|=((q^2+2q-1)/2)q^n.
+
+The q-1 in the intermediate natural count is backed by q>0 and the explicit
+subtraction identity. The final fractional expression lives in the reals.
+This chain is an exact count of the actual defined finset. It contains no
+numerical surrogate or unsupported optimality claim.
+
+4. True minimum and all finite-field/dimension bounds
+
+minimumKakeyaSize is Nat.find over cardinalities of ALL Kakeya finsets in
+the actual ambient space. The universal finset witnesses nonemptiness.
+minimum_attained provides a genuine minimizer, and minimum_le_card compares
+that minimum with every admissible finset. These are actual source theorems;
+the quantity was not defined to be the family size or the proposed formula.
+
+family_lt_proposed_bound applies the real exact count for arbitrary real c
+when q>2(c+1). Positivity of q and q^n justifies the strict multiplication and
+the denominators. The planar gap is
+
+  q^2(1-c/q)-(q^2+2q-1)/2 = q(q/2-c-1)+1/2 > 0.
+
+normalized_minimum_upper_bound invokes the actual family's Kakeya theorem
+and minimum_le_card before dividing by q^(n+2)>0. It concludes a bound on the
+genuine minimum, not merely on the constructed family's density. The added
+normalized_minimum_upper_bound_in_each_dimension explicitly rewrites every
+d>=2 as (d-2)+2. Thus the normalized bound is actually exposed for every such
+dimension, including d=2. No claim that the minimum density converges to 1/2
+or that the constructed family is optimal is made.
+
+5. Final unbounded counterexamples and exact negation
+
+prime_field_counterexamples takes arbitrary n:Nat, c:Real, and Q:Nat before
+choosing its witness. exists_nat_gt chooses N with 2(c+1)<N. Euclid's theorem
+is applied at max N (max Q 3), obtaining a prime p with p>=N, p>=Q, and p>=3.
+This proves both the real size inequality and p>2, for every supplied c and
+threshold. In particular, a negative or nonintegral c is not excluded.
+
+The existential hp:p.Prime installs the ordinary Fact p.Prime instance, so
+the witness space is the actual field ZMod p. The source proves (2:ZMod p)!=0:
+otherwise the generic casting criterion gives p|2, contradicting p>2.
+ZMod.card identifies the actual field cardinality as p. The witness K is the
+already constructed family (ZMod p) n, and the theorem's conclusion explicitly
+contains IsKakeya K, the genuine minimum comparison, and the strict inequality
+for its actual cardinality. It does not existentially quantify an unrelated
+number or assume the target bound as a hypothesis.
+
+counterexamples_in_each_dimension has the full required signature:
+
+  for every d:Nat with 2<=d, every c:Real, and every Q:Nat,
+  exists an actual prime p>2 with p>=Q and an actual Kakeya
+  K subset (ZMod p)^d such that
+    minimumKakeyaSize (ZMod p) d <= |K| < p^d(1-c/p).
+
+It proves the d=(d-2)+2 conversion explicitly and invokes the preceding
+construction. Since Q is arbitrary, this is an unbounded family of field
+orders, not a single small-field counterexample or a finite test list.
+
+not_proposedEventualLowerBound then assumes the actual defined eventual
+bound, extracts its c and Q, obtains the corresponding counterexample, and
+specializes the universal field assertion at that SAME ZMod p. ZMod.card
+transfers p>=Q into the asserted cardinality condition. The chained
+minimum<=|K|<bound contradicts bound<=minimum. This final theorem therefore
+negates precisely the defined necessary assertion in every d>=2; it does
+not stop at an informal bridge or at an example for one candidate constant.
+
+6. Root module, audit surface, and configuration
+
+Conjecture2899.lean imports AxiomAudit, which imports Asymptotic, reaching
+Bounds, Counting, Minimum, Geometry, and Squares. The whole authored
+mathematical chain is therefore reachable from the root. AxiomAudit contains
+25 #print axioms targets, matching the manifest's 25 entries exactly in order,
+and prints/checks the key definitions and final theorem signatures. This
+includes the minimum, product equivalence, all-dimension bounds, actual prime
+counterexamples, and the negation, not merely the last theorem.
+
+The toolchain file states leanprover/lean4:v4.19.0. The package enables
+warningAsError and selects the Conjecture2899 Lean library as default target.
+The manifest fixes Mathlib at c44e0c8ee63ca166450922a373c7409c5d26b00b with
+inputRev v4.19.0 and records the transitive dependency revisions. No added
+problem-specific package or local replacement is declared in this inventory.
+Those source facts do not prove a resolved dependency tree is clean or that
+build outputs were independently regenerated; root's formal audit owns that
+verification. I have not executed the audit commands or inspected their
+resulting axiom lists, so I make no runtime axiom or successful-build claim.
+
+7. Report draft consistency — preliminary only
+
+I read 2899/report/report.tex in full. Its recorded draft SHA-256 was
+
+  c47cf629ce8545fa61638cca0e5f77fd9c865c6e128f65623a2540d21c5f0404.
+
+The mathematical definitions, square count, affine-line witnesses, free
+coordinate count, exact formula, true-minimum comparison, and arbitrary-c/Q/d
+counterexample argument agree with the frozen source. The draft's choice of
+a single N already larger than all thresholds and the implementation's max
+of N,Q,3 are equivalent ways to ensure the needed inequalities. Its explicit
+interpretation limit correctly distinguishes coefficient one from an
+unspecified positive multiple of q^d. I found no mathematical mismatch.
+
+The draft plainly labels itself incomplete and leaves the verification
+record pending. I did not inspect a PDF, render the report, or certify its
+typesetting, current final wording, formal-verification section, or source
+provenance citation. No final report verdict is issued here. Any later draft
+change requires its own matching review.
+
+8. Final semantic conclusion and remaining limitations
+
+PASS: every phase-1 mathematical bridge is now represented by actual objects,
+definitions, and theorem proofs in the frozen source. The family has all full
+affine directions and an exact count; the minimum is genuine and attained;
+the capstone handles every real c, every threshold Q, and every dimension
+d>=2 with unbounded actual prime fields; and the defined eventual bound is
+explicitly negated. No semantic weakening or missing mathematical bridge was
+found.
+
+The scope remains the displayed coefficient-one, fixed-constant reading of
+the ambiguous original. Formal build/trust/dependency checks, final report
+and PDF agreement, competition eligibility, and publication are separate and
+were not certified by this semantic review. This PASS must not be reported
+as having performed those checks or as refuting an Omega(q^d) interpretation.

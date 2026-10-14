@@ -1,0 +1,218 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{fontspec,xeCJK}
+\setCJKmainfont{FandolSong-Regular.otf}
+\usepackage[hidelinks]{hyperref}
+\usepackage{enumitem}
+\setlist[itemize]{nosep,leftmargin=*}
+\newcommand{\F}{\mathbb F}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\newtheorem{theorem}{Theorem}
+\title{Conjecture 00000002899:\\a counterexample to the displayed\\Kakeya asymptotic lower bound}
+\author{C0ldSmi1e}
+\date{12 October 2026}
+\begin{document}
+\maketitle
+
+\noindent We give an explicit family of finite-field Kakeya sets and a Lean-checked
+refutation of the displayed coefficient-one eventual lower bound in every
+dimension at least two. The interpretation limit below is part of the result.
+
+\section{Original statement and precise scope}
+The original English statement is:
+\begin{quote}
+Definition: The Kakeya problem over finite fields: the size of sets containing
+a line in every direction. Conjecture: The dimension spectrum of Kakeya sets:
+the size of minimal Kakeya sets in d-dimensional space has the explicit
+asymptotic lower bound of type q\textasciicircum d(1−c/q), attained by tube
+merging of polynomial methods. (finite Kakeya size asymptotics)
+\end{quote}
+The original Chinese statement is:
+\begin{quote}
+定义：有限域上的 Kakeya 问题：含每方向线的集合的尺寸。猜想：Kakeya 集的维数谱：d 维空间的最小 Kakeya 集的尺寸有 q\textasciicircum d(1−c/q) 型显式渐近下界且下界由多项式方法的管合并达到。（有限 Kakeya 尺寸渐近）
+\end{quote}
+The source was captured from
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/1e3f7c25616e84b611350a412febceabad75b56a/conjectures/00000002899.md}{the repository's conjecture file}.
+
+For a finite field $F$ of cardinality $q$ and an integer $d\geq 1$, a Kakeya set
+$K\subseteq F^d$ contains a full affine line in every direction:
+\[
+ \forall v\in F^d\setminus\{0\},\quad
+ \exists a\in F^d,\quad \forall t\in F,\quad a+tv\in K.
+\]
+The parametrization $t\mapsto a+tv$ is injective when $v\neq0$: a nonzero
+coordinate of $v$ permits cancellation. Thus each required line has exactly
+$q$ points. Rescaling a direction by a nonzero field element only
+reparametrizes its line, so this definition includes every projective direction.
+Write $m_d(F)$ for the minimum cardinality of a Kakeya subset of $F^d$.
+This minimum exists and is attained because the full space is admissible and
+the collection of subsets is finite.
+
+We interpret the displayed expression as the eventual lower bound
+\begin{equation}\label{eq:claim}
+ \exists c\in\R\ \exists Q\in\N\ \forall F\text{ finite field},\qquad
+ q\geq Q\ \Longrightarrow\ m_d(F)\geq q^d(1-c/q).
+\end{equation}
+Both $c$ and $Q$ may depend on the fixed dimension. We disprove
+\eqref{eq:claim} for every $d\geq2$, allowing every real $c$ and every threshold.
+
+\textbf{Interpretation limit.} The source leaves ``of type'', ``dimension
+spectrum'', and ``tube merging'' undefined. Our result refutes the displayed
+leading coefficient one with an error of order $q^{d-1}$. It does not refute
+an unspecified positive multiple of $q^d$, such as an $\Omega(q^d)$ bound,
+or a version allowing $c$ to grow with $q$. No unspecified multiplicative
+constant is inserted into the displayed formula. Failure of its necessary
+lower-bound clause suffices; we do not invent a definition for the additional
+attainment method or claim to determine the sharp minimum.
+
+\section{A family in every dimension at least two}
+Let $F$ be a finite field with $2\neq0$ in $F$, and let $q=|F|$. Put
+\[
+ S=\{z^2:z\in F\},\qquad
+ K_d=\{w\in F^d:w_0=0\text{ or }w_1+w_0^2\in S\},\quad d\geq2.
+\]
+Only the first two coordinates are constrained.
+
+\begin{theorem}\label{thm:family}
+The set $K_d$ is Kakeya, and
+\begin{equation}\label{eq:card}
+ |K_d|=\frac{q^2+2q-1}{2}\,q^{d-2}.
+\end{equation}
+Consequently
+\begin{equation}\label{eq:density}
+ \frac{m_d(F)}{q^d}\leq\frac12+\frac1q-\frac{1}{2q^2}.
+\end{equation}
+\end{theorem}
+\begin{proof}
+First count the squares, including zero. The fiber of $z\mapsto z^2$ over
+zero consists of zero alone. For a nonzero square $z^2$, the fiber is
+$\{z,-z\}$: equality of squares factors as
+$(u-z)(u+z)=0$, and $z\neq-z$ because $2z\neq0$. Counting the fibers gives
+\[
+ q=1+2(|S|-1),\qquad 2|S|=q+1.
+\]
+
+Now fix any nonzero direction $v\in F^d$. If $v_0=0$, choose $a=0$; every
+point $a+tv$ has first coordinate zero and belongs to $K_d$. This case also
+covers directions whose first two coordinates vanish but a later one does not.
+If $v_0\neq0$, set $b=v_1/(2v_0)$, and let $a_1=b^2$ with every other
+coordinate of $a$ equal to zero. For every $t\in F$,
+\[
+ (a+tv)_1+(a+tv)_0^2
+   =b^2+tv_1+(tv_0)^2=(b+tv_0)^2,
+\]
+since $2bv_0=v_1$. Thus the whole line lies in $K_d$ in this case as well.
+
+For a fixed first coordinate $x=0$, all $q$ second coordinates are allowed.
+For each $x\neq0$, translation $y\mapsto y+x^2$ is a bijection, so exactly
+$|S|$ second coordinates are allowed. The remaining $d-2$ coordinates are
+free. Hence
+\[
+ |K_d|=\bigl(q+(q-1)|S|\bigr)q^{d-2}
+       =\frac{q^2+2q-1}{2}\,q^{d-2}.
+\]
+This is a count of the explicitly defined family, not an optimality claim.
+The genuine minimum satisfies $m_d(F)\leq|K_d|$. Dividing by the positive
+number $q^d$ proves \eqref{eq:density}.
+\end{proof}
+
+\section{Counterexamples beyond every threshold}
+\begin{theorem}\label{thm:unbounded}
+For every integer $d\geq2$, every $c\in\R$, and every $Q\in\N$, there is an
+odd prime $p\geq Q$ and a Kakeya set $K\subseteq(\mathbb Z/p\mathbb Z)^d$ such that
+\[
+ m_d(\mathbb Z/p\mathbb Z)\leq |K|<p^d(1-c/p).
+\]
+In particular, \eqref{eq:claim} is false in every such dimension.
+\end{theorem}
+\begin{proof}
+Choose a natural number $N\geq Q$ with $N>2$ and $N>2(c+1)$, using the
+Archimedean property of $\R$. Unboundedness of primes gives a prime $p\geq N$.
+Thus $p>2$, so $F=\mathbb Z/p\mathbb Z$ is an actual odd finite field of
+cardinality $p$, and the family of Theorem~\ref{thm:family} is available.
+For this $p$,
+\[
+ p^2(1-c/p)-\frac{p^2+2p-1}{2}
+   =p\left(\frac p2-c-1\right)+\frac12>0.
+\]
+Multiplication by $p^{d-2}>0$, followed by the minimum comparison, gives the
+stated strict inequality. The choices were made after arbitrary $c$ and $Q$;
+this proves an unbounded family of violations, not a small-field exception.
+If \eqref{eq:claim} held, specialize its field quantifier to this prime field
+to contradict the strict inequality.
+\end{proof}
+
+\section{Formal correspondence and verification}
+The Lean project uses \texttt{Fin d $\to$ F} as its actual coordinate space.
+\texttt{IsKakeya} requires membership of every point on a full affine line
+for every nonzero vector. \texttt{family} constrains coordinates zero and one
+and leaves all others free. Its explicit subtype equivalence to a first-two-
+coordinate fiber times \texttt{Fin n $\to$ F} supplies the higher-dimensional
+cardinality argument.
+
+\texttt{minimumKakeyaSize} is \texttt{Nat.find} over cardinalities of all
+admissible Kakeya finsets, with existence witnessed by the full space.
+Attainment and comparison with any actual Kakeya finset are separate theorems.
+The natural counting identity used before casting to $\R$ is
+\[
+ 2|K_{n+2}|+q^n=(q^2+2q)q^n,
+\]
+which avoids truncated subtraction and division in natural numbers.
+
+\texttt{ProposedEventualLowerBound} quantifies over arbitrary real $c$,
+natural $Q$, and every finite field. Prime fields suffice to contradict this
+universal assertion; their unbounded sizes are proved using the generic
+unbounded-prime theorem. All dimensions $d\geq2$ are obtained by $d=(d-2)+2$.
+
+\subsection*{Checked project and conclusions}
+The eight source modules are the default root \texttt{Conjecture2899},
+\texttt{Geometry}, \texttt{Squares}, \texttt{Counting}, \texttt{Minimum},
+\texttt{Bounds}, \texttt{Asymptotic}, and \texttt{AxiomAudit}; the latter seven
+are under the \texttt{Conjecture2899} namespace directory. The default target
+reaches them all. The principal declarations in that namespace are
+\begin{itemize}
+\item \texttt{counterexamples\_in\_each\_dimension}: Theorem~\ref{thm:unbounded},
+with the actual field, set, minimum comparison, and strict inequality;
+\item \texttt{not\_proposedEventualLowerBound}: the explicit negation of
+\eqref{eq:claim} for every $d\geq2$;
+\item \texttt{normalized\_minimum\_upper\_bound\_in\_each\_dimension}:
+\eqref{eq:density} for every finite field with $2\neq0$ and every $d\geq2$.
+\end{itemize}
+The global declaration \texttt{finite\_field\_square\_count} proves the square
+fiber count. The complete inventory lists 25 named definitions and theorems.
+
+The project is pinned to Lean 4.19.0 and Mathlib v4.19.0, at commit
+\begin{center}
+\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+All nine dependency revisions are locked. An independent source-only project copy passed the
+complete Lake build and strict replay of every source module and the Lake
+configuration with warnings treated as errors. The 11 frozen source and
+configuration files remained identical. All 39 owned declarations, including
+14 generated proof or equation theorems, were audited by originating module.
+Their axiom dependencies are limited to \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}; no unsafe generated helper
+is present. The audit covers 8,326 reachable declarations and verifies 2,942
+imported module identities. All 63 execution receipts were checked independently.
+
+An ordinary safe control was accepted, while five controls containing a custom
+axiom, a transitively hidden axiom, an admitted proof, compiler-trusted decision,
+or unsafe definition were rejected as intended. There is no admitted proof,
+custom axiom, or compiler-trusted decision in the submission. The square count
+and prime-field counterexamples are symbolic proofs; no external numerical
+program is used as a proof premise. Separate semantic review checked the actual
+objects, quantifiers, minimum, and interpretation against both original texts.
+
+\textbf{Trust and acceptance limits.} Generic dependency source identities and
+cached imported artifacts were checked, but the entire dependency library was
+not rebuilt and Lean was not bootstrapped. The dependency-graph check is not a
+second proof kernel; source compilation supplies Lean kernel checking.
+Runtime binaries and libraries were hashed; imported runtime artifacts were
+recorded without a compiler bootstrap. PATH safeguards are not operating-system
+network isolation. The accompanying verification record supplies reproduction
+commands, raw receipts, independent reviews, and the final PDF inspection.
+These local checks do not constitute maintainer acceptance or settle alternative
+interpretations of the informal source.
+\end{document}

@@ -1,0 +1,219 @@
+"""Independent read-only evidence verification; never imports/runs author code."""
+from pathlib import Path
+import ast, collections, hashlib, json, os, re
+
+D = Path(__file__).resolve().parents[2]
+R = D / '2899/independent-review'
+A = R / 'engineering'
+S = D / '2899/review-source/lean'
+P = A / 'project'
+ST = D / 'runtime/stock2899'
+F = D / '2899/frozen-review-manifest.json'
+PERMITTED = {'propext', 'Classical.choice', 'Quot.sound'}
+
+def read(path):
+    return json.loads(path.read_text())
+
+def sha(path):
+    h = hashlib.sha256()
+    with path.open('rb') as stream:
+        for chunk in iter(lambda: stream.read(1048576), b''):
+            h.update(chunk)
+    return h.hexdigest()
+
+def save(name, value):
+    (R / name).write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+frozen, summary, audit = read(F), read(A/'summary.json'), read(A/'declaration-audit.json')
+assert sha(F) == '9c39ca7507fa1980ad645d519a4a60a97593be999a7d80b7539ce9f8be1bee94'
+assert sha(A/'selected-manifest.json') == sha(F)
+assert read(A/'frozen-manifest.json') == frozen
+assert summary['frozen_manifest_sha256'] == sha(F)
+assert summary['status'] == 'PASS' and not summary['audit_failures']
+assert {str(p.relative_to(S)): sha(p) for p in S.rglob('*') if p.is_file()} == frozen['files']
+for name, digest in frozen['files'].items():
+    assert sha(P/name) == digest
+assert sha(A/'driver.py.txt') == sha(D/'verification-tools-v2/verify.py')
+assert sha(P/'Verification/ClosureAudit.lean') == sha(D/'verification-tools-v2/templates/ClosureAudit.lean.txt')
+assert not read(A/'active-source-token-audit.json')
+pin_evidence = read(A/'expected-pin-identities.json')
+pins = Path(pin_evidence['directory'])
+for name, digest in summary['expected_pins'].items():
+    assert sha(pins/name) == sha(S/name) == sha(P/name) == digest == pin_evidence['sha256'][name]
+manifest = read(S/'lake-manifest.json')
+expected_modules = sorted(str(Path(n).with_suffix('')).replace('/', '.') for n in frozen['files'] if n.endswith('.lean') and n != 'lakefile.lean')
+assert expected_modules == summary['modules'] == audit['requested_modules']
+assert len(expected_modules) == 8
+assert len(frozen['capstones']) == len(set(frozen['capstones'])) == 25
+assert summary['capstones'] == frozen['capstones']
+assert set(audit['permitted_axioms']) == PERMITTED
+assert audit['strict_dependency_policy'] is True
+assert audit['kernel_roots_only'] is True
+assert audit['kernel_check_performed'] is False
+assert not audit['failures'] and not audit['compiler_runtime_findings']
+roots = {r['name']: r for r in audit['declarations']}
+nodes = {r['name']: r for r in audit['dependency_graph']}
+assert len(roots) == len(audit['declarations']) == audit['local_declaration_count'] == summary['local_declaration_count'] == 39
+assert len(nodes) == len(audit['dependency_graph']) == audit['closure_declaration_count'] == summary['closure_declaration_count'] == 8326
+edge_keys = ['type_dependencies', 'body_dependencies', 'recursor_dependencies', 'inductive_dependencies']
+for node in nodes.values():
+    assert node['kind'] != 'unavailable'
+    assert set(node['dependencies']) == set().union(*(set(node[k]) for k in edge_keys))
+    assert all(dep in nodes for dep in node['dependencies'])
+union = set()
+capstone_rows = []
+for name, root in roots.items():
+    assert root['module'] in expected_modules
+    assert root['trust_enforced'] is True and root['unsafe'] is False
+    for key in ['name', 'module', 'kind', 'unsafe', 'dependencies', *edge_keys]:
+        assert root[key] == nodes[name][key]
+    found, pending = set(), [name]
+    while pending:
+        current = pending.pop()
+        if current in found:
+            continue
+        found.add(current)
+        pending.extend(nodes[current]['dependencies'])
+    assert found == set(root['closure'])
+    axioms = {n for n in found if nodes[n]['kind'] == 'axiom'}
+    unsafe = {n for n in found if nodes[n]['unsafe']}
+    assert axioms == set(root['axioms']) and axioms <= PERMITTED
+    assert set(root['lean_collectAxioms']) <= axioms
+    assert unsafe == set(root['unsafe_dependencies']) == set()
+    union |= found
+    if name in frozen['capstones']:
+        capstone_rows.append({k: root[k] for k in ['name', 'module', 'kind', 'type', 'unsafe', 'trust_enforced', 'axioms']})
+assert union == set(nodes)
+assert {r['name'] for r in capstone_rows} == set(frozen['capstones'])
+counts = collections.Counter(r['module'] for r in roots.values())
+assert {r['module']: r['declarations'] for r in audit['module_counts']} == {m: counts[m] for m in expected_modules}
+assert read(A/'runtime-helper-inventory.json') == [] and summary['runtime_helper_count'] == 0
+safe_generated = sorted(set(roots)-set(frozen['capstones']))
+assert len(safe_generated) == 14 and all(re.search(r'(\._proof_\d+|\.eq_\d+)$', n) for n in safe_generated)
+save('engineering-runtime-helper-classification.json', {'status':'PASS_NO_UNSAFE_RUNTIME_ROOTS','unsafe_runtime_root_count':0,'compiler_runtime_findings':[],'safe_generated_theorem_count':len(safe_generated),'safe_generated_theorems':safe_generated,'classification':'The 14 generated auxiliary proof/equation declarations are safe theorems under the same enforced policy as every other root; no compiler runtime helper exemption is used.'})
+save('engineering-capstone-validation.json', {'status':'PASS','capstones':capstone_rows,'count':len(capstone_rows),'scope':'Presence, safe status, exported elaborated types and permitted dependency closure. Mathematical statement interpretation is separately reviewed.'})
+
+receipts = []
+replay_modules = []
+for i, path in enumerate(sorted((A/'receipts').glob('*.json')), 1):
+    assert path.name == f'{i:04d}.json'
+    row = read(path)
+    assert row['argv'] == row['effective_argv']
+    assert sha(path.with_suffix('.stdout')) == row['stdout_sha256']
+    assert sha(path.with_suffix('.stderr')) == row['stderr_sha256']
+    assert row['exit_code'] == 0 if row['expected_exit'] == 0 else row['expected_exit'] == 'nonzero' and row['exit_code'] != 0
+    assert row['seconds'] >= 0
+    for name, digest in row['active_source_hashes'].items():
+        assert sha(P/name) == digest
+        if name in frozen['files']:
+            assert digest == frozen['files'][name]
+    argv = row['argv']
+    if argv[-1] in frozen['files'] and Path(argv[0]).name == 'lean':
+        assert '-DwarningAsError=true' in argv and row['exit_code'] == 0
+        replay_modules.append(argv[-1])
+    receipts.append({'receipt':path.name,'exit_code':row['exit_code'],'expected_exit':row['expected_exit'],'stdout_sha256':row['stdout_sha256'],'stderr_sha256':row['stderr_sha256'],'argv':argv})
+assert len(receipts) == 63
+assert sorted(replay_modules) == sorted(n for n in frozen['files'] if n.endswith('.lean') and n != 'lakefile.lean')
+lake = read(A/'receipts/0039.json')
+assert lake['argv'][1:] == ['--no-cache','--wfail','build'] and lake['exit_code'] == 0
+assert 'Build completed successfully.' in (A/'receipts/0039.stdout').read_text()
+assert read(A/'receipts/0040.json')['argv'][1:] == ['env','lean','-DwarningAsError=true','lakefile.lean']
+assert read(A/'receipts/0050.json')['exit_code'] == 0
+save('engineering-receipt-validation.json', {'status':'PASS','receipt_count':63,'unexpected_exit_count':0,'expected_nonzero_control_receipts':[r['receipt'] for r in receipts if r['exit_code']],'fresh_source_replays':replay_modules,'stdout_stderr_hashes_checked':126,'active_source_hashes_checked_at_every_receipt':True,'receipts':receipts})
+
+lib = P/'.lake/build/lib/lean'
+expected_oleans = {m.replace('.','/')+'.olean' for m in expected_modules}
+for name in ['lake-build-outputs.json','replay-build-outputs.json','audited-build-outputs.json']:
+    rows = read(A/name)
+    expect = expected_oleans | ({'Verification/ClosureAudit.olean'} if name.startswith('audited') else set())
+    assert set(rows) == expect
+    for rel, digest in rows.items():
+        assert sha(lib/rel) == digest and not (lib/rel).is_symlink()
+package_ids = read(A/'package-identities.json')
+assert package_ids == summary['package_identities']
+assert len(package_ids) == len(manifest['packages']) == 9
+tracked_sources = {}
+cache_baselines = {}
+stock_file_count = 0
+for i, (identity, spec) in enumerate(zip(package_ids, manifest['packages'])):
+    name = spec['name']
+    src = ST if name == 'mathlib' else ST/'.lake/packages'/name
+    dst = P/'.lake/packages'/name
+    rows_path = A/'stock'/f'{name}.json'
+    rows = read(rows_path)
+    assert identity['package'] == name and identity['revision'] == spec['rev']
+    assert identity['inventory_sha256'] == sha(rows_path) and identity['tracked_files'] == len(rows)
+    receipt_start = 12+3*i
+    assert (A/'receipts'/f'{receipt_start:04d}.stdout').read_text().strip() == spec['rev']
+    assert not (A/'receipts'/f'{receipt_start+1:04d}.stdout').read_text().strip()
+    git_entries = {}
+    for item in (A/'receipts'/f'{receipt_start+2:04d}.stdout').read_bytes().split(b'\0'):
+        if not item:
+            continue
+        meta, relative = item.decode().split('\t',1)
+        mode, typ, digest = meta.split()
+        assert typ == 'blob'
+        git_entries[relative] = digest
+    assert set(git_entries) == {r['file'] for r in rows}
+    for row in rows:
+        p, q = src/row['file'], dst/row['file']
+        a = os.readlink(p).encode() if p.is_symlink() else p.read_bytes()
+        b = os.readlink(q).encode() if q.is_symlink() else q.read_bytes()
+        assert a == b and hashlib.sha256(a).hexdigest() == row['sha256']
+        assert hashlib.sha1(b'blob '+str(len(a)).encode()+b'\0'+a).hexdigest() == row['git_blob'] == git_entries[row['file']]
+    stock_file_count += len(rows)
+    tracked_sources[name] = {r['file']:r for r in rows}
+    cache_baselines[name] = read(A/'stock'/f'{name}-cache.json')
+runtime = read(A/'runtime-identities.json')
+for name, digest in runtime.items():
+    assert sha(Path(name)) == digest
+runtime_bin = Path(read(A/'receipts/0001.json')['argv'][0]).parent
+module_roots = [('owned',lib)] + [(s['name'],P/'.lake/packages'/s['name']/'.lake/build/lib/lean') for s in manifest['packages']] + [('Lean-runtime',runtime_bin.parent/'lib/lean')]
+imports = read(A/'import-identities.json')
+assert len(imports) == len({r['module'] for r in imports}) == summary['import_identity_count'] == 2942
+assert {r['module'] for r in imports} == set(audit['imported_modules'])
+for row in imports:
+    relative = Path(*row['module'].split('.')).with_suffix('.olean')
+    candidates = [(label, root/relative) for label, root in module_roots if (root/relative).is_file()]
+    assert len(candidates) == 1
+    label, path = candidates[0]
+    assert label == row['package'] and str(path) == row['resolved_path']
+    assert sha(path) == row['olean_sha256']
+    if label == 'owned':
+        assert row['module'] in expected_modules + ['Verification.ClosureAudit']
+        assert sha(P/relative.with_suffix('.lean')) == row['source_sha256']
+    elif label != 'Lean-runtime':
+        src = ST if label == 'mathlib' else ST/'.lake/packages'/label
+        assert sha(src/'.lake/build/lib/lean'/relative) == row['olean_sha256'] == cache_baselines[label][str(relative)]
+        source = str(relative.with_suffix('.lean'))
+        assert sha(src/source) == row['source_sha256'] == tracked_sources[label][source]['sha256']
+for row in read(A/'stock-index-stability.json'):
+    src = ST if row['package'] == 'mathlib' else ST/'.lake/packages'/row['package']
+    assert row['unchanged'] is True and sha(src/'.git/index') == row['before'] == row['after']
+controls = read(A/'control-results.json')
+assert controls == summary['controls']
+assert [r['fixture'] for r in controls] == ['Good','Axiom','Transitive','Sorry','Native','Unsafe']
+for row in controls:
+    control = read(A/f"control-{row['fixture']}.json")
+    assert row['failures'] == control['failures']
+    assert row['expected_rejected'] == (row['fixture'] != 'Good')
+    assert bool(row['failures']) == row['expected_rejected']
+save('engineering-identity-validation.json', {'status':'PASS','frozen_manifest_sha256':sha(F),'source_file_count':11,'module_count':8,'package_count':9,'tracked_dependency_files_checked':stock_file_count,'import_count':len(imports),'imports_by_package':dict(collections.Counter(r['package'] for r in imports)),'runtime_binary_dylib_count':len(runtime),'checked':['Frozen/source/replay-copy identities','Selected/frozen manifest identity','Driver/template identity','Exact supplied pins','All build inventory hashes','All current stock/private tracked source bytes against recorded pinned Git blob IDs','All 2942 imports against actual unique resolution paths and stored hashes; package imports additionally against pre-build cache inventory/current stock bytes','Stock Git index stability (hash only, no Git command executed by this reviewer)','Recorded runtime binary/dylib identities','All six controls and expected rejection outcomes'],'limits':['Dependency source-to-cache correspondence relies on supplied stock cache; full Mathlib was not rebuilt.','Runtime was not bootstrapped; runtime .olean hashes have no pre-build baseline.','Recorded Git outputs and audit environment are evidence, not independent provenance attestation.']})
+
+author = D/'2899/author'
+author_inventory = read(author/'AUTHOR_ARTIFACT_SHA256.json')
+for name, digest in author_inventory.items():
+    assert sha(author/name) == digest
+for script in ['run_logged.py','audit_environment.py']:
+    ast.parse((author/script).read_text())
+log_rows = []
+for file in sorted((author/'logs').glob('[0-9][0-9][0-9]-*.json')):
+    data = read(file)
+    log_rows.append({'file':file.name,'argv':data['argv'],'exit_code':data['exit_code']})
+for label in ['015-complete-lake-build','016-strict-replay-lake','017-dependency-source-audit','018-strict-kernel-replay']:
+    assert read(author/'logs'/f'{label}.json')['exit_code'] == 0
+assert read(author/'logs/dependency-source-audit.json')['result'] == 'PASS'
+save('engineering-auxiliary-review.json', {'status':'PASS_WITH_HISTORICAL_SCOPE','author_artifact_manifest_sha256':sha(author/'AUTHOR_ARTIFACT_SHA256.json'),'author_artifact_count':len(author_inventory),'all_recorded_artifact_hashes_match':True,'scripts_reviewed':{'run_logged.py':'Runs explicit argv using subprocess.run without shell, sets local Lean/cache paths, writes merged output and command/exit/environment JSON to logs, exits with child code. Used by retained receipts. Not a verifier by itself.','audit_environment.py':'Reads exact pins and source, runs recorded git rev-parse/diff commands, checks module import reachability and prohibited text, writes JSON/exit result. Its token scan is limited and its author evidence is superseded by independent v2 source/closure review. Final recorded invocation exits 0.','minimum-helper/run_asymptotic.sh':'Historical local development launcher: absolute local runtime/cache paths, strict Lean invocation of Asymptotic.lean in current directory, output log and exit-code sidecar. Not portable reproduction tooling; not invoked here. Final attempt sidecar records 0; earlier failures retained.'},'historical_command_log_results':log_rows,'historical_failures_retained':[r['file'] for r in log_rows if r['exit_code'] != 0],'mathematical_computation_premises':'No external numerical computation is a premise in the active Lean source. Helper mathematics is integrated in the audited active modules.','reviewer_executed_author_helpers':False,'scope_limits':['Historical helper sources/logs are development evidence, not additional active project modules or independent mathematical premises.','Author manifest hashes were checked without using historical development plans/reports as mathematical authority.']})
+verdict = {'status':'PASS','candidate':'00000002899','frozen_manifest_sha256':sha(F),'audit_summary_sha256':sha(A/'summary.json'),'declaration_audit_sha256':sha(A/'declaration-audit.json'),'counts':{'frozen_files':11,'active_modules':8,'capstones':25,'local_declarations':39,'safe_generated_theorems':14,'unsafe_generated_helpers':0,'closure_declarations':8326,'imports':2942,'command_receipts':63,'controls':6},'results':['All frozen source/config bytes and externally supplied pins match.','The recorded fresh Lake build and every strict source replay succeed; receipt hashes and source snapshots match.','All 39 local roots are safe, trust-enforced, and have only propext, Classical.choice and Quot.sound in axiom closure. No unsafe dependency or unavailable graph node exists.','All 25 frozen capstones are present; finite_field_square_count outside the main namespace is included by originating-module selection.','Independent Python graph checker passed once; separate fixed-policy closure recomputation passed.','No unsafe compiler runtime helper is present. Fourteen generated proof/equation theorems receive full safe-root checks.','All 2942 import identities, all nine package inventories, stock index stability and runtime binary/dylib identities validate against recorded evidence.','All six controls produce their expected outcomes; expected control failures remain distinct from the passing project audit.','Source/config and auxiliary-script review found no submitted side-effect or custom metaprogramming bypass. Retained historical author failures are not treated as passing proofs.'],'scope':'Engineering validation of root-run independent v2 audit and frozen source. This reviewer did not execute Lean/project/build or author helpers, edit author source, use network/Git commands, or inspect other candidates proof/report contents.','limits':['This verdict is not the separate mathematical/statement/LaTeX/PDF review.','Lean runtime was supplied and not bootstrapped; cached dependencies were not rebuilt.','Runtime .olean identities have no pre-build baseline; binaries/dylibs do.','The audit exports dependency structure; fresh source compilation supplies kernel checking. JSON consistency is not another kernel check or an independent Lean environment extraction.','PATH wrappers are not OS network isolation.','Historical author scripts are local evidence collectors, not portable package reproduction commands.'],'evidence_files':['engineering-source-review.json','engineering-tool-review.json','engineering-graph-check-receipt.json','engineering-graph-check.stdout.txt','engineering-receipt-validation.json','engineering-identity-validation.json','engineering-runtime-helper-classification.json','engineering-capstone-validation.json','engineering-auxiliary-review.json']}
+save('engineering-verdict.json',verdict)
+print(json.dumps({'status':verdict['status'],'counts':verdict['counts'],'tracked_dependency_files_checked':stock_file_count,'author_artifact_count':len(author_inventory)},indent=2))

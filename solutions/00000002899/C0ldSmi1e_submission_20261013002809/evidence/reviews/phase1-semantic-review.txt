@@ -1,0 +1,222 @@
+PHASE 1 INDEPENDENT SEMANTIC REVIEW — conjecture00000002899
+Reviewer: /root/scope_2899
+Decision: PASS for the mathematical plan and its expressly stated interpretation.
+This is NOT a completed-proof, Lean-build, artifact, eligibility, or publication approval.
+
+Materials read
+
+I read the exact original 00000002899.md and both RULES.en.md and RULES.zh.md
+from 2899/clean-author-input, and the complete 2899/author/PHASE1_PLAN.txt.
+I did not read other competition originals, prior solutions or attempts,
+selector notes, previous mathematical material, PRs, or web solutions. I did
+not inspect a proof implementation, run a build, use the network, modify the
+author's files, contact the author, or communicate with another reviewer. Only
+root received my preliminary findings and this review. No generic-library
+inspection was needed for the semantic judgment, and this review does not
+independently certify the plan's inventory of Mathlib lemmas or provenance.
+
+The exact source says that the size of minimal Kakeya sets has an explicit
+asymptotic lower bound "of type q^d(1−c/q)" and says it is attained by a
+polynomial-method construction. The source defines Kakeya sets through lines
+in every direction, but leaves several quantifiers and terms implicit. Both
+rules require a complete mathematical report and a complete matching Lean
+project for a final submission. Those final requirements are not yet met by
+a phase-1 plan and are not waived by this PASS.
+
+1. Independent confrontation of the claim
+
+Before receiving the plan, I independently checked that a planar family can
+contradict the proposed leading density one: over an odd finite field take
+the union of lines y=mx+m^2 for all m, then add the vertical line x=0. For
+each x, the polynomial m^2+xm has an image of size (q+1)/2, by completing the
+square or by its involution m -> -x-m. The union, after adding the vertical
+line, therefore has (q^2+2q-1)/2 points and all affine directions. Thus the
+fundamental obstruction is a family of genuine Kakeya sets with density
+approaching 1/2, not a numerical mismatch at one field size. This independent
+check agrees with the size and obstruction claimed in the author's plan.
+
+The author's set has a different convenient formula. I checked that formula
+and its witnesses directly, as detailed below; this review does not merely
+infer its validity from resemblance to the preliminary construction.
+
+2. Meaning of the asymptotic assertion
+
+For a fixed d, the plan formalizes the necessary lower-bound assertion as
+
+  exists c : Real, exists Q : Nat, for every finite field F with q=|F|>=Q,
+    q^d(1-c/q) <= m_d(F).
+
+This is the ordinary fixed-constant reading of the displayed expression with
+leading coefficient one. Allowing c and Q to depend on d is already included.
+The plan disproves it for every d>=2. In particular, there is no need to assume
+one constant works uniformly over dimensions. Natural Q is sufficient for
+the usual notion of an arbitrarily large field-size threshold, because field
+cardinalities are integers and any real threshold has a natural upper bound.
+Real c, rather than only a natural or rational c, is explicitly handled.
+
+The geometric statement is normally quantified over general positive
+dimensions, so d=2 would suffice. The plan is stronger: it covers every fixed
+d>=2 and acknowledges d=1 separately. Nothing in the exact original excludes
+dimension 2 or odd prime fields. Finite fields are determined up to isomorphism
+by their cardinality, so writing m_d(F) instead of m_d(q) is semantically
+appropriate; in any case the actual prime-field counterexamples themselves
+are enough to negate a claim covering all finite fields.
+
+Material ambiguity: "of type" could have been meant only as a rough order
+of growth with an unspecified positive multiplicative coefficient. The
+construction does NOT refute a claim such as A_d q^d(1-c_d/q) with suitable
+A_d<=1/2, or a bare Omega(q^d) claim. The original gives no A_d or explicit
+quantifiers that conclusively settle this ambiguity. The plan prominently
+acknowledges this and limits its disproof to the displayed coefficient-one
+bound. That limitation must remain prominent in the report and final theorem
+description. This PASS is conditional on preserving that honest scope; it is
+not a determination that every possible interpretation of "of type" is false.
+
+Allowing c to depend on q and grow linearly would likewise change the claim.
+The counterexample does not purport to disprove that different reading.
+
+3. Affine geometry and all directions
+
+Ambient space Fin d -> F is the standard d-dimensional vector space F^d.
+The proposed IsKakeya definition quantifies over every v != 0, permits a base
+point a depending on v, and requires a+t*v in K for EVERY t in F. It therefore
+means a whole affine line, not a segment, a two-point condition, a collection
+of points labeled by directions, or a subset of the possible directions.
+
+For v != 0, a nonzero coordinate of v shows t -> a+t*v is injective, so the
+line has exactly q points. Quantifying over vectors rather than projective
+classes is equivalent because scaling a nonzero vector by a nonzero scalar
+just bijectively reparametrizes the same line. Both observations are explained
+correctly in the plan and should be present in the final geometric explanation.
+
+For the author's planar set
+
+  K_2 = {(x,y) : x=0 or y+x^2 is a square},
+
+the u=0 case uses base (0,0) and includes the entire line in x=0. If u!=0,
+odd characteristic implies 2u!=0; putting b=v/(2u) and a=(0,b^2) gives
+
+  (b^2+t*v)+(t*u)^2 = (b+t*u)^2
+
+because 2bu=v. This identity holds for all t and establishes membership in
+the square branch. The base is allowed to depend on the actual direction.
+There is no missing vertical direction, sign error, or assumption that the
+second direction coordinate is nonzero. A construction that also works for
+the zero direction is harmless; IsKakeya still uses the conventional nonzero
+directions.
+
+4. Exact cardinality and the higher-dimensional construction
+
+In an odd finite field, the square map has one preimage over zero and exactly
+two preimages over each nonzero square. The latter are z and -z, distinct
+because 2z!=0. Conversely, equality of squares implies equality up to sign by
+factoring a difference of squares in a field. Hence 2|S|=q+1. This argument
+counts the actual field elements and does not assume a probability model.
+
+At x=0 the author's set includes all q values of y. At each x!=0 the map
+y -> y+x^2 is a bijection, giving |S| allowed y values. The disjoint fiber
+count is therefore q+(q-1)|S|=(q^2+2q-1)/2. There is no double-counting of
+the vertical fiber and no unsupported claim of optimality.
+
+For d=n+2, the set predicate constrains exactly coordinates 0 and 1 and leaves
+the remaining n coordinates free. A verified coordinate decomposition thus
+gives exactly q^n completions for each accepted planar pair. The proposed
+subtraction-free natural-number identity
+
+  2|K_d|+q^n=(q^2+2q)q^n
+
+is algebraically correct and is a useful way to avoid natural-number
+subtraction or division corrupting the count. Its cast to the reals yields
+the stated cardinality formula. The real formula must be read with real
+subtraction and division; interpreting its fractional expression in Nat
+would need a separate exact-divisibility argument and is unnecessary.
+
+For a higher-dimensional direction, the same first-coordinate split works.
+If its first coordinate is zero, every parameter value stays in x_0=0 even
+if its first two coordinates both vanish and a later coordinate is nonzero.
+Otherwise the same square identity applies. Free later coordinates absorb
+their t-dependent values. Thus the Cartesian-product extension does not omit
+directions parallel to the added factor. Passing from n+2 to every d>=2 via
+n=d-2 is mathematically valid.
+
+5. Genuine minimum, not the size of the chosen family
+
+The proposed minimum ranges over cardinalities of ALL Kakeya finsets in the
+actual ambient space. Finset.univ is a witness, so Nat.find is well-defined.
+Nat.find_spec supplies an actual minimizer and Nat.find_min' (or an equivalent
+argument) gives m_d(F)<=|K| for every admissible K. Finiteness ensures there
+is no discrepancy between sets and finsets in this ambient space.
+
+The construction's exact size is an upper bound for this true minimum. It is
+not defined to be the minimum and is not asserted optimal. This direction of
+comparison is the one needed: m_d(F)<=|K_d|<the proposed lower bound. The
+plan explicitly lists attainment and the comparison as required theorems,
+so the bridge is neither omitted nor merely assumed in the capstone.
+
+6. Unbounded counterexamples and strict arithmetic comparison
+
+Given any real c and natural Q, choose a natural N with N>2, N>=Q, and
+(N:Real)>2(c+1). The Archimedean property permits this even for negative c.
+An unbounded-prime theorem gives a prime p>=N, hence p>2 and p>=Q. ZMod p
+is consequently an actual odd finite field with cardinality p. Instantiating
+the construction here is enough; there is no need to construct all odd
+prime-power orders merely to negate the universal lower bound.
+
+The precise difference in dimension 2 is
+
+  p^2(1-c/p) - (p^2+2p-1)/2
+    = p(p/2-c-1)+1/2.
+
+With p>0 and p>2(c+1) this is strictly positive. Multiplying by p^n>0
+proves the claimed strict inequality in dimension n+2. Nonzero denominators
+and positivity are explicit and attainable. All these calculations belong
+in the reals; there is no natural truncated subtraction.
+
+The prime p is chosen after BOTH c and Q, so it cannot depend on a bounded
+test list or a single conjectured constant. Since every Q is allowed, the
+witnesses have unbounded cardinalities. The planned quantifier order is the
+correct negation of an eventual bound, and the final minimum comparison then
+contradicts that bound at the witness p.
+
+The normalized upper bound 1/2+1/q-1/(2q^2) follows by dividing the family
+bound by q^(n+2)>0. It explains why the failure persists asymptotically.
+The finite inequalities and arbitrary-Q theorem suffice; a separate analytic
+limit theorem is not necessary. The plan correctly avoids claiming that the
+true minimum density converges to 1/2. Its further remark about an additional
+o(q^d) term is mathematically valid when that term has its usual fixed-d,
+large-q meaning, but is not needed for the target disproof. If retained, it
+should be described as a consequence, not as another already formalized result.
+
+7. Method/attainment language and implementation obligations
+
+On the coefficient-one reading, the source asserts a lower bound together
+with an attainment claim. Failure of its necessary lower-bound component
+already refutes that conjunction. It is therefore legitimate not to assign
+an invented formal definition to the undefined phrase "tube merging" or to
+prove a new sharp minimum. The final report must keep this logical scope clear.
+
+No mathematical gap was found in the plan's construction, count, dimension
+extension, minimum bridge, or asymptotic quantifiers. Its Lean outline is
+plausible but unverified. In particular, later review must inspect actual
+definitions and complete proofs of square_count, family_isKakeya, family_card,
+minimum_attained, minimum_le_card, the strict comparison, the arbitrary-prime
+capstone, and the negation of the eventual bound. Dependent instance packaging
+must not weaken the field quantifier or hide the existence of the actual set.
+The final all-dimension theorem must handle d>=2, rather than leave only an
+unexplained n+2 signature, and the theorem instantiating the alleged universal
+field bound on ZMod p must actually be present.
+
+Final verification still requires a complete Lean build against the stated
+pins, trust/import/axiom audits, and a complete matching LaTeX/PDF report, as
+specified in the rules. I performed none of those phase-2 checks and make no
+claim that a future implementation compiles or already proves the targets.
+Submission eligibility and publication are outside this review.
+
+Overall phase-1 decision
+
+PASS: the entire mathematical route is coherent and semantically faithful to
+full finite-field Kakeya sets, the genuine minimum, and the displayed fixed-c
+eventual coefficient-one bound. The route has unbounded counterexamples in
+every fixed d>=2. Preserve the source-interpretation caveat; do not present
+this as disproving an unspecified Omega(q^d) lower bound. No mathematical
+repair is required before beginning implementation under root's authorization.

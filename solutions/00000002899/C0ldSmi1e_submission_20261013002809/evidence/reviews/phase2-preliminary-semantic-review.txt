@@ -1,0 +1,151 @@
+PHASE 2 PRELIMINARY SEMANTIC SOURCE REVIEW — conjecture00000002899
+Reviewer: /root/scope_2899
+Status: PROVISIONAL; no semantic defect found in the five files read below.
+No final verdict is issued. The source was explicitly not frozen.
+
+Read scope and source identity
+
+I read every line of these files under 2899/author/lean/Conjecture2899:
+
+Geometry.lean
+  SHA-256 d61210ea0c6647252622247160b94d121914a28c0e65112f0e74d19fe96424db
+Squares.lean
+  SHA-256 58639d2b45b27e9f8bea9c8f62009bb01e9081a7b3ddc469392f2c3667f682d7
+Counting.lean
+  SHA-256 6de478214c9254cb8766c535491c0a6d8c8b7bd965830a481b27ff9d06294abe
+Minimum.lean
+  SHA-256 a4e5343a215c21ef01b59e331d788fa6aacb20154d88912b742e76118640cf0f
+Bounds.lean
+  SHA-256 ce8bb26ac4aa5a37b81c511cd166b0e7cadcd54df17619388d827ba9a3227a26
+
+The first four hashes were rechecked after the initial read and unchanged.
+Bounds.lean was read and hashed from the same byte buffer. Earlier allowed
+read scope consisted of the exact original, both rules, and PHASE1_PLAN.txt,
+as recorded in phase1-semantic-review.txt. No additional mathematical sources
+were needed. I did not read eligibility material, old mathematics, other
+competition statements or solutions, author correspondence, or web sources.
+I did not build, edit proofs, contact the author, or independently verify a
+reported compilation result. This file is my only new review artifact.
+
+Geometry.lean
+
+Ambient F d is literally Fin d -> F. IsKakeya asks for a base point for each
+nonzero vector and membership of a+t*v for every field element t. It does
+not omit directions or replace full lines by a finite sample. line_injective
+derives a nonzero coordinate from v!=0 and cancels that coordinate; line_card
+then counts the image of the full parameter field. Thus the lines actually
+have q distinct points in a finite field.
+
+family is a Finset.univ filter in dimension n+2 with predicate
+w 0=0 OR exists z, w 1+(w 0)^2=z^2. It is the planned concrete family.
+family_isKakeya splits on v 0=0. In that case the whole parameterized line
+lies in w 0=0, including when only a later direction coordinate is nonzero.
+Otherwise b=v 1/(2*v 0), and only base coordinate 1 is b^2. The polynomial
+identity uses 2*b*v 0=v 1 and yields the square (b+t*v 0)^2. The assumption
+(2:F)!=0 is precisely the odd-characteristic requirement, and v 0!=0 supplies
+the other nonzero denominator. The first two Fin coordinates are distinct
+for every n because the dimension is n+2. No finite check or external result
+substitutes for these symbolic witnesses.
+
+Squares.lean
+
+finite_field_square_count explicitly defines the square image and all its
+fibers. It proves the zero fiber is {0}; a nonzero square has a representative
+z!=0, distinct roots z and -z, and no other roots by the difference-of-squares
+identity. It counts over the image, separates zero, and concludes
+2*card(square image)=card F+1. The argument uses the same (2:F)!=0 assumption
+and applies to any finite field satisfying it. The final omega step closes
+an identity already supplied by the symbolic fiber counts, not an enumeration
+of field instances.
+
+Counting.lean
+
+slice is exactly the allowed-y predicate at a fixed first coordinate.
+familyEquiv maps an actual member of family to its first coordinate, a member
+of the corresponding slice, and the two-tail function Fin n -> F. Its inverse
+uses Fin.cons twice and checks the actual membership predicate. The inverse
+laws show that neither accepted pairs nor free-coordinate assignments are
+lost or duplicated.
+
+slice_card counts all q values at x=0, and at x!=0 uses the explicit bijection
+y -> y+x^2 onto the square image, with inverse z -> z-x^2. The resulting
+family_card_product is (q+(q-1)*|S|)*q^n. The subtraction q-1 here is legitimate:
+the field is nonempty, and family_card_identity explicitly proves q>0 and
+q-1+1=q before combining the product count with the square count. It then
+establishes the exact subtraction-free identity
+
+  2*card(family)+q^n=(q^2+2*q)*q^n.
+
+family_card_real casts this identity to the reals and solves for the actual
+cardinality, obtaining ((q^2+2*q-1)/2)*q^n. Subtraction and division in this
+formula are genuinely real; there is no truncation or rounded surrogate.
+The full counting and real-formula source was present when I read this file,
+although no compilation claim is independently made by this review.
+
+Minimum.lean
+
+kakeya_card_exists uses the actual universal finset to witness a possible
+Kakeya cardinality. minimumKakeyaSize applies Nat.find to the predicate
+"exists K, IsKakeya K and K.card=n" over every finset in the ambient space.
+It is therefore the genuine least achievable cardinality. minimum_attained
+uses Nat.find_spec and minimum_le_card uses Nat.find_min' on the given actual
+set, with exactly the comparison direction required for a counterexample.
+The minimum is not defined through the displayed bound or the constructed
+family's cardinality.
+
+ProposedEventualLowerBound d explicitly quantifies exists c:Real, exists Q:Nat,
+then EVERY type F with a Field instance and a Fintype instance, and all such
+fields with cardinality at least Q. The inequality is q^d*(1-c/q)<=minimum,
+with real arithmetic. c and Q can depend on d. Restricting the universe in
+this predicate to Type still includes every ZMod prime-field counterexample;
+it creates no loophole for the required negation. The source definition
+faithfully represents the coefficient-one interpretation already disclosed
+in phase 1. It does not resolve the original prose's "of type" ambiguity.
+
+Bounds.lean
+
+family_lt_proposed_bound assumes an arbitrary REAL c and 2*(c+1)<q. It derives
+q>0 from the actual finite field, uses family_card_real, proves the strict
+planar inequality, and multiplies by q^n>0. Its conclusion compares the
+ACTUAL family's real cardinality with q^(n+2)*(1-c/q). Denominator nonzeroness
+is available from q>0, and the power conversion has the right exponent.
+
+normalized_minimum_upper_bound first invokes minimum_le_card on family and
+family_isKakeya. It divides that inequality by q^(n+2)>0 and substitutes the
+exact count to conclude
+
+  minimum/q^(n+2) <= 1/2+1/q-1/(2*q^2).
+
+This is an upper bound on the genuine minimum in every finite odd field and
+every n, not merely a density calculation on an unexplained numeric sequence.
+It neither claims optimality nor claims that the minimum density converges
+to 1/2. The remaining asymptotic negation still requires a supply of fields
+with arbitrarily large orders.
+
+Outstanding final review items
+
+1. Read the actual prime/asymptotic capstones. Confirm arbitrary real c and
+   every natural threshold Q, existence of an actual prime p>2 with p>=Q,
+   an actual Kakeya set over ZMod p, its comparison with the genuine minimum,
+   and the strict violation. No bounded examples can replace this bridge.
+2. Inspect the explicit theorem for every d>=2 and the actual negation of
+   ProposedEventualLowerBound. The final conversion from n+2 to d must be
+   present, and the universal field statement must be instantiated correctly.
+3. After root announces a freeze, compare all five hashes above, inspect any
+   changed files and every remaining source/configuration relevant to meaning,
+   and verify the final report and PDF match the actual formal theorems.
+4. Root's verification must establish successful pinned builds, dependency and
+   import integrity, allowed axioms, absence of incomplete proofs, and required
+   artifacts. This semantic read does not independently certify those checks.
+5. Preserve the phase-1 scope caveat: this refutes the displayed leading-one,
+   fixed-c eventual bound, not an unspecified constant-multiple Omega(q^d)
+   interpretation of the phrase "of type". No proof of sharp optimality or
+   interpretation of undefined tube-merging language has appeared or is needed
+   to contradict the stated necessary lower-bound component.
+
+Conclusion at this snapshot
+
+The five inspected files implement the planned objects and all bridges within
+their present scope faithfully. I found no actionable semantic defect. This
+is a provisional source assessment only, pending the missing capstones, final
+frozen-source comparison, report/artifact agreement, and verification evidence.
