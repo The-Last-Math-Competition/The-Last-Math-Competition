@@ -1,0 +1,644 @@
+PAGE 1
+A counterexample to the explicit
+multiplicity–gap criterion
+Conjecture 00000001421
+Abstract
+We construct a sequence of exactly-half-lazy, uniform Cayley random walks on fi-
+nite abelian groups of increasing order. Its ordinary spectral gap is 1/N. The smallest
+nontrivial transition eigenvalue has multiplicity N (cid:0)1; the smallest positive eigenvalue
+of I (cid:0)P has multiplicity one. Consequently both possible multiplicity-to-gap ratios di-
+verge. Nevertheless the actual total-variation distance at every positive integer time is
+1(1(cid:0)1/N)t. Thetruequarter-mixingtimediverges,whileitsratiotothequarter-to-three-
+2
+quarter transition width tends to one. The family has no standard total-variation cutoff.
+Thisrefutestheconjecture’sexplicitnumericalsuﬀicientconditionundertheordinary-gap
+andtotal-variationinterpretations. Thesource’sundefinedconditional-gap,second-order,
+and comparison-language clauses are not assigned additional meanings. A closed Lean 4
+certificate proves the stochastic, spectral, and mixing-time bridges used in the argument.
+1 Original statement and precise scope
+The original statement is reproduced in both supplied languages.
+English. Definition: Cutoff means that for a family of random walks the ratio of total
+mixing time to mixing window tends to infinity. Conjecture: Lazy random walks on
+abelian groups exhibit cutoff if and only if the second-order behavior of the conditional
+spectral gap over irreducible characters of the generating support satisfies an explicit
+criterion: the ratio of the multiplicity of the minimal nontrivial eigenvalue to the spectral
+gap tends to infinity; the criterion is completely characterized by Diaconis–Saloff-Coste
+type second-eigenvalue comparison.
+中文。定义：cutoff 指随机游走族的总混合时间与混合窗之比趋于无穷。猜想：交换群上
+惰性随机游走出现 cutoff 当且仅当其生成支撑的不可约特征条件谱隙的二阶行为满足显
+式判据: 最小非平凡特征值的重数与谱隙之比趋于无穷; 判据由 Diaconis–Saloff-Coste 型
+第二特征值比较完全刻画。
+The explicit ratio criterion has a definite suﬀicient direction once the gap, eigenvalue con-
+vention, and mixing metric are specified. We refute that direction with the following scope.
+1. Gap and metric. The gap is the ordinary spectral gap of the reversible transition
+operator. Mixing is measured in total variation from the uniform stationary law, with
+the maximum over starting states. The source does not itself name a metric or give a
+precise window definition. We state our definitions below and prove failure of both a
+genuine fixed-threshold width test and the quantified standard TV cutoff criterion.
+2. Two eigenvalue readings. We compute separately the multiplicity of the smallest
+nontrivial eigenvalue of P and that of the smallest positive eigenvalue of I (cid:0)P. The
+first is not silently replaced by the second. Both resulting ratios diverge in the same
+counterexample.
+1
+
+PAGE 2
+Conjecture 00000001421 Ordinary gap and total variation
+3. Characters and support. The relevant characters are those of the group generated
+bythe support; the support itself need not be a group. Our support generates the entire
+state group. Its genuine complex group characters are the one-dimensional irreducible
+characters of this finite abelian group, and they form the complete spectral basis used
+here.
+4. Undefined prose. The statement does not define a conditioning operation or a quan-
+tity called the “conditional spectral gap,” a “second-order behavior,” or a particular
+Diaconis–Saloff-Coste comparison assertion. We do not invent such definitions or claim
+a theorem about an unspecified comparison principle. If an additional nonstandard
+quantity or further restriction was intended, a clarified conjecture would be required.
+The result here concerns the explicit numerical suﬀicient criterion under the ordinary-
+gap and TV interpretations just stated.
+The counterexample satisfies the narrower, familiar convention of exactly 1/2 holding and
+otherwiseuniformchoicefromasymmetricnonidentitygeneratingset. Itusesneithervariable
+holdingprobabilitiesnoraweightedgeneratingset. Itsstate-spaceordersandordinarymixing
+times both tend to infinity.
+2 Definitions and the counterexample
+Let n 2 N and set N = n+4. Thus N (cid:21) 4 throughout, and every limit below is taken along
+this sequence as n ! 1, equivalently N ! 1. Write
+G = (Z/2Z)(cid:2)(Z/NZ), S = f(0,h) : h 6= 0g[f(1,0)g.
+N N
+Define a discrete-time random walk by adding independent increments with law
+1 1
+µ (g) = 1 + 1 . (1)
+N
+2
+{g=0}
+2N
+{g∈SN }
+Its transition matrix and the candidate stationary law are
+1
+P (x,y) = µ (y(cid:0)x), π (y) = . (2)
+N N N
+2N
+Powers Pt always mean the usual powers of this matrix, with P0 = I.
+N N
+Definition 2.1. For t 2 N define
+X (cid:12) (cid:12)
+d (t) = max 1 (cid:12) Pt (x,y)(cid:0)π (y) (cid:12) .
+N x∈GN 2
+y∈GN
+N N
+For ε > 0, the mixing time is the genuine least threshold time
+t (ε) = minft 2 N : d (t) (cid:20) εg,
+N N
+once nonemptiness of this set has been proved. The ordinary mixing time and the quarter-
+to-three-quarter width are
+T = t (1/4), W = t (1/4)(cid:0)t (3/4).
+N N N N N
+The subtraction and ratios involving these times are taken in R. The standard quantified
+total-variation cutoff criterion used here is
+1 t (ε)
+for every 0 < ε < , N (cid:0)! 1. (3)
+2 t (1(cid:0)ε)
+N
+2
+
+PAGE 3
+Conjecture 00000001421 Ordinary gap and total variation
+For each fixed 0 < ε < 1/2, the denominator is positive once N > 1/(2ε), since d (0) =
+N
+1 (cid:0) 1/(2N) > 1 (cid:0) ε. Thus these asymptotic ratios are eventually defined; a convention at
+finitely many initial indices does not affect their limits. Lean uses total real division.
+The fixed-tolerance ratio convention in (3) is standard; see Levin’s introductory definition,
+slide 23 of [1]. That reference is cited only to identify the convention. The construction and
+proof below were derived independently before consulting it, and no proof content is taken
+from it. We use non-strict threshold inequalities in the definition of t , consistently with the
+N
+Lean development.
+Theorem 2.2. The matrices in (2) give a growing family of irreducible, reversible, exactly-
+half-lazy uniform Cayley walks. Put
+1 1 1 1
+q = 1(cid:0) , r = , s = (cid:0) . (4)
+N 2 2 N
+Their complete transition spectrum, with algebraic multiplicity, is
+1 (1), q (1), r (N (cid:0)1), s (N (cid:0)1).
+The ordinary spectral gap is δ = 1/N. The literal minimum nontrivial-transition multiplicity
+N
+and the minimum positive I (cid:0)P multiplicity satisfy, respectively,
+N
+N (cid:0)1 1
+= N(N (cid:0)1) (cid:0)! 1, = N (cid:0)! 1. (5)
+δ δ
+N N
+Nevertheless
+1 1
+d (0) = 1(cid:0) , d (t) = qt (t (cid:21) 1). (6)
+N N
+2N 2
+All positive-tolerance mixing times are finite and attained, and
+N T
+t (3/4) = 1, T (cid:21) , W = T (cid:0)1 > 0, N (cid:0)! 1. (7)
+N N N N
+2 W
+N
+In particular T ! 1, the ratio T /W does not tend to infinity, and the family does not
+N N N
+satisfy (3).
+The remaining sections prove every assertion of this theorem directly.
+3 The support and the stochastic walk
+The horizontal part of S has N (cid:0)1 elements and is disjoint from the single vertical element
+N
+(1,0). Hence jS j = N and 0 2/ S . Negation preserves the horizontal part, while (cid:0)(1,0) =
+N N
+(1,0); thus S = (cid:0)S . Every (a,b) 2 G is
+N N N
+(a,b) = (a,0)+(0,b).
+Each summand is either zero or belongs to S , because a is either zero or one. Consequently
+N
+the subgroup generated by S is all of G . The group order is jG j = 2N = 2(n+4) ! 1.
+N N N
+More explicitly, from (a,b) the chain has probabilities
+destination probability
+(a,b) 1/2
+(a,d), d 6= b 1/(2N) for each d
+(a+1,b) 1/(2N).
+3
+
+PAGE 4
+Conjecture 00000001421 Ordinary gap and total variation
+All other transition probabilities are zero. The probabilities are nonnegative and each row
+sums to 1/2+N/(2N) = 1. Symmetry of the support and increment law gives P (x,y) =
+N
+P (y,x), so the column sums are also one. The law π is nonnegative, has total mass one,
+N N
+and satisfies
+X X
+1
+π (x)P (x,y) = P (x,y) = π (y).
+N N N N
+2N
+x x
+This symmetry also proves detailed balance with respect to π .
+N
+For any x = (a,b) and y = (c,d), choose z = (a,d). Then P (x,z) > 0, since x and z have
+N
+the same first coordinate, and P (z,y) > 0, since z and y have the same second coordinate
+N
+and their first coordinates are either equal or differ by one. Therefore
+X
+P2(x,y) = P (x,z)P (z,y) > 0.
+N N N
+z
+The chain is irreducible. Its diagonal entries are exactly 1/2, so it is lazy and aperiodic.
+Finally, products of nonnegative stochastic matrices are stochastic: summing a row of AB
+P P
+gives A(x,z) B(z,y) = 1. Thus every actual matrix power Pt is a probability kernel,
+z y N
+as required in Definition 2.1.
+4 Complete character spectra and genuine multiplicities
+4.1 Characters form the entire eigenbasis
+A complex character of a finite additive group is a map χ satisfying χ(0) = 1 and χ(u+v) =
+χ(u)χ(v). Itsvalueshavemodulusone: ifku = 0, thenχ(u)k = 1. TheN charactersofZ/NZ
+are χ (b) = exp(2πijb/N), 0 (cid:20) j < N; indeed a character is determined by its value at one,
+j
+which must be an Nth root of unity. Similarly the two characters of Z/2Z are a 7! ((cid:0)1)ϵa for
+ϵ 2 f0,1g.
+Every character of G factors uniquely as
+N
+ψ (a,b) = ((cid:0)1)ϵaχ(b). (8)
+ϵ,χ
+To see completeness of this list as characters, restrict any character ψ to the two factors and
+use ψ(a,b) = ψ(a,0)ψ(0,b). Uniqueness follows from the same restrictions.
+For a nontrivial character η of any finite group H, choose h with η(h ) 6= 1. Translation
+0 0
+of the sum gives X X X
+η(h) = η(h+h ) = η(h ) η(h),
+0 0
+h∈H h∈H h∈H
+so the sum is zero. For the trivial character it is jHj. For distinct characters, their quotient
+is nontrivial; this identity gives orthogonality under the usual complex inner product on
+functions on H. The 2N distinct characters in (8) are therefore orthogonal nonzero vectors
+in the 2N-dimensional space CGN. They form a basis. In particular, no spectral modes are
+omitted.
+4.2 Action of the actual transition matrix
+For a character ψ and a state x, the matrix from (2) satisfies
+X
+(P ψ)(x) = µ (y(cid:0)x)ψ(y)
+N N
+y
+X X
+= µ (g)ψ(x+g) = ψ(x) µ (g)ψ(g).
+N N
+g g
+4
+
+PAGE 5
+Conjecture 00000001421 Ordinary gap and total variation
+Thus the actual eigenvalue of ψ is
+ϵ,χ
+0 1
+X
+λ =
+1
++
+1 @ χ(h)+((cid:0)1)ϵA
+. (9)
+ϵ,χ
+2 2N
+h̸=0
+The preceding sum identity and χ(0) = 1 give
+(
+X N (cid:0)1, χ trivial,
+χ(h) =
+(cid:0)1, χ nontrivial.
+h̸=0
+Substitution into (9) yields
+First-factor character Second-factor character Eigenvalue Multiplicity
+Trivial Trivial 1 1
+Nontrivial Trivial q = 1(cid:0)1/N 1
+Trivial Nontrivial r = 1/2 N (cid:0)1
+Nontrivial Nontrivial s = 1/2(cid:0)1/N N (cid:0)1
+Because this is a complete basis of eigenvectors, these counts are the algebraic multiplicities
+of the actual operator. Equivalently its characteristic polynomial over C is
+det(XI (cid:0)P ) = (X (cid:0)1)(X (cid:0)q)(X (cid:0)r)N−1(X (cid:0)s)N−1. (10)
+N
+For N (cid:21) 4 the values are strictly ordered:
+0 < s < r < q < 1. (11)
+Consequently the only stationary character is the trivial one, and the ordinary spectral gap is
+1
+δ = 1(cid:0)maxfλ : λ 2 spec(P ), λ 6= 1g = 1(cid:0)q = .
+N N
+N
+All eigenvalues are positive, so using the largest absolute nontrivial eigenvalue produces the
+same gap in this family.
+4.3 The distinct I (cid:0)P interpretation
+N
+The same complete character basis diagonalizes the actual complementary operator L =
+N
+I (cid:0)P , with eigenvalue 1(cid:0)λ on each character. Its characteristic polynomial is
+N ϵ,χ
+(cid:0) (cid:1)(cid:0) (cid:1) (cid:0) (cid:1)
+det(XI (cid:0)L ) = X X (cid:0)(1(cid:0)q) X (cid:0)(1(cid:0)r)
+N−1
+X (cid:0)(1(cid:0)s)
+N−1
+. (12)
+N
+Thus its complete spectrum, with multiplicity, is
+1 1 1 1
+0 (1), (1), (N (cid:0)1), + (N (cid:0)1).
+N 2 2 N
+The smallest positive eigenvalue is precisely δ = 1/N, and its algebraic multiplicity is
+N
+one. In contrast, the smallest nontrivial transition eigenvalue is s, with multiplicity N (cid:0)1.
+Distinctness of the roots in (10) and (12) makes these exact root multiplicities, rather than
+merely lower bounds supplied by some eigenvectors. Both claims in (5) now follow. Their
+divergence follows from N ! 1, since N(N (cid:0)1) (cid:21) N for N (cid:21) 4.
+5
+
+PAGE 6
+Conjecture 00000001421 Ordinary gap and total variation
+5 An identity for the actual matrix powers
+We derive the transition probabilities directly by matrix multiplication. This also supplies a
+proof of the bridge between the stochastic walk and the scalar expressions used for its mixing
+analysis.
+For x = (a,b) and y = (c,d) put
+U = 1 , V = 1 , σ = 2U (cid:0)1 2 f1,(cid:0)1g.
+{a=c} {b=d}
+For four real numbers A,B,C,D, let
+F(A,B,C,D)(x,y) = A+BU +CV +D1 .
+{x=y}
+This is an auxiliary matrix, not a new definition of the walk. Write c = 1/(2N). The
+N
+original transition kernel has the decomposition
+P (x,y) = s1 +c U +c V. (13)
+N {x=y} N N
+When x = y the right side is s+2c = 1/2; in the two possible nonidentity neighbor cases it
+N
+is c ; otherwise it is zero. This verifies (13) directly from (2).
+N
+The coordinate sums of F are
+X
+F(A,B,C,D)(x,(c,d)) = NA+C +(NB+D)1 , (14)
+{a=c}
+d∈Z/NZ
+X
+F(A,B,C,D)(x,(c,d)) = 2A+B+(2C +D)1 . (15)
+{b=d}
+c∈Z/2Z
+For an arbitrary matrix M, (13) gives
+X X
+(MP )(x,y) = sM(x,y)+c M(x,(c,v))+c M(x,(u,d)).
+N N N
+v∈Z/NZ u∈Z/2Z
+Using (14)–(15), and s+c N +2c = 1, s+c N = q, s+2c = r, we obtain
+N N N N
+(cid:0) (cid:1)
+F(A,B,C,D)P = F A+c (B+C), qB+c D, rC +c D, sD . (16)
+N N N N
+Define coeﬀicients, for all integers t (cid:21) 0, by
+1(cid:0)qt(cid:0)rt+st qt(cid:0)st
+A = , B = ,
+t t
+2N N
+rt(cid:0)st
+C = , D = st.
+t t
+2
+At time zero these are (0,0,0,1), so F(A ,B ,C ,D ) = I. They satisfy precisely the four
+0 0 0 0
+recurrences
+A = A +c (B +C ), B = qB +c D ,
+t+1 t N t t t+1 t N t
+C = rC +c D , D = sD .
+t+1 t N t t+1 t
+For example, q(cid:0)1/2 = s gives the recurrence for B , and r(cid:0)1/N = s gives that for C . For
+t t
+the constant coeﬀicient,
+(cid:18) (cid:19)
+(1(cid:0)q)qt+(1(cid:0)r)rt(cid:0)(1(cid:0)s)st qt(cid:0)st rt(cid:0)st
+A (cid:0)A = = c + ,
+t+1 t N
+2N N 2
+using 1(cid:0)q = 1/N, 1(cid:0)r = 1/2, and 1(cid:0)s = 1/2+1/N. The recurrence for D is immediate.
+t
+Induction with (16) therefore proves Pt = F(A ,B ,C ,D ) for every t (cid:21) 0.
+N t t t t
+Rearranging this identity using σ = 2U (cid:0)1 proves the promised formula:
+6
+
+PAGE 7
+Conjecture 00000001421 Ordinary gap and total variation
+Proposition 5.1. For every t 2 N and every pair of states x = (a,b), y = (c,d),
+1+σqt+(NV (cid:0)1)(rt+σst)
+Pt (x,y) = . (17)
+N 2N
+In particular this formula holds at t = 0 and equals the identity kernel there.
+One useful marginal follows either from the coeﬀicient formula or by summing (17) over d:
+X
+1+σqt
+Pt (x,(c,d)) = , (18)
+N 2
+d∈Z/NZ
+P
+because (N1 (cid:0)1) = 0.
+d {b=d}
+6 Exact total variation, including time zero
+The signs inside the absolute values are essential. We establish them before summing; no
+norm approximation or spectral bound replaces the actual TV distance.
+Lemma 6.1. For each integer t (cid:21) 1,
+rt+st (cid:20) qt, (N (cid:0)1)(rt(cid:0)st) (cid:20) qt.
+Proof. We have q = r+s and r,s (cid:21) 0. The first inequality follows by expanding (r+s)t and
+retaining its two endpoint terms. For the second, use (N (cid:0)1)(r(cid:0)s) = q and the difference-
+of-powers identity:
+Xt−1
+(N (cid:0)1)(rt(cid:0)st) = q rt−1−jsj (cid:20) q(r+s)t−1 = qt.
+j=0
+The middle inequality holds because every binomial coeﬀicient in
+(r+s)t−1
+is at least one and
+all monomials are nonnegative. This also covers t = 1, for which the sum has its single term
+equal to one. The Lean proof establishes the same inequalities by elementary induction.
+Fixastartingstatex = (a,b)andt (cid:21) 1. Subtracting1/(2N)from(17)givesthenumerator
+σqt+(NV (cid:0)1)(rt+σst).
+In the block c = a this is nonnegative: for V = 1 both summands are nonnegative, while
+for V = 0 it is qt (cid:0) rt (cid:0) st (cid:21) 0. In the other block it is nonpositive: for V = 1 it is
+(cid:0)qt +(N (cid:0)1)(rt (cid:0)st) (cid:20) 0, while for V = 0 it is (cid:0)qt (cid:0)rt +st (cid:20) 0, since s (cid:20) r. These signs
+remain valid after division by the positive number 2N.
+By (18), the sum of the stationary deviations in the starting block is
+1+qt 1 qt
+(cid:0) = .
+2 2 2
+In the other block it is (cid:0)qt/2. The absolute deviations therefore sum to qt, and
+1 X(cid:12) (cid:12) Pt (x,y)(cid:0)π (y) (cid:12) (cid:12) = qt (t (cid:21) 1). (19)
+2 N N 2
+y
+This equality holds for every starting state x, so it also gives their maximum. At time zero
+the row of P0 is a point mass, and direct summation instead gives
+N
+(cid:18) (cid:19)
+1 1 1 1
+1(cid:0) +(2N (cid:0)1) = 1(cid:0) .
+2 2N 2N 2N
+Together these prove (6).
+7
+
+PAGE 8
+Conjecture 00000001421 Ordinary gap and total variation
+7 True mixing times and the absence of cutoff
+7.1 Existence and least-time properties
+For fixed N, 0 < q < 1, so qt ! 0. For completeness, this follows without logarithmic
+asymptotics: set a = q −1(cid:0)1 > 0. Bernoulli’s inequality gives (1+a)t (cid:21) 1+ta, and hence
+1
+0 < qt (cid:20) (cid:0)! 0.
+1+ta
+By (19), for every ε > 0 some positive integer t satisfies d (t) (cid:20) ε. The threshold set is
+N
+nonempty and, by well-ordering of N, has a minimum. In particular,
+d (t (ε)) (cid:20) ε, u < t (ε) =) d (u) > ε. (20)
+N N N N
+These are properties of the walk’s actual least mixing times, not an assumed or substituted
+scalar sequence.
+7.2 Two exact thresholds and a divergent mixing time
+Since N (cid:21) 4,
+1 3 q 1 3
+d (0) = 1(cid:0) > , d (1) = < < .
+N N
+2N 4 2 2 4
+Thus t (3/4) = 1 exactly. Likewise T = t (1/4) is positive, so attainment in (20) and (19)
+N N N
+imply qTN (cid:20) 1/2. Bernoulli’s inequality, now with increment (cid:0)1/N, gives
+(cid:18) (cid:19)
+T 1 TN 1
+1(cid:0) N (cid:20) 1(cid:0) = qTN (cid:20) .
+N N 2
+It follows that
+N
+T (cid:21) (cid:21) 2. (21)
+N
+2
+In particular T ! 1, while the high-tolerance mixing time stays equal to one.
+N
+7.3 The actual transition width and quantified cutoff
+Our width is the difference between the genuine threshold times:
+W = T (cid:0)t (3/4) = T (cid:0)1 (cid:21) 1.
+N N N N
+Consequently
+T T 1
+N = N = 1+ (cid:0)! 1. (22)
+W T (cid:0)1 T (cid:0)1
+N N N
+For every N (cid:21) 4 this ratio is greater than one and at most two. In particular, it cannot tend
+to infinity. The time needed to move from TV distance 3/4 to 1/4 has the same order as the
+ordinary mixing time; it is not a window of vanishing relative width.
+The quantified standard cutoff test fails independently at the single allowed tolerance ε =
+1/4:
+t (1/4) T
+N = N = T (cid:0)! 1,
+t (1(cid:0)1/4) 1 N
+N
+whereas (3) would require this ratio to tend to one. This proves all remaining assertions of
+Theorem 2.2.
+8
+
+PAGE 9
+Conjecture 00000001421 Ordinary gap and total variation
+Corollary 7.1. Undertheordinaryspectral-gapandstandardtotal-variationmeanings, diver-
+gence of the proposed multiplicity-to-gap ratio is not suﬀicient for cutoff on lazy abelian-group
+random walks. This holds whether “minimal nontrivial eigenvalue” means the smallest non-
+trivial eigenvalue of P or the smallest positive eigenvalue of I (cid:0)P .
+N N
+Proof. Auniversalsuﬀicientconditionwouldapplytoeveryfamilyintheassertedclass, hence
+to (2). The support, group, and stochastic properties above prove that this is such a family,
+evenwithexacthalflazinessanduniformsupportedsteps. Equation(5)provesbothcandidate
+antecedents. Equations (22) and (3)’s failure prove the corresponding conclusions false. Thus
+thisonefullyspecifiedwitnessrefutestheuniversalsuﬀicientdirection. Refutingthatdirection
+is enough to refute the proposed iff under these meanings; the necessary direction need not
+be decided.
+8 Correspondence with the frozen Lean certificate
+The formalization uses the same index N = n+4, state group, support, transition kernel, and
+threshold conventions as this report. Its principal definitions are summarized below. Every
+spectral and mixing formula used as a conclusion in the preceding proof is proved from these
+definitions.
+Lean definition Mathematical object
+State, support G and the actual generating set S .
+N N
+jumpLaw, transition µ and P (x,y)=µ (y(cid:0)x).
+N N N
+tvFrom, worstTV The absolute-value finite TV sum from each start and its finite max-
+imum.
+Characters Actual complex additive characters of G .
+N
+fourierEigenvalue TheFouriersumoftheactualincrementlaw,provedtobeitsmatrix
+eigenvalue.
+complexTransition Entrywise complexification of the already defined real matrix P .
+N
+spectralGap One minus the finite maximum nontrivial character eigenvalue. All
+values are proved real.
+minTransitionEigenvalue The finite minimum of the actual nontrivial transition eigenvalues.
+minTransitionMultiplicity Root multiplicity in the actual transition characteristic polynomial
+at that minimum.
+complexComplement The actual matrix I (cid:0)P .
+N
+gapModeMultiplicity Rootmultiplicityintheactualcomplementcharacteristicpolynomial
+at the proved ordinary gap.
+mixingTime The natural-number infimum of the actual TV threshold set, with
+nonemptiness, attainment, and minimality proved.
+totalTime, window Real-valued T and T (cid:0)t (3/4).
+N N N
+HasTVCutoff The quantified condition (3).
+The proof modules divide the obligations as follows.
+• Basic.lean gives the actual objects, normalizations, and elementary inequalities.
+Walk.lean proves support generation, the normalized uniform Cayley formula, stochas-
+ticity, stationary mass, stochastic powers, exact holding, and positive two-step
+probabilities.
+• Spectrum.leanconstructstheequivalencebetweenfactorcharactersandallgroupchar-
+acters. It proves actual matrix action and diagonalization in AddChar.complexBasis,
+both characteristic polynomials, complete root classifications, finite extrema, and the
+genuine algebraic multiplicities.
+9
+
+PAGE 10
+Conjecture 00000001421 Ordinary gap and total variation
+• Powers.lean proves the matrix recurrence and actual power formula, the sign inequali-
+ties, and the finite absolute-value TV sums, including time zero and the maximum over
+all starting states.
+• MixingBase.lean defines the actual least-threshold times and proves their properties
+and limits. Its intermediate lemmas explicitly take the exact TV profile as a parameter.
+In the final theorem every such parameter is discharged with worstTV_eq, the identity
+proved in Powers.lean; it is not an assumption of the final result.
+• Counterexample.leanassemblestheclosedcertificateandfoursuﬀicient-conditionrefu-
+tations. Audit.leanrequeststheaxiomlistsofthefivecapstonetheorems. Thetop-level
+library imports the counterexample module.
+All capstones lie in the namespace Conjecture1421:
+1. verified_counterexample proves CounterexampleCertificate, a proposition expos-
+ing the actual walk, group-order divergence, support, probability, character, spectral,
+matrix-power, TV, minimum-time, window, and cutoff obligations together. It has no
+mathematical premise.
+2. literal_sufficient_criterion_false negates the implication from the minimum-
+transition multiplicity ratio’s divergence to HasTVCutoff for this actual family.
+3. gap_mode_sufficient_criterion_false does the same for the minimum positive
+eigenvalue of the actual I (cid:0)P .
+N
+4. literal_window_sufficient_criterion_false negates the implication from the first
+ratio’s divergence to divergence of the actual time/window ratio.
+5. gap_mode_window_sufficient_criterion_false does the same for the second ratio.
+The four corollaries are deliberately statements about this fully specified witness; they do
+not pretend to encode every undefined phrase of the original or an entire class of arbitrary
+random walks. The closed certificate establishes membership in the proposed class and the
+proved antecedents. Corollary 7.1 explains the logical step from this witness to failure of
+universal suﬀiciency. No profile assumption, spectral formula, multiplicity, or mixing-time
+bound remains as a hypothesis of any capstone.
+9 Reproduction and supplemental verification
+9.1 Pinned formal project
+TheprojectrequestsLeanleanprover/lean4:v4.19.0andMathlibv4.19.0. Itsdependency
+manifest pins Mathlib to
+c44e0c8ee63ca166450922a373c7409c5d26b00b.
+The manifest also pins all transitive dependencies. Warnings are treated as errors in the
+project configuration. From the directory containing lakefile.toml, with the pinned
+toolchain and dependencies available, the reproduction commands are
+lake build
+lake env lean -DwarningAsError=true Conjecture1421/Audit.lean
+The audit command imports the actual capstones rather than proving an unrelated sample
+theorem. The author-stage fresh direct Lean replay of all eight modules succeeded with
+10
+
+PAGE 11
+Conjecture 00000001421 Ordinary gap and total variation
+warnings treated as errors. Its capstone axiom output consists only of the standard Lean
+logical axioms propext, Classical.choice, and Quot.sound. The source has no admitted
+proof, added axiom, native-decision proof, or custom unsafe proof dependency.
+The separate isolated engineering run completed a source-based Lake build and eight strict
+module replays successfully. Its audit counted 342 owned declarations, 292 safe owned decla-
+rations,31,861declarationsinthecombineddependencyclosure,and3,701importedmodules.
+The five capstones again had only the three standard axioms listed above. An independent
+finite-regression rerun reproduced the recorded output exactly. A positive control, five neg-
+ative controls, and seven build-harness hardening fixtures also completed as expected. The
+independent engineering review passed after explicitly classifying all 50 generated unsafe run-
+time helpers (42 definitions and eight compiler placeholder axioms). None occurs in any safe
+owned proof closure or in any of the five capstones. The raw driver status, which leaves this
+classification pending, is preserved alongside the completed separate classification and ver-
+dict. All 62 command receipts are retained, including six intentional nonzero negative-control
+results; all stderr streams are empty.
+These checks are local verification, not maintainer acceptance. Cached generic library
+artifactsandpinnedsourcebyteswereidentifiedseparately;thisisnotafullMathlibrebuildor
+proof of source-to-cache provenance. Lean was not bootstrapped. The dependency audit and
+graph consistency checks are not a second proof kernel; the fresh source compilations supply
+kernel checking relative to the supplied runtime and imports. PATH network wrappers are
+not operating-system isolation. Complete source and configuration review complements these
+checks. Detailedidentities, controls, andlimitsarepreservedintheaccompanyingverification
+records. The finite evidence below remains supplementary to the mathematical proof.
+9.2 Exact finite regression
+The supplemental exact_regression.py uses exact rational arithmetic. It independently
+constructs increments and transition probabilities and evolves distributions by direct multi-
+plication. Its recorded run covered
+N 2 f4,5,6,7,8,11,16g, t = 0,1,...,24,
+all starting states, and 56,700 actual kernel entries. It checked the power identities, actual
+absolute-valueTVdistances,leastthresholdtimes,andanexplicitrealeigenbasiswithitsrank
+andeigenvalueaction. Therunalsoincludedthreeintentionalnegativecontrols. Toreproduce
+thesesupplementalchecks,runpython3 exact_regression.pyfromthedirectorycontaining
+the script.
+These finite checks are corroborating arithmetic evidence only. They do not establish a
+universal-in-N or universal-in-t identity, an asymptotic limit, or a Lean theorem. The proofs
+inthisreportandtheclosedformalcertificatesupplythoseclaimswithoutusingtheregression
+output as an assumption.
+10 Conclusion and scope of the refutation
+The actual family (2) has growing finite abelian state groups, uniform symmetric supported
+steps, exacthalflaziness, anddivergingordinarymixingtimes. Itsfullspectrashowthatboth
+proposed multiplicity-to-ordinary-gap ratios tend to infinity. Its actual total-variation profile
+and least threshold times show simultaneously that standard TV cutoff fails and the genuine
+time/window ratio tends to one. This refutes the explicit suﬀicient direction, and therefore
+the explicit iff, under the stated ordinary-gap and total-variation meanings.
+11
+
+PAGE 12
+Conjecture 00000001421 Ordinary gap and total variation
+The interpretation limits remain part of the result. The source does not specify a mixing
+metric or an exact window convention, and it does not define a conditional spectral gap,
+second-orderbehavior, oraparticularDiaconis–Saloff-Costecomparisoncharacterization. We
+have not formalized those undefined phrases or claimed a result about every possible mixing
+metric or an unstated additional hypothesis. Both natural meanings of “minimal nontrivial
+eigenvalue” have, however, been handled by actual operator spectra and actual algebraic
+multiplicities, with no conflation between the two.
+References
+[1] David A. Levin, Cutoff for Markov Chains, LMS–EPSRC Durham Symposium, 2017,
+slide 23 (PDF page 23). University of Oregon slide deck. Cited only for the standard
+cutoff convention, after the independent derivation of this counterexample.
+12

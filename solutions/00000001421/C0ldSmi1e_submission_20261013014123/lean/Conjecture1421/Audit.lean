@@ -1,0 +1,7 @@
+import Conjecture1421.Counterexample
+
+#print axioms Conjecture1421.verified_counterexample
+#print axioms Conjecture1421.literal_sufficient_criterion_false
+#print axioms Conjecture1421.gap_mode_sufficient_criterion_false
+#print axioms Conjecture1421.literal_window_sufficient_criterion_false
+#print axioms Conjecture1421.gap_mode_window_sufficient_criterion_false
