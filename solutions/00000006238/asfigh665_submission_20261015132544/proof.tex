@@ -1,0 +1,151 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\usepackage{xurl}
+\newcommand{\code}[1]{\nolinkurl{#1}}
+\newtheorem{proposition}{Proposition}
+\newcommand{\Pow}{\mathcal P}
+\title{Clopen subsets are not fixed points of complement:\\
+a counterexample to conjecture 00000006238}
+\author{asfigh665}
+\date{October 15, 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The conjecture asserts that the fixed points of the complement involution
+are precisely the clopen elements. In the complete Boolean lattice of
+subsets of a discrete two-point space, a singleton is both closed and open,
+whereas its complement is the other singleton. The asserted fixed-point
+characterization is therefore false, even for a nonempty proper clopen
+subset. A standalone Lean 4.24.0 project verifies the lattice completeness,
+the topology axioms, the complement operation, and the negation of the
+fixed-point assertion.
+\end{abstract}
+
+\section{The clause being disproved}
+The English statement of conjecture 00000006238 includes the clause
+\begin{quote}
+``the square of the involution is the identity, with fixed points the
+clopen elements.''
+\end{quote}
+The preceding clause identifies that involution as complement. The Chinese
+version likewise states that the involution has the clopen elements as its
+fixed points. With $c(A)=X\setminus A$, the disputed characterization is
+\begin{equation}\label{eq:claim}
+ c(A)=A\quad\Longleftrightarrow\quad
+ A\text{ is both closed and open}.
+\end{equation}
+The asserted identity $c^2=\mathrm{id}$ is valid and is not the point of
+failure. A fixed point of $c$ means $c(A)=A$, rather than $c^2(A)=A$.
+
+We use the standard concrete instance of the stated closed--open duality
+of subobjects: the powerset lattice of a topological space, with the
+usual set complement. In the discrete example below every subset is both
+open and closed, so both the open and the closed subobject lattices are
+the entire powerset lattice. No domain issue for complement arises.
+The conjecture imposes no nontriviality, connectedness, or other condition
+excluding this finite example.
+
+\section{An admissible complete lattice and topology}
+Let $X=\{0,1\}$ and give it the discrete topology $\tau=\Pow(X)$.
+The subobject lattice is
+\[
+ L=\Pow(X)=\{\varnothing,\{0\},\{1\},X\},
+ \qquad A\leq B\ \Longleftrightarrow\ A\subseteq B.
+\]
+Its meet is intersection, its join is union, and its bottom and top are
+$\varnothing$ and $X$. For every family $\mathcal F\subseteq L$, including
+the empty family, its least upper bound and greatest lower bound are
+\[
+ \bigvee\mathcal F=\bigcup_{A\in\mathcal F} A,
+ \qquad
+ \bigwedge\mathcal F=\bigcap_{A\in\mathcal F} A.
+\]
+The empty intersection is understood to be $X$. Thus $L$ is complete.
+It is a Boolean lattice with the usual complement $c$, and in particular
+\[
+ A\cap c(A)=\varnothing,\qquad A\cup c(A)=X,
+ \qquad c(c(A))=A.
+\]
+Complement reverses inclusion. Every member of $\tau$ is open by
+definition; its complement is also in $\tau$, so every member is closed
+as well. The empty set and $X$ are open, and arbitrary unions and finite
+intersections of members of $\tau$ remain in $\tau$. These observations
+verify the topology axioms directly.
+
+\section{The counterexample}
+Take $A=\{0\}$. It is nonempty and proper, and it is clopen in the
+discrete topology. Nevertheless
+\[
+ c(A)=\{1\}\ne\{0\}=A.
+\]
+Consequently the right-hand side of \eqref{eq:claim} holds and the
+left-hand side fails. This disproves that clause and hence the conjunction
+asserted in conjecture 00000006238. No claim about the additional,
+unspecified ``multiplicative deficit'' is needed.
+
+\begin{proposition}
+For every nonempty set $Y$, the complement map on $\Pow(Y)$ has no fixed
+point.
+\end{proposition}
+\begin{proof}
+Suppose $B=Y\setminus B$ and choose $y\in Y$. If $y\in B$, the equality
+implies $y\notin B$, a contradiction. It follows that $y\notin B$.
+But then $y\in Y\setminus B=B$, again a contradiction.
+\end{proof}
+
+In particular, clopen means that complement preserves membership in both
+the open and closed classes. It does not mean that complement fixes the
+individual subset. The four-element lattice already exhibits this
+distinction without any infinitary or geometric complications.
+
+\section{Formal verification and semantic correspondence}
+The accompanying project uses only Lean's standard library and is pinned
+to Lean 4.24.0. It defines a subset of a type $X$ as a predicate
+$X\to\mathrm{Prop}$, with inclusion, intersection, union, complement,
+arbitrary suprema, and arbitrary infima given by their usual membership
+conditions. The theorems \code{supremum_is_lub} and
+\code{infimum_is_glb} establish the complete-lattice bounds for
+arbitrary families. Theorems for complement establish its two Boolean
+identities, reversal of inclusion, and the involution identity.
+
+The structure \texttt{Topology} records that the empty set and the whole
+space are open, and that binary intersections and arbitrary unions of
+opens are open. The constructed
+\texttt{discreteTwo} satisfies all of them. Closed means that the
+complement is open, and clopen means open and closed. The two points are
+represented by Lean's Boolean values \texttt{false} and \texttt{true};
+\texttt{singleton} is the predicate $x=\texttt{false}$.
+The source proves that this subset is nonempty, proper, clopen, and not
+fixed by complement, and that its complement is exactly
+$x=\texttt{true}$. The general theorem \texttt{no\_fixed\_subset}
+formalizes the proposition above.
+
+The central result \code{not_discrete_fixed_point_claim}
+is the negation of \eqref{eq:claim} restricted to all subsets of this
+explicit admissible space. The theorem
+\code{not_universal_fixed_point_claim} also refutes the
+corresponding statement quantified over topological spaces. Finally,
+\code{refutes_every_claim_covering_discrete_case} records the
+logical consequence for any larger claim implying the disputed clause
+on this example. The project does not assign a new definition to the
+conjecture's unspecified deficit term; refuting one explicit required
+conjunct suffices.
+
+To reproduce the verification, run in the \texttt{lean4} directory:
+\begin{verbatim}
+lake build
+lake exe verify
+lake env lean Conjecture6238.lean
+\end{verbatim}
+The last command reports the axiom dependencies of the principal results.
+The source contains no proof holes, native decision procedure, or added
+axioms. All proofs are checked by the Lean kernel. Classical logic is
+used for the general double-complement identity; the refutation itself
+needs no additional axioms.
+
+\end{document}
