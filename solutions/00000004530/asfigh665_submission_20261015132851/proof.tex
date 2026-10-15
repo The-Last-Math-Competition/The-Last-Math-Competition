@@ -1,0 +1,171 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{A Periodic Damping Family with Identical Fixed Points
+and Different Convergent Message Trajectories}
+\author{asfigh665}
+\date{October 15, 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000004530 is true. We give an explicit family of synchronous
+message-passing algorithms on a graph consisting of one edge. The damping
+schedule has one averaging step every $p$ updates, so its averaging frequency
+is $1/p$. Every member has the same fixed-point set and reaches consensus
+in at most $p$ updates. The cases $p=1$ and $p=2$ have different trajectories
+from the same initial messages. All claims needed for the construction are
+verified in a standalone Lean 4 project.
+\end{abstract}
+
+\section{Statement and interpretation}
+The English statement of Conjecture 00000004530 is:
+\begin{quote}
+There exist two algorithms with the same fixed-point set but different
+convergence trajectories, and the separation is constructed by an explicit
+frequency-sweep family of damping parameters.
+\end{quote}
+The Chinese statement has the same existential content. Neither version
+specifies a particular message alphabet, graph, or continuous frequency
+range. We supply a discrete frequency sweep: the period $p$ runs over all
+positive integers, and the averaging frequency runs over $1,1/2,1/3,\ldots$.
+For a time-dependent algorithm, a fixed state means a state left unchanged
+by every scheduled update. In the construction below, this also equals the
+fixed-point set of each individual update and of the one-period update.
+No uniqueness of the limit, or different limiting values, is asserted by
+the conjecture: it asks for different convergence trajectories.
+
+\section{The message-passing family}
+Take two vertices joined by an edge, and let $a,b$ be their two directed
+messages. The undamped synchronous update copies the incoming message:
+\[
+  F(a,b)=(b,a).
+\]
+Use the invariant message space
+\[
+ \mathcal M=\{(c+d,c-d):c,d\in\mathbb Z\}.
+\]
+Equivalently, $a,b$ are integers of equal parity. The coordinates $(c,d)$
+are unique: $c=(a+b)/2$ and $d=(a-b)/2$.
+Thus the two-node update is an ordinary local message-passing operation,
+and the coordinate representation is injective.
+
+For each integer $p\geq1$, define, for update indices $n\geq0$,
+\[
+ \alpha^{(p)}_n=
+ \begin{cases}
+  1/2,&p\mid n+1,\\
+  1,&p\nmid n+1.
+ \end{cases}
+\]
+The algorithm $A_p$ performs the usual damped update
+\begin{equation}\label{eq:iteration}
+ (a_{n+1},b_{n+1})
+ =(1-\alpha^{(p)}_n)(a_n,b_n)
+       +\alpha^{(p)}_n(b_n,a_n).
+\end{equation}
+All coefficients are valid damping parameters in $(0,1]$. At a full update,
+$(a,b)$ is swapped. At a half update, both messages become $(a+b)/2$,
+which is an integer because the input lies in $\mathcal M$; the output
+again lies in $\mathcal M$. There is no integer rounding.
+
+The schedule is periodic with period $p$. Its half-damped updates occur
+exactly at $n=p-1,2p-1,3p-1,\ldots$. For $p\geq2$ the period is fundamental:
+a smaller positive period would have to send the half-damped index $p-1$
+to a non-half-damped index. Consequently there is exactly one half update
+per $p$ updates. Varying $p$ gives the promised explicit frequency sweep.
+
+\begin{lemma}\label{lem:fixed}
+For every $p\geq1$ the fixed-point set of $A_p$ is
+\[
+ \operatorname{Fix}(A_p)=\{(c,c):c\in\mathbb Z\}.
+\]
+Every individual scheduled update has this same fixed-point set.
+\end{lemma}
+\begin{proof}
+For a swap, $(b,a)=(a,b)$ if and only if $a=b$. For an averaging step,
+$((a+b)/2,(a+b)/2)=(a,b)$ if and only if $a=b$. Both directions hold on
+$\mathcal M$. Therefore a message pair is unchanged by every scheduled
+update if and only if it is a consensus pair $(c,c)$.
+\end{proof}
+
+\begin{lemma}\label{lem:convergence}
+Starting from $(a_0,b_0)=(c+d,c-d)$, algorithm $A_p$ satisfies
+\[
+ (a_n,b_n)=
+ \begin{cases}
+ (c+(-1)^n d,c-(-1)^n d),&0\leq n<p,\\
+ (c,c),&n\geq p.
+ \end{cases}
+\]
+In particular every trajectory converges, and it reaches its limit after
+at most $p$ updates.
+\end{lemma}
+\begin{proof}
+In coordinates, the average $c$ is preserved. Each full update sends
+$d$ to $-d$, and each half update sends $d$ to $0$. The first $p-1$
+updates are full; update $p$ is half. Subsequent updates preserve $d=0$.
+These statements prove the displayed formula by induction. Eventual
+equality to $(c,c)$ implies convergence in the usual Euclidean metric,
+as well as in the discrete topology on $\mathcal M$.
+\end{proof}
+The one-period update therefore maps every $(c+d,c-d)$ to $(c,c)$,
+so its fixed points are also exactly those of Lemma~\ref{lem:fixed}.
+
+\begin{theorem}
+The algorithms $A_1$ and $A_2$ prove Conjecture 00000004530.
+\end{theorem}
+\begin{proof}
+They are two members of the explicit damping-frequency family above.
+Their fixed-point sets are identical by Lemma~\ref{lem:fixed}, and all
+of their trajectories converge by Lemma~\ref{lem:convergence}.
+From the same initial messages $(1,-1)$ their trajectories begin
+\[
+\begin{array}{c|cccc}
+ &n=0&n=1&n=2&n\geq3\\\hline
+ A_1&(1,-1)&(0,0)&(0,0)&(0,0)\\
+ A_2&(1,-1)&(-1,1)&(0,0)&(0,0).
+\end{array}
+\]
+The states at $n=1$ are different, which proves the required separation
+of convergence trajectories.
+\end{proof}
+
+\section{Lean verification and correspondence}
+The project uses Lean 4.24.0 and imports only \texttt{Std}. The entry point
+is \texttt{lean/Main.lean}; from the \texttt{lean} directory run
+\texttt{lake build}. The proof contains no proof placeholders, externally
+trusted computation, or additional axioms.
+
+\begin{center}
+\begin{tabular}{ll}
+Mathematical object or assertion & Lean declaration\\\hline
+$2\alpha^{(p)}_n$ & \texttt{twiceDamping}\\
+Coordinate change $(c,d)\mapsto(c+d,c-d)$ & \texttt{messages}\\
+Injectivity of coordinates & \texttt{messages\_injective}\\
+Exact damped local update \eqref{eq:iteration} & \texttt{message\_passing\_identity}\\
+Periodicity and reset locations & \texttt{damping\_periodic}, \texttt{first\_reset},\\
+ & \texttt{before\_reset}\\
+Fixed-point set & \texttt{state\_fixed\_iff}\\
+Actual iteration recurrence & \texttt{trajectory\_recurrence}\\
+Finite-time consensus for every initial state & \texttt{consensus}\\
+Existential separation & \texttt{conjecture4530}
+\end{tabular}
+\end{center}
+
+The damping identity is denominator-cleared by multiplication by $2$;
+its right-hand side uses the physical messages themselves. It therefore
+verifies genuine convex damping, not merely an unrelated scalar recurrence.
+The main theorem quantifies over every integer coordinate state, proves
+agreement of the fixed sets, proves eventual equality to consensus for
+both algorithms, and proves inequality of their physical messages after
+one update from the common initial state. The printed axiom audit lists
+only Lean's standard foundational axioms
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+\end{document}
