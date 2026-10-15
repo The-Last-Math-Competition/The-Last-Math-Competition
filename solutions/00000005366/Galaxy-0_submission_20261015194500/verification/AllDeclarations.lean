@@ -1,0 +1,27 @@
+import Main
+#print axioms C5366.Letter
+#print axioms C5366.Word
+#print axioms C5366.dx
+#print axioms C5366.dy
+#print axioms C5366.evalX
+#print axioms C5366.evalY
+#print axioms C5366.eval
+#print axioms C5366.eval_append
+#print axioms C5366.generators_commute
+#print axioms C5366.rank
+#print axioms C5366.LexLE
+#print axioms C5366.Geodesic
+#print axioms C5366.Canonical
+#print axioms C5366.evalX_le_length
+#print axioms C5366.evalX_eq_length_unique
+#print axioms C5366.eval_replicate
+#print axioms C5366.unique_short_word
+#print axioms C5366.powers_are_canonical
+#print axioms C5366.Regex
+#print axioms C5366.Kleene
+#print axioms C5366.accepts
+#print axioms C5366.starHeight
+#print axioms C5366.lengthBound
+#print axioms C5366.zero_height_length_bound
+#print axioms C5366.HasStarHeightZero
+#print axioms C5366.canonical_not_star_height_zero

@@ -1,0 +1,78 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+latxfont.map}
+\setlength{\emergencystretch}{3em}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\newtheorem{theorem}{Theorem}
+\title{A four-letter commuting counterexample to the ordinary star-height claim\\Conjecture 00000005366}
+\author{AI-assisted mathematical submission}
+\date{October 15, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+For the standard four-letter generators of $\mathbb Z^2$, lexicographic geodesic normal forms have ordinary (restricted) star height one, not zero. The obstruction is elementary: every power $a^n$ is the unique shortest representative of $(n,0)$, whereas every ordinary regular expression of height zero has uniformly bounded word length. Lean 4 verifies this obstruction on actual words and their group evaluations. The distinction from generalized star height, which allows complement, is essential.
+\end{abstract}
+
+\section{Interpretation and counterexample}
+The conjecture asserts, among other things, that the star height of a four-letter lexicographic geodesic language is zero, with vanishing attributed to commutative independence. We use the conventional \emph{ordinary} regular-expression operations: empty language, empty word, letters, union, concatenation, and Kleene star. Star height counts maximal nesting of stars; a language has height zero precisely when some expression of height zero denotes it. Complement is not an allowed operation; this is the ordinary/generalized distinction in \cite{place}.
+
+Take $G=\mathbb Z^2$ with letters
+\[
+ a=(1,0),\quad A=(-1,0),\quad b=(0,1),\quad B=(0,-1),
+ \qquad a<A<b<B.
+\]
+Evaluate a word by summing its letter displacements. A geodesic word has minimum length among words with the same evaluation. A canonical geodesic word is lexicographically least among such shortest words. Thus the example uses four letters, commuting horizontal and vertical generators, and actual geodesic representatives.
+
+\begin{theorem}
+The canonical geodesic language for this group and order is not definable by any ordinary regular expression of star height zero.
+\end{theorem}
+\begin{proof}
+For any word $w$, write $X(w)$ for its horizontal displacement. Every letter contributes at most one horizontally, so $X(w)\leq |w|$. Equality holds only if every letter is $a$: a letter $A$ contributes $-1$, and $b,B$ contribute zero. Consequently a word representing $(n,0)$ has length at least $n$, and the only representative of length $n$ is $a^n$. Hence $a^n$ is canonical for every natural number $n$, including zero.
+
+For a star-free ordinary expression $r$, define a word-length bound recursively: zero for the empty language and empty word, one for a letter, the maximum of the bounds for a union, and the sum for concatenation. Structural induction proves that every word denoted by $r$ has length at most this bound. If such an expression denoted the canonical language, it would have to accept $a^{M+1}$, where $M$ is its bound, a contradiction.
+\end{proof}
+
+\section{Automatic-structure hypothesis}
+For completeness, the familiar automatic structure can be checked explicitly. Let $H(x)$ be $a^x$ when $x\geq0$ and $A^{-x}$ otherwise; let $V(y)$ be $b^y$ when $y\geq0$ and $B^{-y}$ otherwise. Then
+\[
+ N(x,y)=H(x)V(y), \qquad
+ L=(a^*\cup A^*)(b^*\cup B^*).
+\]
+Every representative of $(x,y)$ has length at least $|x|+|y|$. Equality excludes simultaneous positive and negative letters along either axis. Among the shortest representatives, putting the horizontal letters first is lexicographically least, since both horizontal letters precede both vertical letters. Thus $N(x,y)$ is the canonical word and $L$ is exactly the canonical language. The displayed expression is regular, each element has a unique normal form, and its ordinary star height is at most one. Together with the theorem, its ordinary star height is exactly one.
+
+Here is a direct synchronous fellow-traveler check, using paths padded at their endpoints. The prefix position at integer time $t$ is
+\[
+ P_{x,y}(t)=\bigl(\operatorname{sgn}(x)\min(t,|x|),
+ \operatorname{sgn}(y)\min(\max(t-|x|,0),|y|)\bigr).
+\]
+For endpoints $(x,y)$ and $(x,y\pm1)$, their horizontal coordinates agree at every time and their vertical coordinates differ by at most one. For endpoints $(x,y)$ and $(x\pm1,y)$, their horizontal prefix coordinates differ by at most one. Their vertical start times differ by at most one, so their vertical prefix coordinates also differ by at most one. These statements also cover zero and sign changes, since adjacent integers can change sign only through zero. Thus synchronous distance in the standard Cayley graph is at most two. This is the regular-language synchronous fellow-traveler criterion for an automatic structure. This paragraph is an explicit mathematical verification; the Lean development below formalizes the star-height obstruction rather than the automatic-structure criterion.
+
+\section{Formal verification and exact scope}
+The self-contained Lean 4.31.0 project imports only \texttt{Std}. Its letters are a four-constructor type, words are lists, and evaluation is an actual pair of integer sums. \texttt{Geodesic} quantifies over all words of the same evaluation; \texttt{Canonical} uses ordinary list lexicographic comparison of the declared letter order among equal-length representatives. It does not define the language to be powers of $a$.
+
+The formal theorem \texttt{powers\_are\_canonical} establishes membership of all powers. It uses \texttt{unique\_short\_word}. Ordinary regular expressions and their denotations are defined independently; star is interpreted by inductive finite concatenation closure. \texttt{zero\_height\_length\_bound} proves the structural bound. The final theorem is
+\begin{center}
+\texttt{canonical\_not\_star\_height\_zero :}\\
+$\neg$\texttt{ HasStarHeightZero Canonical}.
+\end{center}
+The proof includes the empty word and is uniform in $n$, not a finite computation. An auxiliary theorem checks generator commutation, and another verifies evaluation under concatenation. The formalization does not assert the automatic-structure criterion as an axiom; the preceding section supplies that mathematical argument. Nor does it formalize the unnecessary upper bound of one.
+
+\paragraph{Important semantic boundary.}
+Generalized star height permits complement. In that setting the displayed language has height zero: for example $a^*$ is the complement of $\Sigma^*(\Sigma\setminus\{a\})\Sigma^*$, and $\Sigma^*$ itself is the complement of the empty language; these are expressions with no Kleene-star operation when written using complement. The same construction applies to the other letters, then union and concatenation give $L$. Our result therefore refutes the ordinary-star-height clause and is \emph{not} an interpretation-independent refutation if the conjecture intended generalized star height. The source gives no explicit choice of convention. No claim is made here about its separate graph-conversion, depth, or state-count clauses: failure of the ordinary-star-height clause suffices for that reading of the conjunction.
+
+\paragraph{Reproduction.}
+Run \texttt{lake build Main Audit}, then \texttt{lake env lean -DwarningAsError=true Main.lean}, and \texttt{lake env leanchecker Main}. \texttt{Audit.lean} prints dependencies for all nine authored theorems. Only the standard logical axioms \texttt{propext} and \texttt{Quot.sound} occur; no placeholder, custom axiom, or native decision shortcut is used.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition, conjecture 00000005366.
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000005366.md}.
+\bibitem{place} Thomas Place and Marc Zeitoun, \emph{Generic Results for Concatenation Hierarchies}, introduction.
+\url{https://www.labri.fr/perso/tplace/Files/TOCS18.pdf}.
+\bibitem{pin} Jean-\'Eric Pin, \emph{The star-height problem}, distinction between restricted and generalized star height.
+\url{https://www.irif.fr/~jep/Problemes/starheight.html}.
+\bibitem{rees} Sarah Rees, \emph{When Artin groups are sufficiently large \ldots}, September 22, 2012, PDF pages 3--4, regular normal forms and fellow travelers.
+\url{https://web.stevens.edu/algebraic/GTH/Files/Rees_talk.pdf}.
+\end{thebibliography}
+\end{document}
