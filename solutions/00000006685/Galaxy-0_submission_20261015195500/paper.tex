@@ -1,0 +1,142 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,hyperref}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+latxfont.map}
+\setlength{\emergencystretch}{3em}
+\renewcommand{\labelitemi}{$\bullet$}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{A nondegenerate three-dimensional power diagram with adjacency graph $K_5$\\\large A counterexample to Conjecture 00000006685}
+\author{Galaxy-0 \\ AI-assisted mathematical submission}
+\date{15 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Five explicitly given rational weighted sites in three dimensions have a power-cell adjacency graph equal to $K_5$. All sites are visible, every four are affinely independent, the weights are distinct, and no five sites share a power sphere. Consequently the claimed planarity fails outside the stated degeneracy exception. The proof uses actual shared two-dimensional facets, not assigned graph invariants. Exact rational geometric certificates and a field-general no-common-power-sphere theorem are checked by Lean~4; the real-geometric and topological interpretation is explicitly separated below.
+\end{abstract}
+\section{Statement and conventions}
+The official English conjecture reads:
+\begin{quote}
+Definition: Power cells with the partition structure of weight points. Conjecture: The three-dimensional adjacency graph is planar and the dual is a regular triangulation, the planar exception being degenerate weights. (planar adjacency graph of power cells)
+\end{quote}
+The Chinese version likewise claims three-dimensional adjacency is planar, with degenerate weights as exceptions. We refute the planarity assertion, so need not refute the separate regular-triangulation assertion.
+
+For a site $p_i\in\mathbb R^3$ with weight $w_i\in\mathbb R$, set
+\[
+D_i(x)=\|x-p_i\|^2-w_i,\qquad
+C_i=\{x:D_i(x)\le D_k(x)\text{ for all }k\}.
+\]
+The adjacency graph has one vertex per nonempty full-dimensional power cell, and an edge precisely when two cells share a two-dimensional facet. These are the standard power-distance conventions of regular (weighted Delaunay) triangulations~\cite{cgal}.
+
+\section{Sites and nondegeneracy}
+Take
+\[
+\begin{array}{c|r|r}
+i&p_i&w_i\\\hline
+0&(0,0,0)&0\\
+1&(1,1,1)&1/100\\
+2&(1,-1,-1)&2/100\\
+3&(-1,1,-1)&3/100\\
+4&(-1,-1,1)&4/100
+\end{array}
+\]
+In particular the weights are pairwise distinct. Distances squared between distinct sites are either $3$ or $8$, whereas weight differences have absolute value at most $1/25$. Therefore $D_i(p_i)<D_j(p_i)$ for $i\ne j$. By continuity each $p_i$ lies in the interior of $C_i$. No cell is hidden or lower-dimensional.
+
+The affine determinants for ordered four-element subsets $0123,0124,0134,0234,1234$ are respectively
+\[
+4,\quad -4,\quad 4,\quad -4,\quad -16.
+\]
+(The sign convention is $\det(p_j-p_i,p_k-p_i,p_l-p_i)$.) Thus every four sites are affinely independent.
+
+If all five sites shared a power sphere with center $x$, their power distances would be equal. Since $p_0=0$ and $w_0=0$, equality with site~0 gives
+\[
+2x\cdot p_i=3-w_i\quad(1\le i\le4).
+\]
+But $\sum_{i=1}^4p_i=0$, whereas
+\[
+\sum_{i=1}^4(3-w_i)=12-\frac{1+2+3+4}{100}=\frac{119}{10}\ne0.
+\]
+Summing the equations is a contradiction. This argument works over any field of characteristic zero and is formalized at that generality. In particular, it excludes real centers, not merely rational centers. Every four sites are independent and no five are co-power-spherical, so the standard affine/power-sphere degeneracies in three-dimensional regular triangulations are absent. Equivalently, the five lifted points $(p_i,\|p_i\|^2-w_i)\in\mathbb R^4$ are affinely independent.
+
+\section{All ten genuine facets}
+For each unordered pair, the following point has precisely the two indicated sites as minimizers:
+\[
+x_{0i}=\frac{3-w_i}{6}p_i\quad(1\le i\le4),
+\]
+\[
+x_{ij}=p_i+p_j+\frac{w_j-w_i}{16}(p_i-p_j)
+\quad(1\le i<j\le4).
+\]
+Here is the exact arithmetic certificate. The final column is
+$\min_{k\notin\{i,j\}}(D_k(x_{ij})-D_i(x_{ij}))$; the two selected power distances agree in every row.
+\[
+\begin{array}{c|c|c}
+\{i,j\}&x_{ij}&\text{strict gap}\\\hline
+01&(299/600,299/600,299/600)&1187/300\\
+02&(149/300,-149/300,-149/300)&593/150\\
+03&(-99/200,99/200,-99/200)&79/20\\
+04&(-37/75,-37/75,37/75)&1187/300\\
+12&(2,1/800,1/800)&203/200\\
+13&(1/400,2,1/400)&51/50\\
+14&(3/800,3/800,2)&41/40\\
+23&(1/800,-1/800,-2)&41/40\\
+24&(1/400,-2,-1/400)&103/100\\
+34&(-2,1/800,-1/800)&207/200
+\end{array}
+\]
+These are squared Euclidean distance calculations, with no numerical approximation.
+
+For completeness, we explain why strict bisector witnesses imply genuine facets. The power difference is affine:
+\[
+D_i(x)-D_j(x)=2x\cdot(p_j-p_i)
+ +\|p_i\|^2-w_i-\|p_j\|^2+w_j.
+\]
+Since $p_i\ne p_j$, its zero set $H_{ij}$ is a two-dimensional affine plane. At $x_{ij}$ all the other power inequalities are strict. Continuity of finitely many affine functions gives a ball about $x_{ij}$ in which these inequalities remain strict. Intersect this ball with $H_{ij}$: it is a relatively open two-dimensional disk contained in $C_i\cap C_j$. Conversely, every point of $C_i\cap C_j$ has $D_i=D_j$, so this intersection is contained in $H_{ij}$. Since each $C_i$ is an intersection of affine halfspaces, $C_i\cap C_j$ is their common two-dimensional face. This proves facet adjacency.
+
+The Lean certificate is stronger than the single-point table: it verifies three noncollinear strict bisector points for each pair. If $n=p_i-p_j=(a,b,c)$, choose tangent vectors
+\[
+(u,v)=
+\begin{cases}
+((-b,a,0),(-c,0,a)),&a\ne0,\\
+((b,-a,0),(0,-c,b)),&a=0,\ b\ne0,\\
+((1,0,0),(0,1,0)),&a=b=0.
+\end{cases}
+\]
+The three points are $x_{ij}$, $x_{ij}+u/1000$, $x_{ij}+v/1000$.
+Exact checking proves equality of the selected power distances, strict dominance over all other sites, and a nonzero cross product of the two difference vectors. Their convex hull is a nondegenerate triangle in the common face: the affine inequalities hold throughout the triangle by convexity. Thus the certificate cannot be an artifact of isolated intersections or lower-dimensional contacts.
+
+\begin{theorem}
+The power-cell adjacency graph of these five weighted sites is $K_5$, and is not planar. Consequently Conjecture 00000006685 is false even for nondegenerate data.
+\end{theorem}
+\begin{proof}
+There are exactly five full-dimensional cells, and every pair shares a facet, as proved above. The adjacency graph is therefore $K_5$. If it admitted a planar embedding, Euler's formula would give $5-10+F=2$, so $F=7$. Every face boundary has length at least three, since $K_5$ is simple and has no bridges. Counting directed edge sides gives $3F\le2E=20$, contrary to $3F=21$. This is the standard Euler obstruction to the planarity of $K_5$~\cite{mit}. The nondegeneracy checks show that the exception in the conjecture does not apply.
+\end{proof}
+
+\section{Formal verification and semantic boundary}
+The Lean project uses Lean~4.31.0 and only its bundled \texttt{Std} library. It contains no \texttt{sorry}, \texttt{native\_decide}, or additional axioms.
+\begin{itemize}
+\item \texttt{PowerCells.lean} defines rational three-vectors, squared Euclidean power distance, power cells, strict bisectors, and three-point noncollinear facet certificates. The theorem \texttt{facet\_checks} checks the actual inequalities and cross products for every pair. \texttt{adjacency\_complete} proves that this geometrically witnessed adjacency is exactly inequality of the five site indices. Further theorems check visibility, distinct weights, and all affine determinants.
+\item \texttt{NoSphere.lean} proves absence of a common power sphere over \emph{every} characteristic-zero field, and proves the symbolic affine power-difference identity. It does not rely on an enumeration of possible sphere centers.
+\item \texttt{K5Rotation.lean} models the twenty directed edges, actual edge reversal, and every local four-dart cyclic order. Its facial successor is a genuine permutation with no cycles of length one or two. A facial decomposition consists of nonempty closed successor walks whose concatenation is a permutation of all twenty darts. Every such face has at least three darts, so the formal counting bound excludes the seven faces demanded by Euler's formula. No exhaustive search through all global rotations is needed.
+\end{itemize}
+The rotation model has twenty darts, one for each ordered pair of distinct vertices. Edge reversal swaps their endpoints. At each vertex, the six possible cyclic successor orders on its four incident darts are enumerated; fixing the first port loses no cyclic order. The facial successor first reverses an edge and then takes the local successor. Its inverse is checked, so it is a permutation. It has no fixed point because a dart changes its source along a nonloop edge. A two-cycle would require the local successor at the intermediate vertex to leave the reversed dart unchanged, impossible for a four-cycle. Thus every nonempty closed facial walk has length at least three. A facial decomposition uses every directed edge exactly once, so its total length is twenty and three times its face count is at most twenty. This excludes seven faces without global rotation enumeration.
+
+To see the connection with topological planarity, orient the sphere in a hypothetical planar embedding. The cyclic order of the four outgoing darts at each vertex is one of the enumerated orders. Following an edge, reversing its dart, and taking the next outgoing dart traces one side of a face; choosing the opposite orientation merely reverses the convention and does not change the face count. Because the embedded graph is connected, its complementary regions on the sphere are disks, and their facial boundary walks partition the directed edges. They therefore supply precisely a facial decomposition of the kind formalized here. Euler's formula would require seven faces, contradicting the formal counting bound. This gives the semantic bridge without defining planarity to mean an assigned invariant or an edge-count inequality.
+
+Finite rational inequalities embed faithfully into $\mathbb R$. The real-facet convexity argument and the standard planar-embedding/Euler bridge are proved in this paper; the project does not claim a kernel-formalized theory of real topology in \texttt{Std}. The formal development certifies the actual finite geometry and facial-decomposition obstruction. A reviewer requiring all general real-topological foundations in Lean would need to add those foundations. Nothing here defines geometric planarity as an edge-count bound or assigns graph invariants as hypotheses.
+
+An independent \texttt{verify.py} reproduces all geometric computations using Python's exact rational arithmetic. It is supplementary and is not used to manufacture Lean proofs.
+
+\begin{thebibliography}{9}
+\small
+\setlength{\itemsep}{0pt}
+\bibitem{source} The Last Math Competition, Conjecture 00000006685, official source, retrieved 15 October 2026.\newline
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000006685.md}
+\bibitem{cgal} C. Jamin, S. Pion, M. Teillaud, \emph{CGAL 3D Triangulations User Manual}, section ``Regular Triangulation.''\newline
+\url{https://doc.cgal.org/latest/Triangulation_3/index.html}
+\bibitem{mit} D. J. Kleitman, MIT 18.310 lecture notes, \emph{Planarity and Coloring}, section ``Euler's Formula and a Consequence.''\newline
+\url{https://math.mit.edu/~djk/18.310/Lecture-Notes/planarity_coloring_2007.html}
+\end{thebibliography}
+\end{document}

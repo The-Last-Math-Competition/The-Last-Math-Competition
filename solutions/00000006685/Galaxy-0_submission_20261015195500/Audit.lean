@@ -1,0 +1,12 @@
+import Conjecture6685
+#print axioms PowerCells6685.facet_checks
+#print axioms PowerCells6685.strictBisector_mem_cells
+#print axioms PowerCells6685.adjacency_complete
+#print axioms PowerCells6685.own_site_strict
+#print axioms PowerCells6685.weights_distinct
+#print axioms PowerCells6685.every_four_independent
+#print axioms PowerCells6685.no_common_power_sphere
+#print axioms PowerCells6685.power_difference_affine
+#print axioms FacialBound.decomposition_bound
+#print axioms K5Rotation.no_spherical_euler_equation
+#print axioms PowerCells6685.finite_counterexample_certificates
