@@ -1,0 +1,174 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\N}{\mathbb N}
+\newcommand{\cdeg}{\mathsf c}
+\title{Catenary degree is not determined by the minimum generator\\
+\large A counterexample to Conjecture 00000002212}
+\author{asfigh665}
+\date{15 October 2026}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+The minimally three-generated numerical semigroups
+$H=\langle3,4,5\rangle$ and $K=\langle3,7,8\rangle$ have the same
+minimum generator, but $\cdeg(H)=3$ and $\cdeg(K)=5$.
+We prove the global upper bounds by terminating normalizations of every
+factorization, and the matching lower bounds from explicit two-element fibers.
+The entire argument, including the numerical-semigroup hypotheses and the
+negation of the proposed functional dependence, is formalized in Lean 4.24.0.
+\end{abstract}
+
+\section{Definitions and the claim being refuted}
+Write $\N=\{0,1,2,\ldots\}$. For positive generators $g=(g_1,g_2,g_3)$,
+put
+\[
+ |x|=x_1+x_2+x_3,\qquad
+ v_g(x)=g_1x_1+g_2x_2+g_3x_3,\qquad
+ Z_g(n)=\{x\in\N^3:v_g(x)=n\}.
+\]
+For $x,y\in\N^3$, let $(x\wedge y)_i=\min(x_i,y_i)$ and define
+\[
+ d(x,y)=\max\{|x-x\wedge y|,\ |y-x\wedge y|\}.
+\]
+An $N$-chain in $Z_g(n)$ is a finite sequence in that fiber whose consecutive
+terms have distance at most $N$. The catenary degree $\cdeg(\langle g\rangle)$
+is the least $N$ such that every pair of factorizations of every element can be
+joined by an $N$-chain. This is the standard catenary invariant: equivalently,
+all distance-threshold graphs on factorization fibers are connected. The
+problem's informal parenthetical ``diameter of the factorization graph'' is
+used in this standard sense, not as ordinary unweighted graph diameter.
+
+Conjecture 00000002212 asserts that for minimally three-generated numerical
+semigroups this invariant is a function of the minimum generator. We disprove
+even the existence of such a function, without imposing the extra demand
+that it be explicit.
+
+\begin{theorem}\label{thm:main}
+The semigroups $H=\langle3,4,5\rangle$ and $K=\langle3,7,8\rangle$ are
+minimally three-generated numerical semigroups, and
+\[
+\cdeg(H)=3,\qquad \cdeg(K)=5.
+\]
+Consequently, their catenary degrees cannot be determined solely by their
+common minimum generator $3$.
+\end{theorem}
+
+\section{The numerical-semigroup hypotheses}
+Both sets of nonnegative linear combinations contain $0$ and are closed
+under addition. Every integer $n\ge3$ belongs to $H$: according to its
+residue modulo $3$, it is a multiple of $3$, or $4$ plus a nonnegative
+multiple of $3$, or $5$ plus a nonnegative multiple of $3$.
+Similarly every $n\ge6$ belongs to $K$, using $0,7,8$ as the three residue
+representatives. Thus both have finite complement in $\N$.
+
+Each displayed generator has only its one-letter factorization. In $H$,
+$3$ is smaller than $4$ and $5$, and neither $4$ nor $5$ is a multiple of $3$;
+no sum involving a larger generator can equal a smaller one. Also $5-4=1$
+is not in $H$. For $K$, neither $7$ nor $8$ is divisible by $3$, and
+$8-7=1$ is not in $K$. These observations prove that all three displayed
+generators are irreducible. Any other positive element is represented by
+at least two displayed generators and hence is reducible. Each semigroup
+therefore has exactly three minimal generators, as required.
+
+\section{Global upper bounds}
+The following moves preserve the represented integer. All are applied only
+when the coordinates being reduced remain nonnegative.
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Semigroup & Replacement of factors & Distance \\
+\midrule
+$H$ & $4+4\longmapsto3+5$ & $2$ \\
+    & $5+5\longmapsto3+3+4$ & $3$ \\
+    & $4+5\longmapsto3+3+3$ & $3$ \\
+\addlinespace
+$K$ & $7+7\longmapsto3+3+8$ & $3$ \\
+    & $8+8\longmapsto3+3+3+7$ & $4$ \\
+    & $7+8\longmapsto3+3+3+3+3$ & $5$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+The stated distances hold in every surrounding factorization: the common
+coordinates cancel in the definition of $d$.
+
+Let a factorization have coordinates $(a,b,c)$, where $b,c$ count the two
+generators other than $3$. If $b\ge2$, use the first move; otherwise, if
+$c\ge2$, use the second; otherwise, if $b=c=1$, use the third.
+Each move strictly decreases $b+c$. Thus the procedure terminates for
+\emph{every} factorization at a normal form with $b+c\le1$.
+
+For $H$, the possible normal forms have values
+\[
+3a,\qquad 3a+4,\qquad 3a+5.
+\]
+They have distinct residues modulo $3$. The represented value determines
+which form occurs and then determines $a$. Hence the normal form is unique
+within each fiber. Any two factorizations of the same integer can be joined
+by normalizing the first and reversing a normalization of the second.
+Every step has distance at most $3$, proving $\cdeg(H)\le3$.
+
+For $K$, the three normal-form values are $3a$, $3a+7$, and $3a+8$.
+The same residue argument proves uniqueness. Its normalization moves have
+distance at most $5$, so $\cdeg(K)\le5$.
+
+\section{Sharp lower bounds and conclusion}
+The fiber of $9$ for $H$ is exactly
+\[
+Z_{(3,4,5)}(9)=\{(3,0,0),(0,1,1)\}.
+\]
+Indeed, in $3a+4b+5c=9$, the case $c=0$ gives $(a,b)=(3,0)$, the case
+$c=1$ gives $(a,b)=(0,1)$, and $c\ge2$ is impossible. The two
+factorizations have distance $3$. Any chain between them must make a step
+between the two distinct vertices, so no $N<3$ suffices.
+Together with the upper bound, this gives $\cdeg(H)=3$.
+
+Similarly,
+\[
+Z_{(3,7,8)}(15)=\{(5,0,0),(0,1,1)\}.
+\]
+For $c=0$, the equation $3a+7b=15$ has only $(a,b)=(5,0)$;
+for $c=1$, it has only $(a,b)=(0,1)$; and $c\ge2$ is impossible.
+These two factorizations have distance $5$, giving $\cdeg(K)\ge5$.
+The global upper bound proves equality and completes Theorem~\ref{thm:main}.
+If a function $f$ as conjectured existed, it would satisfy both $f(3)=3$
+and $f(3)=5$, a contradiction.
+
+\section{Formal verification and prior rejected work}
+The file \texttt{Counterexample.lean} imports only \texttt{Std}.
+The project is pinned to Lean 4.24.0. Its definitions
+\texttt{distance}, \texttt{Chain}, \texttt{Bound}, and
+\texttt{CatenaryDegree} implement precisely the definitions above.
+\texttt{Admissible} requires positive distinct generators, unique one-letter
+factorizations of all three generators, and an explicit conductor.
+The submonoid properties are proved separately by \texttt{member\_zero}
+and \texttt{member\_add}.
+
+The unrestricted upper bounds use strong induction on $b+c$ in
+\texttt{normalise} and \texttt{normalise\_h}. The sharp degrees are
+\texttt{g\_degree\_three} and \texttt{h\_degree\_five}.
+\texttt{counterexample} combines every hypothesis with the two exact degrees;
+\texttt{conjecture\_false} formally negates the existence of the proposed
+function. Standard kernel-checked arithmetic is used; there are no unproved
+placeholders, additional axioms, or native decision procedures.
+The supplied verification record lists the compiler result and final axiom
+audit. Build with \texttt{lake build}, then audit with
+\texttt{lake env lean Counterexample.lean}.
+
+An earlier submission,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/245\#issuecomment-5965086293}{PR \#245 (reviewer comment)},
+was closed as invalid. The review identified redundant generators,
+including $25=5\cdot5$ and $35=5\cdot7$, so its examples did not have
+embedding dimension three. It also identified the absence of a Lean
+definition of catenary degree, and the failure of finite stability windows
+and the stated generic Betti argument to establish global upper bounds.
+Those issues are addressed here by proved minimality, an explicit definition
+of the invariant, and a terminating argument valid for all factorization
+fibers. No finite search is used as evidence for a global upper bound.
+\end{document}
