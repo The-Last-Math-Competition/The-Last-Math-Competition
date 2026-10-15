@@ -1,0 +1,124 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\title{A projective-line code disproves conjecture 00000007973}
+\author{asfigh665}
+\date{October 15, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The conjectured minimum-weight identity $d=\deg D-g$ fails for a standard
+evaluation algebraic-geometric code on $\mathbf P^1_{\mathbf F_3}$.
+For $D=P_0+P_1+P_2$ and $G=P_\infty$, the code is the $[3,2,2]_3$
+Reed--Solomon code, whereas the proposed identity gives $d=3$.
+A dependency-free Lean 4 project checks the finite field, the complete
+evaluation code, its minimum nonzero weight, and its weight enumerator.
+\end{abstract}
+
+\section{The assertion being refuted}
+Conjecture 00000007973 concerns the weight enumerator of a code
+$C(X,D,G)$ from algebraic geometry. Both language versions explicitly
+assert that its minimum weight is $\deg D-g$, where $g$ is the genus of $X$.
+As usual, minimum weight means the minimum over \emph{nonzero} codewords.
+We disprove this clause; consequently the conjunction of assertions in the
+conjecture is false, independently of its proposed modular-form description.
+
+We use the standard evaluation AG code
+\[
+ C_L(D,G)=\{(f(P_0),f(P_1),f(P_2)):f\in L(G)\},
+ \qquad L(G)=\{0\}\cup\{f\in\mathbf F_3(X)^\times:(f)+G\geq0\}.
+\]
+Here $X=\mathbf P^1_{\mathbf F_3}$, $t$ is its affine coordinate,
+$P_j$ is the rational point $t=j$, $D=P_0+P_1+P_2$, and $G=P_\infty$.
+The curve is smooth, projective, and geometrically integral, with genus
+$g=0$. The evaluation points are distinct, and the supports of $D$ and
+$G$ are disjoint. Also $0<\deg G=1<\deg D=3$ and $2g-2<\deg G$,
+so the example satisfies the usual nondegenerate evaluation-code hypotheses.
+
+\begin{lemma}
+$L(P_\infty)=\{at+b:a,b\in\mathbf F_3\}$.
+\end{lemma}
+\begin{proof}
+A rational function on the projective line with no finite poles is a
+polynomial in $t$. Indeed, write it as $p(t)/q(t)$ in lowest terms; any
+nonconstant irreducible factor of $q$ supplies a finite closed point where
+the function has a pole. Thus $q$ must be constant. In the local parameter
+$u=1/t$ at infinity, a nonzero polynomial of degree $m$ has pole order $m$.
+The bound of one on that pole order is therefore exactly $\deg f\leq1$.
+The zero function is included separately.
+\end{proof}
+In particular the full Weierstrass semigroup at $P_\infty$ is
+$\mathbb N_0$: the function $t^m$ has its unique pole there, of order $m$.
+Its gap set is empty. Thus the semigroup data mentioned in the conjecture
+are completely specified in this example.
+
+\section{Exact minimum weight}
+The lemma gives the whole code explicitly:
+\[
+ C_L(D,G)=\{(b,a+b,2a+b):a,b\in\mathbf F_3\}.
+\]
+The parameterization is injective: the value at $0$ recovers $b$, and
+the value at $1$ then recovers $a$. Hence this is a length-three,
+dimension-two linear code over $\mathbf F_3$.
+
+\begin{proposition}
+The minimum nonzero Hamming weight of $C_L(D,G)$ is $2$, and its
+weight enumerator is $1+6z^2+2z^3$.
+\end{proposition}
+\begin{proof}
+When $a=b=0$, the word has weight zero. When $a=0$ and $b\ne0$,
+the word is a nonzero constant and has weight three; there are two such
+words. When $a\ne0$, the polynomial $at+b$ has exactly one root in
+$\mathbf F_3$. All three field elements are evaluated, so its word has
+exactly two nonzero entries; there are $2\cdot3=6$ such words.
+In particular, $f=t$ gives the word $(0,1,2)$ of weight two. These cases
+exhaust all nine codewords, proving both claims.
+\end{proof}
+
+Thus
+\[
+ \boxed{d(C_L(D,G))=2\ne3=\deg D-g.}
+\]
+This discrepancy is not the zero codeword or an exceptional divisor issue.
+The familiar designed-distance lower bound is $d\geq\deg D-\deg G$;
+it is an equality in this example. The conjecture instead subtracts the
+genus, omitting the divisor $G$ on which the evaluation space depends.
+
+\section{Lean verification and its scope}
+The accompanying project uses Lean 4.24.0 and its standard library only.
+\texttt{F3} is \texttt{Fin 3}, with addition and multiplication modulo three;
+\texttt{field\_laws} checks the field identities and multiplicative inverses.
+\texttt{evaluate} constructs $t\mapsto at+b$ using those operations.
+\texttt{InCode} quantifies over all $a,b$, and
+\texttt{MinimumNonzeroWeight} requires both a lower bound for every
+nonzero codeword and an attaining codeword. The principal results are:
+\begin{itemize}
+\item \texttt{evaluation\_linear} and \texttt{evaluate\_injective} verify
+the algebraic parameterization;
+\item \texttt{minimum\_weight\_two} and
+\texttt{not\_minimum\_weight\_three} establish the minimum and refute
+the claimed value;
+\item \texttt{complete\_weight\_enumerator} checks all nine parameter pairs;
+\item \texttt{counterexample} refutes the required genus-zero,
+degree-one instance; the final implication theorem explicitly transfers
+this contradiction to any assertion implying that instance.
+\end{itemize}
+All finite decisions are kernel checked. The project does not formalize
+schemes or general Riemann--Roch theory; the identification of this concrete
+evaluation space with $L(P_\infty)$, and the standard genus of $\mathbf P^1$,
+are the mathematical bridge supplied above. No general algebraic-geometry
+theorem is asserted as an added axiom in Lean. The checks therefore cover
+the full finite code and the contradiction, rather than a hard-coded
+comparison of two unexplained integers.
+
+\paragraph{Reproduction.}
+From \texttt{lean4/}, run \texttt{lake build},
+\texttt{lake env lean Conjecture7973.lean}, and \texttt{lake exe verify}.
+The displayed axiom dependencies of the main results are only
+\texttt{propext} and \texttt{Quot.sound}. The project has no external packages,
+proof holes, native decision shortcuts, or custom axioms.
+\end{document}
