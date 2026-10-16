@@ -1,0 +1,96 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\renewcommand{\labelitemi}{$\bullet$}
+\title{A simple complete intersection below its mixed-volume bound\\\large Counterexample to TLMC conjecture 00000003169}
+\author{Galaxy-0}
+\date{October 16, 2026}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+latxfont.map}
+\setlength{\emergencystretch}{3em}
+\begin{document}
+\maketitle
+\begin{abstract}
+The explicit polynomials $f=x+y+1$ and $g=(x+y)^3+x+2y+4$ have exactly one complex zero, namely $(1,-2)$, and that zero is simple and belongs to the algebraic torus. Their Newton polytopes are $\Delta$ and $3\Delta$, whose root-count-normalized mixed volume is $3$. The example is a reduced, nonempty complete intersection. Thus the unconditional equality asserted in the conjecture fails, whether isolated roots are counted with or without multiplicity. A Lean 4.31.0/Std certificate proves the algebra, support-to-convex-hull bridge, Minkowski sum and area arithmetic.
+\end{abstract}
+\section{Claim and precise scope}
+The current conjecture asserts an equality between the isolated-zero count of a sparse polynomial system and the mixed volume of its Newton polytopes, and associates tightness with complete intersections. Neither its English nor its Chinese statement supplies a genericity or nondegeneracy hypothesis. The present counterexample addresses that unconditional equality, including the possible qualification to complete intersections.
+
+This does not contradict the Kushnirenko--Bernstein theorem: mixed volume is an upper bound, attained for generic coefficients. See Philippon and Sombra~\cite{ps}. The point is precisely that an arbitrary complete intersection need not attain it. The original source is preserved verbatim in the companion \texttt{source.md}.
+\section{An exact, simple root count}
+Put $s=x+y$ and $q=s^2-s+2$. Then
+\[
+ f=s+1,\qquad g=s^3+x+2y+4.
+\]
+Direct multiplication gives four identities in $\mathbb Z[x,y]$:
+\begin{align*}
+ g-qf&=y+2, & (1+q)f-g&=x-1,\\
+ f&=(x-1)+(y+2), &g&=q(x-1)+(q+1)(y+2).
+\end{align*}
+Consequently, in $\mathbb C[x,y]$,
+\[
+ (f,g)=(x-1,y+2).
+\]
+The common zero set is exactly $\{(1,-2)\}$, and its coordinate algebra is $\mathbb C$. In particular the scheme is reduced, zero-dimensional and of length one. Since both coordinates are nonzero, the affine-plane and torus root counts coincide.
+
+For a direct derivative check,
+\[
+ J(f,g)=\begin{pmatrix}1&1\\3s^2+1&3s^2+2\end{pmatrix},
+ \qquad \det J(f,g)=1.
+\]
+Thus the unique zero has multiplicity one. The complete-intersection condition is also literal: $f$ is a nonzero divisor in $\mathbb C[x,y]$; the quotient by $f$ is $\mathbb C[y]$, in which $g$ becomes $y+2$, a nonzero divisor. Hence $(f,g)$ is a regular sequence. The same statements hold after localizing to the torus at this root.
+\section{The actual Newton polytopes}
+The nonzero exponent supports are
+\begin{align*}
+ A_f&=\{(0,0),(1,0),(0,1)\},\\
+ A_g&=\{(0,0),(1,0),(0,1),(3,0),(2,1),(1,2),(0,3)\}.
+\end{align*}
+All displayed coefficients are positive integers. If
+\[
+ \Delta=\{(u,v)\in\mathbb R^2:u\ge0,\ v\ge0,\ u+v\le1\},
+\]
+then $P=\operatorname{conv}(A_f)=\Delta$ and $Q=\operatorname{conv}(A_g)=3\Delta$. Indeed all support points lie in the indicated triangle and all three extreme vertices occur. Also $P+Q=4\Delta$. The reverse containment has the explicit decomposition
+\[
+ (u,v)=(u/4,v/4)+(3u/4,3v/4).
+\]
+The determinant area formula yields
+\[
+ \operatorname{Area}(P)=\tfrac12,\qquad
+ \operatorname{Area}(Q)=\tfrac92,\qquad
+ \operatorname{Area}(P+Q)=8.
+\]
+The BKK root-count normalization in two dimensions is
+\[
+ \operatorname{MV}_{\mathrm{BKK}}(P,Q)
+ =\operatorname{Area}(P+Q)-\operatorname{Area}(P)-\operatorname{Area}(Q)=3.
+\]
+In the alternative convex-geometric normalization, the mixed area is half this value, $V(P,Q)=3/2$. Both conventions differ from the actual root count $1$; the conclusion is not a normalization artifact.
+\begin{theorem}
+The unconditional root-count equality in conjecture 00000003169 is false, even for a reduced, nonempty complete intersection with all its zeros in $(\mathbb C^*)^2$.
+\end{theorem}
+\begin{proof}
+The root count, including multiplicity, is $1$, whereas the root-count mixed volume is $3$.
+\end{proof}
+For clarity about the missing hypothesis, the highest-degree face polynomials are $x+y$ and $(x+y)^3$. They have common torus zeros. Thus the system is degenerate on that face, exactly the kind of behavior excluded by the usual nondegeneracy condition.
+\section{Formal certificate and its boundary}
+The accompanying project uses only Lean 4.31.0 and Std, with no external package dependencies.
+\begin{itemize}
+\item \texttt{Algebra.lean} defines sparse polynomials as lists of integer-coefficient monomials, evaluates them over any commutative ring, verifies their exact supports and expansion, proves the four ideal-generator identities and the unique-root equivalence, and computes formal partial derivatives and Jacobian determinant. Characteristic-zero certificates establish nonzero coefficients and torus membership.
+\item \texttt{Geometry.lean} defines convex hulls of finite supports using nonnegative weights summing to one. It proves the bridge from the actual polynomial supports to the explicit weight formulas, the triangle descriptions, and the literal Minkowski-sum equality. These results hold over every linearly ordered field. Areas are computed using the usual triangle determinant formula.
+\item \texttt{Main.lean} proves a complete, repetition-free singleton enumeration of roots over every commutative ring, and proves its length differs from both mixed-area normalizations. The root carrier and the ordered field for area arithmetic are independent type parameters.
+\end{itemize}
+The formal certificate does not construct the complex numbers, a general polynomial ideal/quotient library, scheme-theoretic intersection multiplicities, or Lebesgue measure. The standard mathematical interpretations connecting the universal ring identities to the ideal equality and multiplicity-one complete intersection, and connecting positive determinant triangle areas to Euclidean area, are supplied explicitly above. There is no hypothesis asserting the desired conclusion. In particular the convex hulls are linked to the computed supports by proved bridge theorems, rather than assigned by hand.
+
+\texttt{VERIFY.sh} builds all modules, independently replays them with \texttt{leanchecker}, prints axiom dependencies, and runs \texttt{verify.py}. The latter independently checks the polynomial identities, derivative determinant, support convex hulls, Minkowski hull and rational areas using Python's standard library. The axiom audit contains only Lean's standard logical axioms \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}; no admitted proofs, native-decide axioms or conclusion-specific axioms are used.
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition, conjecture 00000003169, current source checked October 16, 2026.\newline
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000003169.md}
+\bibitem{ps} P. Philippon and M. Sombra, \emph{A refinement of the Kushnirenko--Bernstein estimate}, arXiv:0709.3306 (2007).\newline
+\url{https://arxiv.org/abs/0709.3306}
+\end{thebibliography}
+\end{document}

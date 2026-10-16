@@ -1,0 +1,25 @@
+import Main
+#print axioms TLMC3169.eval_f
+#print axioms TLMC3169.eval_g
+#print axioms TLMC3169.f_support
+#print axioms TLMC3169.g_support
+#print axioms TLMC3169.ideal_identity_y
+#print axioms TLMC3169.ideal_identity_x
+#print axioms TLMC3169.reverse_identity_f
+#print axioms TLMC3169.reverse_identity_g
+#print axioms TLMC3169.roots_exact
+#print axioms TLMC3169.exactly_one_root
+#print axioms TLMC3169.root_in_torus
+#print axioms TLMC3169.partials
+#print axioms TLMC3169.jacobian_one
+#print axioms TLMC3169.simple_root_certificate
+#print axioms TLMC3169.newtonF_triangle
+#print axioms TLMC3169.newtonG_triangle
+#print axioms TLMC3169.minkowski_newton
+#print axioms TLMC3169.mixed_area_values
+#print axioms TLMC3169.rootList_complete
+#print axioms TLMC3169.rootList_nodup
+#print axioms TLMC3169.conjecture_00000003169_counterexample
+#print axioms TLMC3169.support_f_hull
+#print axioms TLMC3169.support_g_hull
+#print axioms TLMC3169.actual_newton_minkowski
