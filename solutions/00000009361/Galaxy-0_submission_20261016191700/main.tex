@@ -1,0 +1,133 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{Records of Exchangeable Permutations\\\large A complete finite counting proof of TLMC 00000009361}
+\author{Galaxy-0}
+\date{16 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The upper-record indicators of a positionally exchangeable random permutation
+are independent Bernoulli variables with parameters $1,1/2,\ldots,1/n$.
+We prove the exact joint pattern count using a bijection of actual
+permutations. A Lean 4.31 formalization verifies the permutation sample space,
+its duplicate-free enumeration, record semantics and the counting identity.
+\end{abstract}
+\section{Statement and conventions}
+The official conjecture describes ``the records of exchangeable permutations''
+and says their distribution is independent Bernoulli. We give its standard
+precise meaning. Let $\mathcal P_n$ be all permutations of $\{0,\ldots,n-1\}$,
+written chronologically as $p=(p_1,\ldots,p_n)$. Define the upper-record
+indicator
+\[
+ R_k(p)=\mathbf 1\{p_k>p_j\text{ for every }j<k\},\qquad 1\leq k\leq n.
+\]
+The empty comparison makes $R_1=1$. Exchangeability here means invariance
+of the law under arbitrary permutations of the \emph{positions}. This is
+not merely conjugation invariance when a permutation is viewed as a group
+element. We assume distinct entries; ties would change the claim.
+\begin{theorem}[Exact joint count]
+For every $n\geq0$ and $b=(b_1,\ldots,b_n)\in\{0,1\}^n$,
+\begin{equation}\label{eq:count}
+ \#\{p\in\mathcal P_n:R_k(p)=b_k\text{ for all }k\}
+ =\prod_{k=1}^n \begin{cases}1,&b_k=1,\\ k-1,&b_k=0.\end{cases}
+\end{equation}
+The empty product is $1$. Thus $\#\mathcal P_n=n!$, and for a positionally
+exchangeable permutation the indicators $R_1,\ldots,R_n$ are independent,
+with $\Pr(R_k=1)=1/k$.
+\end{theorem}
+\section{The permutation bijection}
+For $0\leq r\leq n$, define the increasing map
+\[
+ s_r(x)=\begin{cases}x,&x<r,\\x+1,&x\geq r.\end{cases}
+\]
+It is a bijection from $\{0,\ldots,n-1\}$ to
+$\{0,\ldots,n\}\setminus\{r\}$. Its inverse on that set is
+\[
+ d_r(y)=\begin{cases}y,&y<r,\\y-1,&y>r.\end{cases}
+\]
+The following is a bijection, with no hidden multiplicities:
+\[
+ \mathcal P_n\times\{0,\ldots,n\}\longrightarrow\mathcal P_{n+1},\qquad
+ (q,r)\longmapsto (s_r(q_1),\ldots,s_r(q_n),r).
+\]
+Indeed the output contains every label exactly once. Conversely, remove
+the last entry $r$ of any permutation in $\mathcal P_{n+1}$ and apply
+$d_r$ to every remaining entry. This recovers a unique $q\in\mathcal P_n$.
+The identities $d_r(s_r(x))=x$ and $s_r(d_r(y))=y$ for $y\ne r$
+prove both inverse identities. Starting with the unique empty permutation,
+this also proves $\#\mathcal P_{n+1}=(n+1)\#\mathcal P_n$ and hence $n!$.
+\section{Records and the joint count}
+Strict monotonicity gives
+$s_r(x)<s_r(y)$ if and only if $x<y$. Therefore all the first $n$ record
+indicators are preserved by the bijection. The last entry $r$ is a record
+if and only if $r=n$: when $r=n$, every previous label is smaller; when
+$r<n$, the previous labels include $n$, which is larger.
+
+Fix a record pattern of length $n$. Each realizing permutation consequently
+has exactly one extension whose last entry is a record, and exactly $n$
+extensions whose last entry is not a record. These extensions are disjoint
+and exhaust all permutations with the prescribed extended pattern, by the
+bijection above. If $C_n(b)$ is the left-hand side of \eqref{eq:count}, then
+\[
+ C_{n+1}(b,1)=C_n(b),\qquad C_{n+1}(b,0)=nC_n(b),\qquad C_0(())=1.
+\]
+Induction proves \eqref{eq:count}. In particular a pattern beginning with
+$0$ has count zero, as required; no separate positive-size assumption is used.
+\section{Exchangeability and probability}
+The position-permutation action on $\mathcal P_n$ is transitive: one can
+reorder any permutation into any other. Invariance under this action
+therefore assigns the same probability to all $n!$ elements. Since their
+probabilities sum to one, each has probability $1/n!$. Dividing
+\eqref{eq:count} by $n!=\prod_{k=1}^n k$ gives
+\[
+ \Pr(R_1=b_1,\ldots,R_n=b_n)
+ =\prod_{k=1}^n
+ \begin{cases}1/k,&b_k=1,\\1-1/k,&b_k=0.\end{cases}
+\]
+This equality for every Boolean pattern is precisely mutual independence
+and the claimed Bernoulli laws. The \emph{number} of records is the sum
+$N_n=\sum_{k=1}^nR_k$, not a family of independent copies of itself. Its
+probability generating function is
+\[
+ \mathbb E[z^{N_n}]=\prod_{k=1}^n\left(1-\frac1k+\frac zk\right).
+\]
+At $n=0$, the law is concentrated on $N_0=0$. For any other fixed ordered
+set of $n$ distinct labels, increasing relabeling preserves all comparisons
+and yields the same result.
+\clearpage
+\section{Formalization and trust boundary}
+The source uses only Lean 4.31.0 and its bundled Std library.
+\texttt{Permutations.lean} defines actual lists of natural-number labels.
+The theorem \texttt{perms\_complete} identifies membership of its enumeration
+with \texttt{List.Perm (List.range n)}; \texttt{perms\_nodup} rules out
+repeated sample points and \texttt{perms\_length} proves its factorial size.
+The intermediate validity predicate requires both no repeated entries
+and the exact membership condition $x\in p\iff x<n$.
+
+For convenient recursion the enumeration stores a permutation in reverse
+chronological order. This is only a storage convention:
+\texttt{RecordSemantics.lean} separately defines a left-to-right scan which
+compares each entry with every earlier entry.
+\texttt{recs\_chronological} proves agreement after reversal.
+\texttt{recs\_extend} proves preservation of all earlier records and the
+last-record criterion $r=n$. \texttt{RecordsCount.lean} proves \texttt{chronologicalPatternCount\_exact} for the complete duplicate-free chronological enumeration. Its \texttt{independent\_bernoulli\_joint\_law} also proves that the exact rational uniform probability is the Bernoulli product. These are statements about actual permutations, rather than an unconnected sequence of rank choices.
+
+The finite counting statements, normalized rational product identity and record/bijection correspondence are kernel-checked. The implication from positional exchangeability to the uniform measure and the interpretation of the joint product as independence are the elementary arguments in the preceding section; no general probability-library formalization is claimed.
+No admitted proofs, custom conclusion axioms, native-decision shortcuts or
+kernel bypasses are used. The audit file records the theorem axiom footprints.
+A separate Python test directly enumerates chronological permutations for
+$n=0,\ldots,8$ and checks every Boolean pattern. These tests are supplemental,
+not assumptions of the Lean proof.
+\section*{Source}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000009361.md}{Official TLMC conjecture 00000009361}.
+\par\smallskip
+Source blob SHA: \texttt{3c1e3568c9aa81b24440aa69a23149d953e1b4d4}.
+The English and Chinese statement is preserved in the accompanying source file.
+\end{document}
