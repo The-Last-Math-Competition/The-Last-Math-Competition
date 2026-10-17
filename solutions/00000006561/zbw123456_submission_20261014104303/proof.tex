@@ -1,0 +1,35 @@
+\documentclass[11pt]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+\begin{document}
+\begin{center}{\Large Symplectic composition and the pullback diagram}\\[5pt]{\large Conjecture 00000006561}\\[5pt]zbw123456 \quad 14 October 2026\end{center}
+
+Let $f:M\to M'$ and $g:M'\to M''$ be differentiable maps of real manifolds. Let $\omega,\omega',\omega''$ be symplectic forms on these manifolds. A symplectic map preserves the form by pullback: $f^*\omega'=\omega$.
+\begin{theorem}
+If $f^*\omega'=\omega$ and $g^*\omega''=\omega'$, then
+\[
+(g\circ f)^*\omega''=\omega.
+\]
+More generally, the pullback operators obey $(g\circ f)^*=f^*\circ g^*$, so the contravariant pullback diagram commutes.
+\end{theorem}
+\begin{proof}
+For $x\in M$ and $u,v\in T_xM$, the chain rule gives
+\begin{align*}
+((g\circ f)^*\omega'')_x(u,v)
+ &=\omega''_{g(f(x))}\bigl(Dg_{f(x)}Df_xu,Dg_{f(x)}Df_xv\bigr)\\
+ &=(f^*(g^*\omega''))_x(u,v)\\
+ &=(f^*\omega')_x(u,v)=\omega_x(u,v).
+\end{align*}
+The first two equalities hold for every covariant two-tensor, so they also prove the operator identity. Identity maps preserve the forms, and repeated application proves preservation under any finite composition. If ``symplectic map'' is restricted to diffeomorphisms, composition also preserves that property, with inverse $f^{-1}\circ g^{-1}$. Closedness and nondegeneracy are properties of the given forms; no additional condition on them is needed for this composition argument.
+\end{proof}
+\textbf{Lean correspondence.} \texttt{Tensor2} is a field of two-argument functions on the actual manifold tangent spaces. This deliberately broader type includes all differential two-forms; the theorem holds even without alternation or nondegeneracy. \texttt{pullback} is defined using Mathlib's manifold derivative. \texttt{pullback\_comp} derives the operator identity from the proved manifold chain rule. \texttt{Preserves} requires both differentiability and equality of pullbacks; \texttt{preserves\_comp} proves closure, while \texttt{composition\_diagram} proves the commuting diagram as equality of operators. No chain rule or preservation law is postulated as an axiom. The result concerns preservation by splitting compositions, not convergence order or energy conservation of a numerical integrator.
+
+
+\textbf{Verification.} Lean 4.19.0 with Mathlib pinned to
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+The accompanying project and verification transcript give the exact theorem and axiom audit. No proof placeholders, native evaluator proof bypass, or custom axiom declarations are used. This is a prepared submission; official acceptance has not been claimed.
+\end{document}
