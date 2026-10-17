@@ -1,0 +1,64 @@
+\documentclass[11pt]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[T1]{fontenc}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{3em}
+\begin{document}
+\begin{center}{\Large Every 0/1 polytope has Chvatal--Gomory rank zero}\\[6pt]
+{\large Conjecture 00000003973}\\[5pt]
+zbw123456 \quad 18 October 2026\end{center}
+
+Use the standard meaning of a 0/1 polytope:
+$P=\operatorname{conv}(V)$ for $V\subseteq\{0,1\}^n$.
+Its integer hull is $P_I=\operatorname{conv}(P\cap\mathbb Z^n)$.
+Since every vertex in $V$ is integral and $P$ is convex,
+\[
+P=\operatorname{conv}(V)\subseteq
+\operatorname{conv}(P\cap\mathbb Z^n)\subseteq P.
+\]
+Therefore $P_I=P$.
+
+The CG closure is the intersection of $P$ with all cuts
+$a(x)\le\lfloor b\rfloor$, where $a$ is a real linear functional
+integer-valued on $\mathbb Z^n$ and $a(y)\le b$ for all $y\in P$.
+These are exactly integer-coefficient CG cuts.
+The CG rank is the least nonnegative $k$ for which
+$\operatorname{CG}^k(P)=P_I$. The zeroth iterate is $P$, so the equality
+already holds at $k=0$. Hence every 0/1 polytope has rank zero.
+
+In particular, no family of such polytopes, including partition
+polytopes in this class, can have ranks at least $c n^2$ for a fixed
+$c>0$ and all sufficiently large $n$. Taking a positive $n$ above the
+threshold would give $0\ge c n^2>0$.
+The upper-bound clause alone is trivial, but the quadratic-order
+attainment and $\Theta(n^2)$ supremum clauses are false.
+In every positive dimension the class is nonempty (a singleton integer
+vertex suffices), and its set of ranks is $\{0\}$.
+
+\textbf{Scope.} A polytope with fractional vertices merely contained in
+$[0,1]^n$ is a different class. The proof uses the standard vertex-based
+term \emph{0/1 polytope} present in both language versions and makes no
+claim about arbitrary relaxations inside the cube.
+
+\textbf{Lean correspondence.} Lean defines the integer lattice, real
+convex hull, integer hull, CG closure, and rank as an \texttt{IsLeast}
+statement. \texttt{integerHull\_eq} explicitly constructs integer coordinates
+for 0/1 vertices and proves both inclusions.
+\texttt{rank\_zero} and \texttt{no\_positive\_rank} prove the exact rank.
+\texttt{no\_quadratic\_family} rules out every positive eventual quadratic
+lower bound. No rank or integer-hull assertion is assumed.
+
+\textbf{Reproduction.} The standalone project pins Lean 4.19.0 and Mathlib
+commit:
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}\end{center}
+Run \texttt{sh verify.sh}; the Lean source prints the main results'
+axiom dependencies. No proof placeholders, native evaluator bypass, or
+custom axioms are used.
+
+\textbf{Source.} The official bilingual statement is included as
+\texttt{conjecture.md}, checked at repository commit
+\begin{center}\small\texttt{cce2d90cb298de9595798eb674d2c80712100532}\end{center}
+\end{document}
