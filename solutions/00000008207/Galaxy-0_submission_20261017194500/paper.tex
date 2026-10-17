@@ -1,0 +1,105 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue]{hyperref}
+\usepackage{enumitem}
+\setlist{itemsep=3pt,topsep=4pt}
+
+\renewcommand{\labelitemi}{$\bullet$}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newcommand{\C}{\mathbb C}
+\newcommand{\End}{\operatorname{End}}
+\title{A six-element inverse monoid with a non-power-of-two restriction fiber}
+\author{A counterexample to TLMC 00000008207}
+\date{17 October 2026}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+latxfont.map}
+\setlength{\emergencystretch}{3em}
+\begin{document}
+\maketitle
+\begin{abstract}
+The totally ordered semilattice with six elements is an inverse monoid whose unit group is trivial. Its irreducible unital representations over any field have exactly six isomorphism classes, all restricting to the same one-dimensional representation of the unit group. The restriction fiber therefore has cardinality six, contradicting the claimed power-of-two law. Under the alternative zero-preserving convention, its cardinality is five, so the counterexample survives that convention as well. The supplied Lean 4.31.0, Std-only development proves both exact quotient-fiber counts using actual linear representations and intertwining isomorphisms.
+\end{abstract}
+
+\section{Claim and scope}
+Both language versions of \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000008207.md}{TLMC conjecture 00000008207} assert that every fiber of restriction from irreducible representations of an inverse monoid $M$ to representations of its unit group $G(M)$ has cardinality $2^k$. The integer $k$ is described using a Rees quotient chain. We refute this asserted cardinality for every possible nonnegative integer $k$, so no interpretation of that chain is needed.
+
+Representations here are ordinary unital linear representations $M\to\End_K(V)$, and equivalence means conjugacy by a linear isomorphism. Operators representing nonunits need not be invertible. The argument works over any field $K$, in particular $\C$. The fiber considered lies over the trivial one-dimensional representation of $G(M)$. It is a fiber of isomorphism classes, not a count of choices of coordinates or of individual intertwiners.
+
+We do not need, or assert a conclusion about, the conjecture's separate centralizer-image description or its smallest-example clause. The false fiber-cardinality conjunct suffices to refute the conjunction. This is an elementary counterexample, not a novelty claim about classical semigroup representation theory.
+
+\section{The inverse monoid}
+Set
+\[
+ M=\{0,1,2,3,4,5\},\qquad a\cdot b=\min(a,b).
+\]
+The minimum operation is associative and commutative, with identity $5$. Every element is idempotent. Each $a$ is its own inverse in the inverse-monoid sense. To check uniqueness, suppose
+\[
+ aba=a,\qquad bab=b.
+\]
+The first equality implies $a\le b$ and the second implies $b\le a$, hence $a=b$. Thus $M$ is an inverse monoid, including the uniqueness requirement. Finally $ab=5$ forces $a=b=5$, so its group of units is exactly $G(M)=\{5\}$.
+
+\section{Exhaustive representation classification}
+\begin{lemma}
+Every nonzero irreducible unital representation of $M$ over a field is one-dimensional, and each element acts by either zero or the identity.
+\end{lemma}
+\begin{proof}
+Let $\rho:M\to\End_K(V)$ be such a representation. For any $a\in M$, the operator $P=\rho(a)$ is idempotent and commutes with every $\rho(b)$. Its kernel is therefore an invariant linear subspace. Irreducibility gives two possibilities. If $\ker P=V$, then $P=0$. If $\ker P=0$, then
+\[
+ P(Pv-v)=P^2v-Pv=0
+\]
+forces $Pv=v$ for every $v$, so $P=I$. Consequently every line in $V$ is invariant. A nonzero vector spans such a line, and irreducibility forces that line to be all of $V$.
+\end{proof}
+
+After identifying $V$ with $K$, the representation is a multiplicative function $\chi:M\to\{0,1\}$ with $\chi(5)=1$. Let $F=\{a:\chi(a)=1\}$. It is nonempty. If $a\le b$ and $a\in F$, then
+\[
+ 1=\chi(a)=\chi(\min(a,b))=\chi(a)\chi(b)=\chi(b).
+\]
+Thus $F$ is an upper interval. There is a unique $t\in\{0,\ldots,5\}$ with $F=\{t,t+1,\ldots,5\}$. Define
+\[
+ \chi_t(a)=\begin{cases}1,&a\ge t,\\0,&a<t.\end{cases}
+\]
+Conversely, $\chi_t(5)=1$ and
+\[
+ \chi_t(\min(a,b))=1\quad\Longleftrightarrow\quad a\ge t\text{ and }b\ge t,
+\]
+which proves multiplicativity. Each $\chi_t$ gives a nonzero one-dimensional irreducible unital representation. If $\chi_s$ and $\chi_t$ are equivalent, a nonzero scalar intertwiner $u$ satisfies
+$u\chi_s(a)=\chi_t(a)u$ for every $a$, hence the characters coincide and $s=t$. This proves exhaustiveness and pairwise inequivalence.
+
+\begin{theorem}
+The restriction fiber over the trivial representation of $G(M)$ has exactly six elements. It does not have cardinality $2^k$ for any $k\in\mathbb N$.
+\end{theorem}
+\begin{proof}
+All six classes restrict to the trivial representation because $G(M)=\{5\}$ and $\chi_t(5)=1$. There are no other irreducible classes by the classification. Finally, $2^k\in\{1,2,4\}$ for $k\le2$, whereas $2^k\ge8$ for $k\ge3$. None equals six.
+\end{proof}
+
+\section{Zero-preserving and infinite-dimensional conventions}
+The least element $0$ is an absorbing zero of the monoid. For ordinary unital representations of the uncontracted monoid algebra, it need not act by the zero operator; the character $\chi_0$ acts by one on every element. If one instead requires $\rho(0)=0$, exactly $\chi_0$ is excluded. The five remaining inequivalent irreducibles still restrict to the trivial representation. This fiber has cardinality five, again not $2^k$ for any natural number $k$. Both conventions are formally verified.
+
+The argument of the lemma also works without a finite-dimensional hypothesis. More generally, for any finite monoid and any nonzero vector $v$ in an irreducible unital representation, the span of the finite orbit $\{\rho(a)v:a\in M\}$ is a nonzero finite-dimensional invariant subspace; irreducibility makes it all of $V$. Thus allowing arbitrary algebraic representations creates no additional irreducible classes here. The supplied Lean development uses finite-dimensional coordinate spaces, as detailed below; this general finite-orbit reduction and the abstract choice of a basis are supplied by the present written proof.
+
+\section{Formalization and exact verification}
+The project imports only Std, with no downloaded Lean packages. Its structures represent the following mathematical objects directly:
+\begin{itemize}
+\item \texttt{Monoid.lean}: $M=\mathrm{Fin}(6)$ with minimum product, associativity, identity, unique inverse, exact units, multiplicative field-valued characters, and their exhaustive threshold classification.
+\item \texttt{Representation.lean}: arbitrary dimensions $n$, vectors $\mathrm{Fin}(n)\to K$, linear operators with addition/scalar laws, unital multiplicative actions, actual invariant linear subspaces, and irreducibility. It proves the central-idempotent argument, $n=1$, irreducibility of each scalar character, and the complete classification.
+\item \texttt{Main.lean}: two-sided linear isomorphisms intertwining actions; the restriction condition for every actual unit; the quotient of the restriction fiber by this equivalence; a bijective enumeration by $\mathrm{Fin}(6)$; and the analogous zero-preserving quotient enumerated by $\mathrm{Fin}(5)$. A general finite-cardinality uniqueness theorem prevents a second enumeration of a different size. The final theorems deny existence of a power-of-two cardinality for these actual quotient fibers.
+\end{itemize}
+
+The two main results, in namespace \texttt{TLMC8207}, are
+\texttt{conjecture8207\_false} and \texttt{contracted\_conjecture8207\_false}. They are proved for every carrier equipped with Lean's ordinary field laws; the classification is not assumed. Using coordinate spaces $K^n$ is the standard coordinatization of finite-dimensional representations. There is no separate formal library of arbitrary vector-space carriers, no construction of $\C$, and no claim that the finite-orbit/basis reduction above is itself encoded in Lean. None of these facts is inserted as a custom axiom or conclusion-specific assumption.
+
+Reproduce with an installed Lean 4.31.0 toolchain and Python 3:
+\begin{verbatim}
+./VERIFY.sh /absolute/path/to/lean-4.31.0/bin
+./build_pdf.sh
+\end{verbatim}
+The verification script checks a Lake build, strict warning-free elaboration, independent \texttt{leanchecker} kernel replay for all three modules, and an axiom audit of all 47 authored theorems. The only reported axioms are \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. There are no admitted proofs, custom axioms, native-evaluation proof shortcuts, or kernel bypasses.
+
+The independent Python check verifies the monoid laws and inverse uniqueness; enumerates all scalar characters over $\mathbb F_2$, $\mathbb F_3$, and $\mathbb F_5$; and exhausts all 96 two-dimensional $\mathbb F_2$ representations, finding a proper invariant line in each. These computations corroborate the proof and are not trusted proof oracles. The PDF was rendered and visually inspected after compilation.
+
+\paragraph{Reference.}
+The proof above is self-contained. For the standard broader classification, see O. Ganyushkin, V. Mazorchuk, and B. Steinberg, \emph{On the irreducible representations of a finite semigroup}, \href{https://arxiv.org/abs/0712.2076}{arXiv:0712.2076v2}, Corollary 9. The paper's unital-module convention and the finite-dimensionality of simple modules over finite-dimensional algebras are discussed on printed page~3.
+\end{document}
