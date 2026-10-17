@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+\begin{document}
+\begin{center}{\Large Arbitrarily long lists of compatible critical relations}\\[5pt]{\large Conjecture 00000007762}\\[5pt]zbw123456 \quad 14 October 2026\end{center}
+
+For $f_c(z)=z^2+c$, the official relation polynomials satisfy
+\[
+R_0(c)=0,\qquad R_{n+1}(c)=R_n(c)^2+c.
+\]
+We use ``nontrivial relation'' to mean a nonzero relation polynomial, and compatibility to mean existence of a common parameter solving both equations. The Sylvester resultant certifies the same compatibility for the polynomials below. The statement does not require distinct primitive periods.
+\begin{theorem}
+For every $N$, the polynomials $R_1,\ldots,R_N$ are distinct and nonzero and have the common root $c=0$. Their pairwise Sylvester resultants vanish. In particular the asserted bound of three pairwise-compatible nontrivial critical relations fails.
+\end{theorem}
+\begin{proof}
+Induction gives $R_n(0)=0$ for all $n$. Put $b_n=R_n(1)$. Then $b_0=0$ and $b_{n+1}=b_n^2+1>b_n$, since $x^2+1-x=(x-1/2)^2+3/4>0$. Thus the values $b_n$ are strictly increasing, proving that the polynomials are distinct; $b_n>0$ for $n\ge1$ proves that they are nonzero. Since each has zero constant coefficient and is nonzero, each has positive degree.
+
+For any pair, the last column of its Sylvester matrix is zero: only a constant coefficient or an out-of-range zero can occur there. Hence its determinant, the resultant, is zero. Taking the indices $1,2,3,4$ already contradicts the depth-three bound as the problem describes it. The construction in fact gives every finite length.
+\end{proof}
+\textbf{Lean correspondence.} \texttt{R} is a polynomial over the real field, not a list of asserted numerical values. \texttt{orbit\_correspondence} proves equality with the actual iterates of $f_c$ at zero. Strict increase at $c=1$, injectivity, nontriviality, positive degree, the shared root, and vanishing of the actual Sylvester determinant are all proved. \texttt{ValidChain} restricts indices to these very critical-orbit polynomials and includes all these compatibility requirements. \texttt{arbitrary\_length} and \texttt{no\_depth\_three\_bound} provide the counterexample.
+
+\textbf{Interpretation boundary.} These equations are distinct but algebraically dependent at the fixed parameter $c=0$. A problem requiring independent equations, exact primitive periods or new irreducible Gleason factors would be different. The final asserted equivalence with a factor statement is not needed to disprove its explicit depth-three conjunct. The text also says the depth is simultaneously unbounded and at most three; the proof above supplies actual orbit polynomials rather than relying only on that verbal contradiction.
+
+
+\textbf{Verification.} Lean 4.19.0 with Mathlib pinned to
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+The accompanying project and verification transcript give the exact theorem and axiom audit. No proof placeholders, native evaluator proof bypass, or custom axiom declarations are used. This is a prepared submission; official acceptance has not been claimed.
+\end{document}
