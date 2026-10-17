@@ -1,0 +1,192 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\renewcommand{\labelitemi}{$\bullet$}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\E}{\mathbb E}
+\newcommand{\C}{\mathcal C}
+\title{Equal Density Does Not Give a Constant\\Expected-Subgraph Ratio\\[3pt]\large A counterexample to TLMC 00000006182}
+\author{Galaxy-0}
+\date{17 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The triangle and the four-cycle are strictly balanced graphs, both of density
+one. Their expected numbers of unlabelled, not necessarily induced copies in
+$G(n,p)$ have ratio $4/[3(n-3)p]$. Already for $n=4$, the ratio is $16/3$ at
+$p=1/4$ and $8/3$ at $p=1/2$. This disproves the conjecture's unqualified
+constant-ratio clause. Lean 4.31.0 with only Std checks the actual graph
+subsets, strict balance, the complete 64-outcome sample space, symbolic
+expectation identities, and a contradiction valid over every
+characteristic-zero field. The common-threshold theorem and the narrower
+fixed-scale asymptotic statement are not contradicted.
+\end{abstract}
+
+\section{Claim, interpretation, and exact scope}
+The official English statement ends by asserting that two strictly balanced
+subgraphs share a threshold exactly when their densities are equal, ``in
+which case the expectation ratio is constant.'' The Chinese statement has
+the same unqualified constancy claim. We use the standard model $G(n,p)$:
+the vertex set is $\{0,\ldots,n-1\}$, and each unordered pair is independently
+an edge with probability $p$. For a fixed graph $H$, let $N_H$ count
+\emph{unlabelled subgraphs} isomorphic to $H$. They need not be induced.
+Different edge subsets count as different copies, and every copy counts
+once, regardless of its automorphisms.
+
+Our counterexample addresses an \emph{exact} ratio claimed to be independent
+of the edge probability. In particular it refutes a universal constant
+conversion factor obtained solely from equal densities. It does not refute
+the ordinary threshold $p\asymp n^{-1}$ for cycles. It also does not refute a
+ratio that merely \emph{converges} to a constant after fixing
+$p=c/n$ with one fixed $c>0$. Section~\ref{sec:scale} makes the distinction
+explicit. If that narrower asymptotic claim was intended, it requires an
+additional qualification absent from the source.
+
+\section{Strict balance and the general counting formula}
+Write $v(H)$ and $e(H)$ for the numbers of vertices and edges, and
+$d(H)=e(H)/v(H)$ for nonempty $H$. A graph is strictly balanced if every
+proper subgraph with at least one vertex has smaller density. A subgraph
+may discard both vertices and edges; isolated vertices are allowed.
+
+\begin{lemma}
+For every $k\geq3$, the cycle $C_k$ is strictly balanced and has density one.
+\end{lemma}
+\begin{proof}
+It has $k$ edges and $k$ vertices. A proper subgraph cannot contain a cycle:
+any cycle contained in $C_k$ must traverse all its edges and vertices. Thus
+every proper subgraph $J$ is a forest. If $v(J)>0$, then
+$e(J)\leq v(J)-1<v(J)$, so $d(J)<1=d(C_k)$.
+\end{proof}
+
+\begin{lemma}\label{lem:count}
+For $n\geq k\geq3$,
+\[
+ \E N_{C_k}=\frac{(n)_k}{2k}p^k,
+ \qquad (n)_k=n(n-1)\cdots(n-k+1).
+\]
+\end{lemma}
+\begin{proof}
+There are $(n)_k$ ordered injective placements of the cyclically ordered
+vertices into $[n]$. Each unlabelled cycle has exactly $2k$ descriptions:
+a choice of starting vertex and one of the two traversal directions.
+Each candidate copy requires $k$ distinct edges, hence is present with
+probability $p^k$ by independence. Extra edges have no effect because the
+copies need not be induced. Sum the indicator expectations over the
+$(n)_k/(2k)$ candidate copies.
+\end{proof}
+
+In particular, for all $n\geq4$ and $p>0$,
+\begin{align}
+ \E N_{C_3}&=\binom n3p^3,&
+ \E N_{C_4}&=3\binom n4p^4,\label{eq:general}\\
+ \frac{\E N_{C_3}}{\E N_{C_4}}
+   &=\frac{4}{3(n-3)p}.\label{eq:ratio}
+\end{align}
+The factor $3$ in the denominator of~\eqref{eq:ratio} is essential:
+the automorphism factors for $C_3$ and $C_4$ are $6$ and $8$.
+
+\section{A finite counterexample with interior probabilities}
+\begin{theorem}\label{thm:counter}
+The equally dense, strictly balanced graphs $C_3$ and $C_4$ have no constant
+expectation ratio in $G(4,p)$ as $p$ varies in $(0,1)$.
+\end{theorem}
+\begin{proof}
+Equation~\eqref{eq:general} gives $\E N_{C_3}=4p^3$ and
+$\E N_{C_4}=3p^4$. Exact values are
+\[
+\begin{array}{c|c|c|c}
+ p&\E N_{C_3}&\E N_{C_4}&\E N_{C_3}/\E N_{C_4}\\ \hline
+ 1/4&1/16&3/256&16/3\\
+ 1/2&1/2&3/16&8/3
+\end{array}
+\]
+Both denominators are positive, and both probabilities are strictly
+between zero and one. Equivalently, the two cross products are
+\[
+ \frac1{16}\cdot\frac3{16}=\frac3{256}
+ \quad\ne\quad
+ \frac12\cdot\frac3{256}=\frac3{512}.
+\]
+Thus no real number $a$ can simultaneously satisfy
+$\E N_{C_3}=a\E N_{C_4}$ at both probabilities.
+\end{proof}
+
+\section{What happens at the common threshold}\label{sec:scale}
+At $p=c/n$, where $c>0$ is fixed, the exact ratio is
+\[
+ R_n=\frac{4n}{3c(n-3)}
+     =\frac4{3c}+\frac4{c(n-3)}.
+\]
+Consequently $R_n\to4/(3c)$. This correct, narrower asymptotic constancy
+is fully compatible with the counterexample. The limiting constant depends
+on $c$; even along a fixed scale the finite-$n$ ratio is not exactly constant.
+For comparison, $p=n^{-1/2}$ makes the ratio tend to zero, while $p=n^{-2}$
+makes it tend to infinity. These conclusions follow immediately from the
+exact formula. None requires denying the standard common threshold.
+
+\section{Formal model and audit boundary}
+The sole mathematical source file is \texttt{Main.lean}, importing
+\texttt{Std}. The formal model is finite but uses actual graphs:
+\begin{itemize}
+\item Vertices are \texttt{Fin 4}. The six edges are the actual unordered
+pairs $01,02,03,12,13,23$, in that order. A graph consists of a four-bit
+vertex subset and a six-bit edge subset. Well-formedness requires every
+edge endpoint to be present. Subgraphs are inclusion of both subsets.
+\item Strict balance is checked against \emph{all} proper subgraphs with
+nonempty vertex set, using the equivalent cross-multiplied density
+inequality. The chosen graphs have vertex/edge masks $(7,11)$ and $(15,45)$.
+\item A three- or four-vertex cycle is defined as a well-formed graph with
+the specified number of vertices and degree two at every vertex.
+Exhaustive classification gives exactly four triangles and three
+four-cycles. A separate theorem proves connectivity using actual walks.
+The representative lists have no duplicates, so filtering them by
+subgraph inclusion counts copies without automorphism multiplicity.
+\item Outcomes are all 64 edge masks, with all four vertices retained.
+Every Boolean assignment to the six edges occurs exactly once. The
+probability of an outcome with $m$ edges is
+$p^m(1-p)^{6-m}$; its equality with the product of its six individual
+Bernoulli factors is proved. Total mass is one, and for rational
+$0\leq p\leq1$ every mass is nonnegative.
+\item Expectation is the finite weighted sum of the actual copy count over
+these outcomes. Kernel-checked symbolic identities give $4p^3$ and $3p^4$.
+They hold in every field. The final characteristic-zero-field theorem
+rules out a common proportionality constant at $p=1/4,1/2$, so the
+contradiction applies to real constants, not only rational ones.
+\end{itemize}
+
+The complete disproof in Theorem~\ref{thm:counter} is formalized. The
+arbitrary-$n$ enumeration proof in Lemma~\ref{lem:count} and the asymptotic
+discussion are ordinary mathematical proofs in this report; they are not
+claimed as Lean theorems. They provide context and are unnecessary for the
+finite counterexample. No external probability library, graph library,
+assumed expectation formula, custom axiom, \texttt{sorry},
+\texttt{native\_decide}, or kernel-bypassing evaluation is used.
+
+\section{Reproduction and source}
+Use Lean 4.31.0, commit
+\texttt{68218e876d2a38b1985b8590fff244a83c321783}.
+There are no Lake dependencies. From the directory containing this report,
+run \texttt{./VERIFY.sh}. It performs a Lake build, re-elaboration with
+warnings treated as errors, independent \texttt{leanchecker} kernel replay
+of both modules, axiom reports, and a Python standard-library check.
+The Python check independently constructs cycles as sets of actual edges,
+enumerates all outcomes for $n=4,5$, multiplies Bernoulli factors edge by
+edge, and computes exact rational expectations. It is an additional check,
+not a source of Lean proof authority. The proof audits report only the
+standard logical axioms \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}, as applicable.
+
+The source is
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/cce2d90cb298de9595798eb674d2c80712100532/conjectures/00000006182.md}{TLMC conjecture 00000006182},
+with verified source blob:
+\begin{center}\small\texttt{920179a96b1058c56db58613db3647e61f614cd0}.\end{center}
+As checked on 17 October 2026, its metadata has neither proven nor
+disproven set; the 1,024-item combined historical pull-request snapshot
+contains no prior submission referring to this conjecture. Eligibility
+and reproduction logs accompany the source package.
+\end{document}
