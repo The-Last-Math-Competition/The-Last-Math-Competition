@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+\begin{document}
+\begin{center}{\Large Completeness alone does not give geodesic segments}\\[5pt]{\large Conjecture 00000006778}\\[5pt]zbw123456 \quad 14 October 2026\end{center}
+
+The official statement assumes only completeness of the space. Under that stated hypothesis it is false. The Hopf--Rinow theorem needs additional geometric hypotheses; these cannot be silently added to a claim about all complete spaces.
+\begin{theorem}
+The complete metric space $(\mathbb Z,d)$, $d(m,n)=|m-n|$, has no constant-speed minimizing geodesic segment from $0$ to $1$.
+\end{theorem}
+\begin{proof}
+A Cauchy sequence of integers is eventually constant: take the Cauchy tolerance $1$, and use that any two distinct integers have distance at least $1$. Hence $\mathbb Z$ is complete.
+
+A minimizing segment parametrized on $[0,1]$ would have endpoints $\gamma(0)=0$, $\gamma(1)=1$ and
+\[
+d(\gamma(s),\gamma(t))=|s-t|\,d(0,1).
+\]
+Taking $s=1/2$ and $t=0$ gives $|\gamma(1/2)|=1/2$. The absolute value of an integer is a nonnegative integer, so this is impossible. Reparametrizing an isometric segment on $[0,d(0,1)]$ gives exactly the same contradiction.
+\end{proof}
+\textbf{Scope.} This refutes the sentence as written for complete metric spaces. It does not refute Hopf--Rinow for connected finite-dimensional Riemannian manifolds, or the relevant theorems for locally compact length spaces. If such hypotheses were intended, the problem must first state them.
+
+\textbf{Lean correspondence.} The project uses the standard metric and complete-space instance on $\mathbb Z$. \texttt{IsSegment} gives the precise endpoint and constant-speed minimizing conditions on the real interval subtype. \texttt{no\_half\_distance} proves the integer-distance obstruction, and \texttt{no\_segment\_zero\_one} specializes it to the midpoint of a hypothetical segment. There is no assumed absence of paths or imported unproved geometric fact.
+
+
+\textbf{Verification.} Lean 4.19.0 with Mathlib pinned to
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+The accompanying project and verification transcript give the exact theorem and axiom audit. No proof placeholders, native evaluator proof bypass, or custom axiom declarations are used. This is a prepared submission; official acceptance has not been claimed.
+\end{document}
