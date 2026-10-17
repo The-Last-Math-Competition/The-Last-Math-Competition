@@ -1,0 +1,81 @@
+\documentclass[11pt]{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\setlength{\emergencystretch}{3em}
+\begin{document}
+\begin{center}
+{\Large A torsion-free path violates the alternating tree sum}\\[5pt]
+{\large Conjecture 00000004228}\\[5pt]
+zbw123456 \quad 14 October 2026
+\end{center}
+\textbf{Convention.} We use integral cellular homology and the usual
+cellular spanning-tree counts: a zero-dimensional tree is a single vertex;
+a one-dimensional spanning tree is a connected acyclic spanning subgraph.
+For graphs, unweighted and torsion-weighted spanning-tree counts agree.
+The original conjecture supplies no alternative definition of tree counts.
+
+Let $X$ be the path $0\! -\! 1\! -\! 2$, with oriented edges $0\to1$ and
+$1\to2$. Its complete cellular chain complex is
+\[
+0\longrightarrow C_1=\mathbb Z^2
+\mathrel{\mathop{\longrightarrow}^{\partial}} C_0=\mathbb Z^3
+\longrightarrow0,\qquad
+\partial(a,b)=(-a,a-b,b).
+\]
+Write $s(x,y,z)=x+y+z$ for augmentation.
+
+\begin{theorem}
+All integral homology groups of $X$ are torsion-free, but
+$\chi(X)\ne\tau_0(X)-\tau_1(X)$.
+\end{theorem}
+\begin{proof}
+The equation $\partial(a,b)=0$ forces $a=b=0$, so $H_1(X)=0$.
+Moreover, $s\partial=0$ and every $(x,y,z)$ with $x+y+z=0$ satisfies
+\[
+\partial(-x,z)=(x,y,z).
+\]
+Consequently $\operatorname{im}\partial=\ker s$ and $H_0(X)\cong\mathbb Z$.
+All higher chain groups and homology groups are zero. This proves the
+absence of torsion in every degree.
+
+There are three vertices and two edges, so $\chi(X)=3-2=1$.
+There are three zero-dimensional trees, one for each vertex.
+A spanning subgraph is connected only if it contains both path edges,
+and that subgraph is acyclic. Thus $\tau_0(X)=3$ and $\tau_1(X)=1$, giving
+\[
+\tau_0(X)-\tau_1(X)=3-1=2\ne1=\chi(X).
+\]
+This refutes the torsion-free implication; the unspecified correction
+term in the presence of torsion is not needed.
+\end{proof}
+
+\textbf{Lean correspondence.} \texttt{EulerTrees.lean} defines the integral
+chain groups and proves $\partial^2=0$, the kernel, and the image assertions.
+The predicate \texttt{HomologyTorsionFree} states the exact quotient criterion
+\[
+q>0,\quad z\in Z_n,\quad qz\in B_n\quad\Longrightarrow\quad z\in B_n.
+\]
+Thus \texttt{homology\_torsion\_free} proves torsion-freeness directly, without
+assuming homology ranks or omitting higher degrees.
+
+For edge masks, \texttt{IsSpanningTree} requires integral connectivity
+and a zero cycle kernel. \texttt{spanning\_tree\_iff} proves that only the full
+mask is a tree. The mask list is exhaustive and duplicate-free; its filter
+is proved equivalent to that predicate. The final theorem combines
+all-degree torsion-freeness and the unequal Euler and tree counts.
+
+\textbf{Scope and verification.} This is a counterexample under the stated
+standard convention, not a result about an unspecified alternative formula.
+Lean 4.19.0, core library only; the audit uses only \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}. Competition acceptance
+has not been claimed.
+
+\textbf{Source.} The official bilingual problem is included as
+\texttt{conjecture.md}. For cellular trees and torsion weights, see
+Duval, Klivans and Martin,
+\href{https://jlmartin.ku.edu/papers/TreesChapter.pdf}{Simplicial and Cellular Trees}.
+\end{document}
