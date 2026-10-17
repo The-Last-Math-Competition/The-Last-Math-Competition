@@ -1,0 +1,133 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,amsthm,booktabs}
+\usepackage[margin=26mm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl}
+\usepackage{microtype}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{The whole-prefix recurrence in Conjecture 00000000209}
+\author{zbw123456}
+\date{13 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The recurrence printed in both language versions of Conjecture 00000000209
+maximizes the exponent in a representation of the entire preceding word as
+$Y^k$. Its unique solution is $1,1,2,1,1,1,\ldots$; hence 5 never occurs.
+We prove existence, uniqueness, and the exact formula, and supply a
+self-contained, compiled Lean 4 verification.
+\end{abstract}
+
+\section{Scope and the definition discrepancy}
+The checked problem is at the following official repository commit~\cite{problem}:
+\begin{center}\small\texttt{1e3f7c25616e84b611350a412febceabad75b56a}\end{center}
+Its displayed repetition rule is $Y^k$, applied to the \emph{entire}
+prefix. No preliminary word $X$ appears in either language version.
+
+This differs from the standard Gijswijt recurrence, which maximizes $k$
+in $XY^k$, where $X$ may be empty and $Y$ is nonempty~\cite{gijswijt}.
+The standard sequence is unbounded. The counterexample below concerns only
+the rule actually displayed in the competition, and does not refute that
+classical result. The parenthetical occurrence information in the problem
+refers to the standard sequence and conflicts with the displayed rule.
+\textbf{If the intended rule is corrected to $XY^k$, this submission does
+not resolve the corrected problem.} This semantic issue remains for the
+maintainer to assess; no official acceptance is claimed.
+
+\section{Precise statement}
+Use zero-based indexing in this section and in Lean. For $a:\mathbb N\to
+\mathbb N$ and $N,k\geq1$, write $P(a,N,k)$ if there is $m\geq1$ such that
+\[
+ N=mk,\qquad
+ a(jm+i)=a(i)\quad(0\leq j<k,\ 0\leq i<m).
+\]
+These are exactly the conditions that the word of length $N$ is $k$
+copies of its first block of length $m$. All displayed indices are below
+$N$, since $jm+i<(j+1)m\leq km=N$.
+
+The literal recurrence is
+\[
+ a(0)=1,\qquad
+ a(N)=\max\{k\geq1:P(a,N,k)\}\quad(N\geq1).                 \tag{R}
+\]
+The maximum exists: $k=1$ is admissible, and $P(a,N,k)$ implies $k\leq N$.
+The Lean predicate \texttt{IsNext} expresses both attainment and maximality.
+The recurrence has natural-valued outputs because every exponent is a
+positive integer; the choice of this codomain adds no restriction to (R).
+
+\begin{theorem}
+There is exactly one sequence satisfying (R). It is
+\[
+ b(N)=\begin{cases}2,&N=2,\\1,&N\ne2.\end{cases}
+\]
+In particular, no sequence satisfying (R) contains 5.
+\end{theorem}
+
+\begin{proof}
+First check that $b$ satisfies the recurrence. The initial value is 1.
+The word of length 1 is $(1)$, so its largest repetition exponent is 1.
+The word of length 2 is $(1,1)$, so its largest exponent is 2.
+For every $N\geq3$, the prefix contains exactly one occurrence of 2.
+If it equals $Y^k$, the number of occurrences of 2 is
+$k$ times the number of occurrences of 2 in $Y$. Thus $k=1$.
+Exponent 1 is always attained, proving every recurrence equation for $b$.
+
+For clarity, Lean checks the last argument directly on indices.
+Assume $k\geq2$. If $m=1$, then $N\geq3$ implies $k\geq3$, and the
+third copy would give $b(2)=b(0)$, a contradiction.
+If $m=2$, the second copy similarly gives $b(2)=b(0)$.
+If $m\geq3$, the second copy instead gives $b(m+2)=b(2)$, also impossible.
+These cases exhaust all positive block lengths.
+
+To prove uniqueness, let $a$ and $c$ satisfy (R), and use strong induction
+on $N$. Their zeroth terms are equal. If their terms below $N$ agree,
+their length-$N$ prefixes admit exactly the same repetition exponents.
+Both $a(N)$ and $c(N)$ are attained maxima of this same set, so each is
+at most the other. Hence $a(N)=c(N)$. Taking $c=b$ proves the exact formula.
+Its only values are 1 and 2, so 5 is absent.
+\end{proof}
+
+\section{Formal verification and reproducibility}
+The project uses Lean \texttt{v4.19.0}, imports only \texttt{Init}, and has
+no third-party dependencies. In the \texttt{lean} directory run:
+\begin{verbatim}
+lake build
+lake env lean -DwarningAsError=true Conjecture209.lean
+\end{verbatim}
+The second command also prints the axiom dependencies of the main results.
+The source contains no proof placeholders, no native decision procedure,
+and no custom axiom declarations. The printed dependency lists contain
+only the standard Lean foundations \texttt{propext} and \texttt{Quot.sound}.
+
+\begin{center}
+\small
+\begin{tabular}{@{}lp{7.5cm}@{}}
+\toprule
+Lean result & Mathematical content\\
+\midrule
+\texttt{candidate\_follows\_rule} & All recurrence equations hold for $b$.\\
+\texttt{rule\_unique} & Any two solutions agree at every index.\\
+\texttt{exact\_formula} & Every solution has the displayed formula.\\
+\texttt{no\_rule\_solution\_contains\_five} & There is no solution together with an index whose value is 5.\\
+\texttt{counterexample} & A solution exists and has no occurrence of 5.\\
+\bottomrule
+\end{tabular}
+\end{center}
+The final result is universal in the index. It is not inferred from a
+finite computation, nor is a hypothetical recurrence solution assumed to
+exist without construction. Verification logs accompany this report.
+
+\begin{thebibliography}{9}
+\bibitem{problem}
+The Last Math Competition, Conjecture 00000000209, official repository,
+commit specified above.
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/1e3f7c25616e84b611350a412febceabad75b56a/conjectures/00000000209.md}.
+\bibitem{gijswijt}
+F. J. van de Bult, D. C. Gijswijt, J. P. Linderman, N. J. A. Sloane,
+and A. R. Wilks, \emph{A Slow-Growing Sequence Defined by an Unusual
+Recurrence}, Journal of Integer Sequences 10 (2007), Article 07.1.2.
+\url{https://cs.uwaterloo.ca/journals/JIS/VOL10/Sloane/sloane55.html}.
+\end{thebibliography}
+\end{document}
