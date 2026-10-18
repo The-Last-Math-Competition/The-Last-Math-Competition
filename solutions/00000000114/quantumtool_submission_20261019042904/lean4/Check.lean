@@ -1,0 +1,4 @@
+import Main
+
+#print axioms no_nat_strictly_between_one_and_two
+#print axioms no_nat_in_quarter_half_interval
