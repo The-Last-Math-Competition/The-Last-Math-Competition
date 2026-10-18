@@ -1,0 +1,31 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\title{The Prime-Weight Law in Conjecture 00000000140 Is Not a Probability Distribution}
+\author{quantumtool}
+\date{October 19, 2026}
+\begin{document}
+\maketitle
+
+\section*{Statement being refuted}
+The conjecture assigns independent, identically distributed prime weights to the edges of $K_n$ using the ``prime distribution'' described as natural density on the primes. This purported distribution is not defined as a countably additive probability measure.
+
+\section*{No uniform probability law on all primes}
+The primes form a countably infinite set. If a probability measure were uniform on the primes, every singleton prime $\{p\}$ would have the same mass $c$. If $c>0$, finite additivity gives mass $Nc$ to any set of $N$ distinct primes; choosing $N>1/c$ violates the upper bound $1$ on probability. If $c=0$, countable additivity gives
+\[
+  \mathbb P(\text{the chosen value is prime})
+  =\sum_{p\text{ prime}}\mathbb P(\{p\})=0,
+\]
+contradicting that the distribution is supported on the primes and has total mass $1$.
+
+Natural density conditional on primality does not repair this: every fixed prime still has conditional mass zero, while the whole set of primes has conditional mass one. Those values are finitely additive in this limiting sense, but they are not countably additive on the countable sample space of primes.
+
+\section*{Consequence for the MST claim}
+Without a probability measure for one edge weight, the i.i.d. edge-weight experiment on $K_n$ does not exist as stated. Its random MST weight and the asserted convergence in probability or distribution therefore have no defined law. One could instead specify a non-uniform probability mass function on the primes, but the resulting asymptotic constant and theorem would depend on that new choice.
+
+\section*{Lean formalization}
+The accompanying self-contained Lean 4 project formalizes the finite-additivity obstruction. If a positive common atom mass is $p/q$, the total-mass bound would require $np\le q$ for every finite number $n$ of distinct atoms. Taking $n=q+1$ is impossible. The countable-additivity argument above supplies the bridge from a proposed uniform law on the primes to these finite bounds, and handles the zero-mass case.
+\end{document}
