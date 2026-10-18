@@ -1,0 +1,39 @@
+import Std
+
+/-!
+Finite-additivity core of the disproof of conjecture 00000000143.
+A uniform mass on a countably infinite set must have a positive common atom
+mass (otherwise countable additivity makes the whole space have mass zero).
+The following theorem verifies that no positive common mass can satisfy the
+probability bound for all finite subsets.
+-/
+
+/-- Numerator p and denominator q represent a common atom mass p/q. -/
+def IsUniformSubprobability (p q : Nat) : Prop :=
+  0 < q ∧ 0 < p ∧ ∀ n : Nat, n * p ≤ q
+
+/-- Equal positive atom masses on an infinite countable space exceed total mass. -/
+theorem no_uniform_probability_on_countably_infinite_space :
+    ¬ ∃ p q : Nat, IsUniformSubprobability p q := by
+  rintro ⟨p, q, hq, hp, hbound⟩
+  have h := hbound (q + 1)
+  have hp1 : 1 ≤ p := by omega
+  have hlower : q + 1 ≤ (q + 1) * p := by
+    calc
+      q + 1 = (q + 1) * 1 := by simp
+      _ ≤ (q + 1) * p := Nat.mul_le_mul_left (q + 1) hp1
+  omega
+
+/-- The finite-mass obstruction for any chosen number of distinct atoms. -/
+theorem finite_equal_atom_mass_bound_impossible (p q : Nat)
+    (hp : 0 < p) (hbound : ∀ n : Nat, n * p ≤ q) : False := by
+  have h := hbound (q + 1)
+  have hp1 : 1 ≤ p := by omega
+  have hlower : q + 1 ≤ (q + 1) * p := by
+    calc
+      q + 1 = (q + 1) * 1 := by simp
+      _ ≤ (q + 1) * p := Nat.mul_le_mul_left (q + 1) hp1
+  omega
+
+#print axioms no_uniform_probability_on_countably_infinite_space
+#print axioms finite_equal_atom_mass_bound_impossible
