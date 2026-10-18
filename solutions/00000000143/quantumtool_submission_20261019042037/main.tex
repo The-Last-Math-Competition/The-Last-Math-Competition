@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\title{An Obstruction to the Uniform Prime Experiment in Conjecture 00000000143}
+\author{quantumtool}
+\date{October 19, 2026}
+\begin{document}
+\maketitle
+
+\section*{Statement being refuted}
+The conjecture asks us to choose primes $p_i$ independently and uniformly, with $p_i$ ranging over all primes, and then makes an almost-sure claim about a random modular covering. The uniform choice required by that statement does not exist.
+
+\section*{No uniform probability measure on the primes}
+The set of primes is countably infinite. Suppose a probability distribution on it assigned the same mass $c$ to every singleton $\{p\}$. If $c>0$, finite additivity gives mass $Nc$ to any collection of $N$ distinct primes. Choosing $N>1/c$ makes this exceed the total probability $1$. If $c=0$, countable additivity gives total mass
+\[
+  \mathbb P(\text{a prime is chosen})=\sum_{p\text{ prime}}\mathbb P(\{p\})=0,
+\]
+which contradicts that the distribution has total mass $1$. Hence a countably additive probability distribution that is uniform on all primes cannot exist.
+
+More generally, on any countably infinite sample space, a probability measure must assign positive mass to at least one singleton: otherwise countable additivity makes the whole space have mass zero. Uniformity makes all singleton masses equal, so that common mass is positive, contradicting the finite-additivity bound above.
+
+\section*{Consequence}
+Because the stated experiment cannot be defined, its probability-one event and the phrase “with respect to the chosen distribution” have no meaning under the claimed uniform prime law. Thus the conjecture as written is not a valid probabilistic assertion. It could be replaced by a specified non-uniform distribution on primes, but the resulting problem would be a different conjecture and could depend on that choice.
+
+\section*{Lean arithmetic core}
+The accompanying self-contained Lean project formalizes the finite-additivity contradiction: for a positive common atom mass $p/q$, the total-mass bound would require $n p\le q$ for every finite number $n$ of distinct atoms. Taking $n=q+1$ is impossible. The countable-additivity step reducing the prime-space claim to this finite bound is given explicitly above.
+\end{document}
