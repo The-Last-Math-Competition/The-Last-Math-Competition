@@ -1,0 +1,39 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\title{A formal proof of the finite-frame splitting bound\\[2mm]\large Conjecture 00000000951}
+\author{quantumtool}
+\date{19 October 2026}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\begin{document}
+\maketitle
+
+\section*{Statement and scope}
+The repository states: ``The number of ways to split a frame into two Riesz sequences is at most $2^{n-1}$ (an upper bound on finite-dimensional splittings).''
+
+We formalize the standard finite-family interpretation: the frame has $n$ indexed vectors, and a split is an unordered pair of complementary subfamilies. For $n\geq 1$, this is the usual meaning of a partition of the frame indices into two parts. The exponent is $n-1$ because the two parts are unordered. If the intended parameter $n$ is instead the dimension of the ambient space, or if swapping the two parts gives a distinct split, the statement needs that convention stated; this proof does not claim those variants.
+
+\section*{Counting all splits}
+Let the frame indices be $\{0,1,\ldots,n-1\}$. In any unordered split, exactly one of the two parts contains index $0$. Call that part the first part. Each of the other $n-1$ indices can independently be placed in the first part or the second part. Hence the canonical representatives of all unordered splits are in bijection with the Boolean words of length $n-1$. There are exactly $2^{n-1}$ such words.
+
+A split into two Riesz sequences is one of these unordered splits with an additional property. Any such condition can remove possibilities, but cannot increase their number.
+
+\begin{theorem}
+For a frame with $n\geq 1$ indexed vectors, the number of unordered splits for which both subfamilies are Riesz sequences is at most $2^{n-1}$.
+\end{theorem}
+\begin{proof}
+The canonical encoding above injects every qualifying split into the set of Boolean words of length $n-1$. The latter set has cardinality $2^{n-1}$, proving the bound.
+\end{proof}
+
+\section*{Lean correspondence}
+The Lean project represents a canonical split by a Boolean word of length $\operatorname{Nat.pred}(n)$: index $0$ is fixed to one side and each remaining bit records the side of one frame index. \verb|allBitWords| recursively lists every Boolean word at a given length. The project proves that this enumeration is sound, complete, duplicate-free, and has length $2^m$.
+
+\verb|qualifying_splits_bound| proves that filtering this enumeration by any Boolean predicate leaves at most $2^m$ entries. \verb|riesz_split_bound| applies that theorem with the predicate for qualifying Riesz splits. No Riesz-sequence theorem is assumed or needed for this counting bound.
+
+The package uses Lean 4.33.1 and \verb|Std| only. \verb|Check.lean| prints the dependency audit for every theorem, and no \verb|sorry|, \verb|native_decide|, or custom axiom occurs in the proof source.
+\end{document}
