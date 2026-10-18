@@ -1,0 +1,33 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\title{A Lattice-Support Obstruction to Conjecture 00000000114}
+\author{quantumtool}
+\date{October 19, 2026}
+\begin{document}
+\maketitle
+
+\section*{Statement and interpretation}
+Let $p_n$ be the $n$-th prime and let $g_n=p_{n+1}-p_n$. The conjecture says that, for each $k\ge 2$, the joint distribution of
+\[
+  (g_n,g_{n+1},\ldots,g_{n+k-1})
+\]
+converges to a vector of independent exponential random variables. The statement gives no normalization of the gaps. We use the usual empirical meaning of a limiting distribution for this deterministic sequence of vectors.
+
+\section*{Contradiction}
+Fix $k=2$. The empirical measures of the vectors are supported on $\mathbb{Z}_{>0}^2$, since every prime gap is a positive integer. Projecting onto the first coordinate is a continuous map, so weak convergence of the joint measures to a pair of independent exponential laws would imply weak convergence of the first-coordinate empirical measures to an exponential law.
+
+Consider the interval $I=(1/4,1/2)$. It contains no integer. Thus every empirical first-coordinate measure assigns $I$ mass zero. In contrast, if $X$ has an exponential distribution of any positive rate $\lambda$, then
+\[
+  \mathbb{P}(X\in I)=e^{-\lambda/4}-e^{-\lambda/2}>0.
+\]
+The endpoints of $I$ have zero exponential mass, so $I$ is a continuity set for the proposed limit. The portmanteau theorem would therefore force the empirical masses of $I$ to converge to this strictly positive number, contradicting that they are identically zero.
+
+Hence the conjecture as written is false: unnormalized integer gaps cannot have a continuous exponential limiting distribution. This argument requires no prime-gap estimates. A plausible repair would first divide each gap by a growing scale, commonly $\log p_n$; that is a different statement.
+
+\section*{Lean formalization}
+The accompanying self-contained Lean project verifies the discrete arithmetic obstruction: after scaling by four, an integer in $(1/4,1/2)$ would give a natural number $n$ satisfying $1<4n<2$, which is impossible. The weak-convergence, portmanteau, and continuous-mapping steps above are given in this paper and are not formalized in Lean.
+\end{document}
