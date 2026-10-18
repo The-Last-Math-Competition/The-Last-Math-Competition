@@ -1,0 +1,4 @@
+import Main
+
+#print axioms no_uniform_probability_on_countably_infinite_space
+#print axioms finite_equal_atom_mass_bound_impossible
