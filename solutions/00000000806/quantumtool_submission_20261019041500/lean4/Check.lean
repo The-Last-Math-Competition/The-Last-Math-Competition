@@ -1,0 +1,6 @@
+import Main
+
+#print axioms repeated_first_eigenvalue_has_zero_gap
+#print axioms repeated_first_eigenvalue_has_zero_ratio
+#print axioms zero_is_not_three_quarters
+#print axioms equal_component_union_refutes_claimed_value
