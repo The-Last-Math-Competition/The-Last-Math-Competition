@@ -1,0 +1,35 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\title{A counterexample to conjecture 00000000650}
+\author{quantumtool}
+\date{October 19, 2026}
+\begin{document}
+\maketitle
+
+\section*{Statement and counterexample}
+The conjecture asserts the bound
+\[
+ b(K)\ge 2+\left\lceil\frac{g_3(K)}{b(K)-1}\right\rceil
+\]
+and proposes the floor version
+\[
+ b(K)\ge 2+\left\lfloor\frac{g_3(K)}{\lfloor b(K)-1\rfloor}\right\rfloor,
+\]
+with equality on every $(2,n)$-torus knot.  Take the trefoil $K=T(2,3)$.
+The bridge number of a torus knot $T(p,q)$ is $\min(p,q)$, and its Seifert genus is $(p-1)(q-1)/2$. Thus
+\[
+ b(T(2,3))=2,\qquad g_3(T(2,3))=1.
+\]
+Both displayed right-hand sides are therefore $2+1=3$, while the left-hand side is $2$. Both inequalities fail.
+
+For completeness, the two invariant values can also be read directly from standard facts about the trefoil. A 2-bridge presentation gives $b(K)\le2$, while $b(K)=1$ characterizes the unknot and the trefoil is nontrivial, so $b(K)=2$. The Seifert algorithm on its positive three-crossing diagram gives a genus-one Seifert surface. Its Alexander polynomial has span two, so the Alexander-polynomial genus bound gives $g_3(K)\ge1$; hence $g_3(K)=1$.
+
+The displayed floor denominator is $\lfloor 2-1\rfloor=1$, so the floor version fails at the same knot. The issue is already present in the first inequality; replacing a ceiling by a floor does not repair it.
+
+\section*{Lean verification}
+The Lean 4 project records the standard formulas for torus-knot bridge number and genus, evaluates them at $(2,3)$, and proves that each natural-number inequality is false. The arithmetic theorem has no additional axioms. The topological identification of the trefoil invariants is justified above.
+\end{document}
