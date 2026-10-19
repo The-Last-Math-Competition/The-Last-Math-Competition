@@ -1,0 +1,75 @@
+\pdfoutput=1
+\pdfmapfile{+lm.map}
+\pdfmapfile{+symbols.map}
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,amsthm,hyperref}
+\newtheorem{proposition}{Proposition}
+\title{Disproof of TLMC 00000008872:\\zero and star have the same coarse invariants}
+\author{Galaxy-0}
+\date{19 October 2026}
+\begin{document}\maketitle
+\begin{abstract}
+The zero game and the star game both have atomic weight zero and numerical part zero. They are not equivalent in normal play. This refutes the first completeness assertion of the conjecture; no claim about the other conjuncts is needed.
+\end{abstract}
+\section{Games and the counterexample}
+A finite short normal-play game is written $G=\{G^L\mid G^R\}$. The player without a move loses. Put
+\[
+ 0=\{\mid\},\qquad *=\{0\mid0\}.
+\]
+An all-small game is one whose every follower either has moves for both players or has no moves for either. Both displayed games satisfy this definition. They also satisfy the printed problem's additional description that all options are number games: zero has no options and star's only option is the number zero.
+
+Zero is a previous-player win, whereas star is a next-player win. In particular they are not equivalent: the empty context already distinguishes their outcomes. Equivalently, neither $0\le *$ nor $*\le0$ holds in Conway's recursive comparison.
+
+\section{Their numerical parts are zero}
+Let $d_0=\{0\mid\}=1$ and $d_{n+1}=\{0\mid d_n\}=2^{-(n+1)}$. For every nonnegative integer $n$,
+\[
+ -d_n<0<d_n,\qquad -d_n<*<d_n.
+\]
+These comparisons follow directly from the recursive comparison rule: $G\le H$ when no left option of $G$ is at least $H$ and no right option of $H$ is at most $G$. For example $*\le d_n$ because $d_n\not\le0$ and the (possible) right option of $d_n$ is not at most star; the reverse inequality fails because $0\le d_n$. The negative comparisons follow by negation or the same recursion.
+
+Thus both games are infinitesimal with numerical component zero. Here ``number part'' means the real numerical component modulo infinitesimals, certified by all positive dyadic bounds. The statement gives no alternative definition; encoding the entire residual game in a purported number part would not be the numerical component. This argument does not identify infinitesimals as equivalent games.
+
+\section{Atomic weight and the far-star bridge}
+The primary reference is Urban Larsson and Richard J. Nowakowski, \emph{Atomic weights and the combinatorial game of bipass}, arXiv:2007.03949v2, Section 5, Definitions 3--5 and Example 6, \url{https://arxiv.org/abs/2007.03949}. Atomic weight is defined through equivalence modulo an arbitrarily large Nim heap (far star). In particular atomic weight zero means equivalence to zero modulo far star, because $0\mathord\uparrow=0$. Example 6 explicitly establishes $\operatorname{aw}(*n)=0$ for Nim heaps, including star and zero. We give the contextual argument as well, rather than simply assigning the two weights.
+
+For finite games the required equivalence is expressed by
+\[
+ \forall X\ \exists N\ \forall n\ge N,\quad
+ o((G+X)+*n)=o((H+X)+*n),
+\]
+where $*n=\{*0,\ldots,*(n-1)\mid *0,\ldots,*(n-1)\}$ and $o$ denotes the normal-play outcome. The threshold may depend on the finite context $X$. This is the finite-context interpretation of the formal far-star device, not an identification with any one fixed heap; in particular, no finite heap is asserted to satisfy the formal idempotence convention for far star.
+
+\begin{proposition}
+For each finite short game $X$, the outcome $o(X+*n)$ is constant for all sufficiently large $n$.
+\end{proposition}
+\begin{proof}
+Record the outcome as a pair of Boolean values indicating whether Left, respectively Right, wins when that player starts. Induct on the finite game tree. The contributions of moves inside $X$ are constant once $n$ is above a common threshold for its finitely many options. Write this pair of contributions as $a=(a_L,a_R)$. Let $p=(p_L,p_R)$ record whether a move to any smaller Nim heap is winning for each player. The outcome is $a\lor p$ coordinatewise. Increasing the heap by one updates the prefix pair by
+\[
+ F_a(p)=\bigl(p_L\lor\neg(a_R\lor p_R),\quad
+                 p_R\lor\neg(a_L\lor p_L)\bigr).
+\]
+For each of the sixteen Boolean assignments, $F_a(F_a(p))=F_a(p)$; this is also immediate by Boolean algebra. Consequently the prefix and outcome stabilize after one further step. This completes the induction.
+\end{proof}
+
+The exact Nim identity $*+*n=*(n\mathbin{\mathrm{xor}}1)$ holds in every finite short-game context. It follows either from Nim addition or directly by induction on the available game and heap moves. Since $n\mathbin{\mathrm{xor}}1$ differs from $n$ by one, both heap indices are eventually beyond the stabilization threshold. Hence, for every $X$ and all sufficiently large $n$,
+\[
+ o((*+X)+*n)=o(X+*(n\mathbin{\mathrm{xor}}1))=o(X+*n).
+\]
+Thus star and zero are far-star equivalent and both have atomic weight zero. This equivalence is deliberately coarser than ordinary game equivalence; it cannot justify replacing star by zero without far star.
+
+\section{Failure of completeness}
+The pair $(\operatorname{aw},\text{numerical part})$ takes the value $(0,0)$ on both zero and star, yet these games are inequivalent. Therefore it is not a complete invariant of all-small equivalence. A single failure of this first conjunct refutes the printed conjunction, regardless of the separate spectrum, sum, or temperature claims.
+
+\section{Formal verification and exact scope}
+The accompanying Lean project represents finite games by lists of Left and Right options, implements genuine recursive Conway comparison and disjunctive sum, and verifies the dyadic comparisons, contextual far-star argument, and inequivalence. Atomic weight zero is represented by its defining zero fiber of far-star equivalence, rather than a function stipulated to return zero on the counterexample. The project does not construct the entire theory of atomic weights for every all-small game, and does not address the other conjuncts. The threshold proved for outcome stabilization is $n\ge\operatorname{sizeOf}(G)+1$; the star--zero comparison uses $N=\operatorname{sizeOf}(X)+2$. The final \texttt{counterexample} and \texttt{not\_completeZeroFiber} theorems exhibit the witnesses and negate a necessary consequence of completeness. The source's immediate-number-options condition is also proved. The additional \texttt{not\_completeSourceZeroFiber} theorem directly refutes completeness with both all-smallness and that immediate-number-options condition imposed on the domain.
+
+The axiom audit uses only Lean's standard foundational axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}, where reported. There are no custom axioms, proof holes, native decision procedures, or kernel bypasses. Verification records and the independent review report accompany the final package.
+
+With Lean 4.31.0 installed, run from \texttt{lean/}:
+\begin{verbatim}
+lake build
+lake env lean -DwarningAsError=true Main.lean
+lake env leanchecker Main
+\end{verbatim}
+\end{document}
