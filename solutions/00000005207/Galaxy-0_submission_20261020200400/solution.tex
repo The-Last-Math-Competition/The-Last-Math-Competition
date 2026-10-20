@@ -1,0 +1,197 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\pdfmapfile{+lm.map}
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\crk}{\operatorname{crk}}
+\newcommand{\ncrk}{\operatorname{ncrk}}
+\newcommand{\Mat}{\operatorname{Mat}}
+\title{Disproof of Conjecture 00000005207}
+\author{}
+\date{20 October 2026}
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+\begin{abstract}
+The difference between noncommutative and commutative rank is not
+multiplicative under tensor products. Over $\Q$, the space of skew-symmetric
+$3\times3$ matrices has ranks $3$ and $2$, respectively. Tensoring with the
+$1\times1$ scalar matrix space leaves this gap equal to $1$, whereas the
+product of the two factor gaps is $0$. We give explicit rank certificates
+and a Lean 4 proof using only the standard library.
+\end{abstract}
+
+\section{The clause being disproved}
+The posted conjecture\footnote{\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000005207.md}{Official conjecture 00000005207 on GitHub}, checked 20 October 2026.}
+states, in particular, that ``the gap is multiplicative under tensor
+products.'' With
+\[
+ \Delta(\mathcal X)=\ncrk(\mathcal X)-\crk(\mathcal X),
+\]
+this clause asserts
+\begin{equation}\label{eq:claim}
+ \Delta(\mathcal X\otimes\mathcal Y)
+ =\Delta(\mathcal X)\Delta(\mathcal Y).
+\end{equation}
+Both factors and their tensor product in our counterexample have matrix
+size at most three. Thus the counterexample remains within the stated
+low-order range. It disproves the conjecture as a conjunction; it does
+not dispute the separate assertion that gaps $0$ and $1$ occur at these
+sizes. No interpretation of the additional phrase about a ``multiplicative
+deficit'' is needed to refute the explicit equality \eqref{eq:claim}.
+
+\section{Rank conventions}
+For a rational matrix space $\mathcal X\subseteq\Mat_n(\Q)$, use
+\begin{align*}
+ \crk(\mathcal X)&=\max_{M\in\mathcal X}\operatorname{rank}(M),\\
+ \mathcal X^{\{d\}}&=\mathcal X\otimes\Mat_d(\Q),\\
+ \ncrk(\mathcal X)&=\max_{d\geq1}
+      \frac{\max_{M\in\mathcal X^{\{d\}}}\operatorname{rank}(M)}{d}.
+\end{align*}
+These are standard matrix-space definitions. Since $\Q$ is infinite,
+commutative rank agrees with the rank of a generic linear matrix over
+its rational-function field. The normalized blowup definition agrees
+with free-skew-field rank; see Derksen--Makam, Definition 1.3,
+Lemma 1.4, Definition 1.5, Lemma 1.8 and Definition 1.9\cite{DM}.
+
+Concretely, if $X_0,\ldots,X_{m-1}$ generate $\mathcal X$, its elements
+are $\sum_i a_iX_i$ and its $d$-blowup elements are
+$\sum_i X_i\otimes T_i$, with $a_i\in\Q$ and $T_i\in\Mat_d(\Q)$.
+We will prove both a universal upper bound and an attaining witness
+for each rank, so no unproved existence of a maximizing witness is
+used in the calculation.
+
+\section{Explicit rank certificates}
+Let
+\[
+ \mathcal S=\left\{
+ S(a,b,c)=\begin{pmatrix}
+ 0&a&b\\-a&0&c\\-b&-c&0
+ \end{pmatrix}:a,b,c\in\Q\right\},
+ \qquad \mathcal U=\Mat_1(\Q).
+\]
+Write $X_0=S(1,0,0)$, $X_1=S(0,1,0)$ and $X_2=S(0,0,1)$.
+
+\begin{lemma}\label{lem:comm}
+$\crk(\mathcal S)=2$.
+\end{lemma}
+\begin{proof}
+Direct expansion gives
+$\det S(a,b,c)=-abc+abc=0$ for every $a,b,c\in\Q$.
+Therefore every matrix in $\mathcal S$ has rank at most two.
+The leading $2\times2$ minor of $S(1,0,0)$ has determinant $1$,
+so rank two is attained.
+\end{proof}
+
+\begin{lemma}\label{lem:noncomm}
+$\ncrk(\mathcal S)=3$.
+\end{lemma}
+\begin{proof}
+Every element of $\mathcal S^{\{d\}}$ is $3d\times3d$, so its rank
+is at most $3d$. This proves the upper bound $3$ simultaneously for
+all positive integers $d$.
+For attainment at $d=2$, take
+\[
+ T_0=\begin{pmatrix}1&0\\0&0\end{pmatrix},\quad
+ T_1=\begin{pmatrix}0&1\\1&0\end{pmatrix},\quad
+ T_2=\begin{pmatrix}0&0\\0&1\end{pmatrix}.
+\]
+Their block substitution is
+\begin{equation}\label{eq:blowup}
+ B=\sum_{i=0}^2 X_i\otimes T_i
+ =\begin{pmatrix}
+ 0&0&1&0&0&1\\
+ 0&0&0&0&1&0\\
+ -1&0&0&0&0&0\\
+ 0&0&0&0&0&1\\
+ 0&-1&0&0&0&0\\
+ -1&0&0&-1&0&0
+ \end{pmatrix}.
+\end{equation}
+It is nonsingular. Indeed, if $Bv=0$, rows $2,3,4,5$ give
+$v_5=v_1=v_6=v_2=0$; rows $1,6$ then give $v_3=v_4=0$.
+Equivalently, direct determinant expansion yields $\det B=1$,
+which is the exact certificate checked in Lean.
+Thus $\operatorname{rank}(B)/2=6/2=3$, proving attainment.
+\end{proof}
+
+\begin{lemma}\label{lem:unit}
+$\crk(\mathcal U)=\ncrk(\mathcal U)=1$ and
+$\mathcal S\otimes\mathcal U=\mathcal S$ under the usual scalar
+Kronecker identification.
+\end{lemma}
+\begin{proof}
+For commutative rank, the size bound is one and $[1]$ attains it.
+For noncommutative rank, every $d$-blowup matrix has size $d$, while
+$d=1$ and $[1]$ already attain normalized rank one.
+Finally $X_i\otimes[1]=X_i$ entrywise for each $i$, so the coefficient
+matrices of the tensor product are precisely the same three matrices.
+This is equality of the actual coefficient tensors after the standard
+index identification, not an assumed invariance of an unspecified rank.
+\end{proof}
+
+\begin{theorem}
+Conjecture 00000005207 is false.
+\end{theorem}
+\begin{proof}
+The preceding lemmas give
+\[
+ \Delta(\mathcal S\otimes\mathcal U)=3-2=1,
+ \qquad
+ \Delta(\mathcal S)\Delta(\mathcal U)=(3-2)(1-1)=0.
+\]
+Since $1\ne0$, equation \eqref{eq:claim} fails.
+\end{proof}
+
+\section{Formal coverage and reproducibility}
+The file \texttt{RankGap.lean} imports only \texttt{Std} and checks
+with Lean 4.31.0. Its determinant is ordinary recursive Laplace
+expansion. Matrix rank bounds quantify over every minor selected by
+strictly increasing row and column index lists. The predicates
+\texttt{CommutativeRank} and \texttt{NoncommutativeRank} express exact
+rank through an upper bound and an attaining nonsingular minor.
+In particular, the noncommutative upper bound quantifies over \emph{all}
+positive blowup sizes and all rational matrix substitutions.
+
+The formal development verifies the symbolic determinant identity,
+the $2\times2$ minor, the $6\times6$ determinant, the two scalar-space
+ranks, and the coefficient tensor-unit equality. Its theorem
+\texttt{conjecture\_00000005207\_false} negates
+\texttt{MultiplicativeGap}, which requires the genuine rank predicates
+for both factors and their tensor product. It restricts even the
+product matrix size to at most three.
+
+The formalization uses the standard equivalent tensor-blowup definition
+of noncommutative rank directly. It does not construct free skew fields
+or reprove the general equivalence theorem between these definitions;
+that mathematical correspondence is cited above, not inserted as a Lean
+axiom. All concrete rank calculations and the contradiction are checked
+without assumptions about their values. The kernel axiom dependency
+list is exactly \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. There are no custom axioms, admitted proofs, or
+native decision shortcuts.
+
+Run Lean with \texttt{-DwarningAsError=true} on \texttt{RankGap.lean}, or use
+\texttt{lake build} with the supplied toolchain file. The accompanying
+README records the theorem map and checking commands.
+
+\begin{thebibliography}{1}
+\bibitem{DM}
+Harm Derksen and Visu Makam.
+\emph{On non-commutative rank and tensor rank}.
+\textit{Linear and Multilinear Algebra} 66 (2018), 1069--1084.
+\href{https://arxiv.org/abs/1606.06701}{arXiv:1606.06701},
+Definitions 1.3, 1.5 and 1.9; Lemmas 1.4 and 1.8.
+The skew-symmetric rank-gap example is classical; the present disproof
+uses its elementary tensor-unit obstruction.
+\end{thebibliography}
+\end{document}
