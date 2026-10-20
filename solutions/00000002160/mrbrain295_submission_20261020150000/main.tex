@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\title{Disproof of Conjecture 00000002160:\\ the Higman--Sims graph does not attain the Hoffman bound}
+\author{Submission \texttt{aristotle\_submission\_20261020150000}}
+\date{2026-10-20}
+\begin{document}
+\maketitle
+
+\section{The conjecture}
+Conjecture 00000002160 reads:
+\begin{quote}
+\emph{Definition: The independence number of the Higman--Sims graph. Conjecture: The
+independence number equals the Hoffman bound, and the kernel of the bound is the Delsarte
+semilattice.}
+\end{quote}
+The statement is a conjunction. We refute its first, precise, conjunct; hence the whole
+conjunction is false. (The second conjunct, ``the kernel of the bound is the Delsarte
+semilattice'', has no standard mathematical meaning and is not used.)
+
+\section{Definitions}
+\begin{definition}[Hoffman bound]
+Let $G$ be a $k$-regular graph on $n$ vertices whose adjacency matrix $A$ has least eigenvalue
+$\lambda_{\min}$. Hoffman's ratio bound is
+\[ H(G) \;=\; \frac{n\,(-\lambda_{\min})}{k-\lambda_{\min}} . \]
+Hoffman's theorem states $\alpha(G)\le H(G)$, where $\alpha$ is the independence number;
+``$\alpha(G)$ equals the Hoffman bound'' (equivalently, ``the Hoffman bound is attained'')
+means $\alpha(G)=H(G)$.
+\end{definition}
+
+\begin{definition}[Higman--Sims graph]
+Let $\mathcal{S}$ be the Steiner system $S(3,6,22)$: $22$ points and $77$ six-element blocks
+(hexads) such that any $3$ points lie in exactly one hexad. The Higman--Sims graph $HS$ has
+the $100$ vertices $\{\infty\}\cup\{\text{points}\}\cup\{\text{hexads}\}$; $\infty$ is adjacent to
+every point, a point is adjacent to the hexads containing it, and two hexads are adjacent iff
+they are disjoint. It is the (unique) strongly regular graph with parameters
+$(100,22,0,6)$.
+\end{definition}
+
+\section{The disproof}
+\begin{theorem}\label{thm:main}
+$HS$ is $22$-regular, its least adjacency eigenvalue is $-8$, and
+$H(HS) = \frac{100\cdot 8}{22+8} = \frac{80}{3}$. Consequently $\alpha(HS)\neq H(HS)$, i.e.
+the conjecture is false.
+\end{theorem}
+
+\begin{lemma}\label{lem:eig}
+Let $G$ be any strongly regular graph with parameters $(100,22,0,6)$ and adjacency matrix $A$.
+Then every eigenvalue of $A$ lies in $\{22,2,-8\}$, and $-8$ is an eigenvalue.
+\end{lemma}
+\begin{proof}
+Strong regularity says $A^2 = 22I + 0\cdot A + 6(J-I-A)$, where $J$ is the all-ones matrix.
+Let $Av=\mu v$ with $v\neq 0$ and put $s=\sum_x v_x$. Applying the identity to $v$ gives
+$(\mu^2+6\mu-16)\,v = 6s\,\mathbf 1$. If $\mu^2+6\mu-16\ne 0$, then $v$ is a nonzero constant
+vector, and since $G$ is $22$-regular, $A v = 22 v$, so $\mu=22$. Otherwise
+$(\mu-2)(\mu+8)=0$. Hence every eigenvalue is $22$, $2$ or $-8$.
+
+The eigenvalues $\mu_1,\dots,\mu_{100}$ (with multiplicity) sum to $\operatorname{tr}A=0$. If none
+of them were $-8$, each would be $\ge 2$ and their sum would be $\ge 200>0$, a contradiction.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+By Lemma~\ref{lem:eig}, $\lambda_{\min}=-8$, and $k=22$, $n=100$, so $H(HS)=800/30=80/3$.
+The independence number is a natural number, and $3\alpha = 80$ has no integer solution; hence
+$\alpha(HS)\ne 80/3$.
+\end{proof}
+
+\begin{remark}
+The neighbourhood of $\infty$ (the $22$ points) is independent, so $\alpha(HS)\ge 22$; this is
+also checked in Lean. It is known that $\alpha(HS)=22$; this fact is \emph{not} needed and not
+formalised here. Under the alternative reading ``$\alpha(HS)=\lfloor H(HS)\rfloor=26$'' the
+conjecture would also be false by this known value, but that reading is not covered by the
+formal proof.
+\end{remark}
+
+\section{Lean formalisation}
+The Lean~4 project in \texttt{lean/} (Lean 4.28.0, Mathlib \texttt{v4.28.0}) contains:
+\begin{itemize}
+\item \texttt{Conjecture2160/HigmanSims.lean}: the $77$ hexads of $S(3,6,22)$ as $22$-bit masks
+(derived from the extended binary Golay code), a kernel-checked proof
+(\texttt{hexads\_steiner}) that they form an $S(3,6,22)$, the graph
+\texttt{higmanSims : SimpleGraph (Fin 100)} defined exactly as above (vertex $0=\infty$,
+$1,\dots,22$ = points, $23,\dots,99$ = hexads), and \texttt{higmanSims\_isSRG}:
+\texttt{higmanSims.IsSRGWith 100 22 0 6} (Mathlib's notion). The latter is proved by
+\texttt{decide +kernel} on a Boolean checker together with a soundness proof linking the
+checker to Mathlib's \texttt{commonNeighbors} and \texttt{degree}.
+\item \texttt{Conjecture2160/Spectral.lean}: \texttt{minAdjEigenvalue} (least eigenvalue of the
+real symmetric adjacency matrix, via Mathlib's spectral theorem), \texttt{hoffmanBound}, and
+Lemma~\ref{lem:eig} for every srg$(100,22,0,6)$
+(\texttt{srg\_minAdjEigenvalue}, \texttt{srg\_hoffmanBound}, \texttt{srg\_indepNum\_ne\_hoffmanBound}).
+\item \texttt{Conjecture2160/Main.lean}: the main theorem
+\texttt{conjecture\_2160\_false}, stating
+\texttt{higmanSims.IsRegularOfDegree 22} and
+\((\texttt{higmanSims.indepNum} : \mathbb{R}) \neq \texttt{hoffmanBound higmanSims 22}\),
+and \texttt{higmanSims\_hoffmanBound : hoffmanBound higmanSims 22 = 80/3}.
+\end{itemize}
+All theorems depend only on the axioms \texttt{propext}, \texttt{Classical.choice},
+\texttt{Quot.sound}; there is no \texttt{sorry} and no \texttt{native\_decide}. The auxiliary
+script \texttt{gen\_hs.py} regenerates the hexad and row data and independently re-checks the
+Steiner and strong-regularity properties.
+
+\end{document}
