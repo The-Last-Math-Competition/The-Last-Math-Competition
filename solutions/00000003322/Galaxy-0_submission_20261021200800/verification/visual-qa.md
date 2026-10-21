@@ -1,0 +1,1 @@
+Author visual QA: the final four-page PDF was rendered with pdftoppm and every page inspected. No missing glyphs, clipped formulas, overlap, or overfull lines were found. The report distinguishes both regularity conventions, gives the complete elementary proof, and states the Nat-degree scope and exact Lean coverage. Independent reviewer QA is tracked separately.

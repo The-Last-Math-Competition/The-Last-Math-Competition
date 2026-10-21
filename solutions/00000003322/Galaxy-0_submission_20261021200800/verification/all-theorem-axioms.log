@@ -1,0 +1,896 @@
+TLMC506.Poly.ext {p q : TLMC506.Poly} (h : ∀ (i j : Nat), p.coeff i j = q.coeff i j) : p = q
+'TLMC506.Poly.ext' depends on axioms: [Quot.sound]
+TLMC506.zero_coeff (i j : Nat) : TLMC506.zero.coeff i j = false
+'TLMC506.zero_coeff' does not depend on any axioms
+TLMC506.add_coeff (p q : TLMC506.Poly) (i j : Nat) : (TLMC506.add p q).coeff i j = (p.coeff i j ^^ q.coeff i j)
+'TLMC506.add_coeff' depends on axioms: [propext, Quot.sound]
+TLMC506.one_coeff (i j : Nat) : TLMC506.one.coeff i j = decide (i = 0 ∧ j = 0)
+'TLMC506.one_coeff' depends on axioms: [propext, Quot.sound]
+TLMC506.xMul_coeff_zero (p : TLMC506.Poly) (j : Nat) : (TLMC506.xMul p).coeff 0 j = false
+'TLMC506.xMul_coeff_zero' depends on axioms: [propext, Quot.sound]
+TLMC506.xMul_coeff_succ (p : TLMC506.Poly) (i j : Nat) : (TLMC506.xMul p).coeff (i + 1) j = p.coeff i j
+'TLMC506.xMul_coeff_succ' depends on axioms: [propext, Quot.sound]
+TLMC506.yMul_coeff_zero (p : TLMC506.Poly) (i : Nat) : (TLMC506.yMul p).coeff i 0 = false
+'TLMC506.yMul_coeff_zero' depends on axioms: [propext, Quot.sound]
+TLMC506.yMul_coeff_succ (p : TLMC506.Poly) (i j : Nat) : (TLMC506.yMul p).coeff i (j + 1) = p.coeff i j
+'TLMC506.yMul_coeff_succ' depends on axioms: [propext, Quot.sound]
+TLMC506.add_comm (p q : TLMC506.Poly) : TLMC506.add p q = TLMC506.add q p
+'TLMC506.add_comm' depends on axioms: [propext, Quot.sound]
+TLMC506.add_assoc (p q r : TLMC506.Poly) : TLMC506.add (TLMC506.add p q) r = TLMC506.add p (TLMC506.add q r)
+'TLMC506.add_assoc' depends on axioms: [propext, Quot.sound]
+TLMC506.add_zero (p : TLMC506.Poly) : TLMC506.add p TLMC506.zero = p
+'TLMC506.add_zero' depends on axioms: [propext, Quot.sound]
+TLMC506.zero_add (p : TLMC506.Poly) : TLMC506.add TLMC506.zero p = p
+'TLMC506.zero_add' depends on axioms: [propext, Quot.sound]
+TLMC506.add_self (p : TLMC506.Poly) : TLMC506.add p p = TLMC506.zero
+'TLMC506.add_self' depends on axioms: [propext, Quot.sound]
+TLMC506.xMul_zero : TLMC506.xMul TLMC506.zero = TLMC506.zero
+'TLMC506.xMul_zero' depends on axioms: [propext, Quot.sound]
+TLMC506.yMul_zero : TLMC506.yMul TLMC506.zero = TLMC506.zero
+'TLMC506.yMul_zero' depends on axioms: [propext, Quot.sound]
+TLMC506.xMul_add (p q : TLMC506.Poly) : TLMC506.xMul (TLMC506.add p q) = TLMC506.add (TLMC506.xMul p) (TLMC506.xMul q)
+'TLMC506.xMul_add' depends on axioms: [propext, Quot.sound]
+TLMC506.yMul_add (p q : TLMC506.Poly) : TLMC506.yMul (TLMC506.add p q) = TLMC506.add (TLMC506.yMul p) (TLMC506.yMul q)
+'TLMC506.yMul_add' depends on axioms: [propext, Quot.sound]
+TLMC506.xMul_yMul (p : TLMC506.Poly) : TLMC506.xMul (TLMC506.yMul p) = TLMC506.yMul (TLMC506.xMul p)
+'TLMC506.xMul_yMul' depends on axioms: [propext, Quot.sound]
+TLMC506.xMul_injective {p q : TLMC506.Poly} (h : TLMC506.xMul p = TLMC506.xMul q) : p = q
+'TLMC506.xMul_injective' depends on axioms: [propext, Quot.sound]
+TLMC506.yMul_injective {p q : TLMC506.Poly} (h : TLMC506.yMul p = TLMC506.yMul q) : p = q
+'TLMC506.yMul_injective' depends on axioms: [propext, Quot.sound]
+TLMC506.xor_eq_false_iff (a b : Bool) : (a ^^ b) = false ↔ a = b
+'TLMC506.xor_eq_false_iff' does not depend on any axioms
+TLMC506.add_eq_zero_iff (p q : TLMC506.Poly) : TLMC506.add p q = TLMC506.zero ↔ p = q
+'TLMC506.add_eq_zero_iff' depends on axioms: [propext, Quot.sound]
+TLMC506.Raw.coeff_nil (i j : Nat) : TLMC506.Raw.coeff [] i j = false
+'TLMC506.Raw.coeff_nil' does not depend on any axioms
+TLMC506.Raw.coeff_cons (a b i j : Nat) (l : TLMC506.Raw.Poly) :
+  TLMC506.Raw.coeff ((a, b) :: l) i j = (a == i && b == j ^^ TLMC506.Raw.coeff l i j)
+'TLMC506.Raw.coeff_cons' does not depend on any axioms
+TLMC506.Raw.coeff_append (l k : TLMC506.Raw.Poly) (i j : Nat) :
+  TLMC506.Raw.coeff (l ++ k) i j = (TLMC506.Raw.coeff l i j ^^ TLMC506.Raw.coeff k i j)
+'TLMC506.Raw.coeff_append' depends on axioms: [propext]
+TLMC506.Raw.shift_nil (a b : Nat) : TLMC506.Raw.shift a b [] = []
+'TLMC506.Raw.shift_nil' does not depend on any axioms
+TLMC506.Raw.shift_cons (a b c d : Nat) (l : TLMC506.Raw.Poly) :
+  TLMC506.Raw.shift a b ((c, d) :: l) = (a + c, b + d) :: TLMC506.Raw.shift a b l
+'TLMC506.Raw.shift_cons' does not depend on any axioms
+TLMC506.Raw.shift_append (a b : Nat) (l k : TLMC506.Raw.Poly) :
+  TLMC506.Raw.shift a b (l ++ k) = TLMC506.Raw.shift a b l ++ TLMC506.Raw.shift a b k
+'TLMC506.Raw.shift_append' depends on axioms: [propext]
+TLMC506.Raw.shift_shift (a b c d : Nat) (l : TLMC506.Raw.Poly) :
+  TLMC506.Raw.shift a b (TLMC506.Raw.shift c d l) = TLMC506.Raw.shift (a + c) (b + d) l
+'TLMC506.Raw.shift_shift' depends on axioms: [propext, Quot.sound]
+TLMC506.Raw.shift_zero (l : TLMC506.Raw.Poly) : TLMC506.Raw.shift 0 0 l = l
+'TLMC506.Raw.shift_zero' depends on axioms: [propext, Quot.sound]
+TLMC506.Raw.coeff_shift (a b i j : Nat) (l : TLMC506.Raw.Poly) :
+  TLMC506.Raw.coeff (TLMC506.Raw.shift a b l) i j = if a ≤ i ∧ b ≤ j then TLMC506.Raw.coeff l (i - a) (j - b) else false
+'TLMC506.Raw.coeff_shift' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.Raw.equiv_refl (p : TLMC506.Raw.Poly) : TLMC506.Raw.Equiv p p
+'TLMC506.Raw.equiv_refl' does not depend on any axioms
+TLMC506.Raw.equiv_append {p q r s : TLMC506.Raw.Poly} (h : TLMC506.Raw.Equiv p q) (k : TLMC506.Raw.Equiv r s) :
+  TLMC506.Raw.Equiv (p ++ r) (q ++ s)
+'TLMC506.Raw.equiv_append' depends on axioms: [propext]
+TLMC506.Raw.equiv_shift {p q : TLMC506.Raw.Poly} (h : TLMC506.Raw.Equiv p q) (a b : Nat) :
+  TLMC506.Raw.Equiv (TLMC506.Raw.shift a b p) (TLMC506.Raw.shift a b q)
+'TLMC506.Raw.equiv_shift' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.Raw.mul_nil (p : TLMC506.Raw.Poly) : TLMC506.Raw.mul p [] = []
+'TLMC506.Raw.mul_nil' depends on axioms: [propext]
+TLMC506.Raw.mul_append_left (p q r : TLMC506.Raw.Poly) :
+  TLMC506.Raw.mul (p ++ q) r = TLMC506.Raw.mul p r ++ TLMC506.Raw.mul q r
+'TLMC506.Raw.mul_append_left' depends on axioms: [propext]
+TLMC506.Raw.mul_congr_right (p : TLMC506.Raw.Poly) {q r : TLMC506.Raw.Poly} (h : TLMC506.Raw.Equiv q r) :
+  TLMC506.Raw.Equiv (TLMC506.Raw.mul p q) (TLMC506.Raw.mul p r)
+'TLMC506.Raw.mul_congr_right' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.Raw.coeff_mul_append_right (p q r : TLMC506.Raw.Poly) (i j : Nat) :
+  TLMC506.Raw.coeff (TLMC506.Raw.mul p (q ++ r)) i j =
+    (TLMC506.Raw.coeff (TLMC506.Raw.mul p q) i j ^^ TLMC506.Raw.coeff (TLMC506.Raw.mul p r) i j)
+'TLMC506.Raw.coeff_mul_append_right' depends on axioms: [propext]
+TLMC506.Raw.mul_singleton_right (p : TLMC506.Raw.Poly) (a b : Nat) :
+  TLMC506.Raw.mul p [(a, b)] = TLMC506.Raw.shift a b p
+'TLMC506.Raw.mul_singleton_right' depends on axioms: [propext]
+TLMC506.Raw.mul_singleton_left (p : TLMC506.Raw.Poly) (a b : Nat) : TLMC506.Raw.mul [(a, b)] p = TLMC506.Raw.shift a b p
+'TLMC506.Raw.mul_singleton_left' depends on axioms: [propext]
+TLMC506.Raw.mul_comm (p q : TLMC506.Raw.Poly) : TLMC506.Raw.Equiv (TLMC506.Raw.mul p q) (TLMC506.Raw.mul q p)
+'TLMC506.Raw.mul_comm' depends on axioms: [propext, Quot.sound]
+TLMC506.Raw.mul_congr_left {p q : TLMC506.Raw.Poly} (h : TLMC506.Raw.Equiv p q) (r : TLMC506.Raw.Poly) :
+  TLMC506.Raw.Equiv (TLMC506.Raw.mul p r) (TLMC506.Raw.mul q r)
+'TLMC506.Raw.mul_congr_left' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.Raw.shift_mul_left (a b : Nat) (p q : TLMC506.Raw.Poly) :
+  TLMC506.Raw.mul (TLMC506.Raw.shift a b p) q = TLMC506.Raw.shift a b (TLMC506.Raw.mul p q)
+'TLMC506.Raw.shift_mul_left' depends on axioms: [propext, Quot.sound]
+TLMC506.Raw.mul_assoc (p q r : TLMC506.Raw.Poly) :
+  TLMC506.Raw.mul (TLMC506.Raw.mul p q) r = TLMC506.Raw.mul p (TLMC506.Raw.mul q r)
+'TLMC506.Raw.mul_assoc' depends on axioms: [propext, Quot.sound]
+TLMC506.Raw.coeff_row (f : Nat → Bool) (a n i j : Nat) :
+  TLMC506.Raw.coeff (TLMC506.Raw.row f a n) i j = if i = a ∧ j < n then f j else false
+'TLMC506.Raw.coeff_row' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.Raw.coeff_box (f : Nat → Nat → Bool) (n m i j : Nat) :
+  TLMC506.Raw.coeff (TLMC506.Raw.box f m n) i j = if i < n ∧ j < m then f i j else false
+'TLMC506.Raw.coeff_box' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.Raw.finite (p : TLMC506.Raw.Poly) : ∃ N, ∀ (i j : Nat), N ≤ i + j → TLMC506.Raw.coeff p i j = false
+'TLMC506.Raw.finite' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_coeff (p : TLMC506.Raw.Poly) (i j : Nat) : (TLMC506.ofRaw p).coeff i j = TLMC506.Raw.coeff p i j
+'TLMC506.ofRaw_coeff' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_eq_iff (p q : TLMC506.Raw.Poly) : TLMC506.ofRaw p = TLMC506.ofRaw q ↔ TLMC506.Raw.Equiv p q
+'TLMC506.ofRaw_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_surjective (p : TLMC506.Poly) : ∃ l, TLMC506.ofRaw l = p
+'TLMC506.ofRaw_surjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_raw (p : TLMC506.Poly) : TLMC506.ofRaw (TLMC506.raw p) = p
+'TLMC506.ofRaw_raw' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.raw_ofRaw (l : TLMC506.Raw.Poly) : TLMC506.Raw.Equiv (TLMC506.raw (TLMC506.ofRaw l)) l
+'TLMC506.raw_ofRaw' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.mul_ofRaw (p q : TLMC506.Raw.Poly) :
+  TLMC506.mul (TLMC506.ofRaw p) (TLMC506.ofRaw q) = TLMC506.ofRaw (TLMC506.Raw.mul p q)
+'TLMC506.mul_ofRaw' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_nil : TLMC506.ofRaw [] = TLMC506.zero
+'TLMC506.ofRaw_nil' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_append (p q : TLMC506.Raw.Poly) : TLMC506.ofRaw (p ++ q) = TLMC506.add (TLMC506.ofRaw p) (TLMC506.ofRaw q)
+'TLMC506.ofRaw_append' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_one : TLMC506.ofRaw [(0, 0)] = TLMC506.one
+'TLMC506.ofRaw_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_shiftX (p : TLMC506.Raw.Poly) : TLMC506.ofRaw (TLMC506.Raw.shift 1 0 p) = TLMC506.xMul (TLMC506.ofRaw p)
+'TLMC506.ofRaw_shiftX' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_shiftY (p : TLMC506.Raw.Poly) : TLMC506.ofRaw (TLMC506.Raw.shift 0 1 p) = TLMC506.yMul (TLMC506.ofRaw p)
+'TLMC506.ofRaw_shiftY' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_X : TLMC506.ofRaw [(1, 0)] = TLMC506.X
+'TLMC506.ofRaw_X' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.ofRaw_Y : TLMC506.ofRaw [(0, 1)] = TLMC506.Y
+'TLMC506.ofRaw_Y' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.mul_comm (p q : TLMC506.Poly) : TLMC506.mul p q = TLMC506.mul q p
+'TLMC506.mul_comm' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.mul_assoc (p q r : TLMC506.Poly) : TLMC506.mul (TLMC506.mul p q) r = TLMC506.mul p (TLMC506.mul q r)
+'TLMC506.mul_assoc' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.add_mul (p q r : TLMC506.Poly) :
+  TLMC506.mul (TLMC506.add p q) r = TLMC506.add (TLMC506.mul p r) (TLMC506.mul q r)
+'TLMC506.add_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.mul_add (p q r : TLMC506.Poly) :
+  TLMC506.mul p (TLMC506.add q r) = TLMC506.add (TLMC506.mul p q) (TLMC506.mul p r)
+'TLMC506.mul_add' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.zero_mul (p : TLMC506.Poly) : TLMC506.mul TLMC506.zero p = TLMC506.zero
+'TLMC506.zero_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.mul_zero (p : TLMC506.Poly) : TLMC506.mul p TLMC506.zero = TLMC506.zero
+'TLMC506.mul_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.one_mul (p : TLMC506.Poly) : TLMC506.mul TLMC506.one p = p
+'TLMC506.one_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.mul_one (p : TLMC506.Poly) : TLMC506.mul p TLMC506.one = p
+'TLMC506.mul_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.X_mul (p : TLMC506.Poly) : TLMC506.mul TLMC506.X p = TLMC506.xMul p
+'TLMC506.X_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.Y_mul (p : TLMC506.Poly) : TLMC506.mul TLMC506.Y p = TLMC506.yMul p
+'TLMC506.Y_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.mul_xMul (p q : TLMC506.Poly) : TLMC506.mul p (TLMC506.xMul q) = TLMC506.xMul (TLMC506.mul p q)
+'TLMC506.mul_xMul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.mul_yMul (p q : TLMC506.Poly) : TLMC506.mul p (TLMC506.yMul q) = TLMC506.yMul (TLMC506.mul p q)
+'TLMC506.mul_yMul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.polynomial_ring_laws :
+  (∀ (p q : TLMC506.Poly), TLMC506.add p q = TLMC506.add q p) ∧
+    (∀ (p q r : TLMC506.Poly), TLMC506.add (TLMC506.add p q) r = TLMC506.add p (TLMC506.add q r)) ∧
+      (∀ (p : TLMC506.Poly), TLMC506.add p TLMC506.zero = p) ∧
+        (∀ (p : TLMC506.Poly), TLMC506.add p p = TLMC506.zero) ∧
+          (∀ (p q : TLMC506.Poly), TLMC506.mul p q = TLMC506.mul q p) ∧
+            (∀ (p q r : TLMC506.Poly), TLMC506.mul (TLMC506.mul p q) r = TLMC506.mul p (TLMC506.mul q r)) ∧
+              (∀ (p : TLMC506.Poly), TLMC506.mul TLMC506.one p = p) ∧
+                ∀ (p q r : TLMC506.Poly),
+                  TLMC506.mul p (TLMC506.add q r) = TLMC506.add (TLMC506.mul p q) (TLMC506.mul p r)
+'TLMC506.polynomial_ring_laws' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.dropX_coeff (p : TLMC506.Poly) (i j : Nat) : (TLMC506.dropX p).coeff i j = p.coeff (i + 1) j
+'TLMC506.dropX_coeff' depends on axioms: [propext, Quot.sound]
+TLMC506.dropY_coeff (p : TLMC506.Poly) (i j : Nat) : (TLMC506.dropY p).coeff i j = p.coeff i (j + 1)
+'TLMC506.dropY_coeff' depends on axioms: [propext, Quot.sound]
+TLMC506.constant_coeff (c : Bool) (i j : Nat) : (TLMC506.constant c).coeff i j = (c && decide (i = 0 ∧ j = 0))
+'TLMC506.constant_coeff' depends on axioms: [propext, Quot.sound]
+TLMC506.scale_coeff (c : Bool) (p : TLMC506.Poly) (i j : Nat) : (TLMC506.scale c p).coeff i j = (c && p.coeff i j)
+'TLMC506.scale_coeff' depends on axioms: [propext]
+TLMC506.constant_false : TLMC506.constant false = TLMC506.zero
+'TLMC506.constant_false' depends on axioms: [propext, Quot.sound]
+TLMC506.constant_true : TLMC506.constant true = TLMC506.one
+'TLMC506.constant_true' depends on axioms: [propext, Quot.sound]
+TLMC506.scale_false (p : TLMC506.Poly) : TLMC506.scale false p = TLMC506.zero
+'TLMC506.scale_false' depends on axioms: [propext, Quot.sound]
+TLMC506.scale_true (p : TLMC506.Poly) : TLMC506.scale true p = p
+'TLMC506.scale_true' depends on axioms: [propext, Quot.sound]
+TLMC506.constant_split (p : TLMC506.Poly) :
+  p =
+    TLMC506.add (TLMC506.constant (p.coeff 0 0))
+      (TLMC506.add (TLMC506.xMul (TLMC506.dropX p)) (TLMC506.yMul (TLMC506.axisY p)))
+'TLMC506.constant_split' depends on axioms: [propext, Quot.sound]
+TLMC506.xMul_mul (p q : TLMC506.Poly) : TLMC506.mul (TLMC506.xMul p) q = TLMC506.xMul (TLMC506.mul p q)
+'TLMC506.xMul_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.yMul_mul (p q : TLMC506.Poly) : TLMC506.mul (TLMC506.yMul p) q = TLMC506.yMul (TLMC506.mul p q)
+'TLMC506.yMul_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.constant_mul (c : Bool) (p : TLMC506.Poly) : TLMC506.mul (TLMC506.constant c) p = TLMC506.scale c p
+'TLMC506.constant_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.mul_constant_coefficient (p q : TLMC506.Poly) : (TLMC506.mul p q).coeff 0 0 = (p.coeff 0 0 && q.coeff 0 0)
+'TLMC506.mul_constant_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.maximal_iff_generated (p : TLMC506.Poly) : TLMC506.Maximal p ↔ TLMC506.MaximalGenerated p
+'TLMC506.maximal_iff_generated' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.maximal_zero : TLMC506.Maximal TLMC506.zero
+'TLMC506.maximal_zero' does not depend on any axioms
+TLMC506.maximal_add {p q : TLMC506.Poly} (hp : TLMC506.Maximal p) (hq : TLMC506.Maximal q) :
+  TLMC506.Maximal (TLMC506.add p q)
+'TLMC506.maximal_add' depends on axioms: [propext, Quot.sound]
+TLMC506.maximal_mul (p : TLMC506.Poly) {q : TLMC506.Poly} (hq : TLMC506.Maximal q) : TLMC506.Maximal (TLMC506.mul p q)
+'TLMC506.maximal_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.maximal_generated_least (J : TLMC506.Poly → Prop)
+  (hadd : ∀ (p q : TLMC506.Poly), J p → J q → J (TLMC506.add p q))
+  (hmul : ∀ (p q : TLMC506.Poly), J q → J (TLMC506.mul p q)) (hx : J TLMC506.X) (hy : J TLMC506.Y) (p : TLMC506.Poly) :
+  TLMC506.Maximal p → J p
+'TLMC506.maximal_generated_least' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC506.residue_field_certificate :
+  (∀ (p q : TLMC506.Poly), (TLMC506.add p q).coeff 0 0 = (p.coeff 0 0 ^^ q.coeff 0 0)) ∧
+    (∀ (p q : TLMC506.Poly), (TLMC506.mul p q).coeff 0 0 = (p.coeff 0 0 && q.coeff 0 0)) ∧
+      TLMC506.one.coeff 0 0 = true ∧
+        (∀ (c : Bool), ∃ p, p.coeff 0 0 = c) ∧ ∀ (p : TLMC506.Poly), p.coeff 0 0 = false ↔ TLMC506.MaximalGenerated p
+'TLMC506.residue_field_certificate' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Poly.ext {p q : ThreePoly.Poly} (h : ∀ (i j k : Nat), p.coeff i j k = q.coeff i j k) : p = q
+'ThreePoly.Poly.ext' depends on axioms: [Quot.sound]
+ThreePoly.zero_coeff (i j k : Nat) : ThreePoly.zero.coeff i j k = false
+'ThreePoly.zero_coeff' does not depend on any axioms
+ThreePoly.add_coeff (p q : ThreePoly.Poly) (i j k : Nat) :
+  (ThreePoly.add p q).coeff i j k = (p.coeff i j k ^^ q.coeff i j k)
+'ThreePoly.add_coeff' depends on axioms: [propext, Quot.sound]
+ThreePoly.one_coeff (i j k : Nat) : ThreePoly.one.coeff i j k = decide (i = 0 ∧ j = 0 ∧ k = 0)
+'ThreePoly.one_coeff' depends on axioms: [propext, Quot.sound]
+ThreePoly.add_comm (p q : ThreePoly.Poly) : ThreePoly.add p q = ThreePoly.add q p
+'ThreePoly.add_comm' depends on axioms: [propext, Quot.sound]
+ThreePoly.add_assoc (p q r : ThreePoly.Poly) : ThreePoly.add (ThreePoly.add p q) r = ThreePoly.add p (ThreePoly.add q r)
+'ThreePoly.add_assoc' depends on axioms: [propext, Quot.sound]
+ThreePoly.add_zero (p : ThreePoly.Poly) : ThreePoly.add p ThreePoly.zero = p
+'ThreePoly.add_zero' depends on axioms: [propext, Quot.sound]
+ThreePoly.zero_add (p : ThreePoly.Poly) : ThreePoly.add ThreePoly.zero p = p
+'ThreePoly.zero_add' depends on axioms: [propext, Quot.sound]
+ThreePoly.add_self (p : ThreePoly.Poly) : ThreePoly.add p p = ThreePoly.zero
+'ThreePoly.add_self' depends on axioms: [propext, Quot.sound]
+ThreePoly.xor_eq_false_iff (a b : Bool) : (a ^^ b) = false ↔ a = b
+'ThreePoly.xor_eq_false_iff' does not depend on any axioms
+ThreePoly.add_eq_zero_iff (p q : ThreePoly.Poly) : ThreePoly.add p q = ThreePoly.zero ↔ p = q
+'ThreePoly.add_eq_zero_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.xMul_coeff_zero (p : ThreePoly.Poly) (j k : Nat) : (ThreePoly.xMul p).coeff 0 j k = false
+'ThreePoly.xMul_coeff_zero' depends on axioms: [propext, Quot.sound]
+ThreePoly.xMul_coeff_succ (p : ThreePoly.Poly) (i j k : Nat) : (ThreePoly.xMul p).coeff (i + 1) j k = p.coeff i j k
+'ThreePoly.xMul_coeff_succ' depends on axioms: [propext, Quot.sound]
+ThreePoly.xMul_zero : ThreePoly.xMul ThreePoly.zero = ThreePoly.zero
+'ThreePoly.xMul_zero' depends on axioms: [propext, Quot.sound]
+ThreePoly.xMul_add (p q : ThreePoly.Poly) :
+  ThreePoly.xMul (ThreePoly.add p q) = ThreePoly.add (ThreePoly.xMul p) (ThreePoly.xMul q)
+'ThreePoly.xMul_add' depends on axioms: [propext, Quot.sound]
+ThreePoly.xMul_injective {p q : ThreePoly.Poly} (h : ThreePoly.xMul p = ThreePoly.xMul q) : p = q
+'ThreePoly.xMul_injective' depends on axioms: [propext, Quot.sound]
+ThreePoly.dropX_coeff (p : ThreePoly.Poly) (i j k : Nat) : (ThreePoly.dropX p).coeff i j k = p.coeff (i + 1) j k
+'ThreePoly.dropX_coeff' depends on axioms: [propext, Quot.sound]
+ThreePoly.dropX_xMul (p : ThreePoly.Poly) : ThreePoly.dropX (ThreePoly.xMul p) = p
+'ThreePoly.dropX_xMul' depends on axioms: [propext, Quot.sound]
+ThreePoly.dropX_cancel (p : ThreePoly.Poly) (h : ∀ (j k : Nat), p.coeff 0 j k = false) :
+  ThreePoly.xMul (ThreePoly.dropX p) = p
+'ThreePoly.dropX_cancel' depends on axioms: [propext, Quot.sound]
+ThreePoly.xMul_image_iff (p : ThreePoly.Poly) : (∃ q, p = ThreePoly.xMul q) ↔ ∀ (j k : Nat), p.coeff 0 j k = false
+'ThreePoly.xMul_image_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.yMul_coeff_zero (p : ThreePoly.Poly) (i k : Nat) : (ThreePoly.yMul p).coeff i 0 k = false
+'ThreePoly.yMul_coeff_zero' depends on axioms: [propext, Quot.sound]
+ThreePoly.yMul_coeff_succ (p : ThreePoly.Poly) (i j k : Nat) : (ThreePoly.yMul p).coeff i (j + 1) k = p.coeff i j k
+'ThreePoly.yMul_coeff_succ' depends on axioms: [propext, Quot.sound]
+ThreePoly.yMul_zero : ThreePoly.yMul ThreePoly.zero = ThreePoly.zero
+'ThreePoly.yMul_zero' depends on axioms: [propext, Quot.sound]
+ThreePoly.yMul_add (p q : ThreePoly.Poly) :
+  ThreePoly.yMul (ThreePoly.add p q) = ThreePoly.add (ThreePoly.yMul p) (ThreePoly.yMul q)
+'ThreePoly.yMul_add' depends on axioms: [propext, Quot.sound]
+ThreePoly.yMul_injective {p q : ThreePoly.Poly} (h : ThreePoly.yMul p = ThreePoly.yMul q) : p = q
+'ThreePoly.yMul_injective' depends on axioms: [propext, Quot.sound]
+ThreePoly.dropY_coeff (p : ThreePoly.Poly) (i j k : Nat) : (ThreePoly.dropY p).coeff i j k = p.coeff i (j + 1) k
+'ThreePoly.dropY_coeff' depends on axioms: [propext, Quot.sound]
+ThreePoly.dropY_yMul (p : ThreePoly.Poly) : ThreePoly.dropY (ThreePoly.yMul p) = p
+'ThreePoly.dropY_yMul' depends on axioms: [propext, Quot.sound]
+ThreePoly.dropY_cancel (p : ThreePoly.Poly) (h : ∀ (i k : Nat), p.coeff i 0 k = false) :
+  ThreePoly.yMul (ThreePoly.dropY p) = p
+'ThreePoly.dropY_cancel' depends on axioms: [propext, Quot.sound]
+ThreePoly.yMul_image_iff (p : ThreePoly.Poly) : (∃ q, p = ThreePoly.yMul q) ↔ ∀ (i k : Nat), p.coeff i 0 k = false
+'ThreePoly.yMul_image_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.zMul_coeff_zero (p : ThreePoly.Poly) (i j : Nat) : (ThreePoly.zMul p).coeff i j 0 = false
+'ThreePoly.zMul_coeff_zero' depends on axioms: [propext, Quot.sound]
+ThreePoly.zMul_coeff_succ (p : ThreePoly.Poly) (i j k : Nat) : (ThreePoly.zMul p).coeff i j (k + 1) = p.coeff i j k
+'ThreePoly.zMul_coeff_succ' depends on axioms: [propext, Quot.sound]
+ThreePoly.zMul_zero : ThreePoly.zMul ThreePoly.zero = ThreePoly.zero
+'ThreePoly.zMul_zero' depends on axioms: [propext, Quot.sound]
+ThreePoly.zMul_add (p q : ThreePoly.Poly) :
+  ThreePoly.zMul (ThreePoly.add p q) = ThreePoly.add (ThreePoly.zMul p) (ThreePoly.zMul q)
+'ThreePoly.zMul_add' depends on axioms: [propext, Quot.sound]
+ThreePoly.zMul_injective {p q : ThreePoly.Poly} (h : ThreePoly.zMul p = ThreePoly.zMul q) : p = q
+'ThreePoly.zMul_injective' depends on axioms: [propext, Quot.sound]
+ThreePoly.dropZ_coeff (p : ThreePoly.Poly) (i j k : Nat) : (ThreePoly.dropZ p).coeff i j k = p.coeff i j (k + 1)
+'ThreePoly.dropZ_coeff' depends on axioms: [propext, Quot.sound]
+ThreePoly.dropZ_zMul (p : ThreePoly.Poly) : ThreePoly.dropZ (ThreePoly.zMul p) = p
+'ThreePoly.dropZ_zMul' depends on axioms: [propext, Quot.sound]
+ThreePoly.dropZ_cancel (p : ThreePoly.Poly) (h : ∀ (i j : Nat), p.coeff i j 0 = false) :
+  ThreePoly.zMul (ThreePoly.dropZ p) = p
+'ThreePoly.dropZ_cancel' depends on axioms: [propext, Quot.sound]
+ThreePoly.zMul_image_iff (p : ThreePoly.Poly) : (∃ q, p = ThreePoly.zMul q) ↔ ∀ (i j : Nat), p.coeff i j 0 = false
+'ThreePoly.zMul_image_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.xMul_yMul (p : ThreePoly.Poly) : ThreePoly.xMul (ThreePoly.yMul p) = ThreePoly.yMul (ThreePoly.xMul p)
+'ThreePoly.xMul_yMul' depends on axioms: [propext, Quot.sound]
+ThreePoly.xMul_zMul (p : ThreePoly.Poly) : ThreePoly.xMul (ThreePoly.zMul p) = ThreePoly.zMul (ThreePoly.xMul p)
+'ThreePoly.xMul_zMul' depends on axioms: [propext, Quot.sound]
+ThreePoly.yMul_zMul (p : ThreePoly.Poly) : ThreePoly.yMul (ThreePoly.zMul p) = ThreePoly.zMul (ThreePoly.yMul p)
+'ThreePoly.yMul_zMul' depends on axioms: [propext, Quot.sound]
+ThreePoly.constant_false : ThreePoly.constant false = ThreePoly.zero
+'ThreePoly.constant_false' depends on axioms: [propext, Quot.sound]
+ThreePoly.constant_true : ThreePoly.constant true = ThreePoly.one
+'ThreePoly.constant_true' depends on axioms: [propext, Quot.sound]
+ThreePoly.scale_false (p : ThreePoly.Poly) : ThreePoly.scale false p = ThreePoly.zero
+'ThreePoly.scale_false' does not depend on any axioms
+ThreePoly.scale_true (p : ThreePoly.Poly) : ThreePoly.scale true p = p
+'ThreePoly.scale_true' does not depend on any axioms
+ThreePoly.constant_coeff (c : Bool) (i j k : Nat) :
+  (ThreePoly.constant c).coeff i j k = (c && decide (i = 0 ∧ j = 0 ∧ k = 0))
+'ThreePoly.constant_coeff' depends on axioms: [propext, Quot.sound]
+ThreePoly.scale_coeff (c : Bool) (p : ThreePoly.Poly) (i j k : Nat) :
+  (ThreePoly.scale c p).coeff i j k = (c && p.coeff i j k)
+'ThreePoly.scale_coeff' does not depend on any axioms
+ThreePoly.coefficient_field_laws :
+  (∀ (a b : Bool), (a ^^ b) = (b ^^ a)) ∧
+    (∀ (a b c : Bool), (a ^^ b ^^ c) = (a ^^ (b ^^ c))) ∧
+      (∀ (a : Bool), (a ^^ false) = a) ∧
+        (∀ (a : Bool), (a ^^ a) = false) ∧
+          (∀ (a b : Bool), (a && b) = (b && a)) ∧
+            (∀ (a b c : Bool), (a && b && c) = (a && (b && c))) ∧
+              (∀ (a : Bool), (true && a) = a) ∧
+                (∀ (a b c : Bool), (a && (b ^^ c)) = (a && b ^^ a && c)) ∧
+                  true ≠ false ∧ ∀ (a : Bool), a ≠ false → (a && a) = true
+'ThreePoly.coefficient_field_laws' does not depend on any axioms
+ThreePoly.one_ne_zero : ThreePoly.one ≠ ThreePoly.zero
+'ThreePoly.one_ne_zero' depends on axioms: [propext, Quot.sound]
+ThreePoly.Raw.coeff_nil (i j k : Nat) : ThreePoly.Raw.coeff [] i j k = false
+'ThreePoly.Raw.coeff_nil' does not depend on any axioms
+ThreePoly.Raw.coeff_cons (a b c i j k : Nat) (l : ThreePoly.Raw.Poly) :
+  ThreePoly.Raw.coeff ((a, b, c) :: l) i j k = (a == i && b == j && c == k ^^ ThreePoly.Raw.coeff l i j k)
+'ThreePoly.Raw.coeff_cons' does not depend on any axioms
+ThreePoly.Raw.coeff_append (l n : ThreePoly.Raw.Poly) (i j k : Nat) :
+  ThreePoly.Raw.coeff (l ++ n) i j k = (ThreePoly.Raw.coeff l i j k ^^ ThreePoly.Raw.coeff n i j k)
+'ThreePoly.Raw.coeff_append' depends on axioms: [propext]
+ThreePoly.Raw.shift_nil (a b c : Nat) : ThreePoly.Raw.shift a b c [] = []
+'ThreePoly.Raw.shift_nil' does not depend on any axioms
+ThreePoly.Raw.shift_cons (a b c d e f : Nat) (l : ThreePoly.Raw.Poly) :
+  ThreePoly.Raw.shift a b c ((d, e, f) :: l) = (a + d, b + e, c + f) :: ThreePoly.Raw.shift a b c l
+'ThreePoly.Raw.shift_cons' does not depend on any axioms
+ThreePoly.Raw.shift_append (a b c : Nat) (l n : ThreePoly.Raw.Poly) :
+  ThreePoly.Raw.shift a b c (l ++ n) = ThreePoly.Raw.shift a b c l ++ ThreePoly.Raw.shift a b c n
+'ThreePoly.Raw.shift_append' depends on axioms: [propext]
+ThreePoly.Raw.shift_shift (a b c d e f : Nat) (l : ThreePoly.Raw.Poly) :
+  ThreePoly.Raw.shift a b c (ThreePoly.Raw.shift d e f l) = ThreePoly.Raw.shift (a + d) (b + e) (c + f) l
+'ThreePoly.Raw.shift_shift' depends on axioms: [propext, Quot.sound]
+ThreePoly.Raw.shift_zero (l : ThreePoly.Raw.Poly) : ThreePoly.Raw.shift 0 0 0 l = l
+'ThreePoly.Raw.shift_zero' depends on axioms: [propext, Quot.sound]
+ThreePoly.Raw.coeff_shift (a b c i j k : Nat) (l : ThreePoly.Raw.Poly) :
+  ThreePoly.Raw.coeff (ThreePoly.Raw.shift a b c l) i j k =
+    if a ≤ i ∧ b ≤ j ∧ c ≤ k then ThreePoly.Raw.coeff l (i - a) (j - b) (k - c) else false
+'ThreePoly.Raw.coeff_shift' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Raw.equiv_refl (p : ThreePoly.Raw.Poly) : ThreePoly.Raw.Equiv p p
+'ThreePoly.Raw.equiv_refl' does not depend on any axioms
+ThreePoly.Raw.equiv_append {p q r s : ThreePoly.Raw.Poly} (h : ThreePoly.Raw.Equiv p q) (g : ThreePoly.Raw.Equiv r s) :
+  ThreePoly.Raw.Equiv (p ++ r) (q ++ s)
+'ThreePoly.Raw.equiv_append' depends on axioms: [propext]
+ThreePoly.Raw.equiv_shift {p q : ThreePoly.Raw.Poly} (h : ThreePoly.Raw.Equiv p q) (a b c : Nat) :
+  ThreePoly.Raw.Equiv (ThreePoly.Raw.shift a b c p) (ThreePoly.Raw.shift a b c q)
+'ThreePoly.Raw.equiv_shift' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Raw.mul_nil (p : ThreePoly.Raw.Poly) : ThreePoly.Raw.mul p [] = []
+'ThreePoly.Raw.mul_nil' depends on axioms: [propext]
+ThreePoly.Raw.mul_append_left (p q r : ThreePoly.Raw.Poly) :
+  ThreePoly.Raw.mul (p ++ q) r = ThreePoly.Raw.mul p r ++ ThreePoly.Raw.mul q r
+'ThreePoly.Raw.mul_append_left' depends on axioms: [propext]
+ThreePoly.Raw.mul_congr_right (p : ThreePoly.Raw.Poly) {q r : ThreePoly.Raw.Poly} (h : ThreePoly.Raw.Equiv q r) :
+  ThreePoly.Raw.Equiv (ThreePoly.Raw.mul p q) (ThreePoly.Raw.mul p r)
+'ThreePoly.Raw.mul_congr_right' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Raw.coeff_mul_append_right (p q r : ThreePoly.Raw.Poly) (i j k : Nat) :
+  ThreePoly.Raw.coeff (ThreePoly.Raw.mul p (q ++ r)) i j k =
+    (ThreePoly.Raw.coeff (ThreePoly.Raw.mul p q) i j k ^^ ThreePoly.Raw.coeff (ThreePoly.Raw.mul p r) i j k)
+'ThreePoly.Raw.coeff_mul_append_right' depends on axioms: [propext]
+ThreePoly.Raw.mul_singleton_right (p : ThreePoly.Raw.Poly) (a b c : Nat) :
+  ThreePoly.Raw.mul p [(a, b, c)] = ThreePoly.Raw.shift a b c p
+'ThreePoly.Raw.mul_singleton_right' depends on axioms: [propext]
+ThreePoly.Raw.mul_singleton_left (p : ThreePoly.Raw.Poly) (a b c : Nat) :
+  ThreePoly.Raw.mul [(a, b, c)] p = ThreePoly.Raw.shift a b c p
+'ThreePoly.Raw.mul_singleton_left' depends on axioms: [propext]
+ThreePoly.Raw.mul_comm (p q : ThreePoly.Raw.Poly) : ThreePoly.Raw.Equiv (ThreePoly.Raw.mul p q) (ThreePoly.Raw.mul q p)
+'ThreePoly.Raw.mul_comm' depends on axioms: [propext, Quot.sound]
+ThreePoly.Raw.mul_congr_left {p q : ThreePoly.Raw.Poly} (h : ThreePoly.Raw.Equiv p q) (r : ThreePoly.Raw.Poly) :
+  ThreePoly.Raw.Equiv (ThreePoly.Raw.mul p r) (ThreePoly.Raw.mul q r)
+'ThreePoly.Raw.mul_congr_left' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Raw.shift_mul_left (a b c : Nat) (p q : ThreePoly.Raw.Poly) :
+  ThreePoly.Raw.mul (ThreePoly.Raw.shift a b c p) q = ThreePoly.Raw.shift a b c (ThreePoly.Raw.mul p q)
+'ThreePoly.Raw.shift_mul_left' depends on axioms: [propext, Quot.sound]
+ThreePoly.Raw.mul_assoc (p q r : ThreePoly.Raw.Poly) :
+  ThreePoly.Raw.mul (ThreePoly.Raw.mul p q) r = ThreePoly.Raw.mul p (ThreePoly.Raw.mul q r)
+'ThreePoly.Raw.mul_assoc' depends on axioms: [propext, Quot.sound]
+ThreePoly.Raw.coeff_row (f : Nat → Bool) (a b n i j k : Nat) :
+  ThreePoly.Raw.coeff (ThreePoly.Raw.row f a b n) i j k = if i = a ∧ j = b ∧ k < n then f k else false
+'ThreePoly.Raw.coeff_row' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Raw.coeff_plane (f : Nat → Nat → Bool) (a n m i j k : Nat) :
+  ThreePoly.Raw.coeff (ThreePoly.Raw.plane f a m n) i j k = if i = a ∧ j < n ∧ k < m then f j k else false
+'ThreePoly.Raw.coeff_plane' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Raw.coeff_box (f : Nat → Nat → Nat → Bool) (l m n i j k : Nat) :
+  ThreePoly.Raw.coeff (ThreePoly.Raw.box f l m n) i j k = if i < n ∧ j < m ∧ k < l then f i j k else false
+'ThreePoly.Raw.coeff_box' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Raw.finite (p : ThreePoly.Raw.Poly) :
+  ∃ N, ∀ (i j k : Nat), N ≤ i + j + k → ThreePoly.Raw.coeff p i j k = false
+'ThreePoly.Raw.finite' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_coeff (p : ThreePoly.Raw.Poly) (i j k : Nat) :
+  (ThreePoly.ofRaw p).coeff i j k = ThreePoly.Raw.coeff p i j k
+'ThreePoly.ofRaw_coeff' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_eq_iff (p q : ThreePoly.Raw.Poly) : ThreePoly.ofRaw p = ThreePoly.ofRaw q ↔ ThreePoly.Raw.Equiv p q
+'ThreePoly.ofRaw_eq_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_surjective (p : ThreePoly.Poly) : ∃ l, ThreePoly.ofRaw l = p
+'ThreePoly.ofRaw_surjective' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_raw (p : ThreePoly.Poly) : ThreePoly.ofRaw (ThreePoly.raw p) = p
+'ThreePoly.ofRaw_raw' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.raw_ofRaw (l : ThreePoly.Raw.Poly) : ThreePoly.Raw.Equiv (ThreePoly.raw (ThreePoly.ofRaw l)) l
+'ThreePoly.raw_ofRaw' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.mul_ofRaw (p q : ThreePoly.Raw.Poly) :
+  ThreePoly.mul (ThreePoly.ofRaw p) (ThreePoly.ofRaw q) = ThreePoly.ofRaw (ThreePoly.Raw.mul p q)
+'ThreePoly.mul_ofRaw' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_nil : ThreePoly.ofRaw [] = ThreePoly.zero
+'ThreePoly.ofRaw_nil' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_append (p q : ThreePoly.Raw.Poly) :
+  ThreePoly.ofRaw (p ++ q) = ThreePoly.add (ThreePoly.ofRaw p) (ThreePoly.ofRaw q)
+'ThreePoly.ofRaw_append' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_one : ThreePoly.ofRaw [(0, 0, 0)] = ThreePoly.one
+'ThreePoly.ofRaw_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_shiftX (p : ThreePoly.Raw.Poly) :
+  ThreePoly.ofRaw (ThreePoly.Raw.shift 1 0 0 p) = ThreePoly.xMul (ThreePoly.ofRaw p)
+'ThreePoly.ofRaw_shiftX' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_shiftY (p : ThreePoly.Raw.Poly) :
+  ThreePoly.ofRaw (ThreePoly.Raw.shift 0 1 0 p) = ThreePoly.yMul (ThreePoly.ofRaw p)
+'ThreePoly.ofRaw_shiftY' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_X : ThreePoly.ofRaw [(1, 0, 0)] = ThreePoly.X
+'ThreePoly.ofRaw_X' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_Y : ThreePoly.ofRaw [(0, 1, 0)] = ThreePoly.Y
+'ThreePoly.ofRaw_Y' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_shiftZ (p : ThreePoly.Raw.Poly) :
+  ThreePoly.ofRaw (ThreePoly.Raw.shift 0 0 1 p) = ThreePoly.zMul (ThreePoly.ofRaw p)
+'ThreePoly.ofRaw_shiftZ' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.ofRaw_Z : ThreePoly.ofRaw [(0, 0, 1)] = ThreePoly.Z
+'ThreePoly.ofRaw_Z' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.mul_comm (p q : ThreePoly.Poly) : ThreePoly.mul p q = ThreePoly.mul q p
+'ThreePoly.mul_comm' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.mul_assoc (p q r : ThreePoly.Poly) : ThreePoly.mul (ThreePoly.mul p q) r = ThreePoly.mul p (ThreePoly.mul q r)
+'ThreePoly.mul_assoc' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.add_mul (p q r : ThreePoly.Poly) :
+  ThreePoly.mul (ThreePoly.add p q) r = ThreePoly.add (ThreePoly.mul p r) (ThreePoly.mul q r)
+'ThreePoly.add_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.mul_add (p q r : ThreePoly.Poly) :
+  ThreePoly.mul p (ThreePoly.add q r) = ThreePoly.add (ThreePoly.mul p q) (ThreePoly.mul p r)
+'ThreePoly.mul_add' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.zero_mul (p : ThreePoly.Poly) : ThreePoly.mul ThreePoly.zero p = ThreePoly.zero
+'ThreePoly.zero_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.mul_zero (p : ThreePoly.Poly) : ThreePoly.mul p ThreePoly.zero = ThreePoly.zero
+'ThreePoly.mul_zero' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.one_mul (p : ThreePoly.Poly) : ThreePoly.mul ThreePoly.one p = p
+'ThreePoly.one_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.mul_one (p : ThreePoly.Poly) : ThreePoly.mul p ThreePoly.one = p
+'ThreePoly.mul_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.X_mul (p : ThreePoly.Poly) : ThreePoly.mul ThreePoly.X p = ThreePoly.xMul p
+'ThreePoly.X_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Y_mul (p : ThreePoly.Poly) : ThreePoly.mul ThreePoly.Y p = ThreePoly.yMul p
+'ThreePoly.Y_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.mul_xMul (p q : ThreePoly.Poly) : ThreePoly.mul p (ThreePoly.xMul q) = ThreePoly.xMul (ThreePoly.mul p q)
+'ThreePoly.mul_xMul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.mul_yMul (p q : ThreePoly.Poly) : ThreePoly.mul p (ThreePoly.yMul q) = ThreePoly.yMul (ThreePoly.mul p q)
+'ThreePoly.mul_yMul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.Z_mul (p : ThreePoly.Poly) : ThreePoly.mul ThreePoly.Z p = ThreePoly.zMul p
+'ThreePoly.Z_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.mul_zMul (p q : ThreePoly.Poly) : ThreePoly.mul p (ThreePoly.zMul q) = ThreePoly.zMul (ThreePoly.mul p q)
+'ThreePoly.mul_zMul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.xMul_mul (p q : ThreePoly.Poly) : ThreePoly.mul (ThreePoly.xMul p) q = ThreePoly.xMul (ThreePoly.mul p q)
+'ThreePoly.xMul_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.yMul_mul (p q : ThreePoly.Poly) : ThreePoly.mul (ThreePoly.yMul p) q = ThreePoly.yMul (ThreePoly.mul p q)
+'ThreePoly.yMul_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.zMul_mul (p q : ThreePoly.Poly) : ThreePoly.mul (ThreePoly.zMul p) q = ThreePoly.zMul (ThreePoly.mul p q)
+'ThreePoly.zMul_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.constant_mul (c : Bool) (p : ThreePoly.Poly) : ThreePoly.mul (ThreePoly.constant c) p = ThreePoly.scale c p
+'ThreePoly.constant_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.polynomial_ring_laws :
+  (∀ (p q : ThreePoly.Poly), ThreePoly.add p q = ThreePoly.add q p) ∧
+    (∀ (p q r : ThreePoly.Poly), ThreePoly.add (ThreePoly.add p q) r = ThreePoly.add p (ThreePoly.add q r)) ∧
+      (∀ (p : ThreePoly.Poly), ThreePoly.add p ThreePoly.zero = p) ∧
+        (∀ (p : ThreePoly.Poly), ThreePoly.add p p = ThreePoly.zero) ∧
+          (∀ (p q : ThreePoly.Poly), ThreePoly.mul p q = ThreePoly.mul q p) ∧
+            (∀ (p q r : ThreePoly.Poly), ThreePoly.mul (ThreePoly.mul p q) r = ThreePoly.mul p (ThreePoly.mul q r)) ∧
+              (∀ (p : ThreePoly.Poly), ThreePoly.mul ThreePoly.one p = p) ∧
+                ∀ (p q r : ThreePoly.Poly),
+                  ThreePoly.mul p (ThreePoly.add q r) = ThreePoly.add (ThreePoly.mul p q) (ThreePoly.mul p r)
+'ThreePoly.polynomial_ring_laws' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.shift_homogeneous_iff (p : ThreePoly.Poly) (d s : Nat) :
+  ThreePoly.ShiftHomogeneous p s (d + s) ↔ ThreePoly.Homogeneous p d
+'ThreePoly.shift_homogeneous_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.zero_homogeneous (d : Nat) : ThreePoly.Homogeneous ThreePoly.zero d
+'ThreePoly.zero_homogeneous' does not depend on any axioms
+ThreePoly.zero_shift_homogeneous (s d : Nat) : ThreePoly.ShiftHomogeneous ThreePoly.zero s d
+'ThreePoly.zero_shift_homogeneous' does not depend on any axioms
+ThreePoly.one_homogeneous : ThreePoly.Homogeneous ThreePoly.one 0
+'ThreePoly.one_homogeneous' depends on axioms: [propext, Quot.sound]
+ThreePoly.constant_homogeneous (c : Bool) : ThreePoly.Homogeneous (ThreePoly.constant c) 0
+'ThreePoly.constant_homogeneous' depends on axioms: [propext, Quot.sound]
+ThreePoly.one_shift_homogeneous (s : Nat) : ThreePoly.ShiftHomogeneous ThreePoly.one s s
+'ThreePoly.one_shift_homogeneous' depends on axioms: [propext, Quot.sound]
+ThreePoly.constant_shift_homogeneous (c : Bool) (s : Nat) : ThreePoly.ShiftHomogeneous (ThreePoly.constant c) s s
+'ThreePoly.constant_shift_homogeneous' depends on axioms: [propext, Quot.sound]
+ThreePoly.homogeneous_add {p q : ThreePoly.Poly} {d : Nat} (hp : ThreePoly.Homogeneous p d)
+  (hq : ThreePoly.Homogeneous q d) : ThreePoly.Homogeneous (ThreePoly.add p q) d
+'ThreePoly.homogeneous_add' depends on axioms: [propext, Quot.sound]
+ThreePoly.Raw.coeff_true_mem {p : ThreePoly.Raw.Poly} {i j k : Nat} (h : ThreePoly.Raw.coeff p i j k = true) :
+  (i, j, k) ∈ p
+'ThreePoly.Raw.coeff_true_mem' depends on axioms: [propext, Quot.sound]
+ThreePoly.Raw.row_mem {f : Nat → Bool} {a b n : Nat} {m : ThreePoly.Raw.Monomial} (hm : m ∈ ThreePoly.Raw.row f a b n) :
+  m.fst = a ∧ m.snd.fst = b ∧ f m.snd.snd = true
+'ThreePoly.Raw.row_mem' depends on axioms: [propext]
+ThreePoly.Raw.plane_mem {f : Nat → Nat → Bool} {a n k : Nat} {m : ThreePoly.Raw.Monomial}
+  (hm : m ∈ ThreePoly.Raw.plane f a k n) : m.fst = a ∧ f m.snd.fst m.snd.snd = true
+'ThreePoly.Raw.plane_mem' depends on axioms: [propext]
+ThreePoly.Raw.box_mem {f : Nat → Nat → Nat → Bool} {l n k : Nat} {m : ThreePoly.Raw.Monomial}
+  (hm : m ∈ ThreePoly.Raw.box f l k n) : f m.fst m.snd.fst m.snd.snd = true
+'ThreePoly.Raw.box_mem' depends on axioms: [propext]
+ThreePoly.Raw.mul_monomial_degree {p q : ThreePoly.Raw.Poly} {d e : Nat}
+  (hp : ∀ (m : ThreePoly.Raw.Monomial), m ∈ p → m.fst + m.snd.fst + m.snd.snd = d)
+  (hq : ∀ (m : ThreePoly.Raw.Monomial), m ∈ q → m.fst + m.snd.fst + m.snd.snd = e) (m : ThreePoly.Raw.Monomial) :
+  m ∈ ThreePoly.Raw.mul p q → m.fst + m.snd.fst + m.snd.snd = d + e
+'ThreePoly.Raw.mul_monomial_degree' depends on axioms: [propext, Quot.sound]
+ThreePoly.homogeneous_raw_representation {p : ThreePoly.Poly} {d : Nat} (hp : ThreePoly.Homogeneous p d) :
+  ∃ l, ThreePoly.ofRaw l = p ∧ ∀ (m : ThreePoly.Raw.Monomial), m ∈ l → m.fst + m.snd.fst + m.snd.snd = d
+'ThreePoly.homogeneous_raw_representation' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.homogeneous_mul {p q : ThreePoly.Poly} {d e : Nat} (hp : ThreePoly.Homogeneous p d)
+  (hq : ThreePoly.Homogeneous q e) : ThreePoly.Homogeneous (ThreePoly.mul p q) (d + e)
+'ThreePoly.homogeneous_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.xMul_homogeneous_iff (p : ThreePoly.Poly) (d : Nat) :
+  ThreePoly.Homogeneous (ThreePoly.xMul p) (d + 1) ↔ ThreePoly.Homogeneous p d
+'ThreePoly.xMul_homogeneous_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.xMul_shift_homogeneous_iff (p : ThreePoly.Poly) (s d : Nat) :
+  ThreePoly.ShiftHomogeneous (ThreePoly.xMul p) s d ↔ ThreePoly.ShiftHomogeneous p (s + 1) d
+'ThreePoly.xMul_shift_homogeneous_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.X_homogeneous : ThreePoly.Homogeneous ThreePoly.X 1
+'ThreePoly.X_homogeneous' depends on axioms: [propext, Quot.sound]
+ThreePoly.yMul_homogeneous_iff (p : ThreePoly.Poly) (d : Nat) :
+  ThreePoly.Homogeneous (ThreePoly.yMul p) (d + 1) ↔ ThreePoly.Homogeneous p d
+'ThreePoly.yMul_homogeneous_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.yMul_shift_homogeneous_iff (p : ThreePoly.Poly) (s d : Nat) :
+  ThreePoly.ShiftHomogeneous (ThreePoly.yMul p) s d ↔ ThreePoly.ShiftHomogeneous p (s + 1) d
+'ThreePoly.yMul_shift_homogeneous_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.Y_homogeneous : ThreePoly.Homogeneous ThreePoly.Y 1
+'ThreePoly.Y_homogeneous' depends on axioms: [propext, Quot.sound]
+ThreePoly.zMul_homogeneous_iff (p : ThreePoly.Poly) (d : Nat) :
+  ThreePoly.Homogeneous (ThreePoly.zMul p) (d + 1) ↔ ThreePoly.Homogeneous p d
+'ThreePoly.zMul_homogeneous_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.zMul_shift_homogeneous_iff (p : ThreePoly.Poly) (s d : Nat) :
+  ThreePoly.ShiftHomogeneous (ThreePoly.zMul p) s d ↔ ThreePoly.ShiftHomogeneous p (s + 1) d
+'ThreePoly.zMul_shift_homogeneous_iff' depends on axioms: [propext, Quot.sound]
+ThreePoly.Z_homogeneous : ThreePoly.Homogeneous ThreePoly.Z 1
+'ThreePoly.Z_homogeneous' depends on axioms: [propext, Quot.sound]
+ThreePoly.constant_split (p : ThreePoly.Poly) :
+  p =
+    ThreePoly.add (ThreePoly.constant (p.coeff 0 0 0))
+      (ThreePoly.add (ThreePoly.xMul (ThreePoly.dropX p))
+        (ThreePoly.add (ThreePoly.yMul (ThreePoly.axisY p)) (ThreePoly.zMul (ThreePoly.axisZ p))))
+'ThreePoly.constant_split' depends on axioms: [propext, Quot.sound]
+ThreePoly.mul_constant_coefficient (p q : ThreePoly.Poly) :
+  (ThreePoly.mul p q).coeff 0 0 0 = (p.coeff 0 0 0 && q.coeff 0 0 0)
+'ThreePoly.mul_constant_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.maximal_iff_generated (p : ThreePoly.Poly) : ThreePoly.Maximal p ↔ ThreePoly.MaximalGenerated p
+'ThreePoly.maximal_iff_generated' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.maximal_zero : ThreePoly.Maximal ThreePoly.zero
+'ThreePoly.maximal_zero' does not depend on any axioms
+ThreePoly.maximal_add {p q : ThreePoly.Poly} (hp : ThreePoly.Maximal p) (hq : ThreePoly.Maximal q) :
+  ThreePoly.Maximal (ThreePoly.add p q)
+'ThreePoly.maximal_add' depends on axioms: [propext, Quot.sound]
+ThreePoly.maximal_mul (p : ThreePoly.Poly) {q : ThreePoly.Poly} (hq : ThreePoly.Maximal q) :
+  ThreePoly.Maximal (ThreePoly.mul p q)
+'ThreePoly.maximal_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.maximal_generated_least (J : ThreePoly.Poly → Prop)
+  (hadd : ∀ (p q : ThreePoly.Poly), J p → J q → J (ThreePoly.add p q))
+  (hmul : ∀ (p q : ThreePoly.Poly), J q → J (ThreePoly.mul p q)) (hx : J ThreePoly.X) (hy : J ThreePoly.Y)
+  (hz : J ThreePoly.Z) (p : ThreePoly.Poly) : ThreePoly.Maximal p → J p
+'ThreePoly.maximal_generated_least' depends on axioms: [propext, Classical.choice, Quot.sound]
+ThreePoly.residue_field_certificate :
+  (∀ (p q : ThreePoly.Poly), (ThreePoly.add p q).coeff 0 0 0 = (p.coeff 0 0 0 ^^ q.coeff 0 0 0)) ∧
+    (∀ (p q : ThreePoly.Poly), (ThreePoly.mul p q).coeff 0 0 0 = (p.coeff 0 0 0 && q.coeff 0 0 0)) ∧
+      ThreePoly.one.coeff 0 0 0 = true ∧
+        (∀ (c : Bool), ∃ p, p.coeff 0 0 0 = c) ∧
+          ∀ (p : ThreePoly.Poly), p.coeff 0 0 0 = false ↔ ThreePoly.MaximalGenerated p
+'ThreePoly.residue_field_certificate' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Graphs.K2_simple : TLMC3322.Graphs.Simple TLMC3322.Graphs.K2
+'TLMC3322.Graphs.K2_simple' does not depend on any axioms
+TLMC3322.Graphs.K3_simple : TLMC3322.Graphs.Simple TLMC3322.Graphs.K3
+'TLMC3322.Graphs.K3_simple' does not depend on any axioms
+TLMC3322.Graphs.K2_bipartite : TLMC3322.Graphs.Bipartite TLMC3322.Graphs.K2
+'TLMC3322.Graphs.K2_bipartite' does not depend on any axioms
+TLMC3322.Graphs.K2_forest : TLMC3322.Graphs.Forest TLMC3322.Graphs.K2
+'TLMC3322.Graphs.K2_forest' depends on axioms: [propext, Quot.sound]
+TLMC3322.Graphs.K3_not_bipartite : ¬TLMC3322.Graphs.Bipartite TLMC3322.Graphs.K3
+'TLMC3322.Graphs.K3_not_bipartite' depends on axioms: [propext]
+TLMC3322.Graphs.matching_length_le_one {n : Nat} (G : TLMC3322.Graphs.Graph n)
+  (h : ∀ (a b c d : Fin n), G a b = true → G c d = true → ¬TLMC3322.Graphs.disjointEdges (a, b) (c, d))
+  (edges : List (Fin n × Fin n)) (hm : TLMC3322.Graphs.Matching G edges) : edges.length ≤ 1
+'TLMC3322.Graphs.matching_length_le_one' depends on axioms: [propext, Quot.sound]
+TLMC3322.Graphs.K2_matching_one : TLMC3322.Graphs.MatchingNumber TLMC3322.Graphs.K2 1
+'TLMC3322.Graphs.K2_matching_one' depends on axioms: [propext, Quot.sound]
+TLMC3322.Graphs.K3_matching_one : TLMC3322.Graphs.MatchingNumber TLMC3322.Graphs.K3 1
+'TLMC3322.Graphs.K3_matching_one' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.generator_action (p : TLMC506.Poly) :
+  TLMC506.mul TLMC3322.Principal.generator p = TLMC3322.Principal.xyMul p
+'TLMC3322.Principal.generator_action' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Principal.xyMul_injective {p q : TLMC506.Poly} (h : TLMC3322.Principal.xyMul p = TLMC3322.Principal.xyMul q) :
+  p = q
+'TLMC3322.Principal.xyMul_injective' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.xyMul_zero : TLMC3322.Principal.xyMul TLMC506.zero = TLMC506.zero
+'TLMC3322.Principal.xyMul_zero' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.xyMul_add (p q : TLMC506.Poly) :
+  TLMC3322.Principal.xyMul (TLMC506.add p q) = TLMC506.add (TLMC3322.Principal.xyMul p) (TLMC3322.Principal.xyMul q)
+'TLMC3322.Principal.xyMul_add' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.xyMul_linear (r p : TLMC506.Poly) :
+  TLMC3322.Principal.xyMul (TLMC506.mul r p) = TLMC506.mul r (TLMC3322.Principal.xyMul p)
+'TLMC3322.Principal.xyMul_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Principal.ideal_laws : TLMC3322.Principal.IsIdeal TLMC3322.Principal.InIdeal
+'TLMC3322.Principal.ideal_laws' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Principal.actual_edge_ideal : TLMC3322.Principal.IsEdgeIdeal TLMC3322.Principal.InIdeal
+'TLMC3322.Principal.actual_edge_ideal' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Principal.xyMul_degree (p : TLMC506.Poly) (d : Nat) :
+  TLMC3322.Principal.Homogeneous (TLMC3322.Principal.xyMul p) d ↔ TLMC3322.Principal.ShiftHomogeneous p 2 d
+'TLMC3322.Principal.xyMul_degree' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.verified_minimal_resolution : TLMC3322.Principal.VerifiedMinimalResolution
+'TLMC3322.Principal.verified_minimal_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Principal.maximal_is_generated (p : TLMC506.Poly) : TLMC3322.Principal.Maximal p ↔ TLMC506.MaximalGenerated p
+'TLMC3322.Principal.maximal_is_generated' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Principal.reduction_ring_hom :
+  (∀ (p q : TLMC506.Poly),
+      TLMC3322.Principal.reduce (TLMC506.add p q) = (TLMC3322.Principal.reduce p ^^ TLMC3322.Principal.reduce q)) ∧
+    (∀ (p q : TLMC506.Poly),
+        TLMC3322.Principal.reduce (TLMC506.mul p q) = (TLMC3322.Principal.reduce p && TLMC3322.Principal.reduce q)) ∧
+      TLMC3322.Principal.reduce TLMC506.one = true
+'TLMC3322.Principal.reduction_ring_hom' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Principal.residue_kernel (p : TLMC506.Poly) :
+  TLMC3322.Principal.reduce p = false ↔ TLMC3322.Principal.Maximal p
+'TLMC3322.Principal.residue_kernel' does not depend on any axioms
+TLMC3322.Principal.reduce_lift (b : Bool) : TLMC3322.Principal.reduce (TLMC3322.Principal.lift b) = b
+'TLMC3322.Principal.reduce_lift' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.residue_equivalence (p q : TLMC506.Poly) :
+  TLMC3322.Principal.Maximal (TLMC506.add p q) ↔ TLMC3322.Principal.reduce p = TLMC3322.Principal.reduce q
+'TLMC3322.Principal.residue_equivalence' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.maximal_free_rank_one (p : TLMC506.Poly) :
+  TLMC3322.Principal.Maximal p ↔ ∃ a, TLMC3322.Principal.Maximal a ∧ p = TLMC506.mul a TLMC506.one
+'TLMC3322.Principal.maximal_free_rank_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Principal.reduction_respects_shift (p : TLMC506.Poly) (d : Nat)
+  (h : TLMC3322.Principal.ShiftHomogeneous p 2 d) :
+  TLMC3322.Principal.ReducedHomogeneous (TLMC3322.Principal.reduce p) d
+'TLMC3322.Principal.reduction_respects_shift' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.homogeneous_residue_lift (b : Bool) (d : Nat) (h : TLMC3322.Principal.ReducedHomogeneous b d) :
+  TLMC3322.Principal.ShiftHomogeneous (TLMC3322.Principal.lift b) 2 d
+'TLMC3322.Principal.homogeneous_residue_lift' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.betti_support_is_homology (i d : Nat) :
+  TLMC3322.Principal.BettiSupport i d ↔ TLMC3322.Principal.HomologySupport i d
+'TLMC3322.Principal.betti_support_is_homology' depends on axioms: [propext, Quot.sound]
+TLMC3322.Principal.betti_support_iff (i d : Nat) : TLMC3322.Principal.BettiSupport i d ↔ i = 0 ∧ d = 2
+'TLMC3322.Principal.betti_support_iff' does not depend on any axioms
+TLMC3322.Principal.regularity_two : TLMC3322.Principal.Regularity 2
+'TLMC3322.Principal.regularity_two' does not depend on any axioms
+TLMC3322.Principal.regularity_not_one : ¬TLMC3322.Principal.Regularity 1
+'TLMC3322.Principal.regularity_not_one' does not depend on any axioms
+TLMC3322.Triangle.differential1_zero : TLMC3322.Triangle.differential1 TLMC3322.Triangle.zero3 = ThreePoly.zero
+'TLMC3322.Triangle.differential1_zero' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.differential2_zero : TLMC3322.Triangle.differential2 TLMC3322.Triangle.zero2 = TLMC3322.Triangle.zero3
+'TLMC3322.Triangle.differential2_zero' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.differential1_add (v w : TLMC3322.Triangle.Free3) :
+  TLMC3322.Triangle.differential1 (TLMC3322.Triangle.add3 v w) =
+    ThreePoly.add (TLMC3322.Triangle.differential1 v) (TLMC3322.Triangle.differential1 w)
+'TLMC3322.Triangle.differential1_add' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.differential2_add (v w : TLMC3322.Triangle.Free2) :
+  TLMC3322.Triangle.differential2 (TLMC3322.Triangle.add2 v w) =
+    TLMC3322.Triangle.add3 (TLMC3322.Triangle.differential2 v) (TLMC3322.Triangle.differential2 w)
+'TLMC3322.Triangle.differential2_add' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.composition_zero (v : TLMC3322.Triangle.Free2) :
+  TLMC3322.Triangle.differential1 (TLMC3322.Triangle.differential2 v) = ThreePoly.zero
+'TLMC3322.Triangle.composition_zero' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.differential2_injective {v w : TLMC3322.Triangle.Free2}
+  (h : TLMC3322.Triangle.differential2 v = TLMC3322.Triangle.differential2 w) : v = w
+'TLMC3322.Triangle.differential2_injective' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.kernel_exact (v : TLMC3322.Triangle.Free3) :
+  TLMC3322.Triangle.differential1 v = ThreePoly.zero ↔ ∃ u, TLMC3322.Triangle.differential2 u = v
+'TLMC3322.Triangle.kernel_exact' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.ideal_zero : TLMC3322.Triangle.InIdeal ThreePoly.zero
+'TLMC3322.Triangle.ideal_zero' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.ideal_add {p q : ThreePoly.Poly} (hp : TLMC3322.Triangle.InIdeal p)
+  (hq : TLMC3322.Triangle.InIdeal q) : TLMC3322.Triangle.InIdeal (ThreePoly.add p q)
+'TLMC3322.Triangle.ideal_add' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.differential1_linear (r : ThreePoly.Poly) (v : TLMC3322.Triangle.Free3) :
+  TLMC3322.Triangle.differential1 (TLMC3322.Triangle.mul3 r v) = ThreePoly.mul r (TLMC3322.Triangle.differential1 v)
+'TLMC3322.Triangle.differential1_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.differential2_linear (r : ThreePoly.Poly) (v : TLMC3322.Triangle.Free2) :
+  TLMC3322.Triangle.differential2 (TLMC3322.Triangle.mul2 r v) =
+    TLMC3322.Triangle.mul3 r (TLMC3322.Triangle.differential2 v)
+'TLMC3322.Triangle.differential2_linear' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.ideal_mul (r : ThreePoly.Poly) {p : ThreePoly.Poly} (h : TLMC3322.Triangle.InIdeal p) :
+  TLMC3322.Triangle.InIdeal (ThreePoly.mul r p)
+'TLMC3322.Triangle.ideal_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.ideal_laws : TLMC3322.Triangle.IsIdeal TLMC3322.Triangle.InIdeal
+'TLMC3322.Triangle.ideal_laws' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.generator_xy :
+  TLMC3322.Triangle.differential1 TLMC3322.Triangle.e0 = ThreePoly.mul ThreePoly.X ThreePoly.Y
+'TLMC3322.Triangle.generator_xy' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.generator_xz :
+  TLMC3322.Triangle.differential1 TLMC3322.Triangle.e1 = ThreePoly.mul ThreePoly.X ThreePoly.Z
+'TLMC3322.Triangle.generator_xz' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.generator_yz :
+  TLMC3322.Triangle.differential1 TLMC3322.Triangle.e2 = ThreePoly.mul ThreePoly.Y ThreePoly.Z
+'TLMC3322.Triangle.generator_yz' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.actual_edge_ideal : TLMC3322.Triangle.IsEdgeIdeal TLMC3322.Triangle.InIdeal
+'TLMC3322.Triangle.actual_edge_ideal' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.add_cancel_middle (p q r : ThreePoly.Poly) :
+  ThreePoly.add (ThreePoly.add p q) (ThreePoly.add q r) = ThreePoly.add p r
+'TLMC3322.Triangle.add_cancel_middle' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.add_four (p q r s : ThreePoly.Poly) :
+  ThreePoly.add (ThreePoly.add p q) (ThreePoly.add r s) = ThreePoly.add (ThreePoly.add p r) (ThreePoly.add q s)
+'TLMC3322.Triangle.add_four' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.project_add (p q : ThreePoly.Poly) :
+  TLMC3322.Triangle.project (ThreePoly.add p q) =
+    TLMC3322.Triangle.quotientAdd (TLMC3322.Triangle.project p) (TLMC3322.Triangle.project q)
+'TLMC3322.Triangle.project_add' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.project_mul (r p : ThreePoly.Poly) :
+  TLMC3322.Triangle.project (ThreePoly.mul r p) = TLMC3322.Triangle.quotientMul r (TLMC3322.Triangle.project p)
+'TLMC3322.Triangle.project_mul' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.projection_surjective (q : TLMC3322.Triangle.QuotientModule) : ∃ p, TLMC3322.Triangle.project p = q
+'TLMC3322.Triangle.projection_surjective' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.projection_kernel (p : ThreePoly.Poly) :
+  TLMC3322.Triangle.project p = TLMC3322.Triangle.project ThreePoly.zero ↔ TLMC3322.Triangle.InIdeal p
+'TLMC3322.Triangle.projection_kernel' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.quotient_module_laws :
+  (∀ (a b : TLMC3322.Triangle.QuotientModule), TLMC3322.Triangle.quotientAdd a b = TLMC3322.Triangle.quotientAdd b a) ∧
+    (∀ (a b c : TLMC3322.Triangle.QuotientModule),
+        TLMC3322.Triangle.quotientAdd (TLMC3322.Triangle.quotientAdd a b) c =
+          TLMC3322.Triangle.quotientAdd a (TLMC3322.Triangle.quotientAdd b c)) ∧
+      (∀ (a : TLMC3322.Triangle.QuotientModule),
+          TLMC3322.Triangle.quotientAdd a (TLMC3322.Triangle.project ThreePoly.zero) = a ∧
+            TLMC3322.Triangle.quotientAdd a a = TLMC3322.Triangle.project ThreePoly.zero) ∧
+        (∀ (a : TLMC3322.Triangle.QuotientModule), TLMC3322.Triangle.quotientMul ThreePoly.one a = a) ∧
+          (∀ (r s : ThreePoly.Poly) (a : TLMC3322.Triangle.QuotientModule),
+              TLMC3322.Triangle.quotientMul (ThreePoly.mul r s) a =
+                TLMC3322.Triangle.quotientMul r (TLMC3322.Triangle.quotientMul s a)) ∧
+            (∀ (r : ThreePoly.Poly) (a b : TLMC3322.Triangle.QuotientModule),
+                TLMC3322.Triangle.quotientMul r (TLMC3322.Triangle.quotientAdd a b) =
+                  TLMC3322.Triangle.quotientAdd (TLMC3322.Triangle.quotientMul r a)
+                    (TLMC3322.Triangle.quotientMul r b)) ∧
+              ∀ (r s : ThreePoly.Poly) (a : TLMC3322.Triangle.QuotientModule),
+                TLMC3322.Triangle.quotientMul (ThreePoly.add r s) a =
+                  TLMC3322.Triangle.quotientAdd (TLMC3322.Triangle.quotientMul r a) (TLMC3322.Triangle.quotientMul s a)
+'TLMC3322.Triangle.quotient_module_laws' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.shift_add {a b : ThreePoly.Poly} {s d : Nat} (ha : ThreePoly.ShiftHomogeneous a s d)
+  (hb : ThreePoly.ShiftHomogeneous b s d) : ThreePoly.ShiftHomogeneous (ThreePoly.add a b) s d
+'TLMC3322.Triangle.shift_add' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.differential1_homogeneous (v : TLMC3322.Triangle.Free3) (d : Nat) (h : TLMC3322.Triangle.Hom3 v d) :
+  ThreePoly.Homogeneous (TLMC3322.Triangle.differential1 v) d
+'TLMC3322.Triangle.differential1_homogeneous' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.differential2_homogeneous_iff (v : TLMC3322.Triangle.Free2) (d : Nat) :
+  TLMC3322.Triangle.Hom3 (TLMC3322.Triangle.differential2 v) d ↔ TLMC3322.Triangle.Hom2 v d
+'TLMC3322.Triangle.differential2_homogeneous_iff' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.projection_homogeneous (p : ThreePoly.Poly) (d : Nat) (h : ThreePoly.Homogeneous p d) :
+  TLMC3322.Triangle.QuotientHomogeneous (TLMC3322.Triangle.project p) d
+'TLMC3322.Triangle.projection_homogeneous' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.reduce2_lift (v : TLMC3322.Triangle.Residue2) :
+  TLMC3322.Triangle.reduce2 (TLMC3322.Triangle.lift2 v) = v
+'TLMC3322.Triangle.reduce2_lift' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.reduce3_lift (v : TLMC3322.Triangle.Residue3) :
+  TLMC3322.Triangle.reduce3 (TLMC3322.Triangle.lift3 v) = v
+'TLMC3322.Triangle.reduce3_lift' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.residue_kernel2 (v : TLMC3322.Triangle.Free2) :
+  TLMC3322.Triangle.reduce2 v = TLMC3322.Triangle.residueZero2 ↔ TLMC3322.Triangle.MaximalFree2 v
+'TLMC3322.Triangle.residue_kernel2' depends on axioms: [propext]
+TLMC3322.Triangle.residue_kernel3 (v : TLMC3322.Triangle.Free3) :
+  TLMC3322.Triangle.reduce3 v = TLMC3322.Triangle.residueZero3 ↔ TLMC3322.Triangle.MaximalFree3 v
+'TLMC3322.Triangle.residue_kernel3' depends on axioms: [propext]
+TLMC3322.Triangle.maximal_free2_generated (v : TLMC3322.Triangle.Free2) :
+  TLMC3322.Triangle.MaximalFree2 v ↔
+    ∃ a b,
+      ThreePoly.Maximal a ∧
+        ThreePoly.Maximal b ∧
+          v =
+            TLMC3322.Triangle.add2 (TLMC3322.Triangle.mul2 a TLMC3322.Triangle.f0)
+              (TLMC3322.Triangle.mul2 b TLMC3322.Triangle.f1)
+'TLMC3322.Triangle.maximal_free2_generated' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.maximal_free3_generated (v : TLMC3322.Triangle.Free3) :
+  TLMC3322.Triangle.MaximalFree3 v ↔
+    ∃ a b c,
+      ThreePoly.Maximal a ∧
+        ThreePoly.Maximal b ∧
+          ThreePoly.Maximal c ∧
+            v =
+              TLMC3322.Triangle.add3
+                (TLMC3322.Triangle.add3 (TLMC3322.Triangle.mul3 a TLMC3322.Triangle.e0)
+                  (TLMC3322.Triangle.mul3 b TLMC3322.Triangle.e1))
+                (TLMC3322.Triangle.mul3 c TLMC3322.Triangle.e2)
+'TLMC3322.Triangle.maximal_free3_generated' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.differential1_minimal (v : TLMC3322.Triangle.Free3) :
+  ThreePoly.Maximal (TLMC3322.Triangle.differential1 v)
+'TLMC3322.Triangle.differential1_minimal' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.differential2_minimal (v : TLMC3322.Triangle.Free2) :
+  TLMC3322.Triangle.MaximalFree3 (TLMC3322.Triangle.differential2 v)
+'TLMC3322.Triangle.differential2_minimal' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.reduced_differential1_zero (v : TLMC3322.Triangle.Free3) :
+  TLMC3322.Triangle.reduce0 (TLMC3322.Triangle.differential1 v) = false
+'TLMC3322.Triangle.reduced_differential1_zero' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.reduced_differential2_zero (v : TLMC3322.Triangle.Free2) :
+  TLMC3322.Triangle.reduce3 (TLMC3322.Triangle.differential2 v) = TLMC3322.Triangle.residueZero3
+'TLMC3322.Triangle.reduced_differential2_zero' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.reduce_respects_shift (p : ThreePoly.Poly) (s d : Nat) (h : ThreePoly.ShiftHomogeneous p s d) :
+  TLMC3322.Triangle.ReducedHomogeneous (TLMC3322.Triangle.reduce0 p) s d
+'TLMC3322.Triangle.reduce_respects_shift' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.constant_respects_shift (b : Bool) (s d : Nat) (h : TLMC3322.Triangle.ReducedHomogeneous b s d) :
+  ThreePoly.ShiftHomogeneous (ThreePoly.constant b) s d
+'TLMC3322.Triangle.constant_respects_shift' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.reduce2_homogeneous (v : TLMC3322.Triangle.Free2) (d : Nat) (h : TLMC3322.Triangle.Hom2 v d) :
+  TLMC3322.Triangle.ReducedHom2 (TLMC3322.Triangle.reduce2 v) 3 d
+'TLMC3322.Triangle.reduce2_homogeneous' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.reduce3_homogeneous (v : TLMC3322.Triangle.Free3) (d : Nat) (h : TLMC3322.Triangle.Hom3 v d) :
+  TLMC3322.Triangle.ReducedHom3 (TLMC3322.Triangle.reduce3 v) 2 d
+'TLMC3322.Triangle.reduce3_homogeneous' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.lift2_homogeneous (v : TLMC3322.Triangle.Residue2) (d : Nat)
+  (h : TLMC3322.Triangle.ReducedHom2 v 3 d) : TLMC3322.Triangle.Hom2 (TLMC3322.Triangle.lift2 v) d
+'TLMC3322.Triangle.lift2_homogeneous' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.lift3_homogeneous (v : TLMC3322.Triangle.Residue3) (d : Nat)
+  (h : TLMC3322.Triangle.ReducedHom3 v 2 d) : TLMC3322.Triangle.Hom3 (TLMC3322.Triangle.lift3 v) d
+'TLMC3322.Triangle.lift3_homogeneous' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.verified_minimal_resolution : TLMC3322.Triangle.VerifiedMinimalResolution
+'TLMC3322.Triangle.verified_minimal_resolution' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.residueD1_zero (v : TLMC3322.Triangle.Residue3) : TLMC3322.Triangle.residueD1 v = false
+'TLMC3322.Triangle.residueD1_zero' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.residueD2_zero (v : TLMC3322.Triangle.Residue2) :
+  TLMC3322.Triangle.residueD2 v = TLMC3322.Triangle.residueZero3
+'TLMC3322.Triangle.residueD2_zero' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.residueD1_descends (v : TLMC3322.Triangle.Free3) :
+  TLMC3322.Triangle.residueD1 (TLMC3322.Triangle.reduce3 v) =
+    TLMC3322.Triangle.reduce0 (TLMC3322.Triangle.differential1 v)
+'TLMC3322.Triangle.residueD1_descends' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.residueD2_descends (v : TLMC3322.Triangle.Free2) :
+  TLMC3322.Triangle.residueD2 (TLMC3322.Triangle.reduce2 v) =
+    TLMC3322.Triangle.reduce3 (TLMC3322.Triangle.differential2 v)
+'TLMC3322.Triangle.residueD2_descends' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.residueD1_image (b : Bool) : (∃ v, TLMC3322.Triangle.residueD1 v = b) ↔ b = false
+'TLMC3322.Triangle.residueD1_image' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.residueD2_image (v : TLMC3322.Triangle.Residue3) :
+  (∃ u, TLMC3322.Triangle.residueD2 u = v) ↔ v = TLMC3322.Triangle.residueZero3
+'TLMC3322.Triangle.residueD2_image' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.residueD3_image (v : TLMC3322.Triangle.Residue2) :
+  (∃ u, TLMC3322.Triangle.residueD3 u = v) ↔ v = TLMC3322.Triangle.residueZero2
+'TLMC3322.Triangle.residueD3_image' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.betti_support_is_homology (i d : Nat) :
+  TLMC3322.Triangle.BettiSupport i d ↔ TLMC3322.Triangle.HomologySupport i d
+'TLMC3322.Triangle.betti_support_is_homology' depends on axioms: [propext, Quot.sound]
+TLMC3322.Triangle.scalar_support (s d : Nat) : (∃ b, b ≠ false ∧ TLMC3322.Triangle.ReducedHomogeneous b s d) ↔ d = s
+'TLMC3322.Triangle.scalar_support' does not depend on any axioms
+TLMC3322.Triangle.rank_two_support (s d : Nat) :
+  (∃ v, v ≠ TLMC3322.Triangle.residueZero2 ∧ TLMC3322.Triangle.ReducedHom2 v s d) ↔ d = s
+'TLMC3322.Triangle.rank_two_support' depends on axioms: [propext]
+TLMC3322.Triangle.rank_three_support (s d : Nat) :
+  (∃ v, v ≠ TLMC3322.Triangle.residueZero3 ∧ TLMC3322.Triangle.ReducedHom3 v s d) ↔ d = s
+'TLMC3322.Triangle.rank_three_support' depends on axioms: [propext]
+TLMC3322.Triangle.betti_support_iff (i d : Nat) :
+  TLMC3322.Triangle.BettiSupport i d ↔ i = 0 ∧ d = 0 ∨ i = 1 ∧ d = 2 ∨ i = 2 ∧ d = 3
+'TLMC3322.Triangle.betti_support_iff' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.Triangle.regularity_one : TLMC3322.Triangle.Regularity 1
+'TLMC3322.Triangle.regularity_one' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.ideal_convention_false :
+  ¬(TLMC3322.Principal.Regularity 1 ↔
+      TLMC3322.Graphs.Bipartite TLMC3322.Graphs.K2 ∧ TLMC3322.Graphs.Forest TLMC3322.Graphs.K2)
+'TLMC3322.ideal_convention_false' depends on axioms: [propext, Quot.sound]
+TLMC3322.quotient_convention_false :
+  ¬(TLMC3322.Triangle.Regularity 1 ↔
+      TLMC3322.Graphs.Bipartite TLMC3322.Graphs.K3 ∧ TLMC3322.Graphs.Forest TLMC3322.Graphs.K3)
+'TLMC3322.quotient_convention_false' depends on axioms: [propext, Classical.choice, Quot.sound]
+TLMC3322.complete_counterexamples :
+  TLMC3322.Principal.VerifiedMinimalResolution ∧
+    TLMC3322.Triangle.VerifiedMinimalResolution ∧
+      TLMC3322.Graphs.Simple TLMC3322.Graphs.K2 ∧
+        TLMC3322.Graphs.Simple TLMC3322.Graphs.K3 ∧
+          TLMC3322.Graphs.MatchingNumber TLMC3322.Graphs.K2 1 ∧
+            TLMC3322.Graphs.MatchingNumber TLMC3322.Graphs.K3 1 ∧
+              TLMC3322.Principal.Regularity 2 ∧
+                TLMC3322.Triangle.Regularity 1 ∧
+                  ¬(TLMC3322.Principal.Regularity 1 ↔
+                        TLMC3322.Graphs.Bipartite TLMC3322.Graphs.K2 ∧ TLMC3322.Graphs.Forest TLMC3322.Graphs.K2) ∧
+                    ¬(TLMC3322.Triangle.Regularity 1 ↔
+                        TLMC3322.Graphs.Bipartite TLMC3322.Graphs.K3 ∧ TLMC3322.Graphs.Forest TLMC3322.Graphs.K3)
+'TLMC3322.complete_counterexamples' depends on axioms: [propext, Classical.choice, Quot.sound]
