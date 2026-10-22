@@ -1,0 +1,197 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Two Positive Roots in a Geometric Lattice:\\A Disproof of Conjecture 00000008551}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+The partition lattice of a three-element set is geometric and has
+characteristic polynomial \mbox{$(t-1)(t-2)$}. Its two distinct roots are positive, so their
+signs do not alternate. The associated triangle graph has chromatic
+polynomial $t(t-1)(t-2)$, with the same two consecutive nonzero roots.
+We give the actual lattice, its rank and M\"obius recurrence, and a
+counting proof for the graph polynomial. Lean verifies these objects
+and refutes the corresponding universally quantified root-sign clauses.
+The scope of the source's nonstandard terminology is stated explicitly.
+\end{abstract}
+
+\section*{Reading of the bilingual source}
+Both languages assert that the \emph{roots} of the chromatic polynomial
+of a geometric lattice alternate in sign. They do not say that its
+\emph{coefficients} alternate in sign. The source's preliminary phrase
+``intersection-disjoint maps'' does not define a class of maps, a color
+set, or a counting rule. Accordingly we state precisely the two standard
+interpretations covered here.
+
+For a finite geometric lattice $L$ of rank $r$ with rank function $\rho$,
+the standard lattice characteristic polynomial is
+\[
+ \chi_L(t)=\sum_{x\in L}\mu(0,x)t^{r-\rho(x)},
+ \qquad
+ \sum_{y\leq x}\mu(0,y)=
+ \begin{cases}1&x=0,\\0&x\ne0.\end{cases}
+\]
+This is the usual lattice extension of a graph chromatic polynomial.
+For a graph $G$, its bond lattice $L_G$ consists of the partitions of
+its vertices into connected blocks, ordered by refinement. The usual
+graph polynomial $P_G(t)$ counts proper colorings and satisfies
+$P_G(t)=t^{c(G)}\chi_{L_G}(t)$. These conventions and their relation
+are recorded in Stanley's publicly available \emph{Enumerative
+Combinatorics}, Volume 1, second-edition manuscript, equation (3.39)
+and Exercise 3.108(b)--(c)~\cite{stanley}.
+
+We disprove the root assertion with either of these standard
+normalizations. We do not assign a new meaning to the undefined phrase
+in the source. If a different polynomial is intended, its definition
+would first have to be supplied. The true coefficient-sign theorem is
+not refuted: our polynomial has coefficients $1,-3,2$, which do
+alternate. Neither version of the separate root-modulus assertion is
+needed to refute the conjunction.
+
+\section*{The geometric lattice and its polynomial}
+Let $L=\Pi_3$ be the lattice of all partitions of $\{0,1,2\}$, ordered
+by refinement. Its five elements are
+\[
+ \begin{array}{c|c|c}
+ \text{element}&\text{partition}&\rho\\\hline
+ 0&0\mid1\mid2&0\\
+ a&01\mid2&1\\
+ b&02\mid1&1\\
+ c&0\mid12&1\\
+ 1&012&2
+ \end{array}
+\]
+The elements $a,b,c$ are pairwise incomparable. Two distinct such
+elements have meet $0$ and join $1$. These facts, together with the
+least and greatest elements, specify all meets, joins and order
+relations.
+
+Every element is a join of atoms: the empty join gives $0$, each of
+$a,b,c$ is an atom, and any two distinct atoms join to $1$. The lattice
+is modular. Indeed, the modular law for $x\leq z$ is immediate if
+$x=0$, $z=1$, or $x=z$; these exhaust its comparable pairs. Modularity
+implies upper semimodularity. Thus this finite atomistic semimodular
+lattice is geometric. The displayed rank starts at zero and rises by
+one at each covering relation.
+
+The bottom-row M\"obius recurrence determines
+\[
+ \mu(0,0)=1,\qquad
+ \mu(0,a)=\mu(0,b)=\mu(0,c)=-1,
+ \qquad \mu(0,1)=2.
+\]
+For an atom the recurrence is $1+\mu(0,a)=0$; at the top it is
+$1-1-1-1+\mu(0,1)=0$. These equations also show uniqueness of
+the listed values, rather than merely stipulating five numbers.
+Consequently
+\[
+ \chi_L(t)=t^2-3t+2=(t-1)(t-2).
+\]
+
+\begin{theorem}
+The roots of the characteristic polynomial of a finite geometric
+lattice need not alternate in sign. The same failure occurs for the
+graph chromatic polynomial associated with its bond lattice.
+\end{theorem}
+\begin{proof}
+For $L=\Pi_3$, the two distinct roots of $\chi_L$ are $1$ and $2$.
+They are simple and consecutive and their product is $2>0$.
+Thus they have the same sign. This obstruction is unaffected by
+whether roots are ordered increasingly, decreasingly, or by modulus.
+
+For the second assertion take the actual complete graph $K_3$ on
+$\{0,1,2\}$. Every nonempty subset induces a connected graph, so
+its bond lattice is exactly $\Pi_3$. A proper coloring with $q$ labeled
+colors is an injection from its three vertices into the color set.
+There are $q(q-1)(q-2)$ such injections for $q\geq2$, and zero
+for $q=0,1$; the same polynomial gives zero in those cases. Therefore
+\[
+ P_{K_3}(t)=t(t-1)(t-2)=t\chi_L(t).
+\]
+This identification is a counting identity for every nonnegative
+integer $q$, which uniquely determines the polynomial. Its roots
+$1$ and $2$ are again consecutive, distinct, nonzero, and positive.
+Ignoring the additional root $0$ cannot repair sign alternation.
+\end{proof}
+
+\section*{Formal verification and scope}
+The Lean type \texttt{ThreePartitions} carries a proved Mathlib
+\texttt{Lattice}, bounded order, modularity, and
+\texttt{IsAtomistic} instance. Its rank function is checked using
+Mathlib's covering relation. The explicit block-label functions define
+actual equivalence relations on \texttt{Fin 3}. The order isomorphism
+\begin{center}\small\texttt{partitionOrderIso}\end{center}
+identifies the five-element construction with \emph{all} elements of
+\texttt{Setoid (Fin 3)}, ordered by inclusion of equivalence relations.
+Thus the lattice is connected to the standard partition object, and
+not just to a numerical rank list.
+
+Lean proves that the supplied integer function satisfies the finite
+bottom-row recurrence and is its unique solution on this lattice.
+The recurrence is named \texttt{IsMobiusRow} in the source.
+No general incidence-algebra package is imported.
+The polynomial is the actual finite sum over the lattice of M\"obius
+values times rank monomials; its factorization and its complete real
+root set are proved.
+
+\begin{samepage}
+The proposition \texttt{RootSignClause} quantifies over all finite
+bounded atomistic upper-semimodular lattices, all rank functions, and
+all bottom-row M\"obius functions. It asserts the following necessary
+condition of alternating root signs: any two consecutive distinct
+nonzero real roots have negative product. Its negation is
+\begin{center}\small\texttt{disprove\_root\_sign\_clause}.\end{center}
+\end{samepage}
+This deliberately weak necessary condition already fails at $1,2$;
+no issue involving repeated, zero, or nonreal roots is used.
+
+For the graph interpretation, Lean uses Mathlib's actual complete
+\texttt{SimpleGraph (Fin 3)} and \texttt{Coloring}. It constructs an
+equivalence with embeddings of \texttt{Fin 3} into \texttt{Fin q}
+and proves the coloring count for \emph{every} $q$. The polynomial
+\texttt{triangleChromatic} is proved to evaluate to that count.
+\texttt{GraphRootSignClause} quantifies over finite graphs and
+polynomials having this counting property; its negation is
+\begin{center}\small\texttt{disprove\_graph\_root\_sign\_clause}.\end{center}
+The elementary identification of the bond lattice of $K_3$ with
+$\Pi_3$, and the general graph--bond-lattice formula quoted for
+context, are proved or explained on paper rather than formalized as
+general graph-connectivity theorems. Both specific polynomials and
+both counterexample statements are formalized.
+
+The Lean proofs use no \texttt{sorry}, \texttt{admit},
+\texttt{native\_decide}, or custom axiom. Their axiom reports contain
+only \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. Finite kernel checks certify the concrete lattice
+axioms and recurrence; the universal claims are explicitly quantified
+and refuted by the resulting objects.
+
+\section*{Source and reproduction}
+The exact bilingual source is included as \texttt{SOURCE.md}, copied
+from the upstream file
+\begin{center}\small\texttt{conjectures/00000008551.md}.\end{center}
+The provenance record gives the upstream revision and source hash.
+The project pins Lean 4.19.0 and Mathlib revision
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+From \texttt{lean/}, with the pinned dependencies available, run
+\texttt{lake build} and
+\begin{center}\small\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+Compile this document with Tectonic or a compatible LaTeX engine.
+The verification directory records author checks and subsequent
+coordinator checks separately. This draft was developed by a delegated
+AI agent with a self-review; the coordinating agent reviews it
+separately. No external independent review is claimed.
+
+\begin{thebibliography}{1}
+\bibitem{stanley} R. P. Stanley, \emph{Enumerative Combinatorics},
+Volume 1, second-edition manuscript, version of 15 July 2011.
+Section 3.3 (geometric lattices), equations (3.38)--(3.39),
+and Exercise 3.108(b)--(c).
+\href{https://math.mit.edu/~rstan/ec/ec1.pdf}{Author's public manuscript}.
+\end{thebibliography}
+\end{document}
