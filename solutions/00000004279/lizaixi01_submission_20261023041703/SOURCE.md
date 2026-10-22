@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000004279
+
+**English.** Definition: A Butler group is a finite-rank pure subgroup of a direct sum of rank-1 groups. Conjecture: Rank-3 Butler groups are completely classified by explicit two-component data, the equivalence of the data is the action of the general linear group, and the quotient space is finite up to isomorphism. (complete classification of rank-3 Butler groups)
+
+**中文。** 定义：Butler 群指秩 1 群的有限秩纯子群。猜想：秩 3 Butler 群由二元显式数据完全分类,数据的等价为一般线性群作用,商空间在同构意义下有限。（Butler 秩 3 完全分类）
