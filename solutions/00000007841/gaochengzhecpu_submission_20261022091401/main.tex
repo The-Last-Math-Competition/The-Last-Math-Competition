@@ -1,0 +1,229 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Karger contraction always finds a minimum cut on a cycle\\
+\large Disproof of Conjecture 00000007841}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+For every simple cycle $C_n$, $n\geq3$, Karger's
+uniform-edge contraction algorithm returns some minimum
+cut with probability one. Therefore the claimed bound
+$2(1-\varepsilon(n))/n^2$, with $\varepsilon(n)=O(1/n)$,
+cannot be sharp on cycles: it tends to zero and its
+gap from the actual success probability tends to one.
+Lean verifies actual simple input graphs, genuine
+multigraph contractions, all histories and normalized
+sequential edge-sampling probabilities.
+\end{abstract}
+
+\section*{Which success event the source defines}
+The source defines $p(G)$ as the probability that the
+algorithm outputs \emph{any} minimum cut. It asserts
+that its displayed lower bound is tight on cycles;
+the Chinese text explicitly claims equality there.
+We refute this sharpness clause for arbitrarily large
+simple connected cycles. The separate assertion about
+the infimum ratio $\rho(n)$ is not assessed here.
+
+Karger's algorithm repeatedly chooses a current
+non-loop edge uniformly, merges its endpoints and
+deletes loops, retaining parallel edges. At two
+supervertices it returns their bipartition, pulled
+back to the original vertices. This is the ordinary
+contraction algorithm of \cite[Section 2]{karger}.
+
+\section*{An explicit, genuine contraction of a cycle}
+Represent the vertices and edge labels of $C_m$ by
+$\mathbb Z/m\mathbb Z$, with edge $i$ joining $i$ to
+$i+1$. For $m\geq3$ this is the usual simple cycle.
+For $m=2$ the same labelled model has two parallel
+edges; both must be retained.
+
+Given an edge $e$ of $C_m$, $m\geq3$, rotate it to edge
+zero by $x\mapsto x-e$. With representatives
+$0\leq x<m$, use the quotient map
+\[
+ q(x)=\max(x-1,0)\pmod{m-1}.
+\]
+Only vertices $0$ and $1$ are identified. Edge zero
+becomes a loop and is deleted. Each remaining edge
+$i=1,\ldots,m-1$ maps to edge $i-1$ of $C_{m-1}$,
+with the correct two endpoints. Thus the remaining
+edges correspond bijectively, including their
+multiplicities, to the next cycle multigraph.
+
+\newpage
+\section*{Every contraction history succeeds}
+For a Boolean vertex bipartition $A$, its actual
+crossing-edge count is
+\[
+ c_m(A)=\sum_{i\in\mathbb Z/m\mathbb Z}
+              \boldsymbol{1}_{A(i)\ne A(i+1)}.
+\]
+Around a cycle the number of transitions from zero to
+one equals the number from one to zero. Consequently
+$c_m(A)$ is even. A nonconstant bipartition has a
+crossing edge, since equality at every consecutive
+pair would make the assignment constant. Every
+nontrivial cut therefore has size at least two.
+
+At order two, the final bipartition has two crossing
+parallel edges. Pulling a proper cut back through a
+surjective contraction preserves properness. It also
+preserves its crossing-edge count: the selected edge
+has both endpoints in one fiber and contributes zero,
+while every other edge corresponds bijectively to a
+target edge. Induction backwards through the entire
+history shows that every returned cut of the original
+cycle is proper and has size two. It is therefore an
+actual minimum cut, for every possible history.
+
+At current order $m$ there are exactly $m$ non-loop
+edge labels, so every one is selected with probability
+$1/m$. The successive choices have orders
+$n,n-1,\ldots,3$. The full history set has size
+\[
+ |\mathcal H_n|=\prod_{m=3}^{n}m=\frac{n!}{2},
+\]
+and each history has its actual sequential probability
+\[
+ w(h)=\prod_{m=3}^{n}\frac1m=\frac2{n!}.
+\]
+These weights are nonnegative and sum to one.
+The success event is the assertion that the returned
+proper cut is no larger than \emph{every} other proper
+cut. Since all histories satisfy this event,
+\[
+ p(C_n)=\sum_{h\in\mathcal H_n}
+        w(h)\boldsymbol{1}_{\text{success}(h)}=1
+       \qquad(n\geq3).
+\]
+This probability is derived from the actual sampling
+rule and actual returned partitions; it is not assigned
+the value one by definition.
+
+\newpage
+\section*{The claimed cycle sharpness is impossible}
+If $\varepsilon(n)=O(1/n)$, then $\varepsilon(n)\to0$.
+In fact under the weaker condition
+$\varepsilon(n)\to0$, the proposed expression satisfies
+\[
+ b_n:=\frac{2(1-\varepsilon(n))}{n^2}\longrightarrow0,
+ \qquad p(C_n)-b_n\longrightarrow1.
+\]
+It cannot equal the actual success probability on
+cycles, even eventually, and it cannot asymptotically
+match it. Lean also gives a quantitative contradiction:
+for every eventual bound $|\varepsilon(n)|\leq C/n$
+and every cutoff, some larger cycle has $b_n<p(C_n)$.
+
+\begin{theorem}
+The lower bound stated in Conjecture 00000007841 is
+not sharp on simple cycles, whether sharpness means
+its asserted exact equality or asymptotic agreement
+with the actual success probability.
+\end{theorem}
+\begin{proof}
+All simple cycles have success probability one,
+whereas the displayed expression tends to zero.
+Their difference tends to one, not zero.
+\end{proof}
+
+The familiar contraction estimate concerns survival
+of one \emph{prescribed} minimum cut
+\cite[Theorem 2.1]{karger}. On a cycle there are many
+different minimum cuts, and every returned cut is
+minimum. The source defines success as returning any
+one of them. This distinction explains the error.
+The disproof targets its cycle-sharpness conjunct;
+no claim about the actual extremizers or limit of
+$\rho(n)$ is needed.
+
+\section*{Bridges to the actual graph and algorithm}
+The Lean input is Mathlib's actual simple connected
+\texttt{cycleGraph}. Theorems identify its full
+undirected edge set with the cyclic edge labels and
+prove equality between its genuine crossing-edge count
+and the displayed sum. Vertex and edge counts are
+checked for every input order at least three.
+
+The contraction map has exactly the selected edge's
+two endpoints as its only nonsingleton fiber.
+Theorems verify surjectivity, deletion of exactly that
+loop and preservation of every other edge's endpoints
+and identity. Intermediate order-two states use the
+correct two-edge multigraph, not a simplified single
+edge. The returned cut is recursively pulled back
+through these same quotient maps.
+
+\newpage
+\section*{Formal conclusions and reproducibility}
+The Lean type \texttt{History k} starts at order $k+2$.
+The simple input \texttt{inputGraph n} of order $n+3$
+therefore uses \texttt{History (n+1)}. The theorem
+\texttt{cycle\_counterexample} bundles the actual
+simple connected input, its counts, success probability
+one and minimum output cut size two.
+
+The event \texttt{Success} compares an actual proper
+output partition with every proper partition.
+The function \texttt{pathWeight} multiplies the true
+successive $1/m$ factors. Its nonnegativity and total
+mass one are proved explicitly. The definition
+\texttt{actualSuccessProbability} sums these actual
+weights over that event.
+Graph-level correctness is proved by
+\texttt{actual\_graph\_success}.
+\par
+The probability-one theorem is named
+\texttt{actual\_cycle\_success\_probability}.
+The final limit theorems prove that the gap tends to
+one and cannot tend to zero, alongside the quantitative
+arbitrary-cutoff contradiction.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From the submitted \texttt{lean/} directory:
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The complete project is built afresh and checked with
+warnings treated as errors. Printed main-theorem
+axiom dependencies contain only standard foundational
+axioms; no proof placeholders, custom axioms or
+external computation oracles are used.
+
+The supplementary \texttt{verify.py} independently
+enumerates contractions by original edge identities,
+deleting loops and retaining parallel edges. It checks
+$C_3$ through $C_9$ exactly, and complete graphs up to
+$K_7$, including the nontrivial result $p(K_4)=4/5$.
+This is supplementary finite verification; Lean proves
+the full cycle family. Run \texttt{python verify.py}
+and \texttt{tectonic main.tex}.
+
+The exact source, provenance, build logs, artifact
+hashes and PDF checks are included. An agent developed
+the proof and supplied a self-review. The parent
+separately reviewed the complete proof and final
+artifacts. No external independent review or novelty
+is claimed for these standard contraction facts.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition, Conjecture
+00000007841. Exact bilingual source and provenance included.
+\bibitem{karger} D. R. Karger and C. Stein,
+\emph{An $\widetilde O(n^2)$ Algorithm for Minimum Cuts},
+Section 2 and Theorem 2.1.
+\href{https://people.csail.mit.edu/karger/Papers/fastcut.pdf}{Author-hosted paper}.
+The reference supplies the standard algorithm and
+prescribed-cut context; the complete cycle argument
+used in this disproof is given above.
+\end{thebibliography}
+\end{document}
