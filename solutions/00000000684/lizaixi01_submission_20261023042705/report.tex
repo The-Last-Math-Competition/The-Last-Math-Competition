@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000000684: a classical circle has an infinite finitely generated group}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The standard virtual group and the counterexample}
+We use the standard Kauffman group $G(D)$ of a virtual diagram,
+defined by its Wirtinger presentation. The source names a virtual
+diagram group without further specifying a variant. This standard
+model is defined in Kauffman,
+\href{https://homepages.math.uic.edu/~kauffman/VKT.pdf}
+{\emph{Virtual Knot Theory}}, Europ. J. Combinatorics 20 (1999),
+Section 4, printed pp.671--672: generators correspond to arcs between
+classical undercrossings, and relations to classical crossings.
+Virtual crossings contribute no new generators or relations.
+At printed p.663 the author explicitly uses ``trivial fundamental
+group'' to mean the infinite cyclic group $\mathbf Z$.
+
+Take the actual round circle
+\[
+ S^1=\{z\in\mathbf C:|z|=1\},\qquad
+ K:S^1\longrightarrow\mathbf C\times\mathbf R=\mathbf R^3,
+ \quad K(z)=(z,0).
+\]
+Its planar projection is $z\mapsto z$. It is an actual embedding,
+with no self-crossings and no virtual crossings. Thus it gives a
+classical diagram of the ordinary round unknot. Its standard
+Wirtinger group has one arc generator and no crossing relations,
+so is isomorphic to $\mathbf Z$. In particular it is finitely
+generated and infinite, although this knot is classical. This
+contradicts the forward implication of the proposed equivalence.
+An additional Gauss-diagram criterion cannot repair that false
+necessary implication.
+
+\section{Actual crossings and arcs, rather than an assigned presentation}
+The formal source uses Mathlib's actual complex unit circle.
+It first considers a crossing-free diagram given by a continuous
+injective map $f:S^1\to\mathbf C$. The set of crossing preimages is
+defined from the actual map:
+\[
+ U_f=\{x\in S^1:\exists y\ne x,\ f(y)=f(x)\}.
+\]
+Injectivity proves $U_f=\varnothing$. Every possible undercrossing
+preimage subset is therefore empty as well. This avoids treating
+overcrossing preimages as undercrossings in a general diagram;
+the two sets are both empty in this subclass.
+
+Arcs are the genuine connected components of $S^1\setminus U_f$.
+An explicit homeomorphism identifies this actual complement with
+$S^1$, and the connectedness of the circle proves that its component
+type has exactly one element. The formal generator type is this
+component type, not a separately assigned one-element label.
+
+\newpage
+The classical-crossing index type is also defined from actual
+pairs of distinct circle points with equal planar image. It is
+proved empty. A crossing-relator assignment has this type as its
+domain, and its range is consequently empty. Lean proves this for
+\emph{every} relation assignment on the actual empty crossing type.
+Thus no choice of signs, underpassing branch or usual Wirtinger
+convention can add a crossing relation in this example. There is
+no need to encode the crossing formula for nonempty diagrams to
+settle this crossing-free case.
+
+The diagram group is the actual \texttt{PresentedGroup} on those
+arc generators and the crossing-indexed relator set. Lean proves
+that its quotient map from the free group is injective as well as
+surjective, yielding the genuine isomorphisms
+\[
+ G(D)\simeq F(\text{one actual arc})\simeq (\mathbf Z,+).
+\]
+Mathlib's actual group finite-generation property and infinitude
+are then proved for this presented group.
+
+\section{Classical realization and the exact scope}
+For the round diagram, the projection is the actual subtype inclusion
+$S^1\hookrightarrow\mathbf C$. The formal source also constructs
+the actual spatial embedding $z\mapsto(f(z),0)$ and checks that its
+projection is $f$ and its height is zero. For $f(z)=z$ it additionally
+records the unit-norm equation, binding the construction to the
+ordinary round circle.
+
+The predicate \texttt{ClassicalRealization} records this sufficient
+classical realization for the crossing-free subclass. It is not
+presented as a classification or definition of arbitrary virtual
+knots. In particular, it does not replace nonclassicality for
+arbitrary diagrams by failure to embed in a plane. The standard
+round diagram already has no virtual crossings, so its classical
+status requires no equivalence or unknot-recognition algorithm.
+
+The final formal statements refute both the restricted equivalence
+and, separately, its necessary implication: an infinite finitely
+generated diagram group would prohibit such an explicit classical
+realization. The actual round diagram satisfies the group properties
+and has that realization, so this implication fails.
+
+We use Kauffman's named standard Wirtinger model. The Lean source
+does not reprove invariance under every extended Reidemeister move,
+the identification with the fundamental group of a complement,
+or a theorem about every alternative extended virtual-group
+definition. None of these additional results is used to assign a
+group to an unrelated presentation: the arc and crossing types are
+derived from the actual circle projection before forming the group.
+
+\section{Verification}
+Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+are pinned. The package includes a new root build, transitive axiom
+audits and full official \texttt{leanchecker --fresh Main} replay.
+No \texttt{sorry}, \texttt{native\_decide} or extra axiom is used.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed
+source, report and PDF. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
