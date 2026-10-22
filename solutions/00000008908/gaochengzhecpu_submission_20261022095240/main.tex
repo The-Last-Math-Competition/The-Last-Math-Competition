@@ -1,0 +1,177 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{The complement clique number does not bound\newline
+the Lov\'asz theta function\\\large Disproof of Conjecture 00000008908}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+For the five-cycle $G=C_5$, both its independence number and
+the clique number of its complement are two. An explicit
+rational Gram certificate for the actual Lov\'asz theta
+semidefinite program gives
+$\vartheta(G)\geq5041/2257>2$.
+Thus these two numbers cannot be the endpoints of the
+claimed monotone chain containing $\vartheta(G)$.
+Lean checks the full semidefinite feasible set and its
+bounded supremum, as well as the actual graph parameters.
+\end{abstract}
+
+\section*{The exact endpoint assertion}
+The English source explicitly names the endpoints as the
+independence number and the \emph{clique number of the
+complement}. In particular its proposed sandwich would require
+\[
+              \alpha(G)\leq\vartheta(G)\leq\omega(\overline G).
+\]
+The usual sandwich has a different upper endpoint: the
+chromatic number $\chi(\overline G)$. The present counterexample
+addresses the endpoint actually written in the source.
+
+Let $G$ be the simple cycle on $\mathbb Z/5\mathbb Z$, with
+$i$ adjacent to $i+1$ and $i-1$. Its largest independent sets
+have size two. Indeed, three independent vertices would
+require three cyclic gaps of at least two, impossible on
+five vertices; the pair $\{0,2\}$ witnesses size two.
+Independent sets of $G$ are precisely cliques of its
+complement, so
+\[
+                   \alpha(G)=\omega(\overline G)=2.
+\]
+The Lean development proves these parameters using Mathlib's
+actual simple graph, complement, clique and independence
+definitions, with complete finite certificates.
+
+\section*{The actual theta optimization problem}
+Use the standard equivalent semidefinite formulation
+\cite[Theorem 4]{lovasz}:
+\[
+ \vartheta(G)=\sup\left\{\sum_{i,j}X_{ij}:
+ X=X^{\mathsf T}\succeq0,\quad\operatorname{tr}X=1,
+ \quad X_{ij}=0\text{ if }i\sim_G j\right\}.
+\]
+The supremum is over \emph{all} feasible real matrices,
+rather than only the certificate constructed below.
+
+\newpage
+\section*{An exact rational Gram certificate}
+Let $B$ be the symmetric circulant matrix with first row
+$(-9,32,8,8,32)$, namely
+\[
+B=\begin{pmatrix}
+-9&32&8&8&32\\
+32&-9&32&8&8\\
+8&32&-9&32&8\\
+8&8&32&-9&32\\
+32&8&8&32&-9
+\end{pmatrix}.
+\]
+Direct integer multiplication gives
+\[
+B^{\mathsf T}B=\begin{pmatrix}
+2257&0&1392&1392&0\\
+0&2257&0&1392&1392\\
+1392&0&2257&0&1392\\
+1392&1392&0&2257&0\\
+0&1392&1392&0&2257
+\end{pmatrix}.
+\]
+Set $X=B^{\mathsf T}B/11285$. It is positive semidefinite
+because, for every real vector $z$,
+\[
+ z^{\mathsf T}Xz=\frac{\lVert Bz\rVert_2^2}{11285}\geq0.
+\]
+Its trace is $5\cdot2257/11285=1$, and all positions
+corresponding to edges of $C_5$ are zero. Thus it is an
+actual feasible matrix. Its objective is
+\[
+ \sum_{i,j}X_{ij}
+ =\frac{5\cdot2257+10\cdot1392}{11285}
+ =\frac{5041}{2257}
+ =2+\frac{527}{2257}>2.
+\]
+
+For completeness, the full feasible objective set is bounded.
+If $Y\succeq0$ is symmetric, testing on $e_i-e_j$ gives
+$2Y_{ij}\leq Y_{ii}+Y_{jj}$. Summing over all $25$ ordered
+pairs and using $\operatorname{tr}Y=1$ yields
+\[
+             2\sum_{i,j}Y_{ij}\leq10,
+             \qquad\sum_{i,j}Y_{ij}\leq5.
+\]
+The certificate makes the feasible set nonempty. Hence
+its actual real supremum exists, and it is at least the
+certificate's objective. No empty-set or unbounded-set
+convention for the supremum is involved.
+
+\newpage
+\section*{Contradiction and scope}
+\begin{theorem}
+For the actual simple five-cycle,
+\[
+ \alpha(C_5)=\omega(\overline{C_5})=2
+       <\frac{5041}{2257}\leq\vartheta(C_5).
+\]
+Therefore the claimed monotone chain with the two stated
+endpoints is false.
+\end{theorem}
+\begin{proof}
+The graph parameters were computed above. The explicit
+matrix $X$ is feasible for the full theta optimization
+problem and has objective strictly larger than two.
+\end{proof}
+
+The proof does not need the familiar exact value
+$\vartheta(C_5)=\sqrt5$, and does not claim to formalize
+that exact value or all versions of the sandwich theorem.
+It proves a sufficient strict rational lower bound against
+the exact upper endpoint named in the conjecture.
+
+\section*{Formalization and reproducibility}
+The Lean graph is Mathlib's \texttt{cycleGraph 5}.
+\texttt{Feasible} uses the actual matrix predicate
+\texttt{PosSemidef}, trace one and all actual edge-zero
+conditions. \texttt{theta} is the real supremum of the
+objective values of every such matrix. The proof establishes
+nonemptiness, a bound for the whole feasible set, and the
+supremum inequality for the Gram certificate.
+The matrix entries and finite graph certificates are exact;
+no floating-point optimizer or untrusted numerical oracle
+is used.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The full project is rebuilt afresh and checked with
+warnings treated as errors. Printed theorem dependencies
+are audited for standard foundational axioms only.
+No proof placeholders or custom axioms are used.
+Compile the paper with \texttt{tectonic main.tex}.
+
+The exact bilingual source, provenance, actual build logs,
+artifact hashes and all-page PDF review are included.
+An agent developed the proof and supplied a self-review;
+the parent reviewed the complete proof and final artifacts
+separately. No external independent review or novelty of
+this standard theta counterexample is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000008908. Exact bilingual source and
+provenance included.
+\bibitem{lovasz} L. Lov\'asz, \emph{On the Shannon Capacity
+of a Graph}, IEEE Transactions on Information Theory,
+25(1), 1--7 (1979), Theorem 4.
+\href{https://people.orie.cornell.edu/miketodd/orie6327/lovshannon.pdf}{Original-paper mirror}.
+This supplies the standard theta definition; the full
+certificate needed for this disproof is displayed above.
+\end{thebibliography}
+\end{document}
