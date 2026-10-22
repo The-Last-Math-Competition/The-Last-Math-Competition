@@ -1,0 +1,166 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\N}{\mathbb N}
+\title{Prime Radicands Contradict the Printed Density\newline
+  in Conjecture 00000000259}
+\author{idealistichacker\\\small AI-assisted submission prepared for review}
+\date{October 22, 2026}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+The printed conjecture concerns primes $p\equiv1\pmod4$, not general composite
+squarefree radicands. Every such prime admits an integer solution of
+$x^2-py^2=-1$. Consequently the success proportion within that prime class is
+identically one once the counting denominator is nonzero. The printed constant
+$1-\prod_{k\ge2}(1-2^{-k})$ belongs to $[1/4,7/16]$ and is not one. We give the
+descent proof and an actual finite-count/limit formalization. This draft does
+not claim to resolve a different negative-Pell density problem for composite
+discriminants, and is not a claim of publication or upstream acceptance.
+\end{abstract}
+
+\section{Exact Statement and Interpretation}
+The English source asserts: ``The density of primes $p\equiv1\pmod4$ for which
+the negative Pell equation is solvable equals
+$1-\prod_{k\ge2}(1-2^{-k})$.'' The Chinese source likewise explicitly specifies
+primes. Both complete source languages are locked at:
+\begin{quote}\small\ttfamily
+Git blob: 15fe4da518462416cfbace31ff72247830e4ea6b\\
+Commit: b355e42906e6eaf52bc7e9d005e0ef02d8aa7400.
+\end{quote}
+
+Here density within the displayed reference class means the standard relative
+counting density. Define
+\[
+ B_N=\{p<N:p\text{ prime},\ p\equiv1\pmod4\},\qquad
+ A_N=\{p\in B_N:\exists x,y\in\Z,\ x^2-py^2=-1\}.
+\]
+The assertion formalized and refuted is
+\[
+ \frac{|A_N|}{|B_N|}\longrightarrow
+ C:=1-\prod_{k\ge2}(1-2^{-k})\quad(N\longrightarrow\infty).
+\]
+The denominator is explicitly disclosed; the Lean theorem is not advertised as
+a proof about a different density denominator. No restriction to primes with
+an additional class-number condition is inserted. A prime $p\equiv1\pmod4$
+is already a squarefree positive fundamental discriminant. The introductory
+wide-class-number assertion is not needed as an assumption: one false necessary
+density clause suffices to refute the displayed conjunction under this reading.
+
+\section{All Eligible Primes Give Negative Pell Solutions}
+\begin{theorem}
+For every prime $p\equiv1\pmod4$, there exist $u,v\in\Z$ with
+$u^2-pv^2=-1$.
+\end{theorem}
+\begin{proof}
+The ordinary Pell existence theorem supplies an integer solution
+$x^2-py^2=1$ whose $x>1$ is minimal among positive Pell solutions with
+$x>1$. This is applicable because a positive prime is not a square.
+Reducing modulo four shows $x$ odd and $y$ even. Set
+\[
+ a=(x-1)/2>0,\qquad b=(x+1)/2=a+1,\qquad c=y/2.
+\]
+Then $a,b$ are coprime positive integers and $ab=pc^2$. Unique factorization
+and coprimality put the prime $p$ in exactly one factor. Each remaining prime
+exponent is even, so either
+\[
+ a=pu^2,\quad b=v^2,\qquad\text{or}\qquad
+ a=u^2,\quad b=pv^2.
+\]
+In the first case $v^2-pu^2=b-a=1$. Since $b=a+1>1$ and
+$v^2=(x+1)/2$, we have $1<|v|<x$. Thus $(|v|,|u|)$ is a positive Pell
+solution with smaller first coordinate, contradicting minimality. The second
+case therefore holds, giving $u^2-pv^2=a-b=-1$.
+\end{proof}
+
+The Lean proof invokes Mathlib's actual
+\texttt{Pell.IsFundamental.exists\_of\_not\_isSquare}; it does not assume
+the required negative-Pell solution. Its descent uses actual integer Pell
+solutions and a proved split of adjacent coprime square factors. As a diagnostic
+example, $p=109$ has the exact certificate
+\[
+ 8890182^2-109\cdot851525^2=-1.
+\]
+A bounded search that stops before $y=851525$ is not a proof of insolubility.
+The general argument above, not this isolated certificate, proves the theorem.
+
+\section{The Printed Constant Is Separated From One}
+Write $f_i=1-2^{-(i+2)}$ for $i\in\N$ and $P_n=\prod_{i<n}f_i$.
+The geometric series of deviations is summable, so $\prod_i f_i$ exists.
+All factors lie in $[0,1]$.
+
+For $0\le a_i\le1$, the elementary union bound for products states
+\[
+ \prod_{i<n}(1-a_i)\ge1-\sum_{i<n}a_i.
+\]
+It follows by induction: if $Q\le1$ and $Q\ge1-S$, then
+$Q(1-a)=Q-aQ\ge Q-a\ge1-S-a$. The shifted geometric tail satisfies
+$\sum_{i<n}2^{-(i+3)}\le1/4$. Splitting off the first factor gives
+\[
+ \frac9{16}\le P_{n+1}
+ =\frac34\prod_{i<n}(1-2^{-(i+3)})\le\frac34.
+\]
+Passing to the genuine infinite-product limit yields
+\[
+ \frac9{16}\le\prod_{k\ge2}(1-2^{-k})\le\frac34,
+ \qquad \frac14\le C\le\frac7{16}<1.
+\]
+These are exact rational inequalities, not numerical approximations to an
+uncomputed product. Lean proves summability, multipliability, finite-product
+bounds, and the passage to the limit.
+
+\section{Counting and Closed Limit Negation}
+\begin{theorem}
+$A_N=B_N$ for every $N\in\N$. For every $N\ge6$,
+$|A_N|/|B_N|=1$. In particular this ratio cannot tend to $C$.
+\end{theorem}
+\begin{proof}
+The prime-radicand theorem applies to each member of $B_N$, so $A_N=B_N$.
+For $N\ge6$, $5\in B_N$, making $|B_N|>0$. Dividing equal counts gives
+one. The ratio is therefore eventually the constant one and converges to one.
+Uniqueness of real limits and $C\ne1$ negate convergence to the conjectured
+value. No prime number theorem or statistical heuristic is required for this
+relative-count identity.
+\end{proof}
+
+\section{Formalization and Verification Boundary}
+The research sources pin Lean 4.33.1. The Mathlib commit is:
+\begin{quote}\small\ttfamily
+0df444a360eaa60ab8c11dca51a86af692955474.
+\end{quote}
+\begin{itemize}
+\item \texttt{PrimePell.lean}: four general integer Pell theorems.
+\item \texttt{ProductBounds.lean}: eight actual infinite-product and bound theorems.
+\item \texttt{RelativeDensity.lean}: seven count, limit, negation, and certificate
+  theorems, with the actual sets $A_N,B_N$ defined using finite-set filters.
+\item \texttt{Main.lean}: imports the complete mathematical argument.
+\item \texttt{Check.lean}: all 19 actual theorem types and axiom audits.
+\end{itemize}
+The decisive declaration is
+\begin{quote}\small\ttfamily
+PellDensity259.not\_claimed\_relative\_density :\newline
+\phantom{xx}not (Filter.Tendsto relativeDensity Filter.atTop\newline
+\phantom{xxxx}(nhds PellConstant259.claimedConstant)).
+\end{quote}
+It has no external density, solution-existence, or product-separation premise.
+Local warning-as-error source builds and all axiom audits have succeeded; only
+the standard foundations \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound} occur. The package reproducer verifies all nine physical
+pinned Git dependencies, their origins, tracked source bytes, and index/tree
+agreement before and after execution. It cleans only this project's build
+outputs, rebuilds Main, replays every mathematical source and Main with warnings
+as errors, and audits all 19 actual types and axiom footprints. Its exact integer
+certificates and finite product checks are regression diagnostics, not replacements
+for the Lean proofs. Installed Lean and dependency build caches remain trust
+inputs: this is not an empty-machine bootstrap or a clean build of all Mathlib
+dependencies. Independent review is internal AI-assisted review, not human,
+institutional, or organizer endorsement. Submission requests upstream review;
+it is not a claim of acceptance or first-solver credit.
+\end{document}
