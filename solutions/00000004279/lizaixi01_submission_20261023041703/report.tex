@@ -1,0 +1,120 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000004279: infinitely many rank-three Butler groups}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The finite-isomorphism-quotient clause is false}
+For every prime $p$ take the actual localization and additive group
+\[
+ R_p=\mathbf Z[1/p],\qquad G_p=R_p\oplus R_p\oplus R_p.
+\]
+These are rank-three Butler groups, and $G_p\not\cong G_q$ whenever
+$p\ne q$. Since there are infinitely many primes, the set of
+isomorphism classes of all rank-three Butler groups is infinite.
+This disproves the source's necessary claim that the quotient is finite
+up to isomorphism. It does not deny a classification with an infinite
+parameter space or decide a modified problem fixing the rank-one types.
+
+We follow the precise English definition in the source: a finite-rank
+pure subgroup of a direct sum of rank-one groups. The standard
+torsion-free formulation is recalled in Fuchs and Rangaswamy,
+\href{https://doi.org/10.1017/S144678870001404X}
+{\emph{Valuated Butler groups of finite rank}},
+J. Aust. Math. Soc. 80 (2006), Introduction, printed p.336, item (1),
+before the authors introduce the valued version.
+Our examples are already completely decomposable; their realization
+as pure subgroups uses the whole ambient direct sum, not a requirement
+that the subgroup be proper.
+
+\section{Actual localization, rank, and purity}
+Lean uses Mathlib's actual localization
+\texttt{Localization.Away} of $\mathbf Z$ at $p$.
+The rank-one assertion is the genuine module rank
+\[
+ \operatorname{rank}_{\mathbf Z}R_p=1,
+\]
+obtained from the rank-of-localization theorem. The canonical map
+$R_p\to\mathbf Q$ is constructed by the localization universal property
+and proved injective, so each summand is torsion free.
+
+The group $G_p$ is represented first by the finite function space
+$\mathrm{Fin}\,3\to R_p$. Its rank is not assigned by definition.
+The actual injective $\mathbf Z$-linear maps
+\[
+ \mathbf Z^3\longrightarrow G_p\longrightarrow\mathbf Q^3
+\]
+give lower and upper bounds of three on its module rank. The upper
+bound uses the rank-preserving passage from $\mathbf Z$ to its fraction
+field $\mathbf Q$. Consequently
+\[
+ \operatorname{rank}_{\mathbf Z}G_p=3.
+\]
+No freeness of $R_p$ as a $\mathbf Z$-module is assumed. Injectivity of
+the rational map also proves torsion freeness of $G_p$.
+
+\newpage
+Lean explicitly supplies the linear equivalence between this finite
+function space and the actual direct sum
+$D_p=\bigoplus_{i\in\mathrm{Fin}\,3}R_p$.
+For an actual integer submodule $H\le D_p$, the purity condition is
+encoded by the usual scalar-equation criterion: for every natural
+$n$ and $h\in H$, if $nb=h$ has a solution $b\in D_p$, then it has
+a solution in $H$. This is exactly $nD_p\cap H=nH$.
+The full submodule $H=D_p$ satisfies that criterion immediately.
+Thus the formal witness consists of actual rank-one torsion-free
+summands, an actual finite direct sum, an actual pure submodule and
+a linear isomorphism from the actual rank-three torsion-free group.
+The theorem \texttt{family\_qualifies} collects these properties.
+
+\section{An additive-group invariant separates the primes}
+Multiplication by $p$ is surjective on $R_p$ because $p$ is invertible
+in this localization. It is therefore surjective on all three
+coordinates of $G_p$.
+
+If $q\ne p$ is another prime, the image of $p$ is a unit in
+$\mathbf Z/q\mathbf Z$. The universal property gives a genuine ring
+homomorphism
+\[
+ \rho_{p,q}:R_p\longrightarrow\mathbf Z/q\mathbf Z.
+\]
+If multiplication by $q$ were surjective on $G_p$, apply it to the
+vector $(1,1,1)$. Its first coordinate would give $qx=1$ in $R_p$.
+Applying $\rho_{p,q}$ gives $0=1$ in the nonzero field
+$\mathbf Z/q\mathbf Z$, a contradiction. Hence
+\[
+ G_p\text{ is $p$-divisible, but is not $q$-divisible for }q\ne p.
+\]
+Surjectivity of multiplication by a fixed natural number is preserved
+by every additive-group isomorphism. It follows that no additive
+isomorphism $G_p\cong G_q$ exists for distinct primes. This obstruction applies to all additive-group isomorphisms without
+requiring preservation of the chosen ring presentation.
+
+\section{The real isomorphism quotient is infinite}
+On the actual type of primes Lean defines the relation
+\[
+ p\sim q\quad\Longleftrightarrow\quad
+       \operatorname{Nonempty}(G_p\simeq_+G_q).
+\]
+It checks reflexivity, symmetry and transitivity using actual additive
+equivalences. Pairwise nonisomorphism makes the map from primes to
+this quotient injective, so the quotient is infinite. A separate
+theorem excludes every finite complete catalog: any assignment of
+labels to these groups for which equal labels imply isomorphism
+would inject the infinite set of primes into a finite type.
+The relation is not defined as equality of the prime labels.
+
+\section{Verification}
+Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+are pinned. The package includes a new root build, transitive axiom
+audits and full official \texttt{leanchecker --fresh Main} replay.
+There is no \texttt{sorry}, \texttt{native\_decide} or extra axiom.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed
+source, report and PDF. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
