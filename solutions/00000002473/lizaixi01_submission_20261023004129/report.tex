@@ -1,0 +1,120 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000002473: rank and crank already disagree at two}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The necessary clause being refuted}
+The English statement includes the explicit assertion that
+``the two statistics agree outside the exceptional classes.''
+In its stated Ramanujan-congruence context, the exceptional sizes are
+\[
+ n\equiv4\pmod5,\qquad n\equiv5\pmod7,\qquad n\equiv6\pmod{11}.
+\]
+The integer $n=2$ lies in none of these classes. We prove disagreement
+both for individual partitions and for the complete distributions,
+including distributions reduced modulo each of $5,7,11$. Thus no
+choice between these usual meanings of agreement repairs this clause.
+The accompanying Chinese text is unclear; the original bilingual
+source is preserved without alteration, and this counterexample
+addresses the clear English necessary clause. The further,
+unspecified near-bijective refinement cannot make a false necessary
+clause true and is not needed for the contradiction.
+
+\section{Standard definitions and a complete example}
+For a partition $\lambda$, let $L(\lambda)$ be its largest part,
+$\ell(\lambda)$ its number of parts, $o(\lambda)$ its number of ones,
+and $\mu(\lambda)$ the number of parts strictly greater than
+$o(\lambda)$. The usual statistics are
+\[
+ \operatorname{rank}(\lambda)=L(\lambda)-\ell(\lambda),\qquad
+ \operatorname{crank}(\lambda)=
+ \begin{cases}
+  L(\lambda),&o(\lambda)=0,\\
+  \mu(\lambda)-o(\lambda),&o(\lambda)>0.
+ \end{cases}
+\]
+There are exactly two partitions of two, with the following values:
+\[
+\begin{array}{c|r|r|r|r}
+\lambda &L&\ell&\operatorname{rank}&\operatorname{crank}\\\hline
+(2)&2&1&1&2\\
+(1,1)&1&2&-1&-2
+\end{array}
+\]
+The rank distribution therefore has values $-1,1$, once each,
+whereas the crank distribution has values $-2,2$, once each.
+In particular, exactly one partition has rank one and none has
+crank one. Modulo $5$, $7$ or $11$, exactly one partition has
+rank congruent to one and none has crank congruent to one.
+
+These definitions and the three Ramanujan classes are recorded in
+\href{https://www.mi.uni-koeln.de/Bringmann/BMRFinalPublication.pdf}
+{Bringmann--Mahlburg--Rhoades, \emph{Asymptotics for rank and crank
+moments}}, introduction, equations (1.2)--(1.3).
+The familiar exceptional generating-function convention at $n=1$
+is irrelevant: this example uses actual partitions of $n=2$.
+
+\newpage
+\section{Formal objects and exhaustive classification}
+Lean uses Mathlib's \texttt{Nat.Partition n}, whose parts are a
+multiset of positive natural numbers with sum $n$. The largest
+part is the maximum of the actual parts; rank subtracts the
+multiset cardinality in $\mathbf Z$. The crank counts actual ones
+and actual parts greater than that count, also subtracting in
+$\mathbf Z$. Negative values are not truncated by natural-number
+subtraction.
+
+The definitions \texttt{two} and \texttt{oneOne} are genuine members
+of \texttt{Nat.Partition 2}. The theorem
+\texttt{partition\_two\_classification} proves they exhaust that
+type. If a part two occurs, its remaining parts have sum zero and
+positivity forces them to be absent. Otherwise every positive
+part is one; the sum forces exactly two such parts. Extensionality
+of the partition type identifies the two cases with the named
+objects. Their distinctness is proved from their different part
+counts. The theorem \texttt{univ\_partition\_two} consequently
+identifies the full finite universe with these two objects.
+
+The definitions \texttt{distribution} and
+\texttt{residueDistribution} count filtered subsets of this full
+universe, for arbitrary sizes and integer statistics. The four
+rank/crank value theorems are computed from the definitions.
+The integer and modular count theorems then use the exhaustive
+universe equality. These are counts over all partitions, not over
+an assumed or incomplete test list.
+
+\section{Formal negations}
+The predicate \texttt{RamanujanExceptional} is exactly the union
+of the three size residue classes above.
+\texttt{two\_nonexceptional} proves that two avoids all of them.
+The final theorems negate each of the following universal claims:
+\begin{enumerate}
+\item Outside the exceptional sizes, rank equals crank on every
+individual partition.
+\item Outside those sizes, the full integer-valued rank and crank
+distributions are equal.
+\item Outside those sizes, their residue distributions are equal
+for all three moduli $5,7,11$.
+\end{enumerate}
+The explicit value-one discrepancy supplies the latter two
+contradictions. Nothing here contradicts the actual Ramanujan
+congruences or claims that rank and crank should be interchangeable
+in the established theory.
+
+\section{Verification}
+The project pins Lean 4.33.0 and Mathlib commit
+\[
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\]
+Source-bound receipts record a separate new Main build, sixteen
+transitive axiom audits and official fresh kernel replay. No
+\texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed
+the full formal chain. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
