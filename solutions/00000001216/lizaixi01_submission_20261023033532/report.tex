@@ -1,0 +1,118 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001216: the devil wins on the three-row cylinder}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{Board and rules}
+The source starts with an angel on $\mathbf Z^2$ and restricts the board
+to $\mathbf Z\times[0,2]$. Its lattice points are exactly the three-row
+board $S=\mathbf Z\times\{0,1,2\}$. Start at $(0,0)$. We disprove its
+assertion that the power-two angel has a winning strategy on this board.
+The separate half-plane assertion is not needed for this refutation.
+
+Use Conway's original rules, \href{https://library.slmath.org/books/Book29/files/conway.pdf}
+{\emph{The Angel Problem}}, \emph{Games of No Chance}, 1996, p.3:
+the devil may eat ``any square of the board whatsoever,'' and the angel
+can jump to an uneaten square within its power in the king metric.
+In particular the occupied square may be eaten; this forbids future
+landings there but does not end the game immediately. Our proof gives
+the angel the first move each round, before the devil eats one square.
+
+We strengthen the angel further: it may change to any of the three
+rows, and may even stay put, provided its horizontal displacement is
+at most two and its landing square was not eaten on an earlier turn.
+This includes all usual king-distance-two moves. It also includes all
+vertical moves if the three rows are identified cyclically, so the
+same obstruction covers that interpretation of ``cylinder.''
+
+\section{An explicit schedule on the infinite board}
+The devil uses a fixed schedule, independent of every angel move.
+First eat all three squares of each of these four columns, in order:
+\[
+ -31,\quad -30,\quad 30,\quad 31.
+\]
+This takes twelve devil turns. In the first twelve angel moves its
+horizontal coordinate has absolute value at most $24$, so it has not
+passed either double wall when the walls finish. Next eat the interior
+columns $-29,-28,\ldots,29$, each in row order $0,1,2$.
+There are $59\cdot3=177$ interior squares. Thus the walls and interior
+are all eaten after $12+177=189$ devil turns.
+
+For complete precision, define the infinite injective column sequence
+\[
+ c(k)=\begin{cases}
+ -31,-30,30,31&k=0,1,2,3\text{ respectively},\\
+ k-33&4\le k<63,\\
+ k-31&k\ge63.
+ \end{cases}
+\]
+On zero-based devil turn $n$, eat
+$d(n)=(c(\lfloor n/3\rfloor),n\bmod3)$.
+All these squares are distinct, including the unused exterior tail.
+Consequently this is a legal schedule eating exactly one new square
+per turn, not an assumption that the board was initially finite.
+
+\newpage
+\section{Why every response loses in bounded time}
+Write $a(0)=(0,0)$ and let $a(n+1)$ be the position chosen by the angel
+on round $n$, before the devil eats $d(n)$. Legal landing requires
+\[
+ |a(n+1)_x-a(n)_x|\le2,\qquad
+ a(n+1)\ne d(m)\quad(0\le m<n).
+\]
+The strict inequality $m<n$ is essential: the square eaten immediately
+after the current angel move is not incorrectly prohibited in advance.
+
+Induction gives $|a(n)_x|\le2n$ during the initial phase.
+In particular $a(12)_x\in[-24,24]\subseteq[-29,29]$.
+After the walls finish, suppose the angel lies in $[-29,29]$.
+Its next horizontal coordinate lies in $[-31,31]$, and all squares
+in the four wall columns $-31,-30,30,31$ are already eaten.
+The next coordinate must therefore again lie in $[-29,29]$.
+This proves confinement from move twelve onward, using the actual
+horizontal move bound and the earlier burns on the infinite board.
+
+Every interior square $(x,y)$ occurs among $d(0),\ldots,d(188)$:
+its column index is $k=x+33\in\{4,\ldots,62\}$ and its turn is
+$m=3k+y<189$. If the angel could make its 190th move, confinement
+would place $a(190)$ in the interior, while legality would prohibit
+all 189 earlier burned squares. This is a contradiction.
+
+Thus the devil prevents the 190th angel move after at most 189 burns.
+The proof applies to every sequence of legal responses; it imposes
+no memory, locality, determinism or computability constraint on them.
+In particular no full-history winning angel strategy exists, and the
+claimed restricted $7\times7$ strategy cannot exist either.
+
+\section{Formal objects and scope}
+Lean uses the actual infinite type $\mathbf Z\times\mathrm{Fin}(3)$.
+\texttt{burn\_injective} proves the schedule never repeats a square.
+\texttt{LegalPrefix} records exactly the first prescribed number of
+angel moves, with the timing above. The bounded induction
+\texttt{trapped\_after\_walls} derives the finite interval; it is not
+an input assumption. \texttt{no\_legal\_190\_moves} proves finite
+failure and \texttt{no\_infinite\_legal\_play} follows.
+
+\texttt{AngelStrategy} permits an arbitrary function of the complete
+finite angel and devil histories. \texttt{Follows} records its response
+rule. The explicit schedule defeats every such strategy. The final
+theorem negates even the necessary condition of surviving all legal
+oblivious devil schedules, which any strategy against an adaptive
+devil would have to satisfy. No game determinacy theorem is assumed.
+
+The given start $(0,0)$ suffices for the claimed standard game; we do
+not separately assert a formal translation theorem for other starts.
+Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d} are pinned.
+A new root build, fourteen transitive axiom audits and full official
+\texttt{leanchecker --fresh Main} replay accompany the source.
+No \texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted, with independent source/report review by a
+separate supervising Codex agent; this is AI review, not human
+certification. Organizer acceptance is pending.
+\end{document}
