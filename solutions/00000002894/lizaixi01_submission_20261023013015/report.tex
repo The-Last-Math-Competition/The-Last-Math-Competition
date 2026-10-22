@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000002894: a vertexless triangle in $\mathrm{PG}(2,9)$}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The classification fails without a smallness restriction}
+The English statement claims that nontrivial minimal blocking sets in
+planes of order $q^2$ are of R\'edei type, and that non-R\'edei examples
+exist only when $q$ is square. Neither clause imposes a smallness
+restriction. We give an inclusion-minimal counterexample in the
+Desarguesian plane of order $Q=9=3^2$. Its parameter $q=3$ is not square.
+Here ``minimal'' means inclusion-minimal, as in the English statement
+and standard terminology; it does not mean minimum cardinality.
+
+A blocking set meets every line. It is nontrivial if it contains no
+whole line, and minimal if no proper subset is blocking. A R\'edei
+blocking set has a line $\ell$ with $|B\setminus\ell|=Q$.
+These definitions appear in G\'acs--Lov\'asz--Sz\H{o}nyi,
+\href{https://msp.org/iig/2008/6-1/iig-v6-n1-p12-p.pdf}
+{\emph{Directions in $\mathrm{AG}(2,p^2)$}},
+Innovations in Incidence Geometry 6--7 (2007--08), pp.189--201,
+printed p.191. In particular, the necessary property of R\'edei type
+used here does not require an additional size bound.
+
+\section{The actual point set and its tangents}
+Work over $K=\mathbf F_9$, in homogeneous coordinates. Let
+\[
+ B=\{[0:1:t],[t:0:1],[1:t:0]:t\in K^\times\}.
+\]
+These are precisely the three coordinate sides with their three
+vertices removed. The three families are disjoint, and each has
+$8$ distinct points, so $|B|=24$.
+
+Every nonzero linear form $a_0x+a_1y+a_2z$ vanishes at some point of
+$B$. If two coefficients are nonzero, choose the corresponding
+coordinates to cancel and set the third coordinate to zero. If just
+one coefficient is nonzero, choose its coordinate to be zero and
+the other two to be one. Thus $B$ is blocking.
+
+The tangent to $[0:1:t]$ has equation $-ty+z=0$; cyclically the other
+tangents are $x-tz=0$ and $-tx+y=0$. Each meets $B$ in exactly the
+indicated point. Removing any point therefore leaves a line unblocked.
+More generally, any blocking subset of $B$ must contain every point
+of $B$, which proves inclusion-minimality.
+
+\newpage
+\section{Nontriviality and failure of R\'edei type}
+Every line has a point outside $B$. If a coefficient $a_i$ of its
+nonzero linear form is zero, the corresponding coordinate vertex
+lies on the line and is outside $B$. Otherwise the point
+\[
+ [a_0^{-1}:a_1^{-1}:a_2^{-1}]
+\]
+lies on the line because $1+1+1=0$ in characteristic three. All its
+coordinates are nonzero, so it is outside $B$. Hence $B$ contains no
+line and is nontrivial.
+
+A projective line over $K$ has $Q+1=10$ points. Consequently every
+line satisfies
+\[
+ |B\setminus\ell|=24-|B\cap\ell|\ \ge 24-10=14>9.
+\]
+There is no R\'edei line. Thus this same actual set refutes both the
+universal R\'edei assertion and the claimed square-$q$ restriction.
+The further characterization of R\'edei sets cannot repair either
+false necessary clause and is not needed for the disproof.
+
+\section{Formal correspondence}
+The Lean point type is Mathlib's genuine
+\texttt{Projectivization K (Fin 3 $\to$ K)}, not a list of assumed
+incidence objects. Lines are the projectivizations of kernels of
+all nonzero homogeneous linear forms. The kernel dimension is
+proved to be two by surjectivity of the form and rank--nullity.
+A restriction map into the projectivization of that kernel is
+proved injective, giving the line cardinality upper bound from
+Mathlib's finite projective-space cardinality theorem. Only this
+upper bound is needed in the formal contradiction.
+
+The point set is the image of the explicit three families, and the
+family map is proved injective using projective scalar equivalence.
+Blocking, the exact tangent intersections, minimality and
+nontriviality are proved from coordinates. The formal predicate
+\texttt{IsRedei} is exactly the displayed necessary line-complement
+criterion. The final \texttt{counterexample} specializes to
+\texttt{GaloisField 3 2}, proves its cardinality is $3^2=9$, proves
+$3$ is not square, and bundles the $24$-point count and all four
+blocking/minimal/nontrivial/non-R\'edei properties. No stochastic
+or numerical incidence test replaces the mathematical objects.
+
+\section{Verification}
+The project pins Lean 4.33.0 and Mathlib commit
+\[
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\]
+Source-bound receipts accompany a new Main build, transitive axiom
+audits and official \texttt{leanchecker --fresh Main} replay.
+No \texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed
+the formal chain. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
