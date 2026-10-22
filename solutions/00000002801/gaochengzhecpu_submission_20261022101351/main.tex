@@ -1,0 +1,227 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{An irreducible chain whose empirical-measure\newline
+rate function has no Hessian\\\large Disproof of Conjecture 00000002801}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The deterministic alternating two-state Markov chain is
+irreducible. Its actual empirical probability measures obey
+a full good large deviation principle: the rate is zero
+at the stationary probability vector and infinite elsewhere.
+The zero is unique, but the rate is not even locally
+real-valued within the interior of the probability simplex.
+Its ordinary real Hessian therefore does not exist.
+This disproves the Hessian assertion under the stated
+irreducibility hypothesis, without any choice of spectral-gap
+convention or Fisher-information normalization.
+\end{abstract}
+
+\section*{The actual irreducible chain}
+Use states $0,1$ and transition matrix
+\[
+                   P=\begin{pmatrix}0&1\\1&0\end{pmatrix}.
+\]
+Every row is a probability vector. Moreover $P^2=I$:
+distinct states communicate in one step and every state
+returns to itself in two steps. Thus the finite chain is
+irreducible in the usual positive-step reachability sense.
+It is periodic, of period two. The source assumes
+irreducibility and does not impose aperiodicity, laziness
+or strictly positive transition entries.
+
+Start at state zero. The complete path is
+$X_k=0$ for even $k$ and $X_k=1$ for odd $k$.
+Its actual law is the point mass at this path. For every
+candidate path $w$ and every $n$, its cylinder probability
+is exactly
+\[
+ \Pr(X_0=w_0,\ldots,X_n=w_n)
+   =\boldsymbol1_{w_0=0}
+        \prod_{k=0}^{n-1}P_{w_k w_{k+1}}.
+\]
+Indeed, all valid transitions force the unique alternating
+path, while any invalid initial state or transition makes
+both sides zero. Lean proves this identity for the actual
+path probability measure, rather than only giving the
+deterministic path a Markov label.
+
+The unique stationary probability vector is
+$\pi=(1/2,1/2)$. Direct multiplication gives $\pi P=\pi$;
+conversely invariance forces the two masses equal and
+normalization then forces each to be $1/2$.
+
+\newpage
+\section*{The complete empirical measure and its law}
+Represent finite-state probability measures by their
+two masses in $\mathbb R^2$. For the actual sample
+$X_0,\ldots,X_n$, let
+\[
+ L_n(s)=\frac1{n+1}\sum_{k=0}^n\boldsymbol1_{X_k=s},
+               \qquad s\in\{0,1\}.
+\]
+Both coordinates are nonnegative and their sum is one.
+This is the entire empirical probability vector, not a
+single selected statistic. The number of visits to state
+one in the first $m$ observations is $\lfloor m/2\rfloor$.
+In particular
+\[
+       |L_n(s)-1/2|\leq\frac1{n+1},\qquad L_n\to\pi.
+\]
+The actual distribution $\mu_n$ of $L_n$ is the pushforward
+of the path law by the empirical-vector map. Since this
+chain's path is deterministic, that pushforward is
+$\mu_n=\delta_{L_n}$. Both its pushforward definition and
+this Dirac identity are checked in Lean, as is its
+probability-measure normalization.
+
+\section*{A full good large deviation principle}
+Use speed $n+1$, the actual number of observations. This
+is the standard speed $m$ after writing $m=n+1$.
+The LDP requires, for every open $G$ and every closed $F$,
+\begin{align*}
+ -\inf_{x\in G}I(x)&\leq
+     \liminf_{n\to\infty}\frac1{n+1}\log\mu_n(G),\\
+ \limsup_{n\to\infty}\frac1{n+1}\log\mu_n(F)&\leq
+     -\inf_{x\in F}I(x).
+\end{align*}
+Here $\log0=-\infty$ and $\inf\varnothing=+\infty$.
+These are the standard open/closed-set inequalities;
+see \cite[Section 2]{varadhan}. Define
+\[
+ I(x)=\begin{cases}0,&x=\pi,\\+\infty,&x\ne\pi.\end{cases}
+\]
+We next verify these inequalities for \emph{all} open
+and closed sets in the genuine real coordinate space.
+Thus the rate is established by the actual distributions;
+it is not merely assigned a convenient formula.
+
+The use of the ambient $\mathbb R^2$ causes no boundary
+artefact: all measures are supported on the closed
+probability simplex. The bounds therefore also hold in
+its relative topology, and the Hessian obstruction below
+is shown along its interior affine coordinate.
+
+\newpage
+\section*{Proof of the LDP and failure of the Hessian}
+If an open set $G$ contains $\pi$, convergence $L_n\to\pi$
+makes $\mu_n(G)=1$ eventually. Its scaled logarithm is
+eventually zero, as required since $\inf_G I=0$.
+If $G$ excludes $\pi$, its required lower bound is simply
+$-\infty$ and is automatic.
+
+If a closed set $F$ excludes $\pi$, its open complement
+contains $L_n$ eventually. Thus $\mu_n(F)=0$ eventually,
+and the scaled logarithm is $-\infty$, equal to the
+required upper bound. If $F$ contains $\pi$, its required
+upper bound is zero, and every log probability is at
+most zero. This proves the full LDP.
+
+The rate is lower semicontinuous. Every finite sublevel
+set is empty at negative levels and the singleton
+$\{\pi\}$ at nonnegative finite levels, hence compact.
+Thus the rate is good. Its unique zero is exactly the
+actual unique stationary probability vector.
+
+Now parametrize the interior probability line by
+\[
+                   q(t)=(1/2-t,\,1/2+t).
+\]
+For $|t|<1/2$ these are genuine probability vectors,
+and $q(t)=\pi$ exactly when $t=0$. For every $\delta>0$
+the value
+\[
+                 t=\tfrac12\min(\delta,1/2)
+\]
+satisfies $0<t<\delta$, $t<1/2$, and $I(q(t))=+\infty$.
+Consequently there is no real-valued function agreeing
+with this rate on any neighborhood of zero in this
+interior coordinate. In particular it has no ordinary
+real Hessian at its zero.
+
+\begin{theorem}
+An irreducible finite Markov chain can have a full good
+empirical-measure LDP with a unique zero at which the
+rate function has no ordinary real Hessian.
+\end{theorem}
+\begin{proof}
+The alternating chain and rate constructed above satisfy
+all these properties. The obstruction occurs inside the
+probability simplex, before any candidate Hessian constant
+or Fisher-information formula can be considered.
+\end{proof}
+
+The example refutes the source's Hessian clause. It does
+not refute its unique-zero clause, which actually holds
+here. Generalized extended-valued second epi-derivatives
+are a different notion and are not the classical real
+Hessian asserted in a Fisher-information identity.
+
+\newpage
+\section*{Formalization and reproducibility}
+The actual transition kernel is a Mathlib probability
+mass function: state $s$ moves to its Boolean opposite
+with probability one. The complete path law is a genuine
+PMF on infinite sample paths. Lean proves its exact
+finite-dimensional Markov factorization both for the
+outer measure and for the actual probability measure.
+
+The empirical law is the actual pushforward of that
+path law through the full occupation-vector map. The
+two coordinates, probability normalization and convergence
+to $\pi$ are proved from the exact occupation counts.
+The actual transition matrix is irreducible, and $\pi$
+is proved to be its unique normalized invariant vector.
+
+The LDP definition in the Lean file quantifies over all
+open and closed sets with the displayed standard
+inequalities. Its scaled logarithm is extended-real:
+probability zero gives $-\infty$, probability one gives
+zero, and positive finite probabilities use the ordinary
+real logarithm divided by the speed. In particular,
+Lean's totalized value $\operatorname{Real.log}(0)=0$
+is never used as the logarithm of a zero probability.
+
+The general convergent-Dirac theorem proves the LDP,
+then applies it to the actual empirical distributions.
+Separate theorems prove lower semicontinuity, compact
+finite level sets, the unique zero and absence of a
+real-valued germ on the interior probability line.
+No chosen numerical Hessian or spectral-gap definition
+is used to create the contradiction.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The whole project is rebuilt afresh with strict checking.
+Printed theorem dependencies contain only standard
+foundational axioms; no placeholders, custom axioms or
+external computation oracles are used. No auxiliary
+numerical verifier is needed. Compile this paper with
+\texttt{tectonic main.tex}.
+
+Exact source, provenance and actual verification logs
+are included. The author agent and parent performed
+separate internal reviews of the proof and final
+artifacts; no external independent review is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000002801. Exact bilingual source included.
+\bibitem{varadhan} S. R. S. Varadhan,
+\emph{Large Deviations}, Spring 2010 lecture notes,
+Section 2, General Principles.
+\href{https://math.nyu.edu/faculty/varadhan/LDP/1-2.pdf}{Author-hosted notes}.
+The reference fixes the standard LDP definition;
+the example's complete proof is given above.
+\end{thebibliography}
+\end{document}
