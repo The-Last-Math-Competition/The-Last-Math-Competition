@@ -1,0 +1,25 @@
+# Parent adversarial review: conjecture 00000006291
+
+Verdict: PASS
+
+I read both exact source languages, the full Lean construction and the complete human proof. The source claims that the zeroth group completely classifies regular rings, with an ordered-group refinement. The paper explicitly uses unital von Neumann regularity and algebraic K0 and explains why completeness would restrict to the corresponding implication for fields. The source supplies no fixed ground field, additional coordinate-ring structure or narrower regular-ring subclass. Both F2 and F3 are regular under the stated equation aba=a, so they are valid test objects. The argument refutes the necessary complete-invariant clause without assigning meanings to the unspecified continuous-geometry clauses.
+
+The formal FD objects carry actual module types, additive groups, scalar actions and Mathlib finite-generation instances. The construction covers every finitely generated module over a field. objects_projective proves projectivity, and object_has_standard_basis gives the actual linear equivalence to the finite standard space. Thus the group is built from precisely the finite projectives relevant to field K0; it is not an integer group introduced under a borrowed name.
+
+StableRel is the existence of a linear equivalence between cross direct sums of two module pairs. Its rank criterion is proved using finite-dimensional classification. I checked stableRel_iff_stabilized: adding an arbitrary common finite-dimensional summand gives the usual group-completion relation, and cancellation of its dimension is legitimate. The quotient rank is well-defined, injective and surjective. Transporting the abelian-group structure along that bijection is mathematically valid because pairClass_add and pairClass_neg separately identify its operations with the actual direct-sum and exchange formulas. Object isomorphism and direct-sum relations are established explicitly.
+
+I checked the arbitrary-target group_completion_universal theorem in full. An isomorphism-invariant direct-sum additive object function extends by f(P)-f(Q). Cross-sum equivalence proves this formula well-defined; additivity follows from the actual representative addition formula. The object-class formula and expression of each pair class as a difference prove uniqueness. This is the defining Grothendieck universal property, preventing a semantic shortcut in naming the quotient K0. Over fields the finite-projective direct-sum presentation is the standard definition; the paper correctly labels the equivalent short-exact-sequence presentation as a splitting argument supplied on paper.
+
+The positive cone is defined by actual module classes. positive_iff_rank and le_iff_positive_difference show that the transported partial order is exactly the order from that cone. An actual ordered additive isomorphism with Z is constructed, not merely an abstract bijection. unit_is_regular_module identifies the selected unit with the class of the ring acting on itself, and the ordered equivalences preserve it. Consequently the counterexample retains the full positive cone and distinguished unit. Nonisomorphism of the actual ZMod fields excludes every ring equivalence through their different underlying finite cardinalities.
+
+FieldCompleteness quantifies universally over fields with regularity and equal scaled ordered groups before demanding a ring isomorphism. Its negation is proved by F2 and F3. This is logically sufficient to refute the unrestricted classification, and no formal K0 construction for all regular rings is falsely claimed. The familiar dimension computation is acknowledged through the Stacks Project's actual Example 10.55.2, which I opened and checked. A separate GPT-6.1 Sol / High agent read the mathematics and Lean construction and found no actionable defect; its scope-limited review is included without claiming extra compiler or PDF checks it did not perform.
+
+The frozen mathematical source passed a separate fresh-directory lake build and strict Lean invocation with warnings as errors. The five printed main and semantic-bridge audits contain only propext, Classical.choice and Quot.sound. Actual logs, pinned dependency commits and tracked-source cleanliness were checked. Native compilation of the saved TeX succeeded. I inspected all three final PDF pages: definitions, group-completion formulas, universal-property proof, cone and unit argument, formal scope, source citation and reproduction instructions are legible and unclipped, with no compiler warnings, overlap or missing characters. This is author-agent development with distinct parent adversarial review and an additional AI semantic audit, not external independent approval.
+
+
+Reviewed artifact hashes:
+
+- Main.lean: `732a8f95c8b608e7a16e961700e4bbe3b3843ceaf3202f7a3611a36ac197cf98`
+- main.tex: `e419c940abe1c336870537fda9584bb84227345960164ea9e9deac319f0e7525`
+- main.pdf: `eecc413696469e6b7c50f41095480872e3960f9f7a5a27d38c29b8d9913a59f5`
+- SOURCE.md: `4f7bc3d24e825132ecd76feb10daa6cf9f23e2a79b70a894cf549e3e3d0d43d4`
