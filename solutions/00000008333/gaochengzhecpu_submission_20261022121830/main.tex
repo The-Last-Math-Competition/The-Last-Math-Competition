@@ -1,0 +1,248 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{Markov Numbers Do Not Have Square-Root Counting Growth:\\A Disproof of Conjecture 00000008333}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Let $M(X)$ count the distinct positive integer Markov numbers at most
+$X$. We prove the explicit estimate
+\[
+ M(64^n)\le 2+3(6n+1)^2\,2^{2n+1}\qquad(n\ge0).
+\]
+Consequently $M(64^n)/8^n\longrightarrow0$, contradicting
+$M(X)\sim c\sqrt X$ for every $c>0$. The argument uses elementary
+descent, a complete binary tree of actual Markov triples, and a bound
+on its words after their second right branch. Lean verifies the full
+bridge from positive integer solutions to the actual counting function
+and the quantified negation of the asserted asymptotic.
+\end{abstract}
+
+\section*{Reading of the source}
+The English source asserts square-root growth for the distribution
+of Markov numbers; the Chinese version explicitly writes
+$\mathrm{mark\_dist}\sim c x^{1/2}$. We use the usual cumulative
+counting interpretation
+\[
+\begin{split}
+\mathcal M&=\{m\in\mathbb Z_{>0}:\ \exists a,b\in\mathbb Z_{>0},\
+ a^2+b^2+m^2=3abm\},\\
+M(X)&=\#\{m\in\mathcal M:m\le X\}.
+\end{split}
+\]
+Numbers are counted once, even if they occur in several triples. The
+constant in an asymptotic growth law is positive. It suffices to
+consider integer cutoffs: an asserted asymptotic for all real cutoffs
+would also hold along the integers.
+
+The source also discusses prime Markov numbers, Frobenius uniqueness,
+and random walks. We refute its square-root clause, which is necessary
+for the conjunction asserted there. We make no claim to settle its
+other clauses. In particular, the proof neither assumes nor establishes
+uniqueness of the largest coordinate among tree nodes.
+
+For historical context, Zagier proved a much sharper asymptotic for
+the number of sorted Markov triples below a bound~\cite{zagier}.
+That count allows repeated largest-coordinate labels. We do not
+identify it with the count of distinct numbers or use that asymptotic
+in this proof. The elementary upper bound below is verified directly.
+
+\section*{Descent and complete tree coverage}
+Call $(a,b,c)$ a sorted Markov triple when $0<a\le b\le c$ and
+\begin{equation}\label{eq:markov}
+ a^2+b^2+c^2=3abc.
+\end{equation}
+Starting with $T_\varnothing=(1,2,5)$, define children of a strict
+sorted triple by
+\[
+ L(a,b,c)=(a,c,3ac-b),\qquad
+ R(a,b,c)=(b,c,3bc-a).
+\]
+For a finite word $w$ in $L,R$, let $T_w$ be its value, applying its
+letters from left to right, and let $C(w)$ be its largest coordinate.
+
+\begin{lemma}\label{lem:coverage}
+Every sorted Markov triple is $(1,1,1)$, $(1,1,2)$, or some $T_w$.
+Every $T_w$ is strict: $0<a<b<c$.
+\end{lemma}
+\begin{proof}
+The substitution $b\mapsto3ac-b$ preserves \eqref{eq:markov}; this
+follows by expansion. For a strict triple, $a\ge1$ and $b<c$, so
+$3ac-b>c$. The same argument gives $3bc-a>c$. Thus both children
+are strict Markov triples, and the root is one as well.
+
+For completeness, take a sorted solution other than one with
+$a=b=1$, and set $d=3ab-c$. First $c<3ab$: the opposite inequality
+would give $3abc\le c^2$, contradicting \eqref{eq:markov} and
+$a,b>0$. Hence $d>0$, and
+\[
+ d+c=3ab,\qquad dc=a^2+b^2.
+\]
+We claim $d<b$. Since $(a,b)\ne(1,1)$,
+\begin{equation}\label{eq:negative}
+ a^2+2b^2<3ab^2.
+\end{equation}
+Indeed, for $a=1$ we have $b\ge2$; for $a\ge2$ we use
+$a^2\le b^2$ and $3ab^2\ge6b^2>3b^2$. If $d\ge b$, then
+$(d-b)(c-b)\ge0$, whereas the displayed identities give
+\[
+ (d-b)(c-b)=a^2+2b^2-3ab^2<0.
+\]
+This is a contradiction. Also $b<c$, because $b=c$ would imply
+$db=a^2+b^2>b^2$ and hence $d>b$.
+
+Mutation shows that $(a,b,d)$ again satisfies the equation. If
+$d\le a$, its sorted version is $(d,a,b)$, and the original triple
+is its $R$ child. If $d>a$, its sorted version is $(a,d,b)$, and the
+original is its $L$ child. Either parent has smaller coordinate sum.
+Induction therefore reduces to the case $a=b=1$, where the equation
+gives $c=1$ or $2$. The parent $(1,1,1)$ can lead only to $(1,1,2)$;
+the first strict triple after $(1,1,2)$ is $(1,2,5)$.
+These are exactly the exceptional triples and root stated above.
+\end{proof}
+
+\begin{lemma}\label{lem:birth}
+For every $m\in\mathcal M$, either $m=1$, $m=2$, or $C(w)=m$ for
+some finite word $w$.
+\end{lemma}
+\begin{proof}
+Sort any positive solution containing $m$ and use
+Lemma~\ref{lem:coverage}. At the root, its coordinates are $1,2,5$,
+and $5=C(\varnothing)$. Each child reuses two coordinates from its
+parent and creates just its own new largest coordinate. Induction
+along its path therefore shows that every coordinate is either
+$1$, $2$, or the largest coordinate of an ancestor. This argument
+does not bound the largest coordinate of an arbitrary triple
+containing a small $m$: it chooses the ancestor at which $m$ is a
+largest coordinate.
+\end{proof}
+
+\section*{A bound on words below a cutoff}
+For a strict triple $(a,b,c)$, either child's largest coordinate is at
+least $(3a-1)c$. For $L$ this follows from $b\le c$; for $R$ it
+follows from $b\ge a$ and $a\le c$. A child never decreases the
+least coordinate. In addition, every $R$ increases that coordinate
+by at least one, since it replaces $a$ by $b>a$.
+It follows that
+\begin{enumerate}
+\item $C(w)\ge 2^{|w|}\cdot5$, so $C(w)\le64^n$ implies
+$|w|\le6n$;
+\item after two $R$ letters the least coordinate is at least three,
+so each remaining step increases the largest coordinate by a factor
+of at least eight. If $w=uv$, $u$ contains at least two $R$ letters,
+and $C(w)\le64^n$, then $8^{|v|}\le64^n$ and $|v|\le2n$.
+\end{enumerate}
+These statements follow equally for any initial strict triple by
+induction, multiplying its largest coordinate by the stated factor
+at each step.
+
+Write $A=6n+1$. Every word with $C(w)\le64^n$ belongs to one of
+three classes, according to its first two $R$ letters:
+\[
+ L^i,\qquad L^i R L^j,\qquad L^i R L^j Rv.
+\]
+Here $0\le i,j\le6n$, and in the third class $|v|\le2n$.
+The first two classes explicitly include paths stopping before the
+second $R$. There are at most $A$ choices of the first type,
+$A^2$ of the second, and
+\[
+ A^2\sum_{k=0}^{2n}2^k\le A^2\,2^{2n+1}
+\]
+of the third. Thus the total is at most
+$3A^2\,2^{2n+1}$. We need only an upper bound: different words may
+have the same largest coordinate.
+
+By Lemma~\ref{lem:birth}, every distinct $m\in\mathcal M$ at most
+$64^n$, except possibly $1,2$, is the largest coordinate of a word
+in this finite collection. Taking its image under $C$ gives
+\begin{equation}\label{eq:bound}
+ M(64^n)\le2+3(6n+1)^2\,2^{2n+1}.
+\end{equation}
+This is a bound on the actual set of positive integer Markov numbers,
+not just a count of an independently specified tree.
+
+\section*{Contradiction to square-root growth}
+Dividing \eqref{eq:bound} by $8^n=\sqrt{64^n}$ gives
+\[
+0\le\frac{M(64^n)}{8^n}\le
+\frac{2}{8^n}+216\frac{n^2}{2^n}
++72\frac n{2^n}+6\frac1{2^n}\longrightarrow0.
+\]
+Each term tends to zero because a fixed polynomial grows more slowly
+than a geometric sequence of ratio greater than one. In particular,
+for every $c>0$ and every $N$ there is $n\ge N$ with
+$M(64^n)<c8^n$.
+
+\begin{theorem}
+There is no real $c>0$ for which $M(X)/\sqrt X\longrightarrow c$
+as the integer cutoff $X\longrightarrow\infty$.
+\end{theorem}
+\begin{proof}
+Such a limit, restricted to $X=64^n\longrightarrow\infty$, would
+give $M(64^n)/8^n\longrightarrow c$. The same sequence tends to
+zero, so uniqueness of limits would give $c=0$, a contradiction.
+Thus the square-root clause, and hence the source's conjunction,
+is false under the stated counting interpretation.
+\end{proof}
+
+\section*{Formal verification and scope}
+The Lean development defines the actual equation over natural
+numbers with all three coordinates positive. Its finite set at
+cutoff $X$ filters $\{0,\ldots,X\}$ by existence of positive
+$a,b$ satisfying the equation; its cardinal is exactly $M(X)$.
+No table of Markov numbers is used. The descent, sorted tree
+coverage, six sorting cases, coordinate birth lemma, path growth,
+three word classes, finite-set image bound, real limit, and final
+negation are all formally proved.
+
+The principal statements, in namespace \texttt{Markov8333}, are
+\begin{center}
+\texttt{number\_birth}, \texttt{count\_bound},\\
+\texttt{count\_subsequence\_zero}, \texttt{arbitrarily\_small\_ratio},\\
+\texttt{conjecture\_8333\_false :}\quad
+$\neg\,\texttt{SquareRootGrowth}$.
+\end{center}
+Here \texttt{SquareRootGrowth} is the existential positive-constant
+limit in the theorem above, with the actual finite-set cardinal.
+Lean also proves $\sqrt{64^n}=8^n$. The final theorem is not a
+conditional statement assuming completeness of the tree or
+uniqueness of Markov labels. The interpretation of the source's
+word ``distribution'' as a cumulative count, and the observation
+that a real-cutoff asymptotic implies its integer restriction,
+are stated explicitly here. No assertion about the other three
+source clauses is formalized or needed.
+
+The Lean source contains no unproved placeholders or additional axioms.
+The reported axioms of the five audited theorems are only
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+Development and self-review were performed by a delegated AI agent;
+the coordinating agent reviews separately. No external independent
+review is claimed.
+
+\section*{Source and reproduction}
+The exact bilingual statement is archived as \texttt{SOURCE.md},
+from the competition repository at commit
+\begin{center}\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\end{center}
+The source path is
+\begin{center}\texttt{conjectures/00000008333.md}.\end{center}
+Source hashes and snapshot checks are recorded in the accompanying
+provenance file. No earlier submission was found in that snapshot.
+
+The project pins Lean 4.19.0 and Mathlib commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+From the supplied \texttt{lean} directory, run
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+The proof is self-contained apart from standard finite-set,
+arithmetic, and real-analysis facts supplied by Mathlib.
+\begin{thebibliography}{1}
+\bibitem{zagier} D. Zagier, \emph{On the Number of Markoff Numbers
+Below a Given Bound}, Mathematics of Computation 39 (160), 1982,
+709--723.
+\href{https://people.mpim-bonn.mpg.de/zagier/files/doi/10.2307/2007348/fulltext.pdf}{Author's public copy}.
+\end{thebibliography}
+\end{document}
