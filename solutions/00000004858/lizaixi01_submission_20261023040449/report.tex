@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000004858: the missing non-elementary hypothesis}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The necessary existence claim}
+The source defines a free subgroup as a rank-two nonabelian free subgroup
+and proposes a construction in a torsion-free hyperbolic group. It does
+not assume that the group is non-elementary. Under this literal universal
+construction claim, its necessary existence conclusion is false:
+the infinite cyclic group $(\mathbf Z,+)$ is torsion free and hyperbolic,
+but has no nonabelian free subgroup.
+
+This refutation concerns that unqualified universal construction. It
+does not refute a statement restricted to non-elementary groups, or a
+conditional problem in which an existing rank-two free subgroup is
+already supplied. The proposed length and algorithmic bounds cannot
+repair the missing existence conclusion.
+
+We use the standard word-hyperbolic definition: a finitely generated
+group is hyperbolic when its word metric satisfies Gromov hyperbolicity.
+For the Cayley-graph formulation and the distinction between elementary
+and non-elementary groups, see Dru\c{t}u and Kapovich,
+\href{https://www.math.ucdavis.edu/~kapovich/EPR/ggt.pdf}
+{\emph{Geometric Group Theory}}, author manuscript, Definition 11.120
+and Example 11.121, printed p.407 (PDF p.427). In particular, the latter
+example includes free groups of rank one. We prove the required word
+metric calculation and hyperbolicity directly.
+
+\section{The genuine shortest-word metric}
+Take the finite generating set $\{1\}$ of the additive integer group,
+whose signed letters are $1$ and $-1$. A word is an actual finite list
+$w=(a_1,\ldots,a_n)$ of these integers, evaluated by its integer sum.
+For every such word,
+\[
+ \left|\sum_{j=1}^n a_j\right|\le n.
+\]
+Conversely, every integer $z$ is the sum of $|z|$ copies of its sign,
+with the empty word for $z=0$. Thus the shortest word length is
+\[
+ L(z)=\min\{\operatorname{length}(w):
+       a_j\in\{1,-1\},\ \operatorname{sum}(w)=z\}=|z|.
+\]
+Lean defines this length as the actual infimum of the displayed set,
+proves nonemptiness, the universal lower bound, and an attaining word.
+It then derives the equality, instead of assigning $|z|$ as the
+definition of word length. The actual Mathlib Cayley graph for $\{1\}$
+has adjacency precisely $y-x=\pm1$.
+
+\newpage
+The associated word distance is consequently
+\[
+ d(x,y)=L(y-x)=|y-x|.
+\]
+Lean also identifies its real coercion with the actual metric-space
+distance on $\mathbf Z$. In particular it is a genuine metric.
+For all four integers $x,y,z,t$, direct ordered arithmetic proves
+\[
+ d(x,y)+d(z,t)\le
+ \max\{d(x,z)+d(y,t),\ d(z,y)+d(x,t)\}.
+\]
+This is Gromov's four-point condition with $\delta=0$.
+For the precise metric-space definition, see Nica and \v{S}pakula,
+\href{https://arxiv.org/abs/1408.0250v2}{\emph{Strong hyperbolicity}},
+arXiv:1408.0250v2, Definition 2.1, printed p.2. We cite only that
+metric-space definition: their later standing convention restricting
+hyperbolic \emph{groups} to non-elementary ones is explicit on p.3,
+and is absent from the competition statement.
+
+The integer group is torsion free: for every nonzero natural number
+$n$, the equation $nz=0$ forces $z=0$. The final formal counterexample
+collects finite generation, the actual shortest-word hyperbolicity,
+torsion freeness, and the subgroup obstruction for the same integer
+group. No geometric property is assumed merely by naming a predicate.
+
+\section{No actual free subgroup of rank two}
+The standard free group $F_2=\operatorname{FreeGroup}(\mathrm{Fin}\,2)$
+has canonical generators $a,b$. Their reduced words show
+\[
+ ab\ne ba.
+\]
+For any group homomorphism $f:F_2\to(\mathbf Z,+)$, however, commutativity
+of the target gives $f(ab)=f(ba)$. Hence $f$ is not injective.
+
+The Lean target uses \texttt{Multiplicative} to express the actual
+additive integer group in multiplicative notation. It separately
+proves that, for every actual subgroup $H$ of this group, there is no
+group isomorphism $F_2\simeq H$: composing such an isomorphism with the
+subgroup inclusion would give the impossible injective homomorphism.
+Thus no pair of words, regardless of length or computation time, can
+produce the subgroup required by the literal universal claim.
+
+\section{Verification}
+The project pins Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+The submission includes a new root build, transitive axiom audits for
+every theorem, and full official \texttt{leanchecker --fresh Main}
+replay with source-bound receipts. No \texttt{sorry},
+\texttt{native\_decide}, or additional axiom is used. OpenAI Codex
+assisted, and a separate supervising Codex agent reviewed source,
+report and PDF; this is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
