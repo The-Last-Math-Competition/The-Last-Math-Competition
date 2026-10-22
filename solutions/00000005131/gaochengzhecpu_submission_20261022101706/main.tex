@@ -1,0 +1,158 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{Algebraic Multiplicity Does Not Determine the Perturbation Exponent:\\A Disproof of Conjecture 00000005131}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+The zero matrix of order two has an eigenvalue of algebraic multiplicity
+two, but its worst perturbational eigenvalue displacement is exactly
+$\varepsilon$, and its pseudospectral area is exactly
+$\pi\varepsilon^2$. These are not the proposed sharp powers
+$\varepsilon^{1/2}$ and $\varepsilon^{2/2}$. Lean verifies the actual
+complex matrices, all admissible perturbations, the characteristic
+polynomial and multiplicity, the exact pseudospectrum, its Lebesgue
+area, and the negations of the corresponding universal power laws.
+\end{abstract}
+
+\paragraph{Reading of the source.}
+Both source languages explicitly introduce $m$ as \emph{algebraic
+multiplicity}, assert displacement of $\varepsilon^{1/m}$ type, and
+assert pseudospectral area of $\varepsilon^{2/m}$ type. We interpret a
+stated scaling exponent as a sharp power: comparability up to positive
+constants, or a positive finite leading asymptotic constant. We refute
+even the lower bound necessary for either meaning. A mere big-$O$
+upper bound is a weaker statement and is not refuted here.
+
+The same source says the exponent is decided by the maximal Jordan
+block size. That is the correct distinction, and it conflicts with
+using algebraic multiplicity as the exponent denominator. Our result
+does \emph{not} refute the version in which $m$ is consistently replaced
+by maximal Jordan block size. In the example that size is one. The
+independent, explicit area clause also fails with $m=2$, so this is
+not an argument based only on one chosen perturbation path.
+
+\paragraph{Precise conventions.}
+For a complex matrix $E$ use the induced infinity norm
+\[
+ \|E\|_\infty=\max_i\sum_j |E_{ij}|.
+\]
+Its closed perturbational pseudospectrum is
+\[
+ \Sigma_\varepsilon(A)=
+ \{z\in\mathbb C:\text{some }E\text{ satisfies }
+ \|E\|_\infty\le\varepsilon\text{ and }(A+E)v=zv
+ \text{ for some }v\ne0\}.
+\]
+Area means ordinary planar Lebesgue measure. The example has only one
+spectral cluster, avoiding any distinction between local and total
+pseudospectral area. Open perturbation balls give the same area and
+the same supremal displacement.
+
+\begin{theorem}
+Let $A=0\in M_2(\mathbb C)$ and $\varepsilon\ge0$. Then
+\[
+ \chi_A(X)=X^2,\qquad
+ \Sigma_\varepsilon(A)=\{z:|z|\le\varepsilon\},\qquad
+ \operatorname{area}(\Sigma_\varepsilon(A))=\pi\varepsilon^2.
+\]
+In particular the eigenvalue zero has algebraic multiplicity two,
+and the maximum possible eigenvalue displacement is exactly
+$\varepsilon$.
+\end{theorem}
+\begin{proof}
+The characteristic polynomial is $\det(XI_2)=X^2$, so the root
+multiplicity of zero is two. Let $Ev=zv$ with $v\ne0$, and choose a
+coordinate $i$ with $|v_i|=\max_j|v_j|>0$. Every perturbation in the
+stated ball satisfies
+\[
+ |z|\,|v_i|
+ =\left|\sum_jE_{ij}v_j\right|
+ \le\sum_j|E_{ij}|\,|v_j|
+ \le\left(\sum_j|E_{ij}|\right)|v_i|
+ \le\varepsilon|v_i|.
+\]
+Thus $|z|\le\varepsilon$. Conversely, if $|z|\le\varepsilon$,
+take $E=zI_2$. Its row sums are $|z|$, and it has eigenvalue $z$
+with nonzero eigenvector $(1,1)$. This proves the exact disk
+description, including attainment of displacement $\varepsilon$ at
+$z=\varepsilon$. Its Lebesgue area is $\pi\varepsilon^2$.
+\end{proof}
+
+\begin{theorem}
+Neither the sharp displacement exponent $1/m$ nor the sharp
+pseudospectral area exponent $2/m$ is universally determined by
+algebraic multiplicity $m$.
+\end{theorem}
+\begin{proof}
+Use the preceding matrix, with $m=2$. If the claimed displacement
+exponent were sharp, some $c,\delta>0$ would imply
+$c\sqrt\varepsilon\le\varepsilon$ whenever
+$0<\varepsilon<\delta$. Dividing by $\sqrt\varepsilon$ would give
+$c\le\sqrt\varepsilon$ at arbitrarily small positive
+$\varepsilon$, a contradiction. Similarly, the area law would require
+$c\varepsilon\le\pi\varepsilon^2$ on a positive interval, which would
+give $c\le\pi\varepsilon$ there, again impossible.
+
+The Lean statements use $\varepsilon=t^m$ and $t\downarrow0$ to
+express both necessary lower bounds without fractional powers. The
+response lower bound is $ct$ and the area lower bound is $ct^2$.
+For the example the exact values are $t^2$ and $\pi t^4$,
+respectively. All quantifiers over positive constants and all
+sufficiently small parameters are retained in the proofs.
+\end{proof}
+
+\paragraph{Norm and Jordan-block scope.}
+The same counterexample applies to the customary Euclidean operator
+norm: the eigenvector estimate $|z|\|v\|\le\|E\|\|v\|$ and
+$\|zI_2\|=|z|$ give the identical disk. Lean specifically verifies
+the induced infinity norm version above; this Euclidean norm
+observation is a paper proof. Both are standard fixed norms, and
+finite-dimensional equivalence of norms cannot change these sharp
+exponents. The zero matrix is diagonal and has maximal Jordan block
+size one, exactly consistent with the corrected exponent. No claim
+is made about a different corrected Jordan-block formulation or
+the source's condition-number and lattice-configuration clauses.
+Falsity of the universal area clause with algebraic $m$ already
+refutes the stated conjunction.
+
+\paragraph{Formal verification and scope.}
+The Lean development uses Mathlib matrices over $\mathbb C$, actual
+matrix-vector multiplication, Mathlib characteristic polynomials
+and polynomial root multiplicity, and Mathlib planar volume. The
+predicate \texttt{Budget} is the row-sum characterization of the
+induced infinity norm ball; \texttt{Eigen} is the ordinary nonzero
+eigenvector equation. The exact disk theorem quantifies over
+\emph{all} matrices in that ball. The principal results are
+\begin{center}
+\texttt{zero\_pseudospectrum}, \texttt{sharp\_response},
+\texttt{zero\_multiplicity},\\
+\texttt{zero\_area}, \texttt{not\_multiplicity\_area\_law},\\
+\texttt{not\_multiplicity\_response\_law}.
+\end{center}
+The area law is universally quantified over single-cluster matrices
+with $\chi_A=(X-a)^n$, so algebraic multiplicity is $n$ and no
+unrelated eigenvalue can contribute extra area. It states only the
+positive lower bound required by the source's area scaling claim;
+negating that necessary consequence suffices. The response law
+similarly includes actual characteristic-polynomial multiplicity.
+Only the standard axioms \texttt{propext}, \texttt{Classical.choice}
+and \texttt{Quot.sound} occur. Development and self-review were
+performed by a delegated AI agent; the coordinating agent reviews
+the result separately. No external independent review is claimed.
+
+\paragraph{Source and reproduction.}
+The preserved English and Chinese source is \texttt{SOURCE.md}, from
+the repository's conjecture 00000005131. The provenance file records
+the upstream commit and source hash. The Lean project pins
+Lean 4.19.0 and Mathlib commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+From the \texttt{lean} directory run
+\begin{center}\texttt{lake build}\\
+\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+The source ends with axiom reports for the principal theorems.
+\end{document}
