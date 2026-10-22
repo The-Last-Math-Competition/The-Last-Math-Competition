@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001002: a secant-count obstruction}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{Statement and counterargument}
+Let $K$ be any finite field, $q=|K|$, and let $t_2(2,q)$ be the
+least size of a complete arc in $\operatorname{PG}(2,q)$. An arc
+meets each projective line in at most two points. Completeness
+means that inserting any point outside it destroys this property.
+The conjecture asserts, in particular,
+\[
+ \liminf_{q\to\infty}\frac{t_2(2,q)}{\sqrt q}=1,
+\]
+where $q$ ranges over all prime powers. We prove uniformly over
+every finite field that a complete arc of size $k$ satisfies
+\[
+ k^2>2q,\qquad \frac{t_2(2,q)}{\sqrt q}\geq\sqrt2>1.
+\]
+Consequently the displayed liminf cannot equal one. This also
+rules out the stronger $\sqrt q+o(\sqrt q)$ assertion.
+
+\section{The counting proof}
+Fix a complete arc $S$ of size $k$. If $x\notin S$, then $S\cup\{x\}$
+is not an arc. Some projective line therefore contains $x$ and
+two distinct points of $S$: it cannot contain three points of $S$.
+Thus all projective points are covered by $S$ and the secants
+indexed by its two-element subsets. The plane has $q^2+q+1$ points;
+each such line has $q+1$ points. Overlaps only reduce a union's
+size, so
+\[
+ q^2+q+1\leq k+(q+1)\binom{k}{2}.
+\]
+Multiplying by two and using $2\binom{k}{2}=k^2-k$ gives
+\[
+ 2(q^2+q+1)\leq(q+1)k^2-(q-1)k.
+\]
+Since $q\geq2$ and $k\geq0$, an assumption $k^2\leq2q$ makes the
+right side at most $2q(q+1)$, a contradiction.
+
+The definitions of arc and completeness agree with
+\href{https://arxiv.org/abs/1111.3403}{Bartoli et al.,
+\emph{Upper bounds on the smallest size of a complete arc in the
+plane PG(2,q)}}, introduction. That paper records a stronger
+classical lower bound. The accompanying Lean proof independently
+proves the counting inequality and $k^2>2q$ above; it does not
+claim to formalize the stronger bound with an additional constant.
+
+\newpage
+\section{Actual finite geometry and the minimum in Lean}
+The point space is Mathlib's
+\texttt{Projectivization K (Fin 3 $\to$ K)}. Lines are the projective
+point sets of two-dimensional linear subspaces. The predicate
+\texttt{IsArc} bounds each such intersection by two, and
+\texttt{IsCompleteArc} forbids every outside insertion.
+
+A maximum-cardinality arc exists in the finite collection of arc
+subsets. It is complete. A minimum-cardinality member of the
+resulting nonempty finite collection of complete arcs defines
+\texttt{minArc} and \texttt{minSize}. Their completeness and
+minimum specifications are proved. In particular the purported
+minimum is obtained from actual arcs, rather than assigned a
+numerical formula.
+
+Mathlib's projective cardinality theorem gives the plane's exact
+size. To bound a line, \texttt{restrictPoint} sends an ambient
+projective point on a subspace to a projective point of that
+subspace. Mapping back recovers the original point and proves
+injectivity; the dimension-two cardinality theorem bounds its
+point count by $q+1$. For an outside point, failed insertion gives
+a line containing two old points. Uniqueness of the line through
+two distinct projective points identifies it with their span.
+The finite union over \texttt{powersetCard 2} now proves
+\texttt{cover\_count}, and algebra proves
+\texttt{complete\_arc\_square\_bound}.
+
+\section{The full asymptotic scope}
+The theorem \texttt{minRatio\_lower} holds for every finite field,
+with no restriction to prime fields or to a selected subsequence.
+For any sequence of finite fields, the extended nonnegative real
+liminf of these ratios is at least $\sqrt2$. In particular it
+applies when the field sizes enumerate all prime powers in
+increasing order. The final real-valued theorem explicitly permits
+any field-size sequence tending to infinity and proves that its
+liminf is not one. Hence it covers the conjecture's full domain.
+
+For precision about library conventions, real and nonnegative-real
+liminf are conditionally complete operations. Lean also handles
+their unbounded fallback branch, where the library value is zero
+and therefore not one. The geometric obstruction is the uniform
+lower bound and the separate extended-real liminf theorem; no
+fallback value is presented as a geometric example. Whenever the
+usual mathematical liminf is finite, the uniform lower bound
+forces it to be at least $\sqrt2$; an infinite liminf is likewise
+incompatible with the asserted value one.
+
+\section{Verification}
+The project pins Lean 4.33.0 and Mathlib commit
+\[
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\]
+Source-bound receipts record an independent new Main build, the
+transitive axiom audit and official fresh kernel replay. No
+\texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed
+the complete formal chain. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
