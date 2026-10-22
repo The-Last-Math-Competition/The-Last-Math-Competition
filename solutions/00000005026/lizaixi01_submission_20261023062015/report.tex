@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000005026: a genuine two-variable characterization}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The stated lower bound has an unrestricted counterexample}
+The source defines a ``universal sentence'' to mean a sentence
+characterizing a unique structure up to isomorphism. It specifies
+no target structure, signature or restricted model class, and
+asserts that four variables is a lower bound. In the empty
+first-order language with equality, consider the actual sentence
+\[
+ \varphi=\exists x\,\forall y\,(y=x).
+\]
+It uses two bound-variable names and characterizes the one-element
+structure up to isomorphism. It even excludes empty structures:
+the existential quantifier requires an element. Thus the global
+four-variable lower-bound clause, under the source's provided
+definition, is false. We do not claim this sentence characterizes
+some different unspecified rich target, nor determine optimal
+variable requirements for a restricted encoding problem.
+
+The word ``universal'' here follows the source's custom
+categoricity definition, not an assertion that $\varphi$ is
+syntactically universally quantified. For that other reading,
+the package separately supplies $\psi=\forall x\forall y(y=x)$.
+Under the explicit standard \emph{nonempty-model} convention,
+$\psi$ also characterizes exactly singleton structures and uses
+two bound variables. Without nonemptiness, $\psi$ also admits the
+empty structure; this issue is not hidden in the main witness.
+
+\section{Actual syntax, semantics and model isomorphisms}
+Lean uses Mathlib's actual \texttt{FirstOrder.Language.empty},
+\texttt{BoundedFormula}, terms, sentences and realization semantics.
+The equality body is the actual AST
+\[
+ \operatorname{equal}\bigl(\operatorname{var}(1),
+                              \operatorname{var}(0)\bigr)
+ \quad\text{in the bound-variable context }\operatorname{Fin}2.
+\]
+The sentence is formed by the actual universal and derived
+existential constructors. Lean proves directly from realization
+that a structure $M$ satisfies $\varphi$ if and only if
+$\exists x\in M\,\forall y\in M\,(y=x)$.
+The actual one-element type \texttt{Unit} is a model. Every
+satisfying structure has a genuine \texttt{Language.Equiv} to it,
+with bijection and preservation of all interpretations. The
+equivalence is also proved in the converse direction, and every
+two satisfying structures are genuinely isomorphic.
+
+These semantic and isomorphism theorems allow arbitrary actual
+empty-language interpretations, not just a selected interpretation.
+The package also proves uniqueness of empty-language structure
+data on each underlying type.
+
+\newpage
+\section{A structural two-variable certificate}
+Two recursive functions inspect the actual formula AST.
+\texttt{binderCount} counts quantifier constructors (expanding
+the derived existential without adding binders), while
+\texttt{contextWidth} is the maximum allocated bound-variable
+context size among subformulas. Both equal $2$ for each displayed
+sentence. The explicit equality-body certificate uses only the
+two actual indices in $\operatorname{Fin}2$.
+This is a sufficient two-variable certificate for these specific
+formulas, not a general identity between allocated contexts and
+minimal reusable variable width. It does not confuse a closed
+sentence's zero free-variable count with its bound-variable use.
+
+The final theorem gives an actual sentence of width $2$ with an
+actual model and universal model-isomorphism characterization,
+and explicitly negates the unqualified global lower bound $4$.
+Lean 4.33.0 and pinned Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+are supplied. All 13 theorems, the canonical interpretation and
+the proof-bearing model equivalence receive 15 transitive axiom
+audits, followed by full official \texttt{leanchecker --fresh Main}.
+No \texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted, with separate supervising AI source/proof/
+report/PDF review. This is not human certification; organizer
+acceptance is pending. The original bilingual source is preserved.
+\end{document}
