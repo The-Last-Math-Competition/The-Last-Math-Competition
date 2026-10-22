@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001670: incompatible numerical characterizations}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The necessary numerical clauses}
+The English source assigns the same real constant $P_3$ both values
+\[
+ P_3=0.918=\frac{459}{500},\qquad
+ P_3=\frac{2}{\pi}\arctan\sqrt2.
+\]
+The Chinese source also prints these two numerical characterizations.
+They cannot hold simultaneously. We disprove this necessary part of the
+conjecture, hence the stated conjunction, without assuming or formalizing
+a random-graph limit. We do not claim to determine a genuine max-cut
+constant, or to disprove the separate asymptotic or concentration clauses.
+
+Even interpreting $0.918$ as a three-decimal approximation does not repair
+the contradiction. We allow the inclusive interval
+\[
+ \left|P_3-\frac{459}{500}\right|\le\frac1{2000},
+ \qquad\text{equivalently}\qquad
+ 0.9175\le P_3\le0.9185.
+\]
+This includes either possible tie at a rounding endpoint.
+
+\section{A strict analytic bound}
+Set $c=(2/\pi)\arctan\sqrt2$. The ordinary nonnegative real square
+root is strictly increasing on positive inputs, so $\sqrt2<\sqrt3$.
+The principal real inverse tangent is strictly increasing and satisfies
+$\arctan\sqrt3=\pi/3$. Since $\pi>0$, multiplication by $2/\pi$
+preserves the strict inequality and gives
+\[
+ c<\frac2\pi\arctan\sqrt3
+   =\frac2\pi\frac\pi3=\frac23.
+\]
+Every function and constant in this chain is Mathlib's actual real
+analytic object in the Lean proof, not an assumed numerical relation.
+
+The rational comparisons now leave a large gap:
+\[
+ \frac{459}{500}-c>
+ \frac{459}{500}-\frac23=\frac{377}{1500}>\frac14.
+\]
+Under the rounding interpretation, $P_3\ge367/400$ and therefore
+\[
+ P_3-c>\frac{367}{400}-\frac23
+   =\frac{301}{1200}>\frac14.
+\]
+Thus the exact closed form differs by more than $1/4$ even from every
+value in the permitted rounding interval. No numerical approximation
+to $\pi$, $\sqrt2$, or $\arctan\sqrt2$ is needed.
+
+\newpage
+\section{Formal scope and previous submission}
+The formal definition \texttt{closedForm} is literally
+\texttt{(2 / Real.pi) * Real.arctan (Real.sqrt 2)} in $\mathbb R$.
+\texttt{Rounded0918} is the absolute-error interval above.
+The file proves the square-root comparison, inverse-tangent comparison,
+strict $2/3$ bound, and the two strict error bounds before proving
+\[
+ \forall P\in\mathbb R,\quad
+ \neg\bigl(P=459/500\ \wedge\ P=c\bigr)
+\]
+and
+\[
+ \forall P\in\mathbb R,\quad
+ \neg\bigl(|P-459/500|\le1/2000\ \wedge\ P=c\bigr).
+\]
+The final two theorems also negate existence of any sequence
+$P:\mathbb N\to\mathbb R$ satisfying the respective requirements at
+index $3$. These universally quantified statements apply to any
+proposed real $P_3$; no special definition of a graph parameter is
+inserted to make the contradiction hold.
+
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/189}
+{Closed PR 189}, by orionsheep, already presented the same elementary
+analytic comparison in prose. We acknowledge that prior observation;
+this submission does not claim it as a new discovery. The
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/189\#issuecomment-5965633103}
+{maintainer's review} rejected its Lean component because it proved
+only natural-number comparisons and reflexive equalities. The
+load-bearing real $\pi$, square root, inverse tangent, and $P_3$
+contradiction were absent from Lean. The present proof formalizes that
+entire chain and additionally covers the rounding interpretation.
+It relies on the existing, proved Mathlib analytic theorems rather
+than treating the analytic steps as assumptions.
+
+\section{Background and verification}
+Dembo, Montanari and Sen,
+\href{https://arxiv.org/abs/1503.03923}{\emph{Extremal Cuts of Sparse
+Random Graphs}}, study a large-degree asymptotic governed by a constant
+$P_*$. Their result provides background for the source's terminology.
+We do not identify $P_*$ with the source's $P_3$, use a reported decimal
+for $P_*$ as a premise, or claim to formalize their probabilistic result.
+The disproof here is solely the inconsistency of the two printed
+necessary numerical characterizations.
+
+Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d} are pinned.
+The package provides a new Main build, ten transitive axiom audits,
+and full official \texttt{leanchecker --fresh Main} replay, with
+source-bound commands, exit codes and logs. No \texttt{sorry},
+\texttt{native\_decide} or additional axiom is used.
+The LaTeX source and rendered PDF are included. OpenAI Codex assisted;
+a separate supervising Codex agent reviewed the formal chain and report.
+This is AI review, not human certification. Organizer acceptance is pending.
+\end{document}
