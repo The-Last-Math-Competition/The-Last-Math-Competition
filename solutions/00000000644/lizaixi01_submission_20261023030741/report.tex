@@ -1,0 +1,120 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000000644: a Burau eigenvalue below the stated bound}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The explicit spectral condition}
+The source explicitly requires every eigenvalue of the Burau representation
+at real parameter points to have real part at least $-1/2$.
+Take the legal nonzero real parameter $t=3/4$ and the generator $\sigma_1$
+of the three-strand braid group. Its standard Burau matrix has the
+actual complex eigenvalue $-3/4$, whose real part is below $-1/2$.
+We give the reduced and unreduced versions, and prove the violation
+persists under every invertible change of basis.
+
+This refutes the explicit necessary spectral clause of the stated
+conjunction. It does not refute an assertion merely about positivity
+of the ordinary character trace. It also does not construct or verify
+the proposed holomorphic-disk, LKB, or hyperbolic-volume mechanisms.
+Those additional structures cannot change an eigenvalue of the Burau
+representation by choosing a different basis.
+
+\section{A genuine braid-group representation}
+Use the standard Artin presentation
+\[
+ B_3=\langle\sigma_1,\sigma_2\mid
+ \sigma_1\sigma_2\sigma_1=\sigma_2\sigma_1\sigma_2\rangle.
+\]
+Morier-Genoud, Ovsienko and Veselov,
+\href{https://arxiv.org/abs/2309.04240}{\emph{Burau representation of
+braid groups and $q$-rationals}}, p.1, equation (1.1), define the reduced
+Burau representation on these generators by
+\[
+ A(t)=\begin{pmatrix}-t&1\\0&1\end{pmatrix},\qquad
+ B(t)=\begin{pmatrix}1&0\\t&-t\end{pmatrix}.
+\]
+Their p.2 defines specialization at every nonzero complex $t$,
+including nonzero real parameters. Lean implements these very matrices,
+proves both determinants equal $-t$, and proves $ABA=BAB$ for all
+complex $t$. For $t\ne0$ they are actual elements of $\mathrm{GL}_2(\mathbf C)$.
+The universal property of the presented group then constructs the
+group homomorphism and proves its values on $\sigma_1$.
+This is not an isolated matrix assigned a representation's name.
+
+For the standard unreduced version, use
+\[
+ U(t)=\begin{pmatrix}1-t&t&0\\1&0&0\\0&0&1\end{pmatrix},\qquad
+ V(t)=\begin{pmatrix}1&0&0\\0&1-t&t\\0&1&0\end{pmatrix}.
+\]
+These are the generator blocks in Kassel and Turaev,
+\href{https://web.math.ucsb.edu/~bigelow/books/kasselturaev.pdf}
+{\emph{Braid Groups}}, Section 3.1.1, pp.93--94.
+Lean separately proves their determinants, braid relation, actual
+invertibility, induced group homomorphism, and generator value.
+
+\newpage
+\section{Actual eigenvectors and arbitrary bases}
+At $t=3/4$, the nonzero vectors
+\[
+ e=\begin{pmatrix}1\\0\end{pmatrix},\qquad
+ u=\begin{pmatrix}-3\\4\\0\end{pmatrix}
+\]
+satisfy
+\[
+ A(3/4)e=-\frac34 e,\qquad
+ U(3/4)u=-\frac34 u.
+\]
+Lean proves both vector equations and both nonzeroness conditions, then
+uses Mathlib's actual \texttt{Module.End.HasEigenvalue} for the
+complex linear maps induced by these matrices. The result is a complex
+eigenvalue statement, not just an unconnected scalar inequality.
+It also proves that the parameter is nonzero, has zero imaginary part,
+and lies strictly between zero and one on the real axis, and that
+\[
+ \operatorname{Re}(-3/4)=-3/4<-1/2.
+\]
+
+For any invertible complex matrix $P$, if $Mv=\mu v$ and $v\ne0$,
+put $w=P^{-1}v$. Invertibility implies $w\ne0$, and
+\[
+ (P^{-1}MP)w=P^{-1}Mv=\mu P^{-1}v=\mu w.
+\]
+The general Lean theorem \texttt{conjugate\_eigenvalue} proves this
+using actual invertible matrices and nonzero vectors. Applying it in
+dimensions two and three shows that every conjugate of the respective
+$\sigma_1$ matrix violates the requested real-part lower bound.
+Thus a proposed Hill basis, if it is a basis of the same representation,
+cannot repair this spectral violation. No definition of that unspecified
+basis is needed to prove the stronger assertion for every basis.
+
+\section{Formal scope and verification}
+\texttt{Braid3} is Mathlib's \texttt{PresentedGroup} on two generators
+with the genuine Artin relator. Both Burau specializations are actual
+group homomorphisms to the relevant general linear group. All
+specialization and relation checks are formal, with no assumptions
+about matrices satisfying the braid relation.
+
+\texttt{SpectralBound} quantifies over every actual complex eigenvalue
+of the matrix's complex linear map and imposes exactly the source's
+real-part inequality. The two basis-independent counterexample
+results are followed by closed theorems negating the universal
+real-specialization spectral condition in both standard versions.
+The parameter and braid are legitimate instances of the original
+unrestricted spectral clause. No restriction to a different braid
+class or parameter interval is inserted.
+
+Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d} are pinned.
+The submission includes a new Main build, twenty-three transitive
+axiom audits, and full official \texttt{leanchecker --fresh Main}
+replay with source-bound commands, exit codes and logs.
+No \texttt{sorry}, \texttt{native\_decide} or added axiom is used.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed
+the formal chain and report. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
