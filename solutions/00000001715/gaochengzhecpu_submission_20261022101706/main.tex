@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\newtheorem{theorem}{Theorem}
+\title{Conjecture 00000001715: the displayed rotation multipliers do not decay}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+The conjecture explicitly describes the coefficients
+$c_k=(1-e(k\alpha))^{-1}$ as a decaying sequence. For every irrational
+rotation parameter $\alpha$ and every positive integer $k$, these coefficients
+are well defined and satisfy $|c_k|\geq 1/2$. Thus the stated decay assertion
+is false. This disproves that necessary component of the conjecture; it does
+not assert that every possible local limit theorem for rotations is false.
+\end{abstract}
+
+\section*{Statement and interpretation}
+Both language versions of the source explicitly call
+$c_k=(1-e(k\alpha))^{-1}$ a decaying sequence: the English says
+``through the decaying sequence'', and the Chinese uses the corresponding
+phrase for a decaying sequence. We use the standard notation
+\[
+ e(t)=\exp(2\pi i t),\qquad
+ c_k(\alpha)=\frac{1}{1-\exp(2\pi i k\alpha)},\quad k\geq1.
+\]
+We restrict to irrational $\alpha$, the usual setting for irrational
+rotations. Here decay has its ordinary meaning $c_k\to0$ as $k\to\infty$;
+the argument also rules out convergence of the magnitudes to zero and any
+positive power decay bound.
+
+\begin{theorem}
+For every irrational real number $\alpha$ and every integer $k\geq1$,
+$c_k(\alpha)$ is well defined and $|c_k(\alpha)|\geq 1/2$.
+Consequently $c_k(\alpha)$ does not tend to zero. In particular,
+$\alpha=\sqrt2$ is an explicit counterexample to the asserted decay.
+\end{theorem}
+\begin{proof}
+If $\exp(2\pi i k\alpha)=1$, the usual characterization of the kernel
+of the complex exponential gives $k\alpha\in\mathbb Z$. Since $k$ is
+a nonzero integer, this would make $\alpha$ rational. Therefore the
+denominator is nonzero. The complex exponential on the imaginary axis
+has modulus one, so the triangle inequality gives
+\[
+ 0<|1-\exp(2\pi i k\alpha)|
+ \leq |1|+|\exp(2\pi i k\alpha)|=2.
+\]
+Taking reciprocals yields $|c_k(\alpha)|\geq1/2$. If $c_k(\alpha)$
+converged to zero, continuity of the norm would imply
+$|c_k(\alpha)|\to0$, contradicting this uniform lower bound.
+The standard irrationality of $\sqrt2$ supplies the stated explicit
+parameter.
+\end{proof}
+
+\section*{Scope of the disproof}
+The source combines an LLT correction claim with this explicit decay
+description. A conjunction with the false decay assertion cannot hold
+as written. We do not claim to settle a reformulation that omits decay
+of $c_k$. In particular, multiplying these nondecaying coefficients by
+Fourier coefficients of a suitably smooth function can produce decaying
+products. Our result does not rule that out and does not analyze such
+products, the LLT itself, or the source's additional condition about
+low frequencies. It concerns the displayed sequence $c_k$ itself, exactly
+as identified in both language versions. No assertion of unboundedness
+is needed or made.
+
+\section*{Formal verification and scope}
+The accompanying Lean 4 file defines the actual complex exponential
+$e(t)$ and the actual reciprocal coefficients. Its index $n\in\mathbb N$
+corresponds to $k=n+1$, so it includes every positive frequency and
+excludes the undefined zero frequency. It proves nonvanishing of the
+denominators from Mathlib's \texttt{Irrational} predicate and the standard
+complex exponential kernel theorem, proves the uniform norm bound, and
+proves failure of convergence in the standard complex topology using
+\texttt{Filter.Tendsto}. It also proves the counterexample at $\sqrt2$.
+
+The universally quantified proposition named \texttt{DecayAssertion}
+states decay for every irrational real rotation parameter. The final
+theorem is its negation:
+\[
+\texttt{Conjecture1715.disprove\_decay\_assertion}.
+\]
+This proposition formalizes the necessary decay component, not an
+invented definition of the entire, otherwise underspecified LLT claim.
+The other principal theorems give the stronger result that decay fails
+for every irrational parameter. All mathematics in the displayed theorem
+is formalized; the source interpretation and logical relevance to its
+conjunction are explained here. The axiom audit lists only
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+\section*{Source and reproduction}
+The original bilingual statement is included unchanged as
+\texttt{SOURCE.md}, fetched from upstream commit
+\begin{center}\small
+\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.
+\end{center}
+Its public source is
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/b355e42906e6eaf52bc7e9d005e0ef02d8aa7400/conjectures/00000001715.md}{conjecture 00000001715}.
+The project uses Lean 4.19.0 and Mathlib commit
+\begin{center}\small
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+From the \texttt{lean} directory, run \texttt{lake build}, then
+\begin{center}
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+\end{center}
+The main file ends with axiom-printing commands for the four principal
+results. This draft was developed by a delegated AI agent with a
+self-review; the coordinating agent reviews it separately.
+\end{document}
