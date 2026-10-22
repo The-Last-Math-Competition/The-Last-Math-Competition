@@ -1,0 +1,20 @@
+import Main
+#print axioms KL1104.table_permutations
+#print axioms KL1104.table_size
+#print axioms KL1104.table_no_duplicates
+#print axioms KL1104.swap_correct
+#print axioms KL1104.descend_lt
+#print axioms KL1104.descent_in_range
+#print axioms KL1104.congr2
+#print axioms KL1104.step_congr
+#print axioms KL1104.fuel_next
+#print axioms KL1104.fuel_add
+#print axioms KL1104.fuel_above
+#print axioms KL1104.kl_recurrence
+#print axioms KL1104.recurrence_unique
+#print axioms KL1104.witness_permutation
+#print axioms KL1104.witness_length
+#print axioms KL1104.computed_polynomial
+#print axioms KL1104.not_monic
+#print axioms KL1104.ordinary_counterexample
+#print axioms KL1104.recurrence_counterexample
