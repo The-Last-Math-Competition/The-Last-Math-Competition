@@ -1,0 +1,96 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000004105:\\incompatible growth clauses at an actual star}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The necessary conjunction}
+The original bilingual source defines a motion group using a graph's
+configuration space, then claims that its growth is polynomial if and
+only if the graph is a tree. The same conjecture describes the star-graph
+motion group as strictly super-polynomial (and sub-exponential).
+These two growth clauses cannot hold simultaneously, regardless of
+which candidate growth functions are assigned to the graphs.
+
+We prove this universal obstruction, rather than assigning a value to
+the growth of a configuration-space fundamental group. The particle
+number and configuration-space conventions are unspecified in the
+source; the argument applies to any consistent choice giving a growth
+function for each relevant graph. No fundamental group or its actual
+growth is computed here. The sub-exponential and minimality assertions
+are unnecessary to the contradiction.
+
+\section{Actual graph and quantitative growth}
+Let $S$ be the actual four-vertex star, with center $0$ and vertex set
+$\{0,1,2,3\}$. In Lean it is Mathlib's
+\texttt{SimpleGraph.starGraph (0 : Fin 4)}. The library's genuine
+\texttt{IsTree} theorem proves that $S$ is a tree; its actual edge set
+has cardinality three.
+
+For an arbitrary candidate $f:\mathbb N\to\mathbb R$, polynomial
+upper growth means
+\[
+ \exists d\in\mathbb N,\qquad f(n)=O(n^d)\quad(n\to\infty).
+\]
+The code uses Mathlib's actual \texttt{IsBigO} and proves its equivalence to
+\[
+ \exists d,\ C>0,\ N,\quad
+ \forall n\geq N:\quad |f(n)|\leq Cn^d.                     \tag{1}
+\]
+The quantitative super-polynomial condition is
+\[
+ \forall d\in\mathbb N\ \forall C>0\ \forall N\in\mathbb N,
+ \quad \exists n\geq N:\quad Cn^d<f(n).                    \tag{2}
+\]
+It is defined through numerical values and thresholds, not as a
+syntactic negation. For nonnegative count functions, the proof also
+shows that (2) is equivalent to the absence of every polynomial
+big-$O$ upper bound. It does not demand the stronger condition of
+eventual domination at every subsequent index.
+
+\section{The contradiction and its scope}
+Suppose a candidate graph-to-growth assignment satisfies the source's
+tree-to-polynomial implication and the star's asserted (2).
+Since $S$ is a tree, its candidate function $f_S$ satisfies (1), with
+some actual $d,C,N$. Applying (2) to those same values gives $n\geq N$
+with
+\[
+ Cn^d<f_S(n)\leq |f_S(n)|\leq Cn^d,
+\]
+a contradiction. Both thresholds and constants belong to the same
+function; no numerical growth value is substituted.
+
+The proof also covers every finite vertex type and every star center,
+so it does not depend on the star's unspecified order. The final
+Lean theorems quantify over every assignment to actual
+four-vertex graphs, then explicitly over assignments to all finite
+labelled graphs, including natural-valued candidate counting functions.
+Thus any actual motion-group growth assignment is covered if it is to
+satisfy both source clauses. This does not prove any standalone
+classification of graph configuration spaces, any triviality of tree
+motion groups, or any corrected conjecture omitting either clause.
+
+\section{Prior failed submission and verification}
+The contradiction idea was already public in
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/293}{PR 293}.
+Its \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/293\#issuecomment-5968931621}{maintainer review}
+rejected a Lean theorem consisting only of fixed natural-number
+arithmetic, without actual graph or growth objects. The present proof
+repairs those omissions using a real star/tree, arbitrary growth
+functions, actual big-$O$, and all numerical constants and cutoffs.
+We do not inherit the prior PR's unsupported claim that tree motion
+groups are trivial.
+
+All named local declarations are audited in a pinned Lean 4.33.0 and
+Mathlib project. The package includes a new Main build, full official
+fresh kernel replay, source-bound command and log receipts, original
+bilingual source, LaTeX and this PDF. No \texttt{sorry},
+\texttt{native\_decide} or additional axiom is used. OpenAI Codex
+assisted with a separate supervising AI reviewing the proof, source
+scope and rendered pages; no human certification or organizer
+acceptance is claimed.
+\end{document}
