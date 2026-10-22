@@ -1,0 +1,186 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Conjecture 00000002819: independent additive Gaussian sums have no affine large-deviation rate}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Independent standard Gaussian increments give an additive, hence
+subadditive, process. Its sample-mean laws admit no affine real-valued
+large-deviation rate function at the usual linear speed. We prove this
+directly from genuine probability bounds and the full large-deviation
+inequalities. The obstruction occurs inside the support, which is all
+of the real line. The actual Gaussian rate is quadratic.
+\end{abstract}
+
+\section*{Model and reading of the conjecture}
+The source asserts that, in the independent case, the large-deviation
+rate of subadditive functionals is always a linear function. We use
+the standard meaning of a rate function $I(x)$ as a function of the
+deviation level $x$. We even allow an affine rate $ax+b$; excluding
+these excludes homogeneous linear rates as well. This is distinct from
+the standard \emph{speed} $N$ in $\log\mathbb P(\text{deviation})
+\sim-NI(x)$. The latter can be linear in $N$ when $I(x)$ is nonlinear.
+If the word ``linear'' was intended to describe only the speed, this
+is a different statement from linearity of the rate function and is
+not refuted here.
+
+On the actual probability space
+\[
+ \Omega=\mathbb R^{\mathbb N},\qquad
+ \mathbb P=\bigotimes_{j\geq0} N(0,1),
+\]
+let $X_j(\omega)=\omega_j$. These coordinates are independent and
+identically distributed standard Gaussians. Define
+\[
+ A_{m,n}=\sum_{j=0}^{n-1}X_{m+j},\qquad
+ S_N=A_{0,N},\qquad M_N=S_N/N\quad(N\geq1).
+\]
+For every sample, $A_{m,n+k}=A_{m,n}+A_{m+n,k}$, so these functionals
+are genuinely additive and satisfy the subadditive inequality with
+equality. In particular, no dependence correction is present.
+Write $\nu_N$ for the probability law of $M_N$.
+
+\section*{The standard LDP and its exponential form}
+For a finite real-valued nonnegative lower semicontinuous rate $I$,
+the full LDP at speed $N$ consists of
+\[
+ \begin{aligned}
+ \liminf_{N\to\infty}N^{-1}\log\nu_N(G)&\geq-\inf_{x\in G}I(x)
+                  &&\text{for every open }G,\\
+ \limsup_{N\to\infty}N^{-1}\log\nu_N(F)&\leq-\inf_{x\in F}I(x)
+                  &&\text{for every closed }F,
+ \end{aligned}
+\]
+where $\log0=-\infty$ and $\inf\varnothing=+\infty$.
+The Lean definition uses the equivalent epsilon exponential formulation:
+for every open $G$, every $x\in G$, and every $\varepsilon>0$,
+eventually
+\[
+ e^{-N(I(x)+\varepsilon)}\leq\nu_N(G),
+\]
+and for every closed $F$, every real uniform lower bound $a$ for
+$I$ on $F$, and every $\varepsilon>0$, eventually
+\[
+ \nu_N(F)\leq e^{-N(a-\varepsilon)}.
+\]
+These conditions range over \emph{all} open and closed sets, not just
+the sets used in the contradiction. Their equivalence to the displayed
+LDP follows by taking logarithms and then taking the supremum over
+$x$ in the lower bound and over uniform lower bounds $a$ in the upper
+bound. Conversely, the logarithmic inequalities give each eventual
+epsilon bound. Empty sets satisfy the corresponding bounds automatically.
+Finite real-valued rates suffice for the proposed affine rates.
+
+\begin{theorem}
+For the independent additive Gaussian process above, there are no
+$a,b\in\mathbb R$ such that $I(x)=ax+b$ is an LDP rate for $(\nu_N)$
+at speed $N$. Every nonempty real open interval has positive
+$\nu_N$-probability for every $N\geq1$.
+\end{theorem}
+\begin{proof}
+The genuine moment generating function of $S_N$ is
+\[
+ \mathbb E e^{tS_N}
+ =\prod_{j=0}^{N-1}\mathbb E e^{tX_j}
+ =e^{Nt^2/2}.
+\]
+Chernoff's inequality with $t=1$ gives
+\[
+ \nu_N((1,\infty))\leq\mathbb P(S_N\geq N)
+ \leq e^{-N}\mathbb E e^{S_N}=e^{-N/2}.                 \tag{1}
+\]
+Suppose $I(x)=ax+b$ were a rate. Nonnegativity on the entire real
+line forces $a=0$: if $a\ne0$, substituting $x=(-b-1)/a$ gives
+$I(x)=-1$. Thus $I=b\geq0$. If $b>0$, the closed-set upper bound
+for $F=\mathbb R$, with $\varepsilon=b/2$, would give
+$1\leq e^{-Nb/2}<1$ for all sufficiently large $N$. Hence $b=0$.
+The open-set lower bound for $G=(1,2)$, at $x=3/2$ with
+$\varepsilon=1/4$, now gives, eventually,
+\[
+ e^{-N/4}\leq\nu_N((1,2))\leq\nu_N((1,\infty))\leq e^{-N/2}.
+\]
+This is impossible for every positive $N$.
+
+Finally, if $u<v$, the event that all of $X_0,\ldots,X_{N-1}$ lie
+in $(u,v)$ has probability
+$\mathbb P(X_0\in(u,v))^N>0$ and forces $M_N\in(u,v)$.
+The strict positivity follows from the positive Gaussian density.
+Thus the argument uses an actual open interval inside the full real
+support, not an interval outside the possible values.
+\end{proof}
+
+\section*{The quadratic rate, for context}
+The actual increment cumulant generating function is $\Lambda(t)=t^2/2$.
+Its exact Legendre transform is
+\[
+ \sup_{t\in\mathbb R}\{tx-\Lambda(t)\}
+ =\frac{x^2}{2},
+ \qquad tx-\frac{t^2}{2}
+ =\frac{x^2}{2}-\frac{(t-x)^2}{2}.
+\]
+This transform computation, including its non-affinity, is separately
+formalized using the actual Gaussian cumulant generating function.
+
+For completeness, the Gaussian LDP itself can also be seen directly
+on paper. Gaussian convolution gives the density of $M_N$ as
+$\sqrt{N/(2\pi)}e^{-Nx^2/2}$. For any open set and a point $x$ in
+it, integrate over a sufficiently small interval about $x$; continuity
+of $x^2/2$ gives the LDP lower bound, because the logarithm of the
+prefactor divided by $N$ tends to zero. For a nonempty closed set
+$F$, put $r=\inf_{x\in F}|x|$. If $r=0$, the probability bound by one
+gives the upper bound. If $r>0$, the two Chernoff tail bounds give
+$\nu_N(F)\leq2e^{-Nr^2/2}$. This proves the upper bound as well.
+The empty closed set is immediate. Thus the example has a real,
+nonlinear LDP rate; the contradiction above does not merely exploit
+nonexistence of a large-deviation principle.
+
+\section*{Formal verification and scope}
+Lean constructs Mathlib's actual infinite product Gaussian probability
+measure, proves its coordinate marginals and independence, and proves
+the block-sum additive and subadditive identities. It defines the
+sample means and their actual pushforward measures. From Gaussian
+MGFs and independence it proves the MGF of each partial sum, the
+required exponential integrability, and the actual Chernoff bound (1).
+It also proves positive probability for every nonempty real open interval.
+
+The full epsilon-form LDP is defined with nonnegativity, lower
+semicontinuity, and bounds for every open and every closed set.
+Lean negates the existential proposition that an affine rate satisfies
+this definition. The concluding theorem combines the genuine independent
+Gaussian coordinates, samplewise subadditivity, and that negation:
+\begin{center}\small
+\texttt{Conjecture2819.independent\_subadditive\_counterexample}.
+\end{center}
+No surrogate numerical function replaces the random process or the
+probability inequalities. The supplementary Cramer-transform computation
+is also formalized. The optional paper derivation that the quadratic
+rate satisfies the full LDP is not formalized; it is unnecessary for
+the formal proof that no affine LDP rate can exist. The source's separate
+correlation-length correction is not analyzed. The axiom audit of the
+principal theorems lists only \texttt{propext}, \texttt{Classical.choice},
+and \texttt{Quot.sound}.
+
+\section*{Source and reproduction}
+The unchanged bilingual statement is included as \texttt{SOURCE.md},
+from upstream commit
+\begin{center}\small
+\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.
+\end{center}
+The public source is
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/b355e42906e6eaf52bc7e9d005e0ef02d8aa7400/conjectures/00000002819.md}{conjecture 00000002819}.
+Use Lean 4.19.0 and Mathlib commit
+\begin{center}\small
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+In the \texttt{lean} directory run \texttt{lake build}, then
+\begin{center}
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+\end{center}
+This draft was developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately.
+\end{document}
