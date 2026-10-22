@@ -1,0 +1,157 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\R}{\mathbb R}
+\title{Identical Asymptotics with Different Finite Iterates:\\
+A Proof of Conjecture 00000006090}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+For any prescribed finite iteration, two gradient-descent step schedules
+on the same quadratic objective, with the same initial value, can produce
+different errors and then rejoin exactly one step later. Both sequences
+converge to the same minimizer and have asymptotic successive-error ratio
+$1/2$. In fact, their entire tails coincide. The objective derivative,
+actual iterative algorithms, explicit trajectories, exact error gap,
+convergence, and quantified existence claim are verified in Lean.
+\end{abstract}
+
+\paragraph{Reading of the source.}
+Both versions describe the desired distinction as different
+``finite-scale behavior'' or ``pre-asymptotics,'' despite the same limit
+and asymptotic convergence rate. We realize this using actual errors
+of iterative algorithms at finite iteration indices. The source does
+not define a separate operator or numerical invariant called the
+finite-scale spectrum, and none is introduced here. We make the
+convergence rate precise by the standard successive-error ratio and
+also prove the stronger property that the trajectories eventually
+coincide exactly. Thus the distinction cannot depend on choosing a
+weak interpretation of equal asymptotic rates.
+
+\begin{theorem}\label{thm:main}
+Let $f(x)=x^2/2$ on $\R$ and start gradient descent at $x_0=y_0=1$.
+For every integer $m\geq0$, there exist two step-size schedules
+$a_n,b_n\in(0,1)$ such that
+\[
+ x_{n+1}=x_n-a_nf'(x_n),\qquad
+ y_{n+1}=y_n-b_nf'(y_n)
+\]
+and the following hold:
+\begin{enumerate}
+\item $x_n=y_n$ for $0\leq n\leq m$;
+\item at the prescribed next iteration,
+\[
+ |y_{m+1}|-|x_{m+1}|=2^{-(m+2)}>0;
+\]
+\item $x_n=y_n$ for every $n\geq m+2$;
+\item both sequences converge to the unique minimizer zero and
+\[
+ \lim_{n\to\infty}\frac{|x_{n+1}|}{|x_n|}
+ =\lim_{n\to\infty}\frac{|y_{n+1}|}{|y_n|}=\frac12.
+\]
+\end{enumerate}
+Consequently, the algorithms have the same asymptotic convergence
+rate and limit, but different finite-scale behavior.
+\end{theorem}
+
+\begin{proof}
+The objective is nonnegative, vanishes exactly at zero, and has
+derivative $f'(x)=x$. Define
+\[
+ a_n=\frac12,\qquad
+ b_n=\begin{cases}
+ \frac14,&n=m,\\[2pt]
+ \frac23,&n=m+1,\\[2pt]
+ \frac12,&\text{otherwise}.
+ \end{cases}
+\]
+Each step lies strictly between zero and one. Gradient descent becomes
+$x_{n+1}=(1-a_n)x_n$ and $y_{n+1}=(1-b_n)y_n$. Thus
+\begin{equation}\label{eq:trajectories}
+ x_n=2^{-n},\qquad
+ y_n=\begin{cases}
+ \frac32\,2^{-n},&n=m+1,\\[2pt]
+ 2^{-n},&n\neq m+1.
+ \end{cases}
+\end{equation}
+To check the second formula directly, the sequences follow the same
+updates up to index $m$, where both equal $2^{-m}$. The changed step
+$1/4$ then gives
+\[
+ y_{m+1}=\frac34\,2^{-m}
+ =\frac32\,2^{-(m+1)}.
+\]
+The next changed step compensates exactly:
+\[
+ y_{m+2}=\left(1-\frac23\right)y_{m+1}
+ =\frac13\cdot\frac34\,2^{-m}=2^{-(m+2)}=x_{m+2}.
+\]
+All later steps again equal $1/2$, so the trajectories remain identical.
+These calculations prove \eqref{eq:trajectories}; alternatively its
+substitution in the recurrence proves it by induction.
+
+All displayed iterates are positive. Therefore at $m+1$ the exact
+error difference is
+\[
+ |y_{m+1}|-|x_{m+1}|
+ =\left(\frac32-1\right)2^{-(m+1)}=2^{-(m+2)}.
+\]
+The geometric sequence $2^{-n}$ tends to zero. By eventual equality,
+so does $y_n$. The successive-error ratio of $x_n$ equals $1/2$
+at every index. For $n\geq m+2$, both $y_n$ and $y_{n+1}$ equal
+the corresponding $x$ iterates, so its ratio is also exactly $1/2$.
+This proves all assertions. Since $m$ is arbitrary, the differing
+finite iteration can be placed as late as desired, while the tails
+and therefore the asymptotic behavior still coincide exactly.
+\end{proof}
+
+\section*{Formal verification and scope}
+The file \texttt{lean/Main.lean} uses Lean 4.19.0 with Mathlib commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The objective is a real function and its derivative is verified using
+Mathlib's \texttt{HasDerivAt}. The two algorithms are actual recursively
+defined gradient-descent iterates using Mathlib's \texttt{deriv}, not
+numerical sequences named as algorithms without proving their update
+rule. The same objective and initial value are used for every $m$.
+
+Lean proves the explicit trajectories and the step bounds $(0,1)$.
+It proves equality of the prefixes and tails, the exact error gap,
+and the finite error discrepancy. Convergence to zero is a filter
+limit. The predicate \texttt{HasRate} gives the limit of the ratio of
+successive absolute errors. It is proved for both sequences.
+Their eventual equality is also formalized directly.
+
+The final theorem is
+\begin{center}\texttt{Conjecture6090.conjecture\_6090\_true}.\end{center}
+It proves \texttt{SeparationClaim}: there exists a single differentiable
+objective with unique zero minimum, such that for every $m$ there exist
+two positive step schedules and their gradient-descent trajectories
+with the stated limit, rate, finite error discrepancy, common prefix,
+and identical tail. This is stronger than the source's existential
+claim. All mathematical ingredients needed for the theorem are
+formalized; no unspecified spectral object is substituted for the
+actual finite error behavior.
+
+The audited main, derivative, trajectory, gap, and rate theorems use
+only \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+This submission was developed by a delegated AI agent with a
+self-review; the coordinating agent reviews it separately. No
+external independent review is claimed.
+
+\section*{Source and reproduction}
+The exact bilingual source is included as \texttt{SOURCE.md}, from
+upstream commit
+\begin{center}\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\end{center}
+The source hash and retrieval record are in
+\begin{center}\texttt{verification/SOURCE\_PROVENANCE.md}.\end{center}
+The proof is elementary and self-contained. With the pinned
+dependencies available, run in the \texttt{lean} directory:
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}\end{center}
+and \texttt{lake build} for a fresh build. Compile \texttt{main.tex}
+with Tectonic or a compatible LaTeX engine.
+\end{document}
