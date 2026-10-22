@@ -1,0 +1,158 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{A nonzero Szeg\H{o} correction on the smooth circle\\
+\large Disproof of Conjecture 00000009774}
+\author{GitHub: gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The strictly positive analytic symbol $f(\theta)=5/4+\cos\theta$ on
+the unit circle has Toeplitz determinants
+$D_n=\frac43(1-4^{-(n+1)})$. Its logarithmic leading coefficient is
+zero, but its secondary term tends to $\log(4/3)>0$. The circle has no
+corners, so the claimed disappearance of the smooth secondary term and
+the absence of a global correction are false. Lean verifies the actual
+Toeplitz matrices, their determinants for every size, and both limits.
+\end{abstract}
+
+\section*{The assertion being tested}
+The bilingual source states that the secondary term of logarithmic
+Toeplitz determinant asymptotics depends entirely on boundary corners,
+vanishing in the smooth case. We test this necessary smooth-case
+subclause in the classical circle setting of Szeg\H{o}'s theorem.
+The unit circle is a smooth boundary, with no corner angles. A universal
+claim for smooth domains must in particular hold in this case.
+
+For a positive circle symbol $f$, write
+\[
+ \widehat f(k)=\frac1{2\pi}\int_0^{2\pi}
+      f(\theta)e^{-ik\theta}\,d\theta,\quad
+ T_n(f)=(\widehat f(i-j))_{0\leq i,j<n},\quad D_n(f)=\det T_n(f).
+\]
+These are the finite sections of the classical Toeplitz operator,
+compression of multiplication by $f$ to the span of
+$1,e^{i\theta},\ldots,e^{i(n-1)\theta}$ in the circle Hardy space.
+The logarithmic leading coefficient is
+\[
+ L(f)=\frac1{2\pi}\int_0^{2\pi}\log f(\theta)\,d\theta.
+\]
+The tested assertion requires
+$\log D_n(f)-nL(f)\to0$ for smooth positive symbols on this smooth
+boundary. Our example has $L(f)=0$, so changing the size convention from
+$n$ to $n+1$ cannot change the secondary constant.
+
+\section*{An analytic positive symbol and its matrix}
+Choose
+\[
+ f(\theta)=\frac54+\cos\theta
+   =\left|1+\tfrac12e^{i\theta}\right|^2.
+\]
+It is real analytic and $2\pi$-periodic, with $f\geq1/4>0$.
+The elementary exponential formula for cosine gives
+\[
+ \widehat f(0)=\tfrac54,\quad
+ \widehat f(1)=\widehat f(-1)=\tfrac12,\quad
+ \widehat f(k)=0\quad(|k|>1).
+\]
+Consequently $T_n(f)$ is the actual tridiagonal Toeplitz matrix with
+diagonal $5/4$ and both adjacent diagonals $1/2$.
+
+The power series for $\log(1+z)$, evaluated at
+$z=e^{i\theta}/2$, gives
+\[
+ \log f(\theta)=
+  2\operatorname{Re}\sum_{k\geq1}
+      \frac{(-1)^{k+1}}{k\,2^k}e^{ik\theta}.
+\]
+This series converges absolutely and uniformly, since
+$\sum_{k\geq1}1/(k2^k)<\infty$. Termwise integration is therefore valid.
+Every nonconstant exponential has zero circle mean, so $L(f)=0$.
+This is also verified independently as the leading coefficient by the
+exact determinant asymptotics below.
+
+\section*{Exact determinants and the nonzero correction}
+\begin{theorem}
+For every integer $n\geq0$, with the empty determinant $D_0=1$,
+\[
+ D_n(f)=\frac43\left(1-\left(\frac14\right)^{n+1}\right)>0.
+\]
+\end{theorem}
+\begin{proof}
+For a tridiagonal Toeplitz matrix with diagonal $d$ and adjacent
+diagonals $a$, expansion in the first row, followed by expansion of
+the off-diagonal minor in its first column, gives
+\[
+ D_{n+2}=dD_{n+1}-a^2D_n.
+\]
+For the present matrix this becomes
+$D_{n+2}=\frac54D_{n+1}-\frac14D_n$, with $D_0=1$ and $D_1=5/4$.
+The proposed expression has these initial values and satisfies the
+recurrence, since its two exponential bases are $1$ and $1/4$.
+Induction proves the identity. Positivity follows from
+$0<(1/4)^{n+1}<1$.
+\end{proof}
+
+It follows immediately that
+\[
+ D_n(f)\longrightarrow\frac43,\qquad
+ \log D_n(f)\longrightarrow\log\frac43>0,
+ \qquad \frac{\log D_n(f)}n\longrightarrow0.
+\]
+Thus the actual leading coefficient is zero, consistently with the
+circle integral, and
+\[
+ \log D_n(f)-nL(f)\longrightarrow\log\frac43\ne0.
+\]
+Equivalently, the normalized determinant has a nonunit multiplicative
+factor $4/3$. There are no corners that could supply this factor.
+This refutes the smooth-vanishing assertion and hence the stated
+corner-only secondary law. No general form of the strong limit theorem
+is needed for the counterexample.
+
+\section*{Formal verification and scope}
+Lean defines the coefficients of the general Laurent symbol
+$f_a(\theta)=1+a^2+2a\cos\theta$ by
+$c_0=1+a^2$, $c_{\pm1}=a$, with all other coefficients zero.
+It constructs the actual Mathlib matrix
+$(c_{i-j})_{0\leq i,j<n}$, proves its equality to the tridiagonal
+matrix, and proves the determinant recurrence by Mathlib's Laplace
+expansion. It then proves the exact determinant formula for every $n$,
+positivity, the logarithmic limit, and the normalized leading limit.
+The symbol's smoothness and positivity at $a=1/2$ are also formalized.
+
+The final proposition quantifies over the entire family $f_a$, with
+smoothness and positivity hypotheses. It asserts that every logarithmic
+leading limit $L$ has a vanishing centered secondary term. This is a
+necessary universal subclause of the source's smooth-vanishing assertion.
+The theorem
+\begin{center}\texttt{Conjecture9774.conjecture9774\_false}\end{center}
+negates that proposition using $a=1/2$ and $L=0$. The contradiction
+uses uniqueness of limits and $\log(4/3)>0$. The scalar formula in Lean
+is proved equal to actual matrix determinants; it does not substitute
+an unrelated scalar sequence for Toeplitz determinants.
+
+The identification of the Laurent coefficients with Fourier integrals,
+the Hardy-space compression description, the smooth geometry of the
+unit circle, and the mean-log integral computation are supplied on
+paper. Lean does not implement general Toeplitz operators or a general
+Szeg\H{o} theorem. Its normalized determinant limit independently proves
+the leading coefficient needed for the formal contradiction. Scalar
+extension of the real matrices to complex matrices preserves their
+determinants, so using real matrices does not change this example.
+
+\section*{Source and reproduction}
+The unmodified bilingual source is supplied as \texttt{SOURCE.md}.
+Frozen provenance and its SHA-256 appear in the verification folder.
+The coordinating workflow found no prior submission for this conjecture.
+Lean is pinned to 4.19.0 and Mathlib commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+Run in the supplied Lean folder:
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+The printed axioms are only \texttt{propext}, \texttt{Classical.choice},
+and \texttt{Quot.sound}. This draft was developed by a delegated AI
+agent with a self-review; the coordinating agent reviews it separately.
+No external independent review is claimed.
+\end{document}
