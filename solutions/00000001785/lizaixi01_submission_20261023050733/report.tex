@@ -1,0 +1,123 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001785: the printed formula is not a step function}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{Literal necessary conditions}
+Both versions of the source call the proposed optimal constant a
+\emph{step function} of $c$, and give the explicit formula
+\[
+ C(c)=F(c):=\max(1,2c)\,\pi.
+\]
+These two necessary clauses are incompatible on the positive real
+parameter window $I=(1/2,1)$. On that window the formula is
+$F(c)=2\pi c$, which is injective and has uncountably many values.
+A step function represented by finitely many interval indicators has
+only finitely many values. Even a countable interval partition into
+constant pieces has only countably many values.
+
+We formalize both actual interval representations and their image
+bounds, rather than defining ``step'' to mean countable range.
+The standard finite definition is stated explicitly in Ryzhik's
+Stanford analysis course~\cite[Problem 1(i), p.~1]{Ryzhik}: a finite
+linear combination of indicators of disjoint intervals.
+The separate countable-piece result covers a more permissive
+piecewise-constant reading as well.
+
+This is a disproof of the source's literal necessary conjunction.
+It does not calculate any actual Ohsawa--Takegoshi optimal constant,
+assign that constant a value, or refute an independent extension
+theorem. No convention about the extension's norm or normalization
+is needed: \emph{no} real function $C$ can satisfy these two clauses
+on $I$. Replacing the word ``step'' by ``piecewise linear'' would
+give a different assertion, which this proof does not claim to
+refute. The word ``transition'' is not assumed to mean a jump; a
+change of slope alone would not be a contradiction.
+
+\section{A genuine finite interval representation}
+For a set $A\subseteq\mathbb R$, the predicate
+\texttt{FiniteIntervalStepOn A C} requires actual interval sets
+$J_1,\ldots,J_n$ and real coefficients $a_1,\ldots,a_n$, with
+\[
+ J_i\text{ order-connected},\quad J_i\cap J_j=\varnothing\ (i\ne j),
+ \qquad C(x)=\sum_{i=1}^n a_i\mathbf 1_{J_i}(x)\quad(x\in A).
+\]
+Order-connected subsets of $\mathbb R$ are intervals, with any
+endpoint convention and possibly empty or unbounded intervals.
+Lean uses the actual set indicator and an actual finite sum.
+
+For each $x$ its membership pattern in the $J_i$ is an element of
+the finite type $\{0,1\}^n$. Its function value is the sum of the
+coefficients selected by that pattern. Thus the actual restricted
+image $C(A)$ is a subset of the finite range of the pattern-value
+function. The theorem \texttt{finite\_steps\_finite\_image} proves
+this finite-image bridge. It does not postulate the image bound.
+
+\newpage
+\section{The countable interval representation}
+The more permissive predicate \texttt{CountableIntervalStepOn A C}
+requires actual pairwise disjoint order-connected interval sets
+$J_i$ and coefficients $a_i$, indexed by $i\in\mathbb N$, such that
+\[
+ A\subseteq\bigcup_{i\in\mathbb N}J_i,
+ \qquad C(x)=a_i\quad(x\in A\cap J_i).
+\]
+This includes countable interval partitions into constant pieces;
+no local-finiteness assumption is needed for the obstruction.
+For each $x\in A$, the actual covering condition supplies an index
+$i$ with $C(x)=a_i$. Consequently $C(A)$ is contained in the actual
+countable range of $i\mapsto a_i$. Lean proves this conclusion as
+\texttt{countable\_steps\_countable\_image}.
+
+\section{The actual formula has uncountable restricted image}
+For $c\in I$, the strict lower bound $c>1/2$ gives $2c>1$, so
+\[
+ F(c)=2c\pi.
+\]
+If $x,y\in I$ and $F(x)=F(y)$, cancellation of the actual nonzero
+real number $\pi$ gives $2x=2y$, hence $x=y$. This proves actual
+injectivity on the window, using Mathlib's real $\pi$.
+
+The real interval $I$ is uncountable. If $F(I)$ were countable,
+the injective map from the actual interval subtype into its actual
+image subtype would make $I$ countable. Lean proves this
+contradiction explicitly. Therefore neither of the two step
+representations can agree with $F$ throughout $I$.
+
+\section{Quantifiers and the original conjunction}
+The final necessary-clause theorems quantify over \emph{every}
+function $C:\mathbb R\to\mathbb R$ and deny either step
+representation on $I$ together with $C=F$ there. Additional theorems
+formally restrict each representation from a larger set to a subset.
+Since $I\subset(0,\infty)$, Lean also explicitly proves
+\[
+ \nexists C:\mathbb R\to\mathbb R:\quad
+ C\text{ is an interval step function on }(0,\infty)
+ \ \land\ \forall c>0,\ C(c)=\max(1,2c)\pi,
+\]
+for both the finite and countable representations. Only positive
+parameters are needed; no claim about negative singular weights or
+an enlarged parameter domain is used. These incompatible necessary
+conditions suffice to refute the printed conjecture.
+
+\section{Verification}
+Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+are pinned. The package includes a new root build, transitive axiom
+audits of all 15 theorems and full official
+\texttt{leanchecker --fresh Main} replay. No \texttt{sorry},
+\texttt{native\_decide} or additional axiom is used. OpenAI Codex
+assisted; a separate supervising Codex agent reviewed source,
+report and PDF. This is AI review, not human certification.
+Organizer acceptance is pending.
+\begin{thebibliography}{1}
+\bibitem{Ryzhik} L.~Ryzhik, Stanford Math 205A, Fall 2015,
+Homework 3 solutions, Problem 1(i), p.~1.
+\url{https://math.stanford.edu/~ryzhik/STANFORD/STANF205-16/205A_hw3_sol.pdf}.
+\end{thebibliography}
+\end{document}
