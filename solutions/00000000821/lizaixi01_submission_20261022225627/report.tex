@@ -1,0 +1,112 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\title{Conjecture 00000000821: no uniform gradient lower bound at the Laplace eigenvalue scale}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{22 October 2026}
+\begin{document}
+\maketitle
+\section{Source and the spectral convention}
+The source conjectures a positive uniform lower bound for
+\[
+ \frac{\max |\nabla\varphi_\lambda|}
+ {\lambda\max|\varphi_\lambda|}.
+\]
+It does not specify the underlying operator or its spectral convention.
+We use the standard positive Laplacian convention
+$-\Delta\varphi_\lambda=\lambda\varphi_\lambda$, with
+$\lambda$ the eigenvalue itself. This is, for example, the convention used
+in the abstract of Steinerberger's paper \cite{steinerberger}.
+Our conclusion concerns this interpretation. If $\lambda$ instead means
+the square root of the eigenvalue, the statement is a different claim
+and the present argument does not refute it.
+
+The counterexamples lie on one fixed compact manifold: the flat circle
+$M=\mathbb R/(2\pi\mathbb Z)$ with arc-length metric $d\theta^2$.
+Thus even allowing the lower-bound constant to depend on this manifold
+does not rescue the assertion. In these coordinates the gradient norm is
+$|f'(\theta)|$ and the positive Laplacian is $-f''(\theta)$.
+These formulas follow directly from the constant metric coefficient
+$g_{11}=g^{11}=1$. The usual sine/cosine spectrum of this circle is also
+recorded in Tsogtgerel's lecture notes \cite{tsogtgerel}, with the opposite
+sign convention for the Laplacian.
+
+\section{A family on the actual circle}
+For each integer $m\geq1$ define
+\[
+ f_m([\theta])=\sin(m\theta),\qquad
+ D_m([\theta])=m\cos(m\theta).
+\]
+Both expressions are $2\pi$-periodic, hence well-defined on $M$.
+They are continuous, their coordinate pullbacks are smooth, and
+\[
+ f_m'=D_m,\qquad D_m'=-m^2f_m.
+\]
+Consequently $f_m$ is a nonzero smooth eigenfunction of the positive
+Laplacian, with eigenvalue $\lambda_m=m^2>0$.
+
+The elementary bounds $|\sin t|\leq1$ and $|\cos t|\leq1$, together with
+the points $[\pi/(2m)]$ and $[0]$, give the attained maxima
+\[
+ \max_M|f_m|=1,\qquad \max_M|\nabla f_m|=m.
+\]
+No supremum is substituted for an unattained maximum. Therefore
+\[
+ \frac{\max_M|\nabla f_m|}{\lambda_m\max_M|f_m|}
+ =\frac{m}{m^2}=\frac1m.                         \tag{1}
+\]
+For every $c>0$, the Archimedean property supplies $m\geq1$ with $1/m<c$.
+Equation (1) rules out every positive constant uniform over eigenfunctions,
+including one uniform only on the high-frequency tail. Amplitude
+normalization has no effect on this ratio. The exhibited functions already
+have absolute maximum one, so the denominator-placement ambiguity in the
+Chinese text has no effect on this family.
+
+\section{What is formalized}
+The Lean object \texttt{FlatCircle} is Mathlib's actual additive quotient
+\texttt{AddCircle (2 * Real.pi)}. The functions \texttt{circleU} and
+\texttt{circleD} are defined by the periodic-function quotient lift.
+Their pullbacks are proved equal to the sine and cosine expressions;
+quotient-map continuity and smoothness of the first pullback are proved.
+
+\texttt{CircleEigenpair} states positivity of the eigenvalue, continuity
+of both circle functions, a nonzero value, smoothness of the pullback,
+and two derivative identities in Lean's \texttt{HasDerivAt} predicate.
+It is the explicit arc-length coordinate formulation described above.
+We do not claim that the code invokes a general Riemannian gradient or
+Laplace--Beltrami API. The metric-to-coordinate formulas are spelled out
+here. No spectral, derivative, or maximum identity is assumed
+in the proof of the example.
+
+Theorems \texttt{max\_value} and \texttt{max\_gradient} use
+\texttt{IsGreatest} on the value ranges of the actual quotient functions.
+The final theorem \texttt{no\_uniform\_positive\_bound} negates the fully
+quantified positive bound for these nonzero circle eigenfunctions. Its
+proof constructs an arbitrary-small-ratio family, rather than using the
+zero function or a single finite-frequency discrepancy.
+
+\section{Verification and provenance}
+Lean 4.33.0 and Mathlib are pinned in the accompanying project. Full
+project build, source-bound axiom audit and official fresh-kernel replay
+are recorded in the evidence directory. Only the usual Lean foundational
+axioms are permitted; no admitted proof, native decision shortcut, or new
+axiom is used. The PDF was rendered and every page inspected.
+
+The bilingual source is preserved from upstream commit:\par\noindent
+\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.
+OpenAI Codex assisted the mathematics, formalization and report. A separate
+supervising Codex agent reviewed the source and interpretation; this is AI
+review, not human certification. The family and its spectral behavior are
+standard; we make no claim of new mathematics. Organizer acceptance remains
+pending.
+
+\begin{thebibliography}{2}
+\bibitem{steinerberger} S. Steinerberger,
+\emph{On the Spectral Resolution of Products of Laplacian Eigenfunctions},
+2017. \url{https://arxiv.org/abs/1711.09826}.
+\bibitem{tsogtgerel} G. Tsogtgerel, \emph{Math 319, Lecture 25},
+McGill University, 8 March 2011, slide 2.
+\url{https://www.math.mcgill.ca/gantumur/math319w11/downloads/slides25.pdf}.
+\end{thebibliography}
+\end{document}
