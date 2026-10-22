@@ -1,0 +1,178 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{One Newton Polygon, Two Frobenius Polynomials:\\A Disproof of Conjecture 00000005556}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Over $\mathbb F_3$, take the rank-one unit-root $F$-crystals with
+Frobenius $+1$ and $-1$ on the free $\mathbb Z_3$-line. Their
+rationalizations are actual linear automorphisms of $\mathbb Q_3$.
+Both Newton polygons are the horizontal segment from $(0,0)$ to
+$(1,0)$, and both crystals are pure of weight zero. Their Frobenius
+characteristic polynomials are nevertheless $X-1$ and $X+1$.
+Thus the Newton polygon does not determine the characteristic
+polynomial, even at fixed rank and pure weight in the unit-root case.
+Lean verifies the integral and rational automorphisms, scalar
+extension compatibility, valuations, actual matrix characteristic
+polynomials, geometric Newton segments and the universal
+non-determination statement.
+\end{abstract}
+
+\paragraph{Reading of the source.}
+The first assertion in both source languages is that the
+characteristic polynomial is given by the Newton polygon. In
+particular, this requires equal Newton polygons to give equal
+characteristic polynomials. We refute this necessary uniqueness
+condition, which already suffices to refute the stated conjecture.
+
+The final phrase, saying that in the unit-root case something is
+uniquely determined by pure weight, has an ambiguous subject. If
+it refers to the characteristic polynomial, the same example also
+refutes it. If it refers only to the Newton polygon, that weaker
+claim is not refuted: all rank-one unit-root objects already have
+the same horizontal Newton polygon. We do not claim otherwise.
+
+\paragraph{The actual crystalline objects.}
+Fix the base point $\operatorname{Spec}\mathbb F_3$. Here
+$W(\mathbb F_3)=\mathbb Z_3$, its fraction field is
+$\mathbb Q_3$, and the Witt Frobenius is the identity. Thus a free
+rank-one $F$-crystal on this point is described by a free
+$\mathbb Z_3$-module $M$ of rank one with an injective linear
+Frobenius. It is unit-root when Frobenius is an automorphism of
+this integral lattice. Its rationalization is an automorphism of
+$M\otimes_{\mathbb Z_3}\mathbb Q_3$.
+
+This is the specialization of the usual definition with a
+Frobenius-semilinear automorphism: when the base Frobenius is the
+identity, semilinearity is ordinary linearity. For the general
+definition see Jacob Lurie, \emph{Lecture 26--Isocrystals},
+Definition 1:
+\href{https://www.math.ias.edu/~lurie/205notes/Lecture26-Isocrystals.pdf}{lecture notes}.
+The standard identifications with Witt vectors and this
+specialization are stated here as mathematical background.
+Lean directly verifies all the resulting integral and rational
+linear-algebra data over the actual $3$-adic rings and field.
+
+Use the following two objects:
+\[
+ \begin{array}{c|c|c}
+ &M&F\text{ on }M\text{ and its rationalization}\\\hline
+ C_+&\mathbb Z_3&x\longmapsto x\\
+ C_-&\mathbb Z_3&x\longmapsto -x.
+ \end{array}
+\]
+Both maps and their inverses preserve the integral lattice. The
+integral maps agree, under the inclusion
+$\mathbb Z_3\hookrightarrow\mathbb Q_3$, with the displayed
+rational maps. There is no quotient, reduction of coefficients, or
+change of base in this comparison.
+
+\begin{theorem}
+The two unit-root $F$-crystals $C_+$ and $C_-$ have equal Newton
+polygons and equal pure weight zero but distinct characteristic
+polynomials. Their rational Frobenius operators are not conjugate
+by a $\mathbb Q_3$-linear isomorphism.
+\end{theorem}
+\begin{proof}
+The Frobenius matrices in the basis $1$ are respectively $[1]$
+and $[-1]$, giving
+\[
+ \chi_+(X)=X-1,\qquad \chi_-(X)=X+1.
+\]
+They differ because $1\ne-1$ in the characteristic-zero field
+$\mathbb Q_3$.
+
+Let $v_3$ be the $3$-adic valuation with $v_3(3)=1$.
+Both eigenvalues are units:
+\[
+ |1|_3=|-1|_3=1,\qquad v_3(1)=v_3(-1)=0.
+\]
+For a monic degree-one polynomial $c_0+c_1X$ with $c_0\ne0$,
+its Newton polygon is the segment joining
+$(0,v_3(c_0))$ and $(1,v_3(c_1))$. Thus the polygons of
+$X-1$ and $X+1$ both equal
+\[
+ \{(s,0):0\le s\le1\}.
+\]
+The eigenvalues $1,-1$ are rational algebraic numbers, and every
+complex embedding of their number field $\mathbb Q$ has absolute
+value one on them. Since $3^{0/2}=1$, both objects are pure of
+weight zero in the usual Weil-number sense. This is a stronger
+counterexample than one obtained by changing rank or weight.
+
+Finally, a linear isomorphism $f$ intertwining the two operators
+would satisfy $-f(1)=f(1)$, hence $2f(1)=0$ and $f(1)=0$.
+Injectivity would imply $1=0$, impossible.
+\end{proof}
+
+\paragraph{Why this refutes determination.}
+A Newton polygon records coefficient valuations, or equivalently
+the corresponding valuation slopes, rather than the full unit
+parts of Frobenius eigenvalues. The above example preserves every
+Newton datum while changing the unit $+1$ to $-1$. Therefore no
+function of the Newton polygon alone can return the characteristic
+polynomial for all crystals in the stated class. Even supplying
+the pure weight zero in addition does not distinguish this pair.
+This argument stays over the fixed finite base field
+$\mathbb F_3$; it makes no assertion about classification after
+extension to an algebraically closed base.
+
+\paragraph{Formal verification and scope.}
+The Lean structure \texttt{RankOneCrystal} contains an actual
+$\mathbb Z_3$-linear equivalence of the integral line, an actual
+$\mathbb Q_3$-linear equivalence of the rational line, and a proof
+of scalar extension compatibility. The two examples instantiate
+all three fields. The theorem
+\begin{center}\texttt{matrix\_represents\_frobenius}\end{center}
+proves that the actual one-by-one Mathlib matrix acts as the
+rational Frobenius on every vector. Characteristic polynomials
+are Mathlib's \texttt{Matrix.charpoly}. The valuations and norms
+are those of Mathlib's actual $3$-adic field, and the Newton
+polygon is a standard real geometric \texttt{segment} joining
+the two coefficient-valuation points. The valuation calculation
+does not substitute integers or a hard-coded slope table for
+$3$-adic values.
+
+\texttt{PureWeightZero} requires a rational Frobenius eigenvalue
+and modulus one under every complex embedding of $\mathbb Q$;
+this is exactly the usual purity condition for the rational
+eigenvalues in our counterexample. It is not intended as a
+definition of all possibly irrational pure crystals.
+The principal negations are
+\begin{center}
+\texttt{not\_newton\_determines\_characteristic\_polynomial},\\
+\texttt{not\_pure\_weight\_determines\_characteristic\_polynomial}.
+\end{center}
+These are universally quantified propositions over the actual
+specialized crystalline objects; the first additionally requires
+equal Newton polygons and unit-root conditions on both objects.
+The second treats the stronger characteristic-polynomial reading
+of the ambiguous final clause. Non-conjugacy is separately proved
+by \texttt{no\_frobenius\_conjugacy}.
+
+The Witt-vector identification and equivalence of this specialized
+linear-algebra description with $F$-crystals on the point are
+paper background. No formal construction of the full crystalline
+site or of Mathlib's general Witt-vector isocrystal class is
+claimed. The finite-field identity $x^3=x$ on $\mathbb F_3$ is
+also checked directly in Lean.
+
+\paragraph{Source and reproduction.}
+The preserved bilingual source is \texttt{SOURCE.md}; the
+provenance file records the repository commit and source hash.
+The project pins Lean 4.19.0 and Mathlib revision
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+From the \texttt{lean} directory run \texttt{lake build}, then
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+Principal axiom reports contain only \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}.
+Development and self-review were performed by a delegated AI
+agent; the coordinating agent reviews the result separately.
+No external independent review is claimed.
+\end{document}
