@@ -1,0 +1,195 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\F}{\mathbb F}
+\title{One-variable Veronese rings have F-signature one\newline
+\large Disproof of Conjecture 00000003904}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+For every $d>0$, the Veronese subring $V_d=\F_2[X^d]$
+is a polynomial ring in one variable. We explicitly compute its
+Frobenius pushforward as a free module of rank $2^e$ at level $e$.
+Its actual maximal splitting counts, dimension-one normalization
+and F-signature therefore give $s(V_d)=1$ for every $d>0$.
+The proposed $d^{-1}(1+c/d+O(d^{-2}))$ tends to zero, so it cannot
+hold. The accompanying Lean project proves the module computation,
+Krull dimension and asymptotic contradiction, rather than assuming
+a general regular-ring F-signature formula.
+\end{abstract}
+
+\section*{The permitted one-variable instance}
+The source defines the $d$-Veronese subring by all degree-$d$
+monomials and asserts
+\[
+ s(V_d)=d^{-n}\bigl(1+c(n)/d+O(d^{-2})\bigr).
+\]
+Neither source language excludes $n=1$. Take the actual perfect
+field $\F_2$ and a single variable $X$. The degree-$d$ monomials
+generate exactly $V_d=\F_2[X^d]\subseteq\F_2[X]$.
+The map
+\[
+ \phi_d:\F_2[T]\longrightarrow V_d,\qquad f(T)\longmapsto f(X^d)
+\]
+is onto by the definition of the subalgebra and injective for $d>0$:
+distinct exponents $j$ give distinct exponents $dj$.
+Thus it is an algebra isomorphism. In particular $V_d$ is
+Noetherian and has Krull dimension one. The formal dimension
+proof uses the polynomial PID property for the upper bound and
+the field-to-polynomial dimension lower bound for the reverse inequality.
+
+We use the standard graded F-signature definition~\cite{Singh},
+with the homogeneous maximal ideal understood. If $a_e$ is the
+maximal rank of a free direct summand of $F_*^e V_d$, then
+\[
+ s(V_d)=\lim_{e\to\infty}\frac{a_e}{q^{\dim V_d}},\qquad q=2^e.
+\]
+The coefficient field is perfect, so no residue-field correction is
+needed. We compute the actual entire module below.
+
+\newpage
+\section*{A complete basis for the actual Frobenius module}
+As an additive group, $F_*^e V_d$ is $V_d$ itself; its scalar
+action is twisted:
+\[
+ a\cdot m=a^q m,\qquad q=2^e.
+\]
+This is restriction of scalars along the actual iterated Frobenius,
+not the ordinary multiplication action.
+Over $\F_2$, coefficients satisfy $a^q=a$, hence
+$f(T)^q=f(T^q)$ for every polynomial $f$.
+
+For the polynomial ring $B=\F_2[T]$, define
+\[
+ S_q:B^q\longrightarrow F_*^e B,\qquad
+ (f_0,\ldots,f_{q-1})\longmapsto
+ \sum_{i=0}^{q-1} f_i(T^q)T^i.
+\]
+It is $B$-linear for the twisted action. Its coefficient at
+$qn+i$, with $0\leq i<q$, is exactly the coefficient of $T^n$
+in $f_i$. Distinct residues cannot contribute to this coefficient,
+so $S_q$ is injective. Conversely, the monomial $aT^N$ is the
+image of the tuple having $aT^{\lfloor N/q\rfloor}$ in position
+$N\bmod q$ and zeros elsewhere. The quotient-remainder identity
+$N=q\lfloor N/q\rfloor+(N\bmod q)$ proves surjectivity for every
+monomial, and addition proves it for all polynomials.
+
+Transporting this linear equivalence through $\phi_d$ gives the
+actual equivalence
+\[
+ V_d^{\,q}\ \cong_{V_d}\ F_*^e V_d.
+\]
+The standard basis vectors are sent to the actual polynomials
+\[
+ 1,X^d,X^{2d},\ldots,X^{(q-1)d}.
+\]
+This includes $e=0$, where $q=1$, and makes no coprimality
+assumption between $d$ and the characteristic.
+
+\section*{Maximal free summands, not just a lower bound}
+Define the free-summand ranks of an $A$-module $M$ to be the
+natural numbers $k$ for which there are actual $A$-linear maps
+\[
+ i:A^k\longrightarrow M,\qquad r:M\longrightarrow A^k,
+ \qquad r\circ i=\operatorname{id}.
+\]
+Their supremum is the free rank. The proved equivalence above
+exhibits the free rank $q$. For the upper bound, every such split
+injection is injective, and the strong rank condition for the
+commutative domain $V_d$ gives $k\leq q$. Therefore the actual
+maximal free-summand rank is $a_e=q$, not merely at least $q$.
+
+\newpage
+\section*{The limit and the asymptotic contradiction}
+The proved dimension and splitting computation give
+\[
+ \frac{a_e}{q^{\dim V_d}}=\frac{2^e}{2^e}=1
+ \qquad(d>0,\ e\geq0).
+\]
+Consequently the genuine splitting-count sequence has limit one.
+
+\begin{theorem}
+For every $d>0$, the one-variable Veronese ring
+$V_d=\F_2[X^d]$ has graded F-signature $s(V_d)=1$.
+There are no real $c$ and remainder $r(d)=O(d^{-2})$ such that,
+for all sufficiently large positive integers $d$,
+\[
+ s(V_d)=d^{-1}\bigl(1+c/d+r(d)\bigr).
+\]
+\end{theorem}
+\begin{proof}
+The first assertion is the module and dimension computation above.
+For the second, a genuine $O(d^{-2})$ remainder tends to zero.
+Thus the displayed right side tends to zero, whereas the left side
+is identically one. Uniqueness of a real limit gives a contradiction.
+\end{proof}
+
+This refutes the source's F-signature asymptotic, hence the
+asserted conjunction. It makes no claim that the strong
+F-regularity clause fails. A single permitted characteristic and
+variable count suffice to refute the universal formula.
+
+\section*{Formalization scope}
+The Lean project uses the actual polynomial subalgebra generated by
+all degree-$d$ monomials and proves its equality to the singleton
+adjoin. Injective polynomial expansion gives the algebra isomorphism.
+The Frobenius module is built with restriction of scalars along
+Mathlib's \texttt{iterateFrobenius}; its displayed scalar action is
+checked explicitly. Polynomial coefficients prove the complete
+residue decomposition, and a further theorem identifies every
+transported basis vector with $X^{di}$.
+
+The free rank is defined by actual split linear maps, with boundedness
+and attainment proved. Mathlib's actual Krull dimension is proved
+one. F-signature is defined as the limit of these actual normalized
+counts, and the limit is proved to exist and equal one. The final
+theorem quantifies over every real correction constant and every
+remainder satisfying Mathlib's actual \texttt{IsBigO}; it does not
+replace asymptotic notation by a pointwise error condition.
+
+The standard graded definition is the only terminology bridge to
+the source; see~\cite{Singh}, p.~1. The computation does not use
+an external F-signature evaluation theorem. No Lean theorem
+comparing this graded definition with localization is claimed.
+
+\newpage
+\section*{Reproduction and review}
+The complete project pins Lean 4.19.0. The Mathlib revision is
+\begin{center}
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+From the \texttt{lean/} directory run:
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Compile the paper with \texttt{tectonic main.tex}.
+The source includes explicit axiom reports for the ring,
+Frobenius basis, dimension, free-summand computation and final
+asymptotic theorem. The only printed dependencies are standard
+foundational axioms. Actual logs, source hashes and fresh-build
+evidence accompany the submission.
+
+All theorems computing the ring, dimension and signature require
+$d>0$. Definitions at $d=0$ are merely total Lean definitions;
+the asymptotic contradiction uses only eventually positive $d$.
+No finite computation is an oracle for the formal proof.
+
+The work received author, parent and internal cross-review.
+No external independent review is claimed. The complete proof
+rests on an explicit free-module decomposition and a limit, so its
+conclusion does not depend on trusting a numerical estimate.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000003904. Exact bilingual source included.
+\bibitem{Singh} A. K. Singh,
+\emph{The F-signature of an affine semigroup ring} (2004),
+\href{https://arxiv.org/abs/math/0409143}{arXiv:math/0409143},
+p.~1, definition of F-signature for local or graded rings.
+\end{thebibliography}
+\end{document}
