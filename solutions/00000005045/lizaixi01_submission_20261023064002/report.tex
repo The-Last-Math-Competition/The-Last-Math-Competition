@@ -1,0 +1,113 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000005045: local Hanf data do not give global isomorphism}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The necessary transfer fails at degree two}
+The source explicitly defines the local-to-global conversion as
+conversion from Hanf local isomorphism to global isomorphism, and
+asserts a uniform radius-two conversion constant table governed by
+degree thresholds. Under that stated definition, the necessary
+transfer already fails for finite graphs of degree two. For each
+integer $t\geq0$, put
+\[
+ G_t=(t+1)C_{12},\qquad H_t=2(t+1)C_6,
+\]
+where multiplication denotes disjoint copies of the actual cycle
+graph. Both graphs have $12(t+1)$ vertices, and every vertex has
+degree $2$. Every rooted induced closed radius-two ball in either
+graph is the same five-vertex path, rooted at its middle vertex.
+Consequently the graphs have a bijection of vertices preserving
+rooted radius-two neighborhood types. In fact, the number of roots
+of every neighborhood type is exactly equal, so every finite Hanf
+count threshold agrees. Yet $G_t$ and $H_t$ are not isomorphic.
+Taking $t$ arbitrarily large excludes any size cutoff as well.
+
+We do not assign numbers to the source's unspecified constant
+table. Rather, any uniform radius-two threshold/size-cutoff rule
+that accomplishes the stated conversion must work on this family,
+and cannot do so. A table for a different, unstated operation is
+outside this conclusion. No independent claim about numerical
+entries $3$ or $5$, monotonicity, or a size-doubling jump is made.
+
+\section{Actual balls, isomorphisms and Hanf counts}
+Lean uses Mathlib's actual \texttt{SimpleGraph.cycleGraph}.
+Disjoint copies have vertices $(i,v)$, with adjacency precisely
+equality of copy indices and actual cycle adjacency. The closed
+radius-two ball is defined by
+\[
+ B_2(v)=\{w:w=v\ \lor\ v\sim w\ \lor\
+                 (\exists z,\ v\sim z\ \land\ z\sim w)\}.
+\]
+The proof formally identifies this with existence of an actual
+graph walk of length at most $2$. It does not use the default
+value of a distance between disconnected vertices. A rooted ball
+isomorphism is a genuine graph isomorphism of the induced
+subgraphs, carrying the actual root to the other root.
+
+At root $0$, the vertices of these balls are respectively
+$[0,1,2,10,11]$ in $C_{12}$ and $[0,1,2,4,5]$ in $C_6$.
+The proof checks their actual adjacency relations, constructs the
+induced graph isomorphism, and then uses genuine cycle rotations
+and copy projections for arbitrary roots. Ordinary kernel-checked
+finite decisions are used for the small base graphs.
+
+\newpage
+For any finite ambient graph $A$ and any rooted target graph
+$(K,z)$, the number of roots whose induced ball is isomorphic
+to $B_2^K(z)$ is the cardinality of that actual subtype of vertices.
+A Hanf vertex bijection gives an explicit equivalence between
+these subtypes in $G_t$ and $H_t$. Thus their finite cardinalities
+are equal for every target, not merely for an assigned list of
+counts. In particular, for every threshold $q$, the counts of
+each finite rooted type are equal or both exceed $q$, with equality
+always supplying the first alternative. \texttt{Nat.card} is used
+only on these finite ambient vertex subtypes; no infinite-cardinality
+default is invoked.
+
+\section{Global nonisomorphism and arbitrary size}
+Every actual walk in a disjoint-copy graph preserves the copy
+index. The actual twelve-cycle is connected. If a global graph
+isomorphism existed, the images of all twelve vertices of one
+$C_{12}$ component would therefore lie in one $C_6$ component.
+Injectivity of the graph isomorphism would induce an injection
+$\operatorname{Fin}12\hookrightarrow\operatorname{Fin}6$, contradicting
+$12>6$. This proves nonisomorphism for every $t$.
+
+Lean proves the actual orders and all actual vertex degrees.
+Its final theorem states that for every size cutoff $N$ and
+every count threshold $q$, some $t$ gives equal-order graphs of
+order at least $N$, degree exactly $2$, genuine Hanf matching
+and threshold agreement, but no global isomorphism. The formal
+negation of a uniform cutoff/threshold conversion follows.
+
+\section{Scope, references and verification}
+Hanf locality in its usual form yields bounded-quantifier-rank
+first-order equivalence, not global graph isomorphism. This
+submission does not refute that theorem. The distinction is
+explicit in Anuj Dawar's primary Simons Institute lectures:
+\emph{Finite and Algorithmic Model Theory II: Automata-Based
+Methods}, 30 August 2016, PDF page 4, gives the neighborhood
+bijection definition; lecture III, \emph{Parameterized
+Satisfaction}, 31 August 2016, PDF pages 9--10, gives induced
+neighborhoods, threshold counts and the first-order conclusion.
+The directly read sources are
+\href{https://simons.berkeley.edu/sites/default/files/docs/5233/lecture22.pdf}{lecture II}
+and
+\href{https://simons.berkeley.edu/sites/default/files/docs/5234/lecture31.pdf}{lecture III}.
+
+The package pins Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+and supplies the original bilingual source, complete LaTeX and
+PDF, all named local declaration axiom audits, a new root build
+and full official \texttt{leanchecker --fresh Main} replay.
+No \texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted, with separate supervising AI proof/source/
+report/PDF review. This is not human certification; organizer
+acceptance remains pending.
+\end{document}
