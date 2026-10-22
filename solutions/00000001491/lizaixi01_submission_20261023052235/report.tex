@@ -1,0 +1,126 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001491: the printed map collapses onto a line}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The explicit formula matters}
+Both source languages explicitly define
+\[
+ H_{a,b}(x,y)=(1-ax^2+y,\ b).
+\]
+\textbf{The second coordinate here is the constant $b$, not $bx$.}
+The usual H\'enon map in H\'enon's original abstract~\cite{Henon}
+has second coordinate $bx$. Our result concerns exactly the formula
+printed in this problem; it does not assert a dimension theorem for
+that different, usual H\'enon map.
+
+For the printed map, every image lies on the horizontal line
+$L_b=\{(x,y):y=b\}$. Consequently every positive-time iterate,
+every actual forward $\omega$-limit set, and the closure of the union
+of all actual point $\omega$-limit sets lie on $L_b$. Their Hausdorff
+dimensions are at most one. Any compact fully invariant set
+$H_{a,b}(A)=A$ also has dimension at most one. These statements are
+proved for all real $a,b$, then instantiated at the exact printed
+parameters $a=7/5=1.4$, $b=3/10=0.3$.
+
+Thus the required lower bound $1.26<d_H$ cannot hold for the
+printed map's actual limiting sets or a fully invariant compact
+attractor. This necessary lower-bound clause already refutes the
+conjunction. We do not calculate the usual H\'enon attractor's
+dimension or assert independent results about box dimension or
+the Kaplan--Yorke formula. No classification of all alternative
+Milnor-style attractor definitions is claimed.
+
+\section{The actual Euclidean plane and horizontal line}
+Lean uses the actual Euclidean space
+$E=\operatorname{EuclideanSpace}(\mathbb R,\operatorname{Fin}2)$,
+with its Euclidean metric, and the actual continuous polynomial map
+given above. The line $L_b\subset E$ is closed because the second
+coordinate projection is continuous. For every $v\in E$,
+\[
+ H_{a,b}(v)\in L_b,\qquad
+ H_{a,b}^{\,n}(v)\in L_b\quad(n\ge1).
+\]
+The second statement follows from the actual iterate successor
+identity, not an assumed finite-state or line-restricted model.
+
+The genuine line parametrization
+\[
+ \iota_b:\mathbb R\longrightarrow E,\qquad t\longmapsto(t,b)
+\]
+is an actual isometry onto $L_b$. Lean proves the distance identity
+using the Euclidean squared-coordinate formula, proves
+$L_b=\iota_b(\mathbb R)$, and applies isometric invariance of
+Hausdorff dimension and $\dim_H\mathbb R=1$. Therefore
+\[
+ \dim_H L_b=1,\qquad A\subseteq L_b\Rightarrow\dim_H A\le1.
+\]
+No max-norm substitution or unproved metric conversion is used.
+
+\newpage
+\section{Actual forward limit sets}
+For any actual initial set $S\subset E$, define
+\[
+ \Omega_{a,b}(S)=\operatorname{omegaLimit}
+ \bigl(\operatorname{atTop},\ (n,v)\mapsto H_{a,b}^{\,n}(v),\ S\bigr).
+\]
+This is Mathlib's actual filter-based $\omega$-limit set: the
+intersection, over $U\in\operatorname{atTop}$, of the closures of
+$\{H_{a,b}^{\,n}(v):n\in U,v\in S\}$.
+Take the actual filter member $U=\{n:n\ge1\}$. All these images
+lie in the closed line $L_b$, so their closure does too. Hence
+\[
+ \Omega_{a,b}(S)\subseteq L_b,\qquad
+ \dim_H\Omega_{a,b}(S)\le1\quad\text{for every }S\subset E.
+\]
+In particular this applies to every single orbit $S=\{v\}$.
+The separately defined actual global limiting object
+\[
+ K_{a,b}=\overline{\bigcup_{v\in E}\Omega_{a,b}(\{v\})}
+\]
+also lies in $L_b$ by closedness, and has Hausdorff dimension at
+most one. No arbitrary set is simply named an attractor in place
+of these actual dynamical objects.
+
+\section{Full invariance and the real dimension bound}
+For every actual set $A\subset E$ with $H_{a,b}(A)=A$, each
+$v\in A$ is an actual image $H_{a,b}(w)$ for some $w\in A$.
+Thus $A\subseteq L_b$. In particular there is no compact fully
+invariant set with dimension greater than $63/50=1.26$.
+This uses full invariance; merely forward invariance
+$H_{a,b}(A)\subseteq A$ would not suffice, since a thick trapping
+region may contain points off the line. We do not use that weaker
+condition as a substitute for an attractor.
+
+Mathlib's \texttt{dimH} takes values in the extended nonnegative
+reals. Lean first proves the actual bound $\dim_H A\le1$ for every
+line subset, and separately proves $\dim_H A<\infty$.
+The real-value bridge then gives
+$\operatorname{toReal}(\dim_H A)\le1$. The final theorem
+\begin{center}\small\texttt{source\_parameters\_real\_dimensions}\end{center}
+explicitly gives this real bound for every actual $\Omega_{7/5,3/10}(S)$ and for
+$K_{7/5,3/10}$, and denies existence of a compact fully invariant
+$A$ with real dimension above $63/50$. There is no use of an
+infinite-dimension conversion default.
+
+\section{Verification}
+Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+are pinned. The package includes a new root build, transitive axiom
+audits of all 21 theorems and full official
+\texttt{leanchecker --fresh Main} replay. No \texttt{sorry},
+\texttt{native\_decide} or additional axiom is used. OpenAI Codex
+assisted; a separate supervising Codex agent reviewed source,
+report and PDF. This is AI review, not human certification.
+Organizer acceptance is pending.
+\begin{thebibliography}{1}
+\bibitem{Henon} M.~H\'enon, \emph{A two-dimensional mapping with a
+strange attractor}, Commun. Math. Phys. \textbf{50} (1976), 69--77.
+\url{https://doi.org/10.1007/BF01608556}.
+\end{thebibliography}
+\end{document}
