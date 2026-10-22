@@ -1,0 +1,13 @@
+# 00000001674: no edge-count bound depending only on the excluded grid
+
+The source explicitly defines its grid theorem as a bound on the number of edges and asserts an optimal finite upper bound depending only on k. This literal premise is false. For every k >= 2 and every finite edge bound B, the actual Mathlib star with B+1 leaves is a connected tree with B+1 genuine edges and no k-by-k grid minor.
+
+The Lean code constructs the ordinary finite grid with actual horizontal/vertical consecutive-coordinate adjacency. MinorModel is the standard branch-set model with all conditions: actual nonempty branch sets, connected induced subgraphs, pairwise disjointness, and actual host cross-edge witnesses. Each star cross-edge contains the actual center. The two endpoint-disjoint edges in rows 0 and 1 of the grid force center membership in distinct disjoint branch sets, contradiction. The unused connected/nonempty conditions are retained in the genuine model.
+
+Actual IsTree and card_edgeFinset give exactly n edges on Option(Fin n); no count is assigned. For any real function F(k) and asymptotic cutoff K, choose k=max(K,2) and a natural n>F(k). This proves that no real-valued k-only eventual upper bound exists, including any finite exponential envelope. A final theorem explicitly negates the corresponding bound over all actual finite SimpleGraphs, by restricting to stars.
+
+Scope: only the literal number-of-edges upper-bound premise is refuted. This does not refute the genuine grid-minor theorem about treewidth, an edge bound that also depends on the vertex count, a normalized-density bound, or the separate lower-bound existence statement. The proof adopts the standard branch-set definition directly; it does not claim to formalize general equivalence with contraction/deletion sequences.
+
+Primary reference: Chekuri and Chuzhoy, [Polynomial Bounds for the Grid-Minor Theorem, arXiv1305.6577v5](https://arxiv.org/pdf/1305.6577v5), printed page 4 (standard single-cross-edge branch-set and grid definitions), abstract and printed pages 1-2 (true treewidth theorem). The relevant passages were directly read by both worker and separate supervising AI.
+
+Complete original bilingual source, LaTeX/PDF, pinned Lean 4.33.0 / Mathlib db584cd6d46c92f209a44c0f1c829460d327499d, new Main build, full official fresh kernel replay, structured command/hash/log receipts and manifest are included. Run bash verify.sh inside lean/. Every named local declaration is audited, explicitly including MinorModel, its constructor and all five field projections. No sorry, native_decide or additional axiom. OpenAI Codex assisted with separate supervising AI proof/source/report/PDF review; organizer acceptance is pending, and no human certification is claimed.
