@@ -1,0 +1,135 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Isotropic noises do not force an isotropic Riccati covariance\\
+\large Disproof of Conjecture 00000008262}
+\author{GitHub: gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The conjectured bound for the spectral condition number of a steady
+Kalman--Bucy covariance fails already in two dimensions with equal,
+nondegenerate isotropic system and observation noises. The stabilizing
+covariance has eigenvalues $2$ and $1/2$, hence condition number $4$,
+while the proposed upper bound is $1$.
+\end{abstract}
+
+\section*{The claimed bound and the filtering model}
+Both language versions assert
+\[
+ \kappa_2(P_\infty)\leq
+       (\sigma_{\rm obs}/\sigma_{\rm sys})^2.
+\]
+We refute this first conjunct. No conclusion about the other claimed
+transient-rate and robustness-radius formulas is needed.
+
+Consider the usual continuous-time linear filtering model
+\[
+ dX_t=A X_t\,dt+\sigma_{\rm sys}\,dW_t,
+ \qquad dY_t=H X_t\,dt+\sigma_{\rm obs}\,dV_t,
+\]
+with independent standard two-dimensional Brownian motions. The covariance
+Riccati equation and its steady equation are
+\begin{align*}
+ \dot P&=AP+PA^T+\sigma_{\rm sys}^2 I
+    -\sigma_{\rm obs}^{-2}PH^THP,\\
+ 0&=AP_\infty+P_\infty A^T+\sigma_{\rm sys}^2 I
+    -\sigma_{\rm obs}^{-2}P_\infty H^THP_\infty.
+\end{align*}
+Set
+\[
+ A=\begin{pmatrix}3/4&0\\0&-3/4\end{pmatrix},\quad
+ H=I,\quad \sigma_{\rm sys}=\sigma_{\rm obs}=1,\quad
+ P_\infty=\begin{pmatrix}2&0\\0&1/2\end{pmatrix}.
+\]
+All noise covariances are strictly positive definite. In particular,
+the example does not use a zero-noise or unobservable direction.
+
+\section*{Verification of the steady covariance}
+The matrix $P_\infty$ is real symmetric positive definite. Direct
+multiplication gives
+\[
+ AP_\infty+P_\infty A^T
+       =\operatorname{diag}(3,-3/4),\qquad
+ P_\infty^2=\operatorname{diag}(4,1/4),
+\]
+so $AP_\infty+P_\infty A^T+I-P_\infty^2=0$.
+The closed-loop error matrix is
+\[
+ A-P_\infty H^TH=A-P_\infty=-\frac54 I.
+\]
+Both complex eigenvalues therefore have strictly negative real part;
+this is a stabilizing positive-definite Riccati solution.
+
+One can also see the actual steady limit without invoking a general
+Riccati existence theorem. With $P(0)=0$, put $e(t)=\exp(-5t/2)$ and
+\[
+ P(t)=\operatorname{diag}\left(
+       \frac{2(1-e(t))}{1+4e(t)},
+       \frac{(1/2)(1-e(t))}{1+e(t)/4}\right).
+\]
+Differentiation verifies the covariance equation, and the positive
+denominators show it is defined for all $t\geq0$. It converges to the
+displayed $P_\infty$. Alternatively, initializing the covariance at
+$P_\infty$ gives an exactly stationary solution. These observations
+ensure that the example is a genuine steady filtering covariance,
+not an unrelated algebraic root.
+
+\section*{Contradiction}
+For a real symmetric positive-definite matrix its spectral condition
+number is the ratio of its largest to its smallest eigenvalue. Here
+the real spectrum is exactly $\{2,1/2\}$, and hence
+\[
+ \kappa_2(P_\infty)=\frac{2}{1/2}=4
+       >1=(\sigma_{\rm obs}/\sigma_{\rm sys})^2.
+\]
+The same numerical contradiction holds if the symbols for the noises
+are interpreted as variances rather than standard deviations, since
+both equal one. The conjecture has no hypothesis excluding anisotropic
+system dynamics $A$. Such dynamics are precisely what its proposed
+noise-only condition-number bound overlooks.
+
+\section*{Formal verification and scope}
+Lean uses actual Mathlib matrices, \texttt{Matrix.PosDef}, and the
+standard real and complex matrix spectra. The predicate
+\texttt{RiccatiSteady} is the full displayed algebraic matrix equation
+with arbitrary matrices $A,H,P$ and positive scalar noise amplitudes.
+The predicate \texttt{Hurwitz} quantifies over the complex spectrum
+of the complexified closed-loop matrix and requires negative real parts.
+The predicate \texttt{SpectralCondition} defines the spectral condition
+number using the least and greatest elements of the real spectrum and
+their ratio, with strictly positive least element.
+
+The development proves positive definiteness, the actual Riccati
+equation, the closed-loop stability, the exact real spectrum and condition
+number, and negates the universally quantified proposed bound. Its
+final theorem is
+\begin{center}\texttt{Conjecture8262.conjecture8262\_false}.\end{center}
+There is no table substituted for matrix operations or spectra. The
+complex and real spectra of the diagonal matrices are obtained from
+Mathlib's general diagonal-spectrum theorem.
+
+The Brownian filtering model and the explicit time-dependent solution
+above are justified on paper. Lean does not formalize stochastic
+conditional covariance, the covariance ODE, or the general Kalman--Bucy
+theorem. The formal result refutes the claimed bound directly on
+stabilizing positive-definite solutions of its actual steady Riccati
+equation. These are the steady covariances in this fully observable,
+nondegenerate example, as the explicit solution independently checks.
+
+\section*{Source and reproduction}
+The unmodified bilingual source is supplied as \texttt{SOURCE.md},
+with frozen-source provenance and SHA-256 in the verification folder.
+The parent workflow found no previous submission for this conjecture.
+Lean is pinned to version 4.19.0 and Mathlib commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+Run in the supplied Lean folder:
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+The printed axiom audits use only \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}.
+This draft was developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately. No external independent
+review is claimed.
+\end{document}
