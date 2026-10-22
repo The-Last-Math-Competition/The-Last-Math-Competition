@@ -1,0 +1,213 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Random weighted cycle tree polynomials\newline
+\large Disproof of Conjecture 00000000470}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+Give every edge of the cycle $C_m$ an independent fair weight
+in $\{1,2\}$. With probability $1-2^{1-m}$ its weighted
+spanning-tree polynomial has exactly one nonzero root, a
+strictly negative real number. The nonzero-root angular
+empirical measure is therefore a point mass at $\pi$, at
+Kolmogorov distance at least $1/2$ from uniform measure.
+The same fixed gap holds if zero roots are included with
+argument zero. Both genuine nonempty empirical measures
+fail with probability tending to one. Thus even convergence
+in probability to uniformity fails for this vertex-transitive
+family, excluding the proposed vanishing rate.
+\end{abstract}
+
+\section*{The graph family and the independent weights}
+For every integer $m\geq3$, take the simple cycle with vertex
+set $\mathbb Z/m\mathbb Z$ and undirected edges
+$e_i=\{i,i+1\}$. The rotations $i\mapsto i+d$ are graph
+automorphisms and carry any specified vertex to any other.
+These are genuine vertex-transitive graphs, with $m$ vertices
+and $m$ distinct edges, including when $m=3$.
+
+Assign weight $w_i\in\{1,2\}$ independently and uniformly
+to each original edge. More explicitly, the sample space is
+$\{1,2\}^{m}$, every complete assignment having probability
+$2^{-m}=\prod_{i=0}^{m-1}(1/2)$. This is a nondegenerate
+identically distributed independent law; no conditioning is
+part of the model. Write
+\[
+ a=\#\{i:w_i=1\},\qquad b=\#\{i:w_i=2\},\qquad
+ W=\sum_i w_i=a+2b.
+\]
+Then $a+b=m$ and $W\geq m$. The mixed event
+$M_m=\{a>0,\ b>0\}$ excludes exactly the two constant
+assignments, so
+\[
+                 \Pr(M_m)=1-\frac{2}{2^m}\longrightarrow1.
+\]
+The source places no additional restriction on the edge-weight
+law that would exclude these positive integer weights.
+
+\newpage
+\section*{The actual spanning-tree polynomial and its roots}
+Every spanning tree of a cycle is obtained by deleting
+exactly one edge. Indeed, deleting any edge leaves a connected
+path with $m-1$ edges, hence a tree. Conversely a spanning tree
+has $m-1$ edges, and therefore omits exactly one of the
+cycle's $m$ edges. Distinct omitted edges give distinct trees.
+Consequently the polynomial defined in the source is exactly
+\begin{align*}
+ \tau_p(C_m)&=\sum_{T\text{ spanning tree}}p^{\sum_{e\in T}w_e}
+          =\sum_{i=0}^{m-1}p^{W-w_i}\\
+          &=a p^{W-1}+b p^{W-2}
+           =p^{W-2}(ap+b).
+\end{align*}
+This calculation sums all actual spanning trees, so coincident
+exponents accumulate with their full multiplicities.
+
+On $M_m$, both $a$ and $b$ are positive. The polynomial is
+nonzero, of degree $W-1$, and its complete root multiset is
+\[
+        \underbrace{0,\ldots,0}_{W-2\text{ copies}},
+                  \quad -\frac ba.
+\]
+The last root is simple, nonzero and strictly negative real.
+Its argument is $\pi$ in both the usual $[0,2\pi)$ convention
+and the principal argument convention. Thus no choice between
+these usual branches affects the example.
+
+\section*{A fixed Kolmogorov gap under both zero conventions}
+For a nonempty multiset $Z$ of roots with chosen arguments,
+counted with multiplicities, write
+\[
+ F_Z(x)=\frac{\#\{z\in Z:\arg z\leq x\}}{|Z|},\qquad
+ U(x)=\begin{cases}0&x<0,\\x/(2\pi)&0\leq x\leq2\pi,\\1&x>2\pi.
+ \end{cases}
+\]
+The Kolmogorov distance is the full supremum
+$D(Z)=\sup_{x\in\mathbb R}|F_Z(x)-U(x)|$.
+It always dominates the error at any individual threshold.
+
+If zero roots are discarded, $Z=\{-b/a\}$ on $M_m$.
+It is nonempty, and $F_Z(\pi)=1$ whereas $U(\pi)=1/2$.
+Thus $D(Z)\geq1/2$.
+
+Alternatively, include every root and explicitly set
+$\arg(0)=0$. The complete multiset is nonempty, and
+\[
+ F_Z(0)=\frac{W-2}{W-1}\geq\frac12,\qquad U(0)=0,
+\]
+because $W\geq m\geq3$. Again $D(Z)\geq1/2$.
+The first argument already gives a disproof without assigning
+any argument to zero.
+
+\newpage
+\section*{The probabilistic obstruction and the claimed rate}
+For either convention, let $E_m$ be the event that its actual
+root multiset is nonempty and its Kolmogorov distance is at
+least $1/2$. The preceding computation proves $M_m\subseteq E_m$,
+and hence
+\[
+              1-2^{1-m}\leq\Pr(E_m)\leq1,
+                  \qquad \Pr(E_m)\longrightarrow1.
+\]
+In particular these probabilities do not tend to zero.
+The positive-cardinality condition ensures that every
+empirical measure used in this conclusion is defined in
+the usual sense. No empty multiset or totalized division
+can supply the obstruction.
+
+\begin{theorem}
+For the vertex-transitive family $C_m$, $m\geq3$, with
+independent fair weights in $\{1,2\}$, the empirical root
+arguments fail to approach the uniform distribution even
+in probability. This holds after discarding zero roots,
+and also when retaining them with argument zero.
+\end{theorem}
+\begin{proof}
+For either convention a fixed Kolmogorov gap of at least
+$1/2$ occurs on the mixed event, whose probability tends
+to one. This contradicts convergence in probability to
+the uniform distribution.
+\end{proof}
+For any fixed finite constant $C\geq0$, eventually
+$C m^{-1/2}<1/2$. The same mixed events then violate a
+bound $D\leq C m^{-1/2}$. Thus the asserted vanishing
+$O(m^{-1/2})$ rate cannot repair the failure. The formal
+proof establishes the stronger fixed-gap probability
+limit; this elementary comparison with $m^{-1/2}$ is a
+consequence stated here, not a separate Lean theorem.
+
+The construction refutes the conjecture with its supplied
+definition $\tau_p(G)=\sum_T p^{w(T)}$. It makes no claim
+about a different polynomial or a separately specified
+weight law. Real coefficients make roots conjugation
+invariant; here all roots in the decisive event are real.
+
+\section*{Formalization and checks}
+The self-contained Lean project uses Mathlib's actual simple
+cycle graph on $\mathbb Z/(n+3)\mathbb Z$. It constructs
+rotation graph isomorphisms and proves that all genuine
+spanning-tree subgraphs are bijective with deleted original
+edges. Tree weights sum over the actual undirected edge
+sets. The polynomial is the sum over all those actual trees;
+its factorization and complete complex root multiset are
+derived, rather than assumed.
+
+\newpage
+\section*{Formalization and reproducibility, continued}
+The formal empirical CDF uses the actual root multiset,
+its filtered cardinality at each threshold, and its full
+cardinality. The Kolmogorov distance is a supremum over
+all real thresholds; the range is proved bounded above
+before using the supremum lower bound. The source's
+$[0,2\pi)$ convention and Mathlib's principal convention
+agree on every root at issue.
+
+Normalized counting on all Boolean edge assignments is
+the finite uniform product law. Lean proves total mass one,
+probability bounds, monotonicity, and that the probability
+of every complete assignment is the product of its fair
+coordinate masses. It then proves the exact mixed-event
+count, its probability limit, and for each zero convention
+the probability limit one for the actual nonempty
+fixed-gap event. Uniqueness of limits proves that these
+probabilities cannot tend to zero.
+
+The accompanying \texttt{verify.py} independently enumerates
+actual connected $(m-1)$-edge subgraphs and every weight
+assignment for $3\leq m\leq10$. Exact integer and rational
+checks confirm the spanning-tree enumeration, polynomial
+coefficients, root description, CDF lower bounds and mixed
+event probability. These finite checks are supplementary;
+Lean proves the all-size result.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The project is rebuilt afresh, and the printed theorem
+dependencies contain only standard foundational axioms.
+There are no proof placeholders, custom axioms, external
+computation oracles or imports from another submission.
+Compile this paper with \texttt{tectonic main.tex}.
+
+Exact bilingual source, provenance, real verification logs
+and artifact hashes are included. The author agent and
+parent performed separate internal reviews; no external
+independent review is claimed. The elementary cycle-cut
+lemmas were copied and adapted from our earlier 7841
+submission, with their complete proofs included here.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000000470. Exact bilingual source included
+as \texttt{SOURCE.md}. All facts needed for this example
+are proved in this paper and the accompanying Lean project.
+\end{thebibliography}
+\end{document}
