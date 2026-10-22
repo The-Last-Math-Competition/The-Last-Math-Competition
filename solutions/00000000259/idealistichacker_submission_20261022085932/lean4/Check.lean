@@ -1,0 +1,40 @@
+import Main
+
+#check PrimePell259.positive_coprime_square_factor
+#print axioms PrimePell259.positive_coprime_square_factor
+#check PrimePell259.adjacent_prime_square_split
+#print axioms PrimePell259.adjacent_prime_square_split
+#check PrimePell259.pell_mod_four_parity
+#print axioms PrimePell259.pell_mod_four_parity
+#check PrimePell259.negative_pell_of_prime_one_mod_four
+#print axioms PrimePell259.negative_pell_of_prime_one_mod_four
+#check PellConstant259.factor_bounds
+#print axioms PellConstant259.factor_bounds
+#check PellConstant259.product_multipliable
+#print axioms PellConstant259.product_multipliable
+#check PellConstant259.product_lower_union
+#print axioms PellConstant259.product_lower_union
+#check PellConstant259.tail_sum_le
+#print axioms PellConstant259.tail_sum_le
+#check PellConstant259.finite_product_bounds
+#print axioms PellConstant259.finite_product_bounds
+#check PellConstant259.infinite_product_bounds
+#print axioms PellConstant259.infinite_product_bounds
+#check PellConstant259.claimedConstant_bounds
+#print axioms PellConstant259.claimedConstant_bounds
+#check PellConstant259.claimedConstant_not_one
+#print axioms PellConstant259.claimedConstant_not_one
+#check PellDensity259.every_eligible_solvable
+#print axioms PellDensity259.every_eligible_solvable
+#check PellDensity259.successful_eq_eligible
+#print axioms PellDensity259.successful_eq_eligible
+#check PellDensity259.eligible_count_pos
+#print axioms PellDensity259.eligible_count_pos
+#check PellDensity259.relativeDensity_one
+#print axioms PellDensity259.relativeDensity_one
+#check PellDensity259.relativeDensity_tendsto
+#print axioms PellDensity259.relativeDensity_tendsto
+#check PellDensity259.not_claimed_relative_density
+#print axioms PellDensity259.not_claimed_relative_density
+#check PellDensity259.pell_109_certificate
+#print axioms PellDensity259.pell_109_certificate
