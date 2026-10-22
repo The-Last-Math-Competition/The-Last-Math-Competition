@@ -1,0 +1,34 @@
+import Main
+
+#print axioms TLMC1385.period_positive
+#print axioms TLMC1385.X
+#print axioms TLMC1385.μ
+#print axioms TLMC1385.E
+#print axioms TLMC1385.probability_circle
+#print axioms TLMC1385.T
+#print axioms TLMC1385.T_preserves
+#print axioms TLMC1385.T_involutive
+#print axioms TLMC1385.U
+#print axioms TLMC1385.U_apply
+#print axioms TLMC1385.U_identity
+#print axioms TLMC1385.fourier
+#print axioms TLMC1385.true_eigenspace
+#print axioms TLMC1385.one_eigenvalue
+#print axioms TLMC1385.only_eigenvalue
+#print axioms TLMC1385.realCutoff
+#print axioms TLMC1385.modulusCutoff
+#print axioms TLMC1385.realCutoff_top
+#print axioms TLMC1385.modulusCutoff_top
+#print axioms TLMC1385.all_basis_cardinality
+#print axioms TLMC1385.topIsometry
+#print axioms TLMC1385.topBasis
+#print axioms TLMC1385.top_basis_cardinality
+#print axioms TLMC1385.hilbertDim
+#print axioms TLMC1385.top_hilbertDim
+#print axioms TLMC1385.Nreal
+#print axioms TLMC1385.Nmodulus
+#print axioms TLMC1385.Nreal_value
+#print axioms TLMC1385.Nmodulus_value
+#print axioms TLMC1385.InfiniteJump
+#print axioms TLMC1385.real_counterexample
+#print axioms TLMC1385.modulus_counterexample
