@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\newtheorem{theorem}{Theorem}
+\title{Conjecture 00000002854: full generic Jacobian rank does not give global SEM identifiability}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+A one-factor Gaussian structural equation model has observed variance
+$\lambda^2+1$. Its parameter Jacobian is nonsingular away from zero,
+but the distinct parameters $\lambda$ and $-\lambda$ give identical
+observed covariance matrices and identical complete observed laws.
+Thus full generic Jacobian rank does not imply strict global
+identifiability, contrary to the proposed equivalence.
+\end{abstract}
+
+\section*{The model and parameter convention}
+Let $H$ and $E$ be independent standard real Gaussian variables, and
+consider the structural equations
+\[
+ H=U_H,\qquad Y=\lambda H+U_Y,
+ \qquad (U_H,U_Y)=(H,E).
+\]
+Only $Y$ is observed. The sole unknown parameter is the labelled loading
+$\lambda\in\mathbb R$. Both exogenous means are fixed at zero; both
+variances are fixed at one; the exogenous covariance is fixed at zero.
+Thus this is a one-edge latent-variable Gaussian SEM with a fixed error
+variance, rather than an example with an unnormalized latent scale or
+an additional unobserved variance parameter.
+
+We use strict global identifiability of the actual real parameter:
+equality of observed laws must force equality of parameter values.
+In the algebraic covariance formulation, this requires injectivity of
+the observed covariance parametrization. We do not identify positive
+and negative loadings, nor impose a positive-loading convention. Taking
+a quotient by latent sign or restricting to $\lambda>0$ changes the
+parameter problem and removes the ambiguity below. Such alternatives
+do not establish the unqualified global equivalence stated in the source.
+
+\begin{theorem}
+The model has full generic Jacobian rank but is not strictly globally
+identifiable. This failure occurs at every nonzero real parameter.
+\end{theorem}
+\begin{proof}
+The loading row and exogenous covariance matrix are
+\[
+ L(\lambda)=\begin{pmatrix}\lambda&1\end{pmatrix},\qquad
+ \Sigma=I_2.
+\]
+The entire observed covariance matrix is therefore
+\[
+ C(\lambda)=L(\lambda)\Sigma L(\lambda)^{\mathsf T}
+           =\begin{pmatrix}\lambda^2+1\end{pmatrix}.
+\]
+The parameter space and covariance coordinate space are both
+one-dimensional. The genuine Jacobian is
+$J(\lambda)=(2\lambda)$, which has rank one for every $\lambda\ne0$.
+Its exceptional set is the proper algebraic set $\{0\}$, so the rank
+deficit at the generic point is zero.
+
+On the other hand, $C(\lambda)=C(-\lambda)$ for every $\lambda$.
+For $\lambda\ne0$ these are distinct parameter values. For example,
+$1$ and $-1$ both give observed covariance $(2)$.
+The ambiguity also persists in the complete observed law:
+$(H,E)$ and $(-H,E)$ have the same product Gaussian distribution,
+and
+\[
+ (-\lambda)(-H)+E=\lambda H+E.
+\]
+Hence $Y$ has exactly the same distribution at $\lambda$ and
+$-\lambda$. This is a genuine global ambiguity, including at the
+generic nonsingular parameters, and not a failure confined to zero.
+\end{proof}
+
+\section*{Relation to the source}
+Both source languages propose global identifiability if and only if
+the generic Jacobian rank deficit is zero. The single-factor family
+above refutes its sufficiency direction. The remaining source assertion
+about compensating rank deficits with instrumental-variable moments
+cannot repair this equivalence as written: in this example there is
+already no generic rank deficit to compensate. No assertion is made
+about a specified instrumental-variable model.
+
+The distinction is the familiar one between local information and
+global uniqueness. On either half-line $\lambda>0$ or $\lambda<0$,
+the variance map is injective. On the stated parameter space
+$\mathbb R$, it is generically two-to-one. Sign equivalence would give
+a different identifiability question, which this disproof explicitly
+does not address.
+
+\section*{Formal verification and scope}
+The Lean file defines the actual rectangular loading matrix, the fixed
+identity exogenous covariance matrix, and matrix multiplication
+$L\Sigma L^{\mathsf T}$. It computes every entry of the resulting
+observed covariance matrix. For the affine-loading SEM family
+$Y=(a\lambda+b)H+E$, the parameter map is its sole covariance entry,
+and the Jacobian is defined using the actual real derivative
+\texttt{deriv}. Lean proves the derivative and nonsingular determinant
+for the counterexample $a=1$, $b=0$, with exceptional set $\{0\}$.
+
+The proposition \texttt{RankCriterion} universally asserts the source's
+equivalence on this actual SEM subclass; \texttt{GloballyIdentifiable}
+means injectivity of the entire observed covariance matrix map.
+The final theorem is
+\[
+\texttt{Conjecture2854.disprove\_rank\_criterion}:
+\quad\neg\,\texttt{RankCriterion}.
+\]
+Lean separately constructs the real product measure
+$N(0,1)\otimes N(0,1)$ using Mathlib's Gaussian distribution and proves
+equality of its pushforwards under the two observed-output maps.
+Thus the complete-law sign ambiguity is also formalized, rather than
+inferred only from equal numerical variances.
+The covariance formula uses the standard fixed exogenous covariance
+specification of the SEM; the file does not separately evaluate
+Gaussian moment integrals. It does formally establish all matrix,
+derivative, generic nonsingularity, noninjectivity, and observed-law
+identities used in the argument. The audited main results use only
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+\section*{Source and reproduction}
+The unchanged bilingual source is included as \texttt{SOURCE.md}, from
+upstream commit
+\begin{center}\small
+\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.
+\end{center}
+The public statement is
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/b355e42906e6eaf52bc7e9d005e0ef02d8aa7400/conjectures/00000002854.md}{conjecture 00000002854}.
+Use Lean 4.19.0 and Mathlib commit
+\begin{center}\small
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+From the \texttt{lean} directory, run \texttt{lake build}, followed by
+\begin{center}
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+\end{center}
+This draft was developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately.
+\end{document}
