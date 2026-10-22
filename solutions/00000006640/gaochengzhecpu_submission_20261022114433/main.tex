@@ -1,0 +1,178 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\R}{\mathbb R}
+\title{Equal Equilibria and Different Relaxation Spectra:\\
+A Proof of Conjecture 00000006640}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Two symmetric two-state master equations, with jump rates one and two,
+have the same static solution space and the same unique stationary
+probability vector. Their generator spectra are $\{0,-2\}$ and
+$\{0,-4\}$, and their propagation spectra differ at every positive time.
+The construction, stochastic semigroups, differential equations, exact
+spectra, and existential claim are verified in Lean using actual real
+matrices and derivatives.
+\end{abstract}
+
+\paragraph{Reading of the source.}
+Both language versions ask for an explicit pair of master equations
+with identical static solution sets but different time spectra.
+For a finite-state continuous-time master equation, write probability
+vectors as columns and use
+\[
+ p'(t)=Qp(t),\qquad p_i(t)\geq0,\qquad \sum_i p_i(t)=1.
+\]
+The generator has nonnegative off-diagonal entries and zero column sums.
+Static probability solutions are $\{p:Qp=0,\ p_i\geq0,\ \sum_i p_i=1\}$;
+without probability normalization the static solutions form $\ker Q$.
+We establish equality in both senses. We establish different spectra
+both for the generator and for the propagator at every fixed $t>0$.
+The generators and propagators are real symmetric and obey detailed
+balance for the same positive probability vector, so the example also
+has the usual time-reversal symmetry. Time is measured in the same
+units in both systems; the source imposes no quotient by time rescaling.
+
+\begin{theorem}\label{thm:main}
+For $r>0$ define the two-state generator and probability vector
+\[
+ Q_r=\begin{pmatrix}-r&r\\r&-r\end{pmatrix},\qquad
+ \pi=\begin{pmatrix}1/2\\1/2\end{pmatrix}.
+\]
+The systems $p'=Q_1p$ and $p'=Q_2p$ satisfy:
+\begin{enumerate}
+\item They are valid reversible master equations with the common
+unique stationary probability vector $\pi$, and
+$\ker Q_1=\ker Q_2=\{(a,a)^{\mathsf T}:a\in\R\}$.
+\item Their generator spectra are $\{0,-2\}$ and $\{0,-4\}$.
+\item Their stochastic fundamental solutions are
+\begin{equation}\label{eq:P}
+ P_r(t)=\frac12\begin{pmatrix}
+ 1+e^{-2rt}&1-e^{-2rt}\\
+ 1-e^{-2rt}&1+e^{-2rt}
+ \end{pmatrix},
+\end{equation}
+with $P_r(0)=I$, $P_r(s+t)=P_r(s)P_r(t)$, and
+$P_r'(t)=Q_rP_r(t)$. For every initial probability vector $p_0$,
+$p(t)=P_r(t)p_0$ remains a probability vector for $t\geq0$ and solves
+the master equation with $p(0)=p_0$.
+\item For each $t>0$, the propagator spectra
+$\{1,e^{-2t}\}$ and $\{1,e^{-4t}\}$ differ.
+\end{enumerate}
+Thus the source's requested separation exists, including for symmetric
+reversible systems.
+\end{theorem}
+
+\begin{proof}
+For $r>0$ the off-diagonal generator entries equal $r$ and both column
+sums vanish. The matrix is symmetric and
+$(Q_r)_{ij}\pi_j=(Q_r)_{ji}\pi_i$, proving detailed balance.
+For a column $p=(x,y)^{\mathsf T}$,
+\[
+ Q_rp=r(y-x,x-y)^{\mathsf T}.
+\]
+It vanishes exactly when $x=y$. Imposing $x+y=1$ yields
+$x=y=1/2$, a nonnegative vector. This proves both static assertions.
+
+The characteristic determinant is
+\[
+ \det(\mu I-Q_r)=(\mu+r)^2-r^2=\mu(\mu+2r).
+\]
+For a finite real matrix the real algebraic spectrum consists exactly
+of values for which this determinant vanishes, so
+$\sigma(Q_r)=\{0,-2r\}$. The two chosen spectra are distinct, since
+$-2$ belongs to the first but not the second. Equivalently, the constant
+mode $(1,1)^{\mathsf T}$ has eigenvalue zero and the imbalance mode
+$(1,-1)^{\mathsf T}$ has eigenvalue $-2r$.
+
+In \eqref{eq:P}, $0<e^{-2rt}\leq1$ for $r,t\geq0$, so the entries
+are nonnegative and the columns sum to one. Direct substitution gives
+$P_r(0)=I$. The identity
+$e^{-2r(s+t)}=e^{-2rs}e^{-2rt}$ gives the semigroup law by matrix
+multiplication. Differentiating the entries gives
+\[
+ P_r'(t)=r e^{-2rt}
+ \begin{pmatrix}-1&1\\1&-1\end{pmatrix}=Q_rP_r(t).
+\]
+These identities hold for all real $s,t$; stochasticity is used only
+for nonnegative time. Multiplication by a fixed initial column gives
+$p'=Q_rp$ and the stated initial condition. Nonnegativity and column
+sums preserve the probability constraints. Also $P_r(t)\pi=\pi$.
+
+Put $a=e^{-2rt}$. A second determinant calculation gives
+\[
+ \det(\mu I-P_r(t))=(\mu-1)(\mu-a),
+ \qquad \sigma(P_r(t))=\{1,e^{-2rt}\}.
+\]
+For $t>0$, strict monotonicity of the real exponential gives
+$0<e^{-4t}<e^{-2t}<1$. Therefore $e^{-2t}$ belongs to the first
+propagator spectrum but not the second. The two decay rates are
+different even though their static states coincide.
+\end{proof}
+
+\section*{Formal verification and scope}
+The file \texttt{lean/Main.lean} uses Lean 4.19.0 and Mathlib commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The state space is \texttt{Fin 2}; generators and propagators are actual
+$2\times2$ matrices over $\R$. The probability predicate includes both
+nonnegativity and normalization. The static predicate is defined using
+actual matrix-vector multiplication.
+
+The formalization verifies the generator conditions, Hermitian
+symmetry, detailed balance, the unique normalized static vector, and
+equality of the full unnormalized kernels. The exact spectra use
+Mathlib's algebraic \texttt{spectrum}, not a list defined to be the
+claimed eigenvalues. They are obtained by reducing noninvertibility
+to the determinant and proving the determinant factorizations.
+The propagators satisfy the initial condition and semigroup law.
+They preserve nonnegativity and total probability. Their derivatives
+are actual \texttt{HasDerivAt} statements. For every initial vector,
+the trajectory satisfies the master equation in each coordinate.
+This finite-dimensional existence claim does not require a probability
+path construction.
+
+The final theorem is
+\begin{center}\texttt{Conjecture6640.conjecture\_6640\_true}.\end{center}
+It proves \texttt{SeparationClaim}: there exist two generators, two
+stochastic fundamental solutions, and a common detailed-balance
+probability vector; the normalized static sets and full kernels
+coincide, the generator spectra differ, and the propagator spectra
+differ at every positive time. The actual mathematical objects and
+the complete existential statement are thus present in Lean.
+The proof does not invoke a general matrix-exponential or ODE
+uniqueness theorem; it verifies the displayed explicit fundamental
+solutions directly. All mathematical assertions required by the
+theorem are formalized. The displayed eigenvector explanation is
+an additional paper explanation of the formally proved determinant
+calculation.
+
+The audited main and bridge theorems use only \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}. This submission
+was developed by a delegated AI agent with a self-review; the
+coordinating agent reviews it separately. No external independent
+review is claimed.
+
+\section*{Source and reproduction}
+The exact English and Chinese source appears in \texttt{SOURCE.md},
+from upstream commit
+\begin{center}\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\end{center}
+Its hash and retrieval information are in
+\begin{center}\texttt{verification/SOURCE\_PROVENANCE.md}.\end{center}
+The argument is elementary and self-contained. The standard
+$Q$-matrix and master-equation framework is discussed, for example,
+in J.~R.~Norris, \emph{Markov Chains}, Chapter 2,
+\href{https://www.statslab.cam.ac.uk/~jrn10/Markov/}{author's book page}.
+The column-vector convention used here is explicitly specified above.
+
+With the pinned dependencies available, run in the \texttt{lean}
+directory:
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}\end{center}
+and \texttt{lake build} for a fresh build. Compile \texttt{main.tex}
+with Tectonic or a compatible LaTeX engine.
+\end{document}
