@@ -1,0 +1,187 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{hidelinks}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{Conjecture 00000002150:\\The kernel of the signless Laplacian}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For every finite undirected simple graph, the nullity of its signless
+Laplacian is exactly the number of its bipartite connected components.
+We construct a basis: each bipartite component contributes its alternating
+sign vector, extended by zero outside that component. Nonbipartite
+components contribute nothing. The full theorem and the basis construction
+are verified in Lean with Mathlib.
+\end{abstract}
+
+\section{Statement and interpretation of the source}
+Let $G=(V,E)$ be a finite undirected simple graph. Write $A$ for its
+adjacency matrix, $D=\operatorname{diag}(\deg(v))$ for its degree matrix,
+and $Q=D+A$ for its signless Laplacian. A connected component is bipartite
+when its induced graph admits a proper coloring with two colors. Isolated
+vertices are bipartite components. The zero eigenspace is $\ker Q$.
+
+\begin{theorem}\label{thm:main}
+Let $\mathcal B$ be the set of bipartite connected components of $G$.
+Then
+\[
+\dim_{\mathbb R}\ker Q=|\mathcal B|.
+\]
+For each $C\in\mathcal B$, choose a bipartition
+$C=C_+\sqcup C_-$ and define $s_C:V\to\mathbb R$ by
+\[
+s_C(v)=
+\begin{cases}
+1&v\in C_+,\\
+-1&v\in C_-,\\
+0&v\notin C.
+\end{cases}
+\]
+The family $(s_C)_{C\in\mathcal B}$ is a basis of $\ker Q$.
+\end{theorem}
+
+The source's first assertion is the nullity identity above. Its second
+phrase, ``the kernel of the count is an arbitrary bipartite base graph,''
+does not define an additional graph construction. We give it the concrete
+kernel interpretation supplied by the theorem: an arbitrary bipartite
+connected component contributes exactly its alternating sign vector,
+and arbitrary disjoint unions contribute their corresponding basis
+vectors. We do not assign a separate meaning to an undefined ``base
+graph'' operation. This reading, including the explicit basis, is stated
+in the formal proposition. As usual for the adjacency-matrix assertion,
+``general graphs'' means arbitrary finite undirected simple graphs;
+infinite graphs, directed graphs, and unspecified loop conventions are
+outside this statement.
+
+\section{The proof}
+\begin{lemma}\label{lem:ker}
+For $x:V\to\mathbb R$,
+\[
+x^{\mathsf T}Qx=\sum_{\{u,v\}\in E}(x(u)+x(v))^2.
+\]
+Consequently, $Qx=0$ if and only if $x(u)=-x(v)$ for every edge
+$\{u,v\}\in E$.
+\end{lemma}
+\begin{proof}
+Each vertex term $\deg(u)x(u)^2$ contributes $x(u)^2$ once for each
+incident edge. Each unordered edge contributes $2x(u)x(v)$ to
+$x^{\mathsf T}Ax$. Combining the terms gives the identity. Equivalently,
+the expression is one half of the sum over all ordered adjacent pairs.
+If $Qx=0$, the nonnegative sum is zero, so each summand vanishes.
+Conversely, if adjacent values are opposites, then
+\[
+(Qx)(u)=\deg(u)x(u)+\sum_{v\sim u}x(v)
+=\deg(u)x(u)-\deg(u)x(u)=0
+\]
+for every vertex $u$.
+\end{proof}
+
+\begin{lemma}\label{lem:nonbip}
+If $x\in\ker Q$ is nonzero at a vertex of a component $C$, then $C$
+is bipartite. Hence $x$ vanishes identically on every nonbipartite
+component.
+\end{lemma}
+\begin{proof}
+Along an edge, Lemma~\ref{lem:ker} preserves the square of the value.
+Along a walk it therefore preserves its absolute value. Starting from
+a vertex where $x\ne0$, all values in $C$ are nonzero. Color a vertex
+according to whether its value is positive or negative. Adjacent values
+are opposites, so adjacent vertices get different colors. This is a
+proper two-coloring of the entire induced component.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+For each bipartite component $C$, the vector $s_C$ has opposite values
+at the ends of each edge of $C$. Any edge meeting $C$ lies entirely in
+$C$, and an edge outside $C$ has both values zero. Thus
+Lemma~\ref{lem:ker} gives $s_C\in\ker Q$.
+
+The vectors are linearly independent because they have pairwise
+disjoint supports and none is zero. More explicitly, for a chosen
+vertex $r_C\in C$, evaluating $\sum_C a_Cs_C=0$ at $r_C$ gives
+$a_Cs_C(r_C)=0$, hence $a_C=0$.
+
+Now let $x\in\ker Q$ and set
+\[
+a_C=x(r_C)s_C(r_C)\qquad(C\in\mathcal B).
+\]
+For adjacent vertices in $C$, both $x$ and $s_C$ change sign. Their
+product is therefore constant along walks in $C$. For every $v\in C$,
+\[
+x(v)s_C(v)=x(r_C)s_C(r_C)=a_C.
+\]
+Since $s_C(v)^2=1$ on $C$, this gives $x(v)=a_Cs_C(v)$.
+On a nonbipartite component, $x$ vanishes by Lemma~\ref{lem:nonbip}.
+Consequently
+\[
+x=\sum_{C\in\mathcal B}a_Cs_C.
+\]
+This proves spanning and the basis claim. Taking the dimension gives
+the asserted nullity. If $V$ is empty, both the basis and its index set
+are empty and the same argument gives dimension zero. Isolated vertices
+contribute the usual coordinate vectors.
+\end{proof}
+
+\section{Formal verification and scope}
+The file \texttt{lean/Main.lean} uses Mathlib's actual
+\texttt{SimpleGraph}, adjacency and degree matrices,
+$\mathbb R$-linear maps, connected components, proper colorings, bases,
+and module dimension. Bipartiteness is proper two-colorability of the
+induced graph on a connected component's support. It is not replaced
+by a table, a numerical surrogate, or a stipulated nullity.
+
+The formal proof establishes the quadratic identity, positive
+semidefiniteness, the exact kernel edge relation, the coloring extracted
+from a nonzero kernel value, the alternating sign vectors, their linear
+independence, the explicit kernel expansion, and the actual kernel
+basis. The main dimension theorem is
+\begin{center}
+\texttt{Signless.nullity\_eq\_bipartite\_components}.
+\end{center}
+The final theorem
+\begin{center}
+\texttt{Signless.conjecture}
+\end{center}
+proves a universally quantified proposition over all finite vertex
+types and all simple graphs on them. That proposition includes both
+the dimension identity and a basis whose values are the explicitly
+defined component sign vectors. No substantive step in the stated real
+finite-graph theorem is left to a paper-only argument.
+
+For complex vectors, the same conclusion also follows by splitting a
+kernel vector into real and imaginary parts, since $Q$ has real entries.
+This optional complex-field extension is a paper observation; the
+checked theorem is over $\mathbb R$.
+
+The strict Lean check treats warnings as errors. The principal results
+depend only on \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. No additional axioms or unproved placeholders are
+used. Development and self-review were performed by a delegated AI
+agent; the coordinating agent reviews the work separately. No external
+independent review is claimed.
+
+\section{Source and reproduction}
+The exact frozen bilingual competition statement is included as
+\texttt{SOURCE.md}; its SHA-256 and provenance are recorded in
+\texttt{verification/SOURCE\_PROVENANCE.md}. The source is conjecture
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000002150.md}{00000002150}
+in the competition repository.
+
+The project pins Lean 4.19.0 and Mathlib commit
+\begin{center}
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+From the \texttt{lean} directory, obtain the pinned dependencies and
+their Mathlib cache, then run \texttt{lake build} and
+\begin{center}
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+\end{center}
+The file ends with explicit axiom audits. Compile this document with
+Tectonic or another LaTeX engine supporting the listed packages.
+\end{document}
