@@ -1,0 +1,97 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000000742: minimal components and minimal maps on $\mathbf Z_2$}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{22 October 2026}
+\begin{document}
+\maketitle
+\section{Two readings of the statement}
+The conjecture gives $p^{p-1}$ as the number of ``minimal decompositions
+(minimal dynamical systems)'' of $1$-Lipschitz maps on $\mathbf Z_p$,
+and ends with ``a count of minimal maps''. These phrases can refer to
+different objects. At $p=2$ the proposed number is $2$. We refute both
+the count of minimal components of a fixed map and the count of distinct
+minimal maps. We do not identify different maps modulo topological
+conjugacy: the source specifies no such equivalence relation.
+
+A minimal closed subsystem means a nonempty closed forward-invariant
+set $K$ such that every forward orbit from a point of $K$ is dense in
+$K$. In the terminology of Fan--Liao \cite{FL}, their minimal components
+are certain clopen minimal subsystems; an everywhere minimal system has
+one component. Their general decomposition theorem concerns polynomials
+of degree at least two. We use their terminology only, and prove the
+affine examples below directly without invoking that theorem.
+
+\section{A single map has one minimal component}
+Let $T:\mathbf Z_2\to\mathbf Z_2$ be $T(x)=x+1$. Translation preserves
+the $2$-adic distance, so $T$ is $1$-Lipschitz. For every $n\geq0$,
+\[
+ T^n(x)=x+n.
+\]
+The nonnegative integers are dense in $\mathbf Z_2$: every residue class
+modulo $2^k$ has a nonnegative integer representative. Translation is a
+homeomorphism. It follows that every forward orbit $\{x+n:n\geq0\}$ is
+dense in the actual $2$-adic topology.
+
+If $K$ is any nonempty closed minimal subsystem, choose $x\in K$.
+Its orbit closure is both $K$ and $\mathbf Z_2$, so $K=\mathbf Z_2$.
+Conversely, the whole space is a minimal subsystem, and is clopen.
+Thus the collection of nonempty closed minimal subsystems is exactly
+$\{\mathbf Z_2\}$. Its cardinality is $1$, whereas $2^{2-1}=2$.
+This also proves the assertion for the smaller class of clopen minimal
+components. No finite quotient is substituted for $\mathbf Z_2$.
+
+\section{There are at least three distinct minimal maps}
+For a unit $a\in\mathbf Z_2^\times$, let $T_a(x)=x+a$. This map is
+$1$-Lipschitz and $T_a^n(x)=x+na$. Multiplication by a unit is a
+continuous surjection of $\mathbf Z_2$ (in fact a homeomorphism).
+Consequently it carries the dense nonnegative integers to a dense set,
+and translation by $x$ shows that every forward $T_a$-orbit is dense.
+
+The values $a=1,3,5$ are all units. Thus $T_1,T_3,T_5$ are minimal
+$1$-Lipschitz maps. Their values at zero are distinct in $\mathbf Z_2$
+(which has characteristic zero), so the maps themselves are distinct.
+There are at least three such maps; there cannot be a bijection between
+the set of these maps and a two-element set. These three examples are
+mutually conjugate, which is irrelevant to counting actual maps. We make
+no claim here about a count of conjugacy classes.
+
+\section{Formalization and verification}
+The Lean type \texttt{Z2} is Mathlib's actual \texttt{PadicInt 2}, with
+its $2$-adic metric and topology. \texttt{odometer\_\allowbreak lipschitz} proves the
+metric inequality, \texttt{odometer\_\allowbreak iterate} proves the orbit formula,
+and \texttt{odometer\_\allowbreak dense\_\allowbreak orbit} uses the proved Mathlib theorem
+\texttt{PadicInt.\allowbreak denseRange\_\allowbreak natCast}. The definition
+\texttt{IsMinimal\allowbreak Component} states the closed-subsystem conditions above.
+\texttt{odometer\_\allowbreak minimal\_\allowbreak iff} characterizes every such set as the whole
+space; \texttt{minimal\_\allowbreak component\_\allowbreak count} proves its actual cardinality.
+
+\texttt{IsMinimal\allowbreak Map} includes both the $1$-Lipschitz property and the
+density of every forward orbit. \texttt{translation\_\allowbreak dense\_\allowbreak orbit}
+proves density for every unit translation. \texttt{threeMinimal\allowbreak Maps}
+constructs the three actual maps, and its injectivity is proved by
+evaluation at zero. \texttt{not\_\allowbreak exactly\_\allowbreak two\_\allowbreak minimal\_\allowbreak maps} rules out
+a bijection with the proposed finite set, without interpreting an
+infinite cardinality as a natural number.
+
+All eleven principal declarations were audited. The package pins Lean
+4.33.0, Mathlib and all transitive dependencies. A separate project
+build and official fresh-kernel replay accompany the source; no admitted
+proof, native decision shortcut or extra axiom is used. The bilingual
+source is preserved from upstream commit\par\noindent
+\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\par
+OpenAI Codex produced the proof and report. A separate supervising Codex
+agent reviewed both readings and the full formal chain. This is AI
+review, not human certification. The examples are classical and are
+not claimed as new mathematical results.
+
+\begin{thebibliography}{1}
+\bibitem{FL} A.-H. Fan and L. Liao,
+\emph{On minimal decomposition of $p$-adic polynomial dynamical systems},
+Advances in Mathematics 228 (2011), 2116--2144, Introduction.
+\url{https://arxiv.org/abs/1010.5583}.
+\end{thebibliography}
+\end{document}
