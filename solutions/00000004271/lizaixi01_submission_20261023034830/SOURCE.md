@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000004271
+
+**English.** Definition: A divisible group is an abelian group on which multiplication by every positive integer is surjective. Conjecture: Automorphisms of divisible groups can be uniformly approximated by finitely supported automorphisms in the subgroup-index metric, and the optimal exponent bound of the approximation is an explicit linear function of the support. (approximation exponent of divisible group automorphisms)
+
+**中文。** 定义：可除群指对一切正整数乘法均满射的交换群。猜想：可除群的自同构可由有限支撑自同构按子群指数度量一致逼近,逼近的最优指数界为支撑的显式线性函数。（可除群自同构逼近指数）
