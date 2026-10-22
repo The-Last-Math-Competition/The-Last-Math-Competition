@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000003161
+
+**English.** Definition: Compressed sensing: sparse recovery for underdetermined linear systems y = Ax. Conjecture: The uniform optimality of recovery thresholds: the minimal measurement count for recovery of k-sparse signals is m ≥ C·k·log(n/k), with the tightness of the constant attained by noise-sphere packing. (measurement count logarithmic lower bound tightness)
+
+**中文。** 定义：压缩感知：欠定线性系统的稀疏恢复 y=Ax。猜想：恢复阈值的一致最优：k-稀疏信号的恢复的最小测量数为 m ≥ Ck log(n/k) 且常数的紧性由噪声球 packing 达到。（测量数对数下界紧性）
