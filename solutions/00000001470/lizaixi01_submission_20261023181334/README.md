@@ -1,0 +1,9 @@
+# 00000001470: no finite exact level for the prescribed hierarchy
+
+For the fixed compact input X^3>=0, 1-X^2>=0, K=[0,1], every legal order r>=2 has a true feasible moment vector with negative first moment. Its genuine moment and localizing matrices are proved PSD via their polynomial quadratic forms. Evaluation on K is feasible, so the projection strictly contains K at every order. Actual real infimum and SOS supremum are nonempty, bounded and strictly below the true objective minimum zero. This refutes the source's universal finite-convergence bound for the given input representation, not the existence of some different SDP representation of the same set.
+
+The proof uses real polynomial linear functionals and actual finite sums of squares. No finite optimizer attainment or strong duality is assumed. The negative atomic functional is constructed at every order from a uniform Lagrange interpolation bound. The SOS certificate for gamma=-1 gives the lower bound, and actual weak duality gives a strictly negative upper bound on every dual certificate.
+
+Files: report.tex and report.pdf give the proof and scope; SOURCE.md preserves the exact bilingual source; lean/ is the version-pinned project; evidence/ records qualification, semantic/PDF review, compiler/kernel receipts and source-bound logs. All named declarations are axiom-audited. AI-led research and formalization with separate supervising AI review; organizer acceptance is pending. No earlier same-ID PR was found. Not an added experimental sample or efficiency claim.
+
+Reference: Jiawang Nie, Certifying Convergence of Lasserre's Hierarchy via Flat Truncation, Mathematical Programming 142 (2013), 485-510, author PDF https://mathweb.ucsd.edu/~njw/PUBLICPAPERS/FlaTrn.pdf, printed pp.1-2 (definitions and degree offsets only).

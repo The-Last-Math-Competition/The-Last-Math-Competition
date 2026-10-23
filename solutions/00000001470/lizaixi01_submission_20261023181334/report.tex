@@ -1,0 +1,77 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.76in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000001470: no finite exact level}\\[5pt]
+lizaixi01 \quad AI-led research and formalization \quad 23 October 2026
+\end{center}
+\textbf{Result and scope.} For the fixed input polynomials $g_1=X^3$ and $g_2=1-X^2$, the compact basic closed set is $K=[0,1]$. The prescribed Lasserre moment projection strictly contains $K$ at every legal level $r\ge2$. For the objective $X$, both the actual moment infimum and the truncated SOS supremum are strictly below the true minimum $0$ at every such level. Thus there is no finite exact level for this input, and no universal finite-convergence bound of the printed form.
+
+This concerns the hierarchy built from the given defining tuple. It does not assert that $[0,1]$ lacks some other finite SDP representation: it plainly has one. Changing the generators, adding optimality equations, or imposing additional generic regularity conditions gives a different assertion. We interpret the source's explicit parenthetical ``universal bound for finite convergence'' in this standard input-dependent hierarchy sense.
+
+\section*{1. Actual matrices and polynomial tests}
+We use real linear functionals $L:\mathbb R[X]\to\mathbb R$, with actual monomial moments $y_j=L(X^j)$. At level $r\ge2$, feasibility is $L(1)=1$ and positive semidefiniteness of the three finite real matrices
+\[
+ M_r(L)=(y_{i+j})_{0\le i,j\le r},\quad
+ M_{r-2}(X^3L)=(y_{i+j+3})_{0\le i,j\le r-2},\quad
+ M_{r-1}((1-X^2)L)=(y_{i+j}-y_{i+j+2})_{0\le i,j\le r-1}.
+\]
+Only moments through degree $2r$ occur. These are the usual moment and localizing matrices with the ceiling-half-degree offsets; see Nie \cite{N}, printed pp.~1--2, (1.2)--(1.4). The proof constructs genuine full linear functionals, so in particular supplies the required finite moment vectors.
+
+Lean defines each matrix entry as $L(gX^{i+j})$, proves it Hermitian, and proves its quadratic form is
+\[
+ a^T M_k(gL)a=L\!\left(g\left(\sum_{i=0}^k a_iX^i\right)^2\right).
+\]
+The converse uses the actual coefficient expansion of every degree-$k$ polynomial. Consequently the matrix is \texttt{Matrix.PosSemidef} if and only if $L(gp^2)\ge0$ for every $\deg p\le k$. The matrices are not numerical labels or assumed positivity predicates.
+
+\section*{2. A negative feasible moment at every level}
+Fix $d=r-2$ and the $d+1$ distinct nodes $t_i=(i+1)/(d+2)\in(0,1)$. Lagrange interpolation, Cauchy--Schwarz and compactness of $[-1,0]$ give a constant $C>0$ such that
+\[
+ p(t)^2\le C\sum_i p(t_i)^2\qquad
+ (t\in[-1,0],\ \deg p\le d).
+\]
+Set $w_i=C/t_i^3>0$, $A=\sum_iw_it_i\ge0$, $\varepsilon=1/(A+1)\in(0,1]$, and $m=1+\varepsilon^3\sum_iw_i>0$. Define the genuine positive atomic functional
+\[
+ L(p)=\frac{p(-\varepsilon)+\varepsilon^3\sum_iw_ip(t_i)}{m}.
+\]
+It satisfies $L(1)=1$ and is nonnegative on every square. All atoms lie in $[-1,1]$, hence $L((1-X^2)p^2)\ge0$ for every polynomial. For degree $\le d$, interpolation gives
+\[
+ mL(X^3p^2)=\varepsilon^3\!\left(C\sum_i p(t_i)^2-p(-\varepsilon)^2\right)\ge0.
+\]
+Thus all three actual matrices are PSD. However,
+\[
+ mL(X)=-\varepsilon+\varepsilon^3 A<0,
+ \qquad \varepsilon^2A=\frac{A}{(A+1)^2}<1.
+\]
+Every finite level therefore has a feasible negative first moment. Evaluation at any actual $x\in K$ is also proved feasible. It follows that the first-moment projection strictly contains $K$, not merely that a chosen certificate search fails.
+
+\section*{3. Genuine optimization values and an SOS gap}
+Let $V_r=\{L(X):L\text{ is moment feasible}\}$. Let $D_r$ be the real $\gamma$ for which actual finite sums of polynomial squares satisfy
+\[
+ X-\gamma=\sigma_0+X^3\sigma_1+(1-X^2)\sigma_2,
+\]
+where the squared polynomials have degree at most $r,r-2,r-1$, respectively. Lean's sums-of-squares definition includes the actual polynomials and finite sum identities.
+
+The identity
+\[
+ X+1=\tfrac12(X+1)^2+\tfrac12(1-X^2)
+\]
+proves $-1\in D_r$ for every $r\ge2$. Each half-square is encoded as two squares of a polynomial with coefficient $1/2$. Applying any feasible $L$ to any such SOS identity gives the proved weak-duality inequality $\gamma\le L(X)$. In particular $V_r$ is nonempty and bounded below by $-1$, and $D_r$ is nonempty and bounded above. Choosing the negative feasible functional from Section~2 gives, for all $\gamma\in D_r$, the same strict negative upper bound $L(X)<0$.
+
+Lean defines the real values by actual $\inf V_r$ and $\sup D_r$ and proves
+\[
+ -1\le\inf V_r<0,\qquad -1\le\sup D_r<0.
+\]
+The nonempty and boundedness proofs exclude empty-set or unbounded-set fallback values. No optimizer attainment, strong duality, or mere nonexistence of a certificate is used to deduce the strict gaps. Separately, the actual semialgebraic set is proved compact and its actual objective image has least element $0$. Hence neither hierarchy value is exact at any legal finite level. A fixed degree-three input failing at every level refutes any universal finite bound depending on that degree.
+
+\section*{4. Verification and attribution}
+All 58 named declarations (43 theorems and the remaining definitions) are included in the axiom audit. The package contains complete original bilingual source, this LaTeX/PDF, a pinned Lean project, fresh-build and official fresh-kernel replay logs, and SHA256 manifests. No \texttt{sorry}, \texttt{native\_decide} or additional axiom is used. Separate AI supervision reviews the source semantics and all rendered PDF pages. Organizer acceptance and human verification are not asserted.
+
+The interpolation/atomic construction and all finite-level conclusions are proved directly; the primary reference supplies the standard hierarchy definitions, not an imported nonconvergence axiom. No earlier same-ID submission was found in the recorded search. This selective production result is not an additional sample in the already frozen workflow or CPU experiments.
+\begin{thebibliography}{1}
+\bibitem{N} J.~Nie, \emph{Certifying Convergence of Lasserre's Hierarchy via Flat Truncation}, Mathematical Programming 142 (2013), 485--510, \href{https://mathweb.ucsd.edu/~njw/PUBLICPAPERS/FlaTrn.pdf}{author PDF}, printed pp.~1--2, equations (1.2)--(1.4), for the moment/SOS hierarchy and degree offsets.
+\end{thebibliography}
+\end{document}
