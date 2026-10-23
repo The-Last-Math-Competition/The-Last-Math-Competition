@@ -1,0 +1,142 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newcommand{\C}{\mathbb C}
+\newcommand{\pd}{\operatorname{pd}}
+\newcommand{\findim}{\operatorname{findim}}
+\title{A special biserial algebra with finite projective dimension three}
+\author{Submission for TLMC problem 00000000551}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+
+\paragraph{Claim and scope.}
+The conjecture states the universal bound $\findim\Lambda\leq2$ for special
+biserial algebras. We give a finite-dimensional complex special biserial algebra
+$A$ with a finitely generated module $S_3$ of projective dimension exactly $3$.
+Consequently $\findim A\geq3$. The reference in the source to computations for
+cyclic string algebras does not restrict its stated universal quantifier; our
+example is acyclic. We do not claim a classification or an upper bound for all
+special biserial algebras.
+
+\paragraph{The algebra and its actual path presentation.}
+Let $Q$ be the linearly oriented quiver
+\[
+3\longrightarrow2\longrightarrow1\longrightarrow0,
+\]
+and let $I$ kill every path of length at least two. Set $A=\C Q/I$.
+Explicitly, $A=\C^4\oplus\C^3$, with
+\[
+(x,m)(y,n)=\left((x_i y_i)_{i=0}^3,
+ (x_i n_i+m_i y_{i+1})_{i=0}^2\right).
+\]
+This is the standard square-zero extension with distinct left and right
+diagonal actions, implemented by Mathlib's \texttt{TrivSqZeroExt}.
+
+The formal proof also checks the path presentation, rather than presuming it.
+In the incidence algebra $T$ of the four-element chain, the interval basis
+$E_{ij}$, $0\leq i\leq j\leq3$, satisfies
+$E_{ij}E_{kl}=\delta_{jk}E_{il}$ whenever the indices concatenate.
+There is exactly one actual quiver path from $j$ to $i$ when $i\leq j$, and
+none otherwise; its length is $j-i$. The formal basis and the multiplication
+law therefore identify $T$ with $\C Q$. The surjective algebra homomorphism
+\[
+\phi:T\longrightarrow A,\qquad
+f\longmapsto ((f(i,i))_{i=0}^3,(f(i,i+1))_{i=0}^2)
+\]
+has kernel
+\[
+I=\operatorname{span}_{\C}\{E_{02},E_{13},E_{03}\}
+ =\langle E_{02},E_{13},E_{03}\rangle.
+\]
+The proof constructs the resulting quotient algebra equivalence. Thus the
+relations are genuine paths of length at least two, and no nonzero vertex or
+arrow relation has been introduced.
+
+Every vertex has at most one incoming and one outgoing arrow. Every product
+of two arrows lies in $I$, so each arrow has zero permitted predecessors and
+successors modulo $I$. All paths of length at least two belong to $I$.
+These verify the standard special biserial conditions; the algebra is also a
+string algebra. The definitions used are those of Erdmann--Holm--Iyama--Schroer
+\cite[pp.~168--170]{ehis}; their definition of the little finitistic dimension
+is the supremum over finitely generated modules of finite projective dimension
+\cite[p.~160]{ehis}.
+
+\paragraph{Concrete projective modules and exact sequences.}
+Write $S_i=\C$, with $(x,m)z=x_i z$. These are actual left $A$-modules. Each is
+finitely generated, since the diagonal coordinate map $A\to S_i$ is
+surjective. The module $S_0$ is a direct summand of the regular module $A$,
+using the idempotent at vertex $0$, and hence is projective.
+
+For $1\leq i\leq3$, let $P_i=\C^2$ with action
+\[
+(x,m)(u,v)=(x_i u,\;m_{i-1}u+x_{i-1}v).
+\]
+The maps $A\to P_i$, $(x,m)\mapsto(x_i,m_{i-1})$, and
+$P_i\to A$, $(u,v)\mapsto(u e_i,v\alpha_{i-1})$, are $A$-linear and compose
+to the identity on $P_i$. Thus each $P_i$ is a direct summand of the free
+regular module, and is projective. The coordinate maps give short exact
+sequences
+\[
+0\longrightarrow S_{i-1}\xrightarrow{v\mapsto(0,v)}
+P_i\xrightarrow{(u,v)\mapsto u}S_i\longrightarrow0
+\qquad(1\leq i\leq3).
+\]
+Injectivity, surjectivity and equality of image and kernel are checked on the
+actual module maps.
+
+The first sequence cannot split. If an $A$-linear section $s:S_1\to P_1$
+existed, then $s(1)=(1,c)$ for some $c\in\C$. The arrow $\alpha_0:1\to0$
+acts by zero on $S_1$, but
+\[
+\alpha_0s(1)=(0,1)\ne0=s(\alpha_0\cdot1),
+\]
+a contradiction. Hence $S_1$ is not projective.
+
+\paragraph{Projective dimension and the contradiction.}
+The three short exact sequences with projective middle terms imply
+$\pd S_3\leq3$. Dimension shifting also gives
+\[
+\pd S_3<3\ \Longrightarrow\ \pd S_2<2
+\ \Longrightarrow\ \pd S_1<1,
+\]
+which would make $S_1$ projective. Therefore $\pd S_3=3$.
+The Lean proof uses Mathlib's \texttt{CategoryTheory.projectiveDimension},
+defined through vanishing of the actual Ext groups, and its short exact
+sequence dimension-shifting theorem. No dimension is assigned by definition.
+
+The formal \texttt{finitisticDimension} is the genuine supremum of those
+projective dimensions for all finitely generated objects of
+\texttt{ModuleCat A} having finite projective dimension. Its indexing set
+contains the explicitly constructed $S_3$, so the supremum is at least $3$.
+The library's bottom value for the zero object has no effect on this positive
+lower bound. This disproves the stated universal bound $2$.
+
+\paragraph{Formal files.}
+\texttt{lean/Main.lean} contains the full construction and proof, including
+the path basis, quotient equivalence and special biserial certificate.
+Its conclusions include
+\begin{center}
+\small\texttt{simple\_three\_projectiveDimension},\qquad\texttt{counterexample}.
+\end{center}
+The project pins Lean 4.33.0 and Mathlib commit
+\begin{center}
+\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\end{center}
+Verification commands,
+all-namespace axiom audit, fresh-kernel receipts and file hashes accompany
+the submission. The complete original bilingual problem is preserved in
+\texttt{SOURCE.md}.
+
+\begin{thebibliography}{1}
+\bibitem{ehis}
+K.~Erdmann, T.~Holm, O.~Iyama and J.~Schroer,
+\emph{Radical embeddings and representation dimension},
+Advances in Mathematics \textbf{185} (2004), 159--177.
+\href{https://doi.org/10.1016/S0001-8708(03)00169-5}{doi:10.1016/S0001-8708(03)00169-5}.
+\end{thebibliography}
+\end{document}
