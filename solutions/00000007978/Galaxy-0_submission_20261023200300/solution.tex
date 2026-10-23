@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\newtheorem{proposition}{Proposition}
+\title{A missing message-count parameter in PIR capacity\\Disproof of TLMC 00000007978}
+\author{Galaxy-0 (AI-assisted submission)}
+\date{23 October 2026}
+\begin{document}\maketitle
+\begin{abstract}
+The asserted complete capacity formula $C_{\rm PIR}(t)=(1+t^{-1})^{-1}$ omits the number of independent messages. With one server and three messages the capacity is $1/3$, not $1/2$. We give an elementary zero-error argument, an expected-download converse allowing vanishing error, and executable Lean proofs of a finite randomized model, including a uniform gap below $1/2$ for small error. The established general capacity theorem is cited, not claimed as a new discovery or as a theorem imported into Lean.
+\end{abstract}
+
+\section{Statement, interpretation, and counterexample}
+The source conjecture identifies $t$ as the number of database replicas and claims the displayed formula as a complete determination of PIR capacity. It does not restrict the database to two messages. In the usual replicated, noncolluding, information-theoretic PIR model, let $K$ independent uniformly distributed messages each contain $L$ bits, and let $t$ servers each store all $K$ messages. Privacy hides the desired index from each server. Rate is $L/D$, where $D$ is expected downloaded bits, not the maximum response length.
+
+Take $K=3$ and $t=1$. Downloading all three messages with a constant query is private, correct, and has rate $1/3$. The converses below show that no larger asymptotic rate is possible. The conjecture instead gives $1/(1+1)=1/2$. A false first conjunct disproves the conjunction; we make no claim about the additional adversarial-server or query-word-length clauses.
+
+For comparison, the known general answer is
+\[
+ C_0(K,t)=C_\epsilon(K,t)=\left(\sum_{j=0}^{K-1}t^{-j}\right)^{-1}.
+\]
+This is Sun and Jafar, Theorem 1 \cite{sun}. For $t=2,K=3$ it gives $4/7$, whereas the conjecture gives $2/3$, so the omitted parameter also matters with multiple replicas. If an unstated restriction $K=2$ was intended, the first clause is true in the standard model and the present counterexample does not apply to that amended statement. We address the unrestricted statement actually posted.
+
+\section{Zero-error converse for arbitrary randomized queries}
+Let the three message alphabets have size $B$, so there are $B^3$ databases. A client's random tape is independent of the database. Fix a query $q$ occurring with positive probability for desired index $0$. Perfect privacy means the same query has positive probability for each desired index $i$. Choose one compatible tape $r_i$ for each $i$.
+
+If two databases $x,y$ produce the same server answer at $q$, correctness of decoder $i$ on tape $r_i$ gives $x_i=y_i$ for all three indices. Thus $x=y$: the fixed-query answer map is injective. An answer alphabet of size $M$ therefore satisfies $M\ge B^3$. For $B=2^L$ and a $d$-bit response this gives $d\ge3L$, for every possible query, hence also $D\ge3L$ in expectation. This argument permits different private tapes for different desired indices; it does not assume a deterministic client.
+
+\section{A finite expected-download converse with errors}
+We now give a counting argument that tolerates errors and query-dependent response lengths. Couple the three private random tapes so that they produce a common query. For finite uniform tapes this coupling is elementary: for each query $q$, privacy says its three inverse-image sets have equal cardinality; match those sets by bijections. Relabelling the tapes preserves each desired index's distribution, and therefore its average error probability. For finite rational distributions, duplicate atoms to obtain uniform tapes. The coupling is independent of the database.
+
+Let there be $R>0$ equiprobable coupled tapes. At tape $r$, write $d_r$ for response length, $G_r$ for the number of databases on which all three decoders succeed, and $E_{r,i}$ for the number on which decoder $i$ fails. Put $n=3L$ and $N=2^n$. Then
+\[
+ N\le G_r+\sum_{i=0}^2E_{r,i},\qquad G_r\le\min(N,2^{d_r}).
+\]
+The second inequality follows from injectivity of the answer map on the jointly correct databases; it does not posit an injection on erroneous inputs.
+
+For nonnegative integers $n,d$ and $g\le\min(2^n,2^d)$,
+\begin{equation}\label{eq:count}
+ ng\le2^n(d+1).
+\end{equation}
+If $d\ge n$, this is immediate. Otherwise, writing $n=d+k$, the elementary inequalities $k+1\le2^k$ and $d+k\le(d+1)(k+1)$ show $n2^d\le2^n(d+1)$. Sum \eqref{eq:count} over tapes and use the union bound. With $T=\sum_r d_r$ and $E=\sum_{r,i}E_{r,i}$ we obtain
+\[
+ n(RN-E)\le N(T+R),\qquad
+ \frac{T}{R}\ge3L\left(1-\frac{E}{RN}\right)-1.
+\]
+Here $T/R$ is exactly expected download, and $E/(RN)$ is the sum of the three actual average decoding error probabilities. As the errors tend to zero and $L$ grows, rates cannot exceed $1/3$ asymptotically.
+
+The Lean development proves a directly usable integer consequence, avoiding a real-analysis library: if $L\ge4$ and $6E\le RN$, then
+\[
+ 9LR\le4T.
+\]
+Consequently every such scheme has rate at most $4/9<1/2$. In particular, an entire fixed neighborhood below the claimed capacity is excluded, not just exact attainment of $1/2$. Any vanishing-error sequence eventually has $6E\le RN$.
+
+\section{Standard-model coverage beyond finite uniform tapes}
+For completeness, the expected-download converse also follows directly by the usual entropy argument and does not depend on finite rational randomization. Let $Q$ have the common query distribution and $A$ the answer. For each index $i$, reconstruct a client tape conditional on $Q$ using its original conditional distribution. The tape is independent of the database and answer conditional on $Q$, so it provides no additional information about $W_i$ once $(Q,A)$ are known. Fano's inequality gives
+\[
+ H(W_i\mid Q,A)\le1+\epsilon_i L.
+\]
+Conditional subadditivity and independence of $Q$ from the database yield
+\[
+ 3L-3-L\sum_i\epsilon_i\le I(W_0,W_1,W_2;A\mid Q)
+ \le H(A\mid Q)\le\mathbb E[d(Q)].
+\]
+For the last step, a response of fixed length $d(q)$ for a given query has entropy at most $d(q)$. This is the standard answer-string model; for arbitrary protocol variants with data-dependent stopping or nonstandard encodings, communication and decodability conventions must be specified, not silently changed. The precise standard-model zero-error and vanishing-error capacity is also covered by \cite[Sections II--III and V]{sun}. Together with the download-all construction this proves $C_0(3,1)=C_\epsilon(3,1)=1/3$.
+
+\section{What the Lean files prove, and what they do not}
+The project uses Lean 4.31.0 and its standard library only.
+\begin{itemize}
+\item \texttt{PIR.lean}: finite injection pigeonhole theorem, a concrete triple-message database, base-$B$ encoding and decoding, randomized-query support privacy, the universal zero-error answer-alphabet bound, and a fully defined private download-all scheme.
+\item \texttt{Rates.lean}: power and bit-length inequalities and rational rate-margin lemmas.
+\item \texttt{Approx.lean}: finite sums and counting, actual decoder-error predicates, injectivity restricted to jointly correct databases, the union bound, query-dependent lengths, and the expected-information inequality.
+\item \texttt{Coupling.lean} and \texttt{CouplingIndexed.lean}: equal query multiplicities give reordered random-tape lists and indexed relabellings with a common query, preserving every integer-valued cost sum.
+\item \texttt{Capacity.lean}: the small-error expected-cost bound $9LR\le4T$ and exclusion of every rational rate greater than $4/9$.
+\end{itemize}
+The source statement has no formal specification supplied by the organizers. We explicitly use the standard PIR meaning above. The finite list-reordering coupling, its indexed random-tape relabellings, and preservation of every integer-valued cost are proved in Lean. Relabelling each of the three original decoders gives the displayed coupled normal form. The entropy/Fano extension is a mathematical argument, not a Lean theorem asserting arbitrary probability-space equivalence. The general Sun--Jafar theorem, real supremum/limit definitions, and arbitrary-measure probability theory are not imported or claimed formally verified. The verified finite model nevertheless includes randomized decoding, errors, and expected variable response length; it is not merely the deterministic download-all example or a maximum-length substitute. No experimental computation is used as a proof.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition, conjecture 00000007978, upstream commit \texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}, checked 23 October 2026. \url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/b355e42906e6eaf52bc7e9d005e0ef02d8aa7400/conjectures/00000007978.md}.
+\bibitem{sun} H. Sun and S. A. Jafar, ``The Capacity of Private Information Retrieval,'' \emph{IEEE Transactions on Information Theory} 63(7), 4075--4088 (July 2017), doi:10.1109/TIT.2017.2689028. Author manuscript, Sections II--III and V: \url{https://newport.eecs.uci.edu/~syed/papers/j75.pdf}. Preprint: arXiv:1602.09134.
+\end{thebibliography}
+\end{document}
