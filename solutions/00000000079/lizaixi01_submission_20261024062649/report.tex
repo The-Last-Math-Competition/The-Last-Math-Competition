@@ -1,0 +1,120 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{6pt}
+\begin{document}
+\begin{center}
+{\Large The printed inverse-length frequency rule is impossible}\\[4pt]
+TLMC 00000000079 \quad lizaixi01 \quad 24 October 2026
+\end{center}
+
+\textbf{Exact scope.}
+Both versions of the source say that every digit block occurs with frequency equal
+to the inverse of its length. This submission disproves that explicit necessary
+clause. It does \emph{not} assert that the usual, correctly normalized normality
+statement is false. In ordinary base-$b$ normality the prescribed frequency for
+a length-$\ell$ word is $b^{-\ell}$, not $\ell^{-1}$; see \cite{ajm},
+Definition 1.1 on printed p.~1024. The two requirements already disagree for one digit.
+
+\textbf{The actual irrational and prime sequence.}
+Take $\alpha=\sqrt2$ and let $p_n$ be the increasing enumeration of all primes,
+starting with $p_0=2$. Define
+\[
+ x_n=\{\alpha p_n\}=\alpha p_n-\lfloor\alpha p_n\rfloor .
+\]
+The formal proof uses the native real square root, the native irrationality
+theorem for $\sqrt2$, the genuine function \texttt{Nat.nth Nat.Prime}, and
+\texttt{Int.fract}. It proves that each $p_n$ is prime, that the enumeration is
+strictly increasing, and that $0\le x_n<1$ for every $n$.
+
+\textbf{Decimal digits and point-sequence cylinders.}
+Choose base $10$. For $x\in[0,1)$ set
+\[
+ d_j(x)=\left\lfloor 10\{10^j x\}\right\rfloor\in\{0,\ldots,9\},\qquad j\ge0.
+\]
+This fixes the terminating expansion at decimal boundary points. For a word
+$w=(w_0,\ldots,w_{\ell-1})$, let
+\[
+ C_N(w)=\#\{0\le n<N:\ d_j(x_n)=w_j\text{ for all }0\le j<\ell\},
+ \qquad f_N(w)=\frac{C_N(w)}{N}\quad(N>0).
+\]
+Thus we count the points whose decimal expansions begin with the word; no limiting
+frequency is assigned by definition. In particular the proof establishes the actual
+first-digit cylinder identity
+\[
+ d_0(x)=a \quad\Longleftrightarrow\quad
+ \frac a{10}\le x<\frac{a+1}{10}\qquad(0\le a<10).
+\]
+The value at $N=0$ is immaterial to the limit at infinity; the formal division
+convention gives zero, and the counting bound below also holds there.
+
+\textbf{A finite counting obstruction.}
+Write $(0)$ and $(1)$ for the two distinct one-digit words. A point cannot begin
+with both digits, so the two actual finite sets of indices are disjoint subsets of
+$\{0,\ldots,N-1\}$. Therefore, for every $N>0$,
+\[
+ C_N((0))+C_N((1))\le N,
+ \qquad f_N((0))+f_N((1))\le1. \tag{1}
+\]
+This is a theorem about the defined index sets and their cardinalities. It does not
+use any assumption about equidistribution of primes.
+
+\newpage
+\textbf{The limiting contradiction.}
+The printed inverse-length rule requires, for each of the two length-one words,
+\[
+ \lim_{N\to\infty} f_N((0))=1,
+ \qquad \lim_{N\to\infty} f_N((1))=1.
+\]
+The sum would tend to $2$, whereas (1) forces its limit to be at most $1$.
+This contradiction proves that the actual sequence $x_n=\{\sqrt2 p_n\}$ fails
+the printed rule. In fact the proof works for every sequence of real points.
+The concrete irrational and prime sequence are included so that the counterexample
+satisfies the source's specified objects and its universal irrational quantifier.
+
+\textbf{The digit-stream interpretation gives the same obstruction.}
+One can instead form the actual digit stream $a_n=d_0(x_n)$ and count a word at
+successive positions:
+\[
+ S_N(w)=\#\{0\le n<N:\ a_{n+j}=w_j\text{ for all }0\le j<\ell\}.
+\]
+The formal development also defines these sliding occurrences. For a one-digit
+word they coincide exactly with $C_N(w)$, so the same contradiction rules out
+the inverse-length requirement for this interpretation. The proof therefore
+does not depend on choosing between prefix-cylinder sampling and the sliding
+first-digit stream. It makes no claim about other unprinted constructions
+of a digit string from the point sequence.
+
+\textbf{Formal coverage and verification.}
+\texttt{Main.lean} defines the decimal digits using real floor and fractional part,
+the finite occurrence sets using \texttt{Finset.range} and filtering, their actual
+cardinalities, and the normalized real frequencies. It proves the first-digit
+interval identity, disjointness, the finite inequality, and the limit contradiction.
+Its final existential theorem supplies the genuine irrational $\sqrt2$, its native
+prime-point sequence in $[0,1)$, and failure of both printed inverse-length rules.
+No desired frequency, cardinality, or failure is assigned as a definition.
+
+The companion project pins Lean 4.33.0 and Mathlib
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+It contains no admitted proof, extra axiom or \texttt{native\_decide}.
+The submission evidence records the actual build, all-namespace ordinary
+\texttt{\#print axioms} audit and official fresh-kernel replay, with source hashes
+and process records. Production timings are not controlled efficiency evidence.
+
+\textbf{What the result does not say.}
+The correct decimal normalization for a one-digit word is $1/10$.
+Then the two relevant frequencies would sum to $1/5$, which is entirely
+consistent with (1). This submission neither proves nor refutes the conventional
+normality or equidistribution assertion for prime multiples. It only refutes
+the literal inverse-of-length clause printed in this problem.
+
+\begin{thebibliography}{9}
+\bibitem{ajm} D. Airey, S. Jackson and B. Mance,
+\emph{Descriptive complexity in Cantor series},
+The Journal of Symbolic Logic \textbf{87} (2022), no.~3, 1023--1045.
+\href{https://doi.org/10.1017/jsl.2021.77}{doi:10.1017/jsl.2021.77}.
+Definition 1.1 on printed p.~1024 is used solely to distinguish ordinary
+normality's $b^{-\ell}$ normalization from the problem's printed $\ell^{-1}$.
+\end{thebibliography}
+\end{document}
