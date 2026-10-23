@@ -1,0 +1,183 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=0.78in]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\newcommand{\N}{\mathbb N}
+\newcommand{\F}[1]{2^{2^{#1}}+1}
+\begin{document}
+\begin{center}
+{\Large A verified infinite obstruction to a prime plus two powers of two}\\[4pt]
+TLMC 00000000039 \quad lizaixi01 \quad 24 October 2026
+\end{center}
+
+\textbf{Result and interpretation.}
+With the conventional prime-number meaning of $p$, the printed conjecture is false:
+for every $L\in\N$ there is an odd $N>L$ such that
+\[
+ N\ne p+2^a+2^b\qquad
+ \text{for every prime }p\text{ and every }a,b\in\N.
+\]
+Thus zero exponents and repeated exponents are included. If $p$ meant an arbitrary integer,
+the statement would instead be trivial; that is not the prime-sum interpretation treated here.
+The construction adapts Crocker's classical proof \cite{crocker}. Every assertion below has an
+ordinary Lean proof; finite Python calculations were used only to find certificates.
+
+\textbf{The explicit arithmetic data.}
+The last page lists $28$ triples $(d_i,m_i,q_i)$. Put
+\[
+ Q=8191\prod_{i=1}^{28}q_i,\qquad D=16Q,\qquad
+ B_r=\begin{cases}45592577&r=10,\\ \F r&r\ne10,\end{cases}
+ \qquad G=\frac{2^{1024}+1}{45592577}.
+\]
+The following identities and inequalities are verified over the natural numbers:
+\begin{gather*}
+ 1<q_i,\quad q_i\mid D,\quad m_i\mid720,\quad 2^{m_i}\equiv1\pmod{q_i},\qquad D<G,\quad G\equiv1\pmod{16},\\
+ 2^{9360}\equiv1\pmod Q,\qquad \gcd(2^{4096}-1,Q)=1,\\
+ \forall u\in\{0,\ldots,719\}\ \exists i\quad u\equiv d_i\pmod{m_i},\qquad
+ q_i+2^j\not\equiv0\pmod{8191}\quad(0\le j<13).
+\end{gather*}
+No primality of the $q_i$ is assumed or needed. The concrete integer $C$ is specified by
+concatenating the following decimal lines:
+\begin{center}\begin{tabular}{l}
+\texttt{141053614779161145707372581044932416553540193}\\
+\texttt{449405734251407205258377012761677244502852613}\\
+\texttt{25054855422208435392507600721311}
+\end{tabular}\end{center}
+It satisfies $0\le C<D$ and
+\[
+ C\equiv15\pmod{16},\qquad C\equiv0\pmod{8191},\qquad
+ C\equiv2^{d_i}\pmod{q_i}.
+\]
+
+\textbf{An infinite sequence of actual integers.}
+For $k\ge0$ take $n=12(k+1)$ and $A_n=\prod_{r<n}B_r$.
+The Fermat product identity and the one replaced factor give
+\[
+ A_nG=2^{2^n}-1,\qquad A_n\ge2^n,\qquad A_n\equiv15\pmod{16}.
+\]
+Since $2^n\equiv4096\pmod{9360}$, the displayed modular certificates imply
+$\gcd(2^{2^n}-1,Q)=1$. Oddness also gives coprimality with $16$; hence
+$\gcd(A_n,D)=1$. Define $w_k$ as the least nonnegative residue of $A_n^{-1}C$
+modulo $D$, and set $N_k=w_kA_n$. Then
+\[
+ 0<w_k<D<G,\quad 2^n\le N_k<2^{2^n}-1,\quad
+ N_k\equiv C\pmod D.
+\]
+Positivity follows from $C\equiv15\pmod{16}$, so $w_k\ne0$.
+In particular, $N_k$ is odd and $N_k>k$.
+
+\newpage
+\textbf{Excluding one power.}
+Suppose $N_k=p+2^a$. The covering table supplies $i$ with
+$a\equiv d_i\pmod{m_i}$. Thus $q_i\mid p$. Because $q_i>1$ and $p$ is prime,
+$p=q_i$, even when the chosen modulus $q_i$ is not prime.
+Reduction modulo $8191$ would now give
+$q_i+2^{a\bmod13}\equiv0$, contradicting the certificate for $0\le j<13$.
+This also excludes two equal powers, since $2^a+2^a=2^{a+1}$.
+
+\textbf{Excluding distinct positive powers.}
+Suppose $N_k=p+2^a+2^b$ with $a>b>0$. The upper bound on $N_k$ implies
+$a<2^n$. Write $a-b=2^rm$ with $m$ odd. Then $r<n$, and
+\[
+ \F r\mid2^{a-b}+1,
+ \qquad B_r\mid N_k,
+ \qquad B_r\mid 2^b(2^{a-b}+1).
+\]
+Consequently $B_r\mid p$ and $B_r=p$.
+The product $A_n$ contains both $B_r$ and $B_2=17$ if $r\ne2$;
+if $r=2$, it contains $B_0B_2=51$. These facts, together with $B_r>1$,
+give $B_r+16<A_n\le N_k$. Therefore $2^a+2^b>16$, which forces $a\ge4$.
+
+But $B_r$ is congruent to $3$, $5$, or $1$ modulo $16$, respectively as
+$r=0$, $r=1$, or $r\ge2$. Also $2^a\equiv0\pmod{16}$ and
+$2^b\equiv0,2,4,$ or $8\pmod{16}$. No sum of these residues is $15$.
+This contradicts $N_k\equiv15\pmod{16}$. Interchanging $a,b$ covers the other order.
+
+\textbf{Zero exponents.}
+If exactly one exponent is zero, say $a=0<b$, then the odd number
+$N_k=p+1+2^b$ forces the prime $p$ to be $2$. This would yield
+$2^b\equiv12\pmod{16}$, again impossible. Both zero exponents were already
+excluded by the one-power argument with exponent $1$.
+The exclusions therefore hold for every pair of nonnegative exponents.
+
+\textbf{The quantified conclusion.}
+For an arbitrary cutoff $L$, use $k=L$. The inequalities
+$L<n<2^n\le N_k$ give a larger odd integer with no permitted representation.
+This negates the printed ``every sufficiently large'' assertion, rather than only
+checking a single large example.
+
+\textbf{Formal objects and verification.}
+\texttt{Main.lean} defines the actual integer data, products, modular inverse,
+and sequence $N_k$. The prime predicate is Mathlib's \texttt{Nat.Prime};
+the modular inverse is the genuine inverse in \texttt{ZMod D}.
+The covering calculation uses ordinary kernel-checked \texttt{decide}; large integer
+identities use \texttt{norm\_num}. No \texttt{native\_decide}, extra axiom, or admitted
+proof is used. The final declarations state the arbitrary-cutoff obstruction
+and the negation of eventual representability.
+
+The companion project pins Lean 4.33.0 and Mathlib
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+Its evidence records a new build, an all-namespace ordinary axiom audit, and the
+official fresh-kernel replay. The final submitted package records their actual outcomes;
+production timings are not controlled efficiency measurements.
+
+\begin{thebibliography}{9}
+\bibitem{crocker} R. Crocker, \emph{On the sum of a prime and of two powers of two},
+Pacific Journal of Mathematics \textbf{36} (1971), no. 1, 103--107.
+\href{https://doi.org/10.2140/pjm.1971.36.103}{doi:10.2140/pjm.1971.36.103}.
+The original five-page argument was read; its printed pp. 104--107 were also rendered and inspected.
+\end{thebibliography}
+
+\newpage
+\begin{center}\textbf{The finite covering certificate}\end{center}
+Here $d_i$ is an exponent residue, $m_i$ its period, and $q_i$ a divisor modulus.
+All $720$ residues are covered, and all listed modular identities are checked in Lean.
+The last modulus is composite; none of the proof requires these moduli to be prime.
+\begin{center}\small
+\begin{tabular}{rrrr}
+\toprule
+$i$&$d_i$&$m_i$&$q_i$\\
+\midrule
+1 & 0 & 3 & 7 \\
+2 & 0 & 5 & 31 \\
+3 & 1 & 9 & 73 \\
+4 & 1 & 10 & 11 \\
+5 & 8 & 12 & 13 \\
+6 & 8 & 15 & 151 \\
+7 & 4 & 18 & 19 \\
+8 & 7 & 20 & 41 \\
+9 & 5 & 24 & 241 \\
+10 & 29 & 30 & 331 \\
+11 & 2 & 36 & 37 \\
+12 & 14 & 36 & 109 \\
+13 & 17 & 40 & 61681 \\
+14 & 34 & 45 & 631 \\
+15 & 43 & 45 & 23311 \\
+16 & 13 & 48 & 97 \\
+17 & 37 & 48 & 673 \\
+18 & 16 & 60 & 61 \\
+19 & 19 & 60 & 1321 \\
+20 & 26 & 72 & 433 \\
+21 & 62 & 72 & 38737 \\
+22 & 52 & 90 & 18837001 \\
+23 & 37 & 120 & 4562284561 \\
+24 & 49 & 144 & 577 \\
+25 & 121 & 144 & 487824887233 \\
+26 & 103 & 180 & 181 \\
+27 & 106 & 180 & 54001 \\
+28 & 229 & 360 & 79247505326224968612036218881 \\
+\bottomrule
+\end{tabular}
+\end{center}
+The retained factor $45592577$ divides $2^{1024}+1$ and is $1$ modulo $16$.
+Every other $B_r$ is the full Fermat number $2^{2^r}+1$.
+Only the explicit modular identities, divisibility and bounds stated in the proof
+are used; the construction does not invoke an unproved factorization or a general
+primitive-prime-divisor theorem.
+
+The proof is a formalization of a classical counterexample method, with the finite
+certificates and the zero-exponent cases made explicit. It makes no novelty claim
+for the underlying number-theoretic result. Organizer acceptance remains pending.
+\end{document}
