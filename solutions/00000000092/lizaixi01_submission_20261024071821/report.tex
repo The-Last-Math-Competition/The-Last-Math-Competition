@@ -1,0 +1,140 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+\begin{document}
+\begin{center}
+{\Large Rank-one Carlitz torsion has no degree-free bound}\\[4pt]
+TLMC 00000000092 \quad lizaixi01 \quad 24 October 2026
+\end{center}
+
+\textbf{Precisely the printed parameter claim.}
+The source asks for a torsion bound depending only on the rank $r$ and $q$.
+We fix the coefficient ring $A=\mathbb F_2[T]$, its fraction field
+$K=\mathbb F_2(T)$, and rank $r=1$. We exhibit finite extensions $L_n/K$
+and a rank-one Drinfeld $A$-module over each $L_n$ with at least $2^n$
+distinct $L_n$-rational torsion points. Thus no bound depending only on
+these fixed $r,q$ can work uniformly over all finite extensions.
+Here $q=2$ is the size of the coefficient field of $A$. We do not assert
+that the full constant field of every $L_n$ has been computed.
+
+This is not a counterexample to the standard degree-bounded formulation.
+Poonen's Conjecture~2 fixes $A,r,d$ and restricts $[L:K]\le d$;
+Conjecture~1 fixes $L$ itself. The following paragraph explicitly explains
+why allowing arbitrary degrees prevents a uniform bound \cite{torsion}.
+Neither the fixed-$d$ nor the fixed-$L$ conjecture is refuted here.
+
+\textbf{The actual Drinfeld action.}
+Let $\theta=T\in K$. Over a field extension $L/K$, define
+\[
+ \phi_T(x)=x^2+\theta x,\qquad
+ P_0(X)=X,\qquad P_{n+1}(X)=P_n(X)^2+\theta P_n(X).
+ \tag{1}
+\]
+For $a(T)=\sum_i a_iT^i\in A$, set
+\[
+ \phi_a(X)=\sum_i a_i P_i(X). \tag{2}
+\]
+All coefficients and all terms of the parameter polynomial are used.
+The map $x\mapsto x^2+\theta x$ is an actual $\mathbb F_2$-linear
+endomorphism. Evaluating $a$ in its endomorphism ring gives a genuine
+$A$-action. The proof verifies that (2) evaluates to exactly that action.
+Consequently it proves, as polynomial identities,
+\[
+ \phi_0=0,\quad \phi_1=X,\quad
+ \phi_{a+b}=\phi_a+\phi_b,\quad
+ \phi_{ab}=\phi_a\circ\phi_b,\quad \phi_c=cX\ (c\in\mathbb F_2).
+\]
+Each $P_i$, and hence each $\phi_a$, belongs to the actual span of
+$X,X^2,X^4,\ldots$. The proof establishes this by closure under squaring
+and linear combinations; these are precisely the $\mathbb F_2$-linear
+polynomials in the concrete Drinfeld definition \cite{introduction}.
+
+Differentiating (1)--(2) gives
+\[
+ P_n'(X)=\theta^n,\qquad \phi_a'(X)=a(\theta). \tag{3}
+\]
+The map $a\mapsto a(\theta)$ is the actual inclusion $A\hookrightarrow L$.
+Thus the action is faithful and has generic $A$-characteristic.
+Moreover $\phi_T=X^2+\theta X$ has highest Frobenius exponent one:
+its rank is one. The formal rank is computed from the actual degree
+as $\log_2(\deg_X\phi_T)=1$, not assigned as a constant.
+This construction agrees with the usual Carlitz recursion \cite{carlitz}.
+
+\newpage
+\textbf{Actual finite extensions and exact division-point counts.}
+For each integer $n\ge0$, take $L_n$ to be the native splitting field
+over $K$ of the specific polynomial $P_n$. It is a finite-dimensional
+field extension of $K$; no algebraic closure is substituted for $L_n$.
+Induction using (1) proves
+\[
+ \deg_X P_n=2^n. \tag{4}
+\]
+Indeed the square term has degree $2^{n+1}$ and the remaining term has
+degree at most $2^n$, so there is no leading-term cancellation.
+Since $\theta\ne0$, (3) gives a nonzero constant derivative.
+An explicit Bezout identity with that constant proves separability.
+Splitting and separability therefore give the exact count
+\[
+ D_n:=\{x\in L_n:P_n(x)=0\},\qquad |D_n|=2^n. \tag{5}
+\]
+These are actual roots and their actual cardinality, not a stipulated count.
+
+\textbf{The points lie in the genuine torsion submodule.}
+In the native $A$-module induced by $\phi_T$, the proof establishes
+\[
+ a\cdot x=\phi_a(x),\qquad
+ x\in\operatorname{Tor}_A(\phi,L_n)
+ \ \Longleftrightarrow\ 
+ \exists a\in A\setminus\{0\}:\phi_a(x)=0.
+\]
+It also proves that the recursive polynomial commutes with scalar
+extension from $K$ to $L_n$. Thus $\phi_{T^n}=P_n$ over this very field.
+Every element of $D_n$ is killed by the actual nonzero polynomial $T^n$.
+The proof constructs an injective map
+\[
+ D_n\hookrightarrow\operatorname{Tor}_A(\phi,L_n),
+ \qquad
+ 2^n\le\#\operatorname{Tor}_A(\phi,L_n). \tag{6}
+\]
+The right side uses cardinal numbers for the whole native torsion
+submodule. It never uses a natural-cardinality convention that returns
+zero on an infinite type, and does not need to compute all torsion points.
+
+\textbf{No bound with only the two printed parameters.}
+Suppose a finite bound $B$ worked for all the above fields and modules.
+Taking $n=B$ in (6) yields $2^B\le B$, whereas $B<2^B$ for every
+natural number $B$. This contradiction covers every finite bound while
+$r=1$, $q=2$ and even the coefficient ring $A$ remain fixed. Only the
+finite extension and its permitted degree vary.
+
+\textbf{Formal and interpretive limits.}
+Lean constructs the real rational-function field, splitting fields,
+finite-dimensional extensions, $\mathbb F_2$-linear endomorphism action,
+additive-polynomial identities, generic-characteristic inclusion,
+rank computation, exact root sets and native torsion submodules.
+The explicit algebraic Drinfeld structure records the standard polynomial
+addition/composition and tangent-action conditions; it is not an axiom
+asserting that arbitrary modules are Drinfeld modules.
+The project pins Lean~4.33.0 and Mathlib
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+Its evidence records source-bound compilation, all-namespace ordinary
+\texttt{\#print axioms} and the official fresh-kernel replay.
+\par No admitted proofs or extra axioms are used. The proof does not use
+\texttt{native\_decide}.
+Production timings are not controlled efficiency measurements.
+
+\begin{thebibliography}{9}
+\bibitem{torsion} B. Poonen, \emph{Torsion in rank 1 Drinfeld modules and
+the uniform boundedness conjecture},
+\href{https://arxiv.org/abs/math/9507217}{arXiv:math/9507217}, v1 (1995),
+printed p.~2 (torsion and the fixed-degree formulations).
+\bibitem{introduction} B. Poonen, \emph{Introduction to Drinfeld modules},
+notes dated 29 December 2021, printed pp.~4--5, Definition~3.2 and
+Example~3.4, \href{https://math.mit.edu/~poonen/papers/drinfeld.pdf}{author's PDF}.
+\bibitem{carlitz} K. Conrad, \emph{Carlitz extensions},
+\href{https://kconrad.math.uconn.edu/blurbs/gradnumthy/carlitz.pdf}{author's notes},
+printed pp.~1--3 and 7 (recursion, separability and torsion).
+\end{thebibliography}
+\end{document}
