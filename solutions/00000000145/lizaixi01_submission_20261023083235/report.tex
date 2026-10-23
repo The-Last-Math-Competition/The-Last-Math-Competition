@@ -1,0 +1,62 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000000145: a zero prime-time fluctuation}\\[5pt]
+lizaixi01 \quad AI-led research and formalization \quad 23 October 2026
+\end{center}
+
+\textbf{Result.} The source asserts
+\[
+ \sum_{p\le x} f(\{\alpha p\})-\pi(x)\int f
+ =\Omega_{\pm}\!\left(\sqrt{\frac{x\log\log x}{\log x}}\right)
+\]
+for $f$ with nonzero deviation from its mean. It states no irrationality or almost-everywhere restriction on $\alpha$. For its literal unrestricted parameter version, take
+\[
+ \alpha=1,\qquad f(t)=\sin(2\pi t).
+\]
+This is a smooth, real-valued, one-periodic observable with mean zero, variance $1/2>0$, and a nonzero pointwise deviation from its mean. Its centered prime-time sum is identically zero. Hence neither positive nor negative nonzero fluctuations at the displayed scale can occur.
+
+This only refutes the unrestricted printed version. It does not refute a corrected statement restricted to irrational $\alpha$, to a specified Diophantine class, or to almost every parameter. No probabilistic LIL or prime number theorem is asserted or needed.
+
+\section*{1. Genuine prime sums and a nondegenerate observable}
+For a real cutoff $x\ge0$, define the actual finite set
+\[
+ P(x)=\{p\in\mathbb N:p\text{ is prime and }p\le x\},\qquad\pi(x)=|P(x)|.
+\]
+Lean constructs this by filtering the natural interval up to $\lfloor x\rfloor$ and proves the exact membership equivalence with primality and $p\le x$. The mean and variance are actual real interval integrals on $[0,1]$:
+\[
+ \mu(f)=\int_0^1 f(t)\,dt,\qquad
+ V(f)=\int_0^1(f(t)-\mu(f))^2\,dt.
+\]
+The sine function above satisfies $\mu(f)=0$ by the antiderivative of sine and a real change of variables. Similarly, the actual integral of sine squared gives $V(f)=1/2$. Its smoothness and period one are formally proved, and $f(1/4)=1\ne\mu(f)$ supplies an explicit nonzero deviation. Thus this is not a zero or constant observable, under either a point-deviation or positive-variance reading.
+
+For every natural number $p$, including every prime, $\alpha p=p$ is an integer and its actual fractional part is zero. Therefore
+\[
+ f(\{\alpha p\})=f(0)=0,\qquad
+ S(x):=\sum_{p\in P(x)}f(\{\alpha p\})-\pi(x)\mu(f)=0
+\]
+for every real $x$. The formalization uses \texttt{Int.fract}, a genuine filtered \texttt{Finset} prime sum, its cardinality, and the actual interval mean; no assigned sequence is substituted for $S$.
+
+\newpage
+\section*{2. The exact scale and both Omega signs}
+Set $g(x)=\sqrt{x\log(\log x)/\log x}$, using the actual real logarithm and square root. For $x\ge e^2$, we have $x>0$, $\log x\ge2>0$, and $\log(\log x)>0$. Consequently $g(x)>0$. This is proved directly in Lean for the exact printed scale, without replacing it by an unrelated positive function.
+
+We use the standard quantitative cofinal fluctuation meaning
+\[
+ S=\Omega_+(g)\quad\Longleftrightarrow\quad
+ \exists c>0\ \forall N\in\mathbb R\ \exists x\ge N:\ c g(x)\le S(x),
+\]
+and $S=\Omega_-(g)$ means $-S=\Omega_+(g)$; $\Omega_{\pm}$ requires both. If either held for our $S=0$, choose the threshold $N=e^2$. The witness would satisfy $0<c g(x)\le0$, a contradiction. The proof separately negates each sign and their conjunction. No growth-rate estimate for $\pi(x)$ is needed, since the centered sum is exactly zero rather than merely bounded.
+
+\section*{3. Repair of the earlier submission and verification}
+The public \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/1055}{PR 1055} already pointed out the missing irrationality hypothesis, using $\alpha=1/2$ and cosine. We attribute that exposed direction. Its \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/1055#issuecomment-6270091958}{maintainer review} rejected the project because Lean only proved that sufficiently large primes are odd; prime-time sums, the LIL fluctuations and the exact scale were not defined.
+
+This submission uses a new, simpler sine observable and positive parameter $\alpha=1$, and closes all those bridges: true primes and fractional parts, actual mean and positive variance, the exact centered sum, actual log--log square-root scale, and complete cofinal $\Omega_+$/$\Omega_-$ quantifiers. It does not claim that the old arithmetic lemma alone settles the conjecture, nor inherit an unproved trigonometric or asymptotic step. The original bilingual statement is preserved verbatim in the package with its upstream commit.
+
+The pinned Lean project provides a new build, warning-as-error audit of every named local declaration and full fresh kernel replay, with source-bound receipts. There is no \texttt{sorry}, \texttt{native\_decide} or additional axiom. Research, Lean development and document creation were led by a Codex worker with separate AI supervision of mathematical scope and rendered pages. Organizer acceptance and human verification are not asserted.
+\end{document}
