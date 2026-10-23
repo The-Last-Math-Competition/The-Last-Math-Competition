@@ -1,0 +1,141 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=24mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newcommand{\R}{\mathbb R}
+\newcommand{\g}{\mathfrak g}
+\title{Isotropy types are not counted by coadjoint orbits}
+\author{Submission for TLMC problem 00000006034}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+
+\paragraph{Scope and result.}
+The final clause of the source identifies the number of isotropy types in
+nonfree reduction with the number of coadjoint orbits. In the standard
+Hamiltonian setting this is false: the sign action of the compact Lie
+group $C_2$ on the connected symplectic plane has two occurring isotropy
+types in its zero-level quotient, whereas its coadjoint action has one
+orbit. We prove this necessary-clause counterexample, without assigning
+values to the source's other unspecified constants or quantization data.
+The source imposes neither connectedness of the group nor properness of
+the moment map. Our group is disconnected, and our moment map is not
+proper. The claim here is expressly confined to the printed scope.
+
+\paragraph{An actual smooth symplectic action.}
+Let $G=C_2=\{1,s\}$, with $s^2=1$, and give it the discrete topology and
+the zero-dimensional real smooth manifold structure. Let $V=\R^2$ with
+its usual smooth structure. Define
+\[
+  1\cdot x=x,\qquad s\cdot x=-x,\qquad
+  \omega_x(u,v)=u_0v_1-u_1v_0.
+\]
+Thus $\omega=dx_0\wedge dx_1$. This is an alternating continuous
+bilinear form varying smoothly with $x$. If $\omega_x(u,v)=0$ for every
+$v$, testing $v=(0,1)$ and $v=(1,0)$ gives $u_0=u_1=0$, so it is
+nondegenerate. In the global vector-space chart the exterior derivative
+on constant vectors is
+\[
+ (d\omega)_x(u,v,w)=D\omega_x[u](v,w)
+  -D\omega_x[v](u,w)+D\omega_x[w](u,v).
+\]
+The form is constant, so its actual Fr\'echet derivative vanishes and
+$d\omega=0$. These are the usual symplectic-form conditions
+\cite[\S1.3]{cannas}.
+
+The action is jointly smooth: on each open component $\{g\}\times V$
+it is the linear map $x\mapsto\varepsilon(g)x$, where
+$\varepsilon(1)=1$ and $\varepsilon(s)=-1$. Its derivative is that same
+linear map, and
+\[
+ \omega_{g\cdot x}(D(g\cdot)_x u,D(g\cdot)_x v)
+  =\varepsilon(g)^2\omega_x(u,v)=\omega_x(u,v).
+\]
+It therefore acts by symplectomorphisms.
+
+\paragraph{Lie algebra, coadjoint action and moment map.}
+The actual tangent Lie algebra $\g=T_1G$ is zero-dimensional. It is a
+zero vector space, so its dual $\g^*$ is also a singleton. The adjoint
+map is defined as the derivative at $1$ of $h\mapsto ghg^{-1}$; the
+coadjoint action is its inverse dual. Consequently the quotient of
+$\g^*$ by this actual action has exactly one element.
+
+Define $\mu:V\to\g^*$ by $\mu(x)=0$. It is smooth and equivariant.
+For $\xi\in\g$, the fundamental vector field is the genuine orbit-map
+derivative
+\[
+ \xi_V(x)=D_1(g\mapsto g\cdot x)[\xi].
+\]
+Since $\xi=0$, linearity of this derivative gives $\xi_V(x)=0$.
+Each component $\mu^\xi(x)=\langle\mu(x),\xi\rangle$ is constant, hence
+\[
+ d\mu^\xi_x(v)=0=\omega_x(\xi_V(x),v).
+\]
+Together with equivariance, this is precisely the moment-map identity
+\cite[Definition~22.1]{cannas}. In particular, $(V,\omega,G,\mu)$ is a
+Hamiltonian $G$-space, and its zero level is all of $V$.
+
+\paragraph{The two occurring types in the quotient.}
+The reduced orbit space is the actual quotient
+\[
+ M_0=\mu^{-1}(0)/G=V/G.
+\]
+Its isotropy type at the orbit of $x$ is the conjugacy class of the
+stabilizer $G_x=\{g:g\cdot x=x\}$. These are the standard orbit-type
+indices \cite[Example~1.2 and Theorem~2.1]{sl}.
+Direct calculation gives
+\[
+ G_0=G,\qquad G_x=\{1\}\quad(x\ne0),
+\]
+because $-x=x$ over $\R$ implies $x=0$. Both cases occur, for instance
+at $0$ and $(1,0)$. The action is therefore nonfree. The two subgroups
+are distinct and cannot be conjugate; indeed $G$ is abelian, so
+conjugation fixes every subgroup. Isotropy type is invariant along
+orbits and therefore defines a function on $M_0$. Its image is exactly
+the two-element set $\{[G],[\{1\}]\}$. Thus
+\[
+ \#\{\text{occurring isotropy types in }M_0\}=2
+ \ne1=\#(\g^*/G).
+\]
+The same mismatch holds if coadjoint orbits are restricted to the image
+of $\mu$, since that image is already all of the singleton $\g^*$.
+
+\paragraph{Formal scope.}
+The Lean project uses the native \texttt{GroupLieAlgebra}, actual
+\texttt{mfderiv} for the adjoint and fundamental fields, and the
+continuous dual with its explicit linear equivalence to the algebraic
+dual. The plane's canonical tangent spaces carry the displayed
+bilinear form. Smoothness, nondegeneracy, the coordinate exterior
+derivative, and the moment identity are proved from these definitions.
+The zero level is a subtype, its reduction is the native
+\texttt{MulAction.orbitRel} quotient, and its isotropy types come from
+native \texttt{MulAction.stabilizer} subgroups modulo genuine
+conjugacy. Finiteness and nonemptiness are proved before the two
+cardinalities are compared. No cardinality is stipulated as a definition.
+
+The result concerns the source's final count clause. It does not
+contradict the classical orbit-type decomposition theorem, nor make a
+claim about versions with extra connected-group or proper-moment-map
+hypotheses. The full bilingual source and a pinned Lean 4.33.0 project
+with Mathlib revision
+\begin{center}\small
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}
+\end{center}
+are included, together with source-bound verification receipts.
+
+\begin{thebibliography}{2}
+\bibitem{cannas}
+A.~Cannas da Silva, \emph{Lectures on Symplectic Geometry},
+Lecture Notes in Mathematics 1764, Springer, 2001;
+\href{https://people.math.ethz.ch/~acannas/Papers/lsg.pdf}{author version,
+revised January 2006}, pp.~6, 133--135.
+\bibitem{sl}
+R.~Sjamaar and E.~Lerman, \emph{Stratified symplectic spaces and reduction},
+Annals of Mathematics (2) 134 (1991), 375--422;
+\href{https://people.maths.ox.ac.uk/beem/papers/symplectic_stratified_spaces.pdf}{author preprint},
+Example~1.2 (p.~5), Theorem~2.1 (p.~9).
+\end{thebibliography}
+\end{document}
