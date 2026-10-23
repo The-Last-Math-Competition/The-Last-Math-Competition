@@ -1,0 +1,86 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\newcommand{\Q}{\mathbb Q_5}
+\newcommand{\Per}{\operatorname{Per}}
+\newcommand{\Trop}{\operatorname{Trop}}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000002698: a tropical fixed point with no classical lift}
+
+lizaixi01 \quad AI-led research and formalization \quad 23 October 2026
+\end{center}
+\textbf{Result and interpretation.} Under standard coefficientwise min-plus tropicalization and classical periodic points, the asserted periodic-point correspondence is false. The polynomial $f(X)=X+1$ over $\Q$ has no classical periodic points, whereas its tropicalization fixes the actual value $-1=v_5(1/5)$. The same discrepancy holds when each positive compositional iterate $f^{\circ n}$ is tropicalized separately. Every such polynomial has derivative $1$.
+
+The complete English and Chinese statement is included in \texttt{SOURCE.md}. It gives no degree-at-least-two hypothesis. We use classical field-valued points, including classical points over characteristic-zero extensions. Berkovich points are different objects and are not the subject of this counterexample. The source does not define its ``ramification layer'' or its ``height is $\log p$'' convention; no value is assigned to those terms here. We refute the explicit set-correspondence claim in the stated interpretation, and do not claim that a separately defined exceptional-layer formulation has been resolved.
+
+\section*{1. The coefficientwise tropicalization being used}
+Normalize the additive valuation by $v_5(5)=1$ and extend it by $v_5(0)=+\infty$. The value semiring is min-plus:
+\[
+a\oplus b=\min(a,b),\qquad a\odot b=a+b,
+\qquad \mathbf{0}_{\mathrm{trop}}=+\infty,\quad\mathbf{1}_{\mathrm{trop}}=0.
+\]
+For a nonzero polynomial $P(X)=\sum_i a_iX^i$, its coefficientwise tropical polynomial and its evaluated tropical map are
+\[
+\Trop(P)=\bigoplus_i v_5(a_i)\odot X^i,
+\qquad T_P(w)=\min_{i:a_i\ne0}\{v_5(a_i)+iw\}.
+\]
+This is the standard min-plus convention: Aroca's \emph{Krull-Tropical Hypersurfaces}, Definition 1.1 and Sections 1 and 4, defines the semiring, evaluation, and coefficientwise valuation construction. In general only $v_5(P(x))\ge T_P(v_5(x))$ is guaranteed, because equal-valued terms can cancel. We do not assume equality globally or appeal to a lifting theorem.
+
+Lean uses the actual type \texttt{Polynomial Q5}. Its finitely supported coefficient function is mapped by $a\mapsto\mathrm{trop}(v_5(a))$ and wrapped back into an actual polynomial over \texttt{Tropical (WithTop Int)}. The proof establishes the coefficient identity for every degree, including zero coefficients. Thus zero maps to the tropical additive zero $+\infty$, rather than to an artificial finite value. For every $c\in\Q$ it derives
+\[
+\Trop(X+c)=X\oplus v_5(c),\qquad T_{X+c}(w)=\min\{w,v_5(c)\}.
+\]
+The map is consequently obtained from a valued polynomial, not defined by naming an arbitrary minimum function ``tropicalization.''
+
+\section*{2. The original dynamics has no classical periodic points}
+Let $f(x)=x+1$. Induction gives, in every characteristic-zero ring,
+\[
+f^{\circ n}(x)=x+n \qquad(n\in\mathbb N).
+\]
+If a classical point has positive period $k$, then $x+k=x$. Additive cancellation gives $k=0$ in the ring, contradicting characteristic zero and $k>0$. Therefore
+\[
+\Per(f)=\varnothing.
+\]
+This proof is not restricted to $\Q$; it also excludes classical periodic points in any characteristic-zero extension, in particular its algebraic closure. Similarly, for every $n>0$, a positive period $k$ of $f^{\circ n}$ would give $x+nk=x$, so
+\[
+\Per(f^{\circ n})=\varnothing\qquad(n>0).
+\]
+The formal development proves the generic characteristic-zero assertion and then instantiates the actual $5$-adic field. The sets used are Mathlib's genuine \texttt{periodicPts}, with a strictly positive period.
+
+\section*{3. A genuine tropical periodic value, for every positive iterate}
+The support of $X+1$ is exactly $\{0,1\}$, with both coefficients equal to $1$. Hence
+\[
+T_f(w)=\min\{w,0\},\qquad T_f(-1)=-1.
+\]
+Moreover $-1$ is not a formal value outside the valued field: multiplicativity and $v_5(5)=1$ give $v_5(1/5)=-1$. Thus even after restricting the tropical domain to values of actual field elements, there is a tropical fixed point with no classical periodic point above it.
+
+For every $n\ge0$, the formal proof first composes actual polynomials and derives
+\[
+P_n=f^{\circ n}=X+n,\qquad
+T_n=T_{P_n},\qquad T_n(w)=\min\{w,v_5(n)\}.
+\]
+For $n>0$ the polynomial support is again exactly $\{0,1\}$. The valuation satisfies $v_5(n)\ge0$ for all natural $n$, including $v_5(0)=+\infty$. Consequently
+\[
+T_n(-1)=-1\quad(n\ge0),\qquad
+\Per(T_n)\ne v_5\bigl(\Per(f^{\circ n})\bigr)\quad(n>0).
+\]
+These are tropicalizations of the composed polynomials, not an assumption that tropicalization commutes with function composition. For example, $v_5(n)$ changes when $5$ divides $n$, but the negative fixed value remains.
+
+There is also no equal-value cancellation on this branch. If $v_5(x)=-1$, then $v_5(x)<v_5(n)$ for every natural $n$. The strict ultrametric equality therefore yields
+\[
+v_5\bigl(f^{\circ n}(x)\bigr)=v_5(x+n)=v_5(x)=-1.
+\]
+The field trajectory remains on the same valuation level but never becomes periodic. A periodic valuation does not imply a periodic point.
+
+\section*{4. Noncritical dynamics, verification, and limits}
+The actual polynomial derivatives are $P_n'=1$, so they have no classical critical point. The map $x\mapsto x-1$ is both a left and a right inverse of $f$. Thus the discrepancy already occurs for an invertible polynomial translation with nonzero derivative and on a strict-valuation branch. We do not identify the undefined ramification layer with the classical critical locus, or infer a numerical layer height from this observation.
+
+The pinned Lean project contains the complete construction and all proofs. Every named declaration, including the prime instance, valuation, coefficient transformation, maps and polynomial iterates, is included in the axiom audit. The evidence includes the source-bound build, warning-as-error audit, and full official fresh-kernel replay. There is no \texttt{sorry}, \texttt{native\_decide}, or extra axiom; finite numerical facts use ordinary kernel-evaluated \texttt{decide}. All permitted standard axioms are listed in the audit log.
+
+Both PDF pages and the complete mathematical scope are checked by the worker and a separate supervising AI. Initial and final eligibility checks cover the exact source, metadata, solution tree and all-state same-ID pull-request search; no earlier same-ID submission was found initially. Organizer acceptance remains pending. This is selective production, not evidence of a controlled efficiency improvement.
+
+\textbf{Primary convention reference.} F. Aroca, \emph{Krull-Tropical Hypersurfaces}, arXiv:0903.5375v2, printed pp. 2--3 and 5. \url{https://arxiv.org/pdf/0903.5375}. Only its definitions of min-plus arithmetic, tropical evaluation and coefficientwise valuation are used.
+\end{document}
