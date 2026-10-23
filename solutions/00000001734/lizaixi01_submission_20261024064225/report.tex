@@ -1,0 +1,136 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{6pt}
+\begin{document}
+\begin{center}
+{\Large Infinitely many integral figure-eight characters}\\[4pt]
+TLMC 00000001734 \quad lizaixi01 \quad 24 October 2026
+\end{center}
+
+\textbf{The claim and its scope.}
+The source asserts finiteness of the integral points of the $\mathrm{SL}_2$
+character variety of a fibered hyperbolic $3$-manifold group. It imposes no
+irreducibility, canonical-component, or fixed-boundary-trace restriction.
+We disprove this whole-variety assertion using the figure-eight knot exterior
+and an infinite family of actual integral trace characters. We make no claim
+against versions with any of those additional restrictions, or about the
+source's undefined Hitchin trace-field phrase.
+
+\textbf{Published geometric and character identifications.}
+We use the standard figure-eight identification in \cite{hmp}, printed p.~2:
+its exterior fibers over a circle with once-punctured-torus fiber and has group
+\[
+ \Gamma=\langle a,b,t\mid tat^{-1}=ab,\quad tbt^{-1}=bab\rangle.
+ \tag{1}
+\]
+Its complete hyperbolic structure is also discussed on printed p.~3.
+A character is the full function $\chi_\rho(g)=\operatorname{tr}(\rho(g))$
+of a representation $\rho:\Gamma\to\mathrm{SL}_2(\mathbb C)$; see also
+\cite{porti}, Definition~1.3 and Corollary~1.6, printed pp.~II--2--II--3.
+These published identifications of the geometric group and character variety
+are inputs to interpreting the formal example. The Lean development does
+\emph{not} reprove the topology, the hyperbolic structure, or general geometric
+invariant theory. It constructs the precise presented group (1) and proves
+the representation, character, integrality and infinitude claims below.
+
+\textbf{Genuine integral representations.}
+For $n\in\mathbb N$, put $m_n=n+3$ and define
+\[
+ A_n=\begin{pmatrix}m_n&-1\\1&0\end{pmatrix},\qquad
+ \rho_n(a)=\rho_n(b)=I_2,\qquad \rho_n(t)=A_n.
+ \tag{2}
+\]
+Since $\det A_n=1$, these matrices lie in $\mathrm{SL}_2(\mathbb Z)$.
+Both relators in (1) map to the identity, so the universal property of the
+presented group yields an actual group homomorphism
+$\rho_n:\Gamma\to\mathrm{SL}_2(\mathbb Z)$.
+The native scalar-extension homomorphism gives a complex representation
+$\rho_n^{\mathbb C}$. The construction is not just a list of proposed
+coordinate values: it defines the image of every group element.
+
+\textbf{All traces are integral, and the characters are distinct.}
+For every $g\in\Gamma$, the proof establishes
+\[
+ \chi_n(g)=\operatorname{tr}(\rho_n^{\mathbb C}(g))
+    =\iota\bigl(\operatorname{tr}(\rho_n(g))\bigr)\in\iota(\mathbb Z),
+ \qquad \chi_n(t)=n+3, \tag{3}
+\]
+where $\iota:\mathbb Z\hookrightarrow\mathbb C$ is the usual embedding.
+Thus the full character is integral on every word, not only on the three
+generators. Evaluation at $t$ shows that $n\mapsto\chi_n$ is injective.
+Consequently the set of integral characters among all actual complex
+representations of $\Gamma$ is infinite. Trace invariance under conjugation
+is also proved, so the different characters cannot arise from conjugate
+representations.
+
+\newpage
+\textbf{Connection to the published integral coordinate model.}
+Proposition~3.1 of \cite{hmp}, printed p.~7, describes the full
+$\mathrm{SL}_2$ character variety in coordinates
+\[
+ (x,y,z)=(\chi(a),\chi(b),\chi(t)).
+\]
+It is the union of the line $x=y=2$ and the component
+$(x-1)(y-1)=1$, $z^2=x+y+1$. In particular the abelian line belongs to
+the \emph{full} variety. The Lean proof works with the actual integer
+polynomial zero locus
+\[
+ \begin{split}
+ F_0&=(X-1)(Y-1)-1,\\
+ F_1&=(X-2)(Z^2-X-Y-1),\\
+ F_2&=(Y-2)(Z^2-X-Y-1)
+ \end{split} \tag{4}
+\]
+and proves, over $\mathbb Z$, the precise set-theoretic equivalence
+\[
+ \bigl(F_0=F_1=F_2=0\bigr)\iff
+ \bigl(x=y=2\bigr)\ \lor\
+ \bigl((x-1)(y-1)=1\ \land\ z^2=x+y+1\bigr).
+\]
+No claim of a scheme-theoretic ideal computation is needed.
+The genuine trace coordinates of (2) are
+\[
+ P_n=(2,2,n+3)\in\mathbb Z^3. \tag{5}
+\]
+The formal proof verifies $F_i(P_n)=0$, proves $n\mapsto P_n$ injective,
+and supplies the representation realizing every $P_n$, together with (3).
+It therefore proves infinitude even for the subset of integer points in (4)
+realized by actual representations whose \emph{every} word has integral trace.
+This links the infinite family to the published character-variety coordinates;
+an arbitrary integer line has not been labeled a character variety.
+
+\textbf{Consequences and limits.}
+The figure-eight exterior has one torus boundary component. Infinitely many
+distinct integral points already contradict the source's necessary finiteness
+clause, so no particular formula for the proposed boundary-count bound is
+needed. The family lies on the abelian component and does not establish
+infinitude on the irreducible or canonical component. It also varies the
+$t$-trace, so it is not a counterexample to a fixed-boundary-character variant.
+These restrictions were not present in the printed finiteness claim.
+
+\textbf{Formal coverage and verification.}
+\texttt{Main.lean} uses the native free and presented groups,
+$\mathrm{SL}_2$ subgroups and scalar extension, matrix trace,
+multivariate polynomials and evaluation, and actual sets of full trace
+functions. Its final theorem proves infinitude of realized integral points.
+The project pins Lean~4.33.0 and Mathlib
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+The accompanying evidence records the source-bound build, ordinary
+\texttt{\#print axioms} for the complete namespace, and the official
+fresh-kernel replay. There are no admitted proofs, additional axioms,
+or uses of \texttt{native\_decide}. Production timings are not controlled
+research-efficiency evidence.
+
+\begin{thebibliography}{9}
+\bibitem{hmp} M. Heusener, V. Mu\~noz and J. Porti,
+\emph{The $\mathrm{SL}(3,\mathbb C)$-character variety of the figure eight knot},
+\href{https://arxiv.org/abs/1505.04451}{arXiv:1505.04451}, v1 (2015).
+Printed pp.~2--3 and Proposition~3.1 on p.~7.
+\bibitem{porti} J. Porti, \emph{Character varieties and knot symmetries},
+Winter Braids Lecture Notes \textbf{4} (2017), Course II, 1--21.
+\href{https://doi.org/10.5802/wbln.18}{doi:10.5802/wbln.18}.
+Definition~1.3, Corollary~1.6 and Examples~2.6, 2.9.
+\end{thebibliography}
+\end{document}
