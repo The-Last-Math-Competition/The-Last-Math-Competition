@@ -1,0 +1,93 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\newcommand{\R}{\mathbb R}\newcommand{\C}{\mathbb C}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000007477: irreducibility does not force an eigenvector}
+
+lizaixi01 \quad AI-led research and formalization \quad 23 October 2026
+\end{center}
+\textbf{Result and scope.}
+For bounded positive operators on a real Banach lattice, ideal irreducibility alone does not ensure an eigenvector at the spectral radius. We give an actual ideal-irreducible positive operator $A$ on $c_0(\mathbb N;\R)$, prove its spectral radius is $2$ using the genuine complexified operator, and prove $\ker(A-2I)=\{0\}$. Thus there is no spectral-radius eigenvector, positive or otherwise.
+
+The source states no finite-dimensionality, compactness or resolvent-pole assumption. Our counterexample addresses its unrestricted bounded-operator reading, using the standard Banach-lattice meaning of ideal irreducibility. It does not refute the finite-dimensional Perron--Frobenius theorem or a version with additional compactness hypotheses. The ambiguous wording about positivity is not needed: the asserted existence already fails under irreducibility. The full original English and Chinese text is preserved in \texttt{SOURCE.md}.
+
+\section*{1. The space and the positive bounded operator}
+Let
+\[
+X=c_0(\mathbb N;\R)=\{x=(x_0,x_1,\ldots):x_n\longrightarrow0\},
+\qquad \|x\|_\infty=\sup_n|x_n|.
+\]
+We use its usual pointwise order and lattice operations. This is a genuine Banach lattice: the formal development uses Mathlib's complete normed space \texttt{ZeroAtInftyContinuousMap}, constructs the pointwise lattice, and proves the solid-norm property $|x|\le|y|\Rightarrow\|x\|\le\|y\|$ and compatibility with addition and nonnegative scalar multiplication.
+
+Define the half-line adjacency operator by
+\[
+(Ax)_0=x_1,\qquad (Ax)_{n+1}=x_n+x_{n+2}\quad(n\ge0).
+\]
+The right shift has a zero in its first coordinate; the left shift deletes the first coordinate. Both map $c_0$ into itself and have norm at most $1$. Their sum is therefore a continuous linear operator satisfying $\|A\|\le2$. Its coordinate formula proves $Ax\ge0$ whenever $x\ge0$.
+
+\section*{2. All closed invariant order ideals}
+A linear subspace $J\subset X$ is an order ideal when it is solid:
+\[
+x\in J,\quad |y|\le|x|\quad\Longrightarrow\quad y\in J.
+\]
+Ideal irreducibility means that every closed $A$-invariant order ideal is either $\{0\}$ or $X$. This is the standard convention in Gao--Troitsky, Introduction, pp.\ 1--2.
+
+Let $J\ne\{0\}$ be such an ideal. Choose $x\in J$ and $n$ with $x_n\ne0$, and let $e_n$ be the actual sequence with value $1$ at $n$ and $0$ elsewhere. Since $|x_ne_n|\le|x|$, solidity puts $x_ne_n$ in $J$, and scalar multiplication gives $e_n\in J$.
+
+Invariance gives $Ae_n\in J$. It has a nonzero coordinate at every adjacent vertex of the half-line, so the same solidity argument puts those coordinate vectors in $J$. Iterating towards $0$, then upwards, gives $e_j\in J$ for every $j$. Consequently every truncation
+\[
+P_Ny=\sum_{j<N}y_je_j
+\]
+belongs to $J$. For every $y\in c_0$, $\|P_Ny-y\|_\infty\to0$ because its tail tends to zero. Closedness now implies $y\in J$. Hence $J=X$. Lean proves this for every actual closed solid invariant real submodule, rather than assuming an irreducibility predicate for the example.
+
+\newpage
+\section*{3. The actual complex spectral radius is $2$}
+Let $X_{\C}=c_0(\mathbb N;\C)$ and let $A_{\C}$ use the same coordinate formula. The formal proof constructs this continuous complex-linear operator and proves $\|A_{\C}\|\le2$. It also connects it to $A$: the real inclusion is injective and norm preserving, respects addition and real scalar multiplication, intertwines the operators, and every complex sequence decomposes into the included real and imaginary parts. Thus this is the usual complex extension, not an unrelated operator assigned a radius.
+
+We first show that $(2I-A)x=e_0$ has no solution in the real space. The coordinate equations give
+\[
+2x_0-x_1=1,\qquad
+2x_{n+1}-x_n-x_{n+2}=0,
+\qquad
+x_n=(n+1)x_0-n.
+\]
+The first difference is the constant $x_0-1$. Since $x_n\to0$, these differences also tend to $0$, so $x_0=1$. The displayed formula then gives $x_n=1$ for all $n$, contradicting $x\in c_0$.
+
+If $(2I-A_{\C})z=e_0$ had a complex solution, taking coordinatewise real parts would give the impossible real solution above. In particular $2I-A_{\C}$ is not invertible: any inverse would supply an $e_0$ preimage. Lean applies the actual algebraic definition of the spectrum to conclude
+\[
+2\in\sigma_{\C}(A_{\C}).
+\]
+The Banach-algebra bound $\sigma_{\C}(A_{\C})\subseteq\{z:|z|\le\|A_{\C}\|\}$ gives
+\[
+2\le r(A_{\C})\le\|A_{\C}\|\le2,
+\qquad r(A_{\C})=2.
+\]
+The proof uses Mathlib's genuine extended-nonnegative supremum defining \texttt{spectralRadius}. A nonzero spectral value is explicitly exhibited; neither an empty-spectrum convention nor an assigned numerical radius supplies the result. The real spectrum is also shown to contain $2$ and to have the same radius here.
+
+\section*{4. No eigenvector exists at this radius}
+Suppose $Ax=2x$ for a real sequence $x\in X$. Its coordinates imply
+\[
+x_1=2x_0,\qquad
+x_{n+2}=2x_{n+1}-x_n,
+\qquad
+x_n=(n+1)x_0.
+\]
+Thus $x_{n+1}-x_n=x_0$ for every $n$. Both shifted and unshifted sequences tend to $0$, so their difference tends to $0$, forcing $x_0=0$ and hence $x=0$.
+
+In particular there is no nonzero positive eigenvector. The final formal statement connects this failure directly to the computed quantity:
+\[
+\neg\exists x\in X:\quad x\ne0,\quad
+Ax=\bigl(r(A_{\C})\bigr)x.
+\]
+Here the finite radius is converted to a real scalar only after its equality to $2$ has been proved.
+
+\section*{5. Verification and convention reference}
+The pinned Lean project audits all 66 named declarations: 42 theorems, 16 definitions, 2 abbreviations and 6 instances. It includes both actual sequence spaces, their operator and scalar bridges, the universally quantified ideal argument, spectrum membership, the true radius and the nonexistence statement. The accompanying receipts bind the source to a new root build, warning-as-error all-named axiom audit, and official full fresh-kernel replay. Only the usual \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}, or no axioms are permitted. No \texttt{sorry}, \texttt{native\_decide}, or extra axiom is used.
+
+Gao and Troitsky, \emph{Irreducible Semigroups of Positive Operators on Banach Lattices}, Introduction, pp.\ 1--2, \url{https://arxiv.org/pdf/1208.3498}, supplies the convention for ideal irreducibility and distinguishes additional hypotheses in classical extensions. Only those introductory conventions are used; the counterexample and all its required properties are proved in the attached source. Organizer acceptance and a controlled efficiency gain are not claimed.
+\end{document}
+
