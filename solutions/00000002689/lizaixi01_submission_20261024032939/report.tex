@@ -1,0 +1,121 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\title{Divergent mean heights on a nonpreperiodic quadratic orbit}
+\author{Submission for TLMC problem 00000002689}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+
+\paragraph{Scope.}
+The conjecture asserts that the mean naive height of an orbit outside the
+preperiodic set converges, with a proposed canonical-height expression and
+rate. We use the ordinary arithmetic mean over the first $n$ iterates,
+without degree normalization. For the degree-two polynomial $f(z)=z^2$
+over $\Q$, the orbit of $2$ disproves this necessary convergence assertion.
+Both standard conventions for naive height, logarithmic and
+multiplicative, give means tending to $+\infty$.
+We do not specify the source's undefined Fourier coefficients or
+orbit-frequency measure, and make no claim against a different,
+degree-normalized averaging statement.
+
+\paragraph{Actual heights and iterates.}
+For a rational number $a/b$ in lowest terms with $b>0$, the standard
+multiplicative and logarithmic Weil heights are
+\[
+H(a/b)=\max\{|a|,b\},\qquad h(a/b)=\log H(a/b).
+\]
+The formal proof uses Mathlib's native heights defined from the
+archimedean and nonarchimedean absolute values. The displayed rational
+formulas are proved consequences of those definitions \cite{height}.
+In particular, no orbit height is assigned by definition.
+
+Take $f(z)=z^2$ and $x_0=2$. The actual iterates satisfy
+\[
+x_k=f^k(2)=2^{2^k},\qquad
+H(x_k)=2^{2^k},\qquad h(x_k)=2^k\log2.
+\]
+The sequence $x_k$ is strictly increasing. Its forward orbit is therefore
+infinite, so $2$ is not preperiodic. The formalization constructs the
+actual polynomial $X^2$, proves its degree is two and its evaluation is
+$f$, and defines preperiodicity by finiteness of the actual forward orbit.
+
+\paragraph{The canonical height is finite.}
+The canonical height of a degree-$d>1$ map is obtained from the normalized
+height limit \cite{demarco}. Here, for every $x\in\Q$ and every $k\in\N$,
+\[
+\frac{h(f^k(x))}{2^k}=h(x).
+\]
+Consequently the genuine normalized limit exists and
+\[
+\widehat h_f(x)=\lim_{k\to\infty}\frac{h(f^k(x))}{2^k}=h(x),
+\qquad \widehat h_f(2)=\log2>0.
+\]
+In Lean the limit is defined by \texttt{Filter.limUnder}; convergence is
+proved before its value is identified. Thus the finite canonical height
+comes from its defining limit, not from a numerical placeholder.
+
+\paragraph{The unnormalized mean diverges.}
+For $n\ge1$, let
+\[
+A_n=\frac1n\sum_{k=0}^{n-1}h(x_k).
+\]
+The actual finite geometric sum gives
+\[
+A_n=\frac{2^n-1}{n}\log2.
+\]
+For completeness, an elementary lower bound suffices to establish
+divergence without an asymptotic approximation. The inequality
+$2^k\ge k+1$ implies
+\[
+A_n\ge\frac{\log2}{n}\sum_{k=0}^{n-1}(k+1)
+=\frac{n+1}{2}\log2\longrightarrow+\infty.
+\]
+Therefore $A_n$ cannot converge to any finite real number. In particular,
+it cannot have the finite limit asserted in the conjecture, and hence
+cannot converge to such a limit at rate $1/\log n$.
+
+If ``naive height'' instead means $H$, the conclusion is unchanged.
+Because $h(x)=\log H(x)\le H(x)$ and $H(x)\ge1$, the arithmetic means
+\[
+B_n=\frac1n\sum_{k=0}^{n-1}H(x_k)
+\]
+satisfy $B_n\ge A_n$ and also tend to $+\infty$. The formal conclusion
+excludes convergence to every real number for both sequences.
+
+\paragraph{Formal scope and verification.}
+The complete proof is in \texttt{lean/Main.lean}, culminating in
+\texttt{TLMC2689.counterexample}. The statement connects the actual
+degree-two polynomial, all its iterates, the nonpreperiodic orbit, the
+native heights, the canonical-height limit and both divergent means.
+All convergence assertions concern $n\to\infty$; the lower-bound argument
+uses $n\ge1$ throughout. No assertion depends on a zero-denominator value.
+
+The original bilingual conjecture is preserved in \texttt{SOURCE.md}.
+The project pins Lean 4.33.0 and Mathlib commit
+\begin{center}\small
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\end{center}
+The accompanying evidence records the exact build and exhaustive
+namespace axiom audit, a fresh kernel replay, rendered-PDF review and
+file hashes. The disproof concerns the ordinary, unnormalized mean only;
+it does not dispute canonical-height theory or arithmetic
+equidistribution under their hypotheses.
+
+\begin{thebibliography}{2}
+\bibitem{height}
+Mathlib, \emph{Heights on number fields},
+\href{https://github.com/leanprover-community/mathlib4/blob/db584cd6d46c92f209a44c0f1c829460d327499d/Mathlib/NumberTheory/Height/NumberField.lean}{pinned source}, rational-height formulas.
+\bibitem{demarco}
+L.~DeMarco, \emph{Arithmetic Dynamics and Intersection Problems},
+Arizona Winter School 2023, \S1.4, p.~6,
+\href{https://people.math.harvard.edu/~demarco/Math274/AWS_LectureNotes.pdf}{author's lecture notes}.
+\end{thebibliography}
+\end{document}
