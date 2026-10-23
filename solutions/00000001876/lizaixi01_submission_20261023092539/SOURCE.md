@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000001876
+
+**English.** Definition: A dp-minimal group is a definable group of dp-rank ≤ 1 under dependent theories. Conjecture: A complete classification of dp-minimal groups: all are solvable (affine or neighborhood types over real-closed fields); the classification table exhausts all possibilities (no new nonsolvable examples).
+
+**中文。** 定义：dp-极小群指依赖理论下 dp-秩 ≤1 的可定义群。猜想：dp-极小群的完全分类:一切为可解的(实闭域的仿射或邻域型);分类表穷尽一切可能(无新的不可解例)。
