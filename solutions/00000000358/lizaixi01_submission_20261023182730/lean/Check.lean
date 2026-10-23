@@ -1,0 +1,30 @@
+import Main
+
+#print axioms TLMC358.E
+#print axioms TLMC358.BinaryCode
+#print axioms TLMC358.coordinateRecipe
+#print axioms TLMC358.coordinatePoint
+#print axioms TLMC358.coordinateSet
+#print axioms TLMC358.countedPoints
+#print axioms TLMC358.pointCount
+#print axioms TLMC358.integerBox
+#print axioms TLMC358.integerBox_card
+#print axioms TLMC358.coordinatePoint_injective
+#print axioms TLMC358.coordinate_bound
+#print axioms TLMC358.countedPoints_subset_box
+#print axioms TLMC358.countedPoints_finite
+#print axioms TLMC358.pointCount_box_bound
+#print axioms TLMC358.pointCount_polynomial_bound
+#print axioms TLMC358.normalizedCount
+#print axioms TLMC358.scaled_volume
+#print axioms TLMC358.CofinalAmplitude
+#print axioms TLMC358.normalizedCount_bounded
+#print axioms TLMC358.no_normalized_power_amplitude
+#print axioms TLMC358.standardScale
+#print axioms TLMC358.unitBody
+#print axioms TLMC358.standardScale_pos
+#print axioms TLMC358.unitBody_measurable
+#print axioms TLMC358.unitBody_bounded
+#print axioms TLMC358.unitBody_volume_pos
+#print axioms TLMC358.unitBody_volume_finite
+#print axioms TLMC358.standard_coordinates_no_amplitude

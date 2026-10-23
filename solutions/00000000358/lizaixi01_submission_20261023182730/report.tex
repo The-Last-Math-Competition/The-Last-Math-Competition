@@ -1,0 +1,79 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000000358: the normalized error is bounded}
+
+lizaixi01 \quad AI-led research and formalization \quad 23 October 2026
+\end{center}
+\textbf{Result and scope.} The printed statement assigns amplitude at least $t^{11}$ to the error of $N(t)/\operatorname{vol}(tB)$ for the Leech lattice. We prove that this normalized quantity is bounded for $t\ge1$, hence its deviation from any fixed real center cannot have cofinal amplitude $c\,t^{11}$ for any $c>0$. Only this necessary amplitude clause is refuted. No assertion is made that sign changes never occur, or that the same claim for an \emph{unnormalized} discrepancy is false.
+
+The source leaves $B$ unspecified. Our theorem covers every fixed bounded measurable body with positive finite Lebesgue volume, including the ordinary Euclidean unit ball and convex bodies with interior. It does not silently substitute a growing or zero-volume body. The proof treats the full standard coordinate recipe with a binary code as input, universally in that input; the actual extended Golay code is therefore a particular instance. It does not call arbitrary codes Golay or reprove the classification or existence theory of the Leech lattice.
+
+\section*{1. The actual coordinate construction}
+Wilson's author lecture notes \cite{W}, printed p.~2, Section~3, define the integer-coordinate model using the following three conditions on $z\in\mathbb Z^{24}$, for some $m\in\mathbb Z$:
+\[
+ z_i\equiv m\pmod2,\qquad
+ \left(\frac{z_i-m}{2}\bmod2\right)_{i=1}^{24}\in C,\qquad
+ \sum_i z_i\equiv4m\pmod8.
+\]
+Here $C$ is the extended binary Golay code. Printed p.~3 describes the norm divided by $8$, corresponding to multiplying ordinary Euclidean coordinates by $1/\sqrt8$.
+
+Lean implements all three conditions using actual integers, remainders, and $\mathbb Z/2\mathbb Z$, then forms their actual image in $E=\mathbb R^{24}$ under
+\[
+ P_a(z)=(az_i)_{i=1}^{24},\qquad a>0.
+\]
+It proves this coordinate map injective. The construction is denoted $\Lambda_{a,C}$. The formal theorem holds for every set $C\subseteq(\mathbb Z/2\mathbb Z)^{24}$ and every fixed $a>0$, so it applies to the genuine Golay choice with $a=1/\sqrt8$ and also to fixed alternative scalings. The only property used in the estimate is proved from this full construction: every point has a preimage in the scaled integer grid. This is not an unproved lattice-containment hypothesis.
+
+Define the actual point set and count
+\[
+ S_t=\Lambda_{a,C}\cap(t\cdot B),\qquad N(t)=\#S_t.
+\]
+All geometry uses Mathlib's actual Euclidean space and its Lebesgue volume. We first prove $S_t$ finite for every real $t$; the natural cardinality never relies on the default value for an infinite set.
+
+\section*{2. A uniform coordinate count}
+Boundedness gives a real $R>0$ with $\|x\|\le R$ for every $x\in B$. If $P_a(z)\in S_t$, the actual norm and scalar-image identities imply
+\[
+ |z_i|\le |t|R/a\quad\hbox{for every }i.
+\]
+Let $Q=\lceil |t|R/a\rceil\in\mathbb N$. Thus $S_t$ is contained in the image of the finite integer box $\{-Q,\ldots,Q\}^{24}$. Lean proves both this inclusion and the box's exact cardinality $(2Q+1)^{24}$, yielding
+\[
+ N(t)\le(2\lceil |t|R/a\rceil+1)^{24}.
+\]
+For $t\ge1$, the actual ceiling bound gives
+\[
+ N(t)\le(2R/a+3)^{24}t^{24}.
+\]
+No count is defined to equal this bound: it is an inequality for the genuine finite intersection.
+
+\section*{3. Actual volume and the cofinal contradiction}
+Put $v=\operatorname{vol}(B)\in(0,\infty)$. The actual Haar/Lebesgue scalar-image theorem in dimension $24$ gives
+\[
+ \operatorname{vol}(t\cdot B)=t^{24}v\qquad(t\ge0).
+\]
+The Lean proof uses the real value of the actual extended-nonnegative measure, explicitly proving it positive and finite where division occurs. Consequently, with $M=(2R/a+3)^{24}/v>0$,
+\[
+ 0\le\frac{N(t)}{\operatorname{vol}(tB)}\le M\qquad(t\ge1).
+\]
+For any fixed real center $b$, the absolute deviation is at most $M+|b|$. This includes whatever constant main term is used for the normalized lattice density; no determinant or covolume value is assumed.
+
+The formal amplitude condition is the weak, cofinal version
+\[
+ \forall T\in\mathbb R\ \exists t\ge T:\quad
+ c\,t^{11}\le\left|\frac{N(t)}{\operatorname{vol}(tB)}-b\right|.
+\]
+For any $c>0$, take $T=\max\{1,(M+|b|)/c+1\}$. Then $t\ge T$ implies $c\,t^{11}\ge ct>M+|b|$, contradicting the actual upper bound. This disproves even the cofinal condition, so also any stronger eventual amplitude lower bound. The theorem quantifies over every fixed center and positive multiplier, not a single sample radius.
+
+An explicit final instance uses the genuine Euclidean closed unit ball, proving its measurability, boundedness, positive finite volume, and the positive scaling $1/\sqrt8$. The universal code theorem includes the extended Golay input without assigning it an unproved concrete generator matrix.
+
+\section*{4. Verification and attribution}
+All 28 named declarations (16 theorems plus definitions/abbreviations) are axiom-audited. The package preserves the complete bilingual source, this LaTeX/PDF, a pinned Lean project, source-bound build and fresh-kernel logs, and SHA256 manifests. No \texttt{sorry}, \texttt{native\_decide} or additional axiom is used. Worker and separate supervising AI inspect the proof scope and all rendered pages. No organizer acceptance or human verification is asserted.
+
+The elementary grid estimate is proved directly, not assumed from an asymptotic lattice-counting theorem. Wilson is cited only for the actual coordinate recipe and scaling. This selectively produced result is not appended to the frozen CPU or workflow experiments.
+\begin{thebibliography}{1}
+\bibitem{W} R.~A.~Wilson, \emph{The Leech lattice}, QMUL Pure Mathematics Seminar, 8 December 2008, \href{https://webspace.maths.qmul.ac.uk/r.a.wilson/talks_files/Leech.pdf}{author notes}, printed pp.~2--3, Section~3 and the norm normalization in Section~4.
+\end{thebibliography}
+\end{document}
