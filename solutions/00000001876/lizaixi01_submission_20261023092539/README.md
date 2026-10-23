@@ -1,0 +1,9 @@
+# Problem 00000001876: a real finite definable group refutes the unrestricted solvability clause
+
+The actual S5 permutation group is not solvable. In a genuine first-order language with its actual identity, inverse and multiplication, expanded by constants for all its elements, its complete theory is dependent and satisfies the standard singleton-x two-formula dp-minimality criterion. This is within the source's explicit dp-rank<=1 definition, which supplies no infinity/connectedness restriction. No infinite-only or virtually-solvable/nilpotent classification is refuted.
+
+The proof uses actual Formula.Realize for the whole-group domain x=x and unit/inverse/multiplication graphs. An actual finite-cover sentence in completeTheory forces every model to be finite and nonempty. All-formula/all-finite-arity IP patterns and complete ICT selected/unselected-index patterns would inject N into genuine finite tuple domains. Thus they are actually impossible in all models, not just the base model. The standard pattern criterion is adopted from Kaplan-Levi-Simon1605.07867v2 p1; no general numerical dp-rank function is claimed or assigned.
+
+The actual nonsolvability conclusion uses Mathlib's derived-series theorem Equiv.Perm.not_isSolvable_fin_5. The final theorem combines all group, theory, definability, NIP, dp-minimality and nonsolvability properties for the same actual group.
+
+All 42 targets are audited: 39 explicit named declarations plus GroupSymbol.one/inv/mul constructors, including interpretation instances. Run from lean/: `lake build +Main`, `lake env lean -DwarningAsError=true Check.lean`, `lake env leanchecker --fresh Main`. Complete pinned project, original source, LaTeX/PDF, receipts/logs/reviews and hashes are included. AI-led work with separate AI supervision; organizer review pending. No sorry/native_decide/extra axiom.
