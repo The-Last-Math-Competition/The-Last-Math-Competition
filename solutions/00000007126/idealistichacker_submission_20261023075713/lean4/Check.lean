@@ -1,0 +1,44 @@
+import Main
+
+#check ChainSubdivision7126.mem_orderComplex
+#print axioms ChainSubdivision7126.mem_orderComplex
+#check ChainSubdivision7126.chain_iff_clique
+#print axioms ChainSubdivision7126.chain_iff_clique
+#check ChainSubdivision7126.orderComplex_face_iff_clique
+#print axioms ChainSubdivision7126.orderComplex_face_iff_clique
+#check ChainSubdivision7126.pair_face_iff_adj
+#print axioms ChainSubdivision7126.pair_face_iff_adj
+#check ChainSubdivision7126.orderComplex_isFlag
+#print axioms ChainSubdivision7126.orderComplex_isFlag
+#check ChainSubdivision7126.chain_iff_standard_isChain
+#print axioms ChainSubdivision7126.chain_iff_standard_isChain
+#check ChainSubdivision7126.facesOfSize_eq_chains
+#print axioms ChainSubdivision7126.facesOfSize_eq_chains
+#check ChainSubdivision7126.face_count_eq_chain_count
+#print axioms ChainSubdivision7126.face_count_eq_chain_count
+#check ChainSubdivision7126.fVector_eq_chain_count
+#print axioms ChainSubdivision7126.fVector_eq_chain_count
+#check ChainSubdivision7126.faceFamily_isFlag
+#print axioms ChainSubdivision7126.faceFamily_isFlag
+#check ChainSubdivision7126.faceFamily_fVector
+#print axioms ChainSubdivision7126.faceFamily_fVector
+#check ChainSubdivision7126.setFaceSubdivision_isFlag
+#print axioms ChainSubdivision7126.setFaceSubdivision_isFlag
+#check ChainSubdivision7126.setFaceSubdivision_fVector
+#print axioms ChainSubdivision7126.setFaceSubdivision_fVector
+#check ChainSubdivision7126.boundarySubdivision_isFlag
+#print axioms ChainSubdivision7126.boundarySubdivision_isFlag
+#check ChainSubdivision7126.boundarySubdivision_fVector
+#print axioms ChainSubdivision7126.boundarySubdivision_fVector
+#check ChainSubdivision7126.empty_face_excluded
+#print axioms ChainSubdivision7126.empty_face_excluded
+#check ChainSubdivision7126.whole_excluded_from_boundary
+#print axioms ChainSubdivision7126.whole_excluded_from_boundary
+#check ChainSubdivision7126.image_chain_iff
+#print axioms ChainSubdivision7126.image_chain_iff
+#check ChainSubdivision7126.image_face_iff
+#print axioms ChainSubdivision7126.image_face_iff
+#check ChainSubdivision7126.face_count_orderIso_invariant
+#print axioms ChainSubdivision7126.face_count_orderIso_invariant
+#check ChainSubdivision7126.fVector_orderIso_invariant
+#print axioms ChainSubdivision7126.fVector_orderIso_invariant
