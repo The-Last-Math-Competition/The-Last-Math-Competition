@@ -1,0 +1,153 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=24mm]{geometry}
+\usepackage{amsmath,amssymb,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\newcommand{\Nm}{\operatorname{N}}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000002101: an arithmetic obstruction\\
+to the printed square-root/unit conjunction}\par
+\smallskip
+\texttt{lizaixi01}\quad -- \quad 24 October 2026
+\end{center}
+
+\section*{Precise scope of the refutation}
+The conjecture says that the Stokes constants are units of $\Q(\sqrt5)$
+and prints the explicit value $\varphi^{1/2}$. We use the usual
+golden-ratio convention
+\[
+ \varphi=\frac{1+\sqrt5}{2}.
+\]
+The source supplies no other numerical definition of $\varphi$.
+We prove that \emph{every} complex square root of this number lies outside
+the actual embedded quadratic field $\Q(\sqrt5)$. Consequently no scalar
+can satisfy both the printed explicit-value and field-unit conditions.
+
+This is an arithmetic obstruction to a necessary conjunction. We do not
+assign a value to a Stokes constant, compute any actual Stokes data,
+or disprove the field-unit assertion considered by itself. No assertion
+against general DT--RH theory or an unstated alternative meaning of
+$\varphi$ is made. Bridgeland's actual Kronecker BPS data and RH jump
+conditions are given in Sections~2.9 and~3.1, printed pages~9--10 of
+\cite{Bridgeland}; there the Stokes factors are Poisson automorphisms of
+a torus. That reference provides context, not a proof or definition of
+the conjectured numerical value.
+
+\section*{A genuine quadratic field and its embeddings}
+Construct
+\[
+ F=\Q[\omega],\qquad \omega^2=5,
+\]
+using the native \texttt{QuadraticAlgebra} with parameters $5,0$.
+There is no rational $r$ with $r^2=5$: otherwise comparison with the two
+real roots $\pm\sqrt5$ would contradict the irrationality of $\sqrt5$.
+This proved fact supplies the actual native \texttt{Field} instance.
+The genuine basis $1,\omega$ gives $[F:\Q]=2$.
+
+The real embedding and actual conjugation are
+\[
+ \iota(a+b\omega)=a+b\sqrt5,
+ \qquad \sigma(a+b\omega)=a-b\omega.
+\]
+Conjugation is an algebra automorphism, and $\iota$ is an injective algebra
+homomorphism. Its range equals the native intermediate field
+$\Q(\sqrt5)\subset\R$, defined as the field adjoined by $\sqrt5$.
+Indeed the range contains $\sqrt5=\iota(\omega)$; conversely every
+$a+b\sqrt5$ belongs to the adjoined field. These inclusions give an
+actual algebra equivalence between $F$ and that full field, not just a
+coordinate-vector identification. Composing with $\R\hookrightarrow\C$
+gives the corresponding complex embedding; its range is likewise
+exactly the actual complex intermediate field adjoined by $\sqrt5$.
+
+\section*{The native field norm}
+For $z=a+b\omega$, multiplication by $z$ on the genuine basis has matrix
+\[
+ M_z=\begin{pmatrix}a&5b\\b&a\end{pmatrix}.
+\]
+The native \texttt{Algebra.norm}, defined by this endomorphism's
+determinant, is therefore
+\[
+ \Nm_{F/\Q}(a+b\omega)=a^2-5b^2,
+ \qquad z\,\sigma(z)=\Nm_{F/\Q}(z)\cdot1.
+\]
+The proof explicitly identifies the quadratic-algebra norm with this
+native determinant norm. It also transports the native norm through
+the actual real and complex field equivalences, so the calculations
+hold in both genuine adjoined fields.
+
+Let $g=(1+\omega)/2$, concretely the field element with coordinates
+$(1/2,1/2)$. Its real image is $\varphi$, its conjugate's real image is
+$(1-\sqrt5)/2$, and the computed native norm is
+\[
+ \Nm_{F/\Q}(g)=\frac14-5\frac14=-1.
+\]
+The element $g$ itself is a genuine field unit, since its real image is
+positive. The obstruction concerns its square roots.
+
+\section*{All square roots are excluded}
+If $x\in F$ satisfied $x^2=g$, multiplicativity of the native norm would
+give
+\[
+  \Nm_{F/\Q}(x)^2=\Nm_{F/\Q}(x^2)=\Nm_{F/\Q}(g)=-1.
+\]
+The left side is a square of a rational number and is nonnegative, a
+contradiction. Thus $g$ has no square root in $F$.
+
+More generally, let $f:F\hookrightarrow K$ be \emph{any} field embedding
+and suppose $c^2=f(g)$. If $c$ belonged to the range of $f$, write
+$c=f(x)$. Injectivity gives $x^2=g$, which was just excluded. Apply this
+to the actual real and complex embeddings. Every $c\in\C$ with
+$c^2=\varphi$ therefore lies outside $\Q(\sqrt5)\subset\C$ and cannot
+be the image of a unit of that actual intermediate field.
+
+In particular the actual principal real value $s=\sqrt\varphi$ is positive
+and satisfies $s^2=\varphi$. The real and complex square-root equations
+have exactly the branches $s$ and $-s$; the argument excludes both.
+It applies pointwise to every possible family of scalar data, so there
+is no need to construct or assign a replacement Stokes object to obtain
+the contradiction. Only the printed explicit-value/field-unit conjunction
+under the stated golden-ratio convention is refuted.
+
+\section*{Formalization and reproducibility}
+The complete proof is in \texttt{lean/Main.lean}, namespace
+\texttt{TLMC2101}.\par
+Its main theorem is \texttt{complete\_counterexample}.
+Principal bridges include:
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Bridge & Declaration\\
+\midrule
+Actual quadratic-field dimension & \texttt{quadratic\_degree}\\
+True real adjoin-field identification & \texttt{realEmbedding\_range}\\
+Native determinant norm identity & \texttt{nativeNorm\_eq\_quadraticNorm}\\
+Norm in the actual complex field & \texttt{actual\_complex\_field\_golden\_norm}\\
+All embedding images exclude roots & \texttt{no\_embedded\_square\_root}\\
+Both complex branches & \texttt{complex\_square\_root\_branches}\\
+Actual field-unit conjunction fails & \texttt{no\_unit\_square\_root}\\
+\bottomrule
+\end{tabular}
+\end{center}
+The project pins Lean~4.33.0 and Mathlib commit\par
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.\par
+Run \texttt{lean --version} separately; \texttt{lean/verify.sh} then runs
+the root build, warning-as-error audit and official full fresh-kernel
+replay. The audit enumerates every owned declaration, including generated
+names, and runs ordinary \texttt{\#print axioms} on each.
+Only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}
+are allowed foundational axioms.
+
+\begin{thebibliography}{9}
+\bibitem{Bridgeland}
+T. Bridgeland, \emph{Riemann--Hilbert problems from Donaldson--Thomas
+theory}, arXiv:1611.03697v5 (24 June 2020), Sections~2.9 and~3.1,
+printed pp.~9--10. \url{https://arxiv.org/abs/1611.03697v5}.
+\end{thebibliography}
+\end{document}
