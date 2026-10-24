@@ -1,0 +1,157 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=24mm]{geometry}
+\usepackage{amsmath,amssymb,booktabs}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\newcommand{\F}{\mathbb F}
+\newcommand{\wt}{\operatorname{wt}}
+\title{Problem 00000001082: the full-dimension MRD boundary}
+\author{\texttt{lizaixi01}}
+\date{24 October 2026}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000001082:\\the full-dimension MRD boundary}\par
+\smallskip
+\texttt{lizaixi01}\quad -- \quad 24 October 2026
+\end{center}
+
+\section*{Statement and scope}
+The printed conjecture gives, for fixed $(m,n,k)$, the number of MRD-code
+equivalence classes as
+\[
+  q^{(k-1)(n-k+1)}\bigl(1+O(q^{-1})\bigr).
+\]
+Use the standard convention that a linear rank-metric code is an
+$\F_{q^m}$-linear subspace of $\F_{q^m}^{\,n}$ and $k$ is its dimension
+over that extension field. Its dimension over $\F_q$ is $mk$, not $k$.
+We take
+\[
+  (m,n,k)=(3,2,2).
+\]
+The source prints no restriction $k<n$ or minimum distance greater than one.
+This choice also satisfies the strict $n<m$ in Morrison's Definition II.11
+\cite{Morrison}. The formal result concerns the asserted count of MRD codes
+in this standard linear model. It makes no separate Gabidulin-only
+classification claim and does not replace $k$ by a matrix-space dimension.
+
+It is enough to let $q=p$ range over all primes: an asymptotic formula for
+all prime powers must hold on this unbounded subfamily. We will derive the
+exact count $1$ for every such $p$, and prove that it cannot have the
+displayed main term $p$ and relative error $O(p^{-1})$.
+
+\section*{The actual code and its distance}
+Fix any prime $p$. Let $K=\F_p$, let $L=\F_{p^3}$, and put $V=L^2$.
+The Lean construction uses the native field
+\texttt{GaloisField p 3}, a splitting field over \texttt{ZMod p}; its
+actual extension degree is $3$ and its cardinality is $p^3$.
+For $v=(v_1,v_2)\in V$ define the standard rank weight and distance by
+\[
+ \wt(v)=\dim_K\langle v_1,v_2\rangle_K,
+ \qquad d_R(x,y)=\wt(x-y).
+\]
+This is Morrison's Definition II.8 and Sheekey's vector model
+\cite{Morrison,Sheekey}. For a code $C$ the minimum is taken over
+\emph{all} pairs $x,y\in C$ with $x\ne y$.
+
+Every nonzero vector has positive rank weight: if its coordinate span had
+dimension zero, that span would be zero and both coordinates would vanish.
+The actual vector $u=(1,0)$ has coordinate span $K\cdot1$ of dimension
+one. Hence the full code $C=V$ has minimum distance exactly $1$, attained
+at $(u,0)$. Its distance set is nonempty; no empty-infimum convention is used.
+Its actual size is
+\[
+ |C|=|L|^{\dim_L C}=(p^3)^2=p^6
+     =p^{\,3(2-d_R(C)+1)}.
+\]
+This is precisely equality in the rank-metric Singleton bound, so $C$ is
+MRD \cite{Sheekey}. Both the minimum and the cardinality are calculated
+from the actual code, rather than inserted as its defining values.
+
+\section*{The complete equivalence-class count}
+Let $D$ be \emph{any} $L$-linear code of length $2$ and dimension $2$.
+Since $D\subseteq V$ and $\dim_L D=\dim_L V=2$, finite-dimensional linear
+algebra gives $D=V$. Thus the complete universe of $[2,2]$ linear MRD
+codes consists of the single actual subspace $V$.
+
+We use the standard linear rank-equivalence from Morrison's
+Definition III.4: $D$ and $E$ are equivalent if an invertible $L$-linear
+map $f:V\to V$ preserves the actual rank weight of every vector and
+maps $D$ onto $E$. Identity, inverse and composition verify that this is
+an equivalence relation. The Lean quotient uses this relation, including
+the actual image-of-code condition. It is nonempty and a subsingleton,
+so its finite cardinality is exactly
+\[
+  A(p)=1.
+\]
+Uniqueness was proved before forming the quotient. Consequently allowing
+additional standard semilinear equivalences cannot change this one-class
+count; no arbitrary relation or chosen list of representative examples is
+being used to obtain the result.
+
+\section*{Failure of the claimed asymptotic}
+For the fixed parameters, the printed exponent is
+$(2-1)(2-2+1)=1$. The true relative error is therefore
+\[
+ R(p)=\frac{A(p)}p-1=\frac1p-1,
+ \qquad |R(p)|=\frac{p-1}p.
+\]
+For every real constant $B$ and every integer cutoff $N$, Euclid's theorem
+provides a prime $p>\max\{N,B+1\}$. At that actual prime,
+\[
+  |R(p)|=\frac{p-1}p>\frac Bp.
+\]
+Thus $R(p)$ is not $O(p^{-1})$, with all constants and eventual cutoffs
+quantified. More explicitly, if $A(p)=p(1+\epsilon(p))$ eventually and
+$\epsilon(p)=O(p^{-1})$, division by the nonzero $p$ forces
+$\epsilon(p)=R(p)$ eventually, contradicting the preceding inequality.
+The formal proof uses native \texttt{Asymptotics.IsBigO} on the ordered
+type of all primes with its \texttt{atTop} filter, as well as the explicit
+arbitrarily-large-prime witnesses.
+
+This disproves the unrestricted asymptotic clause as printed. It makes
+no assertion about variants excluding $k=n$, nontrivial minimum-distance
+families, or the unspecified cell-decomposition clause.
+
+\section*{Formalization and reproducibility}
+The complete proof is in \texttt{lean/Main.lean}, namespace
+\texttt{TLMC1082}. Its principal declarations are:
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Bridge & Declaration\\
+\midrule
+Actual finite-field parameters & \texttt{actual\_parameters}\\
+True minimum and attainment & \texttt{full\_minimumDistance}\\
+Actual Singleton equality & \texttt{full\_isMRD}\\
+Entire code classification & \texttt{code\_eq\_top}\\
+Standard equivalence quotient & \texttt{classCount\_one}\\
+All constants and cutoffs fail & \texttt{arbitrarily\_large\_prime\_failure}\\
+Native asymptotic impossibility & \texttt{printed\_asymptotic\_false}\\
+Main result & \texttt{complete\_counterexample}\\
+\bottomrule
+\end{tabular}
+\end{center}
+The project pins Lean~4.33.0 and Mathlib commit\par
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.\par
+First run \texttt{lean --version}; then \texttt{lean/verify.sh} runs the
+root build, warning-as-error namespace axioms audit and official full
+fresh-kernel replay. Every owned declaration, including generated names,
+is enumerated and checked with ordinary \texttt{\#print axioms}.
+The allowed foundational axioms are only \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+\begin{thebibliography}{9}
+\bibitem{Morrison}
+K. Morrison, \emph{Equivalence for Rank-metric and Matrix Codes and
+Automorphism Groups of Gabidulin Codes}, arXiv:1304.0501v1,
+Definitions II.8, II.11 and III.4, printed pp.~4, 5 and 8.
+\url{https://arxiv.org/abs/1304.0501v1}.
+\bibitem{Sheekey}
+J. Sheekey, \emph{MRD Codes: Constructions and Connections},
+arXiv:1904.05813v1 (2019), Sections 1.1--1.2 and Definition 3,
+PDF pp.~2--3. \url{https://arxiv.org/abs/1904.05813v1}.
+\end{thebibliography}
+\end{document}
