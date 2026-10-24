@@ -1,0 +1,174 @@
+\documentclass[10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,array,microtype}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{2.5pt}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\Kh}{\operatorname{Kh}}
+\newcommand{\eps}{\epsilon}
+\newtheorem{theorem}{Theorem}
+\title{A crossing change alters two integral Khovanov groups\\\large Disproof of the alternating clause of Problem 00000000620}
+\author{lizaixi01}
+\date{October 24, 2026}
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+
+\textbf{Scope.} The printed conjecture says that every crossing change of an alternating
+knot perturbs exactly one Khovanov group. We use the standard unreduced,
+normalized integral groups $\Kh^{i,j}$ of the graded $\Z$-module cube in
+Bar-Natan's handout~\cite{BN}. The closed positive two-braid $D=\widehat{\sigma_1^3}$
+is a one-component alternating diagram. Change its last crossing to obtain
+$D'=\widehat{\sigma_1\sigma_1\sigma_1^{-1}}$. We compute both actual cubes directly.
+\begin{theorem}
+The groups $\Kh^{2,5}(D)$ and $\Kh^{3,9}(D)$ are nonzero, whereas
+$\Kh^{2,5}(D')=\Kh^{3,9}(D')=0$. Thus this single crossing change alters at least
+two distinct graded groups.
+\end{theorem}
+
+\textbf{The actual diagrams and smoothings.}
+Number the crossings $r=0,1,2$ from top to bottom. At each crossing the four
+ports $4r+p$, $p=0,1,2,3$, are top-left, top-right, bottom-left, bottom-right.
+The braid strands pair top-left with bottom-right and top-right with bottom-left.
+Closure arcs join each bottom-left/right to the next top-left/right, cyclically.
+At a positive crossing the top-left strand passes over the top-right strand;
+only this choice at $r=2$ is reversed in $D'$.
+
+An oriented entrance is $(r,b)\in\Z/3\Z\times\{0,1\}$, and the actual next entrance
+is $(r+1,1-b)$. This permutation is one six-cycle. For $D$ the over/under
+status changes at every successor, including the closure. Hence the diagram is
+a knot and is alternating. Both assertions, the correspondence with the port
+pairings, and the unique change at $r=2$ are checked in Lean.
+
+Let $s=(s_0,s_1,s_2)\in\{0,1\}^3$. At a positive crossing, smoothing $0$ is vertical
+and smoothing $1$ joins the two top ports and the two bottom ports horizontally.
+At the negative crossing these two choices are interchanged. A smoothed circle
+is an actual connected component of the graph containing the closure pairings
+and these smoothing pairings. Its representative below is its least port.
+\begin{center}
+\begin{tabular}{c@{\quad}c@{\quad}c@{\qquad}c@{\quad}c@{\quad}c}
+\toprule
+$s$ & circle representatives for $D$ & for $D'$ & $s$ & for $D$ & for $D'$\\
+\midrule
+000 & $0,1$ & $0$ & 100 & $0$ & $0,2$\\
+001 & $0$ & $0,1$ & 101 & $0,2$ & $0$\\
+010 & $0$ & $0,6$ & 110 & $0,2$ & $0,2,6$\\
+011 & $0,6$ & $0$ & 111 & $0,2,6$ & $0,2$\\
+\bottomrule
+\end{tabular}
+\end{center}
+These are verified partitions: every graph edge preserves its representative,
+and each port has a concrete graph path to its representative. The resulting
+circle type is equivalent to the native graph connected-component quotient.
+
+\textbf{The full integer cube.}
+Use $A=\Z[\eps]/(\eps^2)$ with $v_+=1$, $v_-=\eps$, of quantum degrees $1,-1$.
+Each state contributes $\bigotimes_{\text{circles}} A$. The saddles use the actual
+multiplication and comultiplication
+\[
+ m(1\otimes1)=1,\quad m(1\otimes\eps)=m(\eps\otimes1)=\eps,\quad
+ m(\eps\otimes\eps)=0,
+\]
+\[
+ \Delta(1)=1\otimes\eps+\eps\otimes1,\qquad
+ \Delta(\eps)=\eps\otimes\eps.
+\]
+Unaffected circles are matched by their identical port components; the tensor
+factor reindexing is an actual equivalence. An edge changing $s_r=0$ to $1$
+has sign $(-1)^{\sum_{k<r}s_k}$. If a decoration has labels $\ell_c\in\{0,1\}$,
+its two normalized degrees are
+\[
+ i=|s|-n_-,\qquad j=\sum_c(1-2\ell_c)+|s|+n_+-2n_-.
+\]
+Here $(n_+,n_-)=(3,0)$ for $D$, and $(2,1)$ for $D'$. The complete cube differential
+preserves $j$, raises $i$ by one, and squares to zero. All these identities are
+verified on every actual enhanced state. The enhanced-state counts by
+homological degree are $4,6,12,8$ in degrees $0,1,2,3$ for $D$ and
+$2,12,12,4$ in degrees $-1,0,1,2$ for $D'$.
+
+\newpage
+\textbf{Two non-boundary classes for $D$.}
+At $(i,j)=(2,5)$ order the six basis vectors as
+\[
+ 011:(+,-),(-,+);\qquad101:(+,-),(-,+);\qquad110:(+,-),(-,+),
+\]
+with circle factors in increasing representative order. The incoming degree-one
+states are $001,010,100$, each labelled $+$; in degree three order the three
+decorations of $111$ with exactly one $+$ by the position of that label.
+The actual incoming and outgoing matrices are
+\[
+ B=\begin{pmatrix}
+ 1&-1&0\\1&-1&0\\1&0&-1\\1&0&-1\\0&1&-1\\0&1&-1
+ \end{pmatrix},\qquad
+ C=\begin{pmatrix}
+ 1&0&-1&0&1&0\\1&0&0&-1&0&1\\0&1&0&-1&1&0
+ \end{pmatrix}.
+\]
+For $z=(0,-1,1,0,1,0)^t$ and $\lambda=(-1,1,0,0,0,0)$,
+\[
+ Cz=0,\qquad \lambda B=0,\qquad \lambda z=-1.
+\]
+Thus $z$ is an integer cycle outside the integer image of $B$; it gives a
+nonzero class in $\Kh^{2,5}(D)$.
+
+At $(3,9)$ take the $111$ state with all three circles labelled $+$. Its
+outgoing differential is zero. Every incoming split is a $\Delta$ and introduces
+at least one $-$, so the coordinate functional of this all-$+$ vector vanishes
+on all boundaries and has value $1$ on the vector. Its class in
+$\Kh^{3,9}(D)$ is therefore nonzero. Lean verifies both probes on the full differential.
+
+\textbf{The changed diagram has zero groups in both places.}
+For $D'$, the top degree $i=2$ has only state $111$, with two circles, represented
+by $0,2$. Let $t_{00},t_{01},t_{10},t_{11}$ be its four labelings, with $0=+$
+and $1=-$. In degree one let
+\[
+ p_{000}=110:(+,+,+),\quad p_{001}=110:(+,+,-),\quad
+ p_+=011:(+),\quad p_-=011:(-).
+\]
+The circle order for $110$ is $0,2,6$. Direct evaluation of the genuine saddles gives
+\[
+ d p_{000}=t_{00},\qquad d(p_+-p_{001})=t_{01},\qquad
+ d p_{001}=t_{10},\qquad d p_-=t_{11}.
+\]
+These are integer preimages and preserve quantum degree: the four target degrees
+are $5,3,3,1$. Thus the final differential is surjective in every quantum degree,
+giving $\Kh^{2,j}(D')=0$ for every $j$. There are no enhanced states in degree
+$3$, so also $\Kh^{3,j}(D')=0$. This proves the theorem.
+
+\textbf{Formal objects and identification boundary.}
+The Lean project constructs the exact port pairings, actual oriented traversal,
+actual smoothing graph components, native dual-number algebra and tensor-product
+bases, full signed and doubly graded integer differential, and the groups
+\[
+ \Kh^{i,j}=\bigl(C^{i,j}\cap\ker d\bigr)/
+       \operatorname{range}\bigl(d:C^{i-1,j}\longrightarrow C^{i,j}\cap\ker d\bigr)
+\]
+as native submodules and quotient modules. The two nonzero quotient classes and
+the changed groups' subsingleton properties exclude additive group isomorphisms.
+The finite representative tables are certified against actual graph paths.
+
+The identification with the standard unreduced Khovanov construction uses the
+published diagram/cube definition in~\cite{BN}. Ambient isotopy of spatial
+embeddings and the general Reidemeister-invariance theorem are outside this
+Lean development. Neither trefoil classification nor recognition of $D'$ as an
+unknot is used in the computation. The conclusion addresses only the printed
+alternating-knot every-crossing clause; it makes no claim about the separate
+nonalternating parenthesis.
+
+\textbf{Reproduction.} The pinned project is under \texttt{lean/}. Run
+\texttt{lean --version}, then \texttt{lake build +Main},
+\texttt{lake env lean -DwarningAsError=true Check.lean}, and
+\texttt{lake env leanchecker --fresh Main}. The evidence records the exact source,
+all named declarations and generated names, their ordinary axiom audit, and the
+source-bound execution. Production timings carry no controlled efficiency claim.
+
+\begin{thebibliography}{1}\small
+\bibitem{BN} D.~Bar-Natan, \emph{Khovanov Homology For Knots},
+2022--23 Fast Computations in Knot Theory,
+\href{https://katlas.math.toronto.edu/drorbn/AcademicPensieve/Classes/23-FastComputations/KH4Knots/KH4Knots.pdf}{author's complete one-page handout}.
+Its $\Z$-module definition, $m,\Delta$, shifts, signs and eight trefoil resolutions are used above.
+\end{thebibliography}
+\end{document}
