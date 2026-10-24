@@ -1,0 +1,170 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=23mm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\newcommand{\scl}{\operatorname{scl}}
+\newcommand{\cl}{\operatorname{cl}}
+\newcommand{\PSL}{\operatorname{PSL}}
+\newcommand{\SL}{\operatorname{SL}}
+\title{A rank-one lattice with unbounded stable commutator length\\
+\large Counterexample to problem 00000001158}
+\author{lizaixi01}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+\vspace{-6mm}
+
+\textbf{Scope and result.}
+The printed conjecture asserts that a lattice has bounded stable commutator
+length if and only if its rank is one, with a knot-complement exception.
+Use the usual ambient real-rank convention for lattices in semisimple real
+Lie groups. Put
+\[
+ \overline{\Gamma(2)}=\Gamma(2)/\{\pm I\}<\PSL_2(\mathbb R),\qquad
+ \Gamma(2)=\ker\bigl(\SL_2(\mathbb Z)\longrightarrow\SL_2(\mathbb F_2)\bigr).
+\]
+This standard nonuniform lattice has ambient real rank one and is a free
+group $F=\langle a,b\rangle$ of rank two. For $c=[a,b]$, the supplied Lean
+proof establishes, for every integer $N\ge0$,
+\begin{equation}\label{bounds}
+             \frac{N}{12}\ \le\ \scl_F(c^N)\ \le\ N.
+\end{equation}
+Thus the actual finite values on the commutator subgroup are unbounded.
+The example is not the group of a usual single knot in $S^3$: its
+abelianization has a noncyclic quotient $\mathbb Z^2$, whereas such knot
+groups have cyclic abelianization. The conjecture prints no cocompactness
+restriction. No extended-infinite value outside $[F,F]$ is used.
+
+\textbf{Published geometric identification.}
+The exact geometric and topological identifications in this paragraph are
+used from published standard models; they are \emph{not re-proved in Lean}.
+Morris, Example 1.3.7, proves that $\SL_2(\mathbb Z)$ has finite Haar
+covolume in $\SL_2(\mathbb R)$ by integrating over its modular fundamental
+domain. Corollary 4.1.14(2) preserves the lattice property under finite
+index. The kernel defining $\Gamma(2)$ has finite index, as Conrad explains
+before Theorem 3.1. Quotienting both groups by the finite central subgroup
+$\{\pm I\}$ preserves discreteness and the finite invariant quotient
+measure, since the corresponding lattice quotient spaces agree.
+Morris, Example 8.1.7(1) and Remark 8.1.9(2), give real rank
+$\operatorname{rank}_{\mathbb R}\SL_2(\mathbb R)=1$ and invariance under
+compact central quotients. Conrad, Remark 3.10 (pp.10--11), identifies
+$\overline{\Gamma(2)}$ with a free group of rank two. Importantly,
+$\Gamma(2)$ itself contains $-I$ and is not that free group.
+Burde--Zieschang, Chapter 8A, p.103, gives the cyclic abelianization of
+classical knot groups. The Lean theorem transports the algebraic result
+through every group isomorphism; no geometric axiom or assigned lattice
+or rank label is introduced.
+
+\textbf{Genuine minimum and genuine stable limit.}
+For an arbitrary group $G$ and a finite list $L=((u_i,v_i))$, define its
+actual product $P(L)=\prod_i[u_i,v_i]$. The proof shows that all such
+products form precisely Mathlib's native subgroup $[G,G]$; inverse
+products are represented by reversing the list and swapping the pairs.
+For every $x\in[G,G]$ the minimum
+\[
+  \cl_G(x)=\min\{|L|:P(L)=x\}
+\]
+therefore exists. It is implemented by \texttt{Nat.find} only after this
+existence proof, with an actual minimizing witness and the inequality
+against \emph{every} representing list. Concatenation proves
+$\cl_G(xy)\le\cl_G(x)+\cl_G(y)$. The sequence
+$u_n=\cl_G(x^n)$ is subadditive, and $u_n/n\ge0$. Mathlib's native
+Fekete theorem then proves the genuine limit
+\[
+ \scl_G(x)=\lim_{n\to\infty}\frac{\cl_G(x^n)}n
+ =\inf_{n\ge1}\frac{\cl_G(x^n)}n,
+ \qquad 0\le\scl_G(x)\le\cl_G(x).
+\]
+The nonempty, bounded-below sequence supplies the infimum and its limit;
+neither a desired norm nor a fallback infimum value is assigned.
+
+\textbf{Actual Brooks count and its defect.}
+For the native free group on two generators, let $w(g)$ be its actual
+reduced word. Write $A=a^{-1}$ and $B=b^{-1}$. The integer
+\[
+ H(g)=\#\{ab\text{ occurrences in }w(g)\}
+       -\#\{BA\text{ occurrences in }w(g)\}
+\]
+is constructed from adjacent-letter indicators. The proof identifies
+the recursive sum with actual \texttt{List.zip}, \texttt{tail} and
+\texttt{countP} occurrence counts. It proves $H(g^{-1})=-H(g)$.
+For any two reduced words the proof constructs the full cancellation
+decomposition $w(g)=UC$, $w(h)=C^{-1}V$, with $UV$ reduced. Each of
+the three remaining word junctions changes the signed count by at most
+one. Hence
+\[
+ |H(gh)-H(g)-H(h)|\le3,\qquad |H([g,h])|\le9.
+\]
+Induction on every commutator-product list gives
+$|H(P(L))|\le12|L|$. These are proved bounds for the concrete count,
+consistent with the standard counting construction in Calegari,
+Definition 2.25 and Lemma 2.29; no quasimorphism is assumed.
+
+\textbf{Unbounded finite stable lengths.}
+The native word of $c$ is $abAB$. It is cyclically reduced, and the proof
+identifies the exact reduced word of every $c^n$ with the concatenation
+of $n$ copies of this word. Its actual occurrence count is $H(c^n)=n$.
+Consequently, for every positive $n$ and every $N\ge0$,
+\[
+ Nn=H((c^N)^n)\le12\cl_F((c^N)^n),\qquad
+ \frac{N}{12}\le\frac{\cl_F((c^N)^n)}n.
+\]
+Passing to the genuine stable limit proves the lower bound in
+\eqref{bounds}. A list of $N$ copies of the pair $(a,b)$ represents
+$c^N$, proving the upper bound. For every real $C$, choose a natural
+$N>12C$; then $C<\scl_F(c^N)\le N$. Lean proves this quantified
+witness statement and the failure of boundedness of the full range.
+It also proves that genuine commutator lengths and stable limits are
+preserved by every group isomorphism, by transporting all product lists
+in both directions and using uniqueness of limits.
+
+\textbf{The knot exception is excluded.}
+The genuine exponent-sum homomorphism
+$F\to(\mathbb Z^2,+)$ sends $a$ to $(1,0)$ and $b$ to $(0,1)$.
+It is onto: $a^m b^n$ maps to $(m,n)$ for all integers $m,n$.
+Mathlib's universal map through the native \texttt{Abelianization}
+therefore gives a surjection $F^{\rm ab}\twoheadrightarrow\mathbb Z^2$.
+The proof rules out a cyclic generator $(r,s)$ of $\mathbb Z^2$:
+representing $(1,0)$ forces $s=0$, making $(0,1)$ impossible.
+Thus $F^{\rm ab}$ is not cyclic. A final theorem excludes every group
+isomorphism from $F$ to any group with cyclic native abelianization,
+which applies to the published knot-group theorem above. This argument
+does not address arbitrary link complements or knots in other ambient
+manifolds.
+
+\textbf{Formalization and reproducibility.}
+The complete algebraic proof is in \texttt{lean/Main.lean}, namespace
+\texttt{TLMC1158}, culminating in \texttt{complete\_counterexample}.
+The geometric model identification, Haar covolume and Lie rank, and the
+general knot-group theorem are the explicitly disclosed external
+boundaries. The proof neither formalizes these identifications by an
+extra axiom nor claims to prove a general classification of lattices or
+knot groups. The target is only the printed rank-one boundedness
+implication under the stated conventions.
+
+The project pins Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+Run \texttt{lean --version}, then \texttt{lean/verify.sh} for the build,
+ordinary exhaustive namespace axiom audit and official fresh-kernel
+replay. Command logs, original job and resource observations, exact
+source bindings and the file manifest accompany a verified submission.
+Production timings do not establish a controlled efficiency gain.
+
+\small
+\begin{thebibliography}{4}
+\bibitem{calegari} D. Calegari, \emph{scl}, MSJ Memoirs 20, Mathematical
+Society of Japan, 2009, pp.13,18,21--22.
+\url{https://www.math.uchicago.edu/~dannyc/books/scl/scl.pdf}.
+\bibitem{conrad} K. Conrad, \emph{SL$_2(\mathbb Z)$}, Theorem 3.1 and
+Remark 3.10, pp.7,10--11.
+\url{https://kconrad.math.uconn.edu/blurbs/grouptheory/SL(2,Z).pdf}.
+\bibitem{morris} D. W. Morris, \emph{Introduction to Arithmetic Groups},
+arXiv:math/0106063v6, 2015, pp.15--16,46,180--181.
+\url{https://arxiv.org/abs/math/0106063v6}.
+\bibitem{knots} G. Burde and H. Zieschang, \emph{Knots}, second revised
+and extended edition, de Gruyter, 2003, Chapter 8A, p.103.
+\url{https://www.maths.ed.ac.uk/~v1ranick/papers/burdzies.pdf}.
+\end{thebibliography}
+\end{document}
