@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000000553
+
+**English.** Definition: Exceptional sequences (compatible). Conjecture: The number of complete exceptional sequences equals #(rational points of the positive cluster variety) (an explicit count via cluster-tilting: verify for algebras of rank 2 and 3).
+
+**中文。** 定义：exceptional 序列(相容)。猜想：完备 exceptional 序列数为 #(正簇代数簇的有理点)(由 cluster-tilting 计数的显式:验证 rank 2, 3 的代数)。
