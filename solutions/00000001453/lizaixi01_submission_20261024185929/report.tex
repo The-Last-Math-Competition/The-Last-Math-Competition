@@ -1,0 +1,141 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=22mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Pbb}{\mathbb P}
+\newcommand{\R}{\mathbb R}
+\newtheorem{theorem}{Theorem}
+\title{A one-dimensional obstruction to the printed\protect\\random-polytope central limit assertion}
+\author{lizaixi01 \quad Problem 00000001453}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+\vspace{-7mm}
+
+\textbf{Scope.} The source defines $K_n$ as the convex hull of uniform points in a
+convex body $K\subset\R^d$, and asserts that the normalized volume deficit obeys a
+central limit theorem. Both printed versions omit a restriction $d\ge2$.
+We take the usual positive-dimensional convex-body convention and the usual
+centering by the actual expectation and scaling by the actual standard deviation.
+The counterexample is the full-dimensional body $K=[0,1]\subset\R$, not a
+lower-dimensional subset of a higher-dimensional space. Only the CLT conjunct is
+refuted. No value is assigned to the source's unspecified sphere constants, and
+no contradiction to a corrected $d\ge2$ theorem is claimed.
+
+\begin{theorem}
+Let $n\ge2$, let $X_1,\ldots,X_n$ be independent uniform samples in $[0,1]$,
+and let $Y_n=\operatorname{vol}(K)-\operatorname{vol}(K_n)$. Then
+\begin{align*}
+\E Y_n&=\frac2{n+1},&
+\E Y_n^2&=\frac6{(n+1)(n+2)},&
+\Var(Y_n)&=\frac{2(n-1)}{(n+1)^2(n+2)}>0.
+\end{align*}
+The actual standardized laws of
+$Z_n=(Y_n-\E Y_n)/\sqrt{\Var(Y_n)}$ do not converge weakly to $N(0,1)$;
+their CDFs also fail the ordinary Gaussian CLT criterion.
+\end{theorem}
+
+\textbf{The true sampling model and hull.}
+The measure $U=\lambda|_{[0,1]}$ is already normalized, since
+$\lambda([0,1])=1$. The sample measure is the genuine finite product $U^{\otimes n}$,
+with coordinate projections as the random variables. Thus the coordinates are
+independent and have the normalized restriction law. The interval is compact,
+convex and has nonempty interior, and $\dim_\R\R=1$.
+Put $A=\min_iX_i$, $M=\max_iX_i$ and $B=1-M$. For every finite sample the true
+convex hull is $[A,M]$: all points lie in this interval, and both endpoints
+are sample points. Its Lebesgue volume is $M-A$. Consequently
+$Y_n=A+B$, with $A,B\in[0,1]$ almost surely.
+
+\textbf{Moments derived from the product measure.}
+For $u,v\in[0,1]$, the coordinate rectangle gives exactly
+\[
+ \Pbb(A\ge u,B\ge v)=\bigl(\max(1-u-v,0)\bigr)^n,
+ \qquad
+ \Pbb(A\ge u)=\Pbb(B\ge u)=(1-u)^n.
+\]
+The joint formula includes the genuinely empty rectangle when $u+v>1$;
+it is proved from the measure of that rectangle, not postulated as an
+order-statistic distribution.
+
+For a measurable $X\in[0,1]$ and bounded measurable $W$ on any finite measure
+space, Fubini applied to
+$\mathbf1_{t\le X(\omega)}W(\omega)t^k$ proves
+\[
+ \int W\,\frac{X^{k+1}}{k+1}
+ =\int_0^1 t^k\left(\int_{\{X\ge t\}}W\right)dt.
+\]
+The Lean proof first verifies the pointwise cut integral
+$\int_0^1\mathbf1_{t\le a}t^kdt=a^{k+1}/(k+1)$ and integrability on the
+actual product measure. Taking $W=1$, $k=0,1$ and using the marginal tails yields
+\[
+ \E A=\E B=\frac1{n+1},\qquad
+ \E A^2=\E B^2=\frac2{(n+1)(n+2)}.
+\]
+Applying the same identity with $X=A,W=B$, then to $B$ under the restricted
+measure on $\{A\ge u\}$, yields the true cross moment
+\[
+\begin{aligned}
+ \E(AB)
+ &=\int_0^1\int_0^1\bigl(\max(1-u-v,0)\bigr)^n\,dv\,du\\
+ &=\int_0^1\frac{(1-u)^{n+1}}{n+1}\,du
+ =\frac1{(n+1)(n+2)}.
+\end{aligned}
+\]
+Thus expanding $(A+B)^2$ proves the two displayed moments of $Y_n$.
+The native variance identity $\Var(Y_n)=\E(Y_n^2)-(\E Y_n)^2$ gives the displayed
+positive variance. All these quantities are integrals of the actual hull deficit.
+
+\textbf{An obstruction at a Gaussian continuity point.}
+Nonnegativity of $Y_n$ and the actual moment formulas imply
+\[
+ \frac{\E Y_n}{\sqrt{\Var(Y_n)}}
+ =\sqrt{\frac{2(n+2)}{n-1}}\le\sqrt8<3,
+ \qquad Z_n\ge-3\quad\hbox{almost surely}.
+\]
+In particular, every actual pushforward law $\nu_n$ satisfies
+$\nu_n(({-\infty},-4])=0$. The genuine standard Gaussian measure $\gamma$ has
+$\gamma(({-\infty},-4])>0$, because its density is strictly positive and
+$[-5,-4]$ has positive Lebesgue measure. Its singleton boundary mass at $-4$ is zero.
+The native Portmanteau theorem would therefore force
+$\nu_n(({-\infty},-4])\to\gamma(({-\infty},-4])$ under weak convergence, an
+impossibility. The same point directly contradicts convergence of the real-valued
+CDFs. This proves both failures in the theorem.
+
+\textbf{Formalization and reproduction.}
+The Lean family uses $n=k+2$ with $k\in\mathbb N$, a cofinal indexing of all sample
+sizes at least two. In \texttt{Main.lean}, \texttt{polytope} is the native convex
+hull; \texttt{deficit} uses its native Lebesgue measure. The weighted-tail theorem
+proves the Fubini identity; the endpoint and deficit moment theorems compute the
+actual integrals and native variance. \texttt{standardizedLaw} is the native
+probability-measure pushforward, and the final weak-convergence and CDF theorems
+prove the convergence obstructions. There is no assumed density identification
+or external geometric identification. Literature is used only for the customary
+model and normalization, not as a proof of this counterexample.
+
+The project pins Lean 4.33.0 and Mathlib commit
+\begin{center}\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.\end{center}
+From \texttt{lean/}, run \texttt{lean --version}, then \texttt{./verify.sh}.
+The script runs the following build, exhaustive ordinary axiom check and fresh check:
+\begin{verbatim}
+lake build +Main
+lake env lean -DwarningAsError=true Check.lean
+lake env leanchecker --fresh Main
+\end{verbatim}
+Only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound} are allowed.
+No admitted proof, native evaluator proof or additional axiom is used.
+
+\begin{thebibliography}{9}
+\bibitem{vu} V. Vu, \emph{Central limit theorems for random polytopes in a smooth
+convex set}, arXiv:math/0503559v1 (2005), pp.~1--2 (model and standardized CLT),
+p.~4 (variance order). \url{https://arxiv.org/abs/math/0503559}.
+\bibitem{chen} Y.-C. Chen, \emph{Order statistics from a continuous univariate
+distribution}, UW STAT 512, Lecture 9 (2022 Autumn), uniform-distribution case.
+\url{https://faculty.washington.edu/yenchic/20A_stat512/Lec9_Order.html}.
+\end{thebibliography}
+\end{document}
