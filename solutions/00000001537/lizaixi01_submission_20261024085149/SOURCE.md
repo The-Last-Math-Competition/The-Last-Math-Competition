@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000001537
+
+**English.** Definition: Cyclic cohomology HC^n(R). Conjecture: For R = Z[x]/x², HC has period 2 with explicit coefficient groups (the HC of the two-point algebra).
+
+**中文。** 定义：循环上同调 HC^n(R)。猜想：R = ℤ[x]/x² 的 HC 的周期性为 2 且系数群为显式(双点代数 HC)。
