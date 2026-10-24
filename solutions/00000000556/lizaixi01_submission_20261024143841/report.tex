@@ -1,0 +1,243 @@
+\documentclass[10pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=0.75in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,booktabs,microtype}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\HH}{\operatorname{HH}}
+\newcommand{\End}{\operatorname{End}}
+\newcommand{\Hom}{\operatorname{Hom}}
+\newtheorem{theorem}{Theorem}
+\title{Vanishing first Hochschild cohomology with infinite representation type\\\large A counterexample to Problem 00000000556}
+\author{lizaixi01}
+\date{October 24, 2026}
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+
+\textbf{Scope.} The printed biconditional implies
+\[
+ \HH^1(\Lambda)=0\quad\Longrightarrow\quad
+ \Lambda\text{ is representation-finite}.
+\]
+This necessary implication is independent of the meaning of the additional
+adjective ``rigid.'' We disprove it for a finite-dimensional algebra over $\Q$.
+Representation-finite means that the finitely generated indecomposable left
+modules have only finitely many isomorphism classes. The source's parenthetical
+mentions verification for string algebras. Our four-leaf star has four arrows
+entering its central vertex, violating the at-most-two-incoming condition for
+string algebras. The conclusion concerns the printed general algebra statement;
+it does not refute a statement restricted to that subclass.
+
+\begin{theorem}
+There is a nine-dimensional rational path algebra $A$ with $\HH^1(A)=0$ and
+infinitely many pairwise nonisomorphic indecomposable six-dimensional left
+$A$-modules. Consequently the printed biconditional fails for every possible
+additional rigidity predicate.
+\end{theorem}
+
+\textbf{The actual algebra.}
+Take the five vertices $0,1,2,3,4$ and four arrows $a_j:j+1\to0$,
+$j=0,1,2,3$. This is the four-leaf extended Dynkin quiver $\widetilde D_4$.
+There are five length-zero paths $e_i$, four length-one paths $a_j$, and no
+longer paths. The path-algebra definition uses all paths as a basis and actual
+concatenation as multiplication~\cite[p.~168]{EHIS}.
+
+Lean constructs $A$ as the native square-zero extension
+$\Q^5\ltimes\Q^4$, with faithful multiplication
+\[
+ (d,b)(d',b')=
+ \left((d_i d'_i)_{i=0}^4,
+       (d_0 b'_j+b_jd'_{j+1})_{j=0}^3\right).
+ \tag{1}
+\]
+It enumerates \emph{all} native quiver paths, proves their lengths and uniqueness,
+identifies their basis with the basis of this extension, and proves both
+concatenation multiplication and zero multiplication for noncomposable paths.
+Thus (1) is the actual full path algebra, not an assigned dimension model.
+In particular
+\[
+ e_0a_j=a_j=a_je_{j+1},\qquad a_ja_k=0,\qquad 1=\sum_{i=0}^4e_i,
+ \qquad\dim_{\Q}A=9.
+\]
+
+\textbf{The true first Hochschild cohomology vanishes.}
+Use the usual regular $A$-bimodule coefficients~\cite[\S1.5, pp.~37--38]{Loday}:
+\[
+ C^0=A,\quad C^1=\Hom_{\Q}(A,A),\quad
+ C^2=\Hom_{\Q}(A\otimes_{\Q}A,A),
+\]
+\[
+ (d^0h)(x)=xh-hx,\qquad
+ (d^1f)(x,y)=xf(y)-f(xy)+f(x)y.
+ \tag{2}
+\]
+The formalization has the actual tensor--Hom equivalence with curried bilinear
+maps, proves the displayed formula on every tensor $x\otimes y$, and verifies
+$d^1d^0=0$. It forms the native short complex in $\texttt{ModuleCat}\,\Q$;
+$\HH^1(A)$ is its actual homology object.
+
+If $D$ is a 1-cocycle, (2) says exactly that $D$ is a rational derivation.
+Applying the Leibniz rule to $e_i^2=e_i$ makes every diagonal coordinate of
+$D(e_i)$ zero. The relations $e_0e_{j+1}=0$ and
+$e_0a_j=a_j=a_je_{j+1}$ then give, for coefficients obtained from the actual $D$,
+\[
+ D(e_0)=\sum_j u_ja_j,\qquad D(e_{j+1})=-u_ja_j,
+ \qquad D(a_j)=\lambda_ja_j.
+\]
+Put $h=\sum_j\lambda_je_{j+1}+\sum_j u_ja_j$. Formula (1) gives
+$D(e_i)=e_ih-he_i$ and $D(a_j)=a_jh-ha_j$. Agreement on the full path basis
+proves $D=d^0h$. Every actual cocycle is therefore a boundary. Lean proves
+exactness of the native complex and hence $\HH^1(A)=0$.
+
+\newpage
+\textbf{A family of genuine finite-dimensional modules.}
+For $t\in\Q$, let $M_t$ have central space $\Q^2$ and a copy of $\Q$ at each
+of the four leaves. The four arrow maps send $1$ to
+\[
+ v_0=(1,0),\quad v_1=(0,1),\quad v_2=(1,1),\quad v_3(t)=(1,t).
+ \tag{3}
+\]
+More explicitly, the actual carrier is $\Q^2\oplus\Q^4$. Writing a vector as
+$(z,u)$, with $z\in\Q^2$ and $u=(u_j)$, define
+\[
+ (d,b)\cdot(z,u)=
+ \left(d_0z+\sum_j b_ju_jv_j(t),\ (d_{j+1}u_j)_j\right).
+ \tag{4}
+\]
+Equation (1) directly proves the unit, associativity, addition and scalar laws
+for (4). Lean constructs the native left $A$-module instance, its compatible
+rational scalar structure, and its actual dimension $6$. It also proves finite
+generation as an $A$-module.
+
+\textbf{All native morphisms are controlled.}
+Let $f:M_t\to M_s$ be an arbitrary $A$-linear map. Commutation with every
+actual vertex idempotent makes it a central linear map $T:\Q^2\to\Q^2$
+together with four leaf scalars $c_j$. Commutation with the actual arrows says
+\[
+ T v_j(t)=c_jv_j(s)\qquad (j=0,1,2,3).
+ \tag{5}
+\]
+The first two equations make $T=\operatorname{diag}(c_0,c_1)$.
+The third gives $c_0=c_1=c_2$. The first coordinate of the fourth gives
+$c_3=c_0$, and its second coordinate gives $c_0t=c_0s$.
+Thus, on all six actual coordinates, $f$ is the scalar map with one common
+scalar $c$, satisfying
+\[
+ c(t-s)=0.
+ \tag{6}
+\]
+These are proved for every native module morphism, using all module basis
+vectors, not just a chosen class of quiver maps.
+
+For $t\ne s$, (6) forces every $A$-linear map $M_t\to M_s$ to be zero.
+Since $M_t\ne0$, the modules cannot be isomorphic. For $s=t$, every
+endomorphism of $M_t$ is a rational scalar.
+
+To prove actual indecomposability, let $P,Q$ be any complementary native
+$A$-submodules of $M_t$. Their actual projection $p:M_t\to M_t$ is scalar,
+say $p=c\,\mathrm{id}$. If $P\ne0$, take a nonzero vector of $P$; its projection
+is itself, so $c=1$. Projection kills every vector of $Q$, so $Q=0$.
+This proves indecomposability against every direct-sum decomposition.
+
+\textbf{The full isomorphism-class obstruction.}
+The formal class space contains all finitely generated indecomposable objects
+of the native category $\texttt{ModuleCat}\,A$, in a fixed small universe,
+quotiented by the existence of a native $A$-linear equivalence. Finite generation
+over the finite-dimensional algebra $A$ is proved equivalent to finite
+dimension over $\Q$. The actual objects $M_t$ define an injection
+\[
+ \Q\lhook\joinrel\longrightarrow
+ \{\text{finite-dimensional indecomposable left }A\text{-modules}\}/{\cong}.
+\]
+Hence this full class space is infinite and $A$ is not representation-finite.
+The obstruction also holds in any larger universe, since it already occurs
+in the displayed family.
+
+\textbf{The printed assertion fails independently of rigidity.}
+For any proposition $R$ assigned to this particular algebra, the proposed
+biconditional
+\[
+ \HH^1(A)=0\quad\Longleftrightarrow\quad
+ \bigl(A\text{ is representation-finite}\bigr)\land R
+\]
+would imply representation-finiteness from the true left side, contradicting
+the injection above. The Lean theorem \texttt{printed\_iff\_impossible}
+quantifies over every such proposition. No numerical invariant, cohomology
+group, representation count or meaning of rigidity is stipulated to force
+the conclusion.
+
+\newpage
+\textbf{The error in the previous submission.}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/134}{PR~134}
+attempted the opposite implication with the dual numbers $k[x]/(x^2)$.
+Its non-inner derivation is a valid warning about Hochschild cohomology, but
+it replaced ``rigid'' by Frobenius/self-injective. Those properties do not
+establish the rigidity premise in the printed assertion. The reviewer
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/134#issuecomment-5942503126}{rejected that substitution}:
+the dual numbers have a two-dimensional center and nonzero second Hochschild
+cohomology in characteristic zero, so the proposed example does not meet
+the center or deformation interpretations discussed there. The author
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/134#issuecomment-5945753401}{accepted the correction and withdrew the example}.
+The PR is closed and unmerged.
+
+The previous Lean file used $\mathbb N\times\mathbb N$ arithmetic rather than
+a finite-dimensional algebra over a field. It did not construct the required
+field-based Hochschild cochain homology or a classification of the full
+finite module category establishing its representation-finiteness claim.
+That certificate therefore did not repair the missing premise. The present
+proof uses a rational algebra, the true Hochschild complex, actual module
+instances and the full native isomorphism-class quotient. It attacks the
+necessary implication in the other direction and works without selecting
+any interpretation of ``rigid.'' It does not reuse the withdrawn argument.
+
+\textbf{Formalization and the definition boundary.}
+All of the following are built and proved in Lean: the actual square-zero
+algebra and rational dimension; every native path and its basis and
+multiplication; the full linear cochains in degrees $0,1,2$, the standard
+bar coboundaries and tensor formula; exactness and native first homology;
+the genuine family modules, finite dimensions and all native module
+morphisms; arbitrary complementary-submodule indecomposability; and the
+injection into the quotient of all finite indecomposable module objects.
+
+The identification of first Hochschild cohomology with the degree-one
+homology of (2) is the standard defining cochain model in
+Loday~\cite[Definition~1.5.1 and \S1.5.2]{Loday}. Only the degrees needed for
+that homology are constructed. No higher Hochschild group or general
+derived-functor comparison theorem is asserted. The complete bilingual
+conjecture is preserved in \texttt{SOURCE.md}.
+
+\textbf{Reproduction and evidence.}
+The project under \texttt{lean/} pins Lean~4.33.0 and Mathlib commit:
+\begin{center}
+{\footnotesize\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}}
+\end{center}
+Run the four commands separately:
+\begin{verbatim}
+lean --version
+lake build +Main
+lake env lean -DwarningAsError=true Check.lean
+lake env leanchecker --fresh Main
+\end{verbatim}
+The dynamic audit emits ordinary \texttt{\#print axioms} reports for every
+actual declaration in \texttt{TLMC556}, including generated names. The
+command logs, source bindings, execution receipts, actual thread-mask
+samples and SHA-256 manifest accompany the submission. Only
+\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound} are permitted.
+Production timings are diagnostic and imply no controlled efficiency gain.
+Organizer review remains pending.
+
+\begin{thebibliography}{2}\small
+\bibitem{Loday} J.-L.~Loday, \emph{Cyclic Homology}, second edition,
+Grundlehren der mathematischen Wissenschaften~301, Springer, 1998,
+pp.~37--38, Definition~1.5.1 and \S1.5.2.
+\href{https://doi.org/10.1007/978-3-662-11389-9}{DOI: 10.1007/978-3-662-11389-9}.
+\bibitem{EHIS} K.~Erdmann, T.~Holm, O.~Iyama and J.~Schr\"oer,
+\emph{Radical embeddings and representation dimension},
+Advances in Mathematics~185 (2004), 159--177, p.~168 (path-algebra definition).
+\href{https://doi.org/10.1016/S0001-8708(03)00169-5}{DOI: 10.1016/S0001-8708(03)00169-5}.
+\end{thebibliography}
+\end{document}
