@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000003161: two exact measurements for all one-sparse signals}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The missing recovery assumption}
+The conjecture states an underdetermined linear system $y=Ax$ and
+claims a uniform necessary measurement count
+$m\ge Ck\log(N/k)$. The constant in such a uniform lower bound must
+be positive and independent of $N$. No stability, measurement noise,
+finite precision, restricted decoder or computational constraint is
+imposed. For exact recovery over the real numbers this necessary
+bound is false. We prove that for every $C>0$ some $N>2$ admits
+uniform recovery of all one-sparse real signals from two measurements,
+while $2<C\log N$.
+
+The distinction between exact real arithmetic and additional
+precision requirements is standard. See Ardestanizadeh--Cheraghchi--
+Shokrollahi, \href{https://arxiv.org/abs/0901.2147}
+{\emph{Bit Precision Analysis for Compressed Sensing}} (2009),
+introduction: Vandermonde measurements require only $2k$ exact
+measurements, while finite precision adds a separate resource question.
+Our proof below is self-contained for $k=1$. It does not refute
+noise-robust or stable recovery bounds with their additional assumptions.
+The undefined noise-sphere packing clause does not supply a noise model
+or a stability requirement for the displayed necessary count.
+
+\section{A genuine sensing matrix and all signals}
+For every $N\ge3$, index coordinates by $j=0,\ldots,N-1$ and define
+\[
+ A_N=\begin{pmatrix}1&1&\cdots&1\\0&1&\cdots&N-1\end{pmatrix}.
+\]
+It is a real $2\times N$ matrix, with fewer measurements than coordinates.
+Every vector with at most one nonzero coordinate is $x=t e_i$ for
+some index $i$ and real $t$, including the zero vector when $t=0$.
+Its actual matrix product is
+\[
+ A_N(te_i)=(t,it).
+\]
+If $A_N(te_i)=A_N(ue_j)$, the first coordinate gives $t=u$.
+If $t=0$, the signals both vanish. Otherwise the second coordinate
+gives $it=jt$, hence $i=j$. Thus the measurement map is injective
+on the entire set of one-sparse signals, including zero, uniformly
+in the index and coefficient.
+
+\newpage
+\section{A total decoder and the actual minimum}
+For any measurement $y\in\mathbf R^2$ which has a one-sparse preimage,
+let $D_N(y)$ be that preimage; it is unique by the preceding proof.
+For all other $y$, define $D_N(y)=0$. This is a total map and
+\[
+ D_N(A_Nx)=x\qquad\text{for every one-sparse }x.
+\]
+No computability or continuity requirement was present in the problem.
+The formal decoder uses classical choice only to select the unique
+preimage on this range and proves correctness from injectivity.
+
+Define $\operatorname{CanRecover}_N(m,k)$ to mean that there exist
+an actual real $m\times N$ matrix and a total decoder recovering
+every vector with support cardinality at most $k$. The construction
+proves $\operatorname{CanRecover}_N(2,1)$. Hence the genuine least
+measurement count
+\[
+ m_{\min}(N,1)=\min\{m\in\mathbf N:
+                \operatorname{CanRecover}_N(m,1)\}
+\]
+exists and is at most two. We do not assume or assign the value of
+this minimum and do not need to prove equality with two.
+
+\section{Every positive uniform constant fails}
+Fix any $C>0$. Choose a natural number $n$ with
+$n>\exp(2/C)$ and put $N=n+3$. Then $N>2$ and
+\[
+ m_{\min}(N,1)\le2<C\log N
+   =C\cdot1\cdot\log(N/1).
+\]
+The actual minimum therefore violates the proposed necessary bound.
+The argument works for every positive dimension-independent $C$;
+choosing a smaller constant cannot repair the uniform assertion.
+Allowing $C$ to depend arbitrarily on $N$, or adding a specified
+noise/stability model, would give a different proposition.
+
+\section{Lean correspondence and verification}
+Signals are all functions \texttt{Fin (n+3)} to $\mathbf R$.
+Sparsity is the cardinality of the actual filtered support.
+\texttt{sparse\_one\_single} proves the complete single-coordinate
+representation from that condition. The measurement is Mathlib's
+\texttt{Matrix.mulVec} for the displayed matrix, and its action is
+proved from matrix multiplication. \texttt{decoder\_correct} applies
+to all one-sparse signals. \texttt{minimalMeasurements} uses
+\texttt{Nat.find} on the proved nonempty class of successful matrices
+and decoders. The final \texttt{exact\_recovery\_counterexample}
+quantifies over every $C>0$, exhibits $N=n+3>2$, and gives both an
+actual successful two-row matrix and the violated minimum bound.
+
+Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d} are pinned.
+Receipts record a new Main build, transitive axiom audits, and full
+official \texttt{leanchecker --fresh Main} replay.
+No \texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed
+the formal chain. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
