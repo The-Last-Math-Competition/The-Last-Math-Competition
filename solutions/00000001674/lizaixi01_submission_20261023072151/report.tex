@@ -1,0 +1,122 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001674: no edge-count bound depending only on the excluded grid}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The literal upper-bound premise is false}
+The source explicitly defines its grid theorem as an upper bound
+on the \emph{number of edges} of graphs excluding a $k\times k$
+grid minor, and calls $2^{O(k\log k)}$ the optimal bound.
+There is no finite edge-count upper bound depending only on $k$,
+even for connected trees. For every $k\geq2$ and every finite
+bound $B$, the actual star with $B+1$ leaves has $B+1$ edges
+and excludes the $k\times k$ grid as a minor.
+
+This is a statement about the literal edge count in the printed
+definition. The genuine excluded-grid theorem controls
+\emph{treewidth}, and is not being refuted. Nor do we deny a
+bound with additional dependence on the number of vertices or a
+properly normalized density. The source's separate existence
+lower-bound clause is not independently contradicted; the
+necessary finite upper-bound premise already fails.
+
+\section{Actual stars and the standard minor model}
+The host graph is Mathlib's actual \texttt{starGraph}, on
+$\operatorname{Option}(\operatorname{Fin}n)$ with center
+$r=\operatorname{none}$ and $n$ leaves. Its actual adjacency is
+\[
+ x\sim y\quad\Longleftrightarrow\quad
+ x\ne y\ \land\ (x=r\ \lor\ y=r).
+\]
+Lean uses the actual theorem that this graph is a tree and the
+actual finite-tree identity
+$|E|+1=|V|$. Since $|V|=n+1$, its true
+\texttt{edgeFinset.card} equals $n$. No edge count is assigned.
+
+A minor model for a graph $A$ in a host $B$ consists of a branch
+set $B_v$ for every vertex $v$ of $A$, with all standard conditions:
+each $B_v$ is nonempty; its actual induced subgraph is connected;
+distinct branch sets are disjoint; and for every edge $uv$ of $A$
+there exist $x\in B_u$ and $y\in B_v$ with an actual host edge
+$xy$. This is the standard single-cross-edge branch-set
+definition of a minor. The connectedness and nonemptiness
+conditions are retained even though the stronger obstruction
+below needs only the last two conditions.
+
+\section{Every grid of size at least two is excluded}
+The actual grid has vertices
+$\operatorname{Fin}k\times\operatorname{Fin}k$ and horizontal
+or vertical adjacency exactly when the other coordinate is equal
+and the changing natural coordinate values are consecutive.
+For every $k\geq2$, it contains the two edges
+\[
+ (0,0)(0,1),\qquad (1,0)(1,1),
+\]
+whose endpoints are all distinct. In any proposed minor model
+in a star, a cross-edge witness for the first edge forces the
+center $r$ into one of its two endpoint branch sets. The second
+edge likewise forces $r$ into one of its own two branch sets.
+These are distinct branch sets, so their disjointness is violated.
+This proves actual grid-minor exclusion for every $k\geq2$ and
+every star size, without assuming any desired minor count.
+
+\newpage
+\section{All finite and asymptotic bounds are ruled out}
+The formal result is stronger than a single small-$k$
+counterexample. For every real function $F:\mathbb N\to\mathbb R$
+and every proposed asymptotic cutoff $K$, choose
+\[
+ k=\max(K,2),\qquad n\in\mathbb N\text{ with }n>F(k).
+\]
+The Archimedean property supplies such an actual natural $n$.
+The actual star with $n$ leaves is a connected tree, has no
+$k\times k$ grid minor, and has edge count $n>F(k)$.
+Thus no real-valued function of $k$ alone is an eventual upper
+bound, even after restricting to stars. This covers every finite
+envelope of the form claimed in $2^{O(k\log k)}$, including
+arbitrary constants and cutoffs.
+
+The final Lean theorem explicitly negates a bound over
+\emph{all actual finite simple graphs}: such a bound would
+restrict to this actual star family and contradict the preceding
+theorem. The finite graphs, edge sets, cardinalities, branch
+models and $k$-grid objects all appear in the formal statements.
+No treewidth value is assigned or needed in the argument.
+
+\section{Primary reference and formal verification}
+Chandra Chekuri and Julia Chuzhoy,
+\emph{Polynomial Bounds for the Grid-Minor Theorem},
+\href{https://arxiv.org/pdf/1305.6577v5}{arXiv:1305.6577v5},
+9 August 2016, printed page 4, gives the standard branch-set
+model with single cross-edges and the horizontal/vertical grid
+definition. The paper states a path-based variant and explicitly
+identifies the standard single-edge variant as equivalent.
+We adopt the latter standard definition directly; we do not claim
+to re-formalize the general equivalence with a sequence of
+deletions and contractions. Its abstract and printed pages 1--2
+make clear that the real grid theorem concerns treewidth.
+The cited passages were directly read by both the worker and
+the separate supervising AI.
+
+The package pins Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+and contains the full bilingual original source, complete
+LaTeX/PDF, a new source-bound root build, all named declaration
+axiom audits and full official
+\texttt{leanchecker --fresh Main} replay. The audits explicitly
+include the proof-bearing \texttt{MinorModel} structure,
+constructor and all branch-condition projections, as well as
+every other named local declaration. No \texttt{sorry},
+\texttt{native\_decide} or additional axiom is used.
+
+OpenAI Codex assisted, with separate supervising AI source/proof/
+report/PDF review. This is not human certification; organizer
+acceptance is pending. Only the source's literal finite
+edge-count upper bound is refuted, not the genuine treewidth
+theorem or the separate lower-bound existence statement.
+\end{document}
