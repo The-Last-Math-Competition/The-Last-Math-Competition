@@ -1,0 +1,141 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+\begin{document}
+\begin{center}
+{\Large A nonsemisimple Specht module of weight one}\\[4pt]
+TLMC 00000001761 \quad lizaixi01 \quad 24 October 2026
+\end{center}
+
+\textbf{Scope of the counterexample.}
+The printed definition says that Specht modules are semisimple when the
+$p$-restricted weight is at most $p/2$, and the conjecture asserts that the
+first counterexample, if any, has $n\ge16$. We use the standard reading of
+a $p$-restricted partition and its block $p$-weight. For
+\[
+ p=3,\qquad n=3,\qquad \lambda=(2,1),\qquad F=\mathbb F_3,
+\]
+the partition is $3$-restricted, has empty $3$-core and $3$-weight one, but
+the actual Specht module $S^{(2,1)}_F$ is not semisimple.
+Thus it contradicts the printed semisimplicity assertion, already with $n<16$.
+The customary James conjecture concerns decomposition and adjustment matrices,
+not this semisimplicity assertion; see \cite{james}. This submission does not
+claim a counterexample to that customary conjecture. It also makes no claim
+against the $p\ge2n$ range: here $3<2\cdot3$.
+
+\textbf{The partition, core and weight are computed.}
+The native Young diagram has cells $(0,0),(0,1),(1,0)$. Its row lengths are
+$2,1,0,\ldots$, so each consecutive difference is less than $3$.
+The whole diagram is a connected border strip of three cells, contains no
+$2\times2$ square, and can be removed to leave the empty diagram.
+The empty diagram has no further positive rim-hook removal. Moreover every
+$k$-step sequence of rim $3$-hook removals ending at a diagram $\mu$ satisfies
+\[
+ |\mu|+3k=3. \tag{1}
+\]
+A terminal sequence cannot have $k=0$, since the original strip is removable.
+Hence every terminal sequence has $k=1$ and $\mu=\varnothing$.
+This proves that the true $3$-core is empty. The formal weight is the maximum
+length of genuine removal chains, with the bound supplied by the diagram's
+cardinality; (1) proves that this maximum is exactly one. In particular
+$2w_3(\lambda)=2\le3$. Neither core nor weight is assigned its desired value.
+These are the usual rim-hook and restricted-partition conventions in
+\cite{jiang}, printed p.~5.
+
+\textbf{Actual tabloids and polytabloids.}
+Fix the positions of a tableau as
+$\begin{smallmatrix}0&1\\2&\end{smallmatrix}$.
+All tableaux are all bijective labelings of these three cells. Two tableaux
+are row equivalent precisely when they have the same bottom entry.
+The proof forms the genuine row-equivalence quotient and its bijection with
+$\{0,1,2\}$, and verifies the induced $S_3$ action. Thus the Young permutation
+module is $M=F^3$ with basis $e_0,e_1,e_2$ indexed by the bottom entry.
+
+For a tableau $t$, its column stabilizer permutes the two labels $t(0),t(2)$
+and fixes $t(1)$. The actual signed column sum is therefore
+\[
+ e_t=\sum_{g\in C_t}\operatorname{sgn}(g)\,e_{(gt)(2)}
+     =e_{t(2)}-e_{t(0)}. \tag{2}
+\]
+The formal construction defines $C_t$ as a subgroup and proves that it
+preserves every actual column-label set. It uses the native permutation sign
+and proves (2) for all tableaux. This is the standard polytabloid construction
+over a ring from \cite{specht}, printed p.~1.
+
+\newpage
+\textbf{The genuine Specht module is the augmentation module.}
+By definition $S^{(2,1)}_F$ is the span of all polytabloids (2).
+Their coordinates sum to zero. Conversely, if $x_0+x_1+x_2=0$, then
+\[
+ (x_0,x_1,x_2)=x_1(e_1-e_0)+x_2(e_2-e_0),
+\]
+and both displayed differences are actual polytabloids. Hence
+\[
+ S^{(2,1)}_F=V:=\{x\in F^3:x_0+x_1+x_2=0\}. \tag{3}
+\]
+The proof establishes this equality and constructs the induced linear
+equivalence, with its equivariance under every permutation. The action is
+$(\rho(g)x)_i=x_{g^{-1}(i)}$.
+
+\textbf{A proper nonzero invariant line with no invariant complement.}
+In characteristic $3$, the line
+\[
+ C=F(1,1,1)\subset V
+\]
+is invariant and nonzero. It is proper: $e_2-e_0$ lies in $V$ but is not
+constant. Let $c=(012)$, put $R=\rho(c)$ and $N=R-I$.
+For $x\in V$,
+\[
+ Nx=(x_2-x_0,\ x_0-x_1,\ x_1-x_2).
+\]
+Its three entries are equal, using $x_0+x_1+x_2=0$ and $3=0$.
+Thus $N(V)\subseteq C$. Also $Rx=x$ forces all three coordinates of $x$
+to be equal, so $\ker N=C$.
+
+Suppose an $S_3$-invariant subspace $W$ complemented $C$. For $w\in W$,
+$Nw\in W$ by invariance and $Nw\in C$ by the preceding calculation.
+Since $C\cap W=0$, we have $Nw=0$. Therefore $W\subseteq\ker N=C$, whence
+$W=0$. This contradicts $C+W=V$ because $C$ is proper. There is no invariant
+complement to $C$, so $V$, and hence the actual Specht module (3), is
+\emph{not semisimple as an $F[S_3]$-module}.
+
+\textbf{Formal coverage and conclusions.}
+The Lean development uses native Young diagrams, their actual finite cell sets,
+row-equivalence quotient tabloids, permutation sign, the full signed column sum,
+polytabloid span and an explicit $S_3$-equivariant augmentation equivalence.
+The invariant-line obstruction is stated with
+\texttt{Representation.IsSemisimpleRepresentation} and transferred to the
+native \texttt{IsSemisimpleModule} for the group algebra.
+Semisimplicity of the underlying $F$-vector space is not the assertion used.
+The separate rim-hook development proves core uniqueness and the real maximum
+chain count, then supplies the printed size and weight inequalities.
+
+Together, these calculations give a counterexample under the stated standard
+block-weight interpretation at $(p,n)=(3,3)$. They refute the source's printed
+definition-based assertion and its proposed lower size for a first such
+counterexample. They neither classify all Specht modules nor modify the usual
+meaning or status of the decomposition-matrix James conjecture.
+
+The package pins Lean~4.33.0 and Mathlib
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}. Its evidence records the
+source-bound build, all-namespace ordinary \texttt{\#print axioms} audit and
+official fresh-kernel replay. No admitted proofs, extra axioms or
+\texttt{native\_decide} are used. Production timings are not controlled
+efficiency measurements.
+
+\begin{thebibliography}{9}
+\bibitem{jiang} Y. Jiang, \emph{On some trivial source Specht modules},
+\href{https://arxiv.org/abs/1812.07882}{arXiv:1812.07882}, v2 (2021),
+printed pp.~5--6 (core, weight, restricted partitions and Specht modules).
+\bibitem{specht} M. Fayers, \emph{On the structure of Specht modules},
+J. London Math. Soc. \textbf{67} (2003), 85--102.
+\href{https://doi.org/10.1112/S0024610702003824}{doi:10.1112/S0024610702003824},
+printed p.~1 of the author's manuscript (tabloids and column antisymmetrizer).
+\bibitem{james} M. Fayers, \emph{James's Conjecture holds for weight four blocks
+of Iwahori--Hecke algebras}, J. Algebra \textbf{317} (2007), 593--633.
+\href{https://webspace.maths.qmul.ac.uk/m.fayers/papers/jcwt4.pdf}{Author's manuscript},
+printed p.~1 (decomposition/adjustment-matrix scope).
+\end{thebibliography}
+\end{document}
