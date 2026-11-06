@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000001363
+
+**English.** Definition: The universal countable Borel equivalence relation E_∞. Conjecture: Among the classes realized by actions of locally finite groups on which E_∞ is realized, the minimal group is Thompson's V (minimization of local finiteness degree).
+
+**中文。** 定义：万能可数 Borel 等价关系 E_∞。猜想：E_∞ 在 ℓ-局部有限群作用下实现的类中,最小群为 Thompson V(局部有限度最小化)。
