@@ -1,0 +1,25 @@
+# Parent adversarial review: conjecture 00000006640
+
+Verdict: PASS
+
+I read both exact source languages, the entire Lean development, the full paper and the author self-review. The source requests an explicit master-equation pair with the same static solution set and different time spectra. It imposes no identification under rescaling time and no additional nonlinear or infinite-state requirement. The fixed-time, two-state continuous-time example therefore satisfies the literal existence claim. The paper openly states this convention. Its symmetric generators and common positive detailed-balance vector also address the source's time-symmetry language in the standard reversible Markov sense; no claim of invariance under replacing t by -t is made.
+
+The objects are actual real matrices indexed by Fin 2. IsGenerator checks every off-diagonal entry and column sum in the stated column-vector convention. Probability includes nonnegativity and normalization, while Static is defined by actual matrix-vector multiplication. For any nonzero rate, static_iff proves the stationary probability set is precisely the common uniform vector. kernel_iff identifies the whole unnormalized nullspace as well. Thus the equality is neither a comparison of assigned names nor a restriction that hides other static solutions.
+
+I checked the spectral bridge carefully. Both formulas use Mathlib's spectrum over the real matrix algebra. Membership reduces to failure of invertibility, then to a zero determinant. The determinants are proved to equal mu*(mu+2*r) and (mu-1)*(mu-exp(-2*r*t)), respectively. No list of intended eigenvalues is assumed. For rates one and two, -2 witnesses the generator-spectrum inequality. At any positive time, exp(-2*t) belongs to the first propagation spectrum and equals neither one nor exp(-4*t), by exponential injectivity and strict positivity of time. The exclusion of time zero is necessary and explicit.
+
+The displayed propagators are connected to genuine dynamics. transition_zero proves the identity initial value, transition_add proves the semigroup law from the real exponential addition formula, and the nonnegative-time entry bounds plus column-sum identities prove stochasticity. transition_master uses actual HasDerivAt statements for all matrix entries and establishes P'=QP. flow_master then proves the master equation for every initial vector; flow_initial and flow_probability verify the initial condition and preservation of probability. transition_uniform verifies the same equilibrium at all times. These checks justify calling the explicit matrices fundamental solutions without needing a general ODE uniqueness theorem or a general matrix-exponential theorem.
+
+The final SeparationClaim quantifies over actual generators, time-dependent propagators and a common probability vector. It includes both MasterSystem predicates, detailed balance, equality of normalized static sets, equality of full kernels and both spectral differences, with the propagator inequality universal over positive times. constructed_master_system supplies every required generator, symmetry, semigroup, stochasticity and derivative property. This is the complete source existence statement with additional verified properties, not only a numerical consequence. The paper labels the eigenvector explanation as supplementary to the determinant proof and accurately states the formal scope.
+
+I opened the cited author-hosted Norris book page and checked that Chapter 2 covers Q-matrices, exponentials and forward/backward equations. The mathematical argument itself is self-contained and does not depend on a quoted theorem from that page. The rates differ by a common scalar, which is fully disclosed and permitted by the source's fixed time comparison.
+
+The frozen mathematical source passed a separate fresh-directory lake build and strict Lean invocation with warnings as errors. The main theorem and three flow/spectrum bridge audits report only propext, Classical.choice and Quot.sound. The pinned dependencies and their tracked-source cleanliness are recorded. There are no placeholders or custom axioms. Native compilation of the final saved TeX succeeded. After a layout-only paragraph revision, I inspected all three final PDF pages: the complete theorem, explicit matrices, kernel and determinant calculations, differential equation, semigroup proof, formal scope, source provenance and reproduction instructions are legible and unclipped, with no overlaps, missing symbols or remaining compiler warnings. The layout edit left all validated Lean source hashes unchanged. This is delegated AI author development with separate parent adversarial review; no external independent approval is claimed.
+
+
+Reviewed artifact hashes:
+
+- Main.lean: `aa408eca5afae0053ef184bca83a268f22565de36f99cd6be81536ca367ea853`
+- main.tex: `537f436c10129783eac19c95cd0dff661084ef83c82f33b80182365a41b89763`
+- main.pdf: `2934956d48c25d300f360c846cc5d08f1c2058ac695d9c8e81cae7bbe4c87f40`
+- SOURCE.md: `e621af45a6d89f6bdf3b2a6d10a744aa35cd110fe060c378e11f34123a73369c`
