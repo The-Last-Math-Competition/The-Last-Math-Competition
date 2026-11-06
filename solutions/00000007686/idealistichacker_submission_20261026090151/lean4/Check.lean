@@ -1,0 +1,68 @@
+import Main
+
+#check Gaussian7686.gaussian_zero_column
+#print axioms Gaussian7686.gaussian_zero_column
+#check Gaussian7686.gaussian_pascal
+#print axioms Gaussian7686.gaussian_pascal
+#check Gaussian7686.gaussian_eval_one
+#print axioms Gaussian7686.gaussian_eval_one
+#check Gaussian7686.coefficientSum_eq_eval
+#print axioms Gaussian7686.coefficientSum_eq_eval
+#check Gaussian7686.coefficientSequence_eq_centralBinom
+#print axioms Gaussian7686.coefficientSequence_eq_centralBinom
+#check Gaussian7686.coefficientSequence_strictMono
+#print axioms Gaussian7686.coefficientSequence_strictMono
+#check Gaussian7686.coefficientSequence_not_eventuallyPeriodic
+#print axioms Gaussian7686.coefficientSequence_not_eventuallyPeriodic
+#check Gaussian7686.atOne_constant_iff
+#print axioms Gaussian7686.atOne_constant_iff
+#check Gaussian7686.atOne_poly_constant
+#print axioms Gaussian7686.atOne_poly_constant
+#check Gaussian7686.constantClass_eq_iff
+#print axioms Gaussian7686.constantClass_eq_iff
+#check Gaussian7686.constantClass_not_eventuallyPeriodic
+#print axioms Gaussian7686.constantClass_not_eventuallyPeriodic
+#check Gaussian7686.gaussian_above
+#print axioms Gaussian7686.gaussian_above
+#check Gaussian7686.gaussian_diagonal
+#print axioms Gaussian7686.gaussian_diagonal
+#check Gaussian7686.gaussian_characterization_unique
+#print axioms Gaussian7686.gaussian_characterization_unique
+#check Gaussian7686.generatedAtOne_X
+#print axioms Gaussian7686.generatedAtOne_X
+#check Gaussian7686.generatedAtOne_poly_constant
+#print axioms Gaussian7686.generatedAtOne_poly_constant
+#check Gaussian7686.generatedAtOne_implies_kernel
+#print axioms Gaussian7686.generatedAtOne_implies_kernel
+#check Gaussian7686.generatedAtOne_eq_kernel
+#print axioms Gaussian7686.generatedAtOne_eq_kernel
+#check ModThree7686.centralBinom_lucas_mod_three
+#print axioms ModThree7686.centralBinom_lucas_mod_three
+#check ModThree7686.centralBinom_three_mul_mod_three
+#print axioms ModThree7686.centralBinom_three_mul_mod_three
+#check ModThree7686.centralBinom_three_mul_add_one_mod_three
+#print axioms ModThree7686.centralBinom_three_mul_add_one_mod_three
+#check ModThree7686.centralBinom_three_mul_add_two_mod_three
+#print axioms ModThree7686.centralBinom_three_mul_add_two_mod_three
+#check ModThree7686.centralBinom_mod_three_zero_of_div
+#print axioms ModThree7686.centralBinom_mod_three_zero_of_div
+#check ModThree7686.centralBinom_three_pow_mod_three
+#print axioms ModThree7686.centralBinom_three_pow_mod_three
+#check ModThree7686.centralBinom_mod_three_zero_block
+#print axioms ModThree7686.centralBinom_mod_three_zero_block
+#check ModThree7686.centralBinom_mod_three_period_obstruction
+#print axioms ModThree7686.centralBinom_mod_three_period_obstruction
+#check ModThree7686.centralBinom_mod_three_not_eventually_periodic
+#print axioms ModThree7686.centralBinom_mod_three_not_eventually_periodic
+#check Gaussian7686.modularClass_eq_iff
+#print axioms Gaussian7686.modularClass_eq_iff
+#check Gaussian7686.modularClass_not_eventuallyPeriodic
+#print axioms Gaussian7686.modularClass_not_eventuallyPeriodic
+#check Gaussian7686.reducedGaussian_eval_one
+#print axioms Gaussian7686.reducedGaussian_eval_one
+#check Gaussian7686.reducedGaussianClass_eq_modularClass
+#print axioms Gaussian7686.reducedGaussianClass_eq_modularClass
+#check Gaussian7686.reducedGaussianClass_not_eventuallyPeriodic
+#print axioms Gaussian7686.reducedGaussianClass_not_eventuallyPeriodic
+#check Gaussian7686.source_k_one_not_periodic
+#print axioms Gaussian7686.source_k_one_not_periodic
