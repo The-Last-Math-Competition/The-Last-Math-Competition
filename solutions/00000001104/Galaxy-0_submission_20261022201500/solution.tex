@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\newtheorem{proposition}{Proposition}
+\newcommand{\elln}{\ell}
+\title{A finite type $A_4$ counterexample to conjecture 1104}
+\author{Galaxy-0}
+\date{22 October 2026}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+euler.map}
+\pdfmapfile{+latxfont.map}
+\begin{document}
+\maketitle
+\begin{abstract}
+The universal monicity assertion is already false for the empty parabolic subset in $S_5$: $P_{12345,34512}(q)=1+2q$. We give the reduction to the ordinary case, the exact recurrence used for a Lean kernel-checked computation, and the scope of the formal verification. This is a verification of a known counterexample, not a claim to a new result about Kazhdan--Lusztig theory.
+\end{abstract}
+\section{Counterexample and scope of the statement}
+Conjecture 1104 asserts monicity for every Coxeter system and every parabolic subset $I$, subject to a stated exceptional situation involving affine $A_1$. Let
+\[
+ W=S_5,\quad S=\{s_1,s_2,s_3,s_4\},\quad I=\varnothing,
+ \quad x=12345,\quad w=34512.
+\]
+Here $s_i=(i,i+1)$ and one-line notation lists the images of $1,\ldots,5$. Right multiplication by $s_i$ swaps positions $i$ and $i+1$. The parabolic subgroup $W_I$ is trivial, and every element of $W$ is a minimal coset representative. For the empty parabolic subset the parabolic Hecke module is the ordinary Hecke algebra; hence the parabolic Kazhdan--Lusztig polynomials are the ordinary ones. In particular, the two standard choices of parabolic parameter cause no ambiguity when $I=\varnothing$.
+
+\begin{proposition}
+In this example $P^\varnothing_{x,w}(q)=1+2q$. Thus its leading coefficient is $2$, not $1$.
+\end{proposition}
+\begin{proof}
+The ordinary calculation $P_{12345,34512}(q)=1+2q$ appears explicitly in Woo's Example 1.3, page 894 \cite{woo}. Below we also specify and kernel-check a finite recurrence calculation of the same polynomial. The empty-parabolic identification gives the asserted parabolic value. Its degree is one, and its coefficient of $q$ is two. Finally, the trivial group $W_I$ contains no affine $A_1$ subgroup: affine $A_1$ is infinite, whereas $W_I$ has one element. This example is therefore outside the proposed exception, and disproves the universal assertion as written.
+\end{proof}
+No restriction that $I$ be nonempty occurs in the original conjecture. This argument does not claim to settle a different conjecture with such a restriction.
+
+\section{Exact finite calculation}
+For $u,v\in S_5$, use the inversion count for $\elln(v)$ and the rank criterion for Bruhat order. Equivalently, $u\leq v$ means that, for each prefix length $a$ and threshold $b$, the number of entries at least $b$ in the prefix of $u$ is at most the corresponding number for $v$. This is the complement form of the rank convention in \cite[Section 2.1]{woo}.
+
+We use $P_{u,v}=0$ when $u\not\leq v$ and $P_{v,v}=1$. For $u<v$, choose the first right descent $s$ of $v$, put $t=vs$, and put $c=1$ if $us<u$, otherwise $c=0$. The standard right-descent recurrence \cite[Theorem 5.1.7]{bb} is
+\begin{align*}
+ P_{u,v}={}&q^{1-c}P_{us,t}+q^cP_{u,t}\\
+ &-\sum_{\substack{u\leq z<t,\ zs<z\\\elln(t)-\elln(z)\text{ odd}}}
+ \mu(z,t)q^{(\elln(v)-\elln(z))/2}P_{u,z},
+\end{align*}
+where
+\[
+ \mu(z,t)=[q^{(\elln(t)-\elln(z)-1)/2}]P_{z,t}.
+\]
+Every polynomial on the right has strictly shorter second index. For the witness, $\elln(w)=6$, $s=s_3$, $t=34152$, and $xs=12435$. The recursive calculation gives
+\[
+ P_{12435,34152}=1,\qquad P_{12345,34152}=1+q,
+\]
+and every correction coefficient in the displayed sum is zero. Therefore the last step is $q+(1+q)=1+2q$.
+
+The supplied \texttt{Main.lean} enumerates all 120 permutations, checks their lengths, checks that the rows are distinct valid permutations, and verifies that the selected descent strictly decreases length. As there are exactly $5!=120$ permutations on five letters, these row checks also justify the exhaustive summation mathematically. No polynomial output table is used: the polynomial is computed from the recurrence.
+
+\section{Formal verification boundary}
+Polynomials are represented by integer coefficient lists in ascending degree order. The output \texttt{[1,2,0]} represents $1+2q$; the trailing zero has no effect on monicity. The predicate \texttt{monic} removes trailing zeros before reading the leading coefficient.
+
+To make reduction executable in the kernel, \texttt{fuel} iterates one recurrence step. This is not an unverified truncation: \texttt{step\_congr} proves that a step depends only on strictly shorter second indices; \texttt{fuel\_next} and \texttt{fuel\_above} prove stability at the actual length. Thus \texttt{kl\_recurrence} proves that \texttt{kl u v = fuel (len v) u v} satisfies the full recurrence. \texttt{recurrence\_unique} proves uniqueness. The final computed equality and nonmonicity theorem are checked by Lean's ordinary kernel, without \texttt{native\_decide}, admission, an added axiom, or an unchecked external evaluator.
+
+The formal development verifies the finite permutation representation, the stated recurrence, its well-founded adequacy and uniqueness, and the counterexample for that recurrence. It does not reconstruct the abstract Hecke algebra or formally prove the general theorem identifying its canonical-basis coefficients with this recurrence, nor formalize parabolic induction or affine Coxeter groups. Those identifications are the explicit mathematical argument above and the standard cited theorem, not hidden axioms in the Lean code. The independently implemented Python $R$-polynomial calculation is supplementary evidence, not a substitute for the Lean proof.
+
+\begin{thebibliography}{9}
+\bibitem{woo} A. Woo, \emph{Permutations with Kazhdan--Lusztig polynomial $P_{\mathrm{id},w}(q)=1+q^h$}, DMTCS Proceedings AK (FPSAC 2009), 893--902. Example 1.3 and Section 2.1. DOI: \href{https://doi.org/10.46298/dmtcs.2705}{10.46298/dmtcs.2705}. \href{https://dmtcs.episciences.org/en/articles/2705/download}{Author's paper}.
+\bibitem{bb} A. Bj\"orner and F. Brenti, \emph{Combinatorics of Coxeter Groups}, Graduate Texts in Mathematics 231, Springer, 2005. Theorems 5.1.4 and 5.1.7, pp. 133--136. \href{https://sites.math.washington.edu/~billey/classes/reflection.groups/references/EntireBook.pdf}{University-hosted book}.
+\end{thebibliography}
+\end{document}
