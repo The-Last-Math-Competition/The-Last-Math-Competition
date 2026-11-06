@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001149: an impossible norm for a Gaussian coefficient}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{22 October 2026}
+\begin{document}
+\maketitle
+\section{The necessary condition already fails}
+The conjecture asks for a $p$-adically convergent series whose $m$th
+term is a $q$-binomial coefficient with absolute value $p^{-m/2}$,
+for coprime minimal-model parameters $p,q$.
+Take $p=2$ and $q=5$. These satisfy $2\leq p<q$ and
+$\gcd(p,q)=1$. Regardless of which fusion coefficient is to be
+represented, the term with $m=1$ would have to satisfy
+\[
+ |a_1|_2=2^{-1/2}.
+\]
+This is impossible for any $a_1\in\mathbf Q_2$, hence in particular
+for a Gaussian coefficient at the integer parameter $q=5$.
+The argument applies whether the series is numbered from zero or one,
+since both conventions include the term indexed by one.
+
+Indeed, every nonzero $x\in\mathbf Q_2$ has an integer valuation
+$v_2(x)$ and $|x|_2=2^{-v_2(x)}$. If this were $2^{-1/2}$,
+injectivity of the real exponential with base $2$ would give
+$2v_2(x)=1$, a contradiction. Zero also cannot have that norm.
+Thus no sequence meeting the asserted termwise condition exists;
+questions about its convergence and its sum do not arise.
+
+\section{The coefficients are actual rational expressions}
+We use the standard Gaussian coefficient, not a free variable
+assigned a convenient type. In the notation of
+\href{https://dlmf.nist.gov/17.2.E27}{NIST DLMF, equation 17.2.27},
+\[
+ (q;q)_n=\prod_{j=0}^{n-1}(1-q^{j+1}),\qquad
+ \genfrac{[}{]}{0pt}{}{n}{k}_q=\frac{(q;q)_n}{(q;q)_k(q;q)_{n-k}}
+ \quad(0\leq k\leq n).
+\]
+At $q=5$ all factors in the denominator are nonzero rational
+numbers, so every displayed coefficient is rational. We set the
+coefficient to zero for $k>n$, which cannot help achieve the required
+nonzero norm either. Integrality of Gaussian coefficients is a
+stronger classical fact, but is unnecessary for this obstruction.
+
+The Lean source defines these finite products and quotients over
+$\mathbf Q$, proves their denominators nonzero, and maps the result
+into the actual field \texttt{Padic 2}. It also considers the canonical
+image in \texttt{PadicAlgCl 2}; the extended norm agrees with the
+$\mathbf Q_2$ norm. Therefore passing to the algebraic closure does
+not alter the norm of any of these coefficients.
+
+\newpage
+\section{Formal statement and scope}
+\texttt{no\_half\_integral\_norm} proves the obstruction for every
+element of $\mathbf Q_2$. The Gaussian-coefficient definitions then
+give \texttt{gaussianPadic\_ne\_half\_norm} and its algebraic-closure
+version. Finally, \texttt{no\_requested\_gaussian\_series} quantifies
+over arbitrary natural-number upper and lower index sequences
+$n(m),k(m)$ and rules out the required norm law for all $m\geq1$.
+The theorem \texttt{counterexample} combines this with the explicit
+legal parameter check for $(2,5)$.
+
+This disproves a necessary clause of the question as printed.
+Here $q$ is the integer minimal-model parameter appearing in the
+same statement, and the coefficients are the standard, unscaled
+Gaussian coefficients. In conformal-field-theory literature the
+letter $q$ may instead denote a separate nome. That alternative
+parameter convention is not specified in this question and is
+not asserted to be covered by this argument.
+It neither defines nor evaluates the Virasoro fusion coefficients,
+and makes no claim about a modified norm law, a different meaning
+of a generalized $q$-binomial coefficient, or arbitrary algebraic
+numbers outside the rational-coefficient image. The obstruction
+does not assert that $2^{-1/2}$ is absent from the norm-value set of
+the entire algebraic closure.
+
+\section{Verification and provenance}
+The accompanying project pins Lean 4.33.0 and Mathlib commit
+\[
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\]
+The source-bound build, transitive axiom audit and official fresh
+kernel replay are recorded in the package evidence. No
+\texttt{sorry}, \texttt{native\_decide}, or extra axiom is used.
+The source statement is preserved at its upstream commit in
+\texttt{SOURCE.md}. OpenAI Codex assisted the proof and report;
+a separate supervising Codex agent reviewed the formal chain.
+This is AI review, not human certification. Organizer acceptance
+is pending.
+\end{document}
