@@ -1,0 +1,115 @@
+\pdfoutput=1
+\pdfmapfile{+lm.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+symbols.map}
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue}
+\newtheorem{proposition}{Proposition}
+\title{Conjecture 00000004993:\\Odd attainable values cannot have minimum 1186}
+\author{Galaxy-0 \quad (AI-assisted submission)}
+\date{25 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The conjecture as printed is false because two of its explicit clauses are
+incompatible: every attainable third Betti number is odd, while the minimum
+attainable third Betti number is 1186. We give a universal arithmetic proof,
+formalized in Lean 4, which does not require constructing a manifold or assuming
+that any claimed geometric example exists. We do not determine which geometric
+claim should be corrected, and we do not settle a corrected conjecture.
+\end{abstract}
+
+\section{The exact assertion being disproved}
+Let $\mathcal M$ denote the intended class of compact eight-dimensional manifolds
+with holonomy contained in $\operatorname{Spin}(7)$ and with $b_1=b_2=0$. Let
+\[
+ A=\{b_3(X):X\in\mathcal M\}\subseteq\mathbb N.
+\]
+The original English statement asserts that the attainable $b_3$ values form
+``an explicit set of odd values'', and that ``the minimal attainable value is
+the 1186 of the known example'' [1]. The Chinese statement likewise says that
+this is an odd-number set and that the least attainable value is 1186.
+Consequently the printed assertion entails both
+\begin{align}
+ &\forall n\in A,\ \exists k\in\mathbb N,\ n=2k+1, \label{eq:odd}\\
+ &1186\in A\quad\text{and}\quad\forall n\in A,\ 1186\le n. \label{eq:min}
+\end{align}
+Here ``minimum attainable value'' has its ordinary meaning: a minimum is a
+member of the set, not merely a lower bound or an unattained infimum. In fact,
+the explicit claim of a known example with that value already entails the
+membership needed below.
+
+\section{Universal contradiction}
+\begin{proposition}
+For every subset $A\subseteq\mathbb N$, statements \eqref{eq:odd} and
+\eqref{eq:min} cannot both hold.
+\end{proposition}
+\begin{proof}
+By \eqref{eq:min}, $1186\in A$. By \eqref{eq:odd}, there is a natural number $k$
+such that $1186=2k+1$. But $1186=2\cdot593$ is even, whereas $2k+1$ is odd.
+Equivalently, $2\cdot593=2k+1$ has no solution in natural numbers. This is a
+contradiction.
+\end{proof}
+
+The lower-bound half of the minimum assertion is not needed, so the result is
+stronger than necessary. Nor can the additional claims about twist-sum
+realizations or the parity of $b_3+b_4$ repair an inconsistent conjunction.
+If $\mathcal M$ were empty, the minimum assertion would already be false; if
+it were nonempty, the same universal argument applies. No independent
+existence theorem is being silently assumed.
+
+\section{Formal verification and semantic coverage}
+The dependency-free Lean 4.31.0 project defines
+\begin{itemize}
+\item \texttt{IsOdd n} as $\exists k:\mathbb N,\ n=2k+1$;
+\item \texttt{IsMinimum A m} as membership $A(m)$ together with the ordinary
+lower-bound property;
+\item \texttt{PrintedArithmeticClauses A} as the conjunction of all-values-odd
+and minimum 1186.
+\end{itemize}
+The theorem \texttt{TLMC4993.disproof} proves the negation for \emph{every}
+predicate $A:\mathbb N\to\mathrm{Prop}$. This universal quantification is
+important: the proof does not replace geometric attainability by an invented
+set. It applies to whichever predicate the intended geometry actually defines.
+
+The theorem \texttt{geometric\_form\_impossible} explicitly constructs
+attainability from an arbitrary type of objects, an admissibility predicate,
+and natural-valued maps $b_3,b_4$. It refutes the conjunction of odd $b_3$ for
+all admissible objects, minimum attainable $b_3=1186$, and odd $b_3+b_4$ for all
+admissible objects. The theorem \texttt{claimed\_example\_impossible} checks the
+still weaker contradiction between universal oddness and a claimed 1186 example.
+
+Actual clean Lake compilation, separate warning-strict source compilation with
+trust level zero, a complete named-theorem axiom audit, and standalone
+\texttt{leanchecker} replay are recorded with the submission. The only axioms
+reported are the standard Lean foundational axioms \texttt{propext} and
+\texttt{Quot.sound}; there are no additional assumptions or custom axioms.
+No \texttt{sorry}, \texttt{native\_decide}, or kernel bypass is used.
+
+\section{Limitations and interpretation}
+This is a disproof of the printed conjunction, not a new geometric
+classification. We do not identify the actual attainable Betti numbers, verify
+the purported known example, evaluate the twist-sum description, or separately
+prove or refute the $b_3+b_4$ parity clause. The numerical value or the word
+``odd'' may be a typo, but replacing either would change the problem. This
+submission does not assert that any such repaired statement is false. The
+competition explicitly allows a disproof, and its rules require semantic
+agreement with the stated conjecture [2]; both language versions contain the
+same contradiction.
+
+\section*{References}
+\begin{enumerate}
+\item The Last Math Competition, original conjecture 00000004993,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000004993.md}{Original bilingual problem (GitHub)}.
+Accessed 25 October 2026; a verbatim bilingual copy is included as
+\texttt{original-statement.md}.
+\item The Last Math Competition, solver and reviewer rules,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/README.md}{Competition rules (GitHub)}.
+Accessed 25 October 2026.
+\end{enumerate}
+\end{document}
