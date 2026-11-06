@@ -1,0 +1,95 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\newcommand{\Qp}{\mathbb{Q}_5}\newcommand{\Zp}{\mathbb{Z}_5}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000002692: a contraction with empty basin boundary}
+
+lizaixi01 \quad AI-led research and formalization \quad 23 October 2026
+\end{center}
+\textbf{Result and scope.} The stated boundary identity is false for the polynomial
+\[
+f(x)=5x.
+\]
+We use the usual convergence basin of the attracting fixed point $0$,
+\[
+\mathcal A_X(0)=\{x\in X:f^n(x)\longrightarrow0\},
+\qquad X=\Qp\ \text{or}\ \Zp.
+\]
+This definition includes the fixed point itself, whose constant orbit converges to it. It directly implements the source's definition through iterative convergence on $p$-adic balls. We prove that the basin is the whole phase space, the periodic-point set is exactly $\{0\}$, and the basin boundary is empty. The unit-ball version also has empty boundary in the ambient field, so either the relative or the ambient topology gives the same counterexample.
+
+Only the boundary clause is needed: the conjecture asserts a measure formula \emph{and} this boundary identity, so a counterexample to the latter refutes the conjunction. We do not assign a multiplicative order to a nonunit residue, or claim a disproof of a separately repaired measure-only statement. There is no printed degree-at-least-two or invertible-multiplier hypothesis. The linear polynomial used here is nonconstant, has nonzero derivative, and is a genuine strict contraction.
+
+\section*{1. A genuine $5$-adic attracting system}
+Normalize the absolute value by $|5|_5=1/5$. The polynomial belongs to both $\Qp[T]$ and $\Zp[T]$. Its derivative is $f'(x)=5\ne0$, in particular $|f'(0)|_5<1$. For all $x,y\in\Qp$,
+\[
+|f(x)-f(y)|_5=\tfrac15|x-y|_5.
+\]
+The same identity holds on $\Zp$, which is preserved by $f$. Thus both actual maps are contractions, with an attracting fixed point at $0$.
+
+Induction gives $f^n(x)=5^n x$. Since $(1/5)^n|x|_5\to0$, every orbit converges to $0$. Consequently
+\[
+\mathcal A_{\Qp}(0)=\Qp,\qquad
+\mathcal A_{\Zp}(0)=\Zp.
+\]
+Lean proves the actual iterate formula and convergence for multiplication by any element of norm less than one in a normed ring, and then specializes to Mathlib's actual types \texttt{Padic 5} and \texttt{PadicInt 5}. No finite residue-ring dynamics stands in for this convergence statement.
+
+\section*{2. All periodic points and the actual boundary}
+Suppose that $x$ is periodic with positive period $n$. Then $5^n x=x$, so
+\[
+|x|_5=|5^n x|_5=(1/5)^n|x|_5.
+\]
+Because $(1/5)^n<1$, this forces $|x|_5=0$, hence $x=0$. Conversely $0$ is fixed. Thus the complete set of periodic points, allowing every positive period, is
+\[
+\operatorname{Per}(f)=\{0\}.
+\]
+The singleton is closed in either metric space. Since the whole space has empty frontier,
+\[
+\partial_X\mathcal A_X(0)=\varnothing
+\quad\ne\quad
+\overline{\operatorname{Per}(f)}^{\,X}=\{0\}.
+\]
+This uses the topological frontier, not a selected norm shell. Lean uses the existing periodic-set definition,
+\[
+\texttt{Function.periodicPts},
+\]
+and the existing topological operations \texttt{frontier} and \texttt{closure}.
+
+\section*{3. The unit ball inside the field}
+Let $\iota:\Zp\hookrightarrow\Qp$ be the actual inclusion and set
+\[
+B=\{x\in\Qp:|x|_5\le1\}.
+\]
+The inclusion commutes with the two maps, and Lean proves
+\[
+\iota(\mathcal A_{\Zp}(0))=B.
+\]
+The ball $B$ is clopen for the non-Archimedean metric. Hence its ambient frontier is empty as well, whereas
+\[
+\overline{\iota(\operatorname{Per}(f|_{\Zp}))}^{\,\Qp}=\{0\}.
+\]
+This closes a possible distinction between computing the boundary in the ball and computing it in the ambient field. The standard identification of $\mathbb Z_p$ as the compact open unit ball of $\mathbb Q_p$ is also described in \cite{FL}, p.~2; the Lean proof uses the actual subtype and its norm property.
+
+For completeness, for every measure $\mu$ on the integer phase space, set equality gives
+\[
+\mu(\mathcal A_{\Zp}(0))=\mu(\Zp).
+\]
+No normalization, numerical basin-volume formula, or order of $5\bmod5$ is assumed. If normalized Haar measure is chosen, this simply says that the basin has the full unit-ball mass. The argument does not replace the basin by its punctured version $\mathcal A_X(0)\setminus\{0\}$; that is a different set and is not the convergence basin defined above.
+
+\section*{4. Correction and attribution of the earlier submission}
+Closed PR~\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/276}{276} proposed $5x+x^2$ on $\Zp$. The maintainer's \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/276\#issuecomment-5965086534}{review} rejected its Lean proof because it formalized only elementary integer arithmetic and finitely many evaluations modulo $25$, with none of the actual basin, measure, boundary, or periodic-point objects. Such computations do not establish $5$-adic convergence or quantify all positive periods.
+
+There was also a mathematical boundary error in its prose: the claimed basin $5\Zp$ is clopen, so the shell $5\Zp\setminus25\Zp$ is not its topological boundary. Mapping that shell to $0$ \emph{modulo $25$} does not mean mapping it to $0$ in $\Zp$; for example $(5x+x^2)|_{x=5}=50\ne0$. An undefined multiplicative order of $0\bmod5$ is not assigned a numerical denominator here. The present proof uses a simpler nonzero linear multiplier and replaces every required dynamical and topological step with a theorem about the actual $5$-adic objects. It does not rely on, or resubmit, the earlier finite computation.
+
+\section*{5. Formal verification}
+The pinned Lean project includes the complete proof, an audit of every named declaration, and source-bound build and full fresh-kernel receipts. There is no \texttt{sorry}, \texttt{native\_decide}, or additional axiom. The only admitted foundational dependencies are the standard \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}, when used. The actual polynomial evaluation, nonzero derivative, strict contraction, convergence basin, full periodic set, relative boundary, and ambient unit-ball boundary are formalized.
+
+The complete original bilingual source is preserved in \texttt{SOURCE.md}. Worker and supervising AI review the mathematical scope and rendered pages; organizer acceptance is not asserted. The external reference is used only for the standard unit-ball convention, not for its later degree-at-least-two decomposition theorem. This result is selective production and supplies no new controlled efficiency measurement.
+
+\begin{thebibliography}{1}
+\bibitem{FL} S.~Fan and L.~Liao, \emph{Dynamics of the square mapping on the ring of $p$-adic integers}, arXiv:1408.4574, 2014, p.~2. \href{https://arxiv.org/abs/1408.4574}{arXiv record}.
+\end{thebibliography}
+\end{document}
