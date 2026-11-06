@@ -1,0 +1,236 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Critical sparse random graphs violate a forest axiom\newline
+\large Disproof of Conjecture 00000005029}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+For every $n$ divisible by three, the genuine random
+graph $G(n,1/n)$ contains a triangle with probability
+at least $1/50$. Thus a single first-order forest
+axiom, the absence of triangles, has probability at
+most $49/50$ on an unbounded sequence of sizes. It
+cannot belong to the asserted almost-sure forest
+limiting theory. The proof uses actual independent
+edge probabilities and an elementary ordered-pair
+Bonferroni bound; no Poisson limit or random-graph
+asymptotic theorem is needed.
+\end{abstract}
+
+\section*{The sentence that must hold for a forest theory}
+In the language of simple graphs, consider
+\[
+ \varphi=\forall x\,\forall y\,\forall z\,
+       \neg\bigl(E(x,y)\wedge E(y,z)\wedge E(z,x)\bigr).
+\]
+The three adjacencies automatically force the vertices
+to be distinct, since the graph has no loops.
+Every forest satisfies this first-order sentence.
+If the forest axioms formed the limiting theory in
+the asserted sense, the probability of $\varphi$
+would tend to one.
+
+We bound this single sentence's probability directly.
+This avoids exchanging the limit with an infinite
+conjunction of all cycle exclusions. A bound for the
+actual forest event will also follow, but it is not
+needed for the sentence-level contradiction.
+
+\section*{The actual independent-edge model}
+Let $h\geq1$, put $n=3h$, and use vertices
+$\{0,1,2\}\times\{0,\ldots,h-1\}$. Each unordered
+pair of distinct vertices is independently present
+with probability $p=1/n$. This is exactly $G(n,1/n)$,
+the source's $c=1$ model. No conditioning is imposed.
+
+For an explicit finite construction, choose for every
+unordered pair an independent uniform label in
+$\{0,\ldots,n-1\}$ and retain the edge precisely
+when the label is zero. An arbitrary finite prescribed
+pattern of present and absent edges then has probability
+$p^{a}(1-p)^{b}$, where $a,b$ count its present and
+absent entries. The Lean project proves this complete
+pattern formula for the actual mapped graph PMF.
+
+\newpage
+\section*{Triangles in three vertex blocks}
+For each triple $t=(a,b,c)$ with one vertex in each
+of the three blocks, let $E_t$ mean that its three
+actual edges are present. There are $h^3$ triples.
+The edges are distinct, so independence gives
+\[
+               \Pr(E_t)=p^3,
+           \qquad \sum_t\Pr(E_t)=h^3(3h)^{-3}=\frac1{27}.
+\]
+Two distinct selected triangles can share at most
+one edge. If they share an edge, their union has
+five distinct edges and their joint probability is
+$p^5$. Otherwise the union has six edges and the
+joint probability is $p^6$, even when a vertex is shared.
+
+There are at most $h^6$ ordered pairs of triangles
+of the latter kind. For shared edges, overcount
+separately by each of the three block-pair types.
+Sharing an edge fixes the same two corresponding
+coordinates in the two triples. Choosing those two
+coordinates and the two remaining coordinates
+leaves $h^4$ possibilities. Thus there are at most
+$3h^4$ ordered pairs sharing an edge. Harmless
+overcounts, including identical triples in this
+counting bound, only increase the upper estimate.
+It follows that
+\[
+ \sum_{t\ne s}\Pr(E_t\cap E_s)
+       \leq h^6p^6+3h^4p^5
+       =\frac1{729}+\frac1{81h}.
+\]
+All sums here count ordered pairs, not unordered pairs.
+
+\section*{An ordered-pair Bonferroni lower bound}
+For any finite family of events, the deliberately
+weakened second Bonferroni inequality is
+\[
+ \Pr\Bigl(\bigcup_t E_t\Bigr)
+     \geq\sum_t\Pr(E_t)
+                  -\sum_{t\ne s}\Pr(E_t\cap E_s).
+\]
+To prove it pointwise, let $k$ be the number of events
+that occur. If $k=0$, all terms are zero. If $k\geq1$,
+then $k\leq1+k(k-1)$, so the sum of indicators is at
+most the union indicator plus the ordered distinct-pair
+indicator sum. Taking expectations gives the inequality.
+This intentionally subtracts both orientations; no
+factor $1/2$ is missing from the estimate being used.
+
+Combining the two bounds and $h\geq1$ gives
+\[
+ \Pr\Bigl(\bigcup_t E_t\Bigr)
+   \geq\frac1{27}-\frac1{729}-\frac1{81h}
+   \geq\frac{17}{729}>\frac1{50}.
+\]
+Every selected event witnesses a genuine triangle in
+the actual graph, so the same lower bound applies
+to the event that the graph has any triangle.
+
+\newpage
+\section*{The asymptotic contradiction}
+For every $h\geq1$, therefore,
+\[
+ \Pr\bigl(G(3h,1/(3h))\models\varphi\bigr)
+                    \leq\frac{49}{50}.
+\]
+The sizes $3h$ tend to infinity. If the full-size
+sentence probability tended to one, its restriction
+to this unbounded subsequence would also tend to one,
+contradicting the fixed upper bound.
+
+\begin{theorem}
+At critical sparsity $c=1$, the forest axioms cannot
+be the asserted almost-sure limiting theory of
+$G(n,c/n)$.
+\end{theorem}
+\begin{proof}
+The fixed first-order forest sentence $\varphi$ has
+probability at most $49/50$ along every size $n=3h$.
+It therefore fails the necessary probability-one
+limit for membership in that limiting theory.
+\end{proof}
+
+There is also a direct bound for the actual forest
+event. Three pairwise adjacent vertices produce a
+genuine closed walk of length three whose intermediate
+vertices are distinct. It is a cycle, so the graph
+is not acyclic. Consequently
+\[
+ \Pr\bigl(G(3h,1/(3h))\text{ is a forest}\bigr)
+       \leq\Pr\bigl(G(3h,1/(3h))\models\varphi\bigr)
+       \leq\frac{49}{50}.
+\]
+The Lean project proves this bridge using an actual
+Mathlib cyclic walk and its actual acyclicity predicate.
+It separately proves that neither probability tends
+to one and that the vertex cardinality tends to infinity.
+
+The source is a conjunction. The false critical
+forest-theory assertion suffices to refute it;
+the separate supercritical giant-component and
+quantifier-depth assertions are outside this submission.
+No claim that the full graph sequence lacks a
+probabilistic first-order convergence law is made.
+
+\section*{Independent exact checks}
+The accompanying \texttt{verify.py} enumerates all
+eight simple graphs on three vertices and all
+32,768 simple graphs on six vertices, weighting
+every edge subset by its exact $G(n,1/n)$ mass.
+It independently checks the triangle-event bound.
+For block sizes $1$ through $8$, it also enumerates
+all ordered selected-triangle pairs and verifies
+their five/six-edge union cases and exact overlap
+counts, using only integer and rational arithmetic.
+These are supplementary consistency checks; Lean
+proves the result for every positive block size.
+
+\newpage
+\section*{Formalization and reproducibility}
+The formal vertex set is
+$\operatorname{Fin}(3)\times\operatorname{Fin}(m+1)$,
+with its proved cardinality $3(m+1)$. Uniform assignments
+of labels to unordered pairs are mapped to genuine
+Mathlib simple graphs. Auxiliary diagonal coordinates
+do not affect this map: it explicitly forbids loops.
+Actual event probabilities are taken from the graph
+PMF, with a proved equality to normalized counting
+on its original sample space.
+
+The complete present/absent finite-edge pattern law
+is derived by counting allowed coordinate values.
+Each present coordinate has one allowed label; each
+absent coordinate has $n-1$. Normalizing their product
+proves the independent Bernoulli law on every actual
+nonloop edge family, rather than only on selected
+three-edge marginals.
+
+The selected triangle event uses its actual three
+unordered edges, proved distinct. Unequal triangle
+indices have union cardinality five or six by symbolic
+coordinate cases. The overlap counts are actual finite
+double sums, and the ordered-pair Bonferroni inequality
+is proved from genuine event indicators. These yield
+the actual graph triangle lower bound, the literal
+three-adjacency sentence bound and the forest bound.
+
+Lean formalizes the graph property that is exactly
+the semantics of the displayed sentence, not separate
+first-order syntax. The mathematical sentence-level
+argument is given above; it uses only that single
+necessary forest axiom, not an interchange of an
+infinite conjunction with probability limits.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Fresh-build logs, source and hashes are included.
+Printed dependencies contain only standard foundational
+axioms. Compile with \texttt{tectonic main.tex}.
+The author agent and parent reviewed the work internally;
+no external independent review is claimed. The parent
+developed the exact finite verifier separately.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000005029. Exact bilingual source included
+as \texttt{SOURCE.md}. The finite probability bound
+and its asymptotic implication are proved directly
+above and in the accompanying Lean project.
+\end{thebibliography}
+\end{document}
