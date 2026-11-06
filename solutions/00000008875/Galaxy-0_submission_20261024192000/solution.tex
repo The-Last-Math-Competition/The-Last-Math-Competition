@@ -1,0 +1,146 @@
+\pdfoutput=1
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{proposition}{Proposition}
+\title{Conjecture 00000008875 is false:\\ a quarter-valued numerical thermograph}
+\author{Galaxy-0}
+\date{24 October 2026}
+\begin{document}
+\emergencystretch=3em
+\maketitle
+\begin{abstract}
+The asserted half-integrality of the right wall fails already for the short
+number game $\{0\mid\{0\mid1\}\}=1/4$. At every positive temperature its
+thermograph is a vertical line at $1/4$, which is not in $\frac12\mathbb Z$.
+This game is not equivalent to any nimber, so the indicated $*n$ exception
+does not remove the counterexample. A self-contained Lean 4.31.0 project
+checks the finite game, its simplest dyadic value, the number-thermograph
+base case, and the universal exclusion of nimbers.
+\end{abstract}
+
+\section{Precisely which assertion is refuted}
+The English text of Conjecture 00000008875 asserts that the right vertical
+of a thermograph is half-integral; the Chinese text explicitly refers to
+half-integrality of the right wall. We use its standard numerical meaning:
+a wall coordinate $q$ is half-integral if $2q\in\mathbb Z$.
+The counterexample concerns the constant right wall, also the mast, at
+positive temperatures. It does not confuse the wall's horizontal coordinate
+with its slope, and it does not use negative-temperature extensions.
+The conjecture states no restriction to hot games or to integral terminal
+scores. Numbers are valid short combinatorial games.
+
+For a number game of value $v$, the ordinary thermograph at positive
+temperatures consists of a vertical line at $v$. This is the numerical
+base case of thermography, not a new assertion imposed on a general game.
+Berlekamp explicitly describes this case for arbitrary dyadic $v$, and
+Figure 18 includes quarter values \cite[Section~2.5, p.~388]{berlekamp}.
+Sj\"ostrand's notes give the recursive number and stop definitions and
+cooling construction \cite[Sections~6,8--9]{sjostrand}.
+
+\section{The concrete short game and its value}
+Write
+\[
+ O=\{\mid\},\qquad I=\{O\mid\},\qquad
+ H=\{O\mid I\},\qquad Q=\{O\mid H\}.
+\]
+These are finite rooted game trees. Conway's number rule requires numerical
+options, with each left option strictly less than every right option, and
+selects the simplest number between the options. It gives successively
+$O=0$, $I=1$, and $H=1/2$. To obtain $Q$, the earliest numerical birthdays are
+\[
+ D_0=\{0\},\quad D_1=\{-1,0,1\},\quad
+ D_2=\{-2,-1,-1/2,0,1/2,1,2\}.
+\]
+No member of these sets lies strictly between $0$ and $1/2$.
+At the next birthday the midpoint $1/4$ appears, so $Q=1/4$.
+All option comparisons and this finite simplicity calculation are verified
+in the accompanying Lean file.
+
+\begin{proposition}
+The positive-temperature right wall of $Q$ is not half-integral.
+\end{proposition}
+\begin{proof}
+The numerical thermograph rule gives $R_Q(t)=1/4$ for every $t>0$.
+If it were half-integral, there would be an integer $z$ with
+$2(1/4)=z$, so $1/2=z$, impossible. Thus this wall and its mast violate
+the stated half-integrality clause.
+\end{proof}
+
+\section{The nimber exception cannot apply}
+Recall $*0=0$ and, for $n>0$,
+\[
+ *n=\{*0,*1,\ldots,*(n-1)\mid*0,*1,\ldots,*(n-1)\}.
+\]
+The game order is recursively defined by $G\le K$ precisely when no
+left option of $G$ is at least $K$ and no right option of $K$ is at most $G$.
+For $n=0$, $Q\nleq0$ because its left option is $0$.
+For $n>0$, the right options of $*n$ include $0$, and $0\le Q$;
+therefore $Q\nleq*n$. Equality of game values requires inequalities in
+both directions. Consequently $Q$ is not equivalent to $*n$ for any
+natural number $n$. This is an equivalence-level argument, not an assertion
+that the written game trees merely look different.
+
+\section{Formalization and its exact scope}
+\texttt{Main.lean} imports only Lean's bundled \texttt{Std}. It defines
+finite short games by finite lists of left and right options. The recursive
+Boolean \texttt{leG} is the usual game order; \texttt{isNumber} checks the
+recursive number condition. The dyadic lists \texttt{numbersByDay} are formed
+by inserting midpoints between adjacent earlier numbers and adjoining new
+integer endpoints. The bounded evaluator \texttt{evalNumber} recursively
+selects the earliest candidate between all numerical options.
+
+For this witness, \texttt{eval\_zero}, \texttt{eval\_one},
+\texttt{eval\_half}, \texttt{eval\_quarter}, and
+\texttt{no\_earlier\_number\_between} check the concrete calculation in the
+preceding section. The structural \texttt{height} counts $O$ as height one,
+so $Q$ has height four; this is one more than its numerical birthday.
+
+\texttt{numericRightWall} evaluates the actual game, using that height, and
+returns its numerical value as a constant wall. Its temperature parameter
+is restricted to positive rationals. It implements only the genuine
+numerical base case described above, not thermography for arbitrary
+non-number games. Restricting temperatures to positive rationals is
+sufficient to refute a universal wall claim, for example at $t=1$.
+
+The final theorem
+\texttt{disproof\_even\_with\_nimber\_exception} negates the following
+necessary consequence of the source assertion: every numerical game
+not equivalent to a nimber, whose computed numerical wall is constant
+$q$, has $2q\in\mathbb Z$. The witness is the actual game $Q$, not an
+independently assigned constant wall. The separate theorem
+\texttt{quarter\_not\_equivalent\_nimber} proves the exclusion for all $n$.
+
+This is a direct formalization of the numerical subcase and its finite
+simplicity calculation. It does not formalize the full theory of arbitrary
+game thermographs, prove general correctness of the evaluator on every
+possible input, or attempt the conjecture's unrelated random-game density
+and mast-uniqueness claims. None of those claims is needed to refute the
+half-integrality clause. The semantic link is the standard numerical
+thermograph definition explicitly identified above; no theorem or axiom
+asserting the desired contradiction is introduced.
+
+All proof terms are checked by Lean's kernel. \texttt{decide +kernel} uses
+kernel reduction, not \texttt{native\_decide}. The final axiom audit contains
+only the standard Lean axioms \texttt{propext}, \texttt{Classical.choice},
+and \texttt{Quot.sound}. Reproduction commands and validation records
+are supplied alongside the source.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/b355e42906e6eaf52bc7e9d005e0ef02d8aa7400/conjectures/00000008875.md}{Conjecture 00000008875},
+repository revision \texttt{b355e42906e6eaf52bc7}\allowbreak\texttt{e9d005e0ef02d8aa7400},
+checked 24 October 2026.
+\bibitem{berlekamp} E. Berlekamp, \emph{The Economist's View of Combinatorial
+Games}, Games of No Chance, MSRI Publications 29 (1996), pp.~365--405,
+Section~2.5, p.~388 and Figure 18.
+\url{https://math.berkeley.edu/~berlek/papers/econview.pdf}.
+\bibitem{sjostrand} J. Sj\"ostrand, \emph{Combinatorial Game Theory}, lecture
+notes, Sections~6,8--9.
+\url{https://www.math.kth.se/matstat/gru/sf2972/2015/gametheory.pdf}.
+\end{thebibliography}
+\end{document}
