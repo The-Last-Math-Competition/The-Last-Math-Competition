@@ -1,0 +1,114 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000000642: the LKB determinant changes under stabilization}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The necessary determinant condition}
+The source says the LKB image is ``Markov-invariant at the determinant
+level.'' The ordinary, unnormalized determinant already fails this
+necessary condition. Work over the actual rational function field
+$K=\mathbf Q(q,t)$, with $q,t$ independent indeterminates. Under positive
+stabilization from two to three strands, the identity braid becomes
+$\sigma_2$. Their representation determinants are respectively
+\[
+ 1 \qquad\hbox{and}\qquad tq^3\ne1.
+\]
+Thus the stated conjunction is false under its literal determinant
+condition. No additional writhe correction or normalization is specified
+in the source. We make no claim about what an extra normalization could
+achieve, and do not separately settle its Jones-value or kernel assertions.
+
+\section{The standard fraction-field matrix model}
+Bigelow, \href{https://arxiv.org/abs/math/0204057}
+{\emph{The Lawrence--Krammer representation}}, Section 4.2, p.13,
+gives the Krammer generator action on the basis $F_{ij}$.
+He explicitly states that over $\mathbf Q(q,t)$ this model and the
+homological Lawrence--Krammer representation are isomorphic, hence
+conjugate as matrix representations. He also warns that their integral
+lattices need not be isomorphic. We stay over the generic fraction field
+throughout; we do not specialize the representation at numerical parameters.
+We use Bigelow's sign convention for $t$.
+
+In the ordered basis $(F_{12},F_{13},F_{23})$, his displayed action gives
+\[
+ A=\begin{pmatrix}-tq^2&0&q^2-q\\0&0&q\\0&1&1-q\end{pmatrix},\qquad
+ B=\begin{pmatrix}0&q&0\\1&1-q&0\\0&(1-q)qt&-tq^2\end{pmatrix}.
+\]
+For two strands, the single generator acts on $F_{12}$ by the
+$1\times1$ matrix $(-tq^2)$. Direct calculations, all checked in Lean,
+give
+\[
+ \det A=\det B=tq^3,\qquad ABA=BAB,\qquad \det(-tq^2)=-tq^2.
+\]
+Since $q,t\ne0$ in $K$, these matrices are invertible.
+Lean uses the genuine Artin presentations $B_2$ (one free generator)
+and $B_3=\langle\sigma_1,\sigma_2\mid
+\sigma_1\sigma_2\sigma_1=\sigma_2\sigma_1\sigma_2\rangle$.
+It proves the relation before constructing actual homomorphisms
+$\rho_2:B_2\to\mathrm{GL}_1(K)$ and
+$\rho_3:B_3\to\mathrm{GL}_3(K)$ by their universal properties.
+
+\newpage
+\section{A genuine elementary Markov move}
+The inclusion $\iota:B_2\to B_3$ adds a straight third strand, sending
+the first generator to $\sigma_1$. Positive stabilization is
+\[
+ b\longmapsto\iota(b)\sigma_2.
+\]
+This is the standard elementary Markov move: see Bigelow, Ramos and Yi,
+\href{https://web.math.ucsb.edu/~bigelow/publications/15.pdf}
+{\emph{The Alexander and Jones polynomials through representations of
+Rook algebras}}, printed p.1250114-4, moves (2)--(3) preceding Theorem 1.5.
+Lean constructs this inclusion as a group homomorphism, defines the
+positive move by this very product, and proves that $1$ stabilizes to
+$\sigma_2$. Consequently,
+\[
+ \det\rho_2(1)=1,\qquad
+ \det\rho_3(\iota(1)\sigma_2)=\det B=tq^3.
+\]
+The closed theorem \texttt{not\_positive\_markov\_invariant} negates
+invariance over all pairs related by this actual elementary move.
+Failure of one allowed move suffices; no full topological Markov theorem
+or construction of link closures is needed for this necessary condition.
+
+\section{Independent variables and arbitrary bases}
+The formal field is exactly
+\[
+ K=\operatorname{Frac}(\mathbf Q[X_0,X_1]),\qquad q=X_0,\quad t=X_1.
+\]
+Injectivity into the fraction field proves $q,t\ne0$. If $tq^3=1$
+in $K$, injectivity would imply the polynomial identity
+$X_1X_0^3=1$. Applying the polynomial evaluation homomorphism
+$X_0=X_1=0$ gives $0=1$, a contradiction. This evaluation is applied
+only to an alleged polynomial identity. It is not a specialization of
+an LKB representation, and no evaluation on the whole fraction field
+is asserted.
+
+For every invertible matrix $P$, Lean proves
+\[
+ \det(PMP^{-1})=\det(M).
+\]
+The theorem \texttt{determinant\_changes\_in\_any\_bases} therefore
+gives the same unequal determinants after arbitrary and independent
+changes of basis in dimensions one and three. This also explains why
+the generic conjugate LKB model has the same obstruction. The report
+uses the standard matrix model as defined by the primary source;
+Lean does not reconstruct configuration-space homology or reprove
+Bigelow's topological identification theorem.
+
+\section{Verification and scope}
+Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d} are pinned.
+The package contains a new root build, nineteen transitive axiom audits,
+and full official \texttt{leanchecker --fresh Main} replay, with
+source-bound commands, exit codes, logs and hashes.
+No \texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed the
+formal chain and report. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
