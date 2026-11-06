@@ -1,0 +1,240 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Four hidden states with full Hankel rank three\\
+\large Disproof of Conjecture 00000009634}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+An explicit stationary four-symbol Markov process has full,
+infinite word-Hankel rank three, but every nonnegative hidden
+Markov realization needs at least four hidden states. Its
+positive-probability language has a concrete finite labelled
+graph presentation, hence is sofic. This disproves the first
+equality asserted in the conjecture. All-word matrix rank and
+the obstruction against arbitrary finite hidden-state models
+are proved in Lean; neither is replaced by a finite numerical
+rank experiment.
+\end{abstract}
+
+\section*{A stationary process on a sofic support}
+Let the state set and observation alphabet both be
+$\{0,1,2,3\}$. Put
+\[
+ P=\frac12\begin{pmatrix}
+ 1&1&0&0\\0&1&1&0\\0&0&1&1\\1&0&0&1
+ \end{pmatrix},\qquad
+ \pi=(1/4,1/4,1/4,1/4).
+\]
+Observe the state itself. Every row and column of $P$ sums
+to one, and $\pi P=\pi$. In transition-emission notation set
+\[
+ (T_a)_{ij}=P_{ij}\boldsymbol1_{j=a},\qquad
+ p(w)=\pi T_{w_1}\cdots T_{w_\ell}{\bf1},\qquad
+ p(\varnothing)=1.
+\]
+This is an ordinary state-emission HMM with deterministic
+emission $E_j(a)=\boldsymbol1_{j=a}$, observed after each
+transition. Stationarity makes this timing equivalent to
+observing the current state.
+
+For a nonempty word,
+\[
+ p(a_1\cdots a_\ell)=\frac14
+                 \prod_{r=1}^{\ell-1}P_{a_r a_{r+1}}.
+\]
+These are genuine nonnegative cylinder probabilities.
+Lean proves empty-word normalization and both consistency
+equations $\sum_a p(aw)=p(w)=\sum_a p(wa)$ for all words.
+
+The word has positive probability exactly when every
+successive symbol stays fixed or advances by one modulo
+four. Thus its language is presented by the actual four-vertex
+directed graph with edges $i\to i$ and $i\to i+1$, labelling
+vertex $i$ by $i$. Every vertex has a self-loop, so every
+finite allowed path extends in both directions. This is a
+finite labelled presentation of the support; indeed, it is
+already a shift of finite type.
+
+\newpage
+\section*{The whole infinite Hankel rank is three}
+Index both rows and columns by \emph{all} finite words,
+including the empty word, and define
+\[
+                         H_{u,v}=p(uv).
+\]
+Write $r(u)=\pi T_u$ and $f(v)=T_v{\bf1}$. Actual word
+concatenation gives $H_{u,v}=r(u)f(v)$.
+
+The rows of $P$ satisfy
+$P_{3a}=P_{0a}-P_{1a}+P_{2a}$ for each symbol $a$.
+Since
+\[
+ f_i(\varnothing)=1,\qquad f_i(av)=P_{ia}f_a(v),
+\]
+the future vectors satisfy, for every word $v$,
+\[
+                     f_3(v)=f_0(v)-f_1(v)+f_2(v).
+\]
+For the empty word this is simply $1=1-1+1$.
+It follows that the \emph{entire} matrix factors as
+\[
+ H_{u,v}=
+ (r_0(u)+r_3(u))f_0(v)
+ +(r_1(u)-r_3(u))f_1(v)
+ +(r_2(u)+r_3(u))f_2(v).
+\]
+Every actual column of $H$ belongs to the span of the same
+three real columns. Its column-space dimension is therefore
+at most three. This is a genuine all-word factorization,
+not an assertion about the transition matrix's rank or a
+bounded word-length truncation.
+
+For rows $[0],[1],[2]$ and columns $[0],[1],[2]$, the
+actual Hankel submatrix is
+\[
+       \frac18\begin{pmatrix}1&1&0\\0&1&1\\0&0&1\end{pmatrix},
+             \qquad \det=\frac1{512}\ne0.
+\]
+It has rank three, giving the matching lower bound on
+the full matrix. Hence
+\[
+                         \operatorname{rank}H=3.
+\]
+Lean uses Mathlib's actual infinite-matrix
+\texttt{Matrix.cRank}, the cardinal dimension of the real
+column span. It proves the upper span inclusion and applies
+the submatrix-rank inequality for the lower bound. The
+result is exactly $3$ as a cardinal, whose natural-number
+value is also three.
+
+Subtraction is allowed in this ordinary real linear
+factorization. That fact is decisive: the factorization
+does not supply nonnegative hidden-state probabilities.
+
+\newpage
+\section*{Every hidden Markov realization needs four states}
+Consider an arbitrary $n$-state nonnegative HMM with initial
+row vector $\mu$ and symbol-transition matrices $S_a$.
+Their entries are nonnegative, $\sum_s\mu_s=1$, and
+$\sum_a\sum_t(S_a)_{st}=1$ for each state $s$.
+Its probabilities are $\mu S_w{\bf1}$ for all words.
+This class includes arbitrary ordinary state-emission HMMs
+by setting $(S_a)_{st}=E_s(a)Q_{st}$, emitting before the
+transition. The final transition sums to one, so this gives
+their ordinary word probabilities for any initial distribution.
+The concrete stationary witness above uses the equivalent
+after-transition timing. Allowing general symbol-transition
+matrices only strengthens the lower bound.
+
+Suppose the model reproduces every $p(w)$. Its length-one
+versus length-one Hankel block has a nonnegative factorization
+\[
+ H_{[i],[j]}=\sum_{s=1}^n A_{is}B_{sj},\qquad
+ A_{is}=(\mu S_i)_s\geq0,\quad
+ B_{sj}=(S_j{\bf1})_s\geq0.
+\]
+The actual observed block is $P/4$. Its four diagonal
+entries are positive, and, for every $i\ne j$,
+\[
+                  H_{[i],[j]}H_{[j],[i]}=0.
+\]
+For each $i$, positivity of its diagonal sum supplies a
+state $s_i$ with $A_{i s_i}B_{s_i i}>0$. Both factors
+are positive. If $s_i=s_j$ for $i\ne j$, the same two
+diagonal witnesses force
+\[
+ A_{i s_i}B_{s_i j}>0,\qquad
+ A_{j s_j}B_{s_j i}>0.
+\]
+Each product is bounded above by its corresponding
+nonnegative Hankel sum. Both crossed entries would
+therefore be positive, contradicting their zero product.
+Thus $i\mapsto s_i$ is injective and $n\geq4$.
+
+The original process already gives a four-state HMM.
+Its minimal hidden-state count is consequently exactly four.
+The argument permits any competing transition matrices,
+emission mechanism and initial distribution; it does not
+assume that a competing realization shares the displayed
+transition graph or deterministic observations.
+
+\begin{theorem}
+There exists a stationary output process with finite
+labelled-graph support whose full infinite Hankel rank
+is three and whose minimal hidden-state count is four.
+\end{theorem}
+\begin{proof}
+The process above has finite labelled support and Hankel
+rank three. The nonnegative-factorization argument bounds
+every realization below by four states, and the displayed
+four-state realization attains that bound.
+\end{proof}
+
+\newpage
+\section*{Scope and formal reproducibility}
+The first conjunct of the conjecture equates minimal hidden
+state count with Hankel rank. The displayed $4\ne3$
+disproves it, and therefore disproves the conjunction.
+No result concerning finite-word learning complexity or
+the geometric-isolation assertion is needed or claimed.
+The standard distinction between general linear
+quasi-realizations and genuine nonnegative HMM realizations
+is discussed in \cite[Sections 1--2]{ohta}; the complete
+counterexample and proof needed here are given above.
+
+The Lean structure \texttt{HMM n} imposes the actual
+initial and symbol-transition nonnegativity and
+normalization conditions. Its word probability is an
+actual matrix product, and \texttt{Realizes} requires
+agreement on every finite word. The proof gives both the
+exact full Hankel rank and an actual least hidden-state
+count, rather than a bound for one particular presentation.
+
+The all-word rank theorem is \texttt{whole\_hankel\_rank}.
+\par
+The minimality theorem is named
+\texttt{minimal\_hidden\_state\_count}.
+\par
+Separate theorems prove both stationary consistency
+identities, the deterministic-emission bridge and positive
+probability exactly on paths in the explicit finite
+labelled graph. The final theorem directly excludes a
+realization with the Hankel-rank number of states.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The complete project is rebuilt afresh and checked with
+warnings treated as errors. Printed theorem dependencies
+contain only standard foundational axioms. There are no
+proof placeholders, custom axioms or untrusted computation
+oracles.
+
+The supplementary \texttt{verify.py} checks exact rational
+probabilities through length six, support paths, an
+$85\times85$ factorization sample and the finite rank
+certificates. Run \texttt{python verify.py} and
+\texttt{tectonic main.tex}. This finite check is not
+trusted by the all-word Lean proof.
+
+Exact source, provenance, actual build logs and artifact
+checks are included. The author agent and parent performed
+separate internal reviews; no external review is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000009634. Exact bilingual source and provenance included.
+\bibitem{ohta} Y. Ohta, \emph{On the Realization of Hidden
+Markov Models and Tensor Decomposition} (2020),
+\href{https://arxiv.org/abs/2008.11487}{arXiv:2008.11487}.
+\end{thebibliography}
+\end{document}
