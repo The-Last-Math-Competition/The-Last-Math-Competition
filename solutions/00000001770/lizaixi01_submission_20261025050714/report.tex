@@ -1,0 +1,175 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=23mm]{geometry}
+\usepackage{amsmath,amssymb,array,booktabs}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\newcommand{\C}{\mathbb C}
+\newcommand{\End}{\operatorname{End}}
+\newcommand{\Span}{\operatorname{span}}
+\begin{document}
+\begin{center}
+{\Large A simple q-Schur cell module with a divisible hook}\\[4pt]
+{\large Problem 00000001770: the necessary direction at $q=-1$}\\[3pt]
+lizaixi01\qquad 25 October 2026
+\end{center}
+
+\textbf{Exact scope.}
+The printed conjecture asserts that q-Schur cell modules are semisimple
+if and only if the root order $m$ divides none of their hook lengths,
+for $m\le5$. We refute only the necessary direction. Over $\C$, take
+$m=2$, the genuine primitive root $q=-1$, the algebra $S_q(2,2)$, and
+$\lambda=(1,1)$. Its actual right cell module is simple of dimension one,
+whereas the top box has hook length two. Both rank and degree equal two;
+no $n<r$ boundary convention is used. The separate $m=3,4,5$ table and
+hybridization claim is not addressed. Neither is the entire algebra claimed
+semisimple.
+
+\textbf{Hecke algebra and the complete permutation sum.}
+The rank-two Hecke presentation is
+\[
+ H=\C[T]/((T+1)^2)\cong\C[\epsilon]/(\epsilon^2),\qquad T=\epsilon-1.
+\]
+Lean constructs the native \texttt{AdjoinRoot} quotient and inverse algebra
+maps to \texttt{TrivSqZeroExt}; the Hecke relation is proved. For every
+weak two-composition $\mu$ of two, its actual Young row stabilizer in
+$\mathfrak S_2$ defines $m_\mu=\sum_{w\in\mathfrak S_\mu}T_w$ and
+$M^\mu=m_\mu H$. There are exactly the three compositions
+$(2,0),(1,1),(0,2)$, with sums $\epsilon,1,\epsilon$. Consequently the
+complete permutation sum is genuinely isomorphic as an $H$-module to
+\[
+ M=\C\oplus H\oplus\C,\qquad h\cdot c=h_0c
+ \quad(h=h_0+h_1\epsilon).
+\]
+The file constructs all the actual ideals, their finite direct sum, the
+module equivalence, and conjugation onto the native
+$\End_H(\bigoplus_\mu M^\mu)$. The coordinate calculation below is
+transported to this full endomorphism algebra.
+
+Put $u=(0,1,0)$, $b_0=(1,0,0)$, $b_1=(0,\epsilon,0)$,
+$b_2=(0,0,1)$. Let $a_0,a_1,a_2$ extract the first coordinate, the
+constant coefficient of the middle coordinate, and the last coordinate.
+Define $\phi_{ij}(x)=a_j(x)b_i$ and let $e$ project onto $H$.
+Every actual $H$-linear endomorphism $f$ has a unique expansion
+\[
+ f=\alpha(f)e+\sum_{i,j=0}^2 c_{ij}(f)\phi_{ij},
+ \qquad \alpha(f)=\text{constant coefficient of }f(u)_H.
+\]
+This is a proved native basis, so the true endomorphism dimension is ten.
+In particular, $e$ is not the global identity:
+$1=e+\phi_{00}+\phi_{22}$.
+
+\newpage
+\textbf{Identification of the actual cellular basis.}
+All Young diagrams of size two are classified as $(2)$ or $(1,1)$.
+Using native semistandard Young tableaux with entries $0,1$, the row shape
+has exactly the fillings $00,01,11$; the column shape has only
+$\begin{smallmatrix}0\\1\end{smallmatrix}$.
+These are the usual entries $1,2$ with a zero-based relabeling. Their
+actual contents give the three weak compositions above. For each shape,
+the unique standard tableau has content $(1,1)$; its true entry permutation
+and every coarsening to the specified content are computed.
+
+The file constructs the Murphy elements and the actual finite sums
+$m_{UV}$ over standard tableau pairs with those coarsenings. They evaluate
+to $\epsilon$ for the row shape and to $1$ for the column shape. The maps
+on \emph{all} permutation generators satisfy the defining formula
+\[
+ \bigl(\Phi_{UV}(m_\mu h)\bigr)_\nu
+ =\begin{cases}
+ m_{UV}h,&\mu=\operatorname{type}(V),\ \nu=\operatorname{type}(U),\\
+ 0,&\text{otherwise}.
+ \end{cases}
+\]
+Thus the nine row maps are precisely $\phi_{ij}$, and the column map is
+precisely the regular-summand projection $e$. This is the concrete
+rank-two instance of Mathas's formula (4.13), not a labeling assumption.
+All tableau pairs form a native basis of the full actual q-Schur algebra.
+
+The multiplication, with $d=(1,0,1)$, is proved directly:
+\[
+ \phi_{ij}\phi_{kl}=\delta_{jk}d_k\phi_{il},\quad
+ e\phi_{ij}=\delta_{i1}\phi_{ij},\quad
+ \phi_{ij}e=\delta_{j1}\phi_{ij},\quad e^2=e.
+\]
+The complex-linear map $\phi_{ij}\mapsto\phi_{ji}$, $e\mapsto e$
+is proved involutive and multiplication-reversing. It involves no complex
+conjugation. Right multiplication of a row basis element has coefficients
+independent of its left tableau. Modulo the row span, right multiplication
+of $e$ has coefficient $\alpha(f)$. These are the actual two cellular
+triangularity statements.
+
+Dominance is computed from the true row-length prefix sums:
+$(2)\triangleright(1,1)$. The actual strictly higher cell span for the
+column shape is therefore
+\[
+ I=\Span_\C\{\phi_{ij}:0\le i,j\le2\}=\ker\alpha.
+\]
+The equality is derived from the full endomorphism expansion. The map
+$\alpha$ is an actual unital algebra homomorphism, so this is the true
+two-sided higher ideal. For the row shape the strictly higher span is zero.
+The basis, linear anti-involution, dominance spans and their native
+endomorphism-algebra transports are all proved in Lean.
+
+\newpage
+\textbf{Native cell module and the contradiction.}
+The published right cell definition for the column is the cyclic
+submodule
+\[
+ W^{(1,1)}=(e+I)S\ \subseteq S/I.
+\]
+Lean forms the kernel as a native right submodule, equivalently a left
+$S^{\mathrm{op}}$-submodule, and the native module quotient. The first
+isomorphism theorem for the actual surjective map $\alpha$ gives
+\[
+ S/I\ \cong\ \C,\qquad [f]\longmapsto\alpha(f),\qquad
+ z\cdot f=z\alpha(f).
+\]
+Since $\alpha(e)=1$, the cyclic cell submodule is all of this quotient.
+Every nonzero vector generates it: for $x\ne0$ and any $y$, the algebra
+scalar $(y/x)1$ acts by $y/x$. Hence the native
+$S^{\mathrm{op}}$-module is simple and therefore semisimple. Its actual
+complex dimension is one, proved by a linear equivalence, not assigned.
+
+These constructions are repeated directly over the native full algebra
+$\End_H(\bigoplus_\mu M^\mu)$ using the proved conjugation equivalence:
+the transported higher ideal, actual projection, right quotient, cyclic
+cell submodule, simplicity and dimension are all present there. Thus the
+conclusion is not merely an assertion about an unrelated coordinate
+algebra or the underlying complex vector space.
+
+For the genuine column Young diagram, Lean defines the arm and leg as
+finite sets of boxes strictly to the right and below. At $(0,0)$ they have
+sizes zero and one, so the actual hook length is $0+1+1=2$. Therefore
+\[
+ W^{(1,1)}\text{ is semisimple},\qquad 2\mid h_{(0,0)}=2.
+\]
+This negates the printed necessary implication at $m=2\le5$.
+The final native-algebra statements are
+\texttt{actual\_qSchur\_counterexample} and
+\texttt{actual\_necessary\_hook\_condition\_false}
+in namespace \texttt{TLMC1770}.
+
+\textbf{Definition boundary and primary source.}
+We use Andrew Mathas, \emph{Iwahori-Hecke Algebras and Schur Algebras of
+the Symmetric Group}, the actual downloaded notes at
+\href{https://web.math.ucsb.edu/~bigelow/books/mathas.pdf}{the UCSB-hosted PDF}:
+printed pp.~4,17--20,36,39--42. These pages specify the Hecke relation,
+Young sums, permutation modules, semistandard/Murphy maps, formula (4.13),
+the linear cellular anti-involution, and the right cell quotient.
+The formalization implements this particular complete rank-two model
+directly. It does not invoke a general q-Schur classification theorem or
+add a Lean axiom identifying an arbitrary algebra or module with this model.
+
+\textbf{Reproduction.}
+The package contains the complete bilingual source, this LaTeX/PDF,
+the pinned Lean4.33.0/Mathlib project, ordinary exhaustive namespace
+axiom checks, original fresh-kernel receipts and actual thread-mask samples.
+Run \texttt{lean --version} in \texttt{lean/}, then
+\texttt{bash lean/verify.sh} from the package directory for build,
+warnings-as-errors axiom checks and the fresh-kernel command:
+\begin{center}\texttt{lake env leanchecker --fresh Main}\end{center}
+Only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}
+are allowed. Production runtimes are diagnostic; no controlled efficiency
+gain is claimed. Organizer review remains pending.
+\end{document}
