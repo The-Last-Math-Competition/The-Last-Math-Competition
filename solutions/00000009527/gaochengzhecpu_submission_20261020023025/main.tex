@@ -1,0 +1,177 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\tr}{\operatorname{tr}}
+\title{The completely depolarizing channel\\is not maximal in the stated less-noisy order\\
+\large Disproof of Conjecture 00000009527}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+For the source's order direction, the qubit completely
+depolarizing channel $D$ has a strict successor: the completely
+dephasing channel $Z$. We prove $D\preceq_{\rm ln}Z$ for
+every finite input ensemble, including noncommuting states,
+and $Z\not\preceq_{\rm ln}D$. Thus $D$ is not even a maximal
+element. The obstruction survives quotienting by mutual
+less-noisy equivalence. Lean checks actual complex matrices,
+normalized Kraus families and spectral von Neumann entropy.
+\end{abstract}
+
+\section*{The order and the two actual channels}
+For an ensemble $\mathcal E=(p_i,\rho_i)$ of qubit density
+matrices, let
+\[
+ \chi(\mathcal E;\Phi)=
+ S\left(\sum_i p_i\Phi(\rho_i)\right)
+ -\sum_i p_iS(\Phi(\rho_i)),\qquad
+ S(A)=-\sum_j\lambda_j(A)\log\lambda_j(A).
+\]
+The weights are nonnegative and sum to one; $0\log0=0$.
+We follow the exact direction in the conjecture:
+$\Phi\preceq_{\rm ln}\Psi$ means
+$\chi(\mathcal E;\Phi)\leq\chi(\mathcal E;\Psi)$ for every
+finite ensemble. Logarithms are natural, which does not
+change the order. The standard definitions are recalled in
+\cite[Sections 5.2 and 5.3.3]{watrous}.
+
+For any complex $2\times2$ matrix $A$, define
+\[
+ D(A)=\frac{\tr A}{2}I_2,\qquad
+ Z(A)=\begin{pmatrix}A_{00}&0\\0&A_{11}\end{pmatrix}.
+\]
+Both are channels on the same input and output spaces. Let
+$E_{ab}$ be the matrix units, $a,b\in\{0,1\}$. A Kraus
+family for $Z$ is $E_{00},E_{11}$. A Kraus family for $D$
+contains two copies of $E_{ab}/2$ for every pair $(a,b)$.
+For each family,
+\[
+ \sum_j K_j^*K_j=I_2,\qquad
+ \Phi(A)=\sum_jK_jAK_j^*\quad\hbox{for every complex }A.
+\]
+These identities are checked in Lean. They give trace
+preservation by cyclicity of trace, and complete positivity
+because every matrix amplification is a sum of conjugations
+by $I\otimes K_j$. This is the standard finite Kraus
+characterization, as in \cite[Section 2.2]{watrous}.
+
+\newpage
+\section*{A strict comparison, for all input ensembles}
+Every density state has trace one, so $D(\rho_i)=I_2/2$.
+Consequently $\chi(\mathcal E;D)=0$ for every ensemble.
+
+For $Z$, write $a_i=(\rho_i)_{00}$ and $b_i=(\rho_i)_{11}$.
+These entries are real and nonnegative because $\rho_i$
+is positive semidefinite. The output is
+$\operatorname{diag}(a_i,b_i)$, and its actual eigenvalues
+are $a_i,b_i$, with multiplicity. Put $f(x)=-x\log x$ for
+$x>0$ and $f(0)=0$. The function $f$ is concave on
+$[0,\infty)$. Finite Jensen inequalities give
+\[
+ \sum_i p_i f(a_i)\leq f\left(\sum_i p_i a_i\right),
+ \qquad
+ \sum_i p_i f(b_i)\leq f\left(\sum_i p_i b_i\right).
+\]
+Adding them proves $\chi(\mathcal E;Z)\geq0$. No
+commutativity or diagonal assumption was made on the input
+states. Thus $D\preceq_{\rm ln}Z$.
+
+Now use the equiprobable ensemble $E_{00},E_{11}$.
+Dephasing leaves each pure state unchanged. Its individual
+output entropies are zero and its average output is $I_2/2$,
+of entropy $\log2$. Hence
+\[
+ \chi(\mathcal E;Z)=\log2>0=\chi(\mathcal E;D),
+\]
+so $Z\not\preceq_{\rm ln}D$.
+
+\begin{theorem}
+The completely depolarizing channel is not a maximal element
+of the less-noisy relation in the direction defined in the
+source, even after identifying mutually equivalent channels.
+\end{theorem}
+\begin{proof}
+The two channel certificates and the strict comparison
+$D\preceq_{\rm ln}Z$, $Z\not\preceq_{\rm ln}D$ exhibit a
+strict successor. Therefore $D$ is not maximal. The same
+strict comparison holds between their equivalence classes.
+\end{proof}
+
+There is also a secondary issue with a partial order on
+literal channels. The two reset channels
+$R_a(A)=\tr(A)E_{aa}$, $a=0,1$, are distinct and have
+Kraus families $E_{a0},E_{a1}$. Both give Holevo information
+zero on every ensemble. Thus $R_0\preceq_{\rm ln}R_1$ and
+$R_1\preceq_{\rm ln}R_0$, despite $R_0\ne R_1$.
+Quotienting repairs this secondary failure of antisymmetry,
+but cannot repair the strict-successor obstruction above.
+The separate broadcast-capacity assertion is not needed
+for this disproof and is not assessed here.
+
+\newpage
+\section*{Formalization, checks and reproduction}
+Density states in Lean are actual complex $2\times2$
+matrices with Mathlib positive semidefiniteness and trace
+one. Entropy is defined from Mathlib's Hermitian eigenvalues.
+The diagonal entropy formula is proved using spectral
+membership and trace invariance under unitary conjugation,
+so Shannon entropy is derived rather than assigned in place
+of von Neumann entropy.
+
+The channel predicate uses the exact normalized finite
+Kraus characterization. The displayed formulas are verified
+on arbitrary complex input matrices. The ensemble type
+has arbitrary finite size, genuine density inputs and
+arbitrary nonnegative real weights of sum one. The Jensen
+argument therefore quantifies over all allowed ensembles.
+The explicitly constructed orthogonal ensemble witnesses
+strictness.
+
+The main theorem is \texttt{depolarize\_not\_maximal}:
+it bundles the actual channel certificates and both order
+comparisons. A separate theorem proves failure of
+antisymmetry for the two actual reset maps. No general
+capacity formula or quantum data-processing theorem is
+assumed in the proof.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From the submitted \texttt{lean/} directory, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The whole submission is freshly built. The axiom audit
+contains only standard foundational axioms. There are no
+proof placeholders, custom axioms or external computation
+oracles.
+
+The auxiliary \texttt{verify.py} uses exact rational
+arithmetic to reconstruct the Kraus normalization and map
+identities on a matrix-unit basis. Complex linearity makes
+these basis checks cover every complex input; Lean also
+proves the arbitrary-input identities directly. This
+script does not supply an oracle for the entropy or
+all-ensemble conclusions. Run \texttt{python verify.py}
+and \texttt{tectonic main.tex}.
+
+The exact bilingual source, provenance, actual build logs
+and hashes are included. An agent developed the proof and
+performed a self-review; the parent separately reviewed
+the source, semantics, proof, build evidence and final PDF.
+Both internal review records are included. No external
+independent review or novelty is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000009527; exact source and provenance included.
+\bibitem{watrous} J. Watrous, \emph{The Theory of Quantum
+Information}, 2018, Sections 2.2, 5.2 and 5.3.3.
+\href{https://cs.uwaterloo.ca/~watrous/TQI/TQI.pdf}{Author-hosted draft}.
+The cited sections supply standard definitions; the strict
+comparison is proved in full above.
+\end{thebibliography}
+\end{document}
