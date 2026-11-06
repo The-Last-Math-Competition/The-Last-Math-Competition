@@ -1,0 +1,173 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Ord}{\mathrm{Ord}}
+\newcommand{\Fix}{\mathrm{Fix}}
+\newcommand{\nfp}{\mathrm{nfp}}
+\title{Proof of conjecture 00000003527:\\The closed unbounded fixed-point chain of a normal function}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For every normal ordinal function, its fixed points form a closed unbounded
+class and have a normal increasing enumeration. Its $\omega$-th enumerand is
+the supremum of the finite enumerands. Separately, the least fixed point
+above any starting ordinal is the supremum of the finite iterates of the
+original function. We prove both statements and distinguish their two
+sequences explicitly. These are classical facts; the Lean verification
+uses the corresponding substantive Mathlib theorems.
+\end{abstract}
+
+\section*{Statement and the two limit constructions}
+A function $f:\Ord\to\Ord$ is \emph{normal} when it is strictly increasing
+and satisfies $f(\lambda)=\sup_{\alpha<\lambda}f(\alpha)$ at every nonzero
+limit ordinal $\lambda$. Write $F=\{\beta:f(\beta)=\beta\}$.
+For an ordinal $a$, let $\nfp_f(a)$ be the least member of $F$ at least $a$.
+Its existence will be proved, rather than assumed. Let $d$ be the increasing
+enumeration of $F$, indexed from zero.
+
+\begin{theorem}\label{thm:main}
+For every normal $f$, the class $F$ is closed in the order topology and
+unbounded. Its enumeration $d$ is normal and has range exactly $F$, with
+\begin{align*}
+ d(0)&=\nfp_f(0),\\
+ d(\alpha+1)&=\nfp_f(d(\alpha)+1),\\
+ d(\lambda)&=\sup_{\alpha<\lambda}d(\alpha)
+       &&(\lambda\text{ a nonzero limit}).
+\end{align*}
+In particular,
+\begin{equation}\label{eq:enum}
+ d(\omega)=\sup_{n<\omega}d(n).
+\end{equation}
+For every starting ordinal $a$, the other iteration formula is
+\begin{equation}\label{eq:iterate}
+ \nfp_f(a)=\sup_{n<\omega}f^{\circ n}(a).
+\end{equation}
+This is a fixed point at least $a$, and it is at most every fixed point
+$b\geq a$.
+\end{theorem}
+
+Both source languages refer to the fixed-point sequence and its
+$\omega$-th term. We read this sequence as the standard increasing
+enumeration $d$, whose transfinite limit step is \eqref{eq:enum}.
+Formula \eqref{eq:iterate} also addresses iteration of the original normal
+function. These are distinct constructions: even for $f=\mathrm{id}$,
+$d(\omega)=\omega$ whereas $\nfp_f(0)=0$. Thus no assertion identifies
+the $\omega$-th fixed-point enumerand with iteration of $f$ from zero.
+
+\section*{Proof}
+First $\alpha\leq f(\alpha)$ for every ordinal $\alpha$. Transfinite
+induction proves this: it is immediate at zero, strict increase gives the
+successor step, and the supremum formula gives the limit step.
+Normality also implies preservation of suprema of nonempty increasing
+ordinal sequences. To see this, let $s$ be their supremum. If $s$ is
+attained, the assertion follows by monotonicity. Otherwise $s$ is a limit
+and the sequence is cofinal below $s$, so normality gives the assertion.
+
+Fix $a$, put $x_0=a$ and $x_{n+1}=f(x_n)$, and set
+$\beta=\sup_{n<\omega}x_n$. The sequence is increasing. Supremum
+preservation and deletion of its first term give
+\[
+ f(\beta)=\sup_{n<\omega}f(x_n)
+          =\sup_{n<\omega}x_{n+1}=\beta.
+\]
+Also $a\leq\beta$. If $b\geq a$ is fixed, induction gives $x_n\leq b$
+for every $n$, so $\beta\leq b$. This proves both existence and leastness
+of $\nfp_f(a)$ and proves \eqref{eq:iterate}. Applying it with starting
+ordinal $a+1$ supplies a fixed point strictly larger than $a$. Hence $F$
+is unbounded.
+
+For closure, a normal function is continuous for the ordinal order topology.
+At zero and successor ordinals the domain point is isolated. At a nonzero
+limit $\lambda$, every threshold below $f(\lambda)$ is exceeded by
+$f(\alpha)$ for some $\alpha<\lambda$; monotonicity on
+$(\alpha,\lambda+1)$ then gives continuity at $\lambda$.
+The ordinal order topology is Hausdorff, so the equalizer of the continuous
+maps $f$ and the identity is closed. This equalizer is precisely $F$.
+Equivalently, any nonempty increasing sequence of fixed points has a fixed
+point as its supremum, by the same supremum-preservation calculation.
+
+Define $d$ by the three transfinite recursion clauses of the theorem.
+The initial and successor values are fixed by the preceding construction.
+At a limit, the supremum of the preceding fixed points is fixed, so all
+$d(\alpha)$ belong to $F$. Moreover
+$d(\alpha+1)\geq d(\alpha)+1$. Transfinite induction, using the limit
+clause, therefore proves strict increase; continuity at limits is a defining
+clause. Thus $d$ is normal and in particular $\alpha\leq d(\alpha)$.
+
+To check that this enumeration omits no fixed point, take $b\in F$.
+There exists an index $\alpha$ with $b\leq d(\alpha)$, since $b\leq d(b)$.
+Choose the least such index. If it is zero, leastness of
+$\nfp_f(0)$ gives $d(0)\leq b$. If it is a successor $\gamma+1$,
+minimality gives $d(\gamma)<b$, hence $d(\gamma)+1\leq b$, and the
+least-fixed-point property gives $d(\gamma+1)\leq b$. If it is a
+nonzero limit, all preceding values are below $b$, and their supremum is
+at most $b$. In every case $d(\alpha)\leq b$, so equality holds.
+Consequently the range of $d$ is exactly $F$.
+
+Finally, apply the limit recursion to $\omega$. Its predecessors are
+exactly the finite ordinals, giving \eqref{eq:enum}. This completes the
+proof of Theorem~\ref{thm:main}.
+
+\section*{Formal verification and scope}
+The file \texttt{lean/Main.lean} uses Mathlib's actual universe-polymorphic
+ordinals, normal functions, fixed-point set, ordinal derivative (the
+fixed-point enumeration), and next-fixed-point construction. Closure is
+the genuine topological predicate \texttt{IsClosed}; unboundedness is
+the negation of \texttt{BddAbove}. An additional theorem supplies a fixed
+point strictly beyond every ordinal.
+
+The main theorem is
+\begin{center}\texttt{Conjecture3527.conjecture\_3527\_true}.\end{center}
+It proves the universally quantified \texttt{FixedPointClaim}: for every
+normal ordinal function, topological closure, unboundedness, the exact
+enumeration range, normality of the enumeration, its zero/successor/limit
+clauses, its $\omega$-th value, and the finite-iteration formula with the
+least-fixed-point property for every starting ordinal all hold.
+The two values for the identity example are also formalized.
+
+This is a formal verification of a classical theorem, not a claim to a new
+fixed-point theorem. Substantial library results are used directly:
+\begin{center}\small
+\texttt{not\_bddAbove\_fp}, \texttt{IsNormal.fp\_iff\_deriv},\\
+\texttt{isNormal\_deriv}, the recursion lemmas for \texttt{deriv},\\
+\texttt{IsNormal.apply\_omega0}, \texttt{iSup\_iterate\_eq\_nfp},\\
+\texttt{IsNormal.nfp\_fp}, and \texttt{nfp\_le\_fp}.
+\end{center}
+For closure, the proof combines the library equivalence between normality
+and strict monotonicity plus continuity with the topological equalizer
+theorem. All conclusions of the theorem are checked in Lean; there is no
+additional paper-only premise. The paper gives the accompanying classical
+argument rather than claiming its individual proof steps were reimplemented
+independently of those library results.
+
+\section*{Source and reproduction}
+The exact English and Chinese source is preserved in \texttt{SOURCE.md},
+from upstream commit
+\begin{center}\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\end{center}
+Its SHA-256 is
+\begin{center}\small\texttt{1b36c16e1f37c47498803fa844b3550ed91df0b7920f33a0a7f852d47620c34a}.\end{center}
+The parent source/history check found no earlier PR or solution.
+Lean is 4.19.0 and Mathlib is pinned to
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+The mathematical library sources are
+\begin{center}\small
+\path{SetTheory/Ordinal/FixedPoint.lean}\\
+\path{SetTheory/Ordinal/Family.lean}\\
+\path{SetTheory/Ordinal/Topology.lean}.
+\end{center}
+In the \texttt{lean} directory, run
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}\end{center}
+and \texttt{lake build}. The author strict check passes; the audited
+theorems use only \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. Compile this document with Tectonic or a compatible
+LaTeX engine. Developed by a delegated AI agent with a self-review; the
+coordinating agent reviews it separately. Review mode: agent development
+with parent adversarial review; no external independent review.
+\end{document}
