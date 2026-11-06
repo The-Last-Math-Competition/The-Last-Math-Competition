@@ -1,0 +1,43 @@
+import Main
+import Square
+import Bridge
+#print axioms TLMC523.Laurent.ext
+#print axioms TLMC523.clear_denominators
+#print axioms TLMC523.binary_field_identities
+#print axioms TLMC523.relation_iff_difference_polynomial
+#print axioms TLMC523.frobenius_polynomial
+#print axioms TLMC523.frobenius_add
+#print axioms TLMC523.frobenius_scale
+#print axioms TLMC523.F_add
+#print axioms TLMC523.F_scale
+#print axioms TLMC523.F_e1
+#print axioms TLMC523.e1_nonzero
+#print axioms TLMC523.e2_nonzero
+#print axioms TLMC523.e2_ne_e1
+#print axioms TLMC523.no_degree_one_annihilator
+#print axioms TLMC523.N_numerical
+#print axioms TLMC523.N_multiplicity_one
+#print axioms TLMC523.counterexample
+#print axioms TLMC523.powCoeff_zero
+#print axioms TLMC523.powCoeff_add
+#print axioms TLMC523.powCoeff_scale
+#print axioms TLMC523.powCoeff_F_zero
+#print axioms TLMC523.powCoeff_F_succ
+#print axioms TLMC523.powCoeff_e1_zero
+#print axioms TLMC523.powCoeff_e1_succ
+#print axioms TLMC523.polyEval_coefficient
+#print axioms TLMC523.no_nonzero_annihilator
+#print axioms TLMC523Square.conv_nil
+#print axioms TLMC523Square.conv_cons
+#print axioms TLMC523Square.conv_comm
+#print axioms TLMC523Square.convolution_square
+#print axioms TLMC523Square.doubled_coeff
+#print axioms TLMC523Square.square_frobenius
+#print axioms TLMC523Square.coeff_append
+#print axioms TLMC523Square.coeff_map_add
+#print axioms TLMC523Square.coeff_mulList
+#print axioms TLMC523Bridge.eval_coeff
+#print axioms TLMC523Bridge.frobenius_is_square
+#print axioms TLMC523Bridge.class_frobenius_is_square
+#print axioms TLMC523Bridge.enumerate_coeff
+#print axioms TLMC523Bridge.eval_surjective

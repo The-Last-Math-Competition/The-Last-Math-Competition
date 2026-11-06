@@ -1,0 +1,98 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\renewcommand{\labelitemi}{$\bullet$}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{A nonalgebraic Frobenius action\\Counterexample to TLMC 00000000523}
+\author{Galaxy-0}
+\date{22 October 2026}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+euler.map}
+\pdfmapfile{+latxfont.map}
+\setlength{\emergencystretch}{3em}
+\begin{document}
+\maketitle
+\begin{abstract}
+For the numerical semigroup $S=\mathbb N=\langle1\rangle$ over $\mathbb F_2$, the Frobenius action on first local cohomology has no nonzero annihilating polynomial over $\mathbb F_2$. Its minimal polynomial therefore does not exist, despite the semigroup having multiplicity one. This disproves the asserted equality of minimal-polynomial degree and semigroup multiplicity. The accompanying Lean development verifies the concrete principal-\v Cech quotient and the nonannihilation statement for every finite coefficient polynomial.
+\end{abstract}
+\section{Statement and conventions}
+The original problem states that, for numerical semigroup rings, the degree of the minimal polynomial of Frobenius on $H^1_{\mathfrak m}(R)$ equals the multiplicity of the semigroup. It then asserts an additional formula of Wilf type. A counterexample to the first universally quantified assertion suffices; no interpretation or disproof of the further unspecified formula is needed.
+
+A numerical semigroup is an additively closed subset of $\mathbb N$ containing zero with finite complement. Its multiplicity is its least positive element. Thus $S=\mathbb N=\langle1\rangle$ is allowed and has multiplicity $m(S)=1$. The problem does not restrict to singular semigroups or require $m(S)>1$.
+
+Choose the prime field $k=\mathbb F_2$ and the semigroup ring
+\[
+ R=k[t^s:s\in S]=k[t],\qquad \mathfrak m=(t).
+\]
+All operator polynomials below have coefficients in $k$. Frobenius is $k$-linear here because $c^2=c$ for every $c\in k$. We do not treat Frobenius as $R$-linear, which would be false.
+
+\section{The actual local-cohomology module}
+For a principal ideal, the extended \v Cech complex is
+\[
+0\longrightarrow R\longrightarrow R_t\longrightarrow0,
+\]
+with $R$ in degree zero and localization in degree one. The standard local-cohomology computation therefore gives
+\begin{equation}\label{cech}
+ H^1_{(t)}(k[t])\cong k[t,t^{-1}]/k[t].
+\end{equation}
+See Stacks Project, Lemma 47.9.1 and Lemma 51.2.1 \cite{stacks1,stacks2}. Here the ring is Noetherian, so the usual ideal-support and supported-cohomology definitions agree.
+
+Every Laurent polynomial uniquely splits into a polynomial and a finite sum of negative powers. Consequently the classes
+\[
+ e_j=[t^{-j}],\qquad j=1,2,\ldots
+\]
+form a $k$-basis of the quotient in \eqref{cech}. In particular, equality of quotient classes is exactly equality of all negative coefficients. This description is not a truncation: arbitrary finite negative supports are admitted.
+
+The ring Frobenius sends a Laurent polynomial $a(t)$ to $a(t)^2$. In characteristic two all mixed terms cancel, giving
+\[
+ \left(\sum_i a_i t^i\right)^2=\sum_i a_i t^{2i}.
+\]
+It preserves $k[t]$ and hence induces the local-cohomology Frobenius $F$ on the quotient. In particular,
+\begin{equation}\label{orbit}
+ F(e_j)=e_{2j},\qquad F^r(e_1)=e_{2^r}.
+\end{equation}
+Functoriality of the \v Cech construction identifies this induced map with Frobenius on local cohomology, rather than a separately invented endomorphism.
+
+\section{Counterexample}
+\begin{theorem}
+The endomorphism $F$ of $H^1_{(t)}(\mathbb F_2[t])$ has no nonzero annihilating polynomial in $\mathbb F_2[X]$.
+\end{theorem}
+\begin{proof}
+Let $P(X)=\sum_{r=0}^d c_rX^r\ne0$. By \eqref{orbit},
+\[
+P(F)e_1=\sum_{r=0}^d c_r e_{2^r}.
+\]
+The positive integers $2^r$ are distinct. The displayed vectors are therefore distinct elements of the negative-power basis. Choosing any $r$ with $c_r=1$, the coefficient of $t^{-2^r}$ in this quotient class is one. Thus $P(F)e_1\ne0$, so $P(F)$ is not the zero operator.
+\end{proof}
+
+In particular neither of the monic linear polynomials $X$ and $X+1$ annihilates $F$: their values on $e_1$ are $e_2$ and $e_2+e_1$, respectively. A minimal polynomial of degree $m(S)=1$ cannot exist. Indeed no minimal polynomial exists at all. If a convention assigns degree $+\infty$ to a nonalgebraic endomorphism, that value is still not one.
+
+Some authors use ``numerical semigroup ring'' for the completed local ring $k[[t^S]]$. The same mathematical counterexample persists under that convention: $k[[t]]_t=k((t))$, and $k((t))/k[[t]]$ has the identical finite negative-power basis and identical Frobenius action. The supplied Lean code implements the polynomial/Laurent-polynomial convention, not formal power series. Thus this paragraph is a mathematical extension, not an extra claimed Lean theorem.
+
+\section{Lean verification and precise coverage}
+The development uses Lean 4.31.0 with only its standard library. In \texttt{Main.lean}:
+\begin{itemize}
+\item \texttt{Laurent} is an actual finitely supported function $\mathbb Z\to\mathbb F_2$, with an explicit support bound. Boolean field identities are checked. \texttt{Polynomial} is the subspace whose negative coefficients vanish.
+\item \texttt{clear\_denominators} proves that shifting any Laurent polynomial by a sufficiently large nonnegative power makes it a polynomial, and shifting back recovers it. This verifies the concrete denominator description $R_t$.
+\item \texttt{cechSetoid} identifies exactly the Laurent polynomials whose difference is polynomial. \texttt{H1} is Lean's genuine quotient by that equivalence relation, not an assigned dimension or table of values.
+\item The exponent-doubling map descends to the quotient and its additivity and $\mathbb F_2$-linearity are proved. The classes $e_1,e_2$ are proved nonzero and distinct.
+\item \texttt{polyEval} is Horner evaluation at this linear endomorphism. \texttt{polyEval\_coefficient} proves that the negative coefficient at $-2^r$ of $P(F)e_1$ equals the coefficient of $X^r$ in $P$.
+\item \texttt{no\_nonzero\_annihilator} quantifies over every finite coefficient list with some nonzero coefficient, not merely a bounded search. \texttt{counterexample} also supplies the numerical-semigroup and multiplicity-one certificate and the failure of all monic degree-one annihilators.
+\end{itemize}
+The additional modules \texttt{Square.lean} and \texttt{Bridge.lean} supply an explicit algebraic bridge: multiplication is ordinary finite double-list convolution, its mixed square terms cancel over $\mathbb F_2$, and its square equals exponent doubling. Every bounded coefficient Laurent polynomial is proved to have a finite sparse representation. Thus the square comparison applies to the entire Laurent space, not just a chosen list of witnesses. The quotient-level map is proved to agree with those squares.
+
+The general derived-functor/\v Cech comparison theorem is used mathematically through \cite{stacks1,stacks2}; it is not reimplemented as a general Lean local-cohomology library. The concrete quotient model and operator statement are formalized. Formalization coverage must not be conflated with formalization of all general commutative algebra underlying the standard model.
+
+\section{Reproducibility}
+The pinned toolchain is Lean 4.31.0, commit \texttt{68218e876d2a38b1985b8590fff244a83c321783}. The script \texttt{VERIFY.sh} cleans and builds the project, prints theorem axiom dependencies, and invokes \texttt{leanchecker} for independent kernel replay. No \texttt{sorry}, custom conclusion axioms, compiler-trust tactic, or kernel-check bypass is used. The proof is exact and symbolic; no empirical computation is being substituted for a quantified theorem. \texttt{build\_pdf.sh} reproduces this document using \texttt{pdflatex}. Logs accompany the submission.
+
+\begin{thebibliography}{9}
+\bibitem{problem} The Last Math Competition, Problem 00000000523. Original blob \texttt{1350fd5092d75704112961ab5683d7b6601e5b55}.\newline
+\url{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000000523.md}.
+\bibitem{stacks1} The Stacks Project, Section 47.9, Lemma 47.9.1 (extended \v Cech complex for local cohomology). Accessed 22 October 2026.\newline\url{https://stacks.math.columbia.edu/tag/0952}.
+\bibitem{stacks2} The Stacks Project, Lemma 51.2.1 (comparison with supported cohomology). Accessed 22 October 2026.\newline\url{https://stacks.math.columbia.edu/tag/0A6T}.
+\end{thebibliography}
+\end{document}
