@@ -1,0 +1,122 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001004: a $q^4$-point cap in $\mathrm{PG}(6,q)$}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The fixed-dimension contradiction}
+The conjecture specifies $c_6=2$ and $\lceil6/2\rceil=3$, so its
+$n=6$ case asserts
+\[
+ m_2(6,q)=2q^3\bigl(1+O(q^{-1})\bigr).
+\]
+We construct a genuine projective cap of size $q^4$ over every finite
+field $K$ of odd characteristic, where $q=|K|$. Hence
+\[
+ m_2(6,q)\ge q^4.
+\]
+There are arbitrarily large odd prime fields. The lower bound rules
+out even an additive $O(q^2)$ error around $2q^3$, and therefore the
+specified relative $O(q^{-1})$ expansion. A cap means that no three
+pairwise distinct points are collinear; no completeness or maximality
+condition is imposed on the constructed cap. The separate maximum
+$m_2$ is taken over all caps.
+
+\section{The actual projective construction}
+Choose a nonsquare $d\in K$. Let $Q(x,y)=x^2-dy^2$.
+If $Q(x,y)=0$ and $y\ne0$, then $d=(x/y)^2$, a contradiction.
+If $y=0$, then $x^2=0$ forces $x=0$. Thus $Q$ is anisotropic.
+For $u=(u_0,u_1,u_2,u_3)\in K^4$, put
+\[
+ v(u)=\bigl(1,u_0,u_1,Q(u_0,u_1),u_2,u_3,Q(u_2,u_3)\bigr)\in K^7
+\]
+and set $S=\{[v(u)]:u\in K^4\}\subset\mathrm{PG}(6,K)$.
+The first coordinate is one, so $v(u)\ne0$ and
+$[v(u)]=[v(v)]$ forces the projective scaling factor to be one.
+The remaining coordinates then give $u=v$. Consequently $|S|=q^4$.
+This is the Cartesian product of two anisotropic quadratic graph caps
+in affine three-space, embedded in the affine chart of projective
+six-space.
+
+Suppose three distinct points of $S$ are collinear. The two distinct
+first points span their projective line, so their representing
+vectors satisfy
+\[
+ v(w)=a\,v(u)+b\,v(v),\qquad a+b=1.
+\]
+If $a=0$ or $b=0$, the third point equals one of the first two.
+Otherwise, the elementary identity
+\[
+ Q(ax+bs,ay+bt)=aQ(x,y)+bQ(s,t)-abQ(x-s,y-t)
+\]
+for $a+b=1$, applied to both quadratic coordinate blocks, gives
+\[
+ abQ(u_0-v_0,u_1-v_1)=0,
+ \quad abQ(u_2-v_2,u_3-v_3)=0.
+\]
+Anisotropy yields $u=v$, again a contradiction. Thus $S$ is a cap.
+
+\newpage
+\section{The true maximum and the asymptotic quantifiers}
+For the actual finite set of points of $\mathrm{PG}(6,K)$, take all
+subsets satisfying the cap condition. This family is nonempty because
+it contains the empty cap. A member of maximum cardinality exists;
+Lean defines \texttt{maxCapSet} by choosing such a member, and defines
+\texttt{maxSize} as its cardinality. It proves both that this chosen
+set is a cap and that every cap has at most \texttt{maxSize} points.
+The value is not assigned the constructed size. Applying its universal
+maximality property to $S$ proves $q^4\le m_2(6,q)$.
+
+The formal asymptotic domain \texttt{OddPrime} consists of actual primes
+$p\ge3$, ordered by their natural values. \texttt{primeMax} is the
+maximum above for the actual prime field \texttt{ZMod p}.
+Euclid's theorem supplies arbitrarily large members. Lean proves
+\[
+ \forall C\in\mathbf R\ \forall N\in\mathbf N\ \exists p\ge N,
+ \quad p\text{ an odd prime},\quad
+ 2p^3+Cp^2<m_2(6,p).
+\]
+Indeed, choose $p$ sufficiently larger than $C+4$. Then
+$p^2>2p+C$ and multiplication by $p^2>0$ gives
+$p^4>2p^3+Cp^2$. The constructed cap supplies the remaining inequality.
+This includes arbitrary real error constants, not just one numerical
+choice or a finite list of field sizes.
+
+Using Mathlib's actual \texttt{IsBigO} and \texttt{atTop} filter on
+\texttt{OddPrime}, \texttt{no\_quadratic\_error} proves that
+$m_2(6,p)-2p^3$ is not $O(p^2)$. The final theorem
+\texttt{no\_claimed\_expansion} directly rules out existence of a real
+function $r(p)=O(p^{-1})$ for which
+$m_2(6,p)=2p^3(1+r(p))$ eventually. The conjectured expansion through
+all prime powers would in particular hold on the unbounded odd-prime
+subfamily, so this disproves its fixed $n=6$ necessary case.
+
+\section{Standard construction and formal verification}
+The product construction is classical. For definitions, affine-to-projective
+embedding and this family of lower bounds, see Elsholtz and Lipnik,
+\href{https://arxiv.org/abs/2211.09772}{\emph{Exponentially Larger Affine
+and Projective Caps}}, Introduction and Related Work. That discussion
+also gives stronger known bounds in dimension six. We use only the
+simpler $q^4$ lower bound and prove it in Lean, without assuming a
+published cap-size theorem.
+
+Formal points are Mathlib's \texttt{Projectivization K (Fin 7 $\to$ K)}.
+\texttt{IsCap} literally excludes three distinct points satisfying
+Mathlib's \texttt{Projectivization.IsCollinear}. Its actual subspace
+and dimension definition is connected to the explicit vector-combination
+argument by the proved uniqueness of the line through two distinct
+points. Nonsquares are supplied by a proved finite-field theorem.
+
+Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d} are pinned.
+Source-bound receipts record a new Main build, seventeen transitive
+axiom audits and full official \texttt{leanchecker --fresh Main} replay.
+No \texttt{sorry}, \texttt{native\_decide} or added axiom is used.
+OpenAI Codex assisted, and a separate supervising Codex agent reviewed
+the formal chain and report. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
