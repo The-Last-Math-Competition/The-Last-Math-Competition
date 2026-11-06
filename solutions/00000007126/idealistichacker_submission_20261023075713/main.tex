@@ -1,0 +1,179 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{1em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\sd}{\operatorname{sd}}
+\newcommand{\D}{\Delta}
+\title{Flagness and Chain-Count Invariants\newline
+  of Combinatorial Barycentric Subdivision}
+\author{idealistichacker\\\small AI-assisted submission for conjecture 00000007126}
+\date{October 23, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+For every partially ordered set, its nonempty finite chains form an actual
+abstract simplicial complex. We prove this complex is flag, its
+$d$-dimensional face count is the number of chains with $d+1$ elements, and
+these counts are invariant under order isomorphisms. Applying this construction
+to a polytope's nonempty face poset is the standard \emph{combinatorial}
+barycentric subdivision. We explicitly distinguish the whole polytope from its
+boundary and use actual face subsets, without a simplicial-input restriction.
+The source's unspecified invariant is interpreted as the enumerative
+$f$-vector, not a complete classifier or a quantity preserved by performing
+subdivision. No formal geometric triangulation theorem is claimed.
+\end{abstract}
+
+\section{Source Scope and Conventions}
+The exact English source asserts the flag property of barycentric subdivision
+and describes its invariant as chain counting of the original faces. The
+Chinese source similarly refers to its combinatorial type, flagness and
+face-chain counts. Neither defines a particular invariant or says that numeric
+counts alone classify the subdivision. We prove the explicitly declared
+standard combinatorial interpretation: the entire chain-incidence family
+describes the abstract subdivision, and its $f$-vector is obtained by counting
+chains by their number of elements. This vector is invariant under
+combinatorial isomorphism; it is not asserted unchanged by subdivision.
+
+The domain is nonempty bounded convex polytopes. For a polytope $Q$, let
+$\mathcal F(Q)$ be its actual finite face family, with faces regarded as
+\emph{subsets} of the ambient affine space. Define
+\[
+ P_{\rm full}(Q)=\{F\in\mathcal F(Q):F\ne\varnothing\},\qquad
+ P_{\partial}(Q)=\{F\in\mathcal F(Q):F\ne\varnothing,\ F\ne Q\},
+\]
+both ordered by inclusion. The full convention includes $Q$; the boundary
+convention does not. Empty faces are not subdivision vertices. In particular,
+the boundary of a point has no nonempty faces. The combinatorial subdivision
+is \emph{defined} to be the order complex of the corresponding face poset.
+This standard description also applies to nonsimplicial polytopes
+\cite[p.~11]{BW}; more generally, the face-poset order complex of a polyhedral
+complex gives its combinatorial barycentric subdivision \cite[Section~2]{OS}.
+
+Frozen source provenance:
+\begin{quote}\small\ttfamily
+Commit: b355e42906e6eaf52bc7e9d005e0ef02d8aa7400\\
+Blob: 6c54d99d7caf701ff7e55c4530c2eb441a049aec.
+\end{quote}
+Both complete source languages are retained in the package's source document.
+
+\section{The Actual Order Complex is Flag}
+Let $P$ be any partially ordered set, not necessarily finite. A strict finite
+chain means a finite subset totally ordered by $\le$. Repetitions are absent
+because it is a set. Chains need not be saturated and may skip ranks. The
+length of a chain means its number of elements, not its number of inequalities.
+Define the abstract complex
+\[
+ \D(P)=\{s\subseteq P:s\text{ finite, nonempty, and a chain}\}.
+\]
+Every nonempty subset of a chain is a chain, and every singleton is a chain.
+These facts prove the actual Mathlib abstract-complex structure fields.
+The empty set is not a stored face under Mathlib's convention.
+
+The comparability graph has vertex set $P$ and adjacency
+\[
+ x\sim y\quad\Longleftrightarrow\quad x\ne y\ \text{ and }\ (x\le y\text{ or }y\le x).
+\]
+It is an actual simple graph: adjacency is symmetric and irreflexive. Its
+edges are exactly the two-element faces of $\D(P)$. A finite set is a clique
+if and only if it is a chain, and therefore
+\[
+ s\in\D(P)\quad\Longleftrightarrow\quad s\ne\varnothing
+       \ \text{ and }\ s\text{ is a clique in the comparability graph}.
+\]
+
+\begin{theorem}
+For every poset $P$, the abstract order complex $\D(P)$ is flag.
+\end{theorem}
+\begin{proof}
+Let $s$ be a nonempty finite vertex set such that every distinct pair in $s$
+is an edge. Such pairs are comparable. Equal pairs are comparable by reflexivity.
+Thus $s$ is a chain and is a face of $\D(P)$. This proves the clique-to-face
+condition, with no assumed flagness or closure predicate.
+\end{proof}
+
+\section{Chain Counts and the Correct Invariant}
+Assume $P$ is finite. Put
+\[
+ \mathcal S_k(P)=\{s\in\D(P):|s|=k\},\qquad
+ \mathcal C_k(P)=\{s\subseteq P:s\ne\varnothing,\ s\text{ a chain},\ |s|=k\}.
+\]
+Membership in the actual complex gives an actual bijection
+$\mathcal S_k(P)\simeq\mathcal C_k(P)$, by sending the finite vertex set to
+the same underlying finite chain, with inverse inclusion as a face. Both
+directions are proved; no counting identity is an external hypothesis.
+By definition a $d$-dimensional abstract simplex has $d+1$ vertices, so
+\[
+ f_d(\D(P))=|\mathcal S_{d+1}(P)|=|\mathcal C_{d+1}(P)|.
+\]
+For empty $P$, all these nonempty-face counts are zero.
+
+\begin{theorem}
+If $e:P\simeq Q$ is an order isomorphism of finite posets, then
+$f_d(\D(P))=f_d(\D(Q))$ for every $d\ge0$.
+\end{theorem}
+\begin{proof}
+An order isomorphism preserves and reflects comparability, so the finite image
+$e(s)$ is a chain if and only if $s$ is. Injectivity preserves its cardinality,
+and nonemptiness is preserved. Taking finite images under $e$ and $e^{-1}$
+gives mutually inverse maps of the actual face sets with each cardinality.
+The resulting bijection preserves every $f_d$.
+\end{proof}
+
+The whole chain-incidence complex contains more data than the numeric count
+vector. No theorem here states that the latter determines its isomorphism
+class, reconstructs the original polytope, or is equal to its pre-subdivision
+$f$-vector. For example a square boundary subdivides into eight vertices and
+eight edges, while the full square subdivides into face counts $(9,16,8)$.
+These examples clarify the two conventions; they are not the universal proof.
+
+\section{Actual Face Families and Formal Scope}
+Lean proves the above results for every poset and every finite family
+$\mathcal A$ of \emph{actual subsets} of any ambient type $E$. It filters out
+empty sets, uses actual subset inclusion, and constructs the order complex.
+The boundary constructor additionally removes the specified whole face.
+The flagness and $f$-vector chain formulas follow for both conventions. An
+arbitrary input family need not itself be polytopal: the universal theorem
+is stronger, and specializes to the actual $\mathcal F(Q)$ of a polytope.
+No downward closure under arbitrary original \emph{vertex} subsets is required.
+Thus a quadrilateral original face is one subdivision vertex, not a tetrahedron.
+
+The standard combinatorial face-poset definition and the finiteness of the
+actual face family of a bounded polytope identify the specialization in ordinary
+mathematics. The Lean statements are explicitly universal finite-family
+statements, not theorems about a separate geometric Polytope type. No barycenter
+coordinates, affine independence, geometric gluing or coverage are advertised
+as formally constructed. Such stronger geometric claims would require further
+bridges and are not obtained merely by giving an arbitrary family a geometric name.
+
+The core consists of 21 public theorems, plus the proved face and
+transport equivalence definitions. Actual source replay and every public
+theorem's compiled type and axiom footprint pass on Lean 4.33.1 with Mathlib
+commit:
+\begin{quote}\small\ttfamily
+0df444a360eaa60ab8c11dca51a86af692955474.
+\end{quote}
+Only \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound} occur.
+The portable package reproducer checks all nine physical Git dependencies,
+their pinned origins/HEADs, tracked raw bytes and index/tree agreement before
+and after execution. It cleans only this project's build outputs, actually
+builds Main, replays the mathematical source and Main with warnings as errors,
+and checks all 21 compiled theorem types and axiom footprints. Its finite face
+incidence examples are regression checks, not the general proof. Installed Lean
+and dependency build caches remain trust inputs, not an empty-machine bootstrap,
+clean build of all Mathlib dependencies or formal geometric triangulation
+theorem. The separate AI-agent review record does not imply human expertise,
+organizer acceptance, first-solver priority or an award.
+
+\begin{thebibliography}{9}
+\bibitem{BW} F. Brenti and V. Welker, \emph{$f$-vectors of barycentric subdivisions}.
+  Author-hosted manuscript, September 2007, especially p.~11.
+\bibitem{OS} J. A. Olarte and F. Santos, \emph{Hypersimplicial subdivisions}.
+  Selecta Mathematica \textbf{28} (2022), article~4 (online 2021).
+  DOI: \texttt{10.1007/s00029-021-00722-6}, Section~2.
+\end{thebibliography}
+\end{document}
