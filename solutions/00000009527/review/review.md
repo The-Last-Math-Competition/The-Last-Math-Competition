@@ -1,0 +1,25 @@
+# Solution Review — Conjecture 00000009527 (PR 1063)
+
+**Submission:** gaochengzhecpu — `gaochengzhecpu_submission_20261020023025`  
+**Reviewer:** independent competition reviewer  
+**Date:** 2026-11-06
+
+## Checklist results
+
+- **Eligibility and scope.** The submission uses the correct personal folder for conjecture 00000009527; the conjecture was open, and the pull request changed no conjecture, README, leaderboard, metadata, or other file.
+- **Report and PDF.** The complete official statement of the conjecture, the LaTeX report, and the submitted PDF were read in full. The LaTeX source was independently recompiled with `pdflatex`; it compiled cleanly, and the theorem statements in the submitted PDF match the source and the Lean declarations.
+- **Lean project.** The submission's Lean project was rebuilt from a clean copy of the frozen sources with its own module names, `lakefile`, lean-toolchain `v4.19.0` and Mathlib revision `c44e0c8ee63ca166450922a373c7409c5d26b00b`. The build completed with no `sorry`, no `native_decide`, no custom `axiom`/`constant`, no `unsafe`, `opaque`, `extern` or `implemented_by` declaration.
+- **Axiom audit.** The transitive axiom set of the decisive declarations is contained in {`propext`, `Classical.choice`, `Quot.sound`}; no `sorryAx` is reachable.
+- **Auxiliary code.** `verify.py` exited 0.
+
+## Semantic audit
+
+**Conjecture as filed.** Definition: The less-noisy order phi preceq_ln psi is defined by I(ensemble; phi) at most I(ensemble; psi) for all input ensembles, with I the Holevo mutual information; this partial order is used to describe capacity regions of broadcast channels. Conjecture: The two-receiver broadcast sum-capacity upper bound for less-noisy pairs (phi,psi) is given by optimizing the single-letter difference delta = I(.;psi) - I(.;phi) and is asymptotically attainable; the less-noisy order is a closed partial order on channel space whose unique maximal element is the completely depolarizing channel. (less-noisy broadcast capacity region) 定义：少噪序 φ⪯_ln ψ 定义为对一切输入系综成立 I(系综;φ)≤I(系综;ψ)，I 为 Holevo 互信息；该半序用于广播信道的容量域刻画。猜想：少噪对 (φ,ψ) 的双接收广播和容量上界由单字母差分 δ=I(·;ψ)−I(·;φ) 的最优化给出且渐近可达；少噪序在信道空间中为闭半序，其极大元恰为完全去极化信道。（少噪广播容量域）
+
+**Decisive results.** For actual qubit channels D(A)=tr(A)I/2 and Z(A)=diag(A00,A11), the source order satisfies D<=Z for every finite ensemble, including arbitrary noncommuting input density states. Both have normalized Kraus families. Depolarization has Holevo information zero, while dephasing has nonnegative Holevo information by scalar Jensen after proving the actual spectral diagonal-entropy formula. The equiprobable orthogonal pure-state ensemble has Holevo values log 2 and 0, so not Z<=D. Thus D has a strict successor and is not maximal. The decisive Lean declaration is `depolarize_not_maximal`, whose statement is: KrausCPTP depolarize ∧ KrausCPTP dephase ∧ LessNoisy depolarize dephase ∧ ¬ LessNoisy dephase depolarize. Read against the filed statement, this establishes the negation of the printed clause identified in the README.
+
+**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+
+## Disposition
+
+APPROVED — merged as PR 1063. The submission gives a complete, formalised disproof of conjecture 00000009527.
