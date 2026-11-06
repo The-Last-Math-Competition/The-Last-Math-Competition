@@ -1,0 +1,141 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{An Explicit Finite-Time Three-Vortex Collapse:\\A Disproof of Conjecture 00000005268}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Three nonzero, mixed-sign circulations admit an explicit solution of the
+planar point-vortex equations whose vortices remain pairwise distinct
+until time $1/2$ and converge to a common point at that time. The
+construction uses rational initial coordinates and a logarithmically
+rotating, square-root shrinking similarity factor. Lean verifies the
+actual complex-valued differential equation, including its conventional
+$1/(2\pi)$ factor, and the full one-sided collision limits.
+\end{abstract}
+
+\paragraph{Source and reading.}
+Both source languages assert that finite-time collision of three point
+vortices is impossible for general strength triples. We interpret
+``general'' as imposing no same-sign restriction. A solution that is
+collision-free on $[0,T)$ and has a common finite limit as $t\uparrow T$
+is a finite-time total collision. The equation need not remain defined
+at the collision itself. One such solution disproves the universal
+exclusion, regardless of the proposed additional first integral.
+This does not assert that collisions occur for same-sign strengths.
+
+\paragraph{Equation and circulations.}
+Identify the plane with $\mathbb C$ and use the usual convention
+\begin{equation}\label{eq:physical}
+ \dot z_i=\frac{1}{2\pi}\sum_{j\ne i}
+ K_j\frac{\mathrm i(z_i-z_j)}{|z_i-z_j|^2},\qquad i=0,1,2.
+\end{equation}
+Set $K_j=2\pi\gamma_j$, where
+\[
+ (\gamma_0,\gamma_1,\gamma_2)
+ =\left(-\frac{1073}{84},-\frac{1073}{140},\frac{1073}{224}\right).
+\]
+All three physical circulations are nonzero. With this choice,
+\eqref{eq:physical} is precisely $\dot z=F(z)$, where
+\[
+ F_i(z)=\sum_{j\ne i}\gamma_j
+ \frac{\mathrm i(z_i-z_j)}{|z_i-z_j|^2}.
+\]
+This passage is a change of circulation units, not a change in the
+physical equation or the meaning of collision.
+
+\paragraph{A rational similarity configuration.}
+Define
+\[
+ c=\frac38-\frac{15}{56}\mathrm i,\qquad
+ (w_0,w_1,w_2)=
+ \left(-\frac38+\frac{15}{56}\mathrm i,
+ \frac58+\frac{15}{56}\mathrm i,\frac87\mathrm i\right),
+ \qquad \lambda=-1-\frac{238}{15}\mathrm i.
+\]
+The squared pairwise distances of $w$ are respectively
+$1,29/32,37/32$, so the points are distinct. Direct rational arithmetic
+in the displayed definition of $F$ gives
+\[
+\begin{array}{c|c|c}
+i&F_i(w)&\lambda w_i\\\hline
+0&37/8+(1591/280)\mathrm i&37/8+(1591/280)\mathrm i\\
+1&29/8-(1711/168)\mathrm i&29/8-(1711/168)\mathrm i\\
+2&272/15-(8/7)\mathrm i&272/15-(8/7)\mathrm i
+\end{array}
+\]
+Thus $F_i(w)=\lambda w_i$. For any $u\ne0$ and any $c\in\mathbb C$,
+the actual vortex field satisfies the similarity identity
+\begin{equation}\label{eq:similarity}
+ F_i(c+uw)=\frac{u}{|u|^2}F_i(w).
+\end{equation}
+Indeed, each difference acquires a factor $u$, and its squared modulus
+acquires the factor $|u|^2$.
+
+\begin{theorem}
+The following solution of \eqref{eq:physical} undergoes a total collision
+at time $T=1/2$:
+\[
+ q=\frac12+\frac{119}{15}\mathrm i,\qquad
+ u(t)=\exp\bigl(q\log(1-2t)\bigr),\qquad
+ z_i(t)=c+u(t)w_i\quad(0\le t<1/2).
+\]
+Its initial positions are $0$, $1$, and $3/8+(7/8)\mathrm i$.
+\end{theorem}
+\begin{proof}
+For $t<1/2$, let $s=1-2t>0$. Complex exponentials never vanish, and
+\[
+ |u(t)|^2=\exp(2\operatorname{Re}(q)\log s)=s,
+ \qquad
+ u'(t)=\frac{-2q}{s}u(t)=\frac{\lambda}{s}u(t).
+\]
+Consequently the three positions remain distinct. Differentiation and
+\eqref{eq:similarity} give, for each $i$,
+\[
+ \dot z_i(t)=\frac{\lambda u(t)}s w_i
+ =\frac{u(t)}{|u(t)|^2}F_i(w)=F_i(z(t)),
+\]
+which is exactly \eqref{eq:physical} for $K_j=2\pi\gamma_j$.
+Since $u(0)=1$, adding $c$ to the listed $w_i$ gives the initial
+positions in the theorem. Finally $|u(t)|=\sqrt{1-2t}\to0$ as
+$t\uparrow1/2$. Hence $z_i(t)\to c$ for all three vortices.
+\end{proof}
+
+\paragraph{Formal verification and scope.}
+The Lean file defines the vector field by an actual sum over
+\texttt{Fin 3}, using Mathlib complex numbers and their squared norm.
+It proves the rational field identity, similarity covariance,
+nonzero circulations, exact initial positions, injectivity of the
+configuration before collision, and the actual derivative statements
+\texttt{HasDerivAt}. The collision is a Mathlib filter limit from the
+left. The final theorem negates a universally quantified proposition
+excluding any such solution for all nonzero circulation triples,
+all positive finite times, all trajectories, and all collision points.
+The conventional $1/(2\pi)$ equation and its circulation rescaling
+are also proved in Lean. No numerical simulation, unverified ODE
+existence assertion, or endpoint substitution replaces the trajectory.
+
+The separate Hamiltonian formulation and general classification of
+collapsing triples are not formalized or needed here. The paper's
+direct proof and the Lean theorem concern this explicit solution.
+The axiom audit permits only \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+\paragraph{Source and reproduction.}
+The exact bilingual source is preserved as \texttt{SOURCE.md}; the
+frozen upstream commit and source digest are recorded in
+\texttt{verification/SOURCE\_PROVENANCE.md}.
+The formal proof is in \texttt{lean/Main.lean}, using Lean 4.19.0 and
+the pinned Mathlib dependency recorded in the project manifest.
+From the Lean project directory, run
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}\end{center}
+The accompanying strict log contains the actual compiler result and
+axiom output. Development was by a delegated AI agent with a
+self-review; the coordinating agent reviews it separately. No external
+independent review is claimed.
+\end{document}
