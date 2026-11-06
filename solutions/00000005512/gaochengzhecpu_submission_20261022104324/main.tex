@@ -1,0 +1,171 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{The Supermarket Fixed Point Has No Power Tail:\\A Disproof of Conjecture 00000005512}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+At load $1/2$, the two-choice supermarket fixed point has survival
+probabilities $q_k=2^{-(2^k-1)}$. We verify the entire stationary
+mean-field system, construct the associated normalized probability
+distribution, and prove that $k^m q_k\to0$ for every integer $m$.
+Thus its queue-length tail has no finite power-law exponent. We also
+construct the genuine fixed points for every selection count $d\ge2$:
+at queue length two their tails are $q^{(d)}_2=2^{-(d+1)}$, which decay
+faster than every inverse power of $d$. Lean verifies both conclusions,
+the stationary equations, and probability normalization.
+\end{abstract}
+
+\paragraph{Reading and scope.}
+The source describes a hyperbolic-type fixed-point distribution,
+a power-law tail in the selection count, doubling of the queue-length
+tail exponent, and a power-tail exponent growing linearly with the
+number sampled. We disprove genuine finite power-tail assertions in
+\emph{both} variables: queue length at fixed $d=2$, and selection
+count at fixed queue length $k=2$. A power law here means positive
+asymptotic constant or positive two-sided comparison with $x^{-a}$
+for finite real $a$. We exclude even the weaker necessary condition
+of a positive eventual polynomial lower envelope.
+
+There is a different possible reading of the source's wording: the
+\emph{recursion} for tails takes a $d$-th power. That statement is
+correct, and is used below. It describes double-exponential decay in
+queue length for $d\ge2$, not a hyperbolic or polynomial tail. No
+refutation of that corrected recursion-only reading is claimed.
+
+\paragraph{The actual model and its fixed-point equations.}
+Use unit-rate exponential service and arrival load $\rho\in(0,1)$.
+Each arrival samples $d$ servers uniformly and joins a shortest queue.
+Let $q_k(t)$ denote the limiting fraction of queues of length at
+least $k$, so $q_0(t)=1$. The classical mean-field equations are
+\begin{equation}\label{eq:ode}
+ \dot q_{k+1}
+ =\rho\bigl(q_k^d-q_{k+1}^d\bigr)-(q_{k+1}-q_{k+2}),
+ \qquad k\ge0.
+\end{equation}
+The arrival term is the probability that all sampled queues have
+length at least $k$, less the probability that all have length at
+least $k+1$. The service term counts queues of length exactly $k+1$.
+These are the standard infinite-dimensional equations, not an
+alternative finite approximation. See Budhiraja, Mukherjee and Wu,
+\emph{Supermarket Model on Graphs}, Section 2.1, especially
+equation (2.6), and the introduction's classical clique discussion:
+\href{https://arxiv.org/abs/1712.07607}{arXiv:1712.07607}.
+
+We study fixed points of \eqref{eq:ode}, with $q_0=1$,
+$0\le q_{k+1}\le q_k$, and $q_k\to0$. The term ``fixed point'' here
+refers to this standard mean-field equilibrium. A finite-server
+stationary law or a new proof of the stochastic mean-field limit
+is not part of this submission.
+
+\begin{theorem}\label{thm:two}
+At $\rho=1/2$ and $d=2$, the unique fixed point in this tail class is
+\[
+ q_k=2^{-(2^k-1)},\qquad k\ge0.
+\]
+It is the survival tail of a probability distribution on
+$\mathbb N$. For every integer $m\ge0$, $k^m q_k\to0$.
+Consequently it has no finite polynomial tail exponent.
+\end{theorem}
+\begin{proof}
+Define $q_0=1$ and $q_{k+1}=\tfrac12q_k^2$. Induction gives
+the displayed formula, strict positivity, $q_k\le1$, monotonicity,
+and $q_k\le2^{-k}$. The recursion immediately gives
+\[
+ \tfrac12(q_k^2-q_{k+1}^2)-(q_{k+1}-q_{k+2})=0
+\]
+for every $k$, so the entire stationary system holds.
+
+For uniqueness, take any fixed point and put
+$J_k=\tfrac12q_k^2-q_{k+1}$. Equation \eqref{eq:ode} says
+$J_k=J_{k+1}$. Since $q_k\to0$, also $J_k\to0$, so every
+$J_k=0$. The recursion and $q_0=1$ now determine every coordinate.
+
+Set $p_k=q_k-q_{k+1}\ge0$. Telescoping gives
+$\sum_{k=0}^{N-1}p_k=1-q_N\to1$, and, for every $n$,
+$\sum_{k=n}^\infty p_k=q_n$. Thus these are actual survival
+probabilities of a normalized distribution. Finally,
+\[
+ 0\le k^m q_k\le k^m2^{-k}\longrightarrow0
+\]
+for every $m$. If a genuine finite power law $q_k\asymp k^{-a}$
+held, choose an integer $m\ge\max(a,0)$. For all sufficiently large
+$k\ge1$, $k^m q_k$ would be bounded below by a positive constant,
+contradicting the limit just proved.
+\end{proof}
+
+\begin{theorem}\label{thm:d}
+For every integer $d\ge2$, at load $1/2$ the sequence defined by
+\[
+ q^{(d)}_0=1,\qquad
+ q^{(d)}_{k+1}=\tfrac12\bigl(q^{(d)}_k\bigr)^d
+\]
+is a fixed point of \eqref{eq:ode} and the survival tail of a
+normalized probability distribution. At queue length two,
+\[
+ q^{(d)}_2=2^{-(d+1)},\qquad
+ d^m q^{(d)}_2\longrightarrow0 \quad(d\to\infty)
+\]
+for every integer $m\ge0$. Hence this dependence on selection count
+also has no finite power-law tail.
+\end{theorem}
+\begin{proof}
+For $x\in[0,1]$ and $d\ge1$, $x^d\le x$. Thus induction gives
+$0<q^{(d)}_k\le1$,
+$q^{(d)}_{k+1}\le q^{(d)}_k$, and
+$q^{(d)}_k\le2^{-k}$, so the tail tends to zero. Substituting the
+recursion proves every stationary equation. Differences of adjacent
+tails again form nonnegative masses; telescoping proves total mass
+one and the survival-tail identity at every level. Two applications
+of the recursion give $q^{(d)}_1=1/2$ and
+$q^{(d)}_2=2^{-(d+1)}$. Multiplication by any power of $d$ still
+tends to zero, excluding any positive polynomial lower envelope.
+\end{proof}
+
+\paragraph{Formal verification and scope.}
+Lean defines the actual coordinate drift in \eqref{eq:ode}, and its
+fixed-point predicates include every coordinate equation and the
+tail boundary conditions. All sequences are infinite functions
+$\mathbb N\to\mathbb R$. Mathlib's \texttt{HasSum} verifies the
+normalization and every survival-tail identity. No finite table,
+numerical iteration, or asymptotic assumption replaces these proofs.
+The principal results are
+\begin{center}
+\texttt{tail\_fixed\_point}, \texttt{fixed\_point\_unique},\\
+\texttt{tail\_closed\_form}, \texttt{tail\_is\_survival},\\
+\texttt{weighted\_tail\_tendsto\_zero},
+\texttt{not\_power\_tail\_conjecture},\\
+\texttt{tailD\_fixed\_point},
+\texttt{no\_selection\_count\_power\_tail}.
+\end{center}
+\texttt{PolynomialTail} expresses existence of an integer $m$, a
+positive $c$, and an $N$, such that $n^m q_n\ge c$ for every
+$n\ge N$. The first negated conjecture is universally quantified
+over loads and normalized two-choice fixed points. The second
+negation concerns the genuine family in Theorem~\ref{thm:d}.
+Both exclude a necessary condition of any finite real power tail;
+the elementary real-to-integer exponent comparison in
+Theorem~\ref{thm:two} is a paper explanation of that implication.
+The stochastic derivation of the mean-field equations and the
+finite-server limit theorem are cited model background and are not
+claimed as formalized. Other source clauses need not be settled
+once the claimed power-tail clause is false.
+
+\paragraph{Source and reproduction.}
+The preserved English and Chinese conjecture appears in
+\texttt{SOURCE.md}; the provenance file records its commit and hash.
+The project pins Lean 4.19.0 and Mathlib revision
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+From the \texttt{lean} directory run \texttt{lake build}, then
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+All principal axiom reports use only \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound}.
+Development and self-review were performed by a delegated AI agent;
+the coordinating agent reviews the result separately. No external
+independent review is claimed.
+\end{document}
