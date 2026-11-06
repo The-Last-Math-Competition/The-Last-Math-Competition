@@ -1,0 +1,234 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\lstset{basicstyle=\ttfamily\footnotesize, breaklines=true, frame=single,
+  columns=fullflexible, keepspaces=true, showstringspaces=false}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+
+\title{Conjecture 00000002118 is false: \\
+an exact refutation of the third-cumulant law for Quicksort comparisons}
+\author{Zhiyuan Zhang (GitHub: LibertychaserUS)}
+\date{2026-10-27}
+
+\begin{document}
+\maketitle
+
+\noindent\textbf{Verdict.} The conjecture is \emph{refuted}. No constant $C$ makes
+$\kappa_3(n)=2n-6\log n+C$ hold for all $n\ge 2$, for the natural logarithm or for any base $b>0$, $b\ne 1$.
+The refutation is exact (rational arithmetic plus three elementary logarithm inequalities) and is
+machine-checked in Lean~4 with Mathlib (v4.33.1). Only the axioms \texttt{propext}, \texttt{Classical.choice}
+and \texttt{Quot.sound} are used.
+
+\section{The conjecture as filed}
+
+The filed statement (English part, quoted verbatim):
+
+\begin{quote}
+Definition: The Quicksort cost $Q_n$ is the number of comparisons. Conjecture: The third cumulant is
+$\kappa_3(n) = 2n - 6\log n + C$ (with explicit constant $C$); the linear main coefficient of $\kappa_3$ is $2$.
+\end{quote}
+
+\section{Precise reading}
+
+\paragraph{Cost.} $Q_n$ is written $C_n$ below. It is the number of comparisons of Quicksort with a uniformly random
+pivot on $n$ distinct keys. Its law is the unique solution of
+\[
+  C_0 = C_1 = 0, \qquad C_n \overset{d}{=} (n-1) + C_J + C'_{\,n-1-J}\quad (n\ge 2),
+\]
+where $J$ is uniform on $\{0,\dots,n-1\}$, and $C$, $C'$ are independent copies of the cost. This is the standard
+model (Knuth; R\"osler 1991; Neininger--R\"uschendorf 2004).
+
+\paragraph{Third cumulant.} $\kappa_3(n)$ is the third cumulant of $C_n$, which equals its third central moment
+$\mathbb{E}\big[(C_n-\mathbb{E}C_n)^3\big]$.
+
+\paragraph{Logarithm.} The main reading uses the natural logarithm. The refutation also covers every base $b>0$, $b\ne 1$,
+which settles the reading of $\log$ as $\log_2$ or $\log_{10}$ as well.
+
+\paragraph{Claim refuted.} For the exact reading,
+\[
+  (\mathrm{R}1)\qquad \exists\, C\in\mathbb{R}\ \ \forall n\ge 2:\quad \kappa_3(n)=2n-6\log n+C .
+\]
+(R1) is false in the natural-log case, and (R2) below is false for every base. The conjecture as literally filed is
+therefore false. The asymptotic reading ``$\kappa_3(n)=2n-6\log n+C+o(1)$'' is not refuted by a finite computation here;
+Section~3 gives numerical evidence against it, but no formal proof.
+
+\section{The counterexample and its verification}
+
+\paragraph{Exact small values.} Solving the recursion in exact rational arithmetic gives:
+\begin{center}
+\begin{tabular}{c l c c}
+\hline
+$n$ & law of $C_n$ & $\mathbb{E}C_n$ & $\kappa_3(n)$ \\
+\hline
+2 & $1$ with probability $1$ & $1$ & $0$ \\
+3 & $2$ w.p.\ $1/3$, $3$ w.p.\ $2/3$ & $8/3$ & $-2/27$ \\
+4 & $4$ w.p.\ $1/2$, $5$ w.p.\ $1/6$, $6$ w.p.\ $1/3$ & $29/6$ & $13/54$ \\
+5 & (not needed) & $-$ & $216/125 = 1.728$ \\
+12 & (not needed) & $-$ & $136.954137045\ldots$ \\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{Hand check of $n=2,3,4$.}
+\begin{itemize}
+\item $n=2$: $C_2=1+C_J+C'_{1-J}=1$ for both $J$.
+\item $n=3$: $C_3=2+C_J+C'_{2-J}$ gives $J=1\Rightarrow 2$ (probability $1/3$), and $J\in\{0,2\}\Rightarrow 3$
+(probability $2/3$). Central moment: deviations $-2/3$ (prob.\ $1/3$) and $+1/3$ (prob.\ $2/3$), so
+$\kappa_3(3)=\tfrac13\cdot(-\tfrac{8}{27})+\tfrac23\cdot\tfrac1{27}=-\tfrac{2}{27}$.
+\item $n=4$: $C_4=3+C_J+C'_{3-J}$. $J\in\{1,2\}$ gives $4$ (probability $1/2$); $J\in\{0,3\}$ gives $3+C_3$ (probability $1/2$),
+so $5$ with probability $1/6$ and $6$ with probability $1/3$. Mean $29/6$, and
+$\kappa_3(4)=\tfrac12(-\tfrac{125}{216})+\tfrac16\cdot\tfrac1{216}+\tfrac13\cdot\tfrac{343}{216}=\tfrac{13}{54}$.
+\end{itemize}
+
+\paragraph{Natural logarithm: contradiction at $n=2,3$.} The claimed identity at $n=2$ and $n=3$ reads
+\[
+  0 = 4-6\log 2+C,\qquad -\tfrac{2}{27} = 6-6\log 3+C .
+\]
+Subtracting gives $\log 3-\log 2=\tfrac{28}{81}\approx 0.345679$. But $\log(3/2)\approx 0.405465$, and the alternating
+series bound for $\log(1-x)$ at $x=1/3$ with four terms gives $\log(3/2)\ge 0.4043-\tfrac1{162}>0.398$. So no real $C$ works.
+Equivalently, the constant forced by $n=2$ is $6\log 2-4=0.158883$, and the one forced by $n=3$ is
+$-\tfrac{2}{27}-6+6\log 3=0.517600$. They differ by $0.358717$.
+
+\paragraph{Any base $b$: contradiction at $n=2,3,4$.} Write $L_n=\log n/\log b$. The identity at $n=2,3,4$, together with
+$\log 4=2\log 2$, gives
+\[
+  0=4-6L_2+C,\quad -\tfrac{2}{27}=6-6L_3+C,\quad \tfrac{13}{54}=8-12L_2+C,
+\]
+so $L_2=\tfrac{203}{324}$ and $L_3=\tfrac{315}{324}$. Hence $203\log 3=315\log 2$, that is
+$\log 3-\log 2=\tfrac{112}{203}\log 2$. Using $\log 2<0.6931471808$ (Mathlib: \texttt{Real.log\_two\_lt\_d9}) gives
+$\log 3-\log 2<0.38249$, while $\log 3-\log 2\ge 0.398$ from the bound above. This is a contradiction. The base-$2$ and
+base-$10$ cases are included. Numerically, $\log_2(3/2)=0.584963$ and $\log_{10}(3/2)=0.176091$, each incompatible with the
+forced value $28/81$.
+
+\paragraph{Growth (numerical evidence against the asymptotic reading).} Exact values give
+\begin{center}
+\begin{tabular}{r r r r}
+\hline
+$n$ & $\kappa_3(n)$ & $\kappa_3(n)/n^3$ & $\kappa_3(n)-(2n-6\log n)$ \\
+\hline
+12 & $136.954$ & $0.0793$ & $127.86$ \\
+60 & $39877.35$ & $0.18462$ & $39781.9$ \\
+90 & & $0.19891$ & \\
+120 & $357056.64$ & $0.20663$ & $356845.4$ \\
+\hline
+\end{tabular}
+\end{center}
+Also $\kappa_3(120)/\kappa_3(60)=8.954$, which matches cubic growth (ratio $2^3=8$) and not linear growth (ratio $2$).
+This is numerical evidence only; no proof of cubic growth is given here. (It is consistent with the known fact that
+$(C_n-\mathbb{E}C_n)/n$ converges in law with convergent moments, and with the limit having non-zero third cumulant. We did
+not verify that last point.)
+
+\paragraph{Robustness to the cost convention.} Recomputing with toll $n+1$ (Knuth-style) or toll $n$ instead of $n-1$
+changes the exact values, but not the conclusion. The constant forced by $n=2$ and by $n=3$ (natural log) is
+\begin{center}
+\begin{tabular}{l c c c}
+\hline
+toll & $\kappa_3(3)$ & $C$ from $n=2$ & $C$ from $n=3$ \\
+\hline
+$n-1$ (main) & $-2/27$ & $0.158883$ & $0.517600$ \\
+$n+1$ & $-2$ & $0.158883$ & $-1.408326$ \\
+$n$ & $-16/27$ & $0.158883$ & $-0.000919$ \\
+\hline
+\end{tabular}
+\end{center}
+In each case the two constants differ, so the refutation does not depend on the convention.
+
+\section{Lean formalization}
+
+The file is \texttt{Disproof.lean} in the batch directory. It uses \texttt{namespace TLMC2118}. The ASCII transcription
+below is for readability; the Lean file itself is the authoritative text.
+
+\subsection*{Definitions and correspondence}
+\begin{lstlisting}
+def qsPmf (n : Nat) : Nat -> Rat :=
+  if h : n <= 1 then fun v => if v = 0 then 1 else 0
+  else fun v => (1 / n) *
+    sum j : Fin n, sum x in range (j*j+1),
+      sum y in range ((n-1-j)*(n-1-j)+1),
+        (if v = (n-1) + x + y then qsPmf j x * qsPmf (n-1-j) y else 0)
+-- termination_by n  (decreasing_by discharged by omega)
+
+def mom (n k : Nat) : Rat := sum v in range (n*n+1), (v : Rat)^k * qsPmf n v
+def kappa3 (n : Nat) : Rat := sum v in range (n*n+1), ((v : Rat) - mom n 1)^3 * qsPmf n v
+\end{lstlisting}
+
+\begin{itemize}
+\item \texttt{qsPmf n v} is $P(C_n=v)$. The base cases $n\le 1$ give $\delta_0$. The step for $n\ge 2$ is the convolution
+$C_n=(n-1)+C_J+C'_{n-1-J}$ with $J$ uniform on $\texttt{Fin n}$, weight $1/n$, and independent copies.
+\item The sums over $x$ and $y$ are truncated at $j^2$ and $(n-1-j)^2$. This loses no mass, because $C_j\le j(j-1)/2\le j^2$.
+\item \texttt{kappa3 n} is the third central moment of $C_n$, computed exactly over \texttt{Rat}.
+\end{itemize}
+
+\subsection*{Computed values (Lean lemmas)}
+\begin{lstlisting}
+lemma qsPmf_two   : qsPmf 2 = fun v => if v = 1 then 1 else 0
+lemma qsPmf_three : qsPmf 3 = fun v => if v = 2 then 1/3 else if v = 3 then 2/3 else 0
+lemma qsPmf_four  : qsPmf 4 = fun v => if v = 4 then 1/2 else if v = 5 then 1/6
+                                       else if v = 6 then 1/3 else 0
+lemma kappa3_two   : kappa3 2 = 0
+lemma kappa3_three : kappa3 3 = -2/27
+lemma kappa3_four  : kappa3 4 = 13/54
+lemma log_three_sub_log_two_gt : (0.39 : Real) < Real.log 3 - Real.log 2
+\end{lstlisting}
+
+\subsection*{Main theorems}
+\begin{lstlisting}
+theorem conjecture_00000002118_fails :
+    not (exists C : Real, forall n : Nat, 2 <= n ->
+      (kappa3 n : Real) = 2 * (n : Real) - 6 * Real.log (n : Real) + C)
+
+theorem conjecture_00000002118_fails_any_base :
+    not (exists b C : Real, 0 < b /\ b != 1 /\ forall n : Nat, 2 <= n ->
+      (kappa3 n : Real) = 2 * (n : Real) - 6 * (Real.log (n : Real) / Real.log b) + C)
+\end{lstlisting}
+
+\noindent The first theorem is the negation of the conjecture (natural log) at the counterexample. The second is the same
+for every base. Both are proved from the lemmas above and the logarithm bounds
+(\texttt{Real.abs\_log\_sub\_add\_sum\_range\_le} for the lower bound on $\log(3/2)$, and \texttt{Real.log\_two\_lt\_d9}).
+The proof uses no \texttt{decide} over large ranges and no \texttt{native\_decide}. Forbidden tokens do not occur.
+
+\subsection*{Axioms}
+\begin{lstlisting}
+'TLMC2118.conjecture_00000002118_fails' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TLMC2118.conjecture_00000002118_fails_any_base' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{lstlisting}
+
+\noindent The file compiles with exit status 0 under \texttt{lean-toolchain} \texttt{v4.33.1}. The only message is a
+harmless linter note about a \texttt{<;>} combinator.
+
+\section{Reproduction}
+
+\begin{enumerate}
+\item Exact computation and robustness (Python 3, Fractions only):
+\begin{lstlisting}
+cd LibertychaserUS_submission_20261027064839
+python3 check.py
+python3 convention_check.py
+\end{lstlisting}
+\item Lean verification:
+\begin{lstlisting}
+cd lean
+lake exe cache get \&\& lake build
+\end{lstlisting}
+\item This report:
+\begin{lstlisting}
+cd LibertychaserUS_submission_20261027064839 && tectonic report.tex
+\end{lstlisting}
+\end{enumerate}
+
+\section*{Limitations}
+The formal result refutes the exact-identity reading of the conjecture, for all $n\ge 2$, with natural log or any base.
+An asymptotic reading (``$\kappa_3(n)=2n-6\log n+C+o(1)$'') is not formally refuted here. The numerical growth evidence
+is in Section~3. A rigorous proof of cubic growth would use the Neininger--R\"uschendorf convergence of moments, plus
+the non-vanishing of the third cumulant of the limit law, which we did not verify.
+
+\end{document}
