@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000002783: a different equality pair for Banach--Mazur distance}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The explicit necessary classification is false}
+Use the standard multiplicative Banach--Mazur distance between real
+finite-dimensional normed spaces,
+\[
+ d_{\rm BM}(X,Y)=\inf_{T:X\simeq Y}\|T\|\,\|T^{-1}\|,
+\]
+where the infimum is over invertible linear maps with their actual
+operator norms. This convention is stated, for example, in Youssef,
+\href{https://arxiv.org/abs/1206.0654}
+{\emph{Restricted invertibility and the Banach--Mazur distance to the
+cube}}, printed p.7, before Corollary 3.3. The source's description
+using isometric embeddings is imprecise; we use this standard
+multiplicative distance, matching its proposed $\sqrt n$ bound,
+rather than a logarithmic or embedding distance.
+
+In dimension two, take
+\[
+ E=\ell_2^2(\mathbf R),\qquad S=\ell_\infty^2(\mathbf R).
+\]
+We prove $d_{\rm BM}(E,S)=\sqrt2$, but $E$ is linearly isometric to
+neither $\ell_1^2$ nor $\ell_\infty^2$. Thus this equality pair is
+not the named $\ell_1^2$--$\ell_\infty^2$ pair in either order.
+It refutes the explicit necessary equality classification. There
+is no need to assign a meaning to the additional second-extremal-value
+clause, or to prove or disprove the separate proposed all-pairs bound.
+
+\section{A lower bound for every invertible map}
+Fix any $T:E\to S$ invertible. Put
+\[
+ m=\|T\|,\quad M=\|T^{-1}\|,\quad
+ u=T^{-1}(1,0),\quad v=T^{-1}(0,1).
+\]
+The operator norm inequalities give
+$1\le m\|u\|$ and $1\le m\|v\|$.
+Both $(1,1)$ and $(1,-1)$ have sup norm one, so
+$\|u+v\|\le M$ and $\|u-v\|\le M$.
+The Euclidean parallelogram identity yields
+\[
+ 2(\|u\|^2+\|v\|^2)
+   =\|u+v\|^2+\|u-v\|^2\le2M^2.
+\]
+Consequently
+\[
+ 2\le m^2(\|u\|^2+\|v\|^2)\le m^2M^2,
+ \qquad \sqrt2\le mM.
+\]
+This is a bound over all invertible maps, not just the coordinate map.
+
+\newpage
+\section{Attainment and the genuine infimum}
+The coordinate identity $I:E\to S$ satisfies $\|I\|\le1$ because
+$\max(|x_0|,|x_1|)\le\sqrt{x_0^2+x_1^2}$. Its inverse satisfies
+\[
+ \|I^{-1}y\|_2^2=y_0^2+y_1^2\le2\|y\|_\infty^2,
+\]
+so $\|I^{-1}\|\le\sqrt2$.
+The preceding universal lower bound forces
+$\|I\|\|I^{-1}\|=\sqrt2$.
+Therefore the actual set of norm products has $\sqrt2$ as its
+least element, and its infimum is $\sqrt2$.
+This also proves that the set is nonempty and bounded below;
+no default value of an empty or unbounded infimum is used.
+
+\section{Excluding both named isometry classes}
+Every Euclidean space satisfies the parallelogram identity, which
+is preserved by a linear isometry. In $S$, the coordinate vectors
+$a=(1,0)$ and $b=(0,1)$ have norms one, while both $a+b$ and $a-b$
+have norm one. The parallelogram identity would read $2=4$.
+In $\ell_1^2$ the same coordinate vectors have norms one, while
+$a+b$ and $a-b$ have norm two, giving $8=4$.
+Thus $E$ admits a linear isometry equivalence to neither space.
+This rules out the named unordered pair in either direction,
+not merely an equality of implementation types.
+
+\section{Formal objects and verification}
+Lean uses Mathlib's actual \texttt{EuclideanSpace} over
+\texttt{Fin 2}, its sup-norm function space \texttt{Fin 2 $\to$ R},
+and the actual \texttt{PiLp 1} space. The two example spaces have
+proved real dimension two. \texttt{distortion} uses operator norms
+of each actual \texttt{ContinuousLinearEquiv} and its inverse.
+\texttt{distances} is the range over all those equivalences, and
+\texttt{bmDistance} is its \texttt{sInf}.
+\texttt{distortion\_isLeast} proves both membership and the universal
+lower bound before \texttt{bmDistance\_eq} uses the infimum theorem.
+The coordinate map is an actual continuous linear equivalence.
+
+The formal \texttt{NamedPair} explicitly includes both orderings
+of the two named linear-isometry classes.
+\texttt{no\_unique\_equality\_classification} negates the asserted
+classification, and \texttt{counterexample} bundles the dimensions,
+actual distance and both non-isometry results.
+
+Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d} are pinned.
+Source-bound receipts record a new Main build, transitive axiom
+audits and full official \texttt{leanchecker --fresh Main} replay.
+No \texttt{sorry}, \texttt{native\_decide} or added axiom is used.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed
+the formal chain. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
