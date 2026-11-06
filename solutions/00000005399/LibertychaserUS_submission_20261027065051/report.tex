@@ -1,0 +1,342 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{listings}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  columns=flexible,
+  keepspaces=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny,
+  xleftmargin=2em,
+  showstringspaces=false,
+}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{definition}{Definition}
+
+\title{Conjecture 00000005399 is false:\\ a finite Markov chain counterexample to the claimed mixing correction}
+\author{Zhiyuan Zhang (GitHub: LibertychaserUS)}
+\date{2026-10-27}
+
+\begin{document}
+\maketitle
+
+\section{The conjecture as filed}
+
+The statement of conjecture 00000005399, quoted verbatim from the English text of the filed entry (source: the file conjectures/00000005399.md in the-last-math-competition):
+
+\begin{quote}
+\textit{Definition: The return time is the number of steps of the first return. Conjecture: Its expectation is the classical explicit value of the reciprocal of the measure, the correction term is the negative first power of the mixing rate, and the expectation formula is exact. (mixing-corrected formula of return expectations)}
+\end{quote}
+
+The filed text does not define ``the measure'', ``the mixing rate'', or ``the correction term''. Section 2 fixes these in the standard way.
+
+\section{Precise reading}
+
+Let $\mathcal{X}=\{0,1,\dots,n-1\}$ be a finite state space and $P=(P_{ij})$ a row-stochastic matrix (nonnegative entries, rows summing to $1$) that is irreducible: for all $i,j$ some power $P^k$ has $(P^k)_{ij}>0$. Let $(X_m)_{m\ge 0}$ be the Markov chain with transition matrix $P$.
+
+\begin{itemize}
+\item \textbf{Measure.} The stationary distribution $\pi$: $\pi_j\ge 0$, $\sum_i\pi_i=1$, and $\sum_i \pi_i P_{ij}=\pi_j$ for all $j$. For an irreducible chain it exists and is unique.
+\item \textbf{Hitting and return times.} $T_x=\min\{m\ge 0: X_m=x\}$ and $T_x^+=\min\{m\ge 1: X_m=x\}$. The return time of the filing is $T_x^+$ (``the number of steps of the first return'').
+\item \textbf{Expected return time.} $\mathbb{E}_x[T_x^+]=1+\sum_y P_{xy}\,h_y$, where $h_y=\mathbb{E}_y[T_x]$ is the unique solution of the first-step system $h_x=0$, $h_y=1+\sum_z P_{yz}h_z$ for $y\neq x$.
+\item \textbf{Mixing rate.} The spectral gap $\mathrm{gap}(P)=1-\max\{|\mu|:\ \mu \text{ an eigenvalue of } P,\ \mu\neq 1\}$.
+\end{itemize}
+
+The conjecture then says that for every irreducible chain and every state $x$,
+\begin{equation}\label{eq:claim}
+\mathbb{E}_x[T_x^+]=\frac{1}{\pi(x)}+\frac{c}{\mathrm{gap}(P)}\qquad\text{for some constant } c\neq 0 .
+\end{equation}
+We write this as the predicate \texttt{ClaimedFormula} in Section 4. The uniform reading, in which one nonzero $c$ serves for all chains, is the predicate \texttt{ClaimedUniformFormula}. A counterexample to \eqref{eq:claim} refutes both.
+
+\medskip
+\noindent\textbf{Reading caveat.} If $c=0$ were allowed, \eqref{eq:claim} would reduce to Kac's lemma $\mathbb{E}_x[T_x^+]=1/\pi(x)$, which is a classical theorem and is true. The verdict FALSE therefore depends on the filed phrase ``the correction term'' being a nonzero term with an exact formula, which is how it is read here. The verdict also does not depend on the normalisation of the rate: any finite positive rate $r$ gives $c/r=0$, hence $c=0$, at the counterexample.
+
+\section{The counterexample and its verification}
+
+Take the three-state chain on $\{0,1,2\}$
+\[
+P_0=\begin{pmatrix}1/2&1/4&1/4\\ 1/3&1/3&1/3\\ 1/5&2/5&2/5\end{pmatrix}.
+\]
+
+\begin{proposition}
+For $P_0$ and state $x=0$: $\pi=(8/23,\,15/46,\,15/46)$, $\ \mathbb{E}_0[T_0^+]=23/8=1/\pi(0)$, and $\mathrm{gap}(P_0)=23/30\neq 0$. Consequently no constant $c\neq 0$ satisfies \eqref{eq:claim} for $P_0$ at $x=0$.
+\end{proposition}
+
+\begin{proof}
+(a) All entries of $P_0$ are positive, so $P_0$ is stochastic and irreducible (take $k=1$).
+
+(b) Stationarity. $8/23+15/46+15/46=1$. The $0$-th component of $\pi P_0$ is $\tfrac{8}{23}\cdot\tfrac12+\tfrac{15}{46}\cdot\tfrac13+\tfrac{15}{46}\cdot\tfrac15=\tfrac{4}{23}+\tfrac{5}{46}+\tfrac{3}{46}=\tfrac{8}{23}$. The $1$-st and $2$-nd components are checked the same way and equal $15/46$.
+
+(c) Hitting times to $0$. Put $h=(0,\,7/2,\,4)$. The first-step equations are
+\[
+h_1=1+\tfrac13 h_1+\tfrac13 h_2,\qquad h_2=1+\tfrac25 h_1+\tfrac25 h_2,
+\]
+and at $h=(0,7/2,4)$ they read $7/2=1+7/6+4/3$ and $4=1+7/5+8/5$, both true. Hence $\mathbb{E}_1[T_0]=7/2$ and $\mathbb{E}_2[T_0]=4$ (the solution is unique for an irreducible chain). Then
+\[
+\mathbb{E}_0[T_0^+]=1+\tfrac12\cdot 0+\tfrac14\cdot\tfrac72+\tfrac14\cdot 4=1+\tfrac78+1=\tfrac{23}{8}=\frac{1}{\pi(0)}.
+\]
+
+(d) Spectrum. The characteristic polynomial is $\det(tI-P_0)=t(t-1)(t-7/30)$: the trace is $37/30$, the sum of principal $2\times 2$ minors is $7/30$, and $\det P_0=0$. So the eigenvalues are $1,\,7/30,\,0$, and $\mathrm{gap}(P_0)=1-7/30=23/30$.
+
+(e) Conclusion. If \eqref{eq:claim} held with some $c$, then $23/8=23/8+c/(23/30)$, so $c=0$. This contradicts $c\neq 0$.
+\end{proof}
+
+\noindent The values of the claimed formula are therefore: at $x=0$ the exact difference $\mathbb{E}_0[T_0^+]-1/\pi(0)$ is $0$, while $c/\mathrm{gap}$ would have to be $0$ too, which forces $c=0$.
+
+\subsection*{Computer check}
+
+The script \texttt{check.py} (Python 3, exact \texttt{fractions.Fraction}, Gauss-Jordan elimination) computes $\pi$ by solving $\pi P=\pi$, computes $\mathbb{E}_x[T_x^+]$ from the hitting-time system, cross-checks every hitting time against the fundamental matrix $Z=(I-P+\Pi)^{-1}$ via $\mathbb{E}_i[T_j]=(Z_{jj}-Z_{ij})/\pi_j$, and reports the gap with numpy for display. Its output for $P_0$, and for 8 further chains (a non-reversible 3-state chain, a periodic chain, and six seeded random positive chains), is:
+
+\begin{quote}\ttfamily\footnotesize
+== P0 (scanner's chain) (n=3) gap=0.766667\\
+pi = 8/23, 15/46, 15/46\\
+x=0: E\_x[T\_x\textasciicircum +] = 23/8 \; 1/pi(x) = 23/8 \; difference = 0\\
+x=1: E = 46/15 \; 1/pi(x) = 46/15 \; difference = 0\\
+x=2: E = 46/15 \; 1/pi(x) = 46/15 \; difference = 0\\
+exact difference zero in all states: True
+\end{quote}
+
+In all nine chains and all states the exact difference $\mathbb{E}_x[T_x^+]-1/\pi(x)$ is $0$, and all hitting-time cross-checks pass (exit code 0). The gap printed for $P_0$ is the floating value of the exact $23/30$. The periodic chain (gap $0$, eigenvalue $-1$) is not used in the disproof.
+
+\section{Lean formalization}
+
+The file \texttt{Disproof.lean} (in \texttt{lean/}) imports Mathlib, compiles with Lean 4.33.1 against Mathlib v4.33.1 with no errors and no warnings, and contains no \texttt{sorry}, \texttt{native\_decide}, axioms of its own, or \texttt{unsafe}/\texttt{opaque}/\texttt{extern}/\texttt{implemented\_by}/\texttt{admit}.
+
+\subsection*{Definitions and correspondence}
+
+\begin{itemize}
+\item \texttt{IsStochastic}, \texttt{IsIrreducible}, \texttt{IsStationary}: the stochastic, irreducible and stationary conditions of Section 2, over $\mathbb{R}$.
+\item \texttt{IsHittingTimes P x h}: $h_x=0$ and $h_y=1+\sum_z P_{yz}h_z$ for $y\neq x$. \texttt{ExpReturn P x r} holds when $r=1+\sum_y P_{xy}h_y$ for some $h$ with \texttt{IsHittingTimes P x h}. For an irreducible chain this $h$ is unique, so \texttt{ExpReturn} is the expected return time. Uniqueness is not formalized, and it is not needed: the refutation instantiates the conjecture at $r=23/8$, which satisfies \texttt{ExpReturn}.
+\item \texttt{eigenvalues P}: roots over $\mathbb{C}$ of the characteristic polynomial of $P$ (with multiplicity). \texttt{spectralGap P} $=1-\sup\{\|\mu\|:\ \mu\in\mathrm{eigenvalues}(P),\ \mu\neq 1\}$.
+\item \texttt{ClaimedFormula}: for all $n$, stochastic irreducible $P$, stationary $\pi$, state $x$, and $r$ with \texttt{ExpReturn P x r}, there exists $c\neq 0$ with $r=1/\pi(x)+c/\mathrm{spectralGap}(P)$.
+\item \texttt{ClaimedUniformFormula}: there is one $c\neq 0$ such that $r=1/\pi(x)+c/\mathrm{spectralGap}(P)$ for all such data.
+\end{itemize}
+
+\noindent The counterexample data are \texttt{P0} (the matrix $P_0$ above), \texttt{pi0} $=(8/23,15/46,15/46)$ and the proven lemmas \texttt{P0\_stochastic}, \texttt{P0\_irreducible}, \texttt{pi0\_stationary}, \texttt{P0\_expReturn} (witness $h=(0,7/2,4)$), \texttt{P0\_charpoly\_eval} (the characteristic polynomial equals $t(t-1)(t-7/30)$ by \texttt{Matrix.eval\_charpoly}, \texttt{Matrix.det\_fin\_three} and \texttt{ring}), \texttt{mem\_eigenvalues\_P0}, and \texttt{spectralGap\_P0} $: \mathrm{gap}(P_0)=23/30$.
+
+\subsection*{Main theorems}
+
+\texttt{TLMC5399.conjecture\_00000005399\_fails} : $\neg$\,\texttt{ClaimedFormula}. Its proof applies the claimed formula to $P_0$, state $0$, $r=23/8$, obtains $c\neq 0$ with $23/8=1/\pi_0(0)+c/\mathrm{gap}(P_0)$, and uses $\mathrm{gap}(P_0)=23/30$ and $1/\pi_0(0)=23/8$ to get $c=0$.
+
+\texttt{TLMC5399.conjecture\_00000005399\_uniform\_fails} : $\neg$\,\texttt{ClaimedUniformFormula}, by the same instance.
+
+\subsection*{Axioms}
+
+\begin{lstlisting}[language={},numbers=none,frame=single]
+'TLMC5399.conjecture_00000005399_fails' depends on axioms: [propext, Classical.choice, Quot.sound]
+'TLMC5399.conjecture_00000005399_uniform_fails' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{lstlisting}
+
+These are a subset of the permitted set $\{$propext, Classical.choice, Quot.sound$\}$.
+
+\subsection*{Source}
+
+The listing below is the file, with Unicode symbols transliterated to ASCII for typesetting: R for $\mathbb{R}$, C for $\mathbb{C}$, N for $\mathbb{N}$, pi for $\pi$, mu for $\mu$, $|\cdot|$ for $\|\cdot\|$, sum for $\sum$, forall, exists, in, !=, <=, ->, <->, not, /\ and \/, and angle brackets as < >. The compiled file uses the Unicode originals.
+
+\begin{lstlisting}[language={}]
+import Mathlib
+
+/-!
+# Conjecture 00000005399 is false: a counterexample to the claimed mixing correction
+
+Conjecture (see `conjectures/00000005399.md`): for a finite irreducible Markov chain, the
+expected first return time to a state x equals the reciprocal of the stationary measure
+of x, plus a correction term which is a nonzero multiple of the negative first power of the
+mixing rate (spectral gap), and the formula is exact.
+
+Correspondence between the objects below and the conjecture:
+* `IsStochastic P`      : P is a row-stochastic transition matrix (nonnegative, rows sum to 1).
+* `IsIrreducible P`     : every state reaches every state with positive probability.
+* `IsStationary P pi`    : pi is a probability vector with pi P = pi (the measure).
+* `IsHittingTimes P x h`: h y = E_y[T_x] for all y, where T_x = min {n >= 0 : X_n = x}; for
+                          irreducible finite chains this first-step linear system has a unique
+                          solution, so it determines the hitting times.
+* `ExpReturn P x r`     : r = E_x[T_x^+] with T_x^+ = min {n >= 1 : X_n = x}, i.e.
+                          r = 1 + sum_y P(x,y) E_y[T_x] (the first-step decomposition).
+* `eigenvalues P`       : the eigenvalues of P with algebraic multiplicity, as roots of the
+                          characteristic polynomial over C.
+* `spectralGap P`       : 1 - max{|mu| : mu eigenvalue of P, mu != 1}, the mixing rate.
+
+The claim is refuted on the three-state chain P0 below, state 0: there E_0[T_0^+] = 23/8 and
+pi(0) = 8/23, so E_0[T_0^+] = 1/pi(0) exactly, and no nonzero correction c / gap can be added.
+-/
+
+namespace TLMC5399
+
+open Matrix
+
+/-- Row-stochastic: nonnegative entries and every row sums to 1. -/
+def IsStochastic {n : N} (P : Matrix (Fin n) (Fin n) R) : Prop :=
+  (forall i j, 0 <= P i j) /\ forall i, sum j, P i j = 1
+
+/-- Irreducible: for all states i, j there is a number of steps k with P^k(i,j) > 0. -/
+def IsIrreducible {n : N} (P : Matrix (Fin n) (Fin n) R) : Prop :=
+  forall i j, exists k : N, 0 < (P ^ k) i j
+
+/-- The stationary measure pi: a probability vector with pi P = pi. -/
+def IsStationary {n : N} (P : Matrix (Fin n) (Fin n) R) (pi : Fin n -> R) : Prop :=
+  (sum i, pi i = 1) /\ forall j, sum i, pi i * P i j = pi j
+
+/-- First-step equations for the expected hitting times h y = E_y[T_x] of the state x. -/
+def IsHittingTimes {n : N} (P : Matrix (Fin n) (Fin n) R) (x : Fin n) (h : Fin n -> R) : Prop :=
+  h x = 0 /\ forall y, y != x -> h y = 1 + sum z, P y z * h z
+
+/-- r is the expected first return time E_x[T_x^+] = 1 + sum_y P(x,y) E_y[T_x]. -/
+def ExpReturn {n : N} (P : Matrix (Fin n) (Fin n) R) (x : Fin n) (r : R) : Prop :=
+  exists h : Fin n -> R, IsHittingTimes P x h /\ r = 1 + sum y, P x y * h y
+
+/-- Eigenvalues of P (with multiplicity), as roots of its characteristic polynomial over C. -/
+noncomputable def eigenvalues {n : N} (P : Matrix (Fin n) (Fin n) R) : Multiset C :=
+  (P.map (fun a : R => (a : C))).charpoly.roots
+
+/-- Spectral gap (mixing rate): 1 minus the largest modulus of an eigenvalue other than 1. -/
+noncomputable def spectralGap {n : N} (P : Matrix (Fin n) (Fin n) R) : R :=
+  1 - sSup {r : R | exists mu in eigenvalues P, mu != 1 /\ r = |mu|}
+
+/-- The conjecture as a statement: for every state of every irreducible chain there is a
+nonzero correction coefficient c such that E_x[T_x^+] = 1/pi(x) + c / gap exactly. -/
+def ClaimedFormula : Prop :=
+  forall (n : N) (P : Matrix (Fin n) (Fin n) R), IsStochastic P -> IsIrreducible P ->
+    forall pi : Fin n -> R, IsStationary P pi -> forall x : Fin n, forall r : R, ExpReturn P x r ->
+      exists c : R, c != 0 /\ r = 1 / pi x + c / spectralGap P
+
+/-- Uniform reading: one nonzero constant c works for all chains, states and expectations. -/
+def ClaimedUniformFormula : Prop :=
+  exists c : R, c != 0 /\ forall (n : N) (P : Matrix (Fin n) (Fin n) R), IsStochastic P -> IsIrreducible P ->
+    forall pi : Fin n -> R, IsStationary P pi -> forall x : Fin n, forall r : R, ExpReturn P x r ->
+      r = 1 / pi x + c / spectralGap P
+
+/-! ## The counterexample chain P0 on states 0, 1, 2 -/
+
+/-- Transition matrix P0 = [[1/2,1/4,1/4],[1/3,1/3,1/3],[1/5,2/5,2/5]]. -/
+noncomputable def P0 : Matrix (Fin 3) (Fin 3) R :=
+  !![1/2, 1/4, 1/4; 1/3, 1/3, 1/3; 1/5, 2/5, 2/5]
+
+/-- Stationary distribution (8/23, 15/46, 15/46) of P0. -/
+noncomputable def pi0 : Fin 3 -> R := ![8/23, 15/46, 15/46]
+
+/-- Entries of a three-vector, by rfl (simp normal form for `![a, b, c] i`). -/
+lemma vec3_zero {alpha : Type*} (a b c : alpha) : ![a, b, c] 0 = a := rfl
+lemma vec3_one {alpha : Type*} (a b c : alpha) : ![a, b, c] 1 = b := rfl
+lemma vec3_two {alpha : Type*} (a b c : alpha) : ![a, b, c] 2 = c := rfl
+
+lemma P0_stochastic : IsStochastic P0 := by
+  refine <fun i j => ?_, fun i => ?_>
+  * fin_cases i <;> fin_cases j <;> norm_num [P0]
+  * fin_cases i <;> norm_num [P0, Fin.sum_univ_three, Matrix.cons_val_two, Matrix.vecHead, Matrix.vecTail, Matrix.cons_val_one, Matrix.head_cons]
+
+lemma P0_irreducible : IsIrreducible P0 := by
+  intro i j
+  refine <1, ?_>
+  rw [pow_one]
+  fin_cases i <;> fin_cases j <;> norm_num [P0]
+
+lemma pi0_stationary : IsStationary P0 pi0 := by
+  refine <?_, fun j => ?_>
+  * norm_num [Fin.sum_univ_three, vec3_zero, vec3_one, vec3_two, Matrix.cons_val_two, Matrix.vecHead, Matrix.vecTail, Matrix.cons_val_one, Matrix.head_cons, pi0]
+  * fin_cases j <;> norm_num [Fin.sum_univ_three, vec3_zero, vec3_one, vec3_two, Matrix.cons_val_two, Matrix.vecHead, Matrix.vecTail, Matrix.cons_val_one, Matrix.head_cons, pi0, P0]
+
+/-- E_0[T_0^+] = 23/8, witnessed by the hitting times h = (0, 7/2, 4). -/
+lemma P0_expReturn : ExpReturn P0 0 (23/8) := by
+  refine <![0, 7/2, 4], <by simp, ?_>, ?_>
+  * intro y hy
+    fin_cases y
+    * exact absurd rfl hy
+    * norm_num [Fin.sum_univ_three, vec3_zero, vec3_one, vec3_two, Matrix.cons_val_two, Matrix.vecHead, Matrix.vecTail, Matrix.cons_val_one, Matrix.head_cons, P0]
+    * norm_num [Fin.sum_univ_three, vec3_zero, vec3_one, vec3_two, Matrix.cons_val_two, Matrix.vecHead, Matrix.vecTail, Matrix.cons_val_one, Matrix.head_cons, P0]
+  * norm_num [Fin.sum_univ_three, vec3_zero, vec3_one, vec3_two, Matrix.cons_val_two, Matrix.vecHead, Matrix.vecTail, Matrix.cons_val_one, Matrix.head_cons, P0]
+
+/-- The characteristic polynomial of P0 evaluated at t is t (t - 1) (t - 7/30). -/
+lemma P0_charpoly_eval (t : C) :
+    (P0.map (fun a : R => (a : C))).charpoly.eval t = t * (t - 1) * (t - 7/30) := by
+  rw [Matrix.eval_charpoly, Matrix.det_fin_three]
+  simp [P0, Matrix.scalar_apply]
+  ring
+
+lemma mem_eigenvalues_P0 (mu : C) : mu in eigenvalues P0 <-> mu = 0 \/ mu = 1 \/ mu = 7/30 := by
+  unfold eigenvalues
+  rw [Polynomial.mem_roots (Matrix.charpoly_monic _).ne_zero, Polynomial.IsRoot.def,
+    P0_charpoly_eval]
+  simp [mul_eq_zero, sub_eq_zero, or_assoc]
+
+/-- The spectral gap of P0 is 23/30 (eigenvalues 1, 7/30, 0). -/
+lemma spectralGap_P0 : spectralGap P0 = 23/30 := by
+  have hS : {r : R | exists mu in eigenvalues P0, mu != 1 /\ r = |mu|} = {0, 7/30} := by
+    ext r
+    simp only [Set.mem_ofPred_eq, Set.mem_insert_iff, Set.mem_singleton_iff]
+    constructor
+    * rintro <mu, hmu, hne, rfl>
+      rcases (mem_eigenvalues_P0 mu).1 hmu with rfl | rfl | rfl
+      * left; simp
+      * exact absurd rfl hne
+      * right
+        have : ((7/30 : C)) = ((7/30 : R) : C) := by push_cast; rfl
+        rw [this, Complex.norm_real, Real.norm_of_nonneg (by norm_num)]
+    * rintro (rfl | rfl)
+      * exact <0, (mem_eigenvalues_P0 0).2 (Or.inl rfl), by norm_num, by simp>
+      * refine <7/30, (mem_eigenvalues_P0 _).2 (Or.inr (Or.inr rfl)), by norm_num, ?_>
+        have : ((7/30 : C)) = ((7/30 : R) : C) := by push_cast; rfl
+        rw [this, Complex.norm_real, Real.norm_of_nonneg (by norm_num)]
+  unfold spectralGap
+  rw [hS, csSup_pair]
+  norm_num
+
+/-! ## Refutation -/
+
+/-- The counterexample instance: for c != 0 the formula fails at P0, state 0. -/
+lemma P0_no_correction (c : R) (hc : c != 0) : not (23/8 : R) = 1 / pi0 0 + c / spectralGap P0 := by
+  intro h
+  rw [spectralGap_P0] at h
+  have h1 : (1 : R) / pi0 0 = 23/8 := by norm_num [pi0]
+  have h2 : c / (23/30 : R) = 0 := by linarith
+  rcases div_eq_zero_iff.1 h2 with h3 | h3
+  * exact hc h3
+  * norm_num at h3
+
+/-- The conjectured formula is false: it fails for P0 at state 0. -/
+theorem conjecture_00000005399_fails : not ClaimedFormula := by
+  intro H
+  obtain <c, hc, hEq> := H 3 P0 P0_stochastic P0_irreducible pi0 pi0_stationary 0 (23/8)
+    P0_expReturn
+  exact P0_no_correction c hc hEq
+
+/-- Even the uniform reading (a single constant c for all chains) is false. -/
+theorem conjecture_00000005399_uniform_fails : not ClaimedUniformFormula := by
+  rintro <c, hc, H>
+  exact P0_no_correction c hc (H 3 P0 P0_stochastic P0_irreducible pi0 pi0_stationary 0 (23/8)
+    P0_expReturn)
+
+end TLMC5399
+
+#print axioms TLMC5399.conjecture_00000005399_fails
+#print axioms TLMC5399.conjecture_00000005399_uniform_fails
+\end{lstlisting}
+
+\section{Limits of the formalization}
+
+\begin{enumerate}
+\item The reading of the conjecture is fixed as in Section 2. A reviewer who reads ``correction term'' as allowing $c=0$ gets Kac's lemma, which is true; the disproof is for the nonzero reading.
+\item Lean's convention $c/0=0$ makes the formula degenerate for a chain with gap $0$ (periodic chains). The disproof does not rely on this: it proves $\mathrm{gap}(P_0)=23/30\neq 0$ before using the formula.
+\item The general theory (uniqueness of hitting times, Kac's lemma, existence and uniqueness of $\pi$) is not formalized. The file certifies the specific data of $P_0$: stationarity, a solution of the first-step system, the characteristic polynomial and the spectral gap.
+\item The gap removes every copy of the eigenvalue $1$. For an irreducible chain the Perron root is simple, so this equals the multiplicity-aware definition.
+\item The rate is taken to be the spectral gap. Any other positive rate gives the same conclusion, since $c/\mathrm{rate}(P_0)=0$ forces $c=0$.
+\item The setting of the conjecture might instead be continuous-time or measure-preserving. For ergodic systems the Kac identity $\mathbb{E}[\text{return to }A\mid A]=1/\mu(A)$ also holds exactly, so the verdict likely extends, but the counterexample here is discrete-time and finite.
+\end{enumerate}
+
+\section{Reproduction}
+
+\begin{enumerate}
+\item Verifier: \texttt{cd LibertychaserUS\_submission\_20261027065051 \&\& python3 check.py}. Exit code 0; output as in Section 3.
+\item Lean: \texttt{cd lean \&\& lake exe cache get \&\& lake build}. Expected: the two \texttt{\#print axioms} lines and no errors.
+\item Report: \texttt{cd LibertychaserUS\_submission\_20261027065051 \&\& tectonic report.tex}, which produces \texttt{report.pdf}.
+\end{enumerate}
+
+\end{document}
