@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: The spectral gap of a periodic tessellation cell graph, the quotient 1-skeleton, is the first nonzero eigenvalue lambda_1 of its combinatorial Laplacian. Conjecture: For all periodic tessellation cell graphs of bounded geometry (vertex degree <= D, cell edge count <= E), lambda_1 >= c/D^2 for a universal constant c>0; and the optimal c is attained by the hexagonal tiling with c = lambda_1(hex)/4 = 3/16. (universal spectral gap of tessellation graphs) 定义：周期铺砌胞腔图（tessellation 的 1-骨架商图）的谱隙指其组合 Laplacian 的第一非零特征值 λ_1。猜想：对所有有界几何（顶点度 ≤D、胞腔边数 ≤E）的周期铺砌胞腔图，λ_1 ≥ c/D² 对普适常数 c>0 成立；且 c 的最优值由六边形铺砌取到，c=λ_1(hex)/4=3/16。
+**Conjecture as filed.** The source claims that for all periodic tessellation cell graphs of bounded geometry (vertex degree ≤D, cell edge count ≤E), λ1≥c/D² for a universal c>0, and that the optimal c is c=λ1(hex)/4=3/16. The submission reads D as the graph's degree bound, so the square quotient has D=4 and the claimed bound is (3/16)/4²=3/256.
 
-**Decisive results.** The square tessellation modulo the period subgroup 64Z x 4Z has degree four and square cells. Its real combinatorial Laplacian has the positive eigenvalue 2-2 cos(pi/32)<3/256. The actual least positive eigenvalue exists and is at most this value, contradicting the explicit claimed constant c=3/16 with D=4. The decisive Lean declaration is `counterexample`, whose statement is: graph.Connected ∧ (∀ v, graph.degree v = 4) ∧ (∀ v, Function.Injective (cell v)) ∧ (∀ v i, graph.Adj (cell v i) (cell v (i + 1))) ∧ ∃ gap : ℝ, IsLeast positiveEigenvalues gap ∧ 0 < gap ∧ gap < (3 / 16 : ℝ) / 4 ^ 2 := by. Read against the filed statement, this establishes the negation of the printed clause identified in the README.
+**Decisive results.** Lean constructs the actual quotient of the square tessellation by the period subgroup 64Z×4Z on Z/64×Z/4. It proves the quotient is connected, 4-regular, that each square cell has four distinct vertices and four edges, and that the actual combinatorial Laplacian has a least positive eigenvalue gap with 0<gap<(3/16)/4². The explicit eigenvector cos(π i/32) gives eigenvalue 2-2cos(π/32)<3/256, and a finite positive-eigenvalue argument supplies the least positive eigenvalue. This refutes the claimed optimal constant c=3/16 at D=4 under the natural per-graph reading of D.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report and Lean agree: the same 64×4 quotient, the same degree/cell checks, the same cosine eigenvector and the same strict bound gap<3/256. The report's D=4 and E=4 are exactly the Lean degree and four-edge cell certificates.
 
 ## Disposition
 

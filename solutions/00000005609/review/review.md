@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: The covering-packing gap is the ratio of covering radius to packing radius. Conjecture: The gap of three-dimensional lattices is always the explicit expression of the cell diameter ratio, minimal at the body-centered cubic; the minimum is the optimal covering-packing ratio, an algebraic number; and the spectrum of the gap in three dimensions is a closed interval with endpoints attained by the cubic lattice. (body-centered cubic minimal gap diameter ratio) 定义：覆盖-堆积间隙：覆盖半径与堆积半径之比。猜想：三维格的间隙恒为胞腔直径比的显式式且体心立方处极小；极小值为覆盖堆积的最优比且比值为代数数；间隙的谱在三维为闭区间且端点由立方格达到。（体心立方极小间隙直径比）
+**Conjecture as filed.** The source claims that the 3D covering-packing gap is an explicit cell-diameter expression, minimal at the BCC lattice, and that the spectrum of the gap in dimension three is a closed interval with endpoints attained by the cubic lattice. The submission reads 'spectrum' as the set of gap values over all full-rank 3D Euclidean lattices and tests the rectangular family tZ×Z×Z.
 
-**Decisive results.** For each t>=1 the actual full-rank discrete Euclidean lattice Lambda_t={(tm,n,p):m,n,p integers} has packing radius 1/2 and covering radius sqrt(t^2+2)/2. Their ratio sqrt(t^2+2) is unbounded. Thus its three-dimensional spectrum cannot have the asserted finite upper endpoint attained by a cubic lattice. The decisive Lean declaration is `no_upper_endpoint`, whose statement is: ¬ ∃ B : ℝ, ∀ t : ℝ, 1 ≤ t → gap t ≤ B := by. Read against the filed statement, this establishes the negation of the printed clause identified in the README.
+**Decisive results.** Lean defines packing and covering radii as actual extrema over the Euclidean lattice, proves the packing radius is 1/2 and the covering radius is sqrt(t²+2)/2 for t≥1, and hence gap(t)=sqrt(t²+2). `valid_lattice_unbounded` shows for every B there is a full-rank discrete lattice with gap>B, so the spectrum is unbounded above. A closed interval with an upper endpoint attained by the cubic lattice cannot have unbounded values; the 'endpoints attained' conjunct is therefore false. The separate BCC-minimum and algebraic-value claims are not needed.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report proves the same rectangular family, the same exact radius computations, the same unboundedness theorem and the same `no_upper_endpoint` conclusion. It explicitly notes that unboundedness alone does not rule out a half-infinite interval, but does refute the claimed attained finite upper endpoint, which is the clause used.
 
 ## Disposition
 

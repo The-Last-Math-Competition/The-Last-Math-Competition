@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: The completely bounded norm (cb). Conjecture: The supremum of the ratio of the cb norm to the operator norm over the observable algebra of three qubits equals √2 (the cb ratio). 定义：完全有界范数(cb)。猜想：三量子比特的可观测量代数的 cb 范数与算子范数比值的上确界 = √2(cb 比)。
+**Conjecture as filed.** The source claims that the supremum of the ratio of the completely bounded norm to the ordinary operator norm, over maps on the three-qubit observable algebra M8(C), equals √2. The submission reads the supremum as taken over nonzero completely bounded complex-linear maps on M8(C); the source imposes no complete-positivity restriction.
 
-**Decisive results.** On the actual three-qubit observable algebra M8(C), the complex-linear transpose map has ordinary induced norm one and a genuinely finite completely bounded norm between eight and 64. An explicit 64-by-64 swap matrix has Euclidean operator norm one, while its blockwise transpose has an actual nonzero Euclidean eigenvector of eigenvalue eight. Thus the cb/ordinary ratio is at least eight, exceeding sqrt(2). The decisive Lean declaration is `not_claimed_supremum`, whose statement is: ¬IsLUB cbRatios (Real.sqrt 2) := by. Read against the filed statement, this establishes the negation of the printed clause identified in the README.
+**Decisive results.** Lean defines the actual Euclidean operator norm and the amplification id_k⊗T on M_k⊗M8. It proves the transpose map τ(A)=A^T is complex-linear, has ordinary norm 1, is completely bounded with cb norm ≤64, and has cb norm ≥8: the 64×64 swap matrix F has norm 1 and its blockwise transpose Q satisfies QΩ=8Ω with Ω≠0. Hence the ratio ||τ||_cb/||τ|| is at least 8>√2, so √2 is not an upper bound and `not_claimed_supremum` shows it is not the supremum. The transpose is a legitimate map on M8(C); it is not completely positive, but the source does not restrict to completely positive maps.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report and Lean agree: ordinary norm 1, cb norm between 8 and 64, the explicit swap/Ω witness and the direct negation of the √2 supremum. The report explicitly states that complete positivity is not assumed and that the sharp transpose cb norm is not claimed.
 
 ## Disposition
 
