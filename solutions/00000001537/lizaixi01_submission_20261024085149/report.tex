@@ -1,0 +1,200 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{5pt}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\HC}{\operatorname{HC}}
+\begin{document}
+\begin{center}
+{\Large Integral cyclic cohomology is not two-periodic from degree zero}\\[4pt]
+TLMC 00000001537 \quad lizaixi01 \quad 24 October 2026
+\end{center}
+
+\textbf{The printed assertion and the convention.}
+The original source defines cyclic cohomology $\HC^n(R)$ and asserts period two
+for $R=\Z[X]/(X^2)$. We use ordinary cyclic cohomology over the coefficient
+ring $\Z$, indexed from $n=0$. In this standard reading, period two would
+in particular require an isomorphism of abelian groups
+\[
+  \HC^0(R)\cong\HC^2(R).
+\]
+We disprove this necessary consequence: degree zero has no nonzero element
+killed by addition to itself, whereas degree two has such an element.
+No assertion concerns periodic cyclic cohomology $\operatorname{HP}$, a change
+to rational coefficients, or an unspecified eventual periodicity.
+
+\textbf{The standard cohomology model.}
+Loday's Definition 2.4.1 defines ordinary cyclic cohomology from the dual
+cyclic bicomplex, with
+$C^n(A)=\operatorname{Hom}_{\Z}(A^{\otimes(n+1)},\Z)$.
+Section 2.4.3 identifies its cohomology with that of the normalized
+$(b^*,B^*)$ total cochain complex. This is the standard model formalized here.
+Its normalized cochains are the full multilinear functionals that vanish
+whenever some argument $a_i$, $i\ge1$, equals the unit.
+The cyclic-invariant single complex in Section 2.4.2 requires rational
+coefficients for the stated comparison and is not used.
+
+In Lean, $R$ is the native \texttt{AdjoinRoot} of $X^2\in\Z[X]$.
+The universal properties construct an actual algebra equivalence
+\[
+  R\simeq_{\Z}D=\Z[\varepsilon],\qquad \varepsilon^2=0,
+\]
+where $D$ is the native dual-number algebra. Its full normalized multilinear
+spaces are used in every degree. The native tensor universal property
+identifies full cochains with linear maps from the genuine tensor powers.
+The span of tensors with a positive-position unit is an actual submodule;
+the dual of its native quotient is proved equivalent to the normalized
+cochain space. Also $D/(\Z\cdot1)\simeq_{\Z}\Z$, through the actual
+epsilon-coordinate map.
+
+\textbf{All normalized cochains, not selected test functionals.}
+Write $z=c(z)+e(z)\varepsilon$. For a normalized $f\in\overline C^n(D)$,
+set
+\[
+ a=f(1,\varepsilon,\ldots,\varepsilon),\qquad
+ b=f(\varepsilon,\ldots,\varepsilon).
+\]
+Multilinearity and normalization give, on every input,
+\[
+ f(z_0,\ldots,z_n)=
+ \bigl(a\,c(z_0)+b\,e(z_0)\bigr)\prod_{i=1}^n e(z_i).
+ \tag{1}
+\]
+Conversely this formula gives a normalized cochain for every $(a,b)\in\Z^2$.
+The proof classifies the full space by the genuine two-element module basis,
+so $(a,b)$ are actual evaluation coordinates, not assigned cohomology groups.
+
+\newpage
+\textbf{The genuine operators in every degree.}
+The Hochschild faces multiply adjacent arguments; the final face multiplies
+the last and first arguments in that order. With their alternating signs,
+\[
+ (b^*f)(z_0,\ldots,z_{n+1})=
+ \sum_{j=0}^n(-1)^j f(z_0,\ldots,z_jz_{j+1},\ldots,z_{n+1})
+ +(-1)^{n+1}f(z_{n+1}z_0,z_1,\ldots,z_n).
+ \tag{2}
+\]
+Each actual face is bundled as a multilinear map using the products in
+the fibers of its slot map. For an input with a positive-position unit,
+all terms vanish except the two equal neighboring faces with opposite signs.
+At the last position, the final face is the cancelling neighbor. Thus
+(2) truly preserves normalization on all inputs.
+
+For Connes' map use the full expression $(1-t)sN$: $s$ inserts the unit,
+$t$ is the signed right cyclic rotation, and $N=1+t+\cdots+t^n$.
+The finite cyclic sum is checked against genuine iterates of the rotation.
+After evaluation by a normalized cochain, the $tsN$ terms vanish because
+their second argument is the unit. Substituting (1) into these actual
+operators gives the following full coordinate formulas:
+\[
+ b^*:\overline C^n\longrightarrow\overline C^{n+1},\quad
+       (a,b)\longmapsto\bigl((1+(-1)^{n+1})b,0\bigr),
+ \tag{3}
+\]
+\[
+ B^*:\overline C^{n+1}\longrightarrow\overline C^n,\quad
+       (a,b)\longmapsto(0,c_n a),\qquad
+ c_n=\sum_{i=0}^n(-1)^{ni}=
+ \begin{cases}n+1&n\text{ even},\\0&n\text{ odd}.\end{cases}
+ \tag{4}
+\]
+The Lean proof verifies the standard formulas on every input; (3)--(4)
+are derived from those formulas.
+
+\textbf{The full native total complex and the actual obstruction.}
+In degree $n$ take the finite product
+\[
+ T^n=\prod_{p=0}^{\lfloor n/2\rfloor}\overline C^{n-2p}(D).
+\]
+The total differential sums each genuine $b^*$ component in its column
+and each genuine $B^*$ component into the next column. Equations (3)--(4)
+give $d^{2k}=0$ in all degrees, hence $d^{n+1}d^n=0$.
+This defines a native \texttt{CochainComplex} in \texttt{ModuleCat} $\Z$;
+cohomology is its native homology object.
+
+There is no incoming differential in degree zero, and $d^0=0$.
+The native homology API therefore identifies $\HC^0(D)$ with $T^0\simeq\Z^2$.
+In degrees one and two, the same actual differential is
+\[
+ d^1(a,b)=\bigl((2b,0),(0,a)\bigr),\qquad d^2=0.
+ \tag{5}
+\]
+Consequently native $\HC^2(D)$ is identified with
+$T^2/\operatorname{im}d^1$. Let $u=((1,0),(0,0))\in T^2$.
+Its class is nonzero: the first coordinate of every boundary is an even
+integer. But $2u=d^1(0,1)$, so $[u]+[u]=0$.
+These are actual cycle, boundary and quotient-class calculations.
+Since $\Z^2$ has no nonzero element with that property, no abelian-group
+isomorphism $\HC^0(D)\simeq\HC^2(D)$ exists.
+
+\newpage
+\textbf{Back to the exact source algebra.}
+The proof does not stop with an algebra equivalence appended to a calculation
+on another object. For the actual native $R=\Z[X]/(X^2)$ it constructs all
+normalized multilinear cochain spaces and their tensor--Hom maps.
+Precomposition with the algebra equivalence and its inverse gives actual
+linear equivalences in every degree. The Hochschild and Connes operators
+on $R$ satisfy the standard formulas on every $R$-valued input; preservation
+of multiplication and the unit proves their naturality.
+The full total complexes are isomorphic, and the native homology API supplies
+the resulting cohomology isomorphisms.
+
+Thus the final theorem is directly about the native cohomology of the full
+normalized total complex on $R$:
+\[
+ \begin{gathered}
+ \forall x\in\HC^0(R),\quad x+x=0\Longrightarrow x=0,\\
+ \exists y\in\HC^2(R),\quad y\ne0\ \text{and}\ y+y=0,\\
+ \text{there is no additive-group equivalence }\HC^0(R)\simeq\HC^2(R).
+ \end{gathered}
+\]
+This refutes the printed period-two assertion under the stated ordinary
+integral, degree-zero convention. A classification of all coefficient
+groups is unnecessary for this obstruction and is not asserted.
+
+\textbf{What is formalized and what identifies the model.}
+The general canonical comparison between the dual cyclic bicomplex and its
+normalized $(b^*,B^*)$ model is the published standard identification in
+Loday, Section 2.4.3. Lean formalizes the latter model explicitly: the full
+cochain spaces and normalization, the genuine operators and their input
+formulas, all diagonal total spaces and differentials, the native complex,
+its actual homology, and the source-algebra transport. It does not assume
+the proposed coefficient groups or infer cohomology by dualizing a list of
+homology groups. Rudman's paper is used only for the standard chain-level
+operator formulas, not as a cohomology computation.
+
+\textbf{The supplied Lean project.}
+Key declarations, all in namespace \texttt{TLMC1537}, include:
+
+\begin{tabular}{@{}ll@{}}
+\texttt{quotientDualEquiv} & \texttt{normalizedTensorDualEquiv}\\
+\texttt{hochschild\_full\_formula} & \texttt{connes\_full\_formula}\\
+\texttt{cyclicCochainComplex} & \texttt{HC0\_no\_add\_two\_torsion}\\
+\texttt{torsionHC2\_nonzero} & \texttt{sourceHochschild\_full\_formula}\\
+\texttt{sourceConnes\_full\_formula} & \texttt{sourceCyclicCochainComplex}\\
+\texttt{complete\_counterexample} &
+\end{tabular}
+
+The complete original bilingual source is preserved separately.
+The project pins Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+Command outputs, exhaustive namespace axiom checks, source hashes and the
+official fresh-kernel receipt accompany the submission. Only the standard
+axioms \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}
+are permitted. Production resource observations are diagnostic and do not
+establish a controlled research-efficiency gain. Organizer review is pending.
+
+\textbf{Primary references.}
+
+J.-L. Loday, \emph{Cyclic Homology}, second edition, Grundlehren der
+mathematischen Wissenschaften 301, Springer, 1998, printed pp.~72--73,
+Definition 2.4.1 and Section 2.4.3.
+\href{https://doi.org/10.1007/978-3-662-11389-9}{DOI: 10.1007/978-3-662-11389-9}.
+
+E. Rudman, \emph{The cyclic homology of
+$k[x_1,x_2,\ldots,x_d]/(x_1,x_2,\ldots,x_d)^2$},
+arXiv:2010.08845v1, 2020, printed pp.~2--3, Definitions 2.1--2.5.
+\href{https://arxiv.org/abs/2010.08845v1}{arXiv:2010.08845v1}.
+
+\end{document}
