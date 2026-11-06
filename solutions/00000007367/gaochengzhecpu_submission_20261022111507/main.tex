@@ -1,0 +1,142 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{The exact discrete gradient of the average-vector-field method\\
+\large Proof of Conjecture 00000007367}
+\author{GitHub: gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The interval average of the differential of a continuously differentiable
+energy is an exact discrete differential. It satisfies both the energy
+difference identity and consistency on the diagonal. Pairing this average
+with a skew Hamiltonian operator proves exact energy preservation of
+every average-vector-field step. We prove the full identity for arbitrary
+real normed spaces using genuine Fr\'echet derivatives and Bochner
+integrals, and verify it in Lean.
+\end{abstract}
+
+\section*{Precise statement and conventions}
+The bilingual source asserts the exact discrete-gradient identity and
+its realization by the averaging operator in the average-vector-field
+(AVF) method. We use its standard differentiable setting: an energy
+$H$ with continuous first derivative, and exact integration in the
+definition of the method. No restriction to quadratic energies is needed.
+
+Let $E$ be a real normed vector space and let $E^*$ denote its continuous
+dual. Suppose $H:E\to\mathbb R$ is differentiable and
+$DH:E\to E^*$ is continuous. For $x,y\in E$, define
+\[
+ \gamma_{x,y}(t)=x+t(y-x),\qquad
+ \overline{D}H(x,y)=\int_0^1 DH(\gamma_{x,y}(t))\,dt\in E^*.
+\]
+The integral is the Bochner integral. The dual $E^*$ is complete even
+when $E$ is not, and the integrand is continuous on the compact interval,
+so this integral exists.
+
+In a finite-dimensional Euclidean space the Riesz identification gives
+the familiar averaged gradient
+\[
+ \overline\nabla H(x,y)=\int_0^1\nabla H(x+t(y-x))\,dt,
+ \qquad
+ \overline{D}H(x,y)[v]=\langle\overline\nabla H(x,y),v\rangle.
+\]
+Thus the covector formulation below is the ordinary AVF discrete
+gradient expressed without choosing coordinates or an inner product.
+
+\begin{theorem}[Exact discrete differential]
+For all $x,y\in E$,
+\begin{align}
+ \overline{D}H(x,y)[y-x]&=H(y)-H(x),\label{identity}\\
+ \overline{D}H(x,x)&=DH(x).\label{consistency}
+\end{align}
+\end{theorem}
+\begin{proof}
+The chain rule gives, for every real $t$,
+\[
+ \frac{d}{dt}H(\gamma_{x,y}(t))
+   =DH(\gamma_{x,y}(t))[y-x].
+\]
+This derivative is continuous. Evaluation at $y-x$ is a continuous linear
+functional on $E^*$, hence commutes with the Bochner integral. The
+fundamental theorem of calculus therefore yields
+\begin{align*}
+ \overline{D}H(x,y)[y-x]
+ &=\int_0^1DH(\gamma_{x,y}(t))[y-x]\,dt\\
+ &=H(\gamma_{x,y}(1))-H(\gamma_{x,y}(0))
+  =H(y)-H(x).
+\end{align*}
+When $y=x$, the path is constant and the integral over an interval of
+length one is $DH(x)$, proving consistency.
+\end{proof}
+
+\begin{theorem}[Exact AVF energy preservation]
+Let $J:E^*\to E$ satisfy
+\begin{equation}\label{skew}
+ g[J(g)]=0\qquad\hbox{for every }g\in E^*.
+\end{equation}
+If $h\in\mathbb R$ and $x,y\in E$ satisfy the AVF step
+\begin{equation}\label{step}
+ y-x=hJ(\overline{D}H(x,y)),
+\end{equation}
+then $H(y)=H(x)$.
+\end{theorem}
+\begin{proof}
+Put $g=\overline{D}H(x,y)$. Equations \eqref{identity}, \eqref{step},
+and \eqref{skew} give
+\[
+ H(y)-H(x)=g[y-x]=g[hJ(g)]=h\,g[J(g)]=0.
+\]
+\end{proof}
+
+For the usual Hamiltonian system $\dot z=S\nabla H(z)$ in
+$\mathbb R^d$, take a constant skew-symmetric matrix $S$ and identify
+covectors with vectors. Then $J(g)=Sg$ satisfies \eqref{skew}, because
+$g^T Sg=-g^T Sg$. Linearity of $S$ makes \eqref{step} precisely
+\[
+ y-x=h\int_0^1 S\nabla H(x+t(y-x))\,dt,
+\]
+the average-vector-field method. Its energy conservation follows for
+every energy under the stated differentiability hypotheses and every
+step that solves the implicit equation. The theorem asserts preservation,
+not existence or uniqueness of that implicit solution. Replacing the
+integral by an inexact quadrature or solving the step inexactly requires
+a separate error analysis and is not the exact method in the source.
+
+\section*{Formal verification and scope}
+The Lean development uses Mathlib's actual continuous linear maps,
+\texttt{HasFDerivAt}, \texttt{fderiv}, and Bochner interval integral.
+The main proposition universally quantifies over energies on any real
+normed space, assumes differentiability and continuity of the actual
+Fr\'echet derivative, and states the conjunction of the discrete-gradient
+identity, diagonal consistency, and preservation of every AVF step with
+\eqref{skew}. The main theorem is
+\begin{center}\texttt{Conjecture7367.conjecture7367}.\end{center}
+The proof establishes the chain rule along the actual affine segment,
+commutes evaluation with the actual integral, and applies Mathlib's
+fundamental theorem of calculus. No finite examples, numerical integration,
+or surrogate energy-difference formula replace these objects.
+
+The finite-dimensional Riesz identification and the short matrix argument
+that skew-symmetry implies \eqref{skew} are presented on paper. Lean
+proves the stronger coordinate-free preservation theorem directly under
+\eqref{skew}. These are the only bridges from the formal theorem to the
+usual gradient-and-skew-matrix notation. Both the identity and its
+averaging realization are fully formalized, as is the entire conservation
+argument. The allowed axioms printed by Lean are only
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+\section*{Source and reproduction}
+The unmodified bilingual statement is supplied as \texttt{SOURCE.md};
+its frozen provenance and SHA-256 are recorded in the verification folder.
+The coordinating workflow found no prior submission for this conjecture.
+Lean is pinned to 4.19.0 and Mathlib commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+In the supplied Lean folder run
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+This draft was developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately. No external independent
+review is claimed.
+\end{document}
