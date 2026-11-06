@@ -1,0 +1,189 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\title{Ideal Chains Do Not Measure Bratteli Path Depth:\\A Disproof of Conjecture 00000009783}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+The AF algebra $\mathbb C$ has exactly two closed ideals and hence a
+unique maximal ideal chain, of length one. Its standard constant
+one-dimensional inductive system has a Bratteli diagram with one vertex
+at each level and one edge between consecutive levels. This diagram
+has paths of every finite length. The claimed equality between ideal
+chain length and the supremum of path depths therefore fails. The
+counterexample remains valid if chain length counts elements instead
+of strict inclusions. Lean verifies the actual complex algebra, its
+finite-dimensional approximation and direct-limit property, its closed
+ideals, and genuine paths in the associated diagram.
+\end{abstract}
+
+\section*{Reading of the source}
+Both language versions assert that the length of maximal ideal chains
+in an AF algebra equals the supremum of path depths of its Bratteli
+diagram. We use the standard meanings: closed two-sided ideals ordered
+by inclusion, and depth of a finite directed path measured by its
+number of edges. Counting vertices changes path length by one and
+does not change whether depths are unbounded. Counting the elements
+of an ideal chain instead of its strict inclusions also leaves the
+counterexample intact.
+
+An AF algebra is a norm closure of an increasing union of
+finite-dimensional $C^*$-subalgebras, equivalently an inductive limit
+of finite-dimensional $C^*$-algebras. Finite-dimensional algebras are
+included: their constant identity systems are allowed. A Bratteli
+diagram has a vertex for each simple matrix summand at each stage,
+and the number of edges between successive-stage vertices is the
+partial embedding multiplicity. These conventions are stated, for
+example, in Blackadar's author-hosted text, sections I.3.2.1--2 and I.3.2.6--8
+\cite{blackadar}.
+
+We refute the chain-depth clause. We do not need to choose between
+conventions on hereditary subsets or their saturation, nor make any
+assertion about the separate dimension-vector stratification clause.
+Changing those conventions cannot change the two ideals of the
+algebra or the unbounded path lengths of the specified diagram.
+
+\begin{theorem}
+There is an AF algebra with a Bratteli diagram whose finite path
+depths are unbounded, but whose unique maximal closed-ideal chain
+has two elements and one strict inclusion.
+\end{theorem}
+\begin{proof}
+Take $A=\mathbb C$, with its usual norm, multiplication and complex
+conjugation. It is a unital complex $C^*$-algebra. Put
+\[
+ A_n=\mathbb C=M_1(\mathbb C),\qquad
+ \varphi_n=\operatorname{id}_{\mathbb C}\quad(n\geq0).
+\]
+Internally all stages are the entire closed star subalgebra of $A$.
+They are one-dimensional, form an increasing sequence, and their
+union is exactly $A$. Hence $A$ is AF.
+
+For clarity, this system really has $A$ as its inductive limit.
+The canonical maps from all stages into $A$ are identities. For
+any $C^*$-algebra $B$, a compatible family of star algebra maps
+$f_n:\mathbb C\to B$ satisfies $f_{n+1}=f_n$. It therefore factors
+through the unique map $f_0:A\to B$. These maps are continuous:
+they are complex-linear maps with finite-dimensional domain.
+The same argument also applies to nonunital star algebra maps and
+nonunital targets. This is the required direct-limit universal property.
+
+The explicit identification $\mathbb C\to M_1(\mathbb C)$ sends
+$z$ to the matrix $[z]$ and respects the star operation. Under this
+identification, each connecting map is the identity on $M_1(\mathbb C)$.
+It contains exactly one copy of the source matrix block, so its
+multiplicity is one. There is consequently one vertex $v_n$ at each
+level and exactly one edge $v_n\to v_{n+1}$:
+\[
+ v_0\longrightarrow v_1\longrightarrow v_2\longrightarrow\cdots.
+\]
+For every $N\geq0$, the path from $v_0$ through $v_1,\ldots,v_N$
+has exactly $N$ edges. Thus the supremum of finite path depths is
+$+\infty$.
+
+An ideal $I$ of $\mathbb C$ containing a nonzero element $z$ contains
+$z^{-1}z=1$, so it is all of $\mathbb C$. Therefore the only ideals
+are $\{0\}$ and $\mathbb C$, and both are closed in the norm topology.
+The complete closed-ideal lattice is the two-element chain
+\[
+ \{0\}\ \subsetneq\ \mathbb C.
+\]
+It is the unique maximal chain, since every subset can be extended
+to this whole two-element chain. Its length is one by strict
+inclusions, or two by elements. Neither finite value equals
+$+\infty$. This disproves the asserted equality under either
+chain-length convention.
+\end{proof}
+
+\section*{Formal verification and scope}
+The Lean file uses Mathlib's actual complex numbers with the
+\texttt{CommCStarAlgebra} instance. Its predicate
+\texttt{ApproximatelyFinite} requires a monotone sequence of actual
+\texttt{StarSubalgebra} objects, each closed and finite-dimensional,
+whose union is dense. The counterexample satisfies it with every
+stage equal to the top subalgebra. The actual stage types are
+identified with $M_1(\mathbb C)$ by star algebra equivalences.
+
+The connecting maps are actual \texttt{StarAlgHom} identities.
+The theorem
+\begin{center}\small\texttt{constant\_system\_universal}\end{center}
+proves existence and uniqueness of the factorization for every
+unital $C^*$-algebra target and compatible unital cocone; continuity
+of each map out of a stage is proved separately. A second theorem
+proves the universal property, including continuity, for nonunital
+$C^*$-algebra targets and nonunital star algebra maps as well.
+The internal stage
+inclusions and external identity system are checked to agree.
+Conjugating the connecting map by the matrix equivalence gives the
+actual identity matrix-block embedding. In this one-dimensional
+case the multiplicity is the complex dimension of its range,
+which is proved to be one. No general formula identifying the
+dimension of an arbitrary matrix-algebra image with a partial
+embedding multiplicity is asserted.
+
+The diagram is a genuine Mathlib \texttt{Quiver} on $\mathbb N$:
+its arrow type from $n$ to $m$ is a finite type with the computed
+multiplicity when $m=n+1$, and is empty otherwise. The recursively
+constructed \texttt{Quiver.Path} from $0$ to $N$ has length $N$.
+The supremum over lengths of all actual paths is taken in
+$\mathbb N\cup\{+\infty\}$ and is proved to equal $+\infty$.
+
+\texttt{ClosedIdeal} consists of actual Mathlib ideals with a proof
+that their carriers are topologically closed. Since the algebra is
+commutative, these are its closed two-sided ideals. Lean proves
+that each is the zero or whole ideal, that these are distinct, and
+that there are exactly two. It also proves that every maximal chain,
+using Mathlib's \texttt{IsMaxChain}, is the whole ideal set.
+
+The maximum strict-inclusion length is encoded by the supremum of
+$n$ for which there is a strictly increasing map from
+$\{0,\ldots,n\}$ into the closed-ideal order. Lean proves that this
+supremum is one, and that the corresponding element-count supremum
+is two. These are computations of chains in the actual ideal
+order, not stipulated numerical invariants.
+
+The proposition \texttt{OneBlockDepthClause} quantifies over all
+commutative complex $C^*$-algebras that are AF and star-algebra
+isomorphic to $\mathbb C$. It demands that their ideal-chain length
+equal the depth of the constant one-block diagram. Each such
+algebra admits the same identity-system presentation. This is a
+necessary restriction of the source's claim about all AF algebras;
+its negation is the main theorem
+\begin{center}\small\texttt{conjecture\_9783\_false}.\end{center}
+The alternate element-count convention is separately refuted.
+
+No general AF classification theorem, hereditary-subset
+correspondence, or dimension-vector stratification theorem is
+claimed as formalized. The exact counterexample, the direct-limit
+property, the finite matrix-block identification, the ideals and
+the paths are all verified. The Lean file uses no \texttt{sorry},
+\texttt{admit}, \texttt{native\_decide}, or custom axiom. Its axiom
+reports contain only \texttt{propext}, \texttt{Classical.choice}
+and \texttt{Quot.sound}.
+
+\section*{Source and reproduction}
+\texttt{SOURCE.md} is an exact copy of the bilingual upstream file
+\begin{center}\small\texttt{conjectures/00000009783.md}.\end{center}
+The provenance record gives the upstream revision and SHA-256.
+The project pins Lean 4.19.0 and Mathlib revision
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+With the pinned dependencies available, run from \texttt{lean/}
+\texttt{lake build} and
+\begin{center}\small\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+Compile this document with Tectonic or a compatible LaTeX engine.
+Verification records distinguish author checks from coordinator
+checks. Developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately. No external
+independent review is claimed.
+
+\begin{thebibliography}{1}
+\bibitem{blackadar} B. Blackadar, \emph{Classification of
+$C^*$-Algebras}, incomplete preliminary edition, June 4, 2025,
+sections I.3.2.1--2 (AF algebras) and I.3.2.6--8 (multiplicities and diagrams).
+\href{https://bruceblackadar.com/Mathematics/Class.pdf}{Author's public text}.
+\end{thebibliography}
+\end{document}
