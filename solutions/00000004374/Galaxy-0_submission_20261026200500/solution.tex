@@ -1,0 +1,47 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\newtheorem{theorem}{Theorem}
+\title{An elementary degree obstruction to conjecture 4374}
+\author{Galaxy-0 submission with AI assistance}
+\date{26 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The printed conjecture requires an odd homotopy degree to be a multiple of $p^2-1$ for odd primes $p$. Already $p=3$ makes this impossible. This is a disproof of the literal degree assertion, not a computation of the algebraic $K$-groups of the integers and not a disproof of a corrected statement about shifted periodicity.
+\end{abstract}
+\section{The assertion being tested}
+The original English statement says that, beyond known low degrees, the next nonzero odd-degree homotopy occurs in degrees that are multiples of $p^2-1$, uniformly for all odd primes $p$. The Chinese statement also explicitly says odd degree and multiples of $p^2-1$.
+
+Let $H(d)$ denote the predicate that the relevant homotopy group in degree $d$ is nonzero. We do not assume any values of $H$. Let $L$ be any nonnegative cutoff for the low degrees. Even a weakened necessary clause of the conjecture would require
+\[
+ \forall p\text{ odd prime},\quad
+ \exists d>L:\quad H(d),\quad d\text{ odd},\quad (p^2-1)\mid d.
+\]
+This formulation allows a different $d$ for every prime and does not impose that it be the first occurrence. Thus it does not add a stronger uniformity or minimality assumption. We refute this weaker clause, so the printed claim cannot hold.
+\section{Proof}
+\begin{theorem}
+For every predicate $H$ on the natural numbers and every cutoff $L$, the displayed necessary clause is false.
+\end{theorem}
+\begin{proof}
+Take the odd prime $p=3$. Then $p^2-1=8$. A degree divisible by $8$ has the form $d=8j=2(4j)$ for a natural number $j$, so it is even. It cannot simultaneously have the odd form $d=2k+1$. This contradiction is independent of $L$ and $H(d)$.
+\end{proof}
+
+The same parity obstruction holds for every odd prime, but this generalization is unnecessary: a single permitted prime refutes the universal claim.
+\section{Formalization and its exact scope}
+The accompanying self-contained Lean 4.31.0 project imports only Std. It defines odd degrees and divisibility by explicit natural-number witnesses and proves directly that $3$ is prime and odd. The theorem \texttt{printed\_degree\_claim\_false} quantifies over arbitrary $H$ and $L$. No axioms about homotopy, $K$-theory, or a desired conclusion are introduced. In particular, the proof does not replace an unknown $K$-group by an invented model: it establishes the obstruction for every possible nonzero-group predicate.
+
+\textbf{Important distinction.} A statement that the difference between successive occurrence degrees is a multiple of $p^2-1$ is not the printed statement that the degrees themselves are multiples. A shifted family $1+8k$ contains odd degrees; the separate theorem \texttt{shifted\_period\_can\_be\_odd} checks this distinction. No claim is made about such a repaired conjecture or the actual next nonzero homotopy degree.
+
+\section{Reproducibility and disclosure}
+Run \texttt{bash verify.sh} with Lean 4.31.0, Lake, leanchecker, and pdflatex on PATH. The script builds a fresh source-only copy, performs strict trust-zero elaboration, prints the axioms of every named theorem, replays the module with leanchecker, and rebuilds this PDF. There are no external Lean package dependencies, custom axioms, unproved declarations, or native-decision shortcuts. The package was prepared and checked using AI agents; independent AI review is not human or organizer acceptance.
+
+\section{Source}
+Original bilingual conjecture 00000004374 at upstream commit:\par
+\noindent\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\par
+\noindent Accessed 26 October 2026.\par
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/b355e42906e6eaf52bc7e9d005e0ef02d8aa7400/conjectures/00000004374.md}{Original conjecture 00000004374 at the pinned upstream revision.}
+\end{document}
