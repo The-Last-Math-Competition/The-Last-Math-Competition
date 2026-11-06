@@ -1,0 +1,175 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=20mm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,array,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\newcommand{\R}{\mathbb R}
+\newcommand{\C}{\mathbb C}
+\title{A unit Lipschitz field whose full Hilbert transform\newline has no square-integrable principal-value representative}
+\author{lizaixi01 \qquad TLMC 00000001911}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+\vspace{-6mm}
+
+\textbf{Scope.} The printed first conjunct says that
+$H_Vf(x)=\operatorname{p.v.}\int f(x-tV(x))\,dt/t$
+is $L^2$ bounded for Lipschitz vector fields. No outer cutoff is printed.
+We disprove this \emph{full, untruncated strong-$L^2$ assertion} on the usual
+Euclidean plane, even for an everywhere unit, globally Lipschitz field and
+a genuine Schwartz input. This is not a counterexample to the conventional
+short-scale Stein question, its weak-type formulation, or the source's
+undefined resonance clause. Lacey--Li explicitly use a finite outer scale
+in their initial definition and in the Stein conjecture (printed pp.~1--2);
+their printed p.~27 separately discusses the full transform [1].
+
+\textbf{1. Actual field and test function.}
+Identify the Euclidean plane with $\C$, with its native norm and Lebesgue measure.
+For $z=x+iy$, put
+\[
+ W(z)=\max(1,x)+iy,\qquad V(z)=\|W(z)\|^{-1}W(z).
+\]
+The real clamp is $1$-Lipschitz. Squaring the Euclidean norms shows that
+$W$ is $1$-Lipschitz, and $\|W(z)\|\ge1$. For $\|u\|,\|v\|\ge1$,
+\[
+ \left\|\frac{u}{\|u\|}-\frac{v}{\|v\|}\right\|
+ \le \frac{\|u-v\|+|\|v\|-\|u\||}{\|u\|}
+ \le2\|u-v\|.
+\]
+Consequently $V$ is globally $2$-Lipschitz, has norm one everywhere,
+and equals $z/\|z\|$ when $x\ge1$.
+Choose the native smooth bump $f$ centered at zero with inner radius $1$
+and outer radius $2$. It satisfies $0\le f\le1$, $f=1$ on the closed unit ball,
+and $f=0$ for $\|z\|\ge2$. Its actual compact support and all-order smoothness
+construct a native Schwartz map, hence $f\in L^2(\C)$.
+
+\textbf{2. Genuine principal values on a cone.}
+For real $\varepsilon,R$, define the actual cutoff integral
+\[
+ H_{\varepsilon,R}f(z)=
+ \int_{\{t:\,\varepsilon\le |t|\le R\}}
+       \frac{f(z-tV(z))}{t}\,dt.
+\]
+Let $E=\{x+iy:x\ge4,\ 0\le y\le x\}$ and $r=\|z\|$.
+For $z\in E$, one has $4\le r\le2x$ and
+$\|z-tV(z)\|=|r-t|$. Thus the actual kernel vanishes outside
+$[r-2,r+2]\subset(0,\infty)$, is nonnegative everywhere, and is continuous
+on that interval. Its global integral is genuinely integrable, and every
+cutoff restriction is integrable. Whenever $\varepsilon\le r-2$ and $R\ge r+2$,
+\[
+ H_{\varepsilon,R}f(z)=P(z):=
+ \int_{r-2}^{r+2}\frac{f(z-tV(z))}{t}\,dt.
+\]
+This eventual equality proves the real two-parameter limit
+$H_{\varepsilon,R}f(z)\to P(z)$ as
+$\varepsilon\to0^+$ and $R\to+\infty$ in the product filter.
+No value is assigned by a totalized limit outside this cone.
+
+\textbf{3. A lower bound and the $L^2$ obstruction.}
+On $[r-1,r+1]$, the bump equals one. Positivity and interval monotonicity give
+\[
+ P(z)\ge\int_{r-1}^{r+1}\frac{dt}{t}
+ \ge\frac{2}{r+1}\ge\frac1r\ge\frac1{2x}\quad(z\in E).
+\]
+Suppose a native $L^2$ function $g$ agrees almost everywhere on $E$ with
+these actual principal-value limits. Uniqueness of limits implies
+$g(z)=P(z)$ there. Native $L^2$ membership makes $g^2$ integrable.
+Transport through the actual volume-preserving real-coordinate measurable
+equivalence, followed by Fubini, gives an integrable row integral
+$G(x)=\int_\R g(x+iy)^2\,dy$. For almost every $x\ge4$,
+\[
+ G(x)\ge\int_0^x\frac{dy}{4x^2}=\frac1{4x}.
+\]
+Integrable domination would make $x\mapsto1/x$ integrable on $[4,\infty)$,
+contrary to native nonintegrability of that function. Hence no such $g$ exists.
+
+\newpage
+\textbf{4. Exact operator consequence.}
+The formal bounded-operator claim uses the native Banach space
+$L^2(\C;\R)$ and an actual continuous real-linear map
+$T:L^2(\C;\R)\to L^2(\C;\R)$. Its defining compatibility is: for every
+native real-valued Schwartz map $h$, for almost every $z$,
+\[
+ H_{\varepsilon,R}h(z)\longrightarrow (T h)(z)
+ \quad\text{as }(\varepsilon,R)\to(0^+,+\infty).
+\]
+This is a necessary compatibility for an $L^2$-bounded linear extension
+of the full principal-value transform. Applying it to the constructed
+$f$ would provide the impossible $L^2$ representative above. The result
+therefore excludes every such bounded operator. The stronger intermediate
+result excludes even an arbitrary $L^2$ representative on $E$; linearity
+or an operator-norm estimate is not needed for that contradiction.
+The proof does not posit the full transform's values elsewhere.
+
+\textbf{5. Complete formal coverage and interpretation.}
+The pinned Lean project proves the construction directly. It does not add
+an axiom asserting a literature theorem, a desired transform value, or a
+divergent norm. The geometric and measure identifications are native:
+$\|z\|=\sqrt{x^2+y^2}$ and the real-coordinate map preserves native Lebesgue
+volume. In particular, the product measure used for Fubini does not replace
+the Euclidean metric by the product sup metric. The restriction to real
+Schwartz tests already rules out the printed real strong-$L^2$ transform.
+
+\small
+\begin{tabular}{@{}p{.28\linewidth}p{.67\linewidth}@{}}
+\toprule
+Part & Principal declarations in namespace \texttt{TLMC1911} \\
+\midrule
+Euclidean field & \texttt{euclidean\_norm}, \texttt{euclidean\_volume},
+\texttt{clipped\_lipschitz}, \texttt{normalization\_bound},
+\texttt{field\_unit}, \texttt{field\_lipschitz}, \texttt{field\_radial} \\
+Smooth input & \texttt{bump}, \texttt{test}, \texttt{test\_one},
+\texttt{test\_zero}, \texttt{test\_memLp} \\
+Actual cutoff and PV & \texttt{radial\_line}, \texttt{kernel\_integrable},
+\texttt{cutoff\_integrable}, \texttt{kernel\_plateau},
+\texttt{cutoff\_eq\_conePV}, \texttt{conePV\_tendsto}, \texttt{conePV\_lower} \\
+Native $L^2$ contradiction & \texttt{no\_memLp\_cone\_lower},
+\texttt{no\_L2\_PV\_representative}, \texttt{RepresentsFullPV},
+\texttt{no\_bounded\_fullPV\_operator},
+\texttt{printed\_untruncated\_conjunct\_false} \\
+\bottomrule
+\end{tabular}
+\normalsize
+
+The final theorem exhibits a genuine $2$-Lipschitz unit field for which
+there is no native continuous-linear $L^2$ operator satisfying this full-PV
+compatibility. All variables in the cutoff limits, all almost-everywhere
+statements, and the square-integrability assertions retain their actual
+native meanings. The report uses the conventional planar interpretation,
+which the printed text does not further specify. It only refutes the first
+untruncated strong-$L^2$ conjunct. The conventional outer-truncated,
+short-scale Stein problem and the resonance-set statement remain outside
+the claim. A complete copy of both original language versions is in
+\texttt{SOURCE.md}.
+
+\textbf{6. Reproduction and evidence.}
+Lean is pinned to 4.33.0, with Mathlib revision
+\begin{quote}\ttfamily
+db584cd6d46c92f209a44c0f1c829460d327499d
+\end{quote}
+From \texttt{lean/}, run:
+\begin{quote}\ttfamily
+lean --version\\
+lake build +Main\\
+lake env lean -DwarningAsError=true Check.lean\\
+lake env leanchecker --fresh Main
+\end{quote}
+Alternatively run \texttt{lean --version}, then \texttt{bash verify.sh} for the
+remaining three commands. The audit invokes ordinary \texttt{\#print axioms}
+for every actual owned declaration, including generated/private names,
+and checks exact namespace coverage. Only \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound} are permitted.
+The package retains the full source-bound command logs, execution and
+CPU-affinity samples, qualification and PDF/semantic reviews.
+No production timing is offered as causal research-efficiency evidence.
+
+\textbf{Reference.}
+[1] M. Lacey and X. Li, \emph{On a Conjecture of E. M. Stein on the Hilbert
+Transform on Vector Fields}, arXiv:0704.0808v3 (11 January 2008).
+\url{https://arxiv.org/abs/0704.0808}.
+The complete selected printed pp.~1--2 and 27, including their page images,
+were read; no claim is made to have read the whole 94-page work.
+They distinguish the usual finite outer scale from the full transform;
+the counterexample and every formal inference above are proved directly.
+\end{document}
