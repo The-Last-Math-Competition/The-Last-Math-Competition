@@ -1,0 +1,271 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{A strict compound-channel minimax gap\newline
+\large Disproof of Conjecture 00000009542}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+Consider three genuine quantum channels from a qutrit
+to a classical bit: channel $i$ reports whether the
+input basis index equals $i$. Each individually has
+maximized quantum mutual information $\log2$.
+Their common-input max--min is instead $h(1/3)<\log2$,
+where $h$ is binary entropy. The compound
+entanglement-assisted coding theorem identifies the
+operational capacity with this common-input quantity,
+not the min--max asserted in the source. The calculation
+holds for every density matrix, including coherent inputs.
+\end{abstract}
+
+\section*{Three actual completely positive trace-preserving maps}
+Use input $A=\mathbb C^3$ with basis indexed by $0,1,2$,
+output $B=\mathbb C^2$, and environment $E=\mathbb C^3$.
+For $i\in\{0,1,2\}$ define $b_i(j)=0$ if $j=i$,
+and $b_i(j)=1$ otherwise. Set
+\[
+ K_{ij}=|b_i(j)\rangle\langle j|,
+ \qquad \Phi_i(X)=\sum_{j=0}^2 K_{ij}XK_{ij}^*.
+\]
+This is a complex-linear map. Every matrix amplification
+is a sum of positive conjugations by $I\otimes K_{ij}$,
+so it is completely positive. Moreover
+$\sum_jK_{ij}^*K_{ij}=I_3$, proving trace preservation.
+Directly,
+\[
+           \Phi_i(X)=\operatorname{diag}
+                         (X_{ii},\operatorname{tr}X-X_{ii}).
+\]
+For a density matrix $\rho$, write $p_i=\rho_{ii}$.
+Positivity makes these real and nonnegative, and
+$p_0+p_1+p_2=1$. The output is the actual classical-bit
+state $\operatorname{diag}(p_i,1-p_i)$.
+
+The genuine Stinespring isometry
+\[
+                  V_i|j\rangle=|b_i(j)\rangle\otimes|j\rangle
+\]
+satisfies $V_i^*V_i=I_3$. Tracing its output over $E$
+gives $\Phi_i$. Tracing over $B$ gives its complementary
+channel
+\[
+       \Phi_i^c(\rho)=P_i\rho P_i+Q_i\rho Q_i,
+       \quad P_i=|i\rangle\langle i|,\quad Q_i=I_3-P_i.
+\]
+This is a two-block pinching, not full dephasing.
+Both output and complementary matrices are positive
+and have trace one.
+
+\newpage
+\section*{Entropy and coherent inputs}
+Use natural logarithms, so capacities are in nats.
+Define $\eta(x)=-x\log x$ for $x>0$ and $\eta(0)=0$,
+$S(\rho)=\operatorname{tr}\eta(\rho)$, and
+\[
+                    h(p)=\eta(p)+\eta(1-p).
+\]
+The usual channel mutual information is
+\[
+ I(\rho,\Phi_i)=S(\rho)+S(\Phi_i(\rho))-S(\Phi_i^c(\rho)).
+\]
+To justify this standard entropy-exchange expression,
+purify $\rho$ on a reference system $R$ and apply $V_i$.
+The resulting state on $RBE$ is pure, so its reduced
+states on $RB$ and $E$ have the same nonzero eigenvalues
+by Schmidt decomposition. Substituting
+$S(RB)=S(E)$ into the usual reference-output mutual
+information gives the displayed formula.
+
+Here is a direct proof of the needed pinching entropy
+inequality, including coherent matrices. Let $\rho$ have
+orthonormal eigenbasis $u_b$ and eigenvalues $\lambda_b$,
+and let $\sigma=P\rho P+Q\rho Q$ have eigenbasis $v_a$
+and eigenvalues $\mu_a$, where $P,Q$ are complementary
+orthogonal projections. Set
+\[
+ w_{ab}=|\langle v_a,Pu_b\rangle|^2
+                    +|\langle v_a,Qu_b\rangle|^2.
+\]
+These weights are nonnegative. Completeness of both
+orthonormal bases and $P^2+Q^2=I$ give
+\[
+ \sum_b w_{ab}=1,\qquad \sum_a w_{ab}=1,
+             \qquad \mu_a=\sum_b w_{ab}\lambda_b.
+\]
+Since $\eta$ is concave on $[0,\infty)$, finite Jensen
+and the column sums imply
+\[
+ S(\sigma)=\sum_a\eta(\mu_a)
+    \geq\sum_{a,b}w_{ab}\eta(\lambda_b)
+    =\sum_b\eta(\lambda_b)=S(\rho).
+\]
+Applying this to $P_i,Q_i$ yields, for every actual
+density matrix,
+\[
+          I(\rho,\Phi_i)\leq S(\Phi_i(\rho))=h(p_i).
+\]
+No restriction to diagonal or classical inputs was
+used in this upper bound. If $\rho$ is diagonal,
+the pinching leaves it unchanged, and equality holds.
+
+\newpage
+\section*{Exact max--min and min--max values}
+Binary entropy is at most $\log2$, with equality at
+$p=1/2$. Thus for every $i$ and every state,
+$I(\rho,\Phi_i)\leq\log2$. The diagonal state with
+$p_i=1/2$ and the other two probabilities $1/4$
+attains equality. Consequently
+\[
+              \sup_\rho I(\rho,\Phi_i)=\log2
+                        \quad\text{for each }i,
+\qquad
+              \min_i\sup_\rho I(\rho,\Phi_i)=\log2.
+\]
+
+On the other hand, every state has some $p_i\leq1/3$,
+because its three diagonal probabilities sum to one.
+Binary entropy is increasing on $[0,1/2]$, so that
+channel satisfies
+\[
+                 I(\rho,\Phi_i)\leq h(p_i)\leq h(1/3).
+\]
+This proves $\sup_\rho\min_i I(\rho,\Phi_i)\leq h(1/3)$.
+The uniform diagonal state $\rho=I_3/3$ attains
+$I(\rho,\Phi_i)=h(1/3)$ simultaneously for all three
+channels. Hence
+\[
+        \sup_\rho\min_i I(\rho,\Phi_i)=h(1/3)<\log2
+                             =\min_i\sup_\rho I(\rho,\Phi_i).
+\]
+The strict inequality is exact, not numerical:
+$h(1/3)=\log3-\tfrac23\log2$, so its gap from
+$\log2$ is $\tfrac13\log(32/27)>0$.
+
+\section*{The operational capacity bridge}
+For a compound memoryless quantum channel set
+$\mathcal W$, the channel is fixed during transmission
+but unknown within $\mathcal W$, and one code must be
+reliable for every member. The entanglement-assisted
+compound-channel coding theorem states
+\[
+ C_{\rm EA}(\mathcal W)
+       =\sup_\rho\inf_{\Phi\in\mathcal W}I(\rho,\Phi).
+\]
+This holds under both average and maximal transmission
+error; see \cite[Theorem 1, equation (7)]{bjk}.
+The reference uses bits; multiplying by $\log2$
+gives the same formula in the nats used here.
+
+For our finite set $\mathcal W=\{\Phi_0,\Phi_1,\Phi_2\}$,
+the preceding exact calculation therefore gives
+\[
+                   C_{\rm EA}(\mathcal W)=h(1/3),
+\]
+whereas the source's proposed formula gives $\log2$.
+The two cannot be equal. The relevant difference is
+the common encoder input needed for the unknown
+channel; each individual maximizing state need not
+work simultaneously for the whole set.
+
+\newpage
+\section*{Conclusion and formalization scope}
+\begin{theorem}
+The entanglement-assisted capacity of a finite compound
+quantum channel set need not equal
+$\min_i\max_\rho I(\rho,\Phi_i)$.
+\end{theorem}
+\begin{proof}
+The three explicitly constructed CPTP maps satisfy
+$\sup_\rho\min_i I=h(1/3)<\log2=\min_i\sup_\rho I$.
+The compound coding theorem identifies the first
+quantity with their operational capacity.
+\end{proof}
+The first finite-set capacity formula is already false.
+No claim about the separate continuity statement or
+the additional error-exponent assertion is needed to
+refute the source's conjunction.
+
+The Lean project uses genuine complex matrices with
+actual positive-semidefinite and trace-one conditions.
+Entropy is the real trace of the actual continuous
+functional calculus of $-x\log x$. Its spectral
+eigenvalue formula is proved, and the pinching entropy
+inequality is derived through the actual unitary
+eigenbases and finite Jensen argument above. No
+quantum entropy inequality is assumed as a custom axiom.
+
+The channel is an actual complex-linear Kraus map.
+Complete positivity is proved for every finite matrix
+amplification, and trace preservation holds on every
+input matrix. The explicit Stinespring matrix is proved
+an isometry, and both actual partial-trace identities
+are verified. Positive normalized output and environment
+states are proved. Thus the mutual-information expression
+uses genuine state and channel entropies, not a chosen
+binary-entropy proxy. Its bound for all coherent states,
+diagonal equality cases and exact optimizing states are
+formal theorems.
+
+The common-input optimization is an actual supremum
+over all density matrices of their finite infimum over
+the three channels. Individual optimizations are actual
+suprema over all states. Their exact values and strict
+gap are proved using global bounds and attaining states;
+conditional-supremum defaults do not supply the result.
+
+The formal project verifies this actual single-letter
+gap. The operational coding theorem and the standard
+purification justification of the entropy-exchange
+formula are explicitly invoked in the mathematical
+proof, not newly formalized in Lean. In particular,
+the project does not define its optimization to be
+an operational capacity by fiat.
+
+\newpage
+\section*{Reproducibility and references}
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The complete project is rebuilt in a fresh directory.
+Printed theorem dependencies contain only standard
+foundational axioms. There are no proof placeholders,
+custom axioms or external computation oracles, and no
+auxiliary numerical verifier is needed. Compile this
+paper with \texttt{tectonic main.tex}.
+
+The exact bilingual conjecture, source provenance,
+actual verification logs and artifact hashes are
+included. The author agent and parent performed
+separate internal reviews; no external independent
+review is claimed.
+
+The cited coding theorem supplies the operational
+bridge. All model-specific channel constructions,
+entropy estimates and optimizations used in this
+counterexample are supplied explicitly above and
+checked in the accompanying project. The reference's
+Remark 3 also discusses a strict minimax gap for a
+different compound-channel example; our smaller
+three-channel construction is proved here.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000009542. Exact bilingual source included
+as \texttt{SOURCE.md}.
+\bibitem{bjk} H. Boche, G. Jan\ss en and S. Kaltenstadler,
+\emph{Entanglement-assisted classical capacities of
+compound and arbitrarily varying quantum channels},
+arXiv:1606.09314v3, 2017.
+\href{https://arxiv.org/abs/1606.09314}{Paper and author PDF}.
+Theorem 1, equation (7), gives the compound capacity
+formula; equation (2) defines channel mutual information.
+\end{thebibliography}
+\end{document}
