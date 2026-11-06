@@ -1,0 +1,82 @@
+import Main
+
+set_option linter.auxLemma false
+
+run_cmd do
+  let names := (← Lean.getEnv).constants.toList.filterMap fun (n, _) =>
+    if (`TLMC1453).isPrefixOf n || (n.toString.splitOn ".").contains "TLMC1453" then
+      some n else none
+  let required := [`TLMC1453.body,
+    `TLMC1453.body_compact,
+    `TLMC1453.body_convex,
+    `TLMC1453.body_interior_nonempty,
+    `TLMC1453.body_volume,
+    `TLMC1453.ambient_dimension,
+    `TLMC1453.uniform,
+    `TLMC1453.uniform_probability,
+    `TLMC1453.Sample,
+    `TLMC1453.sampleMeasure,
+    `TLMC1453.sample_probability,
+    `TLMC1453.samples_independent,
+    `TLMC1453.sample_uniform,
+    `TLMC1453.sample_in_body,
+    `TLMC1453.lower,
+    `TLMC1453.upper,
+    `TLMC1453.right,
+    `TLMC1453.polytope,
+    `TLMC1453.deficit,
+    `TLMC1453.lower_le_coordinate,
+    `TLMC1453.coordinate_le_upper,
+    `TLMC1453.lower_le_upper,
+    `TLMC1453.lower_in_range,
+    `TLMC1453.upper_in_range,
+    `TLMC1453.polytope_interval,
+    `TLMC1453.deficit_eq,
+    `TLMC1453.lower_continuous,
+    `TLMC1453.upper_continuous,
+    `TLMC1453.right_continuous,
+    `TLMC1453.deficit_continuous,
+    `TLMC1453.endpoint_bounds,
+    `TLMC1453.uniform_upper_tail,
+    `TLMC1453.uniform_lower_tail,
+    `TLMC1453.lower_tail,
+    `TLMC1453.right_ge_iff,
+    `TLMC1453.right_tail,
+    `TLMC1453.uniform_interval,
+    `TLMC1453.joint_tail,
+    `TLMC1453.integral_cut_power,
+    `TLMC1453.weighted_tail,
+    `TLMC1453.moment_tail,
+    `TLMC1453.integral_one_sub_pow,
+    `TLMC1453.integral_mul_one_sub_pow,
+    `TLMC1453.moments_from_tail,
+    `TLMC1453.lower_moments,
+    `TLMC1453.right_moments,
+    `TLMC1453.integral_truncated_power,
+    `TLMC1453.endpoint_cross_moment,
+    `TLMC1453.endpoint_memLp,
+    `TLMC1453.deficit_bounds,
+    `TLMC1453.deficit_memLp,
+    `TLMC1453.deficit_expectation,
+    `TLMC1453.deficit_second_moment,
+    `TLMC1453.deficit_variance,
+    `TLMC1453.deficit_variance_positive,
+    `TLMC1453.standardized,
+    `TLMC1453.standardized_measurable,
+    `TLMC1453.mean_square_bound,
+    `TLMC1453.standardized_lower_bound,
+    `TLMC1453.standardizedLaw,
+    `TLMC1453.standardGaussian,
+    `TLMC1453.standardizedLaw_is_native_map,
+    `TLMC1453.standardizedLaw_left_tail,
+    `TLMC1453.standardGaussian_left_tail_positive,
+    `TLMC1453.standardGaussian_null_frontier,
+    `TLMC1453.not_weak_standardGaussian,
+    `TLMC1453.not_gaussian_cdf_convergence,
+    `TLMC1453.complete_counterexample]
+  unless required.all names.contains do
+    throwError "required complete proof declarations are absent"
+  for n in names do
+    Lean.Elab.Command.elabCommand (← `(command| #print axioms $(Lean.mkIdent n)))
+    Lean.logInfo m!"NAMESPACE_DECL {n}"
+  Lean.logInfo m!"NAMESPACE_COVERAGE_OK {names.length}"
