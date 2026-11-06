@@ -1,0 +1,92 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.7in]{geometry}
+\usepackage{amsmath,amssymb,mathtools,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3pt}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000001581: rational and finite-field points}\\[5pt]
+lizaixi01 \quad AI-led research and formalization \quad 23 October 2026
+\end{center}
+\setlength{\abovedisplayskip}{6pt}
+\setlength{\belowdisplayskip}{6pt}
+
+\textbf{Result and scope.} The source explicitly says ``Q-points'' (also $\mathbb Q$ in Chinese), but gives the finite expression $p^2+ap+1$, $a\in\{-1,0,1\}$. No PVI parameters are specified. We treat both the literal rational reading and the finite-field reading used in the earlier review. For the standard zero-local-trace PVI character surface,
+\[
+ S:\quad x^2+y^2+z^2+xyz=4,
+\]
+we prove that $S(\mathbb Q)$ is infinite, even on its Jacobian-regular locus, and that $\#S(\mathbb F_p)=p^2+1$ for \emph{every} prime $p$. Thus the literal finite rational-point claim is false, while the intended finite-field pattern is proved for this actual PVI member, with $a=0$. We do not claim a formula for every other PVI parameter.
+
+\section*{1. Identifying the actual PVI member}
+Cantat--Loray \cite{CL}, printed pp.~2928--2929, use the four-punctured-sphere presentation
+\[
+ \langle\alpha,\beta,\gamma,\delta\mid\alpha\beta\gamma\delta=1\rangle.
+\]
+For an $\mathrm{SL}_2$ representation with local traces $a,b,c,d$, set
+$x=\operatorname{tr}(\alpha\beta)$, $y=\operatorname{tr}(\beta\gamma)$, and $z=\operatorname{tr}(\gamma\alpha)$. Their equations (1.3)--(1.5) identify the character surface as
+\[
+ x^2+y^2+z^2+xyz=Ax+By+Cz+D,
+\]
+where $A=ab+cd$, $B=bc+ad$, $C=ac+bd$, and
+$D=4-a^2-b^2-c^2-d^2-abcd$. Local traces all zero give exactly $S$. Equation (1.12), p.~2932, gives local traces $2\cos(\pi\theta_i)$, so $\theta_i=1/2$ for all four punctures is a legitimate PVI choice.
+
+We adopt this published standard character-surface model. Lean independently constructs the displayed presented group, actual determinant-one matrices, their homomorphism, and the actual trace coordinates below. It does not reprove the complete topological fundamental-group identification, GIT generation theorem, or Riemann--Hilbert correspondence.
+
+\section*{2. Infinitely many genuine rational trace points}
+For $n\geq0$, put $u=n+2$ and $s=u+u^{-1}$. Use
+\[
+ A=\begin{pmatrix}0&-1\\1&0\end{pmatrix},\quad B=-A,\quad
+ C=\begin{pmatrix}0&u\\-u^{-1}&0\end{pmatrix},\quad D=-C.
+\]
+All four matrices lie in $\mathrm{SL}_2(\mathbb Q)$ and have trace zero. Since $AB=CD=I$, their product is $I$; consequently they define an actual representation of the presented group. Direct multiplication gives
+\[
+ (\operatorname{tr}(AB),\operatorname{tr}(BC),\operatorname{tr}(CA))=(2,-s,s)\in S(\mathbb Q).
+\]
+These are distinct: $u>1$, and for $v>u>1$,
+\[
+ (v+v^{-1})-(u+u^{-1})=\frac{(v-u)(uv-1)}{uv}>0.
+\]
+Also $s>2$. For the actual defining polynomial $F=x^2+y^2+z^2+xyz-4$, its actual partial derivative satisfies
+\[
+ F_x(2,-s,s)=4-s^2\ne0.
+\]
+Thus the family lies in the Jacobian-regular hypersurface locus, not just at singular nodes. Lean proves injections from $\mathbb N$ into both loci and uses genuine cardinalities to exclude \emph{every} finite count. It never uses the default value of \texttt{Nat.card} on an infinite type. After scalar extension to $\mathbb C$, actual trace-conjugation invariance proves that different family members are not simultaneously $\mathrm{SL}_2(\mathbb C)$-conjugate. The full scheme-smoothness criterion is not rederived.
+
+\newpage
+\section*{3. Exact finite-field count for all primes}
+Let $K$ be any finite field of odd characteristic and $q=\#K$. With the same $+xyz$ convention, the invertible coordinate change $w=2z+xy$ gives
+\[
+ (x,y,z)\in S(K)\quad\Longleftrightarrow\quad
+ w^2=(x^2-4)(y^2-4).
+\]
+Let $\chi$ be the actual quadratic character, extended by $\chi(0)=0$. Mathlib's square-root counting theorem gives $\#\{v:v^2=t\}=1+\chi(t)$. The actual hyperbola
+\[
+ v^2=x^2-4\quad\Longleftrightarrow\quad (x-v)(x+v)=4
+\]
+is in bijection with $K^\times$: take $h=x-v$; the inverse is
+\[
+ x=(h+4/h)/2,\qquad v=(4/h-h)/2.
+\]
+It has $q-1$ points. Counting the same actual fibers yields
+$\sum_{x\in K}\chi(x^2-4)=-1$. Therefore, by multiplicativity,
+\begin{align*}
+ \#S(K)
+ &=\sum_{x,y\in K}\bigl(1+\chi((x^2-4)(y^2-4))\bigr)\\
+ &=q^2+\left(\sum_{x\in K}\chi(x^2-4)\right)^2=q^2+1.
+\end{align*}
+All bijections, finite fiber sums, cardinality casts and character identities are formalized; no desired counts are assigned to a named surface. Characteristic two is treated separately: Lean exhaustively counts the actual eight triples in $\mathbb F_2^3$, of which five satisfy the cubic. Hence $\#S(\mathbb F_p)=p^2+1$ for every prime $p$, including $2$. This counts the full affine character surface, including its singular points; it is not a separate assertion about the smooth finite-field locus.
+
+\section*{4. Formalization, earlier submission and limits}
+The Lean project uses actual \texttt{Matrix.SpecialLinearGroup}, \texttt{PresentedGroup}, \texttt{MvPolynomial.pderiv}, finite-field \texttt{quadraticChar}, explicit subtype equivalences, and \texttt{Cardinal.mk}. Its finite point-count interface requires a finite field carrier; it cannot silently turn the rational surface into a finite zero count. The final statements separate the rational impossibility from the positive finite-field theorem. All named local definitions and theorems are included in the axiom audit. The package supplies pinned dependencies, a new build, warning-as-error audit, complete fresh kernel replay, and source-bound receipts.
+
+Earlier closed \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/217}{PR 217} proposed finite-field cubic enumeration. The \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/217#issuecomment-5965634432}{maintainer review} rejected the missing identification with the actual PVI monodromy object and specifically recognized the Cayley parameter $\kappa=4$ and its matching finite-field pattern. We attribute that exposed direction. This submission repairs the object bridge using the published PVI trace model and actual representations, proves the pattern for all primes rather than a sample, and separately closes the literal rational-point obstruction. We do not inherit unrelated material in that PR body or claim that the correct finite-field pattern is a counterexample.
+
+The source's missing parameter choices and $\mathbb Q/\mathbb F_p$ mismatch are disclosed, not silently resolved. The result is a genuine rational counterexample to a universal finite rational-point reading, plus a complete proof of the anticipated finite-field formula for the standard Cayley member. It is not a classification of every PVI monodromy surface or a resolution of alternative unspecified arithmetic counting problems.
+
+\textbf{AI disclosure.} Research, proof construction, Lean debugging and document preparation were led by a Codex worker, with separate AI supervision of source semantics, proof scope and PDF layout. No human verification or organizer acceptance is asserted. Public ideas and library results are attributed above.
+
+\begin{thebibliography}{1}
+\bibitem{CL} S.~Cantat and F.~Loray, \emph{Dynamics on Character Varieties and Malgrange irreducibility of Painlev\'e VI equation}, Ann. Inst. Fourier \textbf{59}(7) (2009), 2927--2978. Equations (1.3)--(1.5), (1.12), printed pp.~2928--2929, 2932. \href{https://doi.org/10.5802/aif.2512}{doi:10.5802/aif.2512}.
+\end{thebibliography}
+\end{document}
