@@ -1,0 +1,199 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=23mm]{geometry}
+\usepackage{amsmath,amssymb,array,booktabs,xcolor}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\T}{\mathbb T}
+\newcommand{\im}{\operatorname{im}}
+\newcommand{\gr}{\operatorname{gr}}
+\begin{document}
+\begin{center}
+{\Large A negative-cable counterexample to Problem 00000000614}\\[5pt]
+{\large Actual diagrams and filtered rational Lee homology}\\[3pt]
+lizaixi01\qquad 25 October 2026
+\end{center}
+
+\textbf{Claim and scope.}
+The printed formula, with no restriction on the sign of $q$, is
+\[
+ s(C_{p,q}(K))=p\,s(K)+(p-1)(q-1).
+\]
+Take the crossingless unknot $U$ and $(p,q)=(2,-1)$. We compute both
+invariants from their actual unreduced Lee complexes over $\Q$:
+\[
+ s(C_{2,-1}(U))=s(U)=0,\qquad
+ 2\cdot0+(2-1)(-1-1)=-2.
+\]
+Here $p>0$ and $\gcd(2,-1)=1$. This refutes only the unrestricted printed
+formula. It does not refute a version with positive $q$ or another framing
+convention.
+
+\textbf{Published geometric boundary.}
+We use the standard zero-framed satellite convention of
+Lewark--Zibrowius, Definition 3.13: $t\in\Z$ and
+$C_{2,2t+1}(U)=T_{2,2t+1}$; see printed pages 259--260.
+Thus $t=-1$ is allowed. Identification of the product solid torus with the
+zero-framed tubular neighbourhood of the unknot is this published geometric
+identification. Lean does not reconstruct general three-manifold topology,
+satellite invariance, Reidemeister invariance, or the Lee spectral sequence.
+No such fact is an added Lean axiom. The particular torus curve, its entire
+two-sheet braid, signs, finite incidence and resolutions are constructed
+and checked in Lean.
+
+\textbf{The actual negative diagram.}
+On the genuine unit circle, use the embedded curve
+\[
+ \gamma:\T\longrightarrow\T\times\T,\qquad z\longmapsto(z^2,z^{-1}).
+\]
+It lies on the boundary of the product solid torus, is injective, and is
+disjoint from the core $z\mapsto(z,0)$. Over longitude $e^{2\pi it}$,
+$0\le t\le1$, its two sheets have meridians
+$u_0(t)=e^{-\pi it}$ and $u_1(t)=-e^{-\pi it}$.
+Lean proves these are all fibres, that they cover the entire curve, and
+that their endpoints interchange.
+
+Project to $(\Re u_s(t),-t)$, retaining $\Im u_s(t)$ as depth.
+There is exactly one double point, $t=1/2$. Sheet 1 is above sheet 0.
+The actual over/under tangents are $(\pi,-1)$ and $(-\pi,-1)$, whose
+oriented crossing determinant is $-2\pi<0$. Therefore $n_+=0,n_-=1$.
+The four ports are top left, top right, bottom left, bottom right,
+numbered $0,1,2,3$. The strand involution is $(03)(12)$, the closure is
+$(02)(13)$, and the clockwise rotation is $(0132)$. Their analytic
+endpoint and tangent identifications are proved. The closed graph is
+connected. In Rasmussen's Figure 1 conventions, the 0-resolution is
+$(01)(23)$ and the 1-resolution is $(02)(13)$. Actual graph component
+quotients give respectively one and two circles, hence a split saddle.
+
+\newpage
+\textbf{The rational Lee algebra and full complex.}
+The native algebra is $A=\Q[\omega]/(\omega^2-1)$, implemented as
+\texttt{QuadraticAlgebra}; $v_+=1$, $v_-=\omega$ form its native basis.
+Actual multiplication and tensor comultiplication satisfy Rasmussen's
+equations (3):
+\[
+ 1\cdot1=\omega\cdot\omega=1,\quad
+ 1\cdot\omega=\omega\cdot1=\omega,\qquad
+ \Delta(1)=1\otimes\omega+\omega\otimes1,\quad
+ \Delta(\omega)=\omega\otimes\omega+1\otimes1.
+\]
+The actual circle-indexed tensor powers are linearly equivalent to $A$
+and $A\otimes A$. Under these proved equivalences, the geometric saddle
+is $\Delta$. The one-edge cube sign is $+1$. The full native complex,
+indexed by every $i\in\Z$, is
+\[
+ C^{-1}=A\ \xrightarrow{\ \Delta\ }\ C^0=A\otimes A,
+ \qquad C^i=0\quad(i\ne-1,0).
+\]
+It is a genuine \texttt{CochainComplex (ModuleCat Q) Z}, with $d^2=0$.
+Injectivity of $\Delta$ is proved, so native homology is zero outside
+degree 0. A canonical native homology isomorphism identifies
+\[
+ H^0(C)\simeq (A\otimes A)/\im\Delta.
+\]
+
+\textbf{Both normalization shifts are retained.}
+For an enhanced state, Rasmussen uses
+$\gr=|v|-n_-$ and $q=p+\gr+n_+-n_-$.
+Thus the negative diagram's output has $q=p-1$, not $p$:
+\[
+\begin{array}{c|rr}
+ C^{-1}\text{ basis}&1&\omega\\\hline
+ q&-1&-3
+\end{array}
+\qquad
+\begin{array}{c|rrrr}
+ C^0\text{ basis}&00&01&10&11\\\hline
+ q&1&-1&-1&-3 .
+\end{array}
+\]
+These degrees follow from actual circle labels and actual crossing counts.
+For every integer $j$, the cochain filtration consists of vectors whose
+coefficients of basis vectors with $q<j$ vanish. Lean proves $\Delta$
+preserves it. The homology filtration $F^jH$ is the image of its actual
+filtered cycle representatives, transported through the canonical native
+homology isomorphism.
+
+\textbf{An explicit quotient calculation, not assigned homology values.}
+Write a tensor vector as $x=(x_{00},x_{01},x_{10},x_{11})$.
+Then
+\[
+ \Delta(a+b\omega)=(b,a,a,b),\qquad
+ P(x)=(x_{00}-x_{11},x_{01}-x_{10}).
+\]
+The true equalities $\ker P=\im\Delta$ and surjectivity of $P$ are proved.
+The section is $(a,b)\mapsto a(00)+b(01)$.
+Consequently the native quotient has a proved coordinate isomorphism
+to $\Q^2$; write $\overline P$ for this induced map. For every
+$j\in\Z$, its actual filtered image is exactly
+\[
+ \overline P(F^jH)=\{(a,b):\ j>1\Rightarrow a=0,\quad
+                          j>-1\Rightarrow b=0\}.
+\]
+The forward inclusion follows from all four actual tensor degrees;
+the reverse inclusion uses the displayed genuine section. In particular,
+the low-degree $11$ representative does not force its class to have
+degree $-3$: the same class has the representative $-00$ of degree $1$.
+
+\newpage
+\textbf{Actual extrema and the crossingless companion.}
+For a nonzero native homology class $h$, define its filtration degree by
+\[
+ d(h)=\sup\{j\in\Z:h\in F^jH\}.
+\]
+Lean proves each such set is nonempty and bounded above. In the actual
+coordinates $(a,b)$ it is $(-\infty,-1]$ if $b\ne0$, and $(-\infty,1]$
+if $b=0$ and $h\ne0$. Actual native classes with coordinates $(0,1)$
+and $(1,0)$ attain both endpoints. Thus the set of nonzero-class degrees
+is exactly $\{-1,1\}$; its minimum and maximum are genuine attained
+extrema, not empty-set or unbounded default values.
+
+The companion is the actual planar unit circle. Its projection is
+injective and its native topological connected-component type has one
+element. Its circle tensor space is proved equivalent to $A$. Its full
+integer complex is $A$ in degree 0, zero elsewhere, with zero differential.
+Native homology is $A$, with basis degrees $1,-1$, and all other native
+homology groups are zero. The image-of-cycles filtration obeys the same
+all-integer coordinate formula. Hence both diagrams have
+\[
+ s_{\min}=-1,\qquad s_{\max}=1,\qquad
+ s=s_{\max}-1=s_{\min}+1=0
+\]
+in Definitions 3.1 and 3.4 of Rasmussen. This proves the stated
+counterexample without assuming a precomputed unknot invariant.
+
+\textbf{Formalization and reproducibility.}
+The complete 969-line \texttt{lean/Main.lean} has 175 explicitly named
+declarations, plus three anonymous instance commands. The dynamic
+\texttt{Check.lean} enumerates every owned name, including generated and
+anonymous instance names, and runs ordinary \texttt{\#print axioms} for
+each. Only \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound} are allowed; there are no extra axioms, placeholders,
+or \texttt{native\_decide} proofs.
+
+The pins are Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+Run \texttt{lean --version}, then \texttt{bash lean/verify.sh} from the
+appropriate project directory for build, warning-as-error declaration
+audit, and the official fresh checker. The submission records the four
+individual commands, source hashes and original resource observations.
+Production elapsed times are diagnostic; they establish no controlled
+research-efficiency improvement.
+
+\textbf{Primary references actually used.}
+\begin{enumerate}
+\item J. Rasmussen, \emph{Khovanov homology and the slice genus},
+arXiv:math/0402131v1 (9 February 2004), printed pp.3--4 and 6:
+the resolutions, normalized cube, rational Lee maps and filtered
+homology definitions.
+\url{https://arxiv.org/abs/math/0402131}.
+The un-oriented curl on p.15 is not used to assign this braid's sign.
+\item L. Lewark and C. Zibrowius, \emph{Rasmussen invariants of Whitehead
+doubles and other satellites}, J. reine angew. Math.816 (2024),241--296,
+printed pp.259--260, Definition3.13 and its satellite convention.
+\url{https://doi.org/10.1515/crelle-2024-0061}.
+Only its geometric convention is used, not its characteristic-2 invariant.
+\end{enumerate}
+\end{document}
