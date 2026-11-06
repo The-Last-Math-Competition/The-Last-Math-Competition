@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: The stable group and the total module are two structural layers. Conjecture: There exist two FI modules whose stable groups are all isomorphic but whose total modules are not, and the separation is realized explicitly by differences in the finite skeleton before stabilization. (same stable group-different module skeleton separation) 定义：稳定群与整体模指两层结构。猜想：存在两 FI 模的稳定群全部同构而整体模不同构,分离由稳定前的有限骨架差异显式实现。（稳定群同-模异骨架分离）
+**Conjecture as filed.** Literal: there exist two FI modules whose stable groups are all isomorphic but whose total modules are not, with the separation realized in the finite skeleton before stabilization. The submission reads 'stable groups' as the eventual values together with their transition maps and the stable direct limit, and constructs the zero functor versus the functor supported only at the empty set.
 
-**Decisive results.** The submission constructs the zero FI module and the FI module supported only at the empty set. Their positive-degree restrictions are naturally isomorphic, while the total modules are not naturally isomorphic because degree zero is Z versus 0; both stable direct limits vanish. Lean's `conjecture5300 : Claim` packages these facts. This is a complete proof of the filed existence statement under the disclosed reading of 'stable groups' as eventual values together with transition maps / direct limits.
+**Decisive results.** The Lean defines the finite-set skeleton category, a bundled category of Z-modules, and actual functors supported and zero. supported(0) is Z and supported(n)=0 for n≥1; zero is constantly 0. tailIso is a natural isomorphism of the restrictions to all positive-size sets, so the eventual values and transition maps agree; not_iso shows no natural isomorphism of the full functors because at degree zero it would give Z ≅ 0. The witness satisfies the existential and the hypotheses are satisfiable; the separation is exactly at the empty finite skeleton.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report's Theorem (restrictions to nonempty sets naturally isomorphic, total modules not, difference at the empty set) matches the Lean. The report also notes finite generation, proved separately by generated_in_degree_zero. The direct-limit consequence is proved on paper but is not needed for the Lean Claim.
 
 ## Disposition
 

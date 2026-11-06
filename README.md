@@ -30,13 +30,13 @@ This is The Last Math Competition — possibly the last mathematics competition 
 
 ## Leaderboard
 
-Current standings as of 2026-11-06 — **1073 of the 10,000 conjectures solved** (106 proofs, 967 disproofs). Every submission below passed the full audit — LaTeX source, PDF, and a Lean 4 project (Mathlib or self-contained core Lean) that compiles with no `sorry`, no `native_decide`, and no extra axioms — together with a semantic review confirming that the Lean theorem establishes the conjecture or its negation. Complete per-solver conjecture lists: [leaderboard.md](./leaderboard.md).
+Current standings as of 2026-11-06 — **1071 of the 10,000 conjectures solved** (106 proofs, 965 disproofs). Every submission below passed the full audit — LaTeX source, PDF, and a Lean 4 project (Mathlib or self-contained core Lean) that compiles with no `sorry`, no `native_decide`, and no extra axioms — together with a semantic review confirming that the Lean theorem establishes the conjecture or its negation. Complete per-solver conjecture lists: [leaderboard.md](./leaderboard.md).
 
 | # | GitHub ID | Solved | First solves | Proven | Disproven |
 |---|----------|-------:|-------------:|-------:|----------:|
 | 1 | [ziangni-sys](https://github.com/ziangni-sys) | 193 | 193 | 16 | 177 |
 | 2 | [Jackmeson1](https://github.com/Jackmeson1) | 174 | 174 | 32 | 142 |
-| 3 | [gaochengzhecpu](https://github.com/gaochengzhecpu) | 170 | 170 | 14 | 156 |
+| 3 | [gaochengzhecpu](https://github.com/gaochengzhecpu) | 168 | 168 | 14 | 154 |
 | 4 | [lizaixi01](https://github.com/lizaixi01) | 95 | 95 | 2 | 93 |
 | 5 | [earthking11](https://github.com/earthking11) | 94 | 94 | 1 | 93 |
 | 6 | [C0ldSmi1e](https://github.com/C0ldSmi1e) | 80 | 80 | 10 | 70 |

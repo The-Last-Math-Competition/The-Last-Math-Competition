@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: The nullity of the signless Laplacian and bipartiteness. Conjecture: For general graphs, the dimension of the zero eigenspace is the count of bipartite components; and the kernel of the count is an arbitrary bipartite base graph. (signless arbitrary bipartite base zero-dimension count) 定义：signless Laplacian 零重数与二部性。猜想：一般图的零特征空间维数为分支二部性计数；且计数的核为任意二部母图。（signless 任意二部母图零维计数）
+**Conjecture as filed.** The filed statement is about the signless Laplacian Q = D + A of a finite undirected simple graph: the zero-eigenspace dimension is the number of bipartite connected components, and the kernel has an explicit bipartite-component basis. 'General graphs' is read in the standard finite simple-graph matrix setting; the undefined phrase 'the kernel of the count is an arbitrary bipartite base graph' is reconstructed as the explicit alternating-sign kernel basis.
 
-**Decisive results.** Lean proves that for every finite undirected simple graph the real nullity of the signless Laplacian Q=D+A equals the number of bipartite connected components, by constructing an explicit alternating-sign basis on each bipartite component. The theorem `conjecture : Conjecture` is the universal statement. This establishes the filed conjecture under the stated finite simple-graph reading.
+**Decisive results.** Lean proves the quadratic identity x^T Q x = sum over edges (x_u+x_v)^2, the exact kernel condition x_u = -x_v on every edge, and that a nonzero kernel value forces its connected component to be bipartite. It constructs one alternating-sign vector per bipartite component, proves linear independence, spanning, and the resulting basis, and concludes finrank ker Q = number of bipartite components for every finite vertex type and simple graph. The statement is universal over all finite simple graphs, including isolated vertices and the empty graph. The second clause is not a separate well-defined operation in the source; the submission's explicit basis is a faithful concrete realization of the kernel statement.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report's Theorem 1, its basis construction, and its dimension conclusion match `nullity_eq_bipartite_components`, `signlessKernelBasis`, and `conjecture`. The report explicitly discloses the interpretation of the undefined second phrase and does not claim a separate base-graph construction.
 
 ## Disposition
 

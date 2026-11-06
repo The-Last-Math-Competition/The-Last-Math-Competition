@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: Sparse random graphs are the random graphs G(n, c/n) of constant expected degree. Conjecture: The convergent limiting theory at the critical sparsity c = 1 is the explicit sentence set of the forest axioms; the quantifier depth is unbounded with finitely many sentences per level; for supercritical c > 1 the limiting theory contains the giant-component sentence of logarithmic quantifier depth. (critical sparse forest limiting theory) 定义：稀疏随机图：期望度常数的随机图 G(n,c/n)。猜想：临界稀疏 c=1 的收敛极限理论为森林公理的显式句子集；量词深度无界而每层句子为有限；超临界 c>1 时极限理论含巨分量句子且其量词深度为对数型。（临界稀疏森林极限理论）
+**Conjecture as filed.** Literal: at critical sparsity c=1 the almost-sure first-order limiting theory of G(n,c/n) is the explicit set of forest axioms. The submission reads 'limiting theory' as the set of first-order sentences whose probability tends to one, and refutes the necessary condition that the forest (acyclicity) sentence have probability tending to one.
 
-**Decisive results.** For every n=3h>=3, the actual Erdos-Renyi graph G(n,1/n) contains a triangle with probability at least 1/50. Thus its triangle-free first-order forest axiom has probability at most 49/50 along an unbounded sequence and cannot belong to the asserted almost-sure forest limiting theory. The decisive Lean declaration is `forest_not_tends_one`, whose statement is: ¬ Tendsto (fun m : ℕ => graphProbability m SimpleGraph.IsAcyclic) atTop (𝓝 1) := by. Read against the filed statement, this establishes the negation of the printed clause identified in the README.
+**Decisive results.** The Lean builds the actual G(3(m+1),1/(3(m+1))) law as a uniform-coordinate pushforward to simple graphs, proves the independent Bernoulli edge-pattern law, counts the h^3 tripartite triangle events, bounds ordered overlaps by a Bonferroni inequality, and proves P(triangle) ≥ 1/50 and hence P(forest) ≤ 49/50 along every block size. Since this bound persists along an unbounded sequence, the forest/acyclicity probability does not tend to one, so the forest axioms cannot be the almost-sure limiting theory. The c=1 model and all hypotheses are satisfiable; the conclusion is the negation of the first conjunct.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report's Theorem, the triangle construction, the 1/50 bound, the 49/50 upper bound and the asymptotic argument match the Lean. The report explicitly says Lean formalizes the graph semantics of the sentence rather than separate first-order syntax, and the sentence-level logical bridge is paper-level. The supplementary verify.py ran and passed.
 
 ## Disposition
 

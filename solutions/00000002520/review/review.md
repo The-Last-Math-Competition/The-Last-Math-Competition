@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: Fourier transform of tensors: higher dimensions. Conjecture: The tensor version of the Fourier transform is governed by separated bases: the multidimensional transform factorizes over product bases, and the version closes under separation. (tensor Fourier transform separated bases) 定义：张量的傅里叶变换：高维。猜想：张量的 Fourier：变换的张量版本且本的组合为分离基。（张量 Fourier 变换高维变换变换张量版本分离基组合张量 Fourier 分离基变换张量版本基分离变换张量版本分离基张量版本分离）
+**Conjecture as filed.** The filed statement says the tensor version of the Fourier transform is governed by separated bases: the multidimensional transform factorizes over product bases and closes under separation. The source fixes neither a domain nor a function space. I read it in the standard finite-dimensional complex tensor/DFT setting: a shape is a finite list of positive axis lengths, arrays are functions on the product of cyclic groups, and the transform is the actual multidimensional DFT built from Mathlib's ZMod.dft.
 
-**Decisive results.** Lean proves that the multidimensional discrete Fourier transform over a product of cyclic groups factors as the tensor product of one-dimensional DFTs, including forward/inverse formulas, separation in both directions, the product Fourier basis, and tensor-product operator/basis compatibility. The theorem `conjecture : Conjecture` is the universal finite-dimensional statement. This establishes the filed conjecture under the stated finite tensor/DFT reading.
+**Decisive results.** Lean builds the genuine multidimensional DFT as a complex linear equivalence on every finite shape, proves the forward and inverse character-sum formulas, proves pure-factor separation in both directions, identifies the Fourier basis with the product of one-dimensional Fourier basis vectors, and proves the tensor-product operator factorization for every tensor (not only pure tensors) together with the tensor-product basis compatibility. The statement is universal over all finite shapes, including unit axes and the empty shape. This establishes the finite discrete tensor-Fourier factorization and closure claims; continuous Fourier integrals are outside the stated interpretation.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report's Theorem 1 and its forward/inverse formulas, separated-input identities, product basis, and tensor factorization match the Lean `Conjecture` and `tensor_factorization`. The report explicitly states the finite discrete scope and makes no continuous claim.
 
 ## Disposition
 

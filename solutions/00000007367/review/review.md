@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: The average-vector-field method with energy conservation. Conjecture: The exact identity of discrete gradients holds, and the realization of the identity is the averaging operator. (averaged-operator AVF energy conservation) 定义：平均向量场方法：能量守恒。猜想：AVF 的保能量：方法的离散梯度的精确恒等且等的实现为平均算子。（AVF 平均算子保能量离散梯度方法精确恒等实现）
+**Conjecture as filed.** Literal: the exact discrete-gradient identity holds, and its realization is the averaging operator in the average-vector-field method. The submission reads the discrete gradient as the Bochner interval average of the actual Fréchet derivative along the segment from x to y, and proves exactness, diagonal consistency and energy conservation for every step y-x=hJ(average) with g(Jg)=0.
 
-**Decisive results.** Lean proves the Bochner interval average of the Fréchet differential satisfies the exact discrete-gradient identity, the diagonal consistency condition, and that pairing the averaged covector with J (with g(Jg)=0) conserves the energy H. The theorem `conjecture7367 : Claim E` is the universal AVF statement. This establishes the filed conjecture.
+**Decisive results.** For any real normed space E and C^1 H with continuous Fréchet derivative, the Lean proves ∫_0^1 DH(x+t(y-x))dt [y-x] = H(y)-H(x) by the chain rule and the fundamental theorem of calculus; the diagonal case gives DH(x). If y-x=hJ(g) with g(Jg)=0, then H(y)-H(x)=g(y-x)=h g(Jg)=0. The hypotheses are satisfiable (e.g. finite-dimensional Hamiltonian systems) and the Claim is the universal statement, not a special case.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report's Theorems (exact discrete differential, exact AVF energy preservation) and the coordinate-free formulation match the Lean. The report explicitly says the finite-dimensional Riesz identification and the skew-matrix implication are paper-level bridges; the Lean proves the stronger coordinate-free theorem directly.
 
 ## Disposition
 
