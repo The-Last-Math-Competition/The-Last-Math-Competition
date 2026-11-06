@@ -1,0 +1,306 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,keepspaces=true,escapechar=@}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\charp}{charpoly}
+\DeclareMathOperator{\detm}{det}
+
+\title{Conjecture 00000003718:\\ the matching polynomial of a tree has only real roots\\
+\large A proof, with a Lean~4 / Mathlib formalization}
+\author{Zhiyuan Zhang (GitHub: \texttt{LibertychaserUS})}
+\date{27 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We prove conjecture 00000003718 of \emph{The Last Math Competition}: for every finite tree $T$
+the matching polynomial $\mu(T;x)=\sum_{k\ge 0}(-1)^k m_k(T)\,x^{n-2k}$ has only real roots, and
+the distribution of these roots is determined by the walk counts of $T$. The proof goes through
+the identity $\mu(F;x)=\det(xI-A(F))$ for every forest $F$, established by a leaf-deletion
+induction on both sides, followed by the spectral theorem for real symmetric matrices; the moment
+identity $\sum_i\theta_i^{\,k}=\tr A(T)^k=\#\{\text{closed walks of length }k\}$ identifies the
+root distribution with the moment transform of the closed-walk counts. Every statement is
+formalized and machine-checked in Lean~4 (toolchain \texttt{v4.33.1}, Mathlib \texttt{v4.33.1});
+the project compiles with no \texttt{sorry}, no \texttt{native\_decide} and no axioms beyond
+\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
+\end{abstract}
+
+\section{The conjecture as filed}
+
+\begin{quote}\small
+\textbf{English.} Definition: Matching polynomials of trees. Conjecture: The real roots of
+matching polynomials: the roots of the matching polynomial of trees are all real, with the
+distribution of real roots the transform of path counts. (tree matching real root path count
+transform distribution)
+
+\emph{(The Chinese version of the statement in \texttt{conjectures/00000003718.md} is a literal
+translation of the English one.)}
+\end{quote}
+
+\subsection{Reading of the statement}
+
+Throughout, a \emph{graph} is a finite simple graph $G=(V,E)$ with $n=|V|$ vertices; a
+\emph{tree} is a connected acyclic graph, a \emph{forest} an acyclic graph.
+
+\begin{definition}[matching polynomial]
+A \emph{$k$-matching} of $G$ is a set of $k$ pairwise vertex-disjoint edges; write $m_k(G)$ for
+the number of $k$-matchings ($m_0=1$). The \emph{matching polynomial} of $G$ is
+\[
+  \mu(G;x) \;=\; \sum_{k\ge 0} (-1)^k\, m_k(G)\, x^{\,n-2k}
+  \;=\; \sum_{M\ \text{matching of }G} (-1)^{|M|} x^{\,n-2|M|}\in\Z[x].
+\]
+\end{definition}
+This is the standard definition (Heilmann--Lieb 1972; Farrell 1979; Godsil--Gutman 1981), and it is
+exactly the one formalized in \texttt{SimpleGraph.matchingPolynomial}; the equality of the two
+displayed forms is the Lean theorem \texttt{matchingPolynomial\_eq\_sum\_numMatchings}.
+
+The conjecture has two clauses.
+
+\begin{enumerate}
+\item[(C1)] \emph{``the roots of the matching polynomial of trees are all real''}: for every tree
+$T$, every (complex) root of $\mu(T;x)$ is real; equivalently $\mu(T;x)$ splits into $n$ linear
+factors over $\R$.
+\item[(C2)] \emph{``with the distribution of real roots the transform of path counts''}: the
+multiset of roots $\{\theta_1,\dots,\theta_n\}$ is determined by counting walks in $T$. We make
+this precise through its moments: for every $k\ge 0$,
+\[
+  \sum_{i=1}^n \theta_i^{\,k} \;=\; \#\{\text{closed walks of length $k$ in }T\}
+  \;=\; \sum_{v\in V}\#\{\text{walks }v\to v\text{ of length }k\}.
+\]
+The power sums of a degree-$n$ monic polynomial determine it (Newton's identities), so the
+root distribution is literally the moment transform of the closed-walk counting sequence; in a
+tree every closed walk is a back-and-forth traversal of a path, which is the ``path count''
+phrasing of the statement.
+\end{enumerate}
+We prove both clauses. The precise formal statement is Theorem~\ref{thm:main} below, whose Lean
+counterpart is \texttt{TLMC3718.conjecture\_00000003718}.
+
+\begin{remark}
+Clause (C1) is a classical theorem: Heilmann and Lieb (1972) proved real-rootedness of
+$\mu(G;x)$ for \emph{every} graph, and Godsil and Gutman (1981) observed that for forests
+$\mu(F;x)=\det(xI-A(F))$, which gives the tree case directly. We give a complete self-contained
+proof of the tree case along the second route, and we formalize it; we are not aware of a
+previous formalization of these results in Mathlib.
+\end{remark}
+
+\section{Statement of the results}
+
+Let $A=A(G)\in\{0,1\}^{V\times V}$ be the adjacency matrix and $\charp(A)=\det(xI-A)\in\Z[x]$.
+For $S\subseteq V$ let $G[S]$ be the induced subgraph, $A_S$ its adjacency matrix (the principal
+submatrix of $A$ indexed by $S$) and $\mu_S(x)=\mu(G[S];x)$; a matching of $G[S]$ is a set of
+edges of $G$ with both end points in $S$, pairwise disjoint.
+
+\begin{theorem}[forests: $\mu=\charp$]\label{thm:A}
+Let $G$ be a forest. For every $S\subseteq V$, $\ \mu(G[S];x)=\det(xI-A_S)$. In particular
+$\mu(G;x)=\charp(A(G))$.
+\end{theorem}
+
+\begin{theorem}[main theorem; conjecture 00000003718]\label{thm:main}
+Let $T$ be a tree on $n$ vertices with roots $\theta_1,\dots,\theta_n$ of $\mu(T;x)$ in $\C$
+(with multiplicity). Then
+\begin{enumerate}
+\item[(a)] $\mu(T;x)$ splits over $\R$: $\mu(T;x)=\prod_{i=1}^n (x-\theta_i)$ with all
+$\theta_i\in\R$; in particular $\mu(T;x)$ has exactly $n$ real roots counted with multiplicity,
+and every complex root $z$ of $\mu(T;x)$ satisfies $\operatorname{Im} z=0$;
+\item[(b)] for every $k\in\N$,
+$\ \sum_{i=1}^n\theta_i^{\,k}=\sum_{v\in V}\#\{\text{walks }v\to v\text{ in $T$ of length }k\}$.
+\end{enumerate}
+\end{theorem}
+
+\section{Proofs}
+
+\subsection{Leaves of forests}
+
+\begin{lemma}\label{lem:leaf}
+Let $G$ be a forest and $S\subseteq V$. If $G$ has an edge with both end points in $S$, then there
+is $v\in S$ having exactly one neighbour in $S$.
+\end{lemma}
+\begin{proof}
+$G[S]$ is again a forest, and it has an edge, so it has a path of length $\ge1$. Let $P$ be a
+path of maximal length in $G[S]$, with first vertex $v$ and second vertex $u$. If $w\in S$ is a
+neighbour of $v$ with $w\notin P$, then prepending $w$ to $P$ gives a longer path, contradicting
+maximality; so every neighbour of $v$ in $S$ lies on $P$. In an acyclic graph the only vertex of
+$P$ adjacent to its first vertex $v$ is the second vertex $u$ (otherwise the subpath of $P$ from
+$v$ to $w$ together with the edge $wv$ is a cycle). Hence $u$ is the unique neighbour of $v$ in $S$.
+\end{proof}
+
+\subsection{The leaf recurrence for the matching polynomial}
+
+\begin{lemma}\label{lem:mu}
+Let $S\subseteq V$, $v\in S$, and suppose $u\in S$ is the unique neighbour of $v$ in $S$. Then
+\[
+  \mu_S(x)\;=\;x\,\mu_{S\setminus\{v\}}(x)\;-\;\mu_{S\setminus\{v,u\}}(x).
+\]
+\end{lemma}
+\begin{proof}
+Split the matchings $M$ of $G[S]$ according to whether $vu\in M$.
+If $vu\notin M$ then no edge of $M$ contains $v$ (such an edge would be $vw$ with $w\in S$ a
+neighbour of $v$, hence $w=u$), so $M$ is a matching of $G[S\setminus\{v\}]$; conversely every
+matching of $G[S\setminus\{v\}]$ is a matching of $G[S]$ not containing $vu$. Since
+$|S|=|S\setminus\{v\}|+1$ and $2|M|\le|S\setminus\{v\}|$ (a matching inside a set $S'$ covers
+$2|M|$ distinct vertices of $S'$), these matchings contribute
+$\sum_M(-1)^{|M|}x^{|S\setminus\{v\}|+1-2|M|}=x\,\mu_{S\setminus\{v\}}(x)$.
+If $vu\in M$ then $M'=M\setminus\{vu\}$ is a matching of $G[S\setminus\{v,u\}]$ (its edges are
+disjoint from $vu$), and $M\mapsto M'$ is a bijection onto the matchings of
+$G[S\setminus\{v,u\}]$ with inverse $M'\mapsto M'\cup\{vu\}$; as $|S|=|S\setminus\{v,u\}|+2$
+and $|M|=|M'|+1$, these contribute
+$\sum_{M'}(-1)^{|M'|+1}x^{|S\setminus\{v,u\}|-2|M'|}=-\mu_{S\setminus\{v,u\}}(x)$.
+\end{proof}
+
+\subsection{The leaf expansion of a determinant}
+
+\begin{lemma}\label{lem:det}
+Let $R$ be a commutative ring, $I$ a finite index set, $N\in R^{I\times I}$, and $v\ne u$ in $I$
+such that $N_{vw}=0$ and $N_{wv}=0$ for all $w\notin\{v,u\}$. Writing $N^{(v)}$ and $N^{(v,u)}$
+for the principal submatrices obtained by deleting $v$, resp.\ $v$ and $u$,
+\[
+  \det N \;=\; N_{vv}\,\det N^{(v)}\;-\;N_{vu}N_{uv}\,\det N^{(v,u)}.
+\]
+\end{lemma}
+\begin{proof}
+Row $v$ of $N$ equals $N_{vv}e_v+N_{vu}e_u$, so by linearity of the determinant in row $v$,
+$\det N=N_{vv}\det N_1+N_{vu}\det N_2$, where $N_1$ (resp.\ $N_2$) is $N$ with row $v$ replaced by
+$e_v$ (resp.\ $e_u$).
+\emph{(i)} In $N_1$ the row $v$ is $e_v$; after moving $v$ to the first position, $N_1$ is block
+lower triangular with blocks $(1)$ and $N^{(v)}$, so $\det N_1=\det N^{(v)}$.
+\emph{(ii)} In $N_2$ the column $v$ equals $N_{uv}e_u$ (its entry in row $v$ is $(e_u)_v=0$, and
+the other entries of column $v$ are those of $N$). By linearity in column $v$,
+$\det N_2=N_{uv}\det P$, where $P$ is $N_2$ with column $v$ replaced by $e_u$; so row $v$ and
+column $v$ of $P$ both equal $e_u$. Swapping rows $u$ and $v$ of $P$ gives a matrix $Q$ with
+$\det Q=-\det P$ whose row $u$ is $e_u$; expanding as in (i), $\det Q=\det Q^{(u)}$. In $Q^{(u)}$
+the column $v$ is $e_v$ (its entry in row $v$ is $P_{uv}=1$, the others are $P_{wv}=0$ for
+$w\ne u,v$), so expanding along column $v$, $\det Q^{(u)}=\det Q^{(u,v)}$, and the remaining
+matrix $Q^{(u,v)}$ is exactly $N^{(v,u)}$ (its entries avoid rows and columns $u,v$, where $Q$
+agrees with $N$). Altogether $\det N_2=N_{uv}\cdot(-\det N^{(v,u)})$, which gives the claim.
+\end{proof}
+
+\begin{lemma}\label{lem:charp}
+With $S,v,u$ as in Lemma~\ref{lem:mu},
+$\ \det(xI-A_S)=x\det(xI-A_{S\setminus\{v\}})-\det(xI-A_{S\setminus\{v,u\}})$.
+\end{lemma}
+\begin{proof}
+Apply Lemma~\ref{lem:det} to $N=xI-A_S$ over $R=\Z[x]$ (or any commutative ring). Row $v$ of
+$A_S$ has a single $1$, in column $u$, and $A_S$ is symmetric, so the support hypotheses hold;
+$N_{vv}=x$ (there are no loops), $N_{vu}=N_{uv}=-1$, and $(xI-A_S)^{(v)}=xI-A_{S\setminus\{v\}}$,
+$(xI-A_S)^{(v,u)}=xI-A_{S\setminus\{v,u\}}$.
+\end{proof}
+
+\subsection{Proof of Theorem~\ref{thm:A}}
+By strong induction on $|S|$. If $G$ has no edge inside $S$ then the only matching of $G[S]$ is
+$\emptyset$, so $\mu_S(x)=x^{|S|}$, while $A_S=0$ and $\det(xI-0)=x^{|S|}$. Otherwise
+Lemma~\ref{lem:leaf} provides $v\in S$ with a unique neighbour $u\in S$, and Lemmas~\ref{lem:mu}
+and~\ref{lem:charp} give the same recurrence for $\mu_S$ and for $\det(xI-A_S)$ in terms of the
+strictly smaller sets $S\setminus\{v\}$ and $S\setminus\{v,u\}$, where the two agree by induction.
+The case $S=V$ is the statement for $G$. \qed
+
+\subsection{Proof of Theorem~\ref{thm:main}}
+A tree is a forest, so $\mu(T;x)=\charp(A)$ with $A=A(T)$ real symmetric
+(Theorem~\ref{thm:A}, over $R=\R$ and over $R=\C$; the matching polynomial is compatible with
+change of coefficient ring). By the spectral theorem $A=U\,\mathrm{diag}(\lambda_1,\dots,\lambda_n)\,U^{*}$
+with $U$ orthogonal and $\lambda_i\in\R$, hence $\charp(A)=\prod_i(x-\lambda_i)$ splits over $\R$,
+has exactly $n=\deg\charp(A)$ roots with multiplicity, and its roots in $\C$ are the real numbers
+$\lambda_i$: this is (a). For (b), $\sum_i\lambda_i^{\,k}=\tr\,\mathrm{diag}(\lambda_i)^k
+=\tr(U\mathrm{diag}(\lambda_i)^kU^{*})=\tr A^k=\sum_v (A^k)_{vv}$, and $(A^k)_{vw}$ is the
+number of walks of length $k$ from $v$ to $w$. \qed
+
+\section{The Lean~4 formalization}
+
+The directory \texttt{lean/} is a Lake project (toolchain \texttt{leanprover/lean4:v4.33.1},
+Mathlib tag \texttt{v4.33.1}, revision \texttt{0df444a360eaa60ab8c11dca51a86af692955474}).
+\begin{center}\footnotesize
+\begin{tabular}{@{}ll@{}}
+\toprule
+File & Content\\
+\midrule
+\texttt{Submission/DetLeaf.lean} & Lemma~\ref{lem:det}: \texttt{TLMC3718.det\_leaf}\\
+\texttt{Submission/MatchingPoly.lean} & definitions; Lemma~\ref{lem:mu}: \texttt{matchingPolyIn\_leaf}\\
+\texttt{Submission/Leaf.lean} & Lemma~\ref{lem:leaf}: \texttt{IsAcyclic.exists\_leaf\_in}\\
+\texttt{Submission/Charpoly.lean} & Lemma~\ref{lem:charp}; Theorem~\ref{thm:A}: \texttt{matchingPolynomial\_eq\_charpoly}\\
+\texttt{Submission/Main.lean} & Theorem~\ref{thm:main}: \texttt{TLMC3718.conjecture\_00000003718}\\
+\texttt{Submission/Verification.lean} & \texttt{\#print axioms} of every result\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Definitions.} For \texttt{G : SimpleGraph V} with \texttt{[Fintype V] [DecidableEq V]
+[DecidableRel G.Adj]} and \texttt{s : Finset V} (all in namespace \texttt{SimpleGraph}):
+\begin{lstlisting}
+def IsMatchingIn (s : Finset V) (M : Finset (Sym2 V)) : Prop :=
+  M @$\subseteq$@ G.edgeFinset @$\wedge$@ (@$\forall$@ e @$\in$@ M, @$\forall$@ x, x @$\in$@ e @$\to$@ x @$\in$@ s) @$\wedge$@
+    @$\forall$@ e @$\in$@ M, @$\forall$@ f @$\in$@ M, e @$\neq$@ f @$\to$@ @$\forall$@ x, x @$\in$@ e @$\to$@ x @$\notin$@ f
+noncomputable def matchings (s : Finset V) : Finset (Finset (Sym2 V)) :=
+  G.edgeFinset.powerset.filter (G.IsMatchingIn s)
+noncomputable def numMatchings (s : Finset V) (k : @$\mathbb{N}$@) : @$\mathbb{N}$@ :=
+  ((G.matchings s).filter (fun M => M.card = k)).card
+noncomputable def matchingPolyIn (s : Finset V) : R[X] :=
+  @$\sum$@ M @$\in$@ G.matchings s, (-1 : R[X]) ^ M.card * X ^ (s.card - 2 * M.card)
+noncomputable def matchingPolynomial : R[X] := G.matchingPolyIn R Finset.univ
+def adjMatrixIn (s : Finset V) : Matrix s s R :=
+  (G.adjMatrix R).submatrix Subtype.val Subtype.val
+\end{lstlisting}
+So \texttt{G.matchingPolynomial R} is $\mu(G;x)$ with coefficients in the commutative ring $R$;
+the theorem \newline \texttt{matchingPolynomial\_eq\_sum\_numMatchings} proves that it equals
+$\sum_{k=0}^{n}(-1)^k\,m_k\,X^{n-2k}$ with $m_k=$\texttt{numMatchings univ k}, the classical form.
+Trees are Mathlib's \texttt{SimpleGraph.IsTree} (connected and acyclic); walks are Mathlib's
+\texttt{SimpleGraph.Walk}.
+
+\paragraph{Main statements.}
+\begin{lstlisting}
+theorem SimpleGraph.matchingPolynomial_eq_charpoly (hG : G.IsAcyclic) :
+    G.matchingPolynomial R = (G.adjMatrix R).charpoly
+
+theorem TLMC3718.conjecture_00000003718 (T : SimpleGraph V) [DecidableRel T.Adj]
+    (hT : T.IsTree) :
+    (T.matchingPolynomial @$\mathbb{R}$@).Splits @$\wedge$@
+    (T.matchingPolynomial @$\mathbb{R}$@).roots.card = Fintype.card V @$\wedge$@
+    (@$\forall$@ z : @$\mathbb{C}$@, (T.matchingPolynomial @$\mathbb{C}$@).IsRoot z @$\to$@ z.im = 0) @$\wedge$@
+    (@$\forall$@ k : @$\mathbb{N}$@, ((T.matchingPolynomial @$\mathbb{R}$@).roots.map (fun r => r ^ k)).sum =
+      @$\sum$@ v, (Fintype.card {p : T.Walk v v | p.length = k} : @$\mathbb{R}$@))
+\end{lstlisting}
+Here \texttt{Polynomial.Splits} is Mathlib's predicate ``product of a constant and linear
+factors''; the four conjuncts are Theorem~\ref{thm:main}(a) (three forms) and (b). The individual
+results are \texttt{matchingPolynomial\_splits}, \texttt{card\_roots\_matchingPolynomial},
+\texttt{exists\_real\_of\_isRoot} / \texttt{im\_eq\_zero\_of\_isRoot} and
+\texttt{sum\_roots\_pow\_eq\_card\_closedWalks}.
+
+\paragraph{Audit.} \texttt{lake build} succeeds; the sources contain no \texttt{sorry},
+\texttt{native\_decide}, \texttt{axiom}, \texttt{unsafe}, \texttt{opaque},
+\texttt{implemented\_by} or \texttt{extern}. \texttt{Submission/Verification.lean} prints, for
+every theorem listed above,
+\begin{lstlisting}
+'TLMC3718.conjecture_00000003718' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{lstlisting}
+
+\paragraph{Reproduction.} In \texttt{lean/}: \ \texttt{lake exe cache get \&\& lake build}.
+This report compiles with \texttt{tectonic report.tex} (or \texttt{pdflatex}).
+
+\section*{References}
+\begin{itemize}\small
+\item O.~J. Heilmann, E.~H. Lieb, \emph{Theory of monomer--dimer systems}, Comm.\ Math.\ Phys.\ 25 (1972), 190--232.
+\item C.~D. Godsil, I.~Gutman, \emph{On the theory of the matching polynomial}, J.\ Graph Theory 5 (1981), 137--144.
+\item C.~D. Godsil, \emph{Algebraic Combinatorics}, Chapman \& Hall, 1993, Ch.~1 and~6.
+\end{itemize}
+
+\end{document}
