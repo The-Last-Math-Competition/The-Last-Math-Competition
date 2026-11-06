@@ -1,0 +1,485 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\small,breaklines=true,columns=fullflexible,keepspaces=true,
+  escapechar=@,frame=single,xleftmargin=4pt,xrightmargin=4pt}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Lset}{\mathcal{L}}
+\newcommand{\Oset}{\mathcal{O}}
+
+\title{Conjecture 00000001064: the minimal Kakeya set in $\F_q^2$ for odd $q$\\
+\large A proof, with a Lean~4 / Mathlib formalization}
+\author{Zhiyuan Zhang (GitHub: \texttt{LibertychaserUS})}
+\date{27 October 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We prove conjecture 00000001064 of \emph{The Last Math Competition}. Let $\F$ be a finite field
+with $q=|\F|$ odd. Every Kakeya set in the affine plane $\F^2$ (a set containing a full affine line
+in each of the $q+1$ directions) has at least $q(q+1)/2+(q-1)/2$ points, and this bound is attained
+by the explicit set $\{(x,y): x^2-y \text{ is a square}\}\cup\{x=0\}$. The lower bound is the
+theorem of Blokhuis and Mazzocca (2008). The argument combines Faber's incidence identity for line
+systems, a parity argument producing a blocking set from the points of odd multiplicity, and
+Jamison's theorem on blocking sets of $AG(2,q)$, which is proved here by the polynomial method.
+The whole statement is formalized in Lean~4 with Mathlib (Lean~4 toolchain and Mathlib \texttt{v4.33.1})
+in the file \texttt{Kakeya.lean}; it compiles without errors or warnings, and the eight main
+declarations depend only on \texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
+\end{abstract}
+
+\tableofcontents
+
+\section{The conjecture as filed}
+
+The conjecture is filed as follows (English version; the Chinese version in the submitted
+\texttt{.md} file is a literal translation of this text).
+
+\begin{quote}
+\textbf{Conjecture 00000001064.} The minimal Kakeya set in $\F_q^2$ for odd $q$ has size
+$\dfrac{q(q+1)}{2}+\left\lfloor\dfrac{q-1}{2}\right\rfloor$ (the exact minimum for odd $q$).
+\end{quote}
+
+\section{Precise reading and the theorem proved}
+
+Throughout, $\F$ is a finite field with $q=|\F|$ elements, and the affine plane is $\F^2$ (the
+affine plane $AG(2,q)$). The following conventions make the statement precise.
+
+\paragraph{Lines and directions.} For $m,b\in\F$ put
+$L(m,b)=\{(x,\,mx+b): x\in\F\}$, the non-vertical affine line of slope $m$ through $(0,b)$, and for
+$c\in\F$ put $V(c)=\{(c,y): y\in\F\}$, the vertical line $x=c$. Each line has exactly $q$ points.
+The \emph{directions} are the $q+1$ elements of $\F\cup\{\infty\}$: the direction $m\in\F$ consists
+of all lines $L(m,b)$, $b\in\F$, and the direction $\infty$ consists of all lines $V(c)$, $c\in\F$.
+Two lines in the same direction are parallel: they are equal or disjoint. Two lines in different
+directions meet in exactly one point.
+
+\paragraph{Kakeya sets.} A \emph{Kakeya set} is a set $K\subseteq\F^2$ which contains a full
+affine line in every direction. Explicitly, $K$ is Kakeya if for every $m\in\F$ there is $b\in\F$
+with $L(m,b)\subseteq K$, and there is $c\in\F$ with $V(c)\subseteq K$. The conjecture concerns the
+minimum $\mu(q)=\min\{|K|: K \text{ Kakeya}\}$.
+
+\paragraph{The floor.} For odd $q$ the integer $(q-1)/2$ is an integer, so
+$\lfloor (q-1)/2\rfloor=(q-1)/2$, and the claimed value is
+$\dfrac{q(q+1)}{2}+\dfrac{q-1}{2}=\dfrac{q^2+2q-1}{2}$. For example $q=3,5,7,11,13$ give $7,17,31,71,97$.
+
+\begin{theorem}[Blokhuis--Mazzocca, conjecture 00000001064]\label{thm:main}
+Let $\F$ be a finite field with $q=|\F|$ odd.
+\begin{enumerate}
+\item[(a)] Every Kakeya set $K\subseteq\F^2$ satisfies $|K|\ge \dfrac{q(q+1)}{2}+\dfrac{q-1}{2}$.
+\item[(b)] The set $E=\{(x,y)\in\F^2 : x^2-y\text{ is a square in }\F\}\cup\{(0,y): y\in\F\}$ is a
+Kakeya set with $|E|=\dfrac{q(q+1)}{2}+\dfrac{q-1}{2}$.
+\end{enumerate}
+Consequently the minimum size of a Kakeya set in $\F^2$ is exactly $\dfrac{q(q+1)}{2}+\dfrac{q-1}{2}$.
+\end{theorem}
+
+\paragraph{History.} Faber stated the planar value as a conjecture. Wolff's approach gave an
+earlier bound of order $q^2/2$ for the planar problem, and the incidence count that yields
+$q(q+1)/2$ for every $q$ is credited by Blokhuis and Mazzocca to Faber's counting argument. Dvir
+(2009) proved that Kakeya sets in $\F_q^n$ have size at least $c_n q^n$ with $c_n$ depending only on
+$n$; this is of the right order but not sharp in the plane. Blokhuis and Mazzocca (2008) settled
+Faber's conjecture for odd $q$ and characterized the extremal example. The even case is not
+treated here. The proof below is reconstructed from the affine-coordinate argument in the
+accompanying file \texttt{PROOF.md}; the only deviation from the paper is that the product
+computation of Section~3.4 replaces the appeal to Bichara and Korchm\'aros, and Jamison's theorem is
+proved in full.
+
+\section{Mathematical proof}
+
+Fix $\F$ with $q$ odd, and fix a Kakeya set $K$ unless stated otherwise. The proof of the lower
+bound has three steps: reduction to a line system (Section~3.1), the easy bound (Section~3.2), and
+the refinement for odd $q$ (Sections~3.3 and 3.4). Section~3.5 gives the construction.
+
+\subsection{Line systems and Faber's incidence identity}
+
+\paragraph{Line systems.} If $K$ is Kakeya, choose for every direction $d\in\F\cup\{\infty\}$ a
+line $L_d\subseteq K$ of direction $d$. Write $L_m=L(m,t_m)$ and $L_\infty=V(t_\infty)$; the family
+$\Lset=\{L_d\}$ is a \emph{line system}, with exactly one line in each of the $q+1$ directions. Its
+union $U(\Lset)=\bigcup_d L_d$ satisfies $U(\Lset)\subseteq K$, so $|K|\ge|U(\Lset)|$. It therefore
+suffices to bound $|U(\Lset)|$ from below for every line system.
+
+For a point $A\in\F^2$ let $n(A)=\#\{d: A\in L_d\}$ be its \emph{multiplicity}. Then
+$U(\Lset)=\{A: n(A)\ge 1\}$.
+
+\begin{lemma}[basic counts]\label{lem:counts}
+For every line system $\Lset$:
+\begin{enumerate}
+\item[(C1)] $\sum_{A} n(A)=\sum_d|L_d|=q(q+1)$.
+\item[(C2)] $\sum_A n(A)(n(A)-1)=\#\{(d,d',A): d\ne d',\ A\in L_d\cap L_{d'}\}=q(q+1)$.
+\end{enumerate}
+Consequently $\sum_A n(A)(n(A)-2)=0$.
+\end{lemma}
+
+\begin{proof}
+(C1) is the double count of pairs (direction, point of its line). For (C2), any two lines of
+distinct directions meet in exactly one point, and the number of ordered pairs of distinct
+directions is $(q+1)q$. The consequence is (C2) minus (C1).
+\end{proof}
+
+\begin{lemma}[Faber's identity]\label{lem:faber}
+Let $\sigma=\tfrac12\sum_{A:\,n(A)\ge1}(n(A)-1)(n(A)-2)$. Then
+\[
+2\,|U(\Lset)| \;=\; q(q+1)+2\sigma .
+\]
+Moreover $\sigma\ge 0$.
+\end{lemma}
+
+\begin{proof}
+For every integer $n\ge0$ one has $2[n\ge1]=2n-n(n-1)+[n\ge1](n-1)(n-2)$: for $n=0$ both sides are
+$0$, and for $n\ge1$ the right side is $2n-n^2+n+n^2-3n+2=2$. Summing over $A\in\F^2$ and using (C1)
+and (C2) gives $2|U(\Lset)|=2q(q+1)-q(q+1)+\sum_{n(A)\ge1}(n(A)-1)(n(A)-2)=q(q+1)+2\sigma$. Each
+term $(n-1)(n-2)$ with $n\ge1$ is nonnegative, since $n-1\ge0$ and either $n-2\ge0$ or $n=1$.
+\end{proof}
+
+\subsection{The easy bound $q(q+1)/2$}
+
+\begin{proposition}\label{prop:easy}
+For every finite field $\F$ and every Kakeya set $K$, $|K|\ge q(q+1)/2$.
+\end{proposition}
+
+\begin{proof}
+By Lemma~\ref{lem:faber} and $\sigma\ge0$ we get $|U(\Lset)|\ge q(q+1)/2$ for the line system
+extracted from $K$, and $|K|\ge|U(\Lset)|$.
+\end{proof}
+
+\subsection{Jamison's theorem: blocking sets of $AG(2,q)$}
+
+A set $B\subseteq\F^2$ is a \emph{blocking set} if it meets every affine line of $\F^2$ (all $q^2+q$
+of them).
+
+\begin{theorem}[Jamison]\label{thm:jamison}
+Every blocking set $B\subseteq\F^2$ satisfies $|B|\ge 2q-1$.
+\end{theorem}
+
+\begin{proof}[Proof (Brouwer--Schrijver, dualised)]
+Translating $B$ we may assume $(0,0)\in B$; translation preserves blocking sets. Put
+\[
+f(X,Z)=\prod_{(a,b)\in B,\ (a,b)\ne(0,0)}\bigl(1-aX+bZ\bigr)\in\F[X,Z].
+\]
+Then $\deg f\le |B|-1$, $f(0,0)=1$, and $f(x,z)=0$ for every $(x,z)\ne(0,0)$. Indeed, if $z\ne0$, the
+line $bz=xa-1$ (equivalently $b=(x/z)a-1/z$) is non-vertical, so $B$ contains a point $(a,b)$ on it;
+this point is not $(0,0)$ because $-1/z\ne0$, and $1-xa+bz=0$. If $z=0$ then $x\ne0$, the vertical
+line $a=1/x$ meets $B$ in some $(1/x,b)$ with $(1/x,b)\ne(0,0)$, and the factor
+$1-(1/x)x+b\cdot0$ vanishes.
+
+Hence $\sum_{(x,z)\in\F^2}f(x,z)=f(0,0)=1$. On the other hand write $f=\sum_e c_e X^{e_1}Z^{e_2}$.
+Then
+\[
+\sum_{(x,z)}f(x,z)=\sum_e c_e\Bigl(\sum_{x\in\F}x^{e_1}\Bigr)\Bigl(\sum_{z\in\F}z^{e_2}\Bigr),
+\]
+and $\sum_{x\in\F}x^{e}=0$ whenever $e<q-1$ (for $e=0$ the sum is $q=0$ in $\F$). If $\deg f<2(q-1)$,
+then every monomial has $e_1<q-1$ or $e_2<q-1$, so the total sum is $0\ne1$. Therefore
+$|B|-1\ge\deg f\ge2(q-1)$, i.e. $|B|\ge2q-1$.
+\end{proof}
+
+\subsection{The parity argument for odd $q$}
+
+Let $\Lset$ be a line system with $q$ odd. Let $\Oset=\{A: n(A)\text{ odd}\}$ and $\tau=|\Oset|$.
+Call a line $L_d\in\Lset$ \emph{all-2} if $n(A)=2$ for every $A\in L_d$.
+
+\begin{lemma}[counting odd points]\label{lem:taubound}
+$\tau\le 4\sigma$.
+\end{lemma}
+
+\begin{proof}
+Pointwise, for every integer $n\ge0$,
+\[
+[n\text{ odd}]\;\le\;2\,[n\ge1](n-1)(n-2)-n(n-2).
+\]
+Check: $n=0$ gives $0\le0$; $n=1$ gives $1\le 1$; $n=2$ gives $0\le0$; $n=3$ gives $1\le 1$; and for
+$n\ge4$ the right side equals $(n-2)^2\ge4$. Summing over $A$, and using $\sum_A n(A)(n(A)-2)=0$
+from Lemma~\ref{lem:counts} and $\sum_{n(A)\ge1}(n(A)-1)(n(A)-2)=2\sigma$, gives $\tau\le 4\sigma$.
+\end{proof}
+
+\begin{lemma}[parity of lines]\label{lem:parity}
+Let $q$ be odd.
+\begin{enumerate}
+\item Every affine line $L\subseteq\F^2$ with $L\notin\Lset$ contains a point of $\Oset$.
+\item Every $L_d\in\Lset$ contains a point of $\Oset$ or is all-2.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) $L$ has the direction of exactly one $L_d$, which is disjoint from $L$ (it is parallel and
+different), while every other $L_{d'}$ meets $L$ in exactly one point. So $\sum_{A\in L}n(A)=q$,
+which is odd, and some $A\in L$ has $n(A)$ odd.
+
+(2) $\sum_{A\in L_d}n(A)=\sum_{A\in L_d}1+\sum_{A\in L_d}(n(A)-1)=q+q=2q$, because each of the other
+$q$ lines meets $L_d$ in one point. Suppose $L_d$ contains no point of $\Oset$. Then every
+$n(A)-1$ is odd and $\ge1$ for $A\in L_d$. These are $q$ odd positive integers with sum $q$, so each
+equals $1$, i.e. $n(A)=2$ on $L_d$.
+\end{proof}
+
+\begin{lemma}[product lemma]\label{lem:product}
+Let $q$ be odd. A line system $\Lset$ has at most one non-vertical all-2 line: if $L_{m_0}$ and
+$L_{m_1}$ with $m_0\ne m_1$ are both all-2, we get a contradiction.
+\end{lemma}
+
+\begin{proof}
+Let $P=(x^*,y^*)$ be the intersection point of $L_{m_0}$ and $L_{m_1}$, and let $c$ be the abscissa
+of the vertical line $L_\infty=V(c)$. Write $b_m$ for the intercept of $L_m$. For $m\in S:=\F\setminus\{m_0,m_1\}$
+define the abscissas of the intersections with $L_{m_0}$ and $L_{m_1}$:
+\[
+u(m)=\frac{b_{m_0}-b_m}{m-m_0},\qquad v(m)=\frac{b_{m_1}-b_m}{m-m_1},
+\]
+and $\gamma(m)=m x^*+b_m$. A direct computation, using $y^*=m_0x^*+b_{m_0}=m_1x^*+b_{m_1}$, gives
+\[
+u(m)-x^*=\frac{y^*-\gamma(m)}{m-m_0},\qquad v(m)-x^*=\frac{y^*-\gamma(m)}{m-m_1}.
+\]
+Since $L_{m_0}$ is all-2, each of its $q$ points lies on exactly one further line of $\Lset$. The
+$q$ other lines of $\Lset$ meet $L_{m_0}$ in one point each, so these $q$ points are pairwise
+distinct and exhaust $L_{m_0}$. Their abscissas are $u(m)$ for $m\in\F\setminus\{m_0\}$ together with
+$c$ (for $L_\infty$). Hence $m\mapsto u(m)$ is a bijection $\F\setminus\{m_0\}\to\F\setminus\{c\}$, and
+it sends $m_1$ to $x^*$. Restricting to $S$, $u$ is a bijection $S\to\F\setminus\{c,x^*\}$. The same
+argument with $L_{m_1}$ shows that $v$ is a bijection $S\to\F\setminus\{c,x^*\}$. Therefore
+\[
+\prod_{m\in S}\bigl(u(m)-x^*\bigr)=\prod_{w\in\F\setminus\{c,x^*\}}(w-x^*)=\prod_{m\in S}\bigl(v(m)-x^*\bigr)=:R,
+\]
+and all factors are nonzero. Substituting the identities above,
+\[
+\frac{\prod_{S}(y^*-\gamma(m))}{\prod_{S}(m-m_0)}=R=\frac{\prod_{S}(y^*-\gamma(m))}{\prod_{S}(m-m_1)}.
+\]
+The numerator is nonzero, so cancelling gives $\prod_{S}(m-m_0)=\prod_{S}(m-m_1)=:P_0$, and $P_0\ne0$.
+Let $W=\prod_{w\ne0}w$. Substituting $w=m-m_0$ (resp.\ $w=m-m_1$) gives
+$(m_1-m_0)\,P_0=W$ and $(m_0-m_1)\,P_0=W$. Subtracting, $2(m_1-m_0)P_0=0$. This is impossible:
+$2\ne0$ because $q$ is odd, $m_1\ne m_0$, and $P_0\ne0$.
+\end{proof}
+
+\begin{lemma}[blocking set]\label{lem:block}
+Let $q$ be odd. There is a point $E\in L_\infty$ such that $E$ lies on every all-2 line of $\Lset$.
+The set $B=\Oset\cup\{E\}$ is a blocking set, so $\tau+1\ge|B|\ge 2q-1$.
+\end{lemma}
+
+\begin{proof}
+If some non-vertical $L_{m_0}$ is all-2, it is unique by Lemma~\ref{lem:product}; take
+$E=L_\infty\cap L_{m_0}$. Otherwise take $E=(c,0)\in L_\infty$. In both cases $E$ lies on $L_\infty$
+and on every all-2 line. Now let $L$ be any affine line. If $L\notin\Lset$, it meets $\Oset$ by
+Lemma~\ref{lem:parity}(1). If $L\in\Lset$ is not all-2, it meets $\Oset$ by Lemma~\ref{lem:parity}(2).
+If $L\in\Lset$ is all-2, then $L$ is $L_\infty$ or the unique non-vertical all-2 line, and in either
+case $L\ni E$. So $B$ meets every affine line, and Theorem~\ref{thm:jamison} gives $|B|\ge2q-1$.
+\end{proof}
+
+\begin{proposition}\label{prop:sigma}
+For $q$ odd and any line system, $\sigma\ge\dfrac{q-1}{2}$.
+\end{proposition}
+
+\begin{proof}
+By Lemma~\ref{lem:block}, $\tau\ge 2q-2$. By Lemma~\ref{lem:taubound}, $4\sigma\ge\tau\ge2q-2$, so
+$\sigma\ge(q-1)/2$.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}(a)]
+For a Kakeya set $K$ take its line system $\Lset$ with $U(\Lset)\subseteq K$. By
+Lemma~\ref{lem:faber} and Proposition~\ref{prop:sigma},
+\[
+|K|\ \ge\ |U(\Lset)|\ =\ \frac{q(q+1)}{2}+\sigma\ \ge\ \frac{q(q+1)}{2}+\frac{q-1}{2}.
+\]
+\end{proof}
+
+\subsection{The construction}
+
+Let $q$ be odd, so $2$ and $4$ are invertible in $\F$. Define
+\[
+E=\{(x,y)\in\F^2: x^2-y\text{ is a square in }\F\}\ \cup\ \{(0,y): y\in\F\}.
+\]
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}(b)]
+\emph{Kakeya.} For $m\in\F$ the line $y=mx-m^2/4$ lies in $E$, because
+$x^2-(mx-m^2/4)=(x-m/2)^2$ is a square. The vertical line $x=0$ lies in $E$.
+
+\emph{Count.} The number of squares in $\F$ (including $0$) is $(q+1)/2$: the squaring map is
+$2$-to-$1$ on $\F^*$ because $-1\ne1$. Let $S_0$ be this set of squares. For each fixed $x\in\F$,
+the map $s\mapsto x^2-s$ is a bijection from $S_0$ to $\{y: x^2-y\text{ is a square}\}$, so each
+fixed $x$ contributes $(q+1)/2$ points. The first set therefore has $q(q+1)/2$ points. The vertical
+line $\{(0,y)\}$ has $q$ points, of which $(q+1)/2$ already lie in the first set (those $y$ with $-y$
+a square). The new points number $q-(q+1)/2=(q-1)/2$. Hence
+$|E|=q(q+1)/2+(q-1)/2$.
+\end{proof}
+
+\begin{proof}[Proof of the Theorem]
+Parts (a) and (b) give the minimum $\dfrac{q(q+1)}{2}+\dfrac{q-1}{2}$.
+\end{proof}
+
+\section{The Lean formalization}
+
+The formalization is the single file \texttt{Kakeya.lean}. It imports only Mathlib, works for an
+arbitrary finite field \texttt{F} with \texttt{[Field F] [Fintype F] [DecidableEq F]} (so for all odd
+prime powers, not only primes), and contains no \texttt{sorry}, \texttt{native\_decide}, \texttt{axiom},
+\texttt{unsafe}, \texttt{opaque}, \texttt{implemented\_by}, \texttt{extern} or \texttt{admit}. Declarations are in
+the namespace \texttt{Kakeya}. The definitions below are quoted verbatim from the file, with the
+Unicode symbols rendered in math mode.
+
+\subsection{Definitions}
+
+Lines (\texttt{lineS} is the non-vertical line $y=mx+b$; \texttt{lineV} the vertical line $x=c$):
+\begin{lstlisting}
+/-- The affine line `y = m x + b` (slope `m`, intercept `b`). -/
+def lineS (m b : F) : Finset (F @$\times$@ F) := univ.image fun x => (x, m * x + b)
+\end{lstlisting}
+\begin{lstlisting}
+/-- The vertical affine line `x = c`. -/
+def lineV (c : F) : Finset (F @$\times$@ F) := univ.image fun y => (c, y)
+\end{lstlisting}
+
+Kakeya sets:
+\begin{lstlisting}
+/-- A Kakeya set: it contains a line `y = m x + b` for every slope `m`, and a vertical line. -/
+def IsKakeya (K : Finset (F @$\times$@ F)) : Prop :=
+  (@$\forall$@ m : F, @$\exists$@ b : F, @$\forall$@ x : F, (x, m * x + b) @$\in$@ K) @$\land$@ @$\exists$@ c : F, @$\forall$@ y : F, (c, y) @$\in$@ K
+\end{lstlisting}
+
+Line systems, multiplicity and cover:
+\begin{lstlisting}
+/-- The line of direction `d` in the system `t`. -/
+def sysLine (t : Option F @$\to$@ F) (d : Option F) : Finset (F @$\times$@ F) := dirLine d (t d)
+\end{lstlisting}
+\begin{lstlisting}
+/-- The multiplicity of a point: the number of lines of the system through it. -/
+def mult (t : Option F @$\to$@ F) (A : F @$\times$@ F) : @$\mathbb{N}$@ :=
+  (univ.filter fun d : Option F => A @$\in$@ sysLine t d).card
+\end{lstlisting}
+\begin{lstlisting}
+/-- The union of the lines of the system, as the set of points of positive multiplicity. -/
+def cover (t : Option F @$\to$@ F) : Finset (F @$\times$@ F) :=
+  univ.filter fun A => 1 @$\le$@ mult t A
+\end{lstlisting}
+
+Excess and blocking sets:
+\begin{lstlisting}
+/-- The excess `2@$\sigma$@ = @$\sum$@_{mult A @$\ge$@ 1} (mult A - 1)(mult A - 2)`. -/
+def excess (t : Option F @$\to$@ F) : @$\mathbb{Z}$@ :=
+  @$\sum$@ A : F @$\times$@ F, if 1 @$\le$@ mult t A then ((mult t A : @$\mathbb{Z}$@) - 1) * ((mult t A : @$\mathbb{Z}$@) - 2) else 0
+\end{lstlisting}
+\begin{lstlisting}
+/-- A blocking set: a set of points meeting every affine line. -/
+def IsBlocking (B : Finset (F @$\times$@ F)) : Prop :=
+  (@$\forall$@ m b : F, @$\exists$@ p @$\in$@ B, p.2 = m * p.1 + b) @$\land$@ @$\forall$@ c : F, @$\exists$@ p @$\in$@ B, p.1 = c
+\end{lstlisting}
+\begin{lstlisting}
+/-- The polynomial `@$\prod$@_{(a,b) @$\in$@ B} (1 - a X@$_0$@ + b X@$_1$@)`. -/
+noncomputable def blockPoly (B : Finset (F @$\times$@ F)) : MvPolynomial (Fin 2) F :=
+  @$\prod$@ p @$\in$@ B, (1 - C p.1 * X 0 + C p.2 * X 1)
+\end{lstlisting}
+
+The extremal set:
+\begin{lstlisting}
+/-- Points `(x,y)` with `x@$^2$@ - y` a square: the union of the tangent lines `y = m x - m@$^2$@/4`
+of the parabola `y = x@$^2$@` (the affine part of a dual conic). -/
+def parabolaSet (F : Type*) [Field F] [Fintype F] [DecidableEq F] : Finset (F @$\times$@ F) :=
+  univ.filter fun p => IsSquare (p.1 ^ 2 - p.2)
+\end{lstlisting}
+\begin{lstlisting}
+/-- The extremal Kakeya set: `parabolaSet @$\cup$@ {x = 0}`. -/
+def extremalSet (F : Type*) [Field F] [Fintype F] [DecidableEq F] : Finset (F @$\times$@ F) :=
+  parabolaSet F @$\cup$@ lineV 0
+\end{lstlisting}
+
+\subsection{Main theorems}
+
+The two main statements, quoted from the file:
+\begin{lstlisting}
+/-- **Blokhuis@$-$@Mazzocca.** For `q = |F|` odd, every Kakeya set in `F@$^2$@` has at least
+`q(q+1)/2 + (q-1)/2` points, and this bound is attained. -/
+theorem kakeya_min (hq : Odd (Fintype.card F)) :
+    (@$\forall$@ K : Finset (F @$\times$@ F), IsKakeya K @$\to$@
+        Fintype.card F * (Fintype.card F + 1) / 2 + (Fintype.card F - 1) / 2 @$\le$@ K.card) @$\land$@
+      @$\exists$@ K : Finset (F @$\times$@ F), IsKakeya K @$\land$@
+        K.card = Fintype.card F * (Fintype.card F + 1) / 2 + (Fintype.card F - 1) / 2 :=
+\end{lstlisting}
+\begin{lstlisting}
+/-- The minimum size of a Kakeya set, as an infimum, equals `q(q+1)/2 + (q-1)/2` for `q` odd. -/
+theorem kakeya_sInf (hq : Odd (Fintype.card F)) :
+    sInf {n : @$\mathbb{N}$@ | @$\exists$@ K : Finset (F @$\times$@ F), IsKakeya K @$\land$@ K.card = n} =
+      Fintype.card F * (Fintype.card F + 1) / 2 + (Fintype.card F - 1) / 2 := by
+\end{lstlisting}
+
+The supporting theorems are \texttt{card\_ge\_easy} (Faber's bound for every $q$),
+\texttt{jamison} (blocking sets of $AG(2,q)$ have at least $2q-1$ points), \texttt{not\_allTwo\_pair}
+(the product lemma), \texttt{card\_ge\_odd} (the refined bound for odd $q$), \texttt{isKakeya\_extremalSet}
+and \texttt{card\_extremalSet} (the construction).
+
+\subsection{Correspondence between the paper proof and the Lean declarations}
+
+{\footnotesize\sloppy
+\begin{tabular}{@{}p{3.6cm}p{5.6cm}p{6.2cm}@{}}
+\toprule
+Step of this report & Content & Lean declaration(s) \\
+\midrule
+3.1 line systems & $L_d$, union, Kakeya set contains a line system &
+\texttt{lineS}, \texttt{lineV}, \texttt{sysLine}, \texttt{cover}, \texttt{cover\_subset} \\
+3.1 intersections & distinct directions meet once; parallels disjoint &
+\texttt{card\_inter\_dirLine}, \texttt{disjoint\_dirLine} \\
+3.1 (C1), (C2) & double counts of Lemma~\ref{lem:counts} &
+\texttt{sum\_mult}, \texttt{sum\_mult\_mul\_pred} \\
+3.1 Faber's identity & $2|U|=q(q+1)+2\sigma$ &
+\texttt{faber\_pointwise}, \texttt{cast\_mult\_mul\_pred}, \texttt{excess}, \texttt{excess\_nonneg}, \texttt{two\_mul\_card\_cover} \\
+3.2 easy bound & $|K|\ge q(q+1)/2$ for every $q$ & \texttt{card\_ge\_easy} \\
+3.3 Jamison & blocking polynomial, evaluation, degree sum & \texttt{IsBlocking}, \texttt{isBlocking\_translate}, \texttt{blockPoly}, \texttt{totalDegree\_blockPoly}, \texttt{eval\_blockPoly}, \texttt{eval\_blockPoly\_zero}, \texttt{eval\_blockPoly\_eq\_zero}, \texttt{sum\_eval\_eq\_zero}, \texttt{jamison} \\
+3.4 (b) parity of lines & odd count on lines; all-2 dichotomy &
+\texttt{sum\_mult\_line}, \texttt{sum\_mult\_line\_not\_sys}, \texttt{sum\_mult\_sysLine}, \texttt{exists\_odd\_mult\_of\_sum\_odd}, \texttt{exists\_odd\_not\_sys}, \texttt{AllTwo}, \texttt{exists\_odd\_or\_allTwo} \\
+3.4 (c) product lemma & at most one non-vertical all-2 line &
+\texttt{three\_le\_mult}, \texttt{allTwo\_not\_three}, \texttt{allTwo\_image}, \texttt{prod\_sub\_erase}, \texttt{not\_allTwo\_pair} \\
+3.4 (a) $\tau\le4\sigma$ & pointwise inequality, summation &
+\texttt{odd\_pointwise}, \texttt{card\_odd\_le} \\
+3.4 (d) blocking set & point $E$, blocking property &
+\texttt{exists\_blocking\_point}, \texttt{isBlocking\_odd} \\
+3.4 (f) conclusion & $2\sigma\ge q-1$; refined bound &
+\texttt{excess\_ge}, \texttt{card\_ge\_odd} \\
+3.5 construction & parabola set, Kakeya property, count &
+\texttt{parabolaSet}, \texttt{extremalSet}, \texttt{isKakeya\_extremalSet}, \texttt{two\_mul\_card\_squares}, \texttt{card\_squares}, \texttt{card\_fiber}, \texttt{card\_parabolaSet}, \texttt{card\_parabolaSet\_inter\_lineV}, \texttt{card\_extremalSet} \\
+Theorem~\ref{thm:main} & both bounds and the infimum &
+\texttt{kakeya\_min}, \texttt{kakeya\_sInf} \\
+\bottomrule
+\end{tabular}}
+
+\subsection{Axioms and compilation status}
+
+The file was recompiled for this report with \texttt{lake env lean} under Lean~4 toolchain
+\texttt{v4.33.1} and Mathlib \texttt{v4.33.1}. It produced no errors and no warnings. The
+\texttt{\#print axioms} commands at the end of the file report, for each of the eight declarations
+\texttt{card\_ge\_easy}, \texttt{jamison}, \texttt{not\_allTwo\_pair}, \texttt{card\_ge\_odd},
+\texttt{isKakeya\_extremalSet}, \texttt{card\_extremalSet}, \texttt{kakeya\_min}, \texttt{kakeya\_sInf}, exactly
+
+\begin{center}
+\texttt{depends on axioms: [propext, Classical.choice, Quot.sound]}
+\end{center}
+
+\noindent
+which are the standard axioms of classical mathematics (no extra axiom is introduced).
+
+A brute-force sanity check of the claimed minima is recorded separately, not in the Lean file. For
+primes $p=3,5,7,11$ an exhaustive search (definition-level over all point sets for $p=3$,
+over all line choices for $p=5,7$) and a branch-and-bound search (for $p=11$) give minima
+$7,17,31,71$, matching the formula. For $q=13$ the formula gives $97$; the extremal set has $97$ points
+by Section~3.5, which the Lean file proves for all odd $q$.
+
+\section{Reproduction}
+
+From the submission folder, the Lean part is rebuilt with
+\begin{lstlisting}
+cd lean && lake exe cache get && lake build
+\end{lstlisting}
+where the Lake project \texttt{lean/} contains the file \texttt{Kakeya.lean} in its \texttt{Submission}
+library. The optional brute-force check in the submission folder is
+\begin{lstlisting}
+python3 check.py
+\end{lstlisting}
+which enumerates the small cases $p=3,5,7$ exhaustively and $p=11$ by branch and bound, and verifies
+the minima $7,17,31,71$ against the formula $p(p+1)/2+(p-1)/2$. It is independent of the Lean proof and
+only supports the sanity values above.
+
+\end{document}
