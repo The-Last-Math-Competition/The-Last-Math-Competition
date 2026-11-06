@@ -1,0 +1,167 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{A square-tessellation quotient below the claimed spectral bound\\
+\large Disproof of Conjecture 00000007717}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The square tessellation, quotiented by the period subgroup
+$64\mathbb Z\times4\mathbb Z$, has vertex degree four and
+four edges per cell. Its actual combinatorial Laplacian has
+a positive eigenvalue $2-2\cos(\pi/32)<3/256$.
+Consequently its first nonzero eigenvalue is below
+$(3/16)/4^2$, contradicting the asserted constant $c=3/16$.
+Lean verifies the quotient, connectivity, degree, cells,
+real eigenvector and least positive eigenvalue.
+\end{abstract}
+
+\section*{The admissible tessellation and its quotient}
+Take the ordinary planar square tessellation with vertex
+set $\mathbb Z^2$ and edges joining points whose difference
+is $(\pm1,0)$ or $(0,\pm1)$. The subgroup
+$\Lambda=64\mathbb Z\times4\mathbb Z$ consists of periods
+of this tessellation. Its quotient graph has vertex set
+\[
+ V=(\mathbb Z/64\mathbb Z)\times(\mathbb Z/4\mathbb Z).
+\]
+Put $a=(1,0)$ and $b=(0,1)$. A vertex $v$ is adjacent
+exactly to $v+a,v-a,v+b,v-b$. These are four distinct
+vertices, none equal to $v$, so the graph is simple and
+has degree exactly four. Horizontal and vertical steps
+connect every vertex to the origin. Every square cell
+projects to the four distinct vertices
+\[
+ v,\quad v+a,\quad v+a+b,\quad v+b,
+\]
+with consecutive vertices adjacent, including the last to
+the first. Thus the source's bounds hold with $D=4$ and
+$E=4$.
+
+The quotient map $\mathbb Z^2\to V$ reduces the two
+coordinates modulo $64$ and $4$. It is surjective and its
+kernel is exactly $\Lambda$. Two quotient vertices are
+adjacent if and only if they have adjacent lifts. These
+facts are formalized, so the construction is an actual
+quotient of a tessellation 1-skeleton.
+The statement does not require using the full group of
+all translation symmetries or a smallest period cell.
+Our chosen subgroup is a period subgroup, and no such
+extra restriction is imposed here.
+
+\newpage
+\section*{An exact small eigenvalue}
+For the combinatorial Laplacian, with no normalization,
+\[
+ (Lf)(i,j)=4f(i,j)-f(i+1,j)-f(i-1,j)
+                   -f(i,j+1)-f(i,j-1).
+\]
+Let $\theta=\pi/32$ and $f(i,j)=\cos(i\theta)$.
+This is well-defined modulo $64$, independent of $j$,
+and nonzero since $f(0,0)=1$. The cosine addition formula
+gives
+\[
+ Lf=(2-2\cos\theta)f.
+\]
+Write $\lambda=2-2\cos\theta$. Since $0<\theta<\pi$,
+$\cos\theta<1$ and $\lambda>0$. The elementary inequality
+$\cos x\geq1-x^2/2$ gives
+\[
+ \lambda\leq\theta^2=\frac{\pi^2}{1024}
+        <\frac{12}{1024}=\frac3{256},
+\]
+where $\pi^2<12$ is certified exactly in Lean from a
+rational upper bound for $\pi$.
+
+The real Laplacian is positive semidefinite, so its
+nonzero eigenvalues are positive. In this finite graph,
+the set of positive eigenvalues is finite and nonempty,
+as it contains $\lambda$. It has a least element
+$\lambda_1$, and
+\[
+ 0<\lambda_1\leq\lambda<\frac3{256}
+       =\frac{3/16}{D^2}\qquad(D=4).
+\]
+\begin{theorem}
+The constant $c=3/16$ asserted in Conjecture 00000007717
+does not satisfy its claimed bound on all periodic
+tessellation cell graphs.
+\end{theorem}
+\begin{proof}
+The quotient above is connected, has $D=E=4$, and has
+first nonzero eigenvalue strictly smaller than
+$(3/16)/4^2$. It therefore violates that bound.
+\end{proof}
+
+This finite example refutes the explicit value claimed
+for the optimal universal constant, hence the stated
+conjunction. It does not rely on a disconnected graph,
+weighted edges, growing degrees, or a normalized
+Laplacian. No claim to formalize an entire family of
+arbitrarily large quotients is needed.
+
+\newpage
+\section*{Formalization and reproducibility}
+The graph is a Mathlib \texttt{SimpleGraph} on the actual
+finite type \texttt{ZMod 64} times \texttt{ZMod 4}.
+Theorems \texttt{project\_kernel} and
+\texttt{quotient\_adjacency} identify the quotient and its
+adjacency relation. Degree, connectivity and four distinct
+cell vertices are checked separately.
+
+The proof first uses the actual additive character on
+$\mathbb Z/64\mathbb Z$ as a complex eigenvector. It
+identifies the eigenvalue with the real number $\lambda$
+and takes real parts to obtain a nonzero eigenvector
+of the actual real Mathlib Laplacian matrix.
+The theorem \texttt{spectral\_gap\_exists\_and\_small}
+uses the matrix linear map's actual eigenvalues and
+constructs their least positive element. The theorem
+\texttt{counterexample} bundles the graph properties and
+this strict bound. Positive semidefiniteness is also
+verified. A small scalar estimate is therefore never
+substituted for the spectral gap itself.
+
+An independent exact-arithmetic check in
+\texttt{verify.py} builds all 256 vertices and their
+undirected edges. For the mean-zero triangular-wave
+function $h(i,j)=\min(i,64-i)-16$, it obtains
+\[
+ \sum_v h(v)=0,\qquad \sum_v h(v)^2=21888,
+ \qquad \sum_{\{u,v\}\in E}(h(u)-h(v))^2=256.
+\]
+Its Rayleigh quotient is $2/171<3/256$.
+This is supplementary verification; Lean uses the
+explicit trigonometric eigenvector instead.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From the submitted \texttt{lean/} directory:
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Run \texttt{python verify.py} and \texttt{tectonic main.tex}
+for the auxiliary check and document. Fresh full build,
+strict Lean, axiom audit, source provenance and PDF
+verification records are included. Only standard
+foundational axioms occur; no proof placeholders,
+custom axioms or external computation oracles are used.
+
+An agent developed the proof and supplied a self-review.
+The parent separately reviewed its mathematical scope,
+complete Lean source and final artifacts. No external
+independent review or novelty is claimed for the elementary
+Fourier calculation.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000007717. The exact bilingual statement and
+commit-pinned provenance are included as \texttt{SOURCE.md}
+and its verification record.
+\end{thebibliography}
+\end{document}
