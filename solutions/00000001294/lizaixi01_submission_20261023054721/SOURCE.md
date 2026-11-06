@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000001294
+
+**English.** Conjecture: The number of leaves at level n of the 3x+1 reversal tree is O(c^n) with c = (4/3)^{1/2} (reversal-tree growth rate).
+
+**中文。** 猜想：3x+1 的反向树的 level n 的叶子数为 O(c^n),c = (4/3)^{1/2}(反向树生长率)。

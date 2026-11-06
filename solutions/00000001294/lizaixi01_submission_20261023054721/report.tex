@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001294: three real branches every seven levels}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The actual inverse-tree convention}
+The claimed bound is false for the standard finite-depth unfolded
+inverse tree rooted at $1$, for both normalizations
+\[
+ T_0(n)=\begin{cases}n/2&n\text{ even},\\3n+1&n\text{ odd},\end{cases}
+ \qquad
+ T_1(n)=\begin{cases}n/2&n\text{ even},\\(3n+1)/2&n\text{ odd}.\end{cases}
+\]
+Applegate--Lagarias~\cite{AL}, \S2, pp.~4--5, defines level $N$
+by the actual fiber $\{x\ge1:T_1^N(x)=a\}$ and explicitly permits
+cyclic-root labels to recur at different levels. A leaf here is a
+frontier node at depth $N$ of this finite-depth tree. It is not a
+first-hit tree with root-cycle paths deleted. No conclusion about
+that different convention, or the Collatz conjecture, is needed.
+
+Let $L_b(N)=\{x\ge1:T_b^N(x)=1\}$ and
+$L_b^*(N)=\{x\in L_b(N):3\nmid x\}$. Lean proves
+$x\le2T_b(x)$ and hence $x\le2^N T_b^N(x)$.
+Thus $L_b(N)$ is the complete actual fiber, represented as a
+filtered finite interval $[0,2^N]$, not an assigned branching count.
+The pruned set is an actual subset. Every positive nonmultiple
+of $3$ stays a positive nonmultiple of $3$ under either forward
+map. Therefore all intermediate labels from any $x\in L_b^*(N)$
+also survive the $3$-pruning used in~\cite{AL}, equation (2.1).
+
+\section{Three distinct genuine preimages in seven steps}
+For every $n>0$ with $3\nmid n$, write $n=9q+r$, where
+$r\in\{1,2,4,5,7,8\}$. In the following table each listed pair
+$(x,k)$ satisfies $x$ odd and $3x+1=2^k n$:
+\[
+\begin{array}{c|cc}
+r&(x_1,k_1)&(x_2,k_2)\\\hline
+1&(12q+1,2)&(48q+5,4)\\
+2&(6q+1,1)&(24q+5,3)\\
+4&(12q+5,2)&(192q+85,6)\\
+5&(24q+13,3)&(96q+53,5)\\
+7&(48q+37,4)&(192q+149,6)\\
+8&(6q+5,1)&(96q+85,5)
+\end{array}
+\]
+For $T_0$, take the three children
+$128n$, $2^{6-k_1}x_1$, $2^{6-k_2}x_2$.
+For $T_1$, take $128n$, $2^{7-k_1}x_1$, $2^{7-k_2}x_2$.
+Each is positive, not divisible by $3$, and maps to $n$ after
+exactly seven actual iterates. The three values are pairwise
+distinct. Lean verifies every residue case arithmetically and
+proves the iterate identities from $T_b(2x)=x$.
+
+\newpage
+\section{True cardinalities and the full asymptotic contradiction}
+Iterate this construction from the actual root $1$. Every word
+$w\in\{0,1,2\}^m$ determines a genuine label
+$v_b(w)\in L_b^*(7m)$. This map is injective: if two final labels
+coincide, apply the actual map $T_b^7$ to recover their parents.
+Induction identifies their preceding words, and the three-child
+injectivity identifies the remaining symbol. In particular,
+children of distinct parents cannot collide. The formal finite
+type injection into the actual fiber gives
+\[
+ 3^m\le |L_b^*(7m)|\le |L_b(7m)|\qquad(m\ge0,\ b=0,1).
+\]
+Repeated labels at different levels of the unfolded tree cause
+no problem; injectivity is at each fixed level.
+
+Put $c=\sqrt{4/3}$. The exact rational inequality
+\[
+ (c^7)^2=(4/3)^7<9
+\]
+gives $0<c^7<3$. Consequently $r=c^7/3$ lies in $(0,1)$ and
+$C r^m\longrightarrow0$ for every real $C$.
+For every constant $C$ and every cutoff $N$, choose $m\ge N$
+with $C r^m<1$. Then $n=7m\ge N$ satisfies
+\[
+ Cc^n<3^m\le |L_b^*(n)|\le |L_b(n)|.
+\]
+This refutes every eventual big-$O$ bound, rather than merely
+checking finitely many levels or estimating a growth rate from data.
+
+The final Lean statements prove the actual negations
+\[
+ |L_b^*(n)|\not=O(c^n),\qquad |L_b(n)|\not=O(c^n)
+ \quad(b=0,1)
+\]
+using Mathlib's \texttt{Asymptotics.IsBigO} on the real-valued
+cardinality sequences and the actual filter \texttt{atTop}.
+The counterexample is for the standard unfolded finite-depth
+inverse tree; no claim that every positive integer eventually
+reaches $1$ is assumed or proved.
+
+\section{Verification and disclosure}
+Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+are pinned. The package supplies a new root build, transitive
+axiom audits of every theorem and a full official
+\texttt{leanchecker --fresh Main} replay. There is no
+\texttt{sorry}, \texttt{native\_decide} or additional axiom.
+OpenAI Codex assisted; a separate supervising Codex agent
+reviewed the proof, source convention, report and PDF. This is AI
+review, not human certification. Organizer acceptance is pending.
+
+\begin{thebibliography}{1}
+\bibitem{AL} D.~Applegate and J.~C.~Lagarias,
+\emph{Density Bounds for the $3x+1$ Problem I. Tree-Search Method},
+December 15, 1993, \S2, pp.~4--5.
+\url{https://websites.umich.edu/~lagarias/doc/applegateI.pdf}.
+The shortcut map is equation (1.1); the unfolded cyclic-root and
+$3$-pruned conventions are explicitly given in \S2.
+\end{thebibliography}
+\end{document}
