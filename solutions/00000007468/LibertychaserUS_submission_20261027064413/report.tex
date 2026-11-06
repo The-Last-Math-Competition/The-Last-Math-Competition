@@ -1,0 +1,202 @@
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  columns=fullflexible,
+  escapechar=@
+}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\title{Disproof of Conjecture 00000007468\\(weight-limsup shift spectral disk)}
+\author{Zhiyuan Zhang (GitHub: LibertychaserUS)}
+\date{Verdict: FALSE (counterexample verified; Lean 4 formal disproof compiled)}
+
+\begin{document}
+\maketitle
+
+\section{The conjecture as filed}
+
+The statement in the competition file \texttt{conjectures/00000007468.md} reads, in English:
+
+\begin{quote}
+Definition: The spectra of weighted shifts. Conjecture: The spectral disk of the shift holds,
+and the radius of the disk is the limit superior of the weights.
+(weight-limsup shift spectral disk)
+\end{quote}
+
+\section{Precise reading}
+
+Let $H=\ell^2(\mathbb{N})$ with $\mathbb{N}=\{0,1,2,\dots\}$ and orthonormal basis $(e_k)_{k\ge 0}$.
+For a bounded sequence $w=(w_k)_{k\ge 0}$ of complex numbers, the unilateral forward weighted shift
+$W=W_w$ is the bounded operator determined by $W e_k = w_k e_{k+1}$, that is,
+$(Wx)_0=0$ and $(Wx)_{n+1}=w_n x_n$.
+
+We use the following standard definitions.
+\begin{itemize}
+\item Spectrum: $\sigma(T)=\{\lambda\in\mathbb{C}:\ \lambda I-T \text{ is not invertible in } B(H)\}$.
+\item Spectral radius: $r(T)=\sup\{|\lambda|:\lambda\in\sigma(T)\}$. Gelfand's formula gives $r(T)=\lim_n\|T^n\|^{1/n}$.
+\item Upper limit of the weights: $\limsup_k w_k=\lim_{K\to\infty}\sup_{k\ge K}|w_k|$.
+\item Spectral disk: a set of the form $\overline{D}(c,r)=\{z:|z-c|\le r\}$.
+\end{itemize}
+
+The conjecture is read universally: for every bounded weight sequence $w$ there is a centre $c\in\mathbb{C}$
+such that $\sigma(W_w)=\overline{D}(c,\limsup_k|w_k|)$.
+The centre is left free, so this is the weakest reading of the disk clause.
+Any stronger reading (for example with centre $0$) is refuted a fortiori by the same counterexample.
+
+\begin{definition}
+A bounded weight sequence $w$ is a \emph{counterexample} if no $c\in\mathbb{C}$ satisfies
+$\sigma(W_w)=\overline{D}(c,\limsup_k|w_k|)$.
+\end{definition}
+
+\section{The counterexample and its verification}
+
+Define the weights
+\[
+w_k=\begin{cases} 2, & k \text{ odd},\\ \tfrac12, & k \text{ even}.\end{cases}
+\]
+All weights satisfy $|w_k|\le 2$, so $W=W_w$ is bounded with $\|W\|\le 2$.
+
+\begin{lemma}[limsup]
+$\limsup_k w_k=2$.
+\end{lemma}
+\begin{proof}
+Every $w_k\le 2$, and $w_k=2$ for every odd $k$, so $\sup_{k\ge K}w_k=2$ for every $K$.
+\end{proof}
+
+\begin{lemma}[consecutive products]
+$w_k\,w_{k+1}=1$ for every $k\ge 0$. Consequently $W^2e_k=e_{k+2}$, and $W^2$ is an isometry
+(unitarily equivalent to $S\oplus S$, where $S$ is the unweighted unilateral shift).
+\end{lemma}
+\begin{proof}
+If $k$ is odd then $w_k=2$ and $w_{k+1}=\tfrac12$; if $k$ is even then $w_k=\tfrac12$ and $w_{k+1}=2$.
+In both cases the product is $1$. Then $W^2 e_k=w_k w_{k+1}e_{k+2}=e_{k+2}$.
+\end{proof}
+
+\begin{lemma}[powers]
+For $n\ge 1$, $\|W^n\|=\sup_{k\ge 0}\prod_{i=k}^{k+n-1}w_i$, which equals $2$ for odd $n$ and $1$ for even $n$.
+Hence $\|W^n\|^{1/n}\to 1$ and $r(W)=1$.
+\end{lemma}
+\begin{proof}
+Since $W^ne_k=\big(\prod_{i=k}^{k+n-1}w_i\big)e_{k+n}$ and the vectors $e_{k+n}$ are orthonormal,
+$\|W^n\|=\sup_k\prod_{i=k}^{k+n-1}w_i$. For even $n$, the window splits into $n/2$ consecutive pairs
+$(w_j w_{j+1})$, each equal to $1$. For odd $n$, the window equals $w_k$ times $(n-1)/2$ pairs
+$(w_{j}w_{j+1})$ starting at $j=k+1$, so the product is $w_k$ and the supremum over $k$ is $2$.
+Gelfand's formula then gives $r(W)=\lim_n\|W^n\|^{1/n}=1$.
+\end{proof}
+
+\begin{lemma}[spectrum lies in the unit disk]
+$\sigma(W)\subseteq\overline{D}(0,1)$.
+\end{lemma}
+\begin{proof}
+$\|W^2\|=1$, so $\sigma(W^2)\subseteq\overline{D}(0,\|W^2\|)=\overline{D}(0,1)$.
+By the spectral mapping theorem for polynomials, $\sigma(W^2)=\{\lambda^2:\lambda\in\sigma(W)\}$.
+Hence $|\lambda|^2\le 1$ for every $\lambda\in\sigma(W)$.
+\end{proof}
+
+In fact $\sigma(W)$ equals the closed unit disk. Since $W^2$ is unitarily equivalent to $S\oplus S$ and
+$\sigma(S)$ is the closed unit disk, $\sigma(W)^2=\overline{D}(0,1)$, and rotation invariance
+($U_t e_k=e^{ikt}e_k$ gives $U_tWU_t^*=e^{it}W$) forces $\sigma(W)=\overline{D}(0,1)$.
+This equality is established by the analytic argument printed in \texttt{check.py}; the Lean file
+only uses the inclusion $\sigma(W)\subseteq\overline{D}(0,1)$, which suffices.
+
+\begin{theorem}
+For $w_k$ as above, $\sigma(W_w)$ is not a closed disk $\overline{D}(c,2)$ for any $c\in\mathbb{C}$.
+Hence $w$ is a counterexample to the conjecture.
+\end{theorem}
+\begin{proof}
+Suppose $\sigma(W)=\overline{D}(c,2)$. Then $c+2$ and $c-2$ lie in $\sigma(W)\subseteq\overline{D}(0,1)$,
+so $|c+2|\le 1$ and $|c-2|\le 1$. By the triangle inequality
+$4=|(c+2)-(c-2)|\le |c+2|+|c-2|\le 2$, a contradiction.
+\end{proof}
+
+Numerical checks (exact rational arithmetic, \texttt{check.py}): all $w_kw_{k+1}=1$ for $k<1000$;
+$\sup_{k<1000}w_k=2$ and all tail suprema are $2$; for $n=1,\dots,60$ the exact value of $\|W^n\|$ equals
+$2$ for odd $n$ and $1$ for even $n$, and the window maximum over $k\in[0,2)$ equals the maximum over $[0,200)$.
+
+\section{Lean formalization}
+
+The file \texttt{Disproof.lean} (Lean 4.33.1, Mathlib v4.33.1, built with \texttt{lake env lean}) contains:
+\begin{itemize}
+\item \textbf{Hilbert space.} \texttt{Hs := lp (fun \_ : Nat => Complex) 2}, that is, $\ell^2(\mathbb{N})$.
+\item \textbf{Shift.} \texttt{shiftCoord w x} implements $(Wx)_0=0$, $(Wx)_{n+1}=w_nx_n$;
+\texttt{shiftOp w M hM} (of type $\texttt{Hs}\to_L\texttt{Hs}$, i.e.\ a continuous linear map over $\mathbb{C}$)
+is the bounded operator built with \texttt{LinearMap.mkContinuous} (bound $M$, where
+\texttt{hM} is the hypothesis $|w_k|\le M$ for all $k$).
+\item \textbf{Spectrum.} Mathlib's \texttt{spectrum Complex (shiftOp w M hM)}, the spectrum in the Banach algebra
+of bounded operators, written $\sigma(W)$ here.
+\item \textbf{Conjecture.} \texttt{ConjectureHolds : Prop} is
+\[
+\forall\, w\colon\mathbb{N}\to\mathbb{C},\ \forall\, M\in\mathbb{R},\ (\forall k,\ |w_k|\le M)\ \Rightarrow\
+\exists\, c\in\mathbb{C},\quad \sigma(W_w)=\overline{D}\Big(c,\ \limsup_k |w_k|\Big).
+\]
+\item \textbf{Main theorem.} \texttt{TLMC7468.conjecture\_00000007468\_fails}, stated as the negation
+$\neg\,\texttt{ConjectureHolds}$.
+\end{itemize}
+
+Proof structure in Lean.
+\begin{enumerate}
+\item \texttt{norm\_sq\_eq\_tsum}: $\|x\|^2=\sum_n|x_n|^2$ (from \texttt{lp.norm\_rpow\_eq\_tsum}).
+\item \texttt{shiftOp} is bounded by $M$ (\texttt{norm\_shiftFn\_le}), via reindexing of the tsum.
+\item \texttt{tsum\_shift\_shift}: $\sum_n|(W^2x)_n|^2=\sum_n|x_n|^2$, using \texttt{wgt\_succ\_mul}
+($w_{n+1}w_n=1$) and \texttt{Summable.tsum\_eq\_zero\_add} twice. Hence $\|W^2\|\le 1$ (\texttt{norm\_WW\_op\_le}).
+\item \texttt{spectrum\_shiftOp\_subset}: spectral mapping \texttt{spectrum.map\_pow\_of\_pos} with
+\texttt{spectrum.subset\_closedBall\_norm} gives $\sigma(W)\subseteq\overline{D}(0,1)$.
+\item \texttt{two\_le\_limsup\_wgt}: $\limsup_k|w_k|\ge 2$, from the frequently-odd argument
+and the bound $|w_k|\le 2$.
+\item Main theorem: if $\sigma(W)=\overline{D}(c,L)$ with $L\ge 2$, then $c+L$ and $c-L$ lie in the unit disk,
+so $2L=|(c+L)-(c-L)|\le 2$, contradicting $L\ge 2$.
+\end{enumerate}
+
+Axioms (output of \texttt{\#print axioms}):
+\begin{lstlisting}
+'TLMC7468.conjecture_00000007468_fails' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{lstlisting}
+
+Scope of the formal statement. The formalization treats the conjecture in its universal reading over all
+bounded complex weight sequences, with the disk centre free. The Lean proof uses only that
+$\sigma(W)$ is contained in the closed unit disk and that $\limsup\|w_k\|\ge 2$; it does not formalize
+the equality $\sigma(W)=\overline{D}(0,1)$ or the exact value $\limsup=2$.
+
+\section{Limitations and risks}
+
+\begin{enumerate}
+\item The statement is informal. The natural reading (every bounded unilateral weighted shift has spectrum a
+disk of radius $\limsup|w_k|$) is refuted here. If the intended class is restricted (for example convergent
+weights, or constant weights), the counterexample lies outside it, since $w_k$ does not converge.
+The statement names no class, so the universal reading is used.
+\item The disk clause is true for this shift (the spectrum is the closed unit disk); the refutation rests on the
+radius clause, which is the substantive assertion of the conjecture.
+\item The index convention ($\mathbb{N}$ starting at $0$ or $1$) changes no quantity.
+\item The Lean file uses standard Mathlib results: Gelfand-type spectral bounds through
+\texttt{spectrum.subset\_closedBall\_norm}, spectral mapping for powers, and \texttt{lp} norm identities.
+\item A finite combinatorial core (scaled integers, window maxima, consecutive products) is also checked with plain
+\texttt{lean} at \texttt{lean/Check.lean}; it is a supplement, not part of the formal disproof.
+\end{enumerate}
+
+\section{Reproduction}
+
+\begin{enumerate}
+\item Numerical and exact checks: \texttt{python3 check.py} in
+\texttt{LibertychaserUS\_submission\_20261027064413/}. Expected: all assertions pass; the verdict block
+prints $r(W)=1\neq 2=\limsup w_k$.
+\item Lean disproof: \texttt{cd lean} then
+\texttt{lake exe cache get \&\& lake build}. Expected: no errors, and the
+\texttt{\#print axioms} line above.
+\item This report: \texttt{cd LibertychaserUS\_submission\_20261027064413} then \texttt{tectonic report.tex}.
+\end{enumerate}
+
+\end{document}
