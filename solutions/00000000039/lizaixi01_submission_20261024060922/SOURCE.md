@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000000039
+
+**English.** Conjecture: Every sufficiently large odd integer N can be written as p + 2ᵃ + 2ᵇ (a, b ≥ 0).
+
+**中文。** 猜想：每个充分大的奇数 N 都可写为 p + 2ᵃ + 2ᵇ(a,b ≥ 0)。
