@@ -1,0 +1,128 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,microtype}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\newtheorem{theorem}{Theorem}
+\newcommand{\R}{\mathbb R}
+\newcommand{\h}{h_{\mathrm{top}}}
+\begin{document}
+\begin{center}
+{\Large A constant interval of genuine logistic entropy}\\[5pt]
+{\large Problem 00000003363}\quad -- \quad lizaixi01
+\end{center}
+
+\textbf{Exact scope.} We use the canonical real logistic family
+\(q_a(x)=ax(1-x)\), the whole phase interval \(I=[0,1]\), the full usual
+parameter domain \(A=[0,4]\), and topological entropy. The source does not
+specify its family, domain, entropy kind, or dimension correction. Under these
+explicit conventions, we refute only its printed ``nowhere monotone''
+conjunct, with monotone having its standard weak, non-strict meaning. We do
+not claim global Milnor monotonicity, continuity of entropy, a fractal
+dimension/correction, or a result on parameters restricted to chaos.
+
+\begin{theorem}
+For every \(a\in[1/4,1/2]\), the actual continuous selfmap
+\(q_a:I\to I\) has \(\h(q_a)=0\). Therefore the actual entropy function on
+\(A\) is both nondecreasing and nonincreasing on the nonempty open parameter
+interval \((1/4,1/2)\). In particular it is not nowhere monotone.
+\end{theorem}
+
+\textbf{The actual quadratic family.}
+If \(x\in I\), then \(0\le x(1-x)\le1/4\); hence for every \(a\in A\),
+\(0\le q_a(x)\le1\). Thus the phase space is the whole usual invariant
+interval, not an attracting sub-basin. Polynomial operations prove continuity.
+The formal polynomial is \(-aX^2+aX\), its evaluation is exactly \(q_a\),
+and its native degree is two whenever \(a>0\). Native real derivatives give
+\[
+ q'_a(x)=a(1-2x),\qquad q''_a(x)=-2a.
+\]
+Every local parameter is positive, so \(x=1/2\) is its unique critical point
+and is nondegenerate. Moreover,
+\[
+ q_a(1/2)=a/4.
+\]
+Evaluation at this true phase point proves that the map-valued family is
+injective in \(a\). The constant entropy interval is not obtained from a
+constant or degenerate family.
+
+\textbf{A genuine local contraction.}
+For \(x,y\in I\) we have \(|1-x-y|\le1\), and
+\[
+ q_a(x)-q_a(y)=a(x-y)(1-x-y).
+\]
+Consequently, for every \(a\in[1/4,1/2]\),
+\[
+ |q_a(x)-q_a(y)|\le\tfrac12|x-y|.
+\]
+This proves the native \texttt{LipschitzWith (1/2)} property of the actual
+subtype-valued map. In particular its iterates satisfy
+\(d(q_a^k x,q_a^k y)\le d(x,y)\) for every \(k\ge0\).
+
+\textbf{Interpretation and primary.}
+Van Strien's author survey, dated 6 July 2012, pp.1--2, discusses ordinary
+topological entropy and explicitly gives this logistic family. It supplies
+the standard model and terminology only. Its global results are not Lean
+axioms, and the argument here uses no external zero-entropy theorem.
+
+\newpage
+\textbf{All scales and the native entropy limit.}
+We prove a general lemma for a nonempty compact pseudometric space \(X\) and
+an actual nonexpanding selfmap \(T\). Let \(U\) be any entourage. Choose
+\(\varepsilon>0\) with \(\{d(x,y)<\varepsilon\}\subseteq U\), and put
+\(V=\{d(x,y)<\varepsilon/2\}\). Then \(V\) is symmetric and
+\(V\circ V\subseteq U\). Compactness gives a finite set \(S\) whose
+\(\varepsilon/2\)-balls cover \(X\). Nonemptiness proves
+\(M=|S|\ge1\), so its logarithm is finite.
+
+For every point \(x\), choose \(y\in S\) with
+\(d(x,y)<\varepsilon/2\). For every iterate \(k\),
+\[
+ d(T^k x,T^k y)\le d(x,y)<\varepsilon/2.
+\]
+Thus this same actual finite set is a dynamical \((V,n)\)-cover for
+\emph{every} orbit length \(n\). The native library cover inequality and
+antitonicity in the entourage give, for each integer \(n\ge0\),
+\[
+ h_U(T)\ \le\ h_{V\circ V}(T)
+       \ \le\ \frac{\log M}{n+1}.
+\]
+The right-hand side tends to zero. The proof checks the native
+\texttt{ENNReal.log} to real logarithm conversion, positive finite cardinal,
+\texttt{EReal} quotient and limit, and native nonnegativity. Taking the
+supremum over \emph{all} entourages proves the genuine library quantity
+\[
+ \texttt{Dynamics.coverEntropy}\ T\ \texttt{Set.univ}=0.
+\]
+Applying this lemma to each local logistic map proves the theorem; no entropy
+value is assigned or inferred from finitely sampled iterates.
+
+\textbf{The open interval contradiction.}
+The endpoints \(1/4<1/2\) are strictly inside \(A\); their open interval is
+open in the parameter space and contains \(3/8\). Actual entropy is zero at
+every point of this interval. Hence for every ordered pair of parameters in
+it, both weak entropy inequalities hold. The formal
+\texttt{NowhereMonotone} predicate excludes such a nonempty open interval in
+either direction; \texttt{printed\_nowhere\_monotone\_false} negates it.
+This is only the disclosed canonical reading of that conjunct. Other
+unspecified source clauses and other possible entropy spectra are not settled.
+
+\textbf{Formal reproduction and evidence.}
+The complete Lean project pins Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}. The exact bilingual source
+is included separately. From \texttt{lean/}, run \texttt{lean --version}; then
+\texttt{bash verify.sh} runs the build, warning-as-error exhaustive ordinary
+axiom audit, and official fresh kernel checker. Every owned declaration,
+including private/generated names, is enumerated and checked. Only
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound} are allowed;
+there are no placeholders or extra axioms. Source-bound original logs,
+execution/affinity data and hashes accompany the submission. Production
+timings are diagnostic, not controlled efficiency evidence.
+
+\textbf{Reference.}
+Sebastian van Strien, \emph{Milnor's Conjecture on Monotonicity of Topological
+Entropy: results and questions}, author PDF, 6 July 2012, pp.1--2.
+\par
+\url{https://www.ma.imperial.ac.uk/~svanstri/Files/milnor80-bis.pdf}.
+\end{document}
