@@ -1,0 +1,236 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{The stated Stern-square normalization tends to zero\newline
+\large Disproof of Conjecture 00000000228}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+For the actual Stern diatomic sequence, the entire
+sequence $s(n^2)/3^{\log_2 n}$ tends to zero as
+$n\to\infty$. An exact three-bit recurrence bound
+gives the geometric estimate $25(25/27)^m$ on every
+block $8^m\leq n<8^{m+1}$. The genuine uniform-index
+empirical distributions therefore converge to the
+point mass at zero, not to a continuous fractal law.
+The proof handles all positive indices, the original
+real logarithmic power and actual probability measures.
+\end{abstract}
+
+\section*{The original sequence and its adjacent pairs}
+Use exactly the defining rules from the source:
+\[
+ s(0)=0,\quad s(1)=1,\quad s(2n)=s(n),\quad
+                  s(2n+1)=s(n)+s(n+1).
+\]
+Let $v_n=(s(n),s(n+1))$. The rules give
+\[
+ v_{2n}=L(v_n),\qquad v_{2n+1}=R(v_n),\qquad
+ L(a,b)=(a,a+b),\quad R(a,b)=(a+b,b).
+\]
+These formulas, starting at $v_0=(0,1)$, construct
+the actual sequence by repeated division of the
+index by two. The Lean project proves all four
+original rules, the adjacent-second-coordinate
+identity, and uniqueness among sequences satisfying
+those rules. It also proves $s(n)>0$ for every $n>0$.
+
+\section*{An exact three-bit growth bound}
+If $0\leq a,b\leq B$, every composition of three
+maps from $\{L,R\}$ has both coordinates at most
+$5B$. Explicitly, writing $v_k=(a,b)$, one obtains
+\[
+\begin{array}{c|c}
+ r&v_{8k+r}\\\hline
+ 0&(a,3a+b)\\
+ 1&(3a+b,2a+b)\\
+ 2&(2a+b,3a+2b)\\
+ 3&(3a+2b,a+b)\\
+ 4&(a+b,2a+3b)\\
+ 5&(2a+3b,a+2b)\\
+ 6&(a+2b,a+3b)\\
+ 7&(a+3b,b)
+\end{array}
+\]
+Every displayed coordinate has nonnegative coefficients
+with sum at most five. The bound is algebraic and
+valid for arbitrary $k$, not inferred from finite testing.
+
+\newpage
+\section*{A global bound at every index}
+Induction on $j$, dividing an index by eight at each
+step, now proves
+\[
+        0\leq n\leq8^j\quad\Longrightarrow\quad
+                 s(n)\leq5^j,
+                 \qquad s(n+1)\leq5^j.
+\]
+At $j=0$ the indices are zero and one, with pairs
+$(0,1)$ and $(1,1)$. For the induction step,
+$n\leq8^{j+1}$ gives $\lfloor n/8\rfloor\leq8^j$;
+three binary steps multiply the pair bound by at
+most five. The endpoint is included throughout.
+
+In particular, if $n\leq8^{m+1}$, then
+$n^2\leq8^{2(m+1)}$, so
+\[
+                       s(n^2)\leq5^{2(m+1)}=25^{m+1}.
+\]
+On the other hand, if $8^m\leq n$, monotonicity
+of the ordinary logarithm gives
+\[
+       \log_2n\geq3m,\qquad 3^{\log_2 n}\geq27^m.
+\]
+Consequently for every positive index in the block,
+\[
+ 8^m\leq n\leq8^{m+1}
+   \quad\Longrightarrow\quad
+ 0<\frac{s(n^2)}{3^{\log_2n}}
+       \leq\frac{25^{m+1}}{27^m}
+       =25\left(\frac{25}{27}\right)^m.
+\]
+For each $n\geq1$, take $m=\lfloor\log_8n\rfloor$.
+These blocks cover every positive index, and
+$m\to\infty$ with $n$. Since $25/27<1$, we obtain
+the full-sequence limit
+\[
+             a_n:=\frac{s(n^2)}{3^{\log_2n}}
+                         \longrightarrow0.
+\]
+The denominator here is exactly
+$3^{\log n/\log2}$, not a rounded exponent or a
+replacement normalization. At $n=1$ it is one;
+the undefined source index $n=0$ is never sampled.
+
+\section*{The actual empirical distribution}
+For sample count $N\geq1$, let
+\[
+                  \nu_N=\frac1N\sum_{n=1}^{N}\delta_{a_n}.
+\]
+This is the genuine pushforward of a uniform random
+index in $\{1,\ldots,N\}$ through the actual normalized
+sequence. All $a_n$ are positive. Thus its CDF
+$F_N(x)=\nu_N(( -\infty,x])$ is exactly zero for
+every $x\leq0$ and every $N$.
+
+\newpage
+\section*{Degeneration and exclusion of a continuous limit}
+Fix $x>0$. Since $a_n\to0$, there is $K$ such that
+$a_n\leq x$ for every $n\geq K$. At most $K$ of
+the first $N$ observations can exceed $x$. Therefore
+\[
+       0\leq\nu_N((x,\infty))\leq\frac K N\longrightarrow0,
+                    \qquad F_N(x)\longrightarrow1.
+\]
+We have proved the actual CDF limits
+\[
+ F_N(x)\longrightarrow
+       \begin{cases}0,&x<0,\\1,&x>0.\end{cases}
+\]
+These are precisely the CDF values of the actual
+Dirac measure $\delta_0$ at every continuity point
+of that CDF. In the usual continuity-point criterion,
+the empirical laws converge weakly to $\delta_0$.
+No convergence of CDFs to the Dirac value at its
+discontinuity zero is asserted; indeed $F_N(0)=0$
+for every finite $N$.
+
+There cannot instead be a continuous limiting CDF
+$F$. Convergence in law to such a target requires
+$F_N(x)\to F(x)$ at every real $x$. It would give
+$F(0)=0$ and $F(x)=1$ for every $x>0$. Continuity
+along $x_j=1/(j+1)\downarrow0$ would then force
+$F(0)=1$, a contradiction.
+
+The necessary continuity-point condition can also
+be seen directly from the bounded-continuous-function
+definition of weak convergence: approximate the
+indicator of $(-\infty,x]$ from above and below
+by continuous linear ramps within distance
+$\varepsilon$ of $x$, pass to the limit in their
+integrals, then let $\varepsilon\downarrow0$ at a
+continuity point of the proposed CDF.
+
+\begin{theorem}
+For Stern's actual diatomic sequence,
+$a_n=s(n^2)/3^{\log_2n}\to0$. Its uniform positive-index
+empirical laws have the point mass at zero as their
+weak limit and cannot have a continuous limiting CDF.
+\end{theorem}
+\begin{proof}
+The exact three-bit block bound gives the full-sequence
+limit. The finite exceptional-index estimate gives
+the actual CDF limits, and continuity yields the
+displayed contradiction for every continuous target.
+\end{proof}
+This refutes the source's proposed continuous fractal
+distribution under its supplied normalization.
+The separate informal spectral-dimension/turning-density
+clause need not be assigned an interpretation.
+No claim is made about other normalizations of Stern values.
+
+\newpage
+\section*{Formalization and reproducibility}
+The Lean sequence is constructed by an actual
+terminating adjacent-pair recursion. All original
+recurrence rules and their uniqueness are proved.
+All eight three-step growth cases, the inclusive
+power bound, square-index bound and original real
+logarithmic denominator comparison are formal theorems.
+Mathlib's natural base-eight logarithm supplies blocks
+covering every positive integer, and its index tends
+to infinity. A geometric squeeze proves the full
+normalized limit.
+
+The empirical PMF samples an actual uniform
+$\operatorname{Fin}(N+1)$ index and maps it to
+$a_{i+1}$. Thus the formal parameter $N\geq0$
+represents sample count $N+1$, always using positive
+indices. Its canonical probability measure is used
+for all subsequent CDF and tail expressions.
+
+The tail probability equals the actual number of
+bad indices divided by the sample count. An explicit
+finite-set injection bounds that number by $K$.
+The exact nonpositive CDF, positive-threshold limits,
+equality with Mathlib's actual CDF, and continuity-point
+limits to the actual Dirac measure are proved.
+A separate theorem rules out every continuous
+pointwise CDF limit. The project proves these CDF
+statements directly; it does not claim to formalize
+the full general equivalence with Mathlib's weak
+convergence framework. The necessary condition used
+for the disproof is explained on the preceding page.
+
+The supplementary \texttt{verify.py} uses independent
+direct-recursion and binary-pair algorithms, checks
+all eight block identities at 10,001 base indices,
+and checks the square bound at the first 10,000
+positive indices, with exact integer/rational arithmetic.
+These finite checks are not a Lean computation oracle;
+the formal proof supplies the all-index result.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Fresh-build logs, source and hashes are included.
+Printed dependencies contain only standard foundational
+axioms. Compile with \texttt{tectonic main.tex}.
+The author agent and parent reviewed the work internally;
+no external independent review is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000000228. Exact bilingual source included.
+All sequence-specific bounds are proved above and in
+the accompanying Lean project.
+\end{thebibliography}
+\end{document}
