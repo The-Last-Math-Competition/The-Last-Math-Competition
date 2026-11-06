@@ -1,0 +1,160 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Systematic resampling can increase variance\\
+\large Disproof of Conjecture 00000008263}
+\author{GitHub: gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+Four positively weighted particles give a systematic resampling estimator
+with variance $1/16$, while multinomial resampling has variance $3/64$.
+Thus systematic resampling can be worse, and cannot universally halve
+multinomial variance, whether halving means equality or an upper bound.
+The exact inverse-CDF algorithms and finite probability calculations
+are verified in Lean.
+\end{abstract}
+
+\section*{The assertion being tested}
+The source claims a variance-halving law for systematic versus multinomial
+resampling. We test the usual conditional resampling variance of the
+equally weighted empirical estimate of a fixed particle observable,
+conditional on the input particles and normalized weights. A universal
+variance-halving law would in particular require
+\[
+ \operatorname{Var}(\widehat\mu_{\rm sys}(f))
+ \leq\tfrac12\operatorname{Var}(\widehat\mu_{\rm mult}(f))
+\]
+for every such input and observable. We give a strict counterexample even
+to the weaker assertion that systematic variance never exceeds multinomial
+variance. This refutes the variance conjunct; it is unnecessary to settle
+the source's effective-sample-size or other error-constant assertions.
+
+This phenomenon is known: systematic resampling does not enjoy a universal
+variance improvement over multinomial resampling; see Douc, Capp\'e and
+Moulines, \emph{Comparison of Resampling Schemes for Particle Filtering}
+(2005), \href{https://arxiv.org/abs/cs/0507025}{arXiv:cs/0507025}.
+The present four-particle calculation is supplied as an explicit,
+independently checkable instance, not as a new general phenomenon.
+
+\section*{Particles, ordering, and the actual algorithms}
+Keep the given particle ordering and choose
+\[
+ (w_0,w_1,w_2,w_3)=(1/8,3/8,1/8,3/8),\qquad
+ (f_0,f_1,f_2,f_3)=(1,0,1,0).
+\]
+All weights are strictly positive and their sum is one. The target mean
+is $\mu(f)=\sum_i w_i f_i=1/4$.
+The inverse CDF sends a position $x\in[0,1)$ to the unique particle
+whose half-open cumulative-weight interval contains $x$:
+\[
+ L(x)=\begin{cases}
+ 0,&0\leq x<1/8,\\
+ 1,&1/8\leq x<1/2,\\
+ 2,&1/2\leq x<5/8,\\
+ 3,&5/8\leq x<1.
+ \end{cases}
+\]
+Systematic resampling chooses one uniform offset $U\in[0,1/4)$ and
+selects the labels $L(U+k/4)$, $k=0,1,2,3$. Its estimator is
+\[
+ \widehat\mu_{\rm sys}(f)=\tfrac14\sum_{k=0}^3 f_{L(U+k/4)}.
+\]
+Multinomial resampling chooses four independent labels $J_k$, each with
+$\mathbb P(J_k=i)=w_i$, and uses
+$\widehat\mu_{\rm mult}(f)=\tfrac14\sum_{k=0}^3 f_{J_k}$.
+The particles may be placed at four distinct state-space points with the
+displayed observable values, so no coincidence or particle identification
+is needed.
+
+\section*{Exact systematic variance}
+For every offset, including the interval boundaries under the stated
+half-open convention, the selected label vector is
+\[
+ (L(U),L(U+1/4),L(U+1/2),L(U+3/4))
+ =\begin{cases}
+ (0,1,2,3),&0\leq U<1/8,\\
+ (1,1,3,3),&1/8\leq U<1/4.
+ \end{cases}
+\]
+Each phase interval has probability $1/2$, since it has length $1/8$
+inside an interval of length $1/4$. Hence
+\[
+ \widehat\mu_{\rm sys}(f)=
+ \begin{cases}1/2,&\text{with probability }1/2,\\
+ 0,&\text{with probability }1/2.
+ \end{cases}
+\]
+It is unbiased and has variance
+\[
+ \tfrac12(1/2-1/4)^2+\tfrac12(0-1/4)^2=\frac1{16}.
+\]
+
+\section*{Exact multinomial variance and contradiction}
+Each $f_{J_k}$ is a Bernoulli variable with success probability
+$w_0+w_2=1/4$. Independence gives
+\[
+ \operatorname{Var}(\widehat\mu_{\rm mult}(f))
+ =\frac1{4^2}\sum_{k=0}^3\frac14\left(1-\frac14\right)
+ =\frac3{64}.
+\]
+Both estimators therefore have the same correct expectation $1/4$, but
+\[
+ \operatorname{Var}(\widehat\mu_{\rm sys}(f))=\frac4{64}
+ >\frac3{64}=\operatorname{Var}(\widehat\mu_{\rm mult}(f)).
+\]
+In particular systematic variance is neither equal to nor bounded by
+one half of multinomial variance. The same strict comparison holds for
+the unnormalized sum estimator, since both variances are multiplied by
+$16$. An extra assumption imposing a special particle ordering or an
+additional random permutation would describe a different claim. No such
+assumption appears in the conjecture; systematic resampling in the stated
+ordering is the standard algorithm.
+
+\section*{Formal verification and scope}
+Lean defines the actual four-particle inverse-CDF algorithm from its
+cumulative weights and uses the actual systematic positions $U+k/4$.
+For an arbitrary ordered field, it proves the selected-label formula
+above for \emph{every} offset in $[0,1/4)$. Thus it applies in particular
+to real offsets, and does not merely evaluate two chosen offsets.
+
+A finite probability law is defined by exact rational masses, with
+proofs of nonnegativity and total mass one. Expectation is the
+mass-weighted finite sum and variance is the expectation of the squared
+deviation from the expectation. The systematic law is uniform on the two
+phase strata; the estimator is still generated by inverse CDF at a
+representative of each stratum. The selected-label theorem justifies this
+representation for every observable. The multinomial law is the genuine
+product law on all $4^4=256$ ordered label tuples, with mass equal to the
+product of their four input weights.
+
+Lean computes the expectations and centered variances from these
+algorithms and laws, proves the strict worse-than-multinomial comparison,
+and negates the necessary universal halving assertion over all rational
+observables on this fixed legal weighted population. The final theorem is
+\begin{center}\texttt{Conjecture8263.conjecture8263\_false}.\end{center}
+The counterexample observable is rational, so restriction to rational
+observables cannot hide the failure of a claim over real observables.
+
+The elementary measure identification of a continuous uniform offset
+with the two equal-length phase strata is supplied on paper. Lean
+formalizes all offsets' algorithmic outputs and the resulting finite
+probability calculations, not a general measure-theoretic implementation
+of uniform real random variables or particle-filter evolution. The
+finite sums are computations of the actual algorithmic random variables,
+not an imposed table of variance values.
+
+\section*{Source and reproduction}
+The unmodified bilingual source is supplied as \texttt{SOURCE.md},
+with frozen-source provenance and SHA-256 in the verification folder.
+The coordinating workflow found no prior submission for this conjecture.
+Lean is pinned to 4.19.0 and Mathlib commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+Run in the supplied Lean folder:
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+This draft was developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately. No external independent
+review is claimed.
+\end{document}
