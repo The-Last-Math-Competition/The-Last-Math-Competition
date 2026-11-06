@@ -1,0 +1,70 @@
+import Main
+
+#check BlockTheory5838.one_primitive_of_idempotents
+#print axioms BlockTheory5838.one_primitive_of_idempotents
+#check BlockTheory5838.block_count_one
+#print axioms BlockTheory5838.block_count_one
+#check BlockTheory5838.blocks_finite
+#print axioms BlockTheory5838.blocks_finite
+#check BlockTheory5838.block_subset_finite
+#print axioms BlockTheory5838.block_subset_finite
+#check BlockTheory5838.no_half_count
+#print axioms BlockTheory5838.no_half_count
+#check BlockTheory5838.no_half_rational
+#print axioms BlockTheory5838.no_half_rational
+#check BlockTheory5838.idempotents_of_ringEquiv
+#print axioms BlockTheory5838.idempotents_of_ringEquiv
+#check Involution5838.involution_ne_one
+#print axioms Involution5838.involution_ne_one
+#check Involution5838.involution_square
+#print axioms Involution5838.involution_square
+#check Involution5838.group_card
+#print axioms Involution5838.group_card
+#check Involution5838.centralizer_eq_top
+#print axioms Involution5838.centralizer_eq_top
+#check Involution5838.centralizer_card
+#print axioms Involution5838.centralizer_card
+#check C2Algebra5838.s_ne_one
+#print axioms C2Algebra5838.s_ne_one
+#check C2Algebra5838.s_mul_s
+#print axioms C2Algebra5838.s_mul_s
+#check C2Algebra5838.element_cases
+#print axioms C2Algebra5838.element_cases
+#check C2Algebra5838.coeff_decomposition
+#print axioms C2Algebra5838.coeff_decomposition
+#check C2Algebra5838.two_coeff_square
+#print axioms C2Algebra5838.two_coeff_square
+#check C2Algebra5838.square_formula
+#print axioms C2Algebra5838.square_formula
+#check C2Algebra5838.coeff_square_s
+#print axioms C2Algebra5838.coeff_square_s
+#check C2Algebra5838.coeff_square_one
+#print axioms C2Algebra5838.coeff_square_one
+#check C2Algebra5838.idempotent_coeff_s_zero
+#print axioms C2Algebra5838.idempotent_coeff_s_zero
+#check C2Algebra5838.char2idempotent_only_zero_one
+#print axioms C2Algebra5838.char2idempotent_only_zero_one
+#check C2Algebra5838.principal_one_nonzero
+#print axioms C2Algebra5838.principal_one_nonzero
+#check Counterexample5838.prime_two
+#print axioms Counterexample5838.prime_two
+#check Counterexample5838.splitting_field_characteristic
+#print axioms Counterexample5838.splitting_field_characteristic
+#check Counterexample5838.splitting_field_algebraically_closed
+#print axioms Counterexample5838.splitting_field_algebraically_closed
+#check Counterexample5838.centralizer_idempotents
+#print axioms Counterexample5838.centralizer_idempotents
+#check Counterexample5838.centralizer_block_count
+#print axioms Counterexample5838.centralizer_block_count
+#check Counterexample5838.centralizer_blocks_finite
+#print axioms Counterexample5838.centralizer_blocks_finite
+#check Counterexample5838.selected_blocks_finite
+#print axioms Counterexample5838.selected_blocks_finite
+#check Counterexample5838.any_selection_not_half_count
+#print axioms Counterexample5838.any_selection_not_half_count
+#check Counterexample5838.any_selection_not_half_rational
+#print axioms Counterexample5838.any_selection_not_half_rational
+#check Counterexample5838.any_selection_not_half_real
+#print axioms Counterexample5838.any_selection_not_half_real
+#check Counterexample5838.half_clause_false_for_every_selection
+#print axioms Counterexample5838.half_clause_false_for_every_selection

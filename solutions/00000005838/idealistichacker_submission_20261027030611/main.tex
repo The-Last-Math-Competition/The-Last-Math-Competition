@@ -1,0 +1,192 @@
+\documentclass[11pt]{article}
+\usepackage[hmargin=0.9in,vmargin=0.85in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{1em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\F}{\mathbb F}
+\newcommand{\N}{\mathbb N}
+\newcommand{\Bl}{\operatorname{Bl}}
+\title{One Modular Block Refutes the Half-Count Law\newline
+  for Involution Centralizers}
+\author{idealistichacker\\\small AI-assisted disproof of conjecture 00000005838}
+\date{October 26, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+Both source languages assert that an involution centralizer has half of its
+blocks real-valued. Take the genuine involution in $G=C_2$ and the prime
+$p=2$. Over $K=\overline{\F_2}$ the actual modular group algebra
+$K[C_G(s)]$ has only the idempotents zero and one, and therefore precisely
+one primitive central idempotent, or one modular block. Any selected
+subfamily of this singleton has an integer cardinality, which cannot equal
+$1/2$. We formalize this stronger predicate-parametric contradiction:
+no definition of a predicate selecting blocks can make the asserted half
+count true for this example. No ordinary-character classification or
+invented realness test is required. All group, centralizer, field, algebra,
+idempotence, primitivity, cardinality and half-count bridges are explicit.
+\end{abstract}
+
+\section{Exact Necessary Clause and Standard Block Convention}
+The English source includes the clause ``the number of real-valued blocks
+is half the total''; the Chinese source asserts the same half-count
+equality. It is a separate necessary conjunct, not a conditional on an
+unstated hypothesis about the surrounding dichotomy. Neither language
+requires odd $p$, a nonabelian group or a simple group. We refute this
+half-count clause and do not formalize or repair the source's undefined
+kernel/dichotomy language, or separately refute its conjugate-pair clause.
+
+The fixed complete bilingual source is retained separately:
+\begin{quote}\small\ttfamily
+Commit: b355e42906e6eaf52bc7e9d005e0ef02d8aa7400\\
+Blob: bcf128f6c8b7e7c438e4e096e9e99e38c3135082.
+\end{quote}
+For a finite group $H$ and an algebraically closed field $K$ of
+characteristic $p$, we use the standard modular algebra definition of its
+$p$-blocks: nonzero primitive central idempotents of $K[H]$. Thus an
+idempotent $e$ is central, satisfies $e^2=e$, and is primitive when it
+cannot be written as a sum of two nonzero orthogonal central idempotents.
+This is the standard block decomposition convention, with its connection
+to the ordinary-character partition described in \cite[Chapter~12,
+Sections~12.1--12.2]{Webb}. We do not instead count central idempotents of
+the characteristic-zero semisimple algebra $\mathbb C[H]$.
+
+The Lean block type is \emph{defined} by these actual ring equations and
+the indecomposability condition. The general correspondence to an ordinary
+character-partition API is cited and reviewed, not advertised as a Lean
+character-theory theorem. No such theorem or realness classification is
+needed for a contradiction applying to every predicate on the actual
+modular block type. This standard algebraic definition, and not an
+arbitrary Boolean labeling, fixes what is counted below.
+
+\section{An Actual Involution Centralizer and Splitting Field}
+Let $G=C_2=\{1,s\}$, with $s\ne1$ and $s^2=1$. It is a finite group
+of order two. Since it is commutative,
+\[
+ C_G(s)=G.
+\]
+These are genuine group and subgroup statements, not an empty involution
+case. In Lean, $G$ is \texttt{Multiplicative (ZMod 2)} and the centralizer
+is the actual Mathlib subgroup of elements commuting with $s$.
+The explicit group isomorphism $C_G(s)\simeq G$ induces an actual algebra
+isomorphism $K[C_G(s)]\simeq K[G]$ by reindexing the group basis.
+Idempotence and zero/one are transported across that isomorphism.
+
+Take $p=2$ and the concrete field $K=\operatorname{AlgebraicClosure}(\F_2)$.
+Its field, characteristic-two and algebraic-closedness instances are
+constructed in Mathlib and explicitly audited here. The computation in
+the next section works over \emph{every} characteristic-two field, so it
+is valid over this actual splitting field, not just an enumeration over
+the two-element field.
+
+\section{All Idempotents of the Modular Group Algebra}
+Write $[g]$ for the actual group-algebra basis vector at $g$. Every element
+$x$ of $K[C_2]$ has a unique coefficient decomposition
+\[
+ x=a[1]+b[s],\qquad a,b\in K.
+\]
+This is proved for every group-algebra element using its actual finite
+coefficient function and the two group elements. The multiplication rule
+is $[g][h]=[gh]$, hence, in characteristic two,
+\[
+ x^2=(a^2+b^2)[1]+(ab+ba)[s]=(a^2+b^2)[1].
+\]
+If $x^2=x$, comparison of the $[s]$ coefficients first gives $b=0$.
+Comparison at $[1]$ then gives $a^2=a$. Since $K$ is a field,
+$a(a-1)=0$, so $a=0$ or $a=1$. Consequently
+\[
+ \forall x\in K[C_2],\quad x^2=x\ \Longrightarrow\ x=0\text{ or }x=1.
+\]
+This is a universal proof over the actual infinite splitting field, not
+a conclusion from a finite grid or a stored count. Transport along the
+centralizer algebra isomorphism gives the same result in $K[C_G(s)]$.
+
+\begin{lemma}
+If a nontrivial ring has only the idempotents zero and one, then it has
+exactly one nonzero primitive central idempotent.
+\end{lemma}
+\begin{proof}
+One is nonzero, central and idempotent. Suppose it decomposes into
+orthogonal central idempotents $f,g$. If either is zero, the decomposition
+is trivial. Otherwise both must equal one by the hypothesis, contradicting
+$fg=0$. Thus one is primitive. Every nonzero primitive central idempotent
+is a nonzero idempotent and hence equals one. This proves an actual
+singleton block type, including existence, uniqueness and finiteness.
+\end{proof}
+
+Applying the lemma to $A=K[C_G(s)]$ yields
+\[
+ |\Bl(A)|=1.
+\]
+The ring is nontrivial because the coefficient field is nontrivial and
+the group basis is nonempty. Lean proves finiteness of the full block
+type and each predicate subtype; no infinite-type default cardinality
+is used to obtain the count.
+
+\section{No Selection of Blocks Can Satisfy the Half Count}
+\begin{theorem}
+For the above genuine involution centralizer, no predicate $P$ on its
+modular blocks satisfies
+\[
+ |\{b\in\Bl(A):P(b)\}|=\frac{|\Bl(A)|}{2}.
+\]
+This holds with the equality interpreted in either $\mathbb Q$ or
+$\mathbb R$.
+\end{theorem}
+\begin{proof}
+The selected subtype has a natural cardinality $r$. Since the full block
+count is one, the equality would imply $2r=1$, impossible for any
+$r\in\N$. No value of $P$ has been assumed, chosen or hard-coded.
+\end{proof}
+
+In particular this applies to the actual real-block predicate, whether
+real blocks are described as conjugation-stable blocks or via the
+corresponding character family. It is unnecessary to decide that
+predicate or classify the ordinary characters: the theorem excludes
+\emph{every} possible block-selection predicate at once. The interpretation
+of half is the ordinary rational/real equality, not truncated natural
+division by two.
+
+The formal final theorem allows an arbitrary selection family assigning a
+predicate to the actual blocks of the centralizer of each $t\in C_2$.
+It negates the half-count clause quantified over all nonidentity
+involutions, by evaluating that clause at the displayed $s$. Both its
+nonidentity premise and square-one premise are proved. Thus no arbitrary
+choice of realness can make this necessary clause valid for this finite
+group, and the source's universal conjunction is false. This argument
+does not claim that other source clauses are separately false.
+
+\section{Formal Scope and Reproducibility}
+The four mathematical modules are BlockTheory, Involution, C2Algebra and
+Counterexample. Their 34 public theorems include all coefficient,
+idempotence, field, involution, centralizer/algebra transport, finite
+cardinality and natural/rational/real half-count bridges.
+The final declaration is
+\texttt{Counterexample5838.half\_clause\_false\_for\_every\_selection}.
+Its only explicit parameter is the arbitrary selection family; the
+conclusion is its negation of the actual necessary clause. No desired
+block count, realness value or negative conclusion is assumed.
+
+Lean is pinned to 4.33.1 and Mathlib to
+\begin{quote}\small\ttfamily
+0df444a360eaa60ab8c11dca51a86af692955474.
+\end{quote}
+Every public theorem's compiled type and axiom footprint is audited.
+Only the standard foundational axioms \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound} occur.
+Finite exact group-algebra checks are regression evidence, not the
+universal proof over $K$. Installed Lean and pinned dependency build caches
+remain explicit trust inputs; no full-dependency clean build,
+empty-machine bootstrap, cross-platform run or hosted-CI result is implied.
+Separate AI review is not human expert endorsement, upstream acceptance,
+priority, ranking or an award.
+
+\begin{thebibliography}{9}
+\bibitem{Webb} P. Webb, \emph{A Course in Finite Group Representation Theory},
+  author-hosted prepublication text, Chapter~12, printed pp.~226--232,
+  especially Section~12.1, Proposition~12.2.1 and Example~12.2.2.
+\end{thebibliography}
+\end{document}
