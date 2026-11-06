@@ -1,0 +1,125 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000004271: the rational divisible group obstructs approximation}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The approximation obstruction}
+Take the actual additive group $A=(\mathbf Q,+)$. It is divisible:
+for every positive integer $n$ and $x\in\mathbf Q$, the element $x/n$
+satisfies $n(x/n)=x$. The map $D(x)=2x$ is a nonidentity additive
+automorphism, with inverse $x\mapsto x/2$.
+
+On this group the identity is the only automorphism satisfying any
+of the following three finite-support conditions:
+\begin{enumerate}
+\item only finitely many elements are moved;
+\item the image $(f-\mathrm{id})(A)$ is finite;
+\item $f$ acts identically on a subgroup of finite index.
+\end{enumerate}
+The first is the literal finite support of a permutation. The third
+is the standard group-theoretic finitary condition; its equivalence
+with the second is stated in Dardano and Rinauro,
+\href{https://arxiv.org/abs/1403.4193v4}
+{\emph{The group of inertial automorphisms of an abelian group}},
+arXiv:1403.4193v4, Introduction, pp.1--2. We use that exact preprint
+title and version. Lean proves all these claims for $\mathbf Q$,
+including the finite-index bridge, instead of importing the quoted
+equivalence as an assumption.
+
+Thus no choice of a genuine separating metric can allow these
+automorphisms to approximate $D$. The source does not specify a
+formula for its ``subgroup-index metric.'' We avoid choosing a new
+formula: the formal obstruction holds for \emph{every} true metric,
+both for uniform approximation on $A$ and for approximation in its
+automorphism group. This disproves the approximation necessary clause,
+so the additional proposed optimal exponent cannot rescue the stated
+conjunction.
+
+\section{Actual finite-support and finite-index calculations}
+Every additive rational automorphism satisfies
+\[
+ f(x)=f(1)x.
+\]
+Indeed additive homomorphisms between rational vector spaces commute
+with rational scalar multiplication. If $f(1)\ne1$, then
+\[
+ (f-\mathrm{id})(x)=(f(1)-1)x
+\]
+is injective on the infinite set $\mathbf Q$; its image is therefore
+infinite. Hence condition 2 forces $f(1)=1$ and $f=\mathrm{id}$.
+Condition 1 implies condition 2 because the defect image is contained
+in zero together with the image of the finite moved-element set.
+
+\newpage
+For condition 3 define the genuine additive subgroup
+\[
+ F=\ker(f-\mathrm{id})=\{x\in\mathbf Q:f(x)=x\}.
+\]
+If $f$ fixes some finite-index subgroup $H$ pointwise, then $H\le F$,
+so $F$ has finite index as well. Conversely $F$ itself is such an $H$.
+This equivalence is proved using Mathlib's actual
+\texttt{AddSubgroup.FiniteIndex} and subgroup inclusion.
+
+Let $N=[\mathbf Q:F]$, a positive natural number when $F$ has finite
+index. The standard quotient-group calculation gives $Nx\in F$ for
+every $x\in\mathbf Q$. Therefore
+\[
+ Nf(x)=f(Nx)=Nx.
+\]
+The nonzero rational scalar $N$ cancels, giving $f(x)=x$ for every $x$.
+Lean checks this with the actual finite-index subgroup and
+\texttt{nsmul\_index\_mem}. It does not assume that a named
+``finitary'' predicate has already been proved trivial.
+The identity satisfies all three conditions, so their union is exactly
+the singleton $\{\mathrm{id}\}$. In particular the equivalence of
+conditions 2 and 3 on this group is also a formal theorem.
+
+\section{Any genuine metric fails to provide the claimed approximation}
+First let $d$ be any metric on $\mathbf Q$, with no compatibility
+assumption about its additive or field operations. Since $1\ne2$,
+\[
+ \varepsilon_0=d(1,2)>0.
+\]
+Every candidate $f$ in the union above equals the identity. At $x=1$,
+\[
+ d(f(1),D(1))=d(1,2)=\varepsilon_0.
+\]
+Consequently it is impossible to find a candidate with
+$d(f(x),D(x))<\varepsilon_0$ for all $x$. The closed Lean theorems
+negate the full universal approximation claim separately for literal
+finite support and for the standard finite-index subgroup condition.
+
+If the source instead places the metric directly on
+$\operatorname{Aut}(\mathbf Q,+)$, let
+$\varepsilon_1=d(\mathrm{id},D)>0$. Every candidate has distance
+exactly $\varepsilon_1$ from $D$, again preventing arbitrary
+approximation. This second interpretation is separately formalized.
+No formula for an undefined distance is inserted into either proof.
+More generally, for every $T_1$ topology on the actual automorphism
+group, the candidate set is the closed singleton $\{\mathrm{id}\}$,
+so $D$ is not in its closure. This separately proved topological
+obstruction also covers genuine extended metrics that may take the
+value infinity.
+
+This argument does not treat a nonseparating pseudometric as a metric.
+Nor does it identify finite rank relative to a chosen vector-space
+basis with finite support of group automorphisms. That different
+linear-algebra notion is not specified by the source and is not
+claimed to be refuted here.
+
+\section{Verification}
+Lean 4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d} are pinned.
+The package includes a new root build, twenty-two transitive axiom audits
+and full official \texttt{leanchecker --fresh Main} replay with
+source-bound commands, exit codes, logs and hashes. No \texttt{sorry},
+\texttt{native\_decide} or additional axiom is used. OpenAI Codex
+assisted; a separate supervising Codex agent reviewed the source,
+report and PDF. This is AI review, not human certification.
+Organizer acceptance is pending.
+\end{document}
