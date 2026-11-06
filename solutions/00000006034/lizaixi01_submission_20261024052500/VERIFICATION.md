@@ -1,0 +1,11 @@
+# Verification
+
+The exact frozen source passed all four checks with Lean4.33.0 and Mathlib db584cd6d46c92f209a44c0f1c829460d327499d: version, new root build, warning-as-error namespace audit and the official full fresh-kernel replay.
+
+The audit traversed the actual imported environment and called ordinary #print axioms for every one of its 162 TLMC6034 declarations, including generated auxiliaries. The 112 explicit declarations are included. Every printed axiom set contains only propext, Classical.choice and Quot.sound. Exact output-name equality and the final coverage count were independently checked. The auxiliary-name stability lint is disabled for the exhaustive audit.
+
+The original fresh replay took 386.1844 diagnostic WSL seconds. The complete execution job, result and all 83 sampling records are included. All 736 observed owned-thread masks are [0,2], and no owned process remained. These production observations are not controlled efficiency evidence.
+
+Both PDF pages were rendered at100dpi and inspected by the worker and the supervising AI. The supervising AI independently reviewed the full Lean source, report and scope. Main SHA256: `0c29b1b74dc38e2bb5c4e34ee319f76fdd3387848d7e97ceca1883f04dc0c3d9`. Every command, exit, log hash and source binding is retained.
+
+The mathematical objects are the native real C2 Lie group and connected symplectic plane, with its actual jointly smooth sign action. The constant continuous bilinear area form is alternating, nondegenerate and closed via actual Frechet derivatives. The actual manifold derivative of the orbit map defines the fundamental vector field, and the genuine zero moment map satisfies its differential identity and coadjoint equivariance. Native zero-level orbit quotients and native stabilizers define the occurring subgroup-conjugacy types; their actual finite range has cardinality2, while the genuine coadjoint quotient has cardinality1. Only the source's final count clause is disproved. The source does not require connected G or a proper moment map; no claim about these additional variants or the other unspecified quantities is made. Original bilingual source and initial/final eligibility receipts are included. Organizer acceptance remains pending.
