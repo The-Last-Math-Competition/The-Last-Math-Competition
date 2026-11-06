@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000001470
+
+**English.** Definition: The Lasserre hierarchy (an SDP hierarchy). Conjecture: Exact representation of general compact semialgebraic sets is achieved at level d* = ⌈deg/2⌉ + O(1) (a universal bound for finite convergence).
+
+**中文。** 定义：Lasserre 层级(SDP 层级)。猜想：一般紧半代数集的精确表示在层级 d* = ⌈deg/2⌉ + O(1) 达到(有限收敛的普适界)。
