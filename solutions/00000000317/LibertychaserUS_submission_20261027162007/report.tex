@@ -1,0 +1,388 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+\usepackage{listings}
+\usepackage{booktabs}
+\sloppy
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  breakatwhitespace=false,
+  columns=flexible,
+  keepspaces=true,
+  showstringspaces=false,
+  escapechar=@,
+  frame=single,
+  framesep=4pt,
+  xleftmargin=2pt,
+  xrightmargin=2pt,
+}
+
+\title{Disproof of Conjecture 00000000317\\[0.3em]\large The Last Math Competition}
+\author{Zhiyuan Zhang (GitHub: LibertychaserUS)}
+\date{2026-10-27}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture 00000000317 is false. It asserts a conjunction of two clauses about Freiman's
+constant $c_F$. The second clause, that the digit $1$ occurs exactly $8$ times among the first
+$20$ partial quotients of $c_F$, is refuted by an exact computation: the digit $1$ occurs exactly
+$5$ times among $a_0,\dots,a_{19}$, and exactly $6$ times under the shifted indexing
+$a_1,\dots,a_{20}$. Since the conjunction requires both clauses, it fails whatever the first
+clause says. The computation is formalised in Lean~4 with Mathlib in the file \texttt{Disproof.lean}.
+The first clause ($c_F \in L$ and $c_F \notin M$) is also false, as Section~3.3 explains, but the
+formal refutation does not need this.
+\end{abstract}
+
+\section{The conjecture as filed}
+
+The conjecture file states the following (English part; the Chinese part of the same file is a
+literal translation of this text and is not used here). The mathematical symbols are typeset in
+math mode; the wording is unchanged.
+
+\begin{quote}
+Definition: Freiman's constant $c_F$ is the largest value for which $(2\sqrt{2}, c_F) \cap M = \emptyset$.
+Conjecture: $c_F$ itself belongs to $L$ but not to $M$ (an endpoint asymmetry of the spectra),
+and among the first $20$ partial quotients of $c_F$ the digit $1$ appears exactly $8$ times.
+\end{quote}
+
+The conjecture is therefore a conjunction of two clauses:
+\begin{enumerate}
+\item[(i)] $c_F \in L$ and $c_F \notin M$;
+\item[(ii)] the digit $1$ occurs exactly $8$ times among the first $20$ partial quotients of $c_F$.
+\end{enumerate}
+Clause (ii) is false by exact computation (Section~3). Clause (i) is false as well (Section~3.3).
+Either one suffices to refute the conjunction; the Lean proof uses (ii).
+
+\section{Precise reading}
+
+\subsection{Freiman's constant}
+
+Let $L$ and $M$ be the Lagrange and Markov spectra (subsets of $\mathbb{R}$; see Cusick and
+Flahive~\cite{CF}). Freiman's constant is the number $c_F$ of the definition above. Freiman's 1975
+work~\cite{Fr} gives its closed form
+\[
+c_F \;=\; \frac{2221564096 + 283748\sqrt{462}}{491993569} \;\approx\; 4.5278295661.
+\]
+This closed form is taken as the definition of $c_F$ in the formal file. The spectral
+characterisation (the largest $c$ with $(2\sqrt{2}, c) \cap M = \emptyset$) is not reproved here.
+Since $\sqrt{462}$ is irrational and the coefficient $283748$ is nonzero, $c_F$ is irrational.
+
+\subsection{Regular continued fraction via the Gauss map}
+
+For real $x$ write $\{x\} = x - \lfloor x \rfloor$. Define the complete quotients and partial
+quotients by
+\[
+x_0 = x, \qquad x_{n+1} = \frac{1}{\{x_n\}}, \qquad a_n = \lfloor x_n \rfloor .
+\]
+For irrational $x$ this gives the regular continued fraction $x = [a_0; a_1, a_2, \dots]$. For
+$c_F$ we have $x_0 = c_F$ and $a_0 = 4$.
+
+\subsection{Indexing of ``the first 20 partial quotients''}
+
+The phrase admits three natural readings. The conjecture is refuted under all three.
+\begin{description}
+\item[(W1)] $a_0, \dots, a_{19}$: twenty terms counting the integer part $a_0$ as the first.
+\item[(W2)] $a_1, \dots, a_{20}$: twenty terms, with $a_0$ not counted as a partial quotient.
+\item[(W3)] $a_0, \dots, a_{20}$: twenty-one terms, included for completeness.
+\end{description}
+The primary reading is (W1). The Lean file proves (W1) and (W2) explicitly. Reading (W3) is not a separate theorem in the file; its count is $6$, since $a_0 = 4$ is not a $1$ and $a_{20} = 1$.
+
+\section{The computation}
+
+\subsection{Method}
+
+Every complete quotient is kept in the exact form $x_n = (p_n + r_n\sqrt{462})/s_n$ with integers
+$p_n, r_n$ and $s_n > 0$. Put $a = a_n = \lfloor x_n \rfloor$ and $q = \sqrt{462}$. Then
+\[
+x_{n+1} = \frac{1}{x_n - a} = \frac{s_n\bigl((p_n - a s_n) - r_n q\bigr)}{(p_n - a s_n)^2 - 462\, r_n^2}.
+\]
+Multiplying numerator and denominator by a common factor $g_n$ (chosen to cancel the gcd of the
+new integers) gives the next triple $(p_{n+1}, r_{n+1}, s_{n+1})$, with $s_{n+1} > 0$. The
+starting triple is $(p_0, r_0, s_0) = (2221564096,\ 283748,\ 491993569)$.
+
+Each floor is certified by an inequality: for $s > 0$, $\lfloor (p + r q)/s \rfloor = a$ holds
+iff $as \le p + rq < (a+1)s$. The bounds used are
+\[
+\frac{21494185260204}{10^{12}} < \sqrt{462} < \frac{21494185260205}{10^{12}},
+\]
+which hold because $21494185260204^2 < 462 \cdot 10^{24} < 21494185260205^2$. The script
+\texttt{check.py} verifies that these bounds imply every one of the 21 floor inequalities.
+
+\subsection{Result}
+
+Table~\ref{tab:states} lists the 21 complete quotients $x_0, \dots, x_{20}$ with their integer
+triples and partial quotients, as produced by \texttt{check.py}. The last column is a
+floating-point approximation for orientation only; the proof uses only the exact triples.
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{rrrrrl}
+\toprule
+$n$ & $p_n$ & $r_n$ & $s_n$ & $a_n$ & $x_n$ (approx.) \\
+\midrule
+0 & $2221564096$ & $283748$ & $491993569$ & $4$ & $4.5278295662$ \\
+1 & $63397455$ & $-70937$ & $32658252$ & $1$ & $1.8945509386$ \\
+2 & $122956812$ & $283748$ & $115446937$ & $1$ & $1.1178793256$ \\
+3 & $7509875$ & $-283748$ & $166321$ & $8$ & $8.4832517889$ \\
+4 & $6179307$ & $283748$ & $5933481$ & $2$ & $2.0693146366$ \\
+5 & $5687655$ & $283748$ & $816983$ & $14$ & $14.4269673656$ \\
+6 & $5750107$ & $283748$ & $5059153$ & $2$ & $2.3420993750$ \\
+7 & $4368199$ & $283748$ & $3580799$ & $2$ & $2.9231272348$ \\
+8 & $2793399$ & $283748$ & $8208753$ & $1$ & $1.0832742902$ \\
+9 & $2707677$ & $141874$ & $479422$ & $12$ & $12.0085082445$ \\
+10 & $6090774$ & $283748$ & $103713$ & $117$ & $117.5330583361$ \\
+11 & $6043647$ & $283748$ & $6472703$ & $1$ & $1.8759672859$ \\
+12 & $107264$ & $70937$ & $1429576$ & $1$ & $1.1415951442$ \\
+13 & $5289248$ & $283748$ & $1612511$ & $7$ & $7.0623890809$ \\
+14 & $5998329$ & $283748$ & $754737$ & $16$ & $16.0284457754$ \\
+15 & $6077463$ & $283748$ & $346367$ & $35$ & $35.1546050265$ \\
+16 & $3022691$ & $141874$ & $938786$ & $6$ & $6.4680950074$ \\
+17 & $5220050$ & $283748$ & $5298359$ & $2$ & $2.1363184486$ \\
+18 & $1344167$ & $70937$ & $391084$ & $7$ & $7.3357642343$ \\
+19 & $5573684$ & $283748$ & $3919247$ & $2$ & $2.9782802868$ \\
+20 & $1132405$ & $141874$ & $4091042$ & $1$ & $1.0222019328$ \\
+\bottomrule
+\end{tabular}
+\caption{Complete quotients $x_n = (p_n + r_n\sqrt{462})/s_n$ and partial quotients $a_n = \lfloor x_n \rfloor$ of $c_F$, $0 \le n \le 20$.}
+\label{tab:states}
+\end{table}
+
+The partial quotients are
+\[
+a_0, \dots, a_{20} = 4,\ 1,\ 1,\ 8,\ 2,\ 14,\ 2,\ 2,\ 1,\ 12,\ 117,\ 1,\ 1,\ 7,\ 16,\ 35,\ 6,\ 2,\ 7,\ 2,\ 1 .
+\]
+The digit $1$ occurs at indices $n = 1, 2, 8, 11, 12$ among $a_0, \dots, a_{19}$, and additionally at $n = 20$ for the shifted reading. Therefore:
+\begin{itemize}
+\item (W1) $a_0, \dots, a_{19}$: the digit $1$ occurs \textbf{5} times;
+\item (W2) $a_1, \dots, a_{20}$: the digit $1$ occurs \textbf{6} times;
+\item (W3) $a_0, \dots, a_{20}$: the digit $1$ occurs \textbf{6} times.
+\end{itemize}
+In no reading does the digit $1$ occur $8$ times, so clause (ii) is false.
+
+As an independent check, \texttt{check.py} compares the 21 quotients with SymPy's
+\texttt{continued\_fraction\_iterator} applied to the closed form and finds exact agreement.
+For orientation only, the same SymPy run gives $a_{21} = 45$, $a_{22} = 24$, $a_{23} = 3$; these
+values are not used in the disproof.
+
+\subsection{Clause (i) is also false}
+
+The first clause, $c_F \in L$ and $c_F \notin M$, is false by the classical inclusion
+$L \subseteq M$ (Cusick and Flahive~\cite{CF}): $c_F \in L$ would force $c_F \in M$. An independent
+argument uses only that $M$ is closed and that $c_F$ is maximal. If $c_F \notin M$, closedness
+gives $\varepsilon > 0$ with $(c_F - \varepsilon, c_F + \varepsilon) \cap M = \emptyset$, hence
+$(2\sqrt{2}, c_F + \varepsilon) \cap M = \emptyset$, contradicting the maximality of $c_F$. So
+$c_F \in M$. This clause is not formalised in Lean; the main theorem treats it as an arbitrary
+proposition.
+
+\section{Lean formalisation}
+
+The file \texttt{Disproof.lean} lives in the submission folder and uses namespace
+\texttt{Freiman}. It was checked with Lean 4.33.1 and Mathlib v4.33.1. The listings below are copied from the file;
+Unicode symbols are rendered in math mode by the listing escape, and proofs are omitted where
+noted. The compile record is in \texttt{MAPPING.md} in the submission folder.
+
+\subsection{Definitions}
+
+\begin{lstlisting}
+/-- Freiman's constant `c_F`, the right end point of the maximal gap `(2@$\surd$@2, c_F)` of the
+Markov spectrum, in its standard closed form (Freiman 1975):
+`c_F = (2221564096 + 283748@$\cdot$@@$\surd$@462) / 491993569 @$\approx$@ 4.5278295661...`. -/
+noncomputable def freimanConstant : @$\mathbb{R}$@ :=
+  (2221564096 + 283748 * Real.sqrt 462) / 491993569
+
+/-- The Gauss-map orbit of a real number `x`: `cfState x 0 = x` and
+`cfState x (n+1) = 1 / fract (cfState x n)`. This is the standard recursion producing the
+regular continued fraction of `x`: `cfState x n` is the `n`-th complete quotient. -/
+noncomputable def cfState (x : @$\mathbb{R}$@) : @$\mathbb{N}$@ @$\to$@ @$\mathbb{R}$@
+  | 0 => x
+  | n + 1 => 1 / Int.fract (cfState x n)
+
+/-- The `n`-th partial quotient `a_n` of the regular continued fraction
+`x = [a_0; a_1, a_2, ...]`, defined as the integer part of the `n`-th complete quotient. -/
+noncomputable def pq (x : @$\mathbb{R}$@) (n : @$\mathbb{N}$@) : @$\mathbb{Z}$@ := @$\lfloor$@cfState x n@$\rfloor$@
+\end{lstlisting}
+
+\subsection{Rational bracketing of $\sqrt{462}$}
+
+The two bounds are proved with \texttt{Real.lt\_sqrt} and \texttt{Real.sqrt\_lt'} and
+\texttt{norm\_num}. The bounds correspond to the integer inequalities in Section~3.1, scaled by $10^{12}$.
+
+\begin{lstlisting}
+theorem sq_sqrt462 : Real.sqrt 462 ^ 2 = 462 := Real.sq_sqrt (by norm_num)
+
+theorem sqrt462_gt : (5373546315051 : @$\mathbb{R}$@) / 250000000000 < Real.sqrt 462 :=
+  (Real.lt_sqrt (by norm_num)).2 (by norm_num)
+
+theorem sqrt462_lt : Real.sqrt 462 < (4298837052041 : @$\mathbb{R}$@) / 200000000000 :=
+  (Real.sqrt_lt' (by norm_num)).2 (by norm_num)
+\end{lstlisting}
+
+\subsection{Generic step lemmas}
+
+\texttt{floor\_of\_bounds} turns an inequality $as \le p + rq < (a+1)s$ into a floor identity. The
+lemma \texttt{gauss\_step} performs one Gauss-map step on triples of the form $(p + r\sqrt{462})/s$.
+Its proof rationalises $1/(x - a)$ and cancels the factor $g$; it uses \texttt{field\_simp},
+\texttt{div\_eq\_div\_iff} and \texttt{linear\_combination} (see the file for the tactic script).
+
+\begin{lstlisting}
+/-- Floor of a number of the form `(p + r@$\surd$@462)/s`, given rational bracketing. -/
+theorem floor_of_bounds (p r s : @$\mathbb{R}$@) (a : @$\mathbb{Z}$@) (hs : 0 < s)
+    (h@$_1$@ : (a : @$\mathbb{R}$@) * s @$\le$@ p + r * Real.sqrt 462)
+    (h@$_2$@ : p + r * Real.sqrt 462 < ((a : @$\mathbb{R}$@) + 1) * s) :
+    @$\lfloor$@(p + r * Real.sqrt 462) / s@$\rfloor$@ = a := by
+  rw [Int.floor_eq_iff, le_div_iff@$_0$@ hs, div_lt_iff@$_0$@ hs]
+  exact @$\langle$@h@$_1$@, h@$_2$@@$\rangle$@
+
+/-- One Gauss-map step. If the `n`-th complete quotient is `(p + r@$\surd$@462)/s` with integer part
+`a`, then the next one is `(P + R@$\surd$@462)/S`, where `g@$\cdot$@P = s(p - a s)`, `g@$\cdot$@R = -s r`,
+`g@$\cdot$@S = (p - a s)@$^2$@ - 462 r@$^2$@` for some non-zero common factor `g` (used to cancel a gcd). -/
+theorem gauss_step (x : @$\mathbb{R}$@) (n : @$\mathbb{N}$@) (p r s P R S g : @$\mathbb{R}$@) (a : @$\mathbb{Z}$@)
+    (hx : cfState x n = (p + r * Real.sqrt 462) / s) (hs : s @$\ne$@ 0)
+    (ha : @$\lfloor$@cfState x n@$\rfloor$@ = a) (hg : g @$\ne$@ 0) (hS : S @$\ne$@ 0)
+    (hP : g * P = s * (p - a * s)) (hR : g * R = -(s * r))
+    (hSS : g * S = (p - a * s) ^ 2 - 462 * r ^ 2) :
+    cfState x (n + 1) = (P + R * Real.sqrt 462) / S := by
+\end{lstlisting}
+
+\subsection{The orbit of $c_F$}
+
+The file contains \texttt{state\_0}, \ldots, \texttt{state\_20} and \texttt{pq\_0}, \ldots,
+\texttt{pq\_20}. Each \texttt{state\_(n+1)} is an instance of \texttt{gauss\_step}, with the data
+$(p_n, r_n, s_n)$ of Table~\ref{tab:states}, the cancellation factor $g_n$, and the new triple
+$(p_{n+1}, r_{n+1}, s_{n+1})$. Each \texttt{pq\_n} is proved by \texttt{floor\_of\_bounds} with
+the two side goals closed by \texttt{linarith} from the bracketing lemmas. Three representative
+declarations are shown:
+
+\begin{lstlisting}
+theorem state_0 : cfState freimanConstant 0 = (2221564096 + 283748 * Real.sqrt 462) / 491993569 := rfl
+
+theorem pq_0 : pq freimanConstant 0 = 4 := by
+  unfold pq
+  rw [state_0]
+  have hL := sqrt462_gt
+  have hU := sqrt462_lt
+  exact floor_of_bounds _ _ _ _ (by norm_num) (by push_cast; linarith) (by push_cast; linarith)
+
+theorem state_1 : cfState freimanConstant 1 = (63397455 + (-70937) * Real.sqrt 462) / 32658252 :=
+  gauss_step freimanConstant 0 _ _ _ _ _ _ 1967974276 _ state_0 (by norm_num) pq_0
+    (by norm_num) (by norm_num) (by norm_num) (by norm_num) (by norm_num)
+\end{lstlisting}
+
+\subsection{Counting the digit 1}
+
+\begin{lstlisting}
+/-- Among the first 20 partial quotients `a_0, ..., a_19` of Freiman's constant, the digit 1
+occurs exactly 5 times (at indices 1, 2, 8, 11, 12). -/
+theorem count_ones_first20 :
+    ((Finset.range 20).filter (fun n => pq freimanConstant n = 1)).card = 5 := by
+  simp only [Finset.card_filter, Finset.sum_range_succ, Finset.sum_range_zero,
+    pq_0, pq_1, pq_2, pq_3, pq_4, pq_5, pq_6, pq_7, pq_8, pq_9, pq_10, pq_11, pq_12, pq_13, pq_14, pq_15, pq_16, pq_17, pq_18, pq_19]
+  norm_num
+
+/-- Variant indexing: among `a_1, ..., a_20` the digit 1 occurs exactly 6 times. -/
+theorem count_ones_1_to_20 :
+    ((Finset.range 20).filter (fun n => pq freimanConstant (n + 1) = 1)).card = 6 := by
+  simp only [Finset.card_filter, Finset.sum_range_succ, Finset.sum_range_zero]
+  norm_num [pq_1, pq_2, pq_3, pq_4, pq_5, pq_6, pq_7, pq_8, pq_9, pq_10, pq_11, pq_12, pq_13, pq_14, pq_15, pq_16, pq_17, pq_18, pq_19, pq_20]
+\end{lstlisting}
+
+\subsection{Main theorems}
+
+The first clause is abstracted as an arbitrary proposition \texttt{InLNotM}. Both theorems hold
+for every such proposition, so the refutation does not depend on how clause (i) would be formalised.
+
+\begin{lstlisting}
+/-- **Conjecture 00000000317 is false.** The first clause ("`c_F @$\in$@ L` and `c_F @$\notin$@ M`") is
+abstracted as an arbitrary proposition `InLNotM`: the refutation of the conjunction does not
+depend on it, because the second clause ("the digit 1 appears exactly 8 times among the first
+20 partial quotients of `c_F`") is false -- the digit 1 appears exactly 5 times. -/
+theorem conjecture_00000000317_fails (InLNotM : Prop) :
+    @$\lnot$@ (InLNotM @$\land$@ ((Finset.range 20).filter (fun n => pq freimanConstant n = 1)).card = 8) := by
+  rintro @$\langle$@-, h@$\rangle$@
+  rw [count_ones_first20] at h
+  norm_num at h
+
+/-- Same conclusion if "the first 20 partial quotients" is read as `a_1, ..., a_20`
+(the digit 1 then appears exactly 6 times, still not 8). -/
+theorem conjecture_00000000317_fails' (InLNotM : Prop) :
+    @$\lnot$@ (InLNotM @$\land$@ ((Finset.range 20).filter (fun n => pq freimanConstant (n + 1) = 1)).card = 8) := by
+  rintro @$\langle$@-, h@$\rangle$@
+  rw [count_ones_1_to_20] at h
+  norm_num at h
+\end{lstlisting}
+
+\subsection{Clause-by-clause mapping}
+
+\begin{table}[h]
+\centering
+\small
+{\footnotesize
+\begin{tabular}{p{2.9cm}p{4.3cm}p{4.2cm}}
+\toprule
+Clause & Lean object & Status \\
+\midrule
+Freiman's constant $c_F$ & \texttt{freimanConstant} (closed form as definition) & The spectral characterisation is not formalised. \\
+Partial quotients of $c_F$ & \texttt{cfState}, \texttt{pq} (Gauss-map recursion) & Self-contained; not via Mathlib's continued fraction API. \\
+First 20 partial quotients, reading (W1) & \texttt{Finset.range 20} with \texttt{pq freimanConstant n} & Count $5$: \texttt{count\_ones\_first20}. \\
+First 20 partial quotients, reading (W2) & \texttt{Finset.range 20} with \texttt{pq freimanConstant (n + 1)} & Count $6$: \texttt{count\_ones\_1\_to\_20}. \\
+Digit 1 occurs exactly 8 times & \texttt{card} of the filter $= 8$ & Refuted by the two counts above. \\
+$c_F \in L$ and $c_F \notin M$ & Abstract \texttt{InLNotM : Prop} & Not formalised; mathematically false (Section~3.3). \\
+Conjunction & \texttt{conjecture\_00000000317\_fails} & Main theorem, reading (W1). \\
+Conjunction, shifted reading & \texttt{conjecture\_00000000317\_fails'} & Variant theorem, reading (W2). \\
+\bottomrule
+\end{tabular}}
+\caption{Correspondence between the conjecture and the Lean declarations in \texttt{Disproof.lean}.}
+\end{table}
+
+\subsection{Axioms}
+
+The four \texttt{\#print axioms} commands in the file report, for each of
+\texttt{count\_ones\_first20}, \texttt{count\_ones\_1\_to\_20},
+\texttt{conjecture\_00000000317\_fails} and \texttt{conjecture\_00000000317\_fails'}, the axioms
+\texttt{[propext, Classical.choice, Quot.sound]}. No use of \texttt{sorryAx} is involved.
+
+\begin{lstlisting}
+#print axioms Freiman.count_ones_first20
+#print axioms Freiman.count_ones_1_to_20
+#print axioms Freiman.conjecture_00000000317_fails
+#print axioms Freiman.conjecture_00000000317_fails'
+\end{lstlisting}
+
+\section{Reproduction}
+
+All commands are run from the submission folder.
+
+\begin{enumerate}
+\item Lean check (requires the Lean toolchain and the Mathlib cache):
+\begin{lstlisting}
+cd lean && lake exe cache get && lake build
+\end{lstlisting}
+Expected: the build finishes with no errors, and the \texttt{\#print axioms} lines show only
+\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound}.
+
+\item Exact computation (requires \texttt{sympy}):
+\begin{lstlisting}
+python3 check.py
+\end{lstlisting}
+Expected output: the partial quotients $4, 1, 1, 8, 2, 14, 2, 2, 1, 12, 117, 1, 1, 7, 16, 35, 6, 2, 7, 2, 1$,
+the counts $5$ (for $a_0, \dots, a_{19}$) and $6$ (for $a_1, \dots, a_{20}$), and the SymPy agreement
+line. Note that \texttt{check.py} also regenerates \texttt{Disproof.lean}.
+
+\item Build this report:
+\begin{lstlisting}
+tectonic report.tex
+\end{lstlisting}
+\end{enumerate}
+
+\begin{thebibliography}{9}
+\bibitem{Fr} G. A. Freiman, \emph{Diophantine Approximation and the Geometry of Numbers (Markov's Spectrum)}, Kalinin State University, 1975.
+\bibitem{CF} T. W. Cusick and M. E. Flahive, \emph{The Markoff and Lagrange Spectra}, Mathematical Surveys and Monographs 30, American Mathematical Society, 1989.
+\end{thebibliography}
+
+\end{document}
