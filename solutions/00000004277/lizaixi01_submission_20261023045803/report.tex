@@ -1,0 +1,128 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000004277: an uncountable maximal type chain}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{The necessary order-type clause}
+The conjecture asserts, in particular, that every maximal chain of the
+type lattice has order type $\omega+\omega^*$. This is a countable
+order. We construct a genuine uncountable chain in the full standard
+height-type lattice, extend it to a maximal chain, and prove that this
+maximal chain cannot be order-isomorphic to that printed order.
+Refuting this universal necessary clause refutes the conjunction.
+We make no claim that the separate number of all maximal chains
+differs from the continuum.
+
+Here ``types'' means the classical height types of torsion-free
+abelian-group theory. Bunina's fixed arXiv version~\cite[Section 3.3,
+pp.~4--5]{Bunina} recalls their precise quotient, order and coordinate
+operations; she calls them \emph{h-types} to distinguish them from
+complete first-order logical types. We formalize this standard
+combinatorial type lattice itself. We do not claim to formalize the
+separate classification of rank-one groups by types.
+
+\section{The full standard quotient and its order}
+Let $\mathcal P$ be the actual set of natural primes and put
+\[
+ \mathcal C=(\mathbb N\cup\{\infty\})^{\mathcal P}.
+\]
+Lean uses all such characteristics, not only the special zero/infinity
+ones used later. The standard equivalence is
+\[
+ a\sim b\quad\Longleftrightarrow\quad
+ \{p:a_p\ne b_p\}\text{ is finite and }
+ (a_p=\infty\iff b_p=\infty)\text{ for every }p.
+\]
+Thus changes are permitted only at finitely many \emph{finite}
+coordinates. A single changed infinity coordinate already prevents
+equivalence; this is not equality modulo arbitrary finite changes.
+
+To implement the quotient, define a preorder
+\[
+ a\preceq b\quad\Longleftrightarrow\quad
+ (a_p=\infty\Rightarrow b_p=\infty\text{ for all }p)
+ \quad\text{and}\quad \{p:a_p>b_p\}\text{ is finite}.
+\]
+Lean proves reflexivity and transitivity, and proves that comparison
+in both directions is exactly $\sim$. Its actual
+\texttt{Antisymmetrization} is therefore the full type quotient.
+The theorem \texttt{standard\_order} proves the exact standard bridge
+\[
+ [a]\le[b]\iff
+ \exists a'\sim a,\ b'\sim b\quad\forall p,\ a'_p\le b'_p.
+\]
+For the forward implication take $a'_p=\min(a_p,b_p)$ and $b'=b$.
+Only the finite bad set is changed, and the infinity guard ensures
+that all changed entries are finite. The converse follows from
+transitivity and the two equivalences.
+
+\newpage
+\section{Actual meet and join}
+We establish a genuine \texttt{Lattice} instance on the quotient.
+Its laws follow from finite unions of the bad-coordinate sets and
+the infinity guards. The separately verified compatibility formulas
+are
+\[
+ [a]\wedge[b]=[\,p\mapsto\min(a_p,b_p)\,],\qquad
+ [a]\vee[b]=[\,p\mapsto\max(a_p,b_p)\,].
+\]
+Consequently the partial order and the operations used in the proof
+are those of the standard type lattice. The proof does not replace
+the full lattice by an unrelated collection of subsets.
+
+\section{Real cuts give an uncountable chain}
+Both the primes and the rationals are countably infinite. Choose a
+genuine bijection $e:\mathcal P\longrightarrow\mathbb Q$. For each
+real number $x$ define the full characteristic
+\[
+ c(x)_p=\begin{cases}
+ \infty,&e(p)<x,\\
+ 0,&e(p)\ge x.
+ \end{cases}
+\]
+If $x\le y$, then $c(x)\le c(y)$ coordinatewise, hence
+$[c(x)]\le[c(y)]$ in the actual quotient order. If $x<y$, rational
+density supplies $q$ with $x<q<y$. At $p=e^{-1}(q)$ the two
+characteristics have values zero and infinity. Their infinity
+patterns differ, so they are not equivalent. Lean proves that
+$x\mapsto[c(x)]$ is injective and monotone.
+
+Its actual range $C$ is therefore a chain. If $C$ were countable,
+this injection into the range subtype would make $\mathbb R$
+countable, a contradiction. Thus $C$ is uncountable.
+
+\section{A maximal chain with a different order type}
+Apply Mathlib's Zorn-lemma theorem
+\texttt{IsChain.exists\_maxChain} to this actual chain. It produces
+an actual set $M$ of height types with
+\[
+ \operatorname{IsMaxChain}(\le,M),\qquad C\subseteq M.
+\]
+Since $C$ is uncountable, so is $M$. The printed order is encoded as
+the actual ordered sum $\mathbb N\mathbin{\oplus_{\rm lex}}\mathbb N^{\rm op}$,
+whose underlying set is countable. Any actual order isomorphism
+$M\simeq_o\mathbb N\mathbin{\oplus_{\rm lex}}\mathbb N^{\rm op}$
+would therefore make $M$ countable. Lean proves its nonexistence,
+and explicitly negates the universal order-type clause.
+
+\section{Verification}
+Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+are pinned. The package includes a new root build, transitive axiom
+audits for all 22 theorems and the three proof-bearing instances,
+and full official \texttt{leanchecker --fresh Main} replay.
+No \texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted; a separate supervising Codex agent reviewed
+source, report and PDF. This is AI review, not human certification.
+Organizer acceptance is pending.
+\begin{thebibliography}{1}
+\bibitem{Bunina} E.~Bunina, \emph{Types in torsion free Abelian groups},
+arXiv:2409.07728v1 (2024), Section~3.3, pp.~4--5.
+\url{https://arxiv.org/pdf/2409.07728v1}.
+\end{thebibliography}
+\end{document}
