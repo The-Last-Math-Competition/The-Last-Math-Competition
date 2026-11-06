@@ -1,0 +1,181 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\cb}{\mathrm{cb}}
+\title{Transposition violates the proposed three-qubit cb ratio\\
+\large Disproof of Conjecture 00000000998}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The observable algebra of three qubits is $M_8(\mathbb C)$.
+Its transpose map $\tau$ has ordinary induced norm one,
+while its completely bounded norm is at least eight.
+We give an explicit matrix amplification witnessing this
+bound and a uniform upper bound of $64$, ensuring that
+the cb norm is a genuine finite supremum. Thus $\sqrt2$
+is not even an upper bound for the stated ratios.
+Lean verifies actual Euclidean operator norms, all
+amplification sizes and the concrete witness.
+\end{abstract}
+
+\section*{The norms and an actual completely bounded map}
+Equip $M_8(\mathbb C)=B(\mathbb C^8)$ with the matrix
+operator norm induced by the Euclidean norm. For a
+complex-linear map $T:M_8\to M_8$, its ordinary norm is
+\[
+ \|T\|=\sup_{A\ne0}\frac{\|T(A)\|}{\|A\|}.
+\]
+Its amplification $T^{(k)}=\operatorname{id}_{M_k}\otimes T$
+acts on each $8$ by $8$ block of $M_{8k}(\mathbb C)$.
+All amplified matrix norms are also Euclidean operator
+norms. The completely bounded norm is
+\[
+ \|T\|_{\cb}=\sup_{k\geq1}\|T^{(k)}\|
+ =\sup_{k\geq1,\ X\ne0}\frac{\|T^{(k)}(X)\|}{\|X\|}.
+\]
+These are the usual operator-space definitions
+\cite[p.~22]{paulsen}. The source imposes no restriction
+to completely positive maps.
+
+Consider $\tau(A)=A^{\mathsf T}$. Transposition preserves
+the matrix operator norm: if $J$ denotes coordinatewise
+complex conjugation, then $A^{\mathsf T}=JA^*J$, and $J$
+is a conjugate-linear isometry. Hence $\|\tau\|=1$.
+
+Let $E_{ij}$ be the matrix units, $1\leq i,j\leq8$.
+For every $k$ and every $X\in M_{8k}$, put
+$B_{ij}=I_k\otimes E_{ij}$. Direct multiplication gives
+\[
+ \tau^{(k)}(X)=\sum_{i,j=1}^{8}B_{ij}XB_{ij},
+ \qquad \|B_{ij}\|\leq1.
+\]
+The factors on the two sides are the same matrix unit.
+The triangle inequality and submultiplicativity imply
+\[
+ \|\tau^{(k)}(X)\|\leq64\|X\|\quad\text{for every }k,X.
+\]
+Thus $\tau$ is completely bounded and $\|\tau\|_{\cb}\leq64$.
+This rough bound suffices; no sharp upper bound is needed.
+
+\newpage
+\section*{A concrete amplification with norm at least eight}
+Index $\mathbb C^{64}$ by pairs $(a,b)\in\{1,\ldots,8\}^2$.
+Define the swap matrix and diagonal vector by
+\[
+ F_{(a,b),(c,d)}=\delta_{a,d}\delta_{b,c},\qquad
+ \Omega_{(a,b)}=\delta_{a,b}.
+\]
+The matrix $F$ interchanges the two tensor factors.
+It satisfies $F^*=F$ and $F^2=I_{64}$, so $\|F\|=1$.
+Also $\Omega\ne0$ and $\|\Omega\|^2=8$.
+
+Applying transposition within each block gives
+\[
+ Q:=\tau^{(8)}(F),\qquad
+ Q_{(a,b),(c,d)}=\delta_{a,b}\delta_{c,d}.
+\]
+In particular $Q=\Omega\Omega^*$ and $Q\Omega=8\Omega$.
+The operator norm inequality on this nonzero vector yields
+\[
+ 8\|\Omega\|=\|Q\Omega\|\leq\|Q\|\|\Omega\|,
+ \qquad \|Q\|\geq8.
+\]
+Consequently
+\[
+ \frac{\|\tau\|_{\cb}}{\|\tau\|}
+ =\|\tau\|_{\cb}\geq\frac{\|\tau^{(8)}(F)\|}{\|F\|}
+ \geq8>\sqrt2.
+\]
+
+\begin{theorem}
+Over the three-qubit observable algebra, $\sqrt2$ is not
+an upper bound for the cb-norm to ordinary-norm ratios
+of nonzero completely bounded complex-linear maps.
+In particular it is not their supremum.
+\end{theorem}
+\begin{proof}
+The map $\tau$ is admissible: its ordinary norm is one
+and its cb norm is finite. Its ratio is at least eight,
+strictly larger than the claimed value. A supremum must
+be an upper bound, so the conjecture is false.
+\end{proof}
+
+This is a standard transpose-amplification phenomenon,
+not a novelty claim. The disproof needs only the certified
+bounds $8\leq\|\tau\|_{\cb}\leq64$ and $\|\tau\|=1$.
+It does not claim to formalize the sharp value of the
+global supremum or the sharp cb norm of transposition.
+The opposite algebra used in the ordinary-norm argument
+does not change the target operator-space structure of
+the amplified map: every amplification above acts into
+the original $M_{8k}(\mathbb C)$.
+
+\newpage
+\section*{Formalization and reproducibility}
+The type \texttt{Obs} is the actual complex matrix algebra
+on \texttt{Fin 8}.
+
+The active Mathlib
+\texttt{Matrix.L2OpNorm} structure is the operator norm
+from the associated Euclidean continuous linear map.
+The map \texttt{transposeMap} is a genuine complex
+continuous linear map. Its ordinary norm-one theorem
+uses transposition as a star-algebra equivalence to the
+opposite algebra solely to prove its level-one isometry.
+
+The function \texttt{amplify} explicitly applies that map
+to each block, using matrix indices
+\texttt{Fin k} times \texttt{Fin 8}. The all-$k$ bound
+is proved by the matrix-unit identity above. The swap,
+its unitarity, the nonzero Euclidean vector $\Omega$ and
+the actual matrix-vector eigen-equation are checked in
+Lean. They prove the lower bound using the actual
+Euclidean matrix operator norm.
+
+The definition \texttt{cbNorm} is the supremum of all
+amplification norm ratios. The zero input and the
+zero-dimensional amplification contribute only zero.
+The witness makes the set nonempty and the $64$ bound
+makes it bounded above, so no empty-set or unbounded-set
+default value is used. The set \texttt{cbRatios} includes
+only nonzero maps with bounded amplification ratios.
+The theorem \texttt{not\_claimed\_supremum} directly
+negates an \texttt{IsLUB} certificate at $\sqrt2$;
+the stronger theorem \texttt{not\_upperBound} also holds.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From the submitted \texttt{lean/} directory:
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The complete project is freshly built and the strict
+check treats warnings as errors. The axiom audit contains
+only standard foundational axioms. No proof placeholders,
+custom axioms or external computation oracles are used.
+
+The supplementary \texttt{verify.py} checks the swap and
+rank-one identities exactly with integer arithmetic for
+the matrix algebras $M_2$ and $M_8$. It does not estimate norms
+numerically or supply a Lean oracle. Run
+\texttt{python verify.py} and \texttt{tectonic main.tex}.
+The exact source, provenance, build logs and artifact
+hashes are included. An author agent supplied a self-review;
+the parent separately reviewed the complete proof and
+final artifacts. No external independent review is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition, Conjecture
+00000000998. Exact bilingual source and provenance included.
+\bibitem{paulsen} V. I. Paulsen, \emph{Operator Algebra
+Methods in QIT}, Winter 2020, p.~22.
+\href{https://www.math.uwaterloo.ca/~vpaulsen/OpAlgQIT.pdf}{Author-hosted lecture notes}.
+The standard definitions and transpose example are background;
+all estimates used here are proved explicitly above.
+\end{thebibliography}
+\end{document}
