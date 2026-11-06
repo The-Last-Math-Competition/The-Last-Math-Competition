@@ -1,0 +1,152 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{listings}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  columns=flexible,
+  keepspaces=true
+}
+
+\title{Conjecture 00000001559: the six-disk covering radius of the unit disk\\
+\large Disproof of the stated value of $r_6$}
+\author{Zhiyuan Zhang (GitHub: LibertychaserUS)}
+\date{2026-10-27}
+
+\begin{document}
+\maketitle
+
+\section{The conjecture as filed}
+
+The statement, quoted in English from the filing (symbols typeset in math mode, wording unchanged):
+
+\begin{quote}
+Definition: The $n$-disk covering radius $r_n$ of the unit disk is the minimal radius of $n$ equal disks covering it. Conjecture: $r_6$ is an explicit quadratic algebraic number of the $(1+\sqrt{3})/2\cdot(\sqrt{3}-1)$ type, realized by one central disk and five symmetric annular disks; and $r_7$ is a cubic algebraic number.
+\end{quote}
+
+\section{Precise reading}
+
+Let $D=\{p\in\mathbb{R}^2 : |p|\le 1\}$ be the closed unit disk and $B(c,r)=\{p : |p-c|\le r\}$ the closed disk of radius $r$ centred at $c$. The covering radius used is
+\begin{equation}
+  r_n \;=\; \inf\Bigl\{\, r\ge 0 \;:\; \exists\, c_1,\dots,c_n\in\mathbb{R}^2,\ D\subseteq \textstyle\bigcup_{i=1}^n B(c_i,r)\,\Bigr\}.
+\end{equation}
+Centres are unrestricted. Repetitions are allowed in the main reading. The infimum is attained by compactness, so it is a minimum. The disproof also holds when the $n$ centres must be pairwise distinct (see Section~\ref{sec:lean}).
+
+The clause ``$r_6$ is of the $(1+\sqrt{3})/2\cdot(\sqrt{3}-1)$ type'' is read as the equality
+\[
+  r_6 \;=\; \frac{1+\sqrt{3}}{2}\,(\sqrt{3}-1).
+\]
+The right-hand side is exactly $1$, because $(1+\sqrt3)(\sqrt3-1)=3-1=2$. The literal claim is therefore $r_6=1$. The expression is rational, so it is not a quadratic irrational as the text describes.
+
+\section{Counterexample and verification}
+
+\subsection{The certificate}
+
+Let $c_1=(\tfrac12,\tfrac12)$, $c_2=(-\tfrac12,\tfrac12)$, $c_3=(-\tfrac12,-\tfrac12)$, $c_4=(\tfrac12,-\tfrac12)$, and take six disks: these four, with $c_1$ and $c_3$ repeated. Let $p=(x,y)\in D$. Choose the corner $c=(\operatorname{sgn}(x)/2,\operatorname{sgn}(y)/2)$. Expanding gives
+\begin{equation}\label{eq:identity}
+  |p-c|^2 \;=\; x^2+y^2-|x|-|y|+\tfrac12 .
+\end{equation}
+Since $x^2+y^2\le 1$ we have $|x|\le 1$, so $x^2\le |x|$. Likewise $y^2\le |y|$. Hence $x^2+y^2-|x|-|y|\le 0$, and therefore $|p-c|^2\le \tfrac12$. Every point of $D$ is within distance $1/\sqrt2$ of one of the six centres, which gives
+\[
+  r_6 \;\le\; \frac{1}{\sqrt 2} \;<\; 1 .
+\]
+This contradicts the claimed value $r_6 = 1$.
+
+\subsection{Computed values}
+
+The script \texttt{check.py} (sympy 1.14.0, numpy 2.5.4) gives the following. The full output is in \texttt{check\_output.txt}.
+
+{\small\begin{center}
+\begin{tabular}{@{}lll@{}}
+\hline
+Part & Quantity & Value \\
+\hline
+A & claimed expression $(1+\sqrt3)/2\cdot(\sqrt3-1)$, exact (sympy) & $1$ \\
+B & corner certificate, polar-grid maximum distance & $0.70710678 \le 1/\sqrt2$ \\
+B & exact rational identity (\ref{eq:identity}), 15\,696 points in $D$ & holds; $d^2\le\tfrac12$ \\
+B & largest exact $d^2$ among the samples & $3094976921/6250000000 \approx 0.4952 \le 0.5$ \\
+C & hexagon of radius $0.7$ (scanner's suggestion), grid maximum & $0.7$; convex bound $0.49$ \\
+D & random-restart search, coarse / fine grid (upper bound only) & $0.5556$ / $0.5585$ \\
+\hline
+\end{tabular}
+\end{center}}
+
+Part D is only a numerical upper bound, and it is not a proof of the value of $r_6$. It shows that $r_6$ is far below $1$, and it is consistent with the disproof. The $r_7$ clause was not checked. The refutation of the $r_6$ clause alone is enough to falsify the statement as written.
+
+\section{Lean formalization}
+\label{sec:lean}
+
+The file is \texttt{Disproof.lean}, in namespace \texttt{TLMC1559}. It imports Mathlib. Mathlib has no covering radius, so the objects are defined directly. Distances are written in coordinates, because the product metric on $\mathbb{R}\times\mathbb{R}$ is the sup-norm and must not be used.
+
+\begin{lstlisting}
+def inDisk (p : R x R) : Prop := p.1 ^ 2 + p.2 ^ 2 <= 1
+
+def Covers (r : R) (C : Fin 6 -> R x R) : Prop :=
+  forall  p : R x R, inDisk p -> exists  i, (p.1 - (C i).1) ^ 2 + (p.2 - (C i).2) ^ 2 <= r ^ 2
+
+def coverRadius : Set R :=
+  {r | 0 <= r /\ exists  C : Fin 6 -> R x R, Covers r C}
+
+def coverRadiusInj : Set R :=
+  {r | 0 <= r /\ exists  C : Fin 6 -> R x R, Function.Injective C /\ Covers r C}
+
+noncomputable def r6 : R := sInf coverRadius
+noncomputable def r6Inj : R := sInf coverRadiusInj
+\end{lstlisting}
+
+The certificate is \texttt{C6} (the corners with two repeats) and \texttt{C6d} (the corners plus $(0,0)$ and $(3,3)$, which are pairwise distinct). The corner lemma \texttt{cover\_of\_corners} proves, by a case split on the signs of $x$ and $y$, that every $p\in D$ has a centre at squared distance at most $\tfrac12$. The bounds $|x|,|y|\le 1$ are obtained with \texttt{nlinarith}. The lemmas \texttt{covers\_C6} and \texttt{covers\_C6d} show that both certificates cover $D$ with radius $3/4$. Then \texttt{r6\_le} and \texttt{r6Inj\_le} give $r_6\le 3/4$ through \texttt{csInf\_le}, and \texttt{conjectured\_expr\_eq\_one} shows that the expression equals $1$ using $\sqrt3^2=3$ and \texttt{linear\_combination}.
+
+The main theorem is:
+
+\begin{lstlisting}
+theorem conjecture_00000001559_fails :
+    not (r6 = (1 + Real.sqrt 3) / 2 * (Real.sqrt 3 - 1)) /\
+    not (r6Inj = (1 + Real.sqrt 3) / 2 * (Real.sqrt 3 - 1))
+\end{lstlisting}
+
+In the listings, ASCII stands for the Unicode symbols of the Lean source: \texttt{R} for $\mathbb{R}$, \texttt{/\textbackslash} for the conjunction, \texttt{not} for negation, \texttt{->} for the arrow.
+
+The first conjunct is the disproof with unrestricted centres. The second is the disproof with pairwise distinct centres.
+
+\paragraph{Build result.} Running \texttt{lake env lean} on the file gives no errors and no warnings. The line \texttt{\#print axioms} reports
+\begin{center}
+{\small\begin{lstlisting}
+'TLMC1559.conjecture_00000001559_fails' depends on axioms: [propext, Classical.choice, Quot.sound]
+\end{lstlisting}}
+\end{center}
+The file contains no \texttt{sorry}, \texttt{native\_decide}, \texttt{axiom}, \texttt{unsafe}, \texttt{opaque}, \texttt{implemented\_by}, \texttt{extern}, or \texttt{admit}. The distinctness of the six points of \texttt{C6d} is checked by \texttt{fin\_cases} and \texttt{norm\_num}; no \texttt{decide} is used.
+
+\paragraph{Scope.} The formal statement refutes the stated value of $r_6$. It does not formalize the structural claims (a central disk with five annular disks) or the cubic claim for $r_7$.
+
+\section{Reproduction}
+
+\begin{enumerate}
+  \item Verifier (about two minutes, mainly the random-restart search):
+  \begin{lstlisting}
+cd LibertychaserUS_submission_20261027064631
+python3 check.py
+  \end{lstlisting}
+  \item Lean (Lean v4.33.1, Mathlib v4.33.1):
+  \begin{lstlisting}
+cd lean
+lake exe cache get \&\& lake build
+  \end{lstlisting}
+  \item Report:
+  \begin{lstlisting}
+cd LibertychaserUS_submission_20261027064631
+tectonic report.tex
+  \end{lstlisting}
+\end{enumerate}
+
+\end{document}
