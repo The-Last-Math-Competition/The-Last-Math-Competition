@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000000551
+
+**English.** Definition: Finitistic dimension findim Λ. Conjecture: For special biserial algebras, findim ≤ 2 (verified for cyclic string algebras up to n = 7; state the tight upper bound of the general pattern).
+
+**中文。** 定义：finitistic dimension findim Λ。猜想：对特殊双列代数 findim ≤ 2(验证至 n = 7 的循环串代数;陈述其一般模式的紧上界)。
