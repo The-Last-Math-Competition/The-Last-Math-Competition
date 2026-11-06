@@ -1,0 +1,202 @@
+\documentclass[11pt]{article}
+\usepackage[hmargin=0.85in,vmargin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{1em}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\C}{\mathbb C}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Tr}{\operatorname{Tr}}
+\title{Three Coordinate Quasitraces Refute Conjecture 00000000918}
+\author{idealistichacker \quad (AI-assisted)}
+\date{October 30, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The printed assertion that the quasitrace simplex of every nuclear algebra
+has dimension one fails already for the finite-dimensional commutative
+C*-algebra $A=\C^3$ with its supremum norm. Its three coordinate evaluations
+are positive normalized weakly continuous traces with genuine compatible
+matrix quasitrace extensions. They are affinely independent over $\R$.
+The full quasitrace space containing them therefore cannot be one-dimensional.
+We formalize an exact completely positive approximation witness, the
+quasitrace and matrix-extension laws, the full-space dictionary, and the
+closed negation of the necessary universal dimension clause.
+\end{abstract}
+
+\section{The Clause Being Refuted}
+Both source languages assert a simplex structure for the quasitrace space
+of a nuclear algebra, identify its extreme points with factor traces, and
+require that the same simplex have dimension one and a closed extreme-point
+set. Neither imposes simplicity, factoriality of the algebra, or restriction
+to a selected one-parameter family. We refute only the universal
+\emph{dimension-one} requirement. We do not assert that the other clauses
+are false.
+
+We use the usual nuclear C*-algebra and complex-valued quasitrace setting.
+In particular, dimension of a trace simplex means the real dimension of
+its affine span, not the dimension of an individual extreme-point factor.
+The usual normalized convention is $\tau(1)=1$. Omitting normalization
+does not remove the three witnesses below.
+
+\begin{theorem}\label{thm:main}
+There exists a commutative, finite-dimensional, unital nuclear C*-algebra
+whose full normalized weakly continuous $2$-quasitrace space has real affine
+dimension at least two. The corresponding space without normalization also
+does not have affine dimension one.
+\end{theorem}
+Since this is a genuine nuclear algebra, a universal assertion for nuclear
+algebras must apply to it. Restricting the printed clause to finite-dimensional
+commutative nuclear algebras is already enough to obtain a false statement.
+
+\section{The Actual Algebra and Nuclearity Witness}
+Let $A$ be the functions on $\{0,1,2\}$ with values in $\C$, with pointwise
+operations, coordinate conjugation, unit $(1,1,1)$, and
+\[
+ \|a\|=\max_{0\leq i<3}|a_i|.
+\]
+This is the ordinary supremum-norm C*-algebra $\C^3$, not Euclidean space
+with its $\ell^2$ norm. Its complex dimension is three.
+
+Use the standard completely positive approximation property (CPAP)
+characterization of nuclearity: for every finite $E\subset A$ and
+$\varepsilon>0$, there is a finite-dimensional C*-algebra $F$ and completely
+positive contractions $\phi:A\to F$, $\psi:F\to A$ such that
+\[
+ \|\psi(\phi(a))-a\|<\varepsilon\qquad(a\in E).
+\]
+Take $F=A$ and $\phi=\psi=\mathrm{id}_A$. Every matrix amplification of
+the identity is the actual identity, hence preserves positivity; both maps
+are contractions and every error is zero. Thus the full finite-set and
+positive-error quantifiers hold, rather than being assumed from a label
+attached to $A$. The standard CPAP/nuclearity dictionary is the mathematical
+convention used here \cite{CE,CT}. The Lean result proves CPAP directly; it
+does not claim a new formal proof of its tensor-norm equivalence.
+
+\section{Genuine Quasitraces and Matrix Extensions}
+For $i\in\{0,1,2\}$ put $\tau_i(a)=a_i$. This is an actual continuous
+complex-linear functional, with $\tau_i(1)=1$ and $|\tau_i(a)|\leq\|a\|$.
+Moreover,
+\[
+ \tau_i(ab)=\tau_i(ba),\qquad
+ \tau_i(a^*a)=\tau_i(aa^*)=|a_i|^2\geq0,\qquad
+ \tau_i(a^*)=\overline{\tau_i(a)}.
+\]
+Thus each is a positive normalized trace.
+
+For clarity, a standard $1$-quasitrace has positive cyclic star-square
+values, real values on selfadjoint elements, compatibility with the
+selfadjoint real/imaginary decomposition, and linearity on abelian
+C*-subalgebras. A $2$-quasitrace additionally has a compatible $1$-quasitrace
+on $M_2(A)$ \cite{H}. Every positive complex-linear star-preserving trace
+satisfies these laws. In particular, additivity gives the source's
+subadditivity with equality on the selfadjoint/positive part, where the
+order inequality is defined.
+
+Here the compatible extension is explicit. For $X\in M_2(A)$ set
+\[
+ Q_i(X)=\Tr_2\bigl[(\tau_i(X_{rs}))_{r,s=0,1}\bigr]
+       =\tau_i(X_{00})+\tau_i(X_{11}).
+\]
+This uses the \emph{unnormalized} ordinary matrix trace. It is complex-linear,
+star-preserving and tracial, and
+\[
+ Q_i(X^*X)=\sum_{r,s=0}^1 |(X_{rs})_i|^2\geq0.
+\]
+It therefore satisfies the full $1$-quasitrace laws on the actual matrix
+C*-algebra. For the standard corner embedding,
+\[
+ Q_i\begin{pmatrix}a&0\\0&0\end{pmatrix}=\tau_i(a),
+ \qquad Q_i(1_2)=2.
+\]
+The value two on the matrix identity is correct; imposing normalization one
+on this extension would break corner compatibility. Thus the $\tau_i$
+are genuine normalized $2$-quasitraces, not three functions merely named
+quasitraces.
+
+For $\sigma(A,A^*)$, every continuous linear functional is weakly
+continuous by the definition of the weak topology. Lean checks this
+on its actual \texttt{WeakSpace} for each $\tau_i$. In finite dimension,
+the ordinary weak and norm topology descriptions do not reduce these
+three distinct functionals to a one-parameter family. The global theorem
+that quasitraces on exact algebras are traces is not needed.
+
+\section{The Full Space and Its Affine Dimension}
+Let $p_j$ be the coordinate projection with value one at $j$ and zero
+elsewhere. These are actual elements of $A$, and $\tau_i(p_j)=\delta_{ij}$.
+If
+\[
+ r(\tau_1-\tau_0)+s(\tau_2-\tau_0)=0\qquad(r,s\in\R),
+\]
+evaluation at $p_1$ and $p_2$ gives $r=0$ and $s=0$. Hence the three
+coordinate traces are affinely independent over $\R$.
+
+This is an obstruction for the \emph{entire} space. Let $S$ be any set
+in the real continuous dual containing all three $\tau_i$. Its affine-span
+direction contains the two independent differences, so its dimension is
+at least two. Taking $S$ to be the full normalized weak $2$-quasitrace
+space proves Theorem~\ref{thm:main}. Taking the full space without
+normalization proves the second assertion. The set $S$ is not defined to
+be the three displayed points or their convex hull.
+
+There is no hidden restriction to preselected linear functionals: on this
+commutative algebra, the quasitrace axiom of linearity on the whole closed
+abelian subalgebra $A$ gives an actual complex-linear functional. Finite
+dimension makes it continuous. Lean proves its unique representation in
+$A\to_L\C$, and identifies the full unbundled normalized space with the
+image of that set under an injective real-linear coefficient map. Thus
+the dual is the natural affine ambient space for the original functionals.
+Its real finite-dimensionality is established before using \texttt{finrank};
+no infinite-dimensional \texttt{finrank=0} convention is exploited.
+
+We only require dimension at least two, not an exact dimension computation,
+an affine-homeomorphism classification, or a theorem about all nuclear
+algebras. The factor-trace and closed-extreme-set clauses are not attacked.
+
+\section{Formal Scope and Evidence Boundaries}
+The five Lean modules use Lean 4.33.1 and fixed Mathlib revision
+\texttt{0df444a360eaa60ab8c11dca51a86af692955474}. They separate the exact
+CPAP witness, genuine Pi-norm algebra and continuous-dual geometry, actual
+operator-norm \texttt{CStarMatrix} extension, quasitrace axioms and full-space
+dictionary, and final closed negation
+\texttt{source\_necessary\_clause\_false}. The matrix base order is the
+canonical spectral order of the same C*-algebra, not a replacement of its
+norm by the raw entrywise matrix norm.
+
+All 68 public theorem types and transitive axiom footprints have actual
+author-side compiler output. Allowed logical axioms are only
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+Failed compilation attempts, including an initial 60-second CPAP timeout,
+are retained separately and are not counted as successes. A small exact
+rational-complex diagnostic checks coordinate arithmetic and a nonzero
+affine minor; those finite checks do not establish nuclearity, general
+quasitrace laws, weak continuity or the all-input Lean statements.
+
+Original source blob:
+\texttt{dadc2ef65f6a57feb3def12febafd66299b1f918}, checked in both languages.
+This research manuscript and author-side module checks do not constitute
+independent frozen-package/PDF review, portable whole-package reproduction,
+current duplicate clearance or upstream acceptance. Existing compiler and
+official dependency caches remain trust inputs; no full-dependency-clean,
+empty-machine, Linux or hosted-CI result is claimed.
+
+\begin{thebibliography}{9}
+\raggedright
+\bibitem{H} U. Haagerup,
+\emph{Quasitraces on exact C*-algebras are traces},
+C. R. Math. Rep. Acad. Sci. Canada 36 (2--3) (2014), 67--92;
+arXiv:1403.7653. Introduction: quasitrace and compatible matrix-extension
+conventions. The global theorem is not used as an assumption.
+\bibitem{CT} J. Castillejos, S. Evington, A. Tikuisis, S. White and W. Winter,
+\emph{Nuclear dimension of simple C*-algebras}, Inventiones Mathematicae
+(2021), DOI 10.1007/s00222-020-01013-1, Section 1.1.
+\bibitem{CE} M.-D. Choi and E. G. Effros,
+\emph{Nuclear C*-algebras and the approximation property},
+American Journal of Mathematics 100 (1) (1978), 61--79.
+Foundational bibliographic reference, not a claim to have independently
+audited the entire original equivalence proof.
+\end{thebibliography}
+\end{document}

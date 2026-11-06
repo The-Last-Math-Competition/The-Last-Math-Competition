@@ -1,0 +1,138 @@
+import Main
+
+#check Quasitrace918.actual_model_hasCPAP
+#print axioms Quasitrace918.actual_model_hasCPAP
+#check Quasitrace918.actual_nuclear_counterexample
+#print axioms Quasitrace918.actual_nuclear_counterexample
+#check Quasitrace918.affineSpan_direction_finrank_ge_two
+#print axioms Quasitrace918.affineSpan_direction_finrank_ge_two
+#check Quasitrace918.affineSpan_direction_finrank_ne_one
+#print axioms Quasitrace918.affineSpan_direction_finrank_ne_one
+#check Quasitrace918.algebra_complex_finite
+#print axioms Quasitrace918.algebra_complex_finite
+#check Quasitrace918.complex_linear_trace_oneQuasitrace
+#print axioms Quasitrace918.complex_linear_trace_oneQuasitrace
+#check Quasitrace918.coordinate_add
+#print axioms Quasitrace918.coordinate_add
+#check Quasitrace918.coordinate_apply
+#print axioms Quasitrace918.coordinate_apply
+#check Quasitrace918.coordinate_atom
+#print axioms Quasitrace918.coordinate_atom
+#check Quasitrace918.coordinate_continuous
+#print axioms Quasitrace918.coordinate_continuous
+#check Quasitrace918.coordinate_difference_mem_vectorSpan
+#print axioms Quasitrace918.coordinate_difference_mem_vectorSpan
+#check Quasitrace918.coordinate_mem_normalizedQuasitraces
+#print axioms Quasitrace918.coordinate_mem_normalizedQuasitraces
+#check Quasitrace918.coordinate_mem_traceStates
+#print axioms Quasitrace918.coordinate_mem_traceStates
+#check Quasitrace918.coordinate_mem_weakQuasitraces
+#print axioms Quasitrace918.coordinate_mem_weakQuasitraces
+#check Quasitrace918.coordinate_mul
+#print axioms Quasitrace918.coordinate_mul
+#check Quasitrace918.coordinate_norm_bound
+#print axioms Quasitrace918.coordinate_norm_bound
+#check Quasitrace918.coordinate_one
+#print axioms Quasitrace918.coordinate_one
+#check Quasitrace918.coordinate_oneQuasitrace
+#print axioms Quasitrace918.coordinate_oneQuasitrace
+#check Quasitrace918.coordinate_operator_norm
+#print axioms Quasitrace918.coordinate_operator_norm
+#check Quasitrace918.coordinate_positive
+#print axioms Quasitrace918.coordinate_positive
+#check Quasitrace918.coordinate_smul
+#print axioms Quasitrace918.coordinate_smul
+#check Quasitrace918.coordinate_star
+#print axioms Quasitrace918.coordinate_star
+#check Quasitrace918.coordinate_star_square_imag
+#print axioms Quasitrace918.coordinate_star_square_imag
+#check Quasitrace918.coordinate_star_square_real
+#print axioms Quasitrace918.coordinate_star_square_real
+#check Quasitrace918.coordinate_tracial
+#print axioms Quasitrace918.coordinate_tracial
+#check Quasitrace918.coordinate_triangle_finrank
+#print axioms Quasitrace918.coordinate_triangle_finrank
+#check Quasitrace918.coordinate_twoQuasitrace
+#print axioms Quasitrace918.coordinate_twoQuasitrace
+#check Quasitrace918.coordinate_weak_continuous
+#print axioms Quasitrace918.coordinate_weak_continuous
+#check Quasitrace918.coordinates_real_affineIndependent
+#print axioms Quasitrace918.coordinates_real_affineIndependent
+#check Quasitrace918.coordinates_real_linearIndependent
+#print axioms Quasitrace918.coordinates_real_linearIndependent
+#check Quasitrace918.dualToFunction_injective
+#print axioms Quasitrace918.dualToFunction_injective
+#check Quasitrace918.exact_cpc_factorization
+#print axioms Quasitrace918.exact_cpc_factorization
+#check Quasitrace918.finite_dimensional_hasCPAP
+#print axioms Quasitrace918.finite_dimensional_hasCPAP
+#check Quasitrace918.identityCP_apply
+#print axioms Quasitrace918.identityCP_apply
+#check Quasitrace918.identityCP_cpc
+#print axioms Quasitrace918.identityCP_cpc
+#check Quasitrace918.identityCP_matrix_nonneg
+#print axioms Quasitrace918.identityCP_matrix_nonneg
+#check Quasitrace918.matrixCoordinate_add
+#print axioms Quasitrace918.matrixCoordinate_add
+#check Quasitrace918.matrixCoordinate_apply
+#print axioms Quasitrace918.matrixCoordinate_apply
+#check Quasitrace918.matrixCoordinate_continuous
+#print axioms Quasitrace918.matrixCoordinate_continuous
+#check Quasitrace918.matrixCoordinate_corner
+#print axioms Quasitrace918.matrixCoordinate_corner
+#check Quasitrace918.matrixCoordinate_cyclic_star_square
+#print axioms Quasitrace918.matrixCoordinate_cyclic_star_square
+#check Quasitrace918.matrixCoordinate_isSelfAdjoint
+#print axioms Quasitrace918.matrixCoordinate_isSelfAdjoint
+#check Quasitrace918.matrixCoordinate_normSq
+#print axioms Quasitrace918.matrixCoordinate_normSq
+#check Quasitrace918.matrixCoordinate_one
+#print axioms Quasitrace918.matrixCoordinate_one
+#check Quasitrace918.matrixCoordinate_oneQuasitrace
+#print axioms Quasitrace918.matrixCoordinate_oneQuasitrace
+#check Quasitrace918.matrixCoordinate_positive
+#print axioms Quasitrace918.matrixCoordinate_positive
+#check Quasitrace918.matrixCoordinate_smul
+#print axioms Quasitrace918.matrixCoordinate_smul
+#check Quasitrace918.matrixCoordinate_star
+#print axioms Quasitrace918.matrixCoordinate_star
+#check Quasitrace918.matrixCoordinate_star_square
+#print axioms Quasitrace918.matrixCoordinate_star_square
+#check Quasitrace918.matrixCoordinate_star_square_imag
+#print axioms Quasitrace918.matrixCoordinate_star_square_imag
+#check Quasitrace918.matrixCoordinate_trace
+#print axioms Quasitrace918.matrixCoordinate_trace
+#check Quasitrace918.matrixCoordinate_tracial
+#print axioms Quasitrace918.matrixCoordinate_tracial
+#check Quasitrace918.matrixCorner_add
+#print axioms Quasitrace918.matrixCorner_add
+#check Quasitrace918.matrixCorner_smul
+#print axioms Quasitrace918.matrixCorner_smul
+#check Quasitrace918.normalized_quasitrace_dimension_ge_two
+#print axioms Quasitrace918.normalized_quasitrace_dimension_ge_two
+#check Quasitrace918.normalized_quasitrace_dimension_ne_one
+#print axioms Quasitrace918.normalized_quasitrace_dimension_ne_one
+#check Quasitrace918.normalized_space_membership
+#print axioms Quasitrace918.normalized_space_membership
+#check Quasitrace918.oneQuasitrace_additive
+#print axioms Quasitrace918.oneQuasitrace_additive
+#check Quasitrace918.oneQuasitrace_subadditive_real
+#print axioms Quasitrace918.oneQuasitrace_subadditive_real
+#check Quasitrace918.oneQuasitrace_unique_dual_representation
+#print axioms Quasitrace918.oneQuasitrace_unique_dual_representation
+#check Quasitrace918.ordinaryTraceStates_dimension_ge_two
+#print axioms Quasitrace918.ordinaryTraceStates_dimension_ge_two
+#check Quasitrace918.ordinaryTraceStates_dimension_ne_one
+#print axioms Quasitrace918.ordinaryTraceStates_dimension_ne_one
+#check Quasitrace918.source_necessary_clause_false
+#print axioms Quasitrace918.source_necessary_clause_false
+#check Quasitrace918.unbundled_iff_unique_dual
+#print axioms Quasitrace918.unbundled_iff_unique_dual
+#check Quasitrace918.unbundled_space_eq_linear_image
+#print axioms Quasitrace918.unbundled_space_eq_linear_image
+#check Quasitrace918.unnormalized_quasitrace_dimension_ne_one
+#print axioms Quasitrace918.unnormalized_quasitrace_dimension_ne_one
+#check Quasitrace918.vectorSpan_finrank_ge_two
+#print axioms Quasitrace918.vectorSpan_finrank_ge_two
+#check Quasitrace918.vectorSpan_finrank_ne_one
+#print axioms Quasitrace918.vectorSpan_finrank_ne_one
