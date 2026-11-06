@@ -1,0 +1,149 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=23mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,booktabs,microtype}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\title{Problem 00000000025:\\Two incompatible assertions about exceptional zeros}
+\author{lizaixi01}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+\vspace{-15pt}
+
+\textbf{Scope and result.}
+The printed conjecture says both that two non-overlapping irreducible characters
+of the same Galois extension cannot simultaneously have zeros in the common
+window, and that an exceptional zero exists \emph{if and only if the associated
+character is real}. We read the latter as the printed assertion for each
+associated character. These two assertions are incompatible. The proof uses
+two distinct, nonprincipal, primitive real characters of conductor eight.
+It asserts no actual existence of a Siegel zero. The usual correct statement
+that a possible exceptional character must be real is unaffected, as are the
+classical conditional repulsion theorems.
+
+\textbf{Actual field and characters.}
+Let $K=\mathbb Q(\zeta_8)$. The native Lean construction uses
+\texttt{CyclotomicField} with parameters $8$ and $\mathbb Q$.
+It proves that $K/\mathbb Q$ is Galois of degree four, constructs its genuine
+automorphism group $G$, and uses the native isomorphism
+$G\simeq(\mathbb Z/8\mathbb Z)^\times$ given by the action on $\zeta_8$.
+The native number-field discriminant formula gives
+$\operatorname{discr}(K)=256$, so $D=|\operatorname{discr}(K)|>1$.
+The two actual multiplicative characters are extended by zero on nonunits:
+\[
+\begin{array}{c|rrrr|c}
+u&1&3&5&7&\text{conductor}\\\hline
+\chi_A(u)&1&-1&-1&1&8\\
+\chi_B(u)&1&1&-1&-1&8
+\end{array}
+\]
+Their multiplicativity is checked on all units. Neither can factor through
+modulus four: $5\equiv1\pmod4$, but both take value $-1$ at $5$.
+The actual conductor divides eight, and this excludes all its proper divisors.
+
+Transport to $G$ gives the genuine complex one-dimensional representations
+$\rho_\chi(g)z=\chi(g)z$. Their native trace characters are exactly these
+transported characters. Every subrepresentation is zero or the entire complex
+line, so both are irreducible. At the automorphism corresponding to $3$, their
+actions are $-1$ and $1$; every intertwiner between them is zero.
+The actual normalized character inner product is also computed:
+\[
+ \frac1{|G|}\sum_{g\in G}\operatorname{tr}(\rho_A(g))
+       \overline{\operatorname{tr}(\rho_B(g))}
+ =\frac{1-1+1-1}{4}=0.
+\]
+Thus ``non-overlapping'' is verified by genuine inequivalence, vanishing
+intertwiners and orthogonality, and both characters are real-valued.
+
+\textbf{The contradiction.}
+For the same arbitrary $c>0$ and this actual $D$, put
+\[
+ Z_c(\chi)\;:\Longleftrightarrow\;
+ \exists\beta\in(1-c/\log D,1),\quad L(\beta,\chi)=0.
+\]
+This window is nonempty. The printed sufficiency gives both $Z_c(\chi_A)$ and
+$Z_c(\chi_B)$, whereas its pairwise exclusion gives their negated conjunction.
+The proof works for every function family, with the displayed actual
+zero predicate, and then explicitly instantiates Mathlib's analytically
+continued \texttt{DirichletCharacter.LFunction}. No zeros or zero sets are
+assigned. It refutes only the conjunction of these two necessary printed
+clauses; a weaker global assertion about a possible real character is a
+different statement.
+
+\newpage
+\textbf{Full and depleted Artin factors.}
+Milne's introductory cyclotomic identification is stated for $L_S$, with
+the ramified primes omitted \cite[pp.~7--9]{milne}. We keep that distinction.
+For $K=\mathbb Q(\zeta_8)$ the only ramified rational prime is $2$.
+The Lean proof constructs the actual prime ideal $(\zeta_8-1)$ in the native
+ring of integers, proves that it lies over $(2)$, computes its ramification
+index as four, and proves that its actual inertia subgroup is all of $G$.
+Since both representations take value $-1$ at $5$, their genuine
+inertia-fixed subspaces are zero. Consequently the full local Artin factor
+at $2$ is
+\[
+ \det(1-2^{-s}\operatorname{Frob}_2\mid V^{I_2})^{-1}=1.
+\]
+Lean proves this determinant identity for every endomorphism of the actual
+inertia-fixed space. On the Dirichlet side $\chi_A(2)=\chi_B(2)=0$, and their
+actual local Euler factors are likewise one. Thus adding the ramified factor
+does not change either function in this case. The full Artin convention uses
+the inertia-fixed determinant at every finite prime \cite[pp.~4--5]{block}.
+
+At odd primes the usual cyclotomic Frobenius is the corresponding unit
+class. The standard equality of the resulting Artin/primitive-Dirichlet
+Euler products and their analytic continuations is the explicitly disclosed
+analytic recognition boundary. A general Artin Euler-product theory and that
+general continuation-identification theorem are not reconstructed in Lean.
+The formal universal-function-family contradiction already applies to any
+such actual Artin family; the native Dirichlet instance additionally supplies
+fully specified analytic functions. No analytic recognition theorem is
+inserted as an extra Lean premise.
+
+For comparison, the standard zero-free-region theorem leaves \emph{at most}
+one possible exceptional real character, conditional on such a zero existing
+\cite[Theorem~12.3, p.~119; p.~123]{kouk}. It does not give a zero for every
+real character. The present disproof neither decides existence of Siegel
+zeros nor contests this standard theorem, its constants, or GRH.
+
+\textbf{Formal coverage and reproduction.}
+The complete source is \texttt{lean/Main.lean}, namespace \texttt{TLMC25},
+ending in \texttt{complete\_counterexample}. It contains the actual field,
+Galois isomorphism, discriminant, characters and native conductors,
+representations and traces, all subrepresentations, inner product,
+intertwiners, ramification and inertia, local determinants, actual
+$L$-function zero conditions, and the quantified contradiction for every
+$c>0$. The complete original English and Chinese source is in
+\texttt{SOURCE.md}. The project pins Lean~4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+From the \texttt{lean} directory, the four independent checks are:
+\begin{verbatim}
+lean --version
+lake build +Main
+lake env lean -DwarningAsError=true Check.lean
+lake env leanchecker --fresh Main
+\end{verbatim}
+\texttt{verify.sh} runs the last three commands. The exhaustive check prints
+ordinary axioms for every owned environment declaration, including generated
+names, and checks exact namespace enumeration coverage. Only
+\texttt{propext}, \texttt{Classical.choice} and \texttt{Quot.sound} are allowed.
+The source-bound original command logs, job/result data, all actual thread
+mask samples, qualification receipts and hash manifest accompany the package.
+Production timings are not controlled causal efficiency evidence.
+
+\begin{thebibliography}{9}\small
+\bibitem{milne} J.~S.~Milne, \emph{Class Field Theory}, v4.03,
+6 August 2020, Introduction, pp.~7--9.
+\url{https://www.jmilne.org/math/CourseNotes/CFT.pdf}
+\bibitem{block} A.~Block, \emph{Artin L-Functions}, May 2017,
+\S3, pp.~4--5.
+\url{https://www.columbia.edu/~abb2190/ArtinLFunctions.pdf}
+\bibitem{kouk} D.~Koukoulopoulos, \emph{The Distribution of Prime Numbers},
+author's preliminary version, Theorem~12.3 and exceptional-character discussion,
+pp.~119, 123.
+\url{https://dms.umontreal.ca/~koukoulo/documents/publications/primes.pdf}
+\end{thebibliography}
+\end{document}
