@@ -1,0 +1,182 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Carleman Moments Do Not Recover an Unaugmented Path Law:\\A Disproof of Conjecture 00000004003 on Its Literal Process-Law Reading}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+This counterexample concerns the original, unaugmented process law,
+as stated in the bilingual source. It does not concern a law on
+signatures or on tree-like equivalence classes. Two smooth based
+one-dimensional closed paths have the same signature at every level,
+but different laws as processes on $[0,1]$. Both laws have finite support
+and satisfy an explicit divergent inverse-even-moment-root Carleman
+condition. Lean verifies genuine recursive iterated integrals, all
+signature levels, the moment condition, and inequality of the actual
+path laws on the observation interval.
+\end{abstract}
+
+\paragraph{Reading and essential boundary.}
+Both source languages say that the expected signature determines the
+process distribution if and only if a Carleman condition holds. They
+do not specify a tree-like quotient, time augmentation, or a
+signature-injective class of paths. We refute the sufficiency direction
+for the literal original path distribution. This boundary matters:
+Hambly--Lyons identify signatures with tree-like equivalence classes
+of finite-length paths \cite{HL}; Chevyrev--Lyons study probability
+measures on signatures \cite{CL}. Our two paths are tree-like and have
+the same signature law. Thus this example does not contradict either
+of those determinacy frameworks. It does not address a corrected
+source interpretation in which ``distribution'' means a signature
+law or a law on tree-like equivalence classes, nor a time-augmented
+signature. A Carleman hypothesis cannot restore information that the
+unaugmented signature already discards deterministically.
+
+\paragraph{The process family and its ordinary moment problem.}
+For $a\in[1,2]$, set
+\[
+ x_a(t)=4at(1-t),\qquad 0\le t\le1.
+\]
+These are smooth paths with common starting point $0$ and common
+endpoint $0$. Their midpoint values are $x_a(1/2)=a$, and
+\[
+ \|x_a\|_\infty=a,
+\]
+because $4t(1-t)=1-(2t-1)^2\in[0,1]$, with equality at $t=1/2$.
+Consequently the family is injectively parametrized by amplitude,
+recoverable from the original process. The ordinary amplitude moment
+problem is a compactly supported scalar moment problem. We take
+\[
+ \mu=\delta_{x_1},\qquad \nu=\delta_{x_2}
+\]
+as Borel probability measures on $C([0,1],\mathbb R)$. They are
+different: midpoint evaluation has law $\delta_1$ under $\mu$ and
+$\delta_2$ under $\nu$.
+
+\paragraph{Carleman convention and verification.}
+The source does not specify the moment object in its Carleman
+condition. We use the explicit radial path-norm version
+\begin{equation}\label{eq:carleman}
+ m_k(\eta)=\int\|p\|_\infty^k\,d\eta(p)<\infty,
+ \qquad
+ \sum_{n=1}^{\infty}m_{2n}(\eta)^{-1/(2n)}=\infty.
+\end{equation}
+For the family above this is exactly the ordinary positive-amplitude
+Carleman condition. In particular,
+\[
+ m_{2n}(\mu)=1,\qquad m_{2n}(\nu)=2^{2n},
+\]
+so the respective summands in \eqref{eq:carleman} are $1$ and $1/2$.
+All moments are finite and all even moments are strictly positive.
+
+This choice does not exploit heavy tails or an indeterminate moment
+problem. Any amplitude law supported in $[1,2]$ has inverse-even-root
+terms at least $1/2$. For each of our two Dirac laws, every fixed
+coordinate or finite collection of sampled coordinates is
+deterministic and bounded, hence satisfies the usual scalar or
+coordinatewise Carleman test, with the usual infinite inverse-root
+convention for a zero moment. The total variation of $x_a$ is $2a$:
+the path rises from $0$ to $a$ and falls back to $0$.
+Thus a variation-norm version also has constant positive inverse-root
+terms. We do not assert that there is one canonical infinite-dimensional
+Carleman definition; these observations make the chosen convention
+and the other common moment readings explicit.
+
+\paragraph{Actual signatures at every level.}
+For a smooth scalar path with $p(0)=0$, define its iterated integrals
+recursively by
+\[
+ S_0(p;t)=1,\qquad
+ S_{n+1}(p;t)=\int_0^t S_n(p;s)p'(s)\,ds.
+\]
+This is the one-dimensional tensor signature, with its unique scalar
+coordinate at each tensor level. For our paths, induction gives
+\begin{equation}\label{eq:signature}
+ S_n(x_a;t)=\frac{x_a(t)^n}{n!}\qquad(n\ge0).
+\end{equation}
+The base case is $S_0=1$. If the formula holds at $n$, then
+\[
+ \frac{d}{dt}\frac{x_a(t)^{n+1}}{(n+1)!}
+ =\frac{x_a(t)^n}{n!}x_a'(t).
+\]
+The fundamental theorem of calculus proves the next case, since
+$x_a(0)^{n+1}=0$. All functions involved are polynomials and are
+integrable on every compact interval. At $t=1$ the entire signature is
+therefore
+\[
+ S(x_a)=(1,0,0,\ldots),
+\]
+independently of $a$.
+
+\begin{theorem}
+There are two distinct smooth based process laws on $[0,1]$ satisfying
+\eqref{eq:carleman} whose expected signatures agree at every level.
+Thus the source's claimed sufficiency fails for original unaugmented
+process laws.
+\end{theorem}
+\begin{proof}
+Use $\mu$ and $\nu$ above. The Carleman verification and inequality of
+their midpoint laws were proved above. Integrating
+\eqref{eq:signature} against either Dirac law gives the same expected
+signature $(1,0,0,\ldots)$.
+\end{proof}
+
+Embedding the paths as $(x_a,0,\ldots,0)$ yields the same example in
+every positive dimension. Any tensor word containing another
+coordinate has zero iterated integral; the pure first-coordinate
+words were computed above. Hence the obstruction is not confined
+to dimension one. No separate assertion about an optimal truncation
+level on a signature-injective class is made here.
+
+\paragraph{Formal verification and scope.}
+Lean defines $S_n$ by actual recursive Mathlib interval integrals
+involving the derivative of a continuous real-valued path. It proves
+\eqref{eq:signature} for every amplitude, level, and real upper endpoint
+using derivative rules and the fundamental theorem of calculus.
+It verifies smoothness, common starting point, midpoint recovery,
+the exact supremum norm, two genuine Dirac probability measures,
+integrability of all norm moments and signature coordinates, strict
+positivity of even norm moments, and nonsummability of the actual
+inverse-even-moment-root sequence. All expected-signature coordinates
+are equal. The final theorem negates a universally quantified
+Carleman-implies-determination proposition, including all these
+admissibility assumptions.
+
+For derivative bookkeeping, paths are stored as global smooth
+extensions in $C(\mathbb R,\mathbb R)$. Crucially, the conclusion compares
+their pushforward Borel laws on $C([0,1],\mathbb R)$, and formal
+inequality is detected at the midpoint inside that interval. No
+disagreement outside the observation interval is used.
+The general-amplitude-law remark, variation-norm observation,
+higher-dimensional embedding, and tree-like interpretation are proved
+or explained here on paper rather than formalized. The formal result
+is the explicit scalar counterexample with the stated radial Carleman
+condition, not a refutation of a signature-law uniqueness theorem.
+
+\paragraph{Source and reproduction.}
+The exact bilingual source is \texttt{SOURCE.md}; its frozen commit
+and SHA-256 are recorded in
+\texttt{verification/SOURCE\_PROVENANCE.md}.
+Use Lean 4.19.0 and the pinned Mathlib manifest. From \texttt{lean/}, run
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}\end{center}
+The strict log records the real compiler result. The final axiom audit
+uses only \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. Development was by a delegated AI agent with
+self-review; the coordinating agent reviews it separately. No external
+independent review is claimed.
+
+\begin{thebibliography}{2}
+\bibitem{HL} B. Hambly and T. Lyons,
+\emph{Uniqueness for the signature of a path of bounded variation
+and the reduced path group},
+\href{https://arxiv.org/abs/math/0507536}{arXiv:math/0507536}.
+\bibitem{CL} I. Chevyrev and T. Lyons,
+\emph{Characteristic functions of measures on geometric rough paths},
+\href{https://arxiv.org/abs/1307.3580}{arXiv:1307.3580}.
+\end{thebibliography}
+\end{document}
