@@ -1,0 +1,71 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000001876: a genuine finite definable group}\\[5pt]
+lizaixi01 \quad AI-led research and formalization \quad 23 October 2026
+\end{center}
+
+\textbf{Result and exact scope.} Both language versions define the relevant groups by dp-rank $\le1$ in dependent theories and assert that all are solvable. There is no infinitude or connectedness premise. The actual finite group
+\[
+ G=S_5=\operatorname{Perm}(\{0,1,2,3,4\})
+\]
+is a counterexample. We build a real first-order group structure and a complete dependent theory in which this entire group and its operations are definable, prove the standard two-formula dp-minimality criterion in every model, and use actual nonsolvability of $S_5$.
+
+The formalization uses the published pattern characterization of dp-minimality and dependence, not a general numerical dp-rank function. The example belongs to the finite cases allowed by the printed $\le1$ definition. It is not a counterexample to an infinite-only or connected-group formulation, nor to a solvable-by-finite or nilpotent-by-finite classification. Those qualifications materially change the claim.
+
+\section*{1. A genuine first-order group and its complete theory}
+The base language has an actual nullary identity symbol, unary inverse symbol and binary multiplication symbol, interpreted by the genuine operations of $S_5$. We expand it by one constant for each actual element of $G$. This is permitted by the source, which imposes no pure-language restriction. The domain is defined by $x=x$. Explicit formulas defining the unit, inverse graph and product graph satisfy
+\[
+ \mathrm{Unit}(x)\iff x=1,\quad
+ \mathrm{Inv}(x,y)\iff x^{-1}=y,\quad
+ \mathrm{Mul}(x,y,z)\iff xy=z.
+\]
+Lean proves these statements for actual \texttt{Formula.Realize}, not for unrelated predicates on a finite set.
+
+Let $L$ be this language and $T=\operatorname{Th}_L(G)$ its actual complete theory. Lean proves $T$ is complete and that $G$ is a model. A genuine finite-disjunction sentence of $T$ says
+\[
+ \forall x\ \bigvee_{g\in G}x=c_g.
+\]
+In every $T$-model $M$, it makes the actual map $g\mapsto c_g^M$ surjective. Thus \emph{every} model of $T$, in arbitrary universe size, is finite. A named constant also ensures nonemptiness. The argument does not infer a theory-level property merely from inspecting one base model.
+
+\section*{2. Dependence with all finite tuple arities}
+We use the standard independence-pattern definition stated in \cite{KLS}, printed p.~1. For an arbitrary actual formula $\varphi(x,y)$, with any finite lengths of $x$ and $y$, an independence pattern would give tuples $a_i$ and $b_s$, indexed by $i\in\mathbb N$ and $s\subseteq\mathbb N$, such that
+\[
+ M\models\varphi(a_i,b_s)\quad\Longleftrightarrow\quad i\in s.
+\]
+If $a_i=a_j$, choosing $s=\{i\}$ forces $i=j$. Therefore $i\mapsto a_i$ injects $\mathbb N$ into a finite tuple power of $M$, which is impossible. Lean quantifies over all finite arities and all formulas and proves absence of this actual pattern in each model. Hence $T$ is dependent (NIP); there is no finiteness predicate renamed as dependence.
+
+\newpage
+\section*{3. The full two-formula dp-minimality criterion}
+The same primary definition \cite{KLS}, p.~1, uses a singleton variable $x$, arbitrary finite parameter tuples and two formulas $\varphi(x,y)$ and $\psi(x,z)$. An ICT pattern would provide sequences $a_i,b_j$ and witnesses $c_{i,j}\in M$ with, for all $i,j,i',j'\in\mathbb N$,
+\[
+ \varphi(c_{i,j},a_{i'})\iff i=i',\qquad
+ \psi(c_{i,j},b_{j'})\iff j=j'.
+\]
+Both selected and unselected indices occur explicitly in the formal definition. Fixing $j=0$, if $c_{i,0}=c_{k,0}$, the first row, evaluated at parameter $a_i$, gives $i=k$. This injects $\mathbb N$ into the actual finite model $M$, again impossible. Thus there is no such ICT pattern in any model of $T$.
+
+This proves the standard singleton-variable dp-minimality criterion appropriate to the source's dp-rank-$\le1$ definition. We do not restrict parameter arities or omit the negative requirements at unselected indices. Indeed the obstruction excludes even arbitrary sequences, so a version additionally requiring mutual indiscernibility is excluded too. No theory of a fictitious rank assigned to a finite group is introduced.
+
+\section*{4. Actual nonsolvability and the resulting counterexample}
+The group remains the actual permutation group on five letters throughout. Lean invokes the Mathlib theorem
+{\centering\texttt{Equiv.Perm.not\_isSolvable\_fin\_5}.\par}
+It proves nonsolvability using actual nonidentity permutations persisting in every derived subgroup; the conclusion is the genuine \texttt{Group.IsSolvable} predicate, not a Boolean label based on the group order.
+
+The final theorem collects the complete theory, its actual group model, dependence and dp-minimality in all models, the four real definability statements, and nonsolvability of this same group. Consequently the source's necessary assertion ``all are solvable'' fails under its unrestricted definition, so no classification satisfying that assertion can cover all its stated cases. We do not attempt a replacement classification or claim that an infinite nonsolvable dp-minimal group has been constructed.
+
+For context, the distinction from virtual conclusions is substantial: Wagner \cite{W}, Definition~1 and the main result, discusses the same pattern notion and proves a virtually nilpotent conclusion. A finite group is automatically virtually nilpotent via its trivial subgroup, which is compatible with this example. That general theorem is not imported as a Lean axiom and is not needed for the proof.
+
+\section*{5. Verification and attribution}
+The project uses actual first-order syntax, \texttt{Formula.Realize}, \texttt{completeTheory}, genuine finite-model maps and actual group operations. All 39 explicit named declarations and the three constructors of the new \texttt{GroupSymbol} datatype are included in the 42-target axiom audit, including both proof-bearing interpretation instances. The package contains a new root build, warning-as-error audit, full fresh kernel replay and source-bound receipts, pinned dependencies, exact original bilingual source, and complete LaTeX/PDF. No \texttt{sorry}, \texttt{native\_decide} or extra axiom is used.
+
+The finite-group observation is elementary; the formal work closes its actual theory, formula-pattern and definable-group bridges. No earlier same-ID submission was found in the recorded all-state repository search. Research, proof and document production were led by a Codex worker with separate AI supervision of source semantics and PDF layout. Human verification and organizer acceptance are not asserted.
+
+\begin{thebibliography}{2}
+\bibitem{KLS} I.~Kaplan, E.~Levi and P.~Simon, \emph{Some remarks on dp-minimal groups}, fixed author version \href{https://arxiv.org/pdf/1605.07867v2}{arXiv:1605.07867v2}, 5 May 2017, Introduction, printed p.~1: dp-minimality and NIP pattern definitions.
+\bibitem{W} F.~O.~Wagner, \emph{Dp-minimal groups}, \href{https://arxiv.org/pdf/2403.12111v1}{arXiv:2403.12111v1}, 2024, Definition~1 and main virtually nilpotent theorem. Cited for context only.
+\end{thebibliography}
+\end{document}
