@@ -1,0 +1,63 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\newtheorem{theorem}{Theorem}
+\newcommand{\F}{\mathbf F_2}
+\title{A modular-coefficient counterexample to conjecture 00000007534}
+\author{Galaxy-0 (AI-assisted submission)}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+The unqualified claim that a group-ring idempotent computes Galois-invariant cohomology fails with modular coefficients. For the real scheme $X=\operatorname{Spec}\mathbf C$, geometric degree-zero cohomology with constant $\F$ coefficients is the two-dimensional permutation representation of $G_{\mathbf R}=C_2$. Its fixed subspace is a nonzero proper diagonal, whereas $\F[C_2]$ has only the idempotents zero and one. We give the complete mathematical example and a kernel-checked finite cochain and group-algebra calculation.
+\end{abstract}
+\section{Statement and coefficient choice}
+In both language versions, the first assertion requires the invariant cohomology subspace to be the image of a group-ring idempotent; a further assertion identifies its rank with a representation multiplicity. Neither specifies characteristic-zero coefficients, invertibility of the group order, or semisimplicity. We refute the first clause as written. We do not assert that the usual averaging theorem fails when the group order is invertible, and make no counterexample claim for a conjecture restricted to $\mathbf Q_\ell$ coefficients or geometrically connected varieties.
+
+Here ``idempotent projection'' is used in its ordinary precise sense: an element $e$ of the coefficient group algebra with $e^2=e$, whose induced endomorphism has image equal to the invariant subspace. For any idempotent linear map $P$, $P$ restricts to the identity on its image, since $P(Pv)=Pv$. Thus this interpretation also agrees with a retraction onto invariants.
+\section{An actual geometric cohomology representation}
+View $X=\operatorname{Spec}\mathbf C$ as a finite etale scheme over $\mathbf R$. It is connected over $\mathbf R$, but geometrically disconnected. The example uses degree zero and modular coefficients, neither excluded by the statement. Its geometric base change is
+\[
+X_{\mathbf C}=\operatorname{Spec}(\mathbf C\otimes_{\mathbf R}\mathbf C)
+\cong\operatorname{Spec}(\mathbf C\times\mathbf C).
+\]
+The two components correspond to the identity and conjugate embeddings of $\mathbf C$ into the separable closure of $\mathbf R$. The nontrivial Galois element $\sigma$ interchanges them. These statements are also the explicit degree-two instance of the finite-etale/Galois-set equivalence [1].
+
+Degree-zero etale cohomology is global sections. A section of the constant sheaf $\F$ on two disjoint geometric points is a pair of elements of $\F$. Hence
+\[
+M=H^0_{\mathrm{et}}(X_{\mathbf C},\underline{\F})=\F^2,
+\qquad \sigma(u,v)=(v,u).
+\]
+The computation for a geometric point follows from the sheaf/Galois-module description [2]; disjoint unions give the product of section groups. In particular
+\[
+M^{G_{\mathbf R}}=D=\{(0,0),(1,1)\}.
+\]
+This is geometric cohomology equipped with a Galois action, not $H^0(G_{\mathbf R},M)$ erroneously treated as if it retained the original nontrivial action.
+\section{The obstruction}
+Write an arbitrary group-algebra element as $e=a+b\sigma$, where $a,b\in\F$. Since $\sigma^2=1$ and the characteristic is two,
+\[
+e^2=a^2+2ab\sigma+b^2\sigma^2=(a+b)\,1.
+\]
+Thus $e^2=e$ forces $b=0$, and then $a$ is either zero or one. The images of these two idempotents are respectively $0$ and $M$, neither equal to $D$.
+\begin{theorem}
+No idempotent of $\F[G_{\mathbf R}]$ projects $M$ onto $M^{G_{\mathbf R}}$. Consequently conjecture 00000007534, without a coefficient restriction, is false.
+\end{theorem}
+This is the familiar modular failure of averaging, not a claimed new phenomenon. It is worth distinguishing two nearby true facts. The norm element $1+\sigma$ has image $D$, but squares to zero and is not idempotent. The linear map $(u,v)\mapsto(u,u)$ is an idempotent projection onto $D$, but does not commute with $\sigma$ and does not arise from the group algebra. The failure is specifically the claimed group-ring idempotent, not the existence of a vector-space projection.
+\section{Formal coverage and verification}
+The accompanying self-contained Lean 4.31.0 project imports only \texttt{Std}. Booleans with XOR and AND represent $\F$; their field laws are checked. Pairs represent coefficient functions on $C_2$, and the actual convolution product is
+\[
+(a,b)(c,d)=(ac+bd,ad+bc).
+\]
+The development verifies associativity, unit, distributivity, the $C_2$ action, its linearity, its group-algebra extension, and all idempotents. Its finite universal statements are proved by kernel reduction with \texttt{decide}, not native evaluation.
+
+Pairs are explicitly identified with functions on the two vertices; the inverse correspondence and the permutation pullback action are verified. For cohomology it explicitly builds the degree-zero cochain complex of the discrete two-point simplicial complex: $C^{-1}=0$, $C^0=\F^2$, $C^1=0$, with zero differentials. It proves that every cochain is a cocycle and that the only boundary is zero. It then forms the quotient by the boundary relation, constructs the coordinate isomorphism, and induces both actions on this actual $H^0$ quotient. The theorem
+\texttt{no\_cohomology\_idempotent\_with\_invariant\_image}
+excludes every idempotent whose image is the fixed subspace. The weaker retraction formulation and the two contrasting true facts above are checked as well.
+
+The geometric scheme, the fields $\mathbf R,\mathbf C$, the general etale site, and the comparison between its degree-zero sections and the finite cochain model are established in the written argument and references, not constructed in Lean. No general etale-cohomology formalization is claimed. The finite cochain computation is exactly the resulting two-point representation, not an assumption of the desired obstruction. Compilation, clean Lake build, every-named-theorem axiom audit, and independent kernel replay are reproducible with the supplied instructions. Formal validation is distinct from contest acceptance.
+\begin{thebibliography}{9}
+\bibitem{stacksG} The Stacks Project, Lemma 58.2.2, tag 04JI, finite etale schemes and Galois sets. \url{https://stacks.math.columbia.edu/tag/04JI}. Accessed 23 October 2026.
+\bibitem{stacksH} The Stacks Project, Section 59.59, tag 03QQ, especially Lemma 59.59.2 and Example 59.59.3, cohomology of a point. \url{https://stacks.math.columbia.edu/tag/03QQ}. Accessed 23 October 2026.
+\bibitem{problem} The Last Math Competition, conjecture 00000007534. \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000007534.md}{Official original statement on GitHub}. Accessed 23 October 2026.
+\end{thebibliography}
+\end{document}
