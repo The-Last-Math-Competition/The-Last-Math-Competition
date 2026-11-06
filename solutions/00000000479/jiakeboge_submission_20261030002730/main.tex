@@ -1,0 +1,147 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{Disproof of Conjecture 00000000479}
+\author{jiakeboge}
+\date{30 October 2026}
+\begin{document}
+\maketitle
+
+\section*{The conjecture}
+
+Conjecture 00000000479 asserts the following.  The perfect matchings (domino
+tilings) of the Aztec diamond of order $n$ --- of which there are
+$2^{n(n+1)/2}$ --- are stratified by the number $k$ of NW--SE main-diagonal
+lozenges they contain.  Then
+\[
+  v_2\bigl(N_k^{(n)}\bigr) = 0 \text{ if } k \equiv 0 \pmod 4,
+  \qquad
+  v_2\bigl(N_k^{(n)}\bigr) = 1 \text{ otherwise,}
+\]
+where $N_k^{(n)}$ is the number of matchings in the $k$-th stratum and $v_2$
+is the $2$-adic valuation.  The pattern is asserted to have period $4$.
+
+We show this is false already for $n = 1$ and $n = 2$, and that the failure is
+not an edge phenomenon: it also occurs at $n = 3$ and $n = 4$.
+
+\section*{Set-up}
+
+For $n \ge 1$ let the Aztec diamond $\mathcal{A}_n$ of order $n$ be the set of
+unit cells $(i,j)$ --- meaning $[i,i+1]\times[j,j+1]$ --- with
+\[
+  \bigl|i + \tfrac12\bigr| + \bigl|j + \tfrac12\bigr| \le n .
+\]
+Thus $|\mathcal{A}_1| = 4$ and $|\mathcal{A}_2| = 12$, in agreement with
+$2n(n+1)$ cells.  A \emph{domino} is a pair of cells sharing an edge; a
+\emph{matching} is a set of dominoes partitioning $\mathcal{A}_n$.  We call a
+domino \emph{horizontal} if its two cells have equal second coordinate and
+\emph{vertical} otherwise.
+
+The conjecture's phrase ``NW--SE main-diagonal lozenge'' selects one of the two
+orientations.  This choice is immaterial for the stratum sizes: reflection in
+the line $x = y$ is an involution of $\mathcal{A}_n$ exchanging horizontal and
+vertical dominoes, so the horizontal and vertical stratum sizes coincide.  We
+therefore count horizontal dominoes; the same numbers hold for vertical ones.
+
+\section*{The counterexample}
+
+\begin{lemma}
+For $n = 1$ the two matchings of $\mathcal{A}_1$ carry $0$ and $2$ horizontal
+dominoes respectively.  Hence $N_2^{(1)} = 1$ and $v_2\bigl(N_2^{(1)}\bigr) = 0$.
+\end{lemma}
+
+\begin{proof}
+$\mathcal{A}_1$ consists of the four cells $(-1,-1)$, $(-1,0)$, $(0,-1)$,
+$(0,0)$.  There are exactly two matchings: the two horizontal dominoes
+$\{(-1,-1),(0,-1)\}$ and $\{(-1,0),(0,0)\}$, or the two vertical dominoes
+$\{(-1,-1),(-1,0)\}$ and $\{(0,-1),(0,0)\}$.
+\end{proof}
+
+Since $2 \not\equiv 0 \pmod 4$, the conjecture requires
+$v_2\bigl(N_2^{(1)}\bigr) = 1$, but the value is $0$.
+
+\begin{theorem}
+For $n = 2$ the eight matchings of $\mathcal{A}_2$ have horizontal-domino
+counts $6, 4, 4, 2, 4, 2, 2, 0$.  Consequently
+\[
+  N_0^{(2)} = 1, \quad N_2^{(2)} = 3, \quad N_4^{(2)} = 3, \quad N_6^{(2)} = 1,
+\]
+and in particular $v_2\bigl(N_2^{(2)}\bigr) = v_2(3) = 0 \ne 1$ and
+$v_2\bigl(N_6^{(2)}\bigr) = v_2(1) = 0 \ne 1$.
+\end{theorem}
+
+\begin{proof}
+$\mathcal{A}_2$ has the twelve cells
+\[
+\begin{array}{l}
+  (-2,-1),\ (-2,0),\ (-1,-2),\ (-1,-1),\ (-1,0),\ (-1,1),\\
+  (0,-2),\ (0,-1),\ (0,0),\ (0,1),\ (1,-1),\ (1,0).
+\end{array}
+\]
+Enumerating matchings by repeatedly covering the lexicographically least
+uncovered cell yields exactly the eight listed below, where only the
+\emph{horizontal} dominoes are written out; every domino not listed is
+vertical.  A pair $(a,b)(c,d)$ denotes the horizontal domino with cells
+$(a,b)$ and $(c,d)$, and $h$ is the number of horizontal dominoes.
+
+\begin{enumerate}\setlength{\itemsep}{1pt}\setlength{\parsep}{1pt}
+\item[$0$] $(-2,-1)(-1,-1)$, $(-2,0)(-1,0)$, $(-1,-2)(0,-2)$,
+      $(-1,1)(0,1)$, $(0,-1)(1,-1)$, $(0,0)(1,0)$; \ $h=6$.
+\item[$1$] $(-2,-1)(-1,-1)$, $(-2,0)(-1,0)$, $(-1,-2)(0,-2)$,
+      $(-1,1)(0,1)$; \ $h=4$.
+\item[$2$] $(-1,-2)(0,-2)$, $(-1,-1)(0,-1)$, $(-1,0)(0,0)$,
+      $(-1,1)(0,1)$; \ $h=4$.
+\item[$3$] $(-1,-2)(0,-2)$, $(-1,-1)(0,-1)$; \ $h=2$.
+\item[$4$] $(-1,-2)(0,-2)$, $(-1,1)(0,1)$, $(0,-1)(1,-1)$,
+      $(0,0)(1,0)$; \ $h=4$.
+\item[$5$] $(-1,-2)(0,-2)$, $(-1,1)(0,1)$; \ $h=2$.
+\item[$6$] $(-1,0)(0,0)$, $(-1,1)(0,1)$; \ $h=2$.
+\item[$7$] none; \ $h=0$.
+\end{enumerate}
+
+Every listed configuration is readily checked to be a matching of
+$\mathcal{A}_2$, and the eight are distinct.  Since the Aztec diamond of
+order $2$ admits exactly $2^{n(n+1)/2} = 2^{3} = 8$ matchings, the list is
+complete.
+\end{proof}
+
+Both strata with $k \not\equiv 0 \pmod 4$ have odd cardinality, whereas the
+conjecture demands $2$-adic valuation exactly $1$.  This contradicts the
+conjecture.
+
+\section*{The failure is not an edge phenomenon}
+
+The same enumeration gives the full stratum table:
+\[
+\begin{array}{c|ccccccc}
+n & N_0 & N_2 & N_4 & N_6 & N_8 & N_{10} & \cdots\\ \hline
+1 & 1 & 1 & & & & & \\
+2 & 1 & 3 & 3 & 1 & & & \\
+3 & 1 & 6 & 15 & 20 & 15 & 6 & \cdots\\
+4 & 1 & 10 & 45 & 120 & 210 & 252 & \cdots
+\end{array}
+\]
+At $n = 3$ we have $N_6^{(3)} = 20$ with $v_2(20) = 2 \ne 1$, and at $n = 4$
+the strata $k = 6, 8, 10, 12, 14$ all violate the asserted valuation.  For
+instance $N_8^{(4)} = 210$ is even though $8 \equiv 0 \pmod 4$, so even the
+``vanishing'' half of the dichotomy fails.  (Computationally the tables are
+$N_k^{(n)} = \binom{n(n+1)/2}{k/2}$ for $k$ even, verified for $n \le 5$; this
+identity is not needed for the disproof and is recorded only as an
+observation.)
+
+\section*{Formalisation}
+
+The Lean~4 project in \texttt{lean4/} encodes the order-$1$ and order-$2$
+Aztec diamonds as explicit finite lists of cells, enumerates their matchings by
+a total recursive search, and kernel-checks
+\begin{itemize}
+  \item that the order-$2$ diamond admits exactly $8$ matchings,
+  \item that exactly $3$ of them contain exactly $2$ horizontal dominoes, and
+  \item that $3$ is odd, so its $2$-adic valuation is $0$, not $1$.
+\end{itemize}
+No search is left unformalised: the enumeration is a definition, and the two
+counting statements are decided in the kernel.  No \texttt{sorry},
+\texttt{native\_decide}, or additional axiom is used.
+\end{document}
