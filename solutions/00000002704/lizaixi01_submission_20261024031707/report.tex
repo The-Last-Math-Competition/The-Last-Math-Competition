@@ -1,0 +1,122 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\newcommand{\N}{\mathbb N}
+\title{An analytic $5$-adic inverse with arbitrarily small nonconvergent orbits}
+\author{Submission for TLMC problem 00000002704}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+
+\paragraph{Claim and scope.}
+The conjecture says that iteration of a $p$-adic local inverse within its
+convergence radius converges linearly. No attracting multiplier hypothesis
+is stated. We give an actual one-dimensional analytic inverse over $\Q_5$
+whose power series has infinite convergence radius, but which has
+nonconvergent orbits entirely inside every positive-radius ball around its
+fixed point. This refutes the unconditional convergence clause. It does not
+contradict the inverse function theorem or a contraction theorem with its
+attracting hypotheses, and does not assign a value to an unspecified
+linear rate or logarithmic constant.
+
+\paragraph{The inverse and the actual power series.}
+Let
+\[
+f:\Q_5\longrightarrow\Q_5,\quad f(z)=-z,
+\qquad g:\Q_5\longrightarrow\Q_5,\quad g(z)=-z.
+\]
+Both maps are continuous and $\Q_5$-linear. Direct substitution gives
+\[
+g\circ f=f\circ g=\operatorname{id}_{\Q_5}.
+\]
+They therefore define a global homeomorphism and its actual inverse;
+restriction to any invariant neighborhood is a local inverse pair.
+The derivative is
+\[
+f'(z)=-1\ne0,\qquad |f'(z)|_5=1
+\]
+at every point, so the one-dimensional Jacobian is invertible.
+
+The inverse has the genuine series at $0$
+\[
+g(z)=0+(-1)z+0z^2+0z^3+\cdots.
+\]
+This is a polynomial series, hence has convergence radius $+\infty$.
+The formal proof uses the native
+\texttt{ContinuousLinearMap.fpowerSeries} of the actual inverse map and
+proves its native \texttt{FormalMultilinearSeries.radius} is $\infty$.
+It also supplies \texttt{HasFPowerSeriesOnBall} on that whole ball, so the
+series is proved to represent $g$, rather than merely being a formal list of
+coefficients. These are the linear analytic constructions of Mathlib
+\cite{linear}.
+
+\paragraph{Nonzero starting points in arbitrarily small balls.}
+Fix any real $r>0$. The normalized $5$-adic norm satisfies
+\[
+|5|_5=\frac15,\qquad |5^N|_5=5^{-N}.
+\]
+Choose $N\in\N$ with $5^{-N}<r$ and put $x=5^N$.
+Because $\Q_5$ is a field of characteristic zero, $x\ne0$, and
+\[
+x\in B(0,r).
+\]
+All these quantities come from the actual $5$-adic field and its norm;
+the point and its size are not assigned abstractly.
+
+\paragraph{The entire orbit stays in the ball and fails to converge.}
+For every $n\in\N$, direct iteration gives
+\[
+g^{2n}(x)=x,\qquad g^{2n+1}(x)=-x,
+\qquad |g^n(x)|_5=|x|_5<r.
+\]
+Thus the entire orbit remains in $B(0,r)$, and in particular remains within
+the actual infinite convergence radius of the inverse series. This holds
+for every $r>0$, not just for one large neighborhood.
+
+Suppose the full orbit converged to some $y\in\Q_5$. The maps
+$n\mapsto2n$ and $n\mapsto2n+1$ both tend to infinity, so the even and odd
+subsequences would converge to the same $y$. They are respectively the
+constant sequences $x$ and $-x$. Uniqueness of limits in the Hausdorff field
+$\Q_5$ would give
+\[
+x=y=-x,
+\qquad 2x=0.
+\]
+Since $2\ne0$ and $x\ne0$ in $\Q_5$, this is impossible. Therefore the orbit
+does not converge at all, and consequently cannot converge linearly.
+
+\paragraph{Formal scope and files.}
+The Lean conclusion is quantified over every real $r>0$. It constructs
+an actual nonzero $x\in\Q_5$, proves every iterate lies in the open metric
+ball $B(0,r)$, and excludes convergence to every $y\in\Q_5$. Separate
+theorems prove both inverse identities, the global homeomorphism, the strict
+derivative, its nonvanishing and norm, the actual series representation and
+its infinite radius, and the two cofinal constant subsequences.
+
+The complete construction is in \texttt{lean/Main.lean}. Its conclusion is
+\begin{center}
+\texttt{TLMC2704.counterexample}.
+\end{center}
+The project pins Lean 4.33.0 and Mathlib commit
+\begin{center}
+\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\end{center}
+The original bilingual conjecture is preserved in \texttt{SOURCE.md}.
+Exact build commands, exhaustive namespace axiom checks, fresh-kernel
+receipts and file hashes accompany the submission. The proof addresses
+the stated convergence assertion only; it makes no claim that multiplier
+norm alone determines a general analytic inverse's radius.
+
+\begin{thebibliography}{1}
+\bibitem{linear}
+Mathlib, \emph{Linear functions are analytic},
+\texttt{Mathlib/Analysis/Analytic/Linear.lean},
+\href{https://github.com/leanprover-community/mathlib4/blob/db584cd6d46c92f209a44c0f1c829460d327499d/Mathlib/Analysis/Analytic/Linear.lean}{pinned source}.
+\end{thebibliography}
+\end{document}
