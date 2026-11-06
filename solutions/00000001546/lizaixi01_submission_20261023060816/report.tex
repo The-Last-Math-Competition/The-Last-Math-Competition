@@ -1,0 +1,70 @@
+\documentclass[10pt]{article}
+\usepackage[a4paper,margin=23mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001546: a polynomial growth obstruction}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{Two incompatible necessary clauses}
+Both source languages assert that the maximum bisector-line count
+has upper growth $n e^{O(\sqrt{\log n})}$ and that no polynomial
+upper bound exists. These clauses are incompatible for \emph{any}
+candidate counting function. We use the ordinary meaning of a
+polynomial upper bound: $O(n^d)$ for some fixed nonnegative integer
+$d$. In fact, the asserted upper growth implies $O(n^2)$.
+
+This does not assign a value to a geometric counting function or
+replace bisector lines by an artificial model. It refutes the
+necessary numerical conjunction regardless of what the actual
+count is. We do not determine the correct maximal halving-line
+count, resolve variants of the source's geometric definition, or
+deny the compatible lower growth $n e^{\Omega(\sqrt{\log n})}$.
+
+\section{An explicit analytic bound}
+Let $x\ge1$ and $C\in\mathbb R$. Set $u=\sqrt{\log x}$.
+Since $(u-C/2)^2\ge0$ and $u^2=\log x$,
+\[
+ C\sqrt{\log x}\le\log x+\frac{C^2}{4}.
+\]
+Exponentiating and multiplying by $x\ge0$ gives the exact bound
+\[
+ x e^{C\sqrt{\log x}}\le e^{C^2/4}x^2. \tag{1}
+\]
+This holds for every real $C$, with an explicit constant and the
+fixed cutoff $x\ge1$. Hence every function that is
+$O(n e^{C\sqrt{\log n}})$ for some $C$ is $O(n^2)$.
+
+The proof also treats the $O$ \emph{inside} the exponential
+directly. If $h(n)=O(\sqrt{\log n})$, its genuine eventual norm
+bound gives $h(n)\le C\sqrt{\log n}$ beyond a cutoff. Apply (1)
+there to obtain
+\[
+ n e^{h(n)}=O(n^2).
+\]
+Any eventually equal function has the same bound. For a one-sided
+counting bound $f(n)\le n e^{C\sqrt{\log n}}$, Lean explicitly
+requires $f(n)\ge0$; the natural-valued specialization supplies
+this automatically. No negative-function loophole is used.
+
+\section{Formal conclusion and verification}
+Mathlib's actual \texttt{Asymptotics.IsBigO} at \texttt{atTop}
+encodes all bound constants and cutoffs. The final statements
+quantify over every candidate real-valued function, and separately
+every natural-valued count, and deny the conjunction of the printed
+upper-growth condition with absence of every $O(n^d)$. The witness
+polynomial exponent is the actual integer $d=2$. Real logarithm,
+square root, exponential, eventual equality and Big-$O$
+transitivity are all proved with their actual analytic meanings.
+
+Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+are pinned. A new root build, all eleven theorem axiom audits and
+full official \texttt{leanchecker --fresh Main} replay are included.
+No \texttt{sorry}, \texttt{native\_decide} or additional axiom is
+used. OpenAI Codex assisted, with a separate supervising Codex
+agent reviewing source, proof, report and rendered PDF. This is
+AI review, not human certification. Organizer acceptance is pending.
+\end{document}
