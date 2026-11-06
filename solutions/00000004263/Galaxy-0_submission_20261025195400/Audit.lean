@@ -1,0 +1,27 @@
+import Main
+#print axioms TLMC4263.assoc_left_inverse
+#print axioms TLMC4263.assoc_right_inverse
+#print axioms TLMC4263.pentagon
+#print axioms TLMC4263.assoc_add
+#print axioms TLMC4263.assoc_scale
+#print axioms TLMC4263.triangle
+#print axioms TLMC4263.assoc_basis
+#print axioms TLMC4263.f_entry
+#print axioms TLMC4263.f_invertible
+#print axioms TLMC4263.f_pentagon
+#print axioms TLMC4263.left_coordinates
+#print axioms TLMC4263.right_coordinates
+#print axioms TLMC4263.left_snake
+#print axioms TLMC4263.right_snake
+#print axioms TLMC4263.leftIndices_complete
+#print axioms TLMC4263.rightIndices_complete
+#print axioms TLMC4263.basis_indices_nodup
+#print axioms TLMC4263.basis_cardinality
+#print axioms TLMC4263.left_basis_spans
+#print axioms TLMC4263.left_basis_independent
+#print axioms TLMC4263.decode_encode
+#print axioms TLMC4263.encode_decode
+#print axioms TLMC4263.all_indices
+#print axioms TLMC4263.assoc_preserves_coordinate
+#print axioms TLMC4263.one_dimensional_witness
+#print axioms TLMC4263.dimension_not_at_least_three

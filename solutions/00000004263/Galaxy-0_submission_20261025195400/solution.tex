@@ -1,0 +1,120 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\newtheorem{proposition}{Proposition}
+\title{A one-dimensional F-matrix counterexample to conjecture 00000004263}
+\author{Galaxy-0 (AI-assisted submission)}
+\date{25 October 2026}
+\begin{document}
+\maketitle
+\section{Claim and scope}
+The first conjunct of the supplied bilingual statement says that the minimal
+ dimension for solving the F matrices is $3$. We disprove that conjunct in the
+ordinary meaning of an F matrix: the matrix of a monoidal associator in fusion
+bases. The category $\mathrm{Vec}_{\mathbb C}$ gives the invertible $1\times1$
+solution $F=(1)$. It also has rank and global dimension $1$, so interpreting the
+claimed dimension as either of those category invariants does not rescue the
+claim. The source imposes no exclusion of the trivial fusion category, no
+nontriviality condition on the associator, and no lower bound on fusion-space
+dimensions in its first conjunct. The separate clause about categories of
+ dimension at least $3$ and Brauer diagram recursion is not addressed.
+
+\section{The genuine fusion category}
+Take the category of finite-dimensional complex vector spaces, with complex
+linear maps, the usual tensor product and unit object $\mathbf 1=\mathbb C$.
+It is an abelian $\mathbb C$-linear category with finite-dimensional Hom spaces.
+Every object is a finite direct sum of copies of $\mathbb C$, which is the unique
+simple object up to isomorphism, and
+$\operatorname{End}(\mathbf1)=\mathbb C$. Tensor product is bilinear on maps.
+Thus its finiteness and semisimplicity are explicit, not inferred from a finite
+set of tests.
+
+Its associator and inverse are the linear extensions of
+\[
+ a_{U,V,W}((u\otimes v)\otimes w)=u\otimes(v\otimes w),\qquad
+ a_{U,V,W}^{-1}(u\otimes(v\otimes w))=(u\otimes v)\otimes w.
+\]
+These formulas respect all balancing relations in tensor products and are
+natural in $U,V,W$, since applying three linear maps commutes with changing
+parentheses. The usual left and right unitors are multiplication by scalars.
+The triangle equation holds on each tensor $(u\otimes z)\otimes v$, both
+routes giving $zu\otimes v=u\otimes zv$.
+
+For rigidity, choose a basis $e_1,\ldots,e_n$ of $V$ and its dual basis
+$e^1,\ldots,e^n$ of $V^*$. Define
+\[
+ \operatorname{ev}:V^*\otimes V\longrightarrow\mathbb C,
+ \quad \phi\otimes v\longmapsto\phi(v),\qquad
+ \operatorname{coev}(1)=\sum_{i=1}^n e_i\otimes e^i.
+\]
+One snake composite sends $v$ to $\sum_i e_i e^i(v)=v$; the other sends
+$\phi$ to $\sum_i\phi(e_i)e^i=\phi$. The analogous maps with reversed
+factors give the right dual. Hence every object is rigid. These direct
+checks establish that this is a fusion category under the standard definition;
+compare \cite[Examples 2.3.3, 2.10.12, 4.1.2]{EGNO}.
+
+\section{Pentagon and the computed F matrix}
+For four arbitrary vector spaces, the two-edge path and the three-edge path
+around the pentagon both send
+\[
+ (((u\otimes v)\otimes w)\otimes x)
+       \longmapsto u\otimes(v\otimes(w\otimes x)).
+\]
+Pure tensors span the domain, so the paths are equal as linear maps, on all
+objects and not only on the simple object.
+
+There is precisely one simple fusion rule, namely
+$\mathbf1\otimes\mathbf1\cong\mathbf1$, of multiplicity one. In the left
+and right triple-product bases
+$((1\otimes1)\otimes1)$ and $1\otimes(1\otimes1)$, respectively, the
+associator sends the left basis element to the right basis element, with
+coefficient $1$. Consequently its matrix is
+\[
+ F=\begin{pmatrix}1\end{pmatrix},\quad F^{-1}=F.
+\]
+All intermediate fusion labels are forced to be $\mathbf1$. Therefore the
+matrix pentagon has one summand/channel and is the equality
+$1\cdot1=1\cdot1\cdot1$. This scalar equality is a consequence of the actual
+reassociation above, not a substitute for specifying a fusion category.
+The matrix size is $1<3$, disproving the stated lower bound. The category rank
+is one; its single simple has categorical and Frobenius--Perron dimension one,
+so the global dimension (sum of squared simple dimensions) is also one.
+This is an elementary standard counterexample, not a new theorem about fusion
+categories.
+
+\section{Formal verification and exact boundary}
+The accompanying self-contained Lean 4.31.0 project uses only bundled
+\texttt{Std}. It defines tensor-coordinate functions indexed by product bases,
+the two inverse reassociations, both distinct pentagon paths, and the triangle.
+The reassociation theorems hold for arbitrary coefficient types and arbitrary
+index types; for finite bases these are the usual vector-space tensor
+coordinates. Linearity under coefficientwise addition and scaling is proved.
+The complete, nonrepeating left and right singleton basis lists are checked,
+as are their cardinalities, the coordinate encoding/decoding bijections and,
+over the integers, spanning and independence. The actual basis transformation
+has coefficient $1$. Its $1\times1$ inverse and pentagon equations, the
+unit-simple snake equations, and the strict dimension inequality are checked.
+
+The Lean file does \emph{not} construct the category of complex vector spaces,
+abstract tensor-product universal properties, abelian categories, general
+rigidity, or a general fusion-category library. Those identifications and the
+all-object rigidity argument are the explicit mathematical proof above. The
+integer matrix checks are an integral certificate for the universal coefficient
+formulas; they are not a claim that integer modules form a fusion category.
+There are no custom axioms, \texttt{sorry}, \texttt{native\_decide}, or kernel
+bypasses. Verification records distinguish clean compilation, axiom audits and
+independent kernel replay from organizer acceptance. This is submitted for
+review; no acceptance or score is claimed.
+
+\begin{thebibliography}{1}
+\bibitem{EGNO} P. Etingof, S. Gelaki, D. Nikshych and V. Ostrik,
+\emph{Tensor Categories}, AMS, 2015. Examples 2.3.3 (p.~26),
+2.10.12 (p.~42), and 4.1.2 (p.~65).
+Author's final version:
+\url{https://math.mit.edu/~etingof/egnobookfinal.pdf}.
+\end{thebibliography}
+\end{document}
