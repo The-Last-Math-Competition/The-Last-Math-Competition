@@ -1,0 +1,93 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}\setlength{\parskip}{4pt}
+\newcommand{\R}{\mathbb R}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000008031: a definable metric exceeds the ambient bound}
+
+lizaixi01 \quad AI-led research and formalization \quad 23 October 2026
+\end{center}
+\textbf{Result and scope.} On the real line $X=\R\subset\R^1$, equip $X$ with the metric
+\[
+d(x,y)=\sqrt{|x-y|}.
+\]
+This is a parameter-free definable metric, with the rational snowflake exponent $1/2$ explicitly among the source's permitted algebraic parameters. From genuine finite packing estimates, we prove that its Assouad dimension lies in $[3/2,2]$. It therefore lies outside $[0,1]$.
+
+The original statement does not explicitly define the letter $n$. We use its usual interpretation as the ambient dimension when $X\subset\R^n$, with $n=1$ here. The new metric induces the usual real-line topology, so this is also a counterexample if $n$ means the usual topological dimension of this $X$. We refute this interpretation of the asserted $[0,n]$ spectrum bound. We make no claim about a different unspecified parameter called $n$, the proposed Minkowski approximation sequences, a minimal realization model, or exclusion of transcendental parameters. The complete English and Chinese source is preserved in \texttt{SOURCE.md}.
+
+\section*{1. A genuine metric and a definable distance graph}
+For nonnegative $a,b$, $\sqrt{a+b}\le\sqrt a+\sqrt b$. Combining this with the usual triangle inequality shows that $d$ is a metric. The formal proof uses Mathlib's actual \texttt{Metric.Snowflaking} construction with exponent $1/2$, which supplies the metric-space structure and its topology. The canonical map from $\R$ to this metric space is a bijection, and we prove
+\[
+d(x,y)^2=|x-y|.
+\]
+We do not merely attach a custom name to a distance formula without checking its metric laws.
+
+The graph of this metric is definable even in the pure language of rings. For real $x,y,z$,
+\[
+z=d(x,y)\quad\Longleftrightarrow\quad
+\exists t\in\R:\quad z=t^2\ \wedge\
+\bigl(z^2=x-y\ \vee\ z^2=y-x\bigr).
+\]
+The equation $z=t^2$ enforces $z\ge0$. Of the two differences, the nonnegative one is $|x-y|$, giving the asserted equivalence. Conversely, if $z=d(x,y)$, its nonnegativity gives a square root $t$, and $z^2=|x-y|$ is one of these differences.
+
+Lean constructs an actual first-order formula with three free variables and one existentially bound variable using the ordinary symbols $+,\cdot,-,0,1$. It proves the realization equivalence for every real assignment, and then proves Mathlib's \texttt{Set.Definable} property for the distance graph with no parameters. The whole real-line domain is also proved definable. The formula is connected to the actual snowflake distance, not left as an unrelated algebraic predicate.
+
+\section*{2. The standard finite-packing definition}
+We call $s\ge0$ an admissible upper exponent if there exists $C>0$ such that, for all $0<r\le D$ and all finite sets $S\subset X$ with
+\[
+d(x,y)\le D\quad(x,y\in S),\qquad
+d(x,y)\ge r\quad(x,y\in S,\ x\ne y),
+\]
+one has
+\[
+|S|\le C(D/r)^s.
+\]
+The Assouad dimension is the infimum of these exponents. This is the usual separated-packing formulation, equivalent to the covering formulation: a maximal separated set covers at that scale, and a cover by sufficiently smaller balls contains at most one separated point per ball. Changing these fixed scale factors changes the constant $C$, not the infimum. Ishiki's Section 2.2 and Proposition 2.2 give this separated-set characterization.
+
+The formal development quantifies over all finite subsets of the actual metric space, every positive separation scale and every allowed diameter bound. It defines the dimension by this genuine infimum. Before using the real infimum, it proves that the admissible set is nonempty and bounded below. Thus no empty-set or unbounded-infimum convention supplies the result.
+
+\section*{3. A uniform upper bound from actual packing counts}
+Fix an admissible finite packing $S$, with $S\ne\varnothing$, and choose $x_0\in S$. The distance identity implies
+\[
+|x-x_0|\le D^2\quad(x\in S),\qquad
+|x-y|\ge r^2\quad(x\ne y\in S).
+\]
+All ordinary coordinates lie in an interval of length $2D^2$. Map each coordinate $x$ to the nonnegative integer
+\[
+\left\lfloor\frac{x-(x_0-D^2)}{r^2}\right\rfloor.
+\]
+This map is injective on $S$: two coordinates with the same floor differ by strictly less than $r^2$, contrary to their separation. Its image is contained in the actual integer range from $0$ to $\lfloor 2D^2/r^2\rfloor$. Hence
+\[
+|S|\le \left\lfloor 2D^2/r^2\right\rfloor+1
+\le 2(D/r)^2+1\le3(D/r)^2.
+\]
+The empty set satisfies the bound as well. This proves that $s=2$ is an admissible exponent. All exponents are nonnegative by definition, so their set is nonempty and bounded below.
+
+\section*{4. An unbounded family of finite witnesses}
+For every positive integer $N$, consider the actual finite subset
+\[
+S_N=\left\{\frac{j}{N^4}:0\le j<N^4\right\}.
+\]
+The map from the indicated integer range to real points is injective, so $|S_N|=N^4$. Its ordinary diameter is at most $1$, and distinct points have ordinary separation at least $N^{-4}$. Thus its snowflake diameter is at most $D=1$ and its snowflake separation is at least $r=N^{-2}$.
+
+If $3/2$ were admissible, some single $C>0$ would bound every one of these packings. Taking an integer $N>\max(C,1)$ gives
+\[
+N^4=|S_N|\le C(1/N^{-2})^{3/2}=CN^3<N^4,
+\]
+a contradiction. No desired cardinality is assigned: Lean evaluates the cardinality of the image of the genuine finite integer range.
+
+Finally, the admissible exponents are upward closed, since $D/r\ge1$. Failure at $3/2$ therefore excludes every exponent at most $3/2$. Taking the infimum of the previously proved nonempty set yields
+\[
+\frac32\le\dim_A(X,d)\le2,
+\qquad\dim_A(X,d)\notin[0,1].
+\]
+We do not need to assert the exact value $2$ to refute the proposed upper bound in ambient dimension $1$.
+
+\section*{5. Verification}
+The complete pinned Lean project audits all 35 named declarations: 26 theorems, 7 definitions, 1 abbreviation and the real ring-language instance. It includes the metric, definability, every packing quantifier, the finite cardinalities, upward closure and the genuine infimum bounds. Source-bound build, all-named axiom audit, and full official fresh-kernel receipts accompany the proof. There is no \texttt{sorry}, \texttt{native\_decide}, or extra axiom. The complete mathematical scope and both rendered PDF pages are reviewed by the worker and a separate supervising AI.
+
+\textbf{Primary convention reference.} Y. Ishiki, \emph{A characterization of metric subspaces of full Assouad dimension}, J. Fractal Geom. (2021), printed pp. 6--7, Section 2.2 and Proposition 2.2, \url{https://ems.press/content/serial-article-files/37345}. Only the standard packing characterization is used; the finite bounds above are proved in Lean. Initial and final eligibility checks accompany the submission. Organizer acceptance and a controlled efficiency gain are not claimed.
+\end{document}

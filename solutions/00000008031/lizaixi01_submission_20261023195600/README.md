@@ -1,0 +1,9 @@
+# 00000008031: a definable metric exceeds the ambient dimension bound
+
+The real line with distance sqrt(abs(x-y)) is an actual Mathlib half-snowflake metric space. Its distance graph is parameter-free definable in the ordinary first-order ring language: the proof constructs and realizes the formula exists t, z=t*t and (z*z=x-y or z*z=y-x), and connects it to the genuine distance. The real-line domain is also proved definable.
+
+The Assouad dimension uses the standard uniform finite separated-packing formulation. The exponent set is proved nonempty using a universal packing bound 3(D/r)^2 and bounded below by0 before taking its actual real infimum. Actual grids of N^4 points have diameter<=1 and separation>=N^-2, contradicting any exponent3/2 bound. Upward closure excludes every smaller exponent, giving 1.5<=dimension<=2 and hence dimension outside[0,1]. Neither dimension nor cardinality is assigned as a desired constant.
+
+The source does not define n explicitly. This counterexample uses the conventional ambient dimension for X=R inside R^1, n=1; the topology is the usual real-line topology. It refutes this interpretation of the [0,n] spectrum upper bound. It does not claim to settle unspecified Minkowski approximation, minimal-model or transcendental-parameter assertions, or an alternative meaning of n.
+
+SOURCE.md preserves the complete bilingual source. report.tex/report.pdf give the complete argument and the standard packing convention reference. lean/ contains the full pinned project with all35 named declarations audited. evidence/ includes source-bound commands, logs, official fresh replay and separate semantic/PDF review. Initial eligibility found no earlier same-ID submission. This is AI-led selective production, not organizer acceptance or a controlled efficiency claim.

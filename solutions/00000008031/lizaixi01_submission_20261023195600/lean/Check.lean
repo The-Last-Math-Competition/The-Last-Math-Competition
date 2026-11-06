@@ -1,0 +1,37 @@
+import Main
+
+#print axioms TLMC8031.Snow
+#print axioms TLMC8031.point
+#print axioms TLMC8031.point_injective
+#print axioms TLMC8031.point_surjective
+#print axioms TLMC8031.dist_point
+#print axioms TLMC8031.dist_sq
+#print axioms TLMC8031.dist_le_iff_sq
+#print axioms TLMC8031.le_dist_iff_sq
+#print axioms TLMC8031.UpperExponent
+#print axioms TLMC8031.assouadDimension
+#print axioms TLMC8031.separated_card_bound
+#print axioms TLMC8031.upper_two
+#print axioms TLMC8031.exponent_set_nonempty
+#print axioms TLMC8031.exponent_set_bddBelow
+#print axioms TLMC8031.upper_mono
+#print axioms TLMC8031.grid
+#print axioms TLMC8031.grid_card
+#print axioms TLMC8031.grid_coordinate
+#print axioms TLMC8031.grid_diameter
+#print axioms TLMC8031.grid_separated
+#print axioms TLMC8031.not_upper_three_halves
+#print axioms TLMC8031.exponent_lower
+#print axioms TLMC8031.dimension_lower
+#print axioms TLMC8031.dimension_upper
+#print axioms TLMC8031.dimension_exceeds_one
+#print axioms TLMC8031.dimension_not_in_claimed_range
+#print axioms TLMC8031.realRingLanguage
+#print axioms TLMC8031.metricGraphBody
+#print axioms TLMC8031.metricGraphFormula
+#print axioms TLMC8031.sqrt_abs_characterization
+#print axioms TLMC8031.metricGraphFormula_realize
+#print axioms TLMC8031.distanceGraph
+#print axioms TLMC8031.distanceGraph_definable
+#print axioms TLMC8031.real_line_definable
+#print axioms TLMC8031.concrete_counterexample
