@@ -1,0 +1,238 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{An open queue with inverse-deficit length scale\newline
+\large Disproof of Conjecture 00000005501}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+A single stationary M/M/1 queue is an open Markovian
+network with exponential service. With service rate one
+and load $\rho\in(0,1)$, its mean population is
+$\rho/(1-\rho)$, with deficit exponent $-1$.
+Moreover, along an explicit stable sequence approaching
+load one, every fixed multiple of the proposed
+$(1-\rho)^{-1/2}$ scale captures probability tending to
+zero. The contradiction therefore concerns the actual
+probability scale as well as the mean, and holds whether
+queue length includes the customer in service or counts
+only waiting customers.
+\end{abstract}
+
+\section*{An actual open Markovian queue}
+Take an infinite-capacity station with external Poisson
+arrivals of rate $\rho\in(0,1)$, a single exponential
+server of rate one, and departures out of the network.
+This is an open M/M/1 network; the source does not require
+more than one station. Its load is $\rho$ and its
+stability boundary is $\rho=1$. Write $\delta=1-\rho$.
+The standard queue model and its birth/death rates are
+described in \cite{modiano}.
+
+Here is an explicit equivalent construction used in Lean.
+Run a Poisson clock of rate $1+\rho$. At each clock tick,
+independently choose arrival with probability
+$u=\rho/(1+\rho)$, and potential service with probability
+$d=1/(1+\rho)$. An arrival changes $n$ to $n+1$.
+Potential service changes $n$ to $(n-1)^+$; at zero it
+is an idle event. The actual transition probability is
+\[
+ T(n,m)=u\boldsymbol1_{m=n+1}
+           +d\boldsymbol1_{m=(n-1)^+}.
+\]
+Its Poisson uniformization generator $Q=(1+\rho)(T-I)$
+has the complete list of entries
+\begin{gather*}
+ Q(n,n+1)=\rho,\quad Q(n+1,n)=1,\quad Q(0,0)=-\rho,\\
+ Q(n+1,n+1)=-(1+\rho),
+ \qquad Q(n,m)=0\quad\text{otherwise}.
+\end{gather*}
+These are precisely the M/M/1 rates. Thus the geometric
+distribution used below is tied to a genuine queue
+transition law, rather than merely named as a queue length.
+
+\newpage
+\section*{Stationarity and the true expectation}
+Let $\pi_\rho$ be the normalized geometric probability law
+\[
+                    \pi_\rho(n)=\delta\rho^n,
+                      \qquad n=0,1,\ldots.
+\]
+Normalization follows from the convergent geometric
+series. Adjacent entries satisfy detailed balance since
+\[
+ \pi_\rho(n)u
+   =\delta\rho^n\frac\rho{1+\rho}
+   =\delta\rho^{n+1}\frac1{1+\rho}
+   =\pi_\rho(n+1)d.
+\]
+For nonadjacent distinct states both transition terms
+are zero, and diagonal detailed balance is automatic.
+Summing the identity over the first state gives
+$\pi_\rho T=\pi_\rho$. It follows by induction that
+$\pi_\rho T^k=\pi_\rho$ for every $k$.
+
+At time $t\geq0$ the actual uniformized queue law,
+initialized with $\pi_\rho$, is
+\[
+ \sum_{k=0}^{\infty}
+   e^{-(1+\rho)t}\frac{((1+\rho)t)^k}{k!}
+             (\pi_\rho T^k)=\pi_\rho.
+\]
+This proves all-time stationarity for the explicitly
+specified queue. In Lean, $T$ is an actual PMF transition,
+iterations are actual PMF binds, and the mixture is
+Mathlib's actual Poisson PMF bind.
+
+The expectation is the genuine nonnegative Lebesgue
+integral of state $n$ against this probability measure.
+The weighted geometric series gives the finite value
+\[
+ \mathbb E_\rho N
+   =\sum_{n=0}^{\infty}n\delta\rho^n
+   =\delta\frac\rho{(1-\rho)^2}
+   =\frac\rho\delta,
+       \qquad \delta\mathbb E_\rho N=\rho.
+\]
+In particular its deficit exponent is $-1$ and
+$\delta\mathbb E_\rho N\to1$ as $\rho\uparrow1$.
+This disagrees with a finite nonzero prefactor on the
+proposed half-power scale. The next argument also rules
+out a rare-tail explanation for this mean divergence.
+
+\section*{An actual distribution bound}
+For every $K\in\mathbb N$, each atom has mass at most
+$\delta$, because $\rho^n\leq1$. Hence
+\[
+       0\leq\Pr_\rho(N\leq K)
+              =\sum_{n=0}^{K}\delta\rho^n
+                    \leq(K+1)\delta.
+\]
+This is a bound for the actual stationary probability
+measure, not a moment inequality or an approximation.
+
+\newpage
+\section*{The half-power scale fails in probability}
+For $k\geq0$, put
+\[
+ a_k=k+2,\qquad \rho_k=1-a_k^{-2},\qquad
+ \delta_k=a_k^{-2}.
+\]
+For every $k$, $0<\rho_k<1$, and $\rho_k\to1$.
+The proposed scale is exactly
+$\delta_k^{-1/2}=a_k$. Its normalized mean is
+\[
+       \sqrt{\delta_k}\,\mathbb E_{\rho_k}N
+              =a_k-a_k^{-1}\longrightarrow+\infty.
+\]
+For every fixed integer $M\geq0$, the actual cutoff
+probability satisfies
+\[
+ 0\leq\Pr_{\rho_k}(N\leq M a_k)
+       \leq\frac{M a_k+1}{a_k^2}
+       \leq\frac{M+1}{a_k}\longrightarrow0.
+\]
+Arbitrary finite real cutoffs are covered by choosing
+a larger integer $M$ and using event inclusion.
+Thus $\sqrt{\delta_k}N$ escapes to $+\infty$ in
+probability. In particular, these scaled distributions
+are not tight and cannot have a finite stationary
+half-power scaling law. The failure along one legitimate
+sequence suffices to refute the asserted general
+near-boundary scale.
+
+\section*{If queue length means waiting customers only}
+Let $W=(N-1)^+$. Its actual distribution is the pushforward
+of $\pi_\rho$ by this map. For every integer $K\geq0$,
+\[
+        \{W\leq K\}=\{N\leq K+1\}.
+\]
+Consequently
+\[
+ 0\leq\Pr_{\rho_k}(W\leq M a_k)
+    \leq\frac{M a_k+2}{a_k^2}
+    \leq\frac{M+2}{a_k}\longrightarrow0.
+\]
+The same probabilistic obstruction therefore holds under
+both common conventions for queue length.
+
+\begin{theorem}
+An open Markovian network with exponential service need
+not have queue length on the negative half-power scale
+of the load deficit near stability.
+\end{theorem}
+\begin{proof}
+The single stationary M/M/1 queue above satisfies the
+stated network definition, while every finite multiple
+of that proposed scale captures probability tending to
+zero along $\rho_k\uparrow1$, under either convention.
+\end{proof}
+The false exponent already refutes the conjunction;
+the additional redistribution prefactor need not be
+determined. The example concerns stationary queue length.
+It makes no claim about centered fluctuations or
+fixed-time transient heavy-traffic approximations.
+
+\newpage
+\section*{Formalization and reproducibility}
+The Lean project defines the normalized arrival/service
+coin as an actual PMF, maps it to the actual queue
+transition, and proves the displayed matrix entries.
+Detailed balance is proved for all state pairs and
+summed using PMF row normalization. Iteration and actual
+Poisson mixing then prove stationarity at every
+nonnegative time. All entries of the uniformization
+generator are proved, including the idle-clock boundary.
+
+Poisson uniformization specifies the actual queue model
+used in the proof. The formal results concern its
+stationary law at every time. A separate construction
+of complete paths with exponential holding times, and
+a semigroup derivative at zero, are outside the Lean
+claims and are unnecessary for this counterexample.
+
+The mean is a nonnegative measure integral, evaluated
+using a proved convergent weighted geometric series.
+Its conversion to a real value occurs only after proving
+the integral equals the finite positive formula; no
+infinite-to-real convention enters the calculation.
+The cutoff probabilities are actual measure values
+on finite sets, with exact finite-sum identities.
+The stable approach sequence, its limit and square-root
+deficit, the diverging normalized mean, and every
+integer-cutoff probability limit are formal theorems.
+
+The waiting-only distribution is an actual pushforward,
+and its event identity and vanishing cutoff probabilities
+are also formal theorems. Separate statements rule out
+eventual capture of even probability $1/2$ by any fixed
+integer multiple of the proposed scale. No numerical
+or auxiliary verifier is required.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Fresh-build logs, source and hashes are included.
+Printed dependencies contain only standard foundational
+axioms. Compile with \texttt{tectonic main.tex}.
+The author agent and parent reviewed the work internally;
+no external independent review is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000005501. Exact bilingual source included.
+\bibitem{modiano} E. Modiano, MIT 6.263,
+\emph{Lectures 5 and 6: Queueing Systems}, M/M/1 queue.
+\href{https://web.mit.edu/modiano/www/6.263/lec5-6.pdf}{Author-hosted lecture slides}.
+The reference identifies the standard queue model;
+the stationarity and probability-scale proof is given above.
+\end{thebibliography}
+\end{document}
