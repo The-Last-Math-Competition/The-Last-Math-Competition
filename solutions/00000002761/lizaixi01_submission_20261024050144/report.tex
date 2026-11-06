@@ -1,0 +1,187 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=24mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,array}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\Mat}{M_3(\Q)}
+\newcommand{\Alt}{\operatorname{Alt}_{A,B,C}}
+\title{A positive-degree central polynomial below the claimed $n^2$ bound}
+\author{Submission for TLMC problem 00000002761}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+
+\paragraph{Scope and conclusion.}
+The source asserts that the least degree of a central polynomial for
+$M_n$ is $n^2$. A central polynomial is a nonidentity whose every matrix
+evaluation is central. As usual, constants are excluded by requiring
+positive degree. We construct an explicit homogeneous polynomial of
+degree $8$ in the free associative algebra on six variables over $\Q$.
+Every evaluation in $\Mat$ is scalar, and one evaluation is $2I_3$.
+Thus the actual least positive degree, with any finite number of
+variables allowed, is at most $8<3^2$. This disproves the degree clause.
+No conclusion about the source's unspecified moduli space or generation
+statement is needed. The existence of degree-eight central polynomials
+for $M_3$ is also recorded in the literature \cite{dk,drensky}; the
+construction and verification below are self-contained.
+
+\paragraph{An explicit weak identity.}
+Put
+\[
+B(X;A,B,C)=\sum_e c_e X^{e_0}A X^{e_1}B X^{e_2}C X^{e_3},
+\]
+where the twenty nonzero coefficients are given by this table. Every
+listed exponent tuple has sum three.
+\begin{center}
+\begin{tabular}{c r@{\qquad\qquad}c r}
+$e$ & $c_e$ & $e$ & $c_e$\\\hline
+$(3,0,0,0)$&$1$&$(0,3,0,0)$&$-1$\\
+$(2,1,0,0)$&$1$&$(0,2,1,0)$&$-1$\\
+$(2,0,1,0)$&$1$&$(0,2,0,1)$&$-1$\\
+$(2,0,0,1)$&$1$&$(0,1,2,0)$&$1$\\
+$(1,2,0,0)$&$-1$&$(0,1,1,1)$&$-1$\\
+$(1,1,1,0)$&$1$&$(0,1,0,2)$&$-1$\\
+$(1,1,0,1)$&$-1$&$(0,0,3,0)$&$1$\\
+$(1,0,2,0)$&$1$&$(0,0,2,1)$&$1$\\
+$(1,0,1,1)$&$1$&$(0,0,1,2)$&$-1$\\
+$(1,0,0,2)$&$-1$&$(0,0,0,3)$&$-1$
+\end{tabular}
+\end{center}
+For any expression $F(A,B,C)$, define its alternation by
+\[
+\Alt F=F(A,B,C)-F(A,C,B)-F(B,A,C)
+ +F(B,C,A)+F(C,A,B)-F(C,B,A).
+\]
+Let $W(X;A,B,C)=\Alt B(X;A,B,C)$. The weak identity needed here is
+\begin{equation}\label{weak}
+\operatorname{tr}X=0\quad\Longrightarrow\quad W(X;A,B,C)=0
+\qquad(X,A,B,C\in\Mat).
+\end{equation}
+
+Here is an entirely finite verification of \eqref{weak}, used also in
+Lean. Write the bottom-right entry of $X$ as $-X_{00}-X_{11}$, leaving
+eight independent rational entries. The expression $W$ is alternating
+and trilinear in $A,B,C$. For its $(0,0)$ entry, it therefore suffices
+to use the $\binom93=84$ ordered triples of distinct matrix units.
+For arbitrary matrices $P_0,\ldots,P_3$, the elementary formula
+\[
+(P_0E_{ij}P_1E_{k\ell}P_2E_{mn}P_3)_{rs}
+=(P_0)_{ri}(P_1)_{jk}(P_2)_{\ell m}(P_3)_{ns}
+\]
+reduces every case to a polynomial identity in the eight entries.
+The Lean file proves each resulting identity by rational ring arithmetic,
+then extends from the actual matrix-unit basis using a multilinear map.
+This gives $W(X;A,B,C)_{00}=0$ for all $A,B,C$.
+
+The polynomial commutes with simultaneous conjugation, and trace is
+conjugation invariant. Consequently every conjugate of $W(X;A,B,C)$
+has zero $(0,0)$ entry. Conjugation by permutation matrices first gives
+all diagonal entries zero. After permuting index $j$ to zero, conjugation
+by $I+E_{0k}$ with inverse $I-E_{0k}$ gives $T_{jj}+T_{ij}=0$ for each
+$i\ne j$. Hence every off-diagonal entry is zero as well. This proves
+\eqref{weak} without a diagonalizability or density assumption.
+
+\paragraph{From a weak identity to a central polynomial.}
+In each of the twenty block words, mark in turn one of its three
+occurrences of $X$. This gives sixty signed decompositions
+\[
+c\,LXR,\qquad c\in\{1,-1\},
+\]
+where $L$ and $R$ retain their order and contain the other letters.
+Replace the two unmarked occurrences of $X$ by $Y$. Define
+\[
+\begin{aligned}
+D_Y(X;A,B,C)&=\Alt\sum c\,L(Y)X R(Y),\\
+G(Y;A,B,C,Z)&=\Alt\sum c\,R(Y)Z L(Y).
+\end{aligned}
+\]
+These finite formulas define actual noncommutative polynomials, with
+the sixty terms specified uniquely by the table and the marking rule.
+Since $W$ is cubic in $X$, direct expansion gives
+\[
+W(Y+X)-W(Y-X)-2W(X)=2D_Y(X).
+\]
+If $X$ and $Y$ have trace zero, \eqref{weak} makes the left side zero;
+over $\Q$ we obtain $D_Y(X)=0$. Cyclicity of trace gives, term by term,
+\[
+\operatorname{tr}(G(Y;A,B,C,Z)X)
+=\operatorname{tr}(Z D_Y(X;A,B,C))=0
+\quad\text{whenever }\operatorname{tr}X=0.
+\]
+The annihilator of the trace-zero matrices for this pairing consists
+exactly of scalar matrices: testing against $E_{ji}$ with $i\ne j$
+kills off-diagonal entries, and testing against $E_{ii}-E_{00}$ equates
+diagonal entries. Therefore $G(Y;A,B,C,Z)$ is scalar whenever
+$\operatorname{tr}Y=0$.
+
+Now define the six-variable free polynomial
+\[
+P(U,V,A,B,C,Z)=G(UV-VU;A,B,C,Z).
+\]
+Every commutator has trace zero, so every evaluation of $P$ in $\Mat$
+is scalar. Each marked word contains two copies of $Y$, the three
+letters $A,B,C$, and one $Z$. Substituting $Y=UV-VU$ therefore makes
+all its words homogeneous of degree $2+2+1+1+1+1=8$.
+
+\paragraph{A nonzero evaluation and the actual minimum.}
+Use the following matrix units, with indices $0,1,2$:
+\[
+\begin{split}
+U&=E_{00},\qquad V=E_{01}+E_{02}-E_{20},\\
+A&=E_{22},\qquad B=E_{10},\qquad C=E_{20},\qquad Z=E_{21}.
+\end{split}
+\]
+The commutator is $UV-VU=E_{01}+E_{02}+E_{20}$. Direct substitution gives
+\[
+P(U,V,A,B,C,Z)=2I_3.
+\]
+Thus $P$ is not a polynomial identity
+and is not zero. Its support is nonempty and every support word has
+length eight, so its degree, defined as the maximum support-word length,
+is exactly eight; its constant coefficient is zero.
+
+For clarity the formal minimum is an attained minimum, not an assigned
+number. Let $\mathcal D$ consist of the degrees of all positive-degree
+central polynomials over $\Q$, allowing any finite number of variables.
+The witness proves $8\in\mathcal D$, so $\mathcal D$ is nonempty.
+The natural-number least element $d_{\min}$ exists and satisfies
+\[
+d_{\min}\le8<9=3^2.
+\]
+We need not, and do not, prove here that $d_{\min}=8$.
+
+\paragraph{Formal objects and verification.}
+The proof in \texttt{lean/Main.lean} uses actual $3\times3$ rational
+matrices, the standard matrix-unit basis, and the native free algebra
+$\Q\langle\mathrm{Fin}\,6\rangle$. Its canonical isomorphism with the
+monoid algebra of the free monoid supplies the coefficient support;
+the evaluation bridge identifies the native universal evaluation map
+with the polynomial formula above. The concluding declarations are
+\texttt{native\_polynomial\_witness} and \texttt{counterexample} in
+namespace \texttt{TLMC2761}.
+
+The original bilingual source is retained in \texttt{SOURCE.md}.
+The project pins Lean 4.33.0 and Mathlib commit
+\begin{center}\small
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\end{center}
+Its evidence includes every namespace declaration's axiom audit,
+the exact build and fresh-kernel checks, rendered-PDF review, and file
+hashes. The formula was independently derived and is proved directly;
+we do not identify it with an unread historical formula.
+
+\begin{thebibliography}{2}
+\bibitem{dk}
+V.~Drensky and B.~Kostadinov, \emph{Central polynomials of minimal degree
+for matrices}, introduction,
+\href{https://arxiv.org/abs/2601.07750v1}{arXiv:2601.07750v1}.
+\bibitem{drensky}
+V.~Drensky, \emph{Weak polynomial identities and their applications},
+Communications in Mathematics 29 (2021), no.~2, 291--324,
+especially p.~303, DOI \href{https://doi.org/10.2478/cm-2021-0022}{10.2478/cm-2021-0022},
+\href{https://dml.cz/bitstream/handle/10338.dmlcz/149196/ActaOstrav_29-2021-2_11.pdf}{author's survey}.
+\end{thebibliography}
+\end{document}
