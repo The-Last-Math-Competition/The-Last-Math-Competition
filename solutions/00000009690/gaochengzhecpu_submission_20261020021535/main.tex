@@ -1,0 +1,177 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{Dirichlet approximation rules out the proposed\\logarithmic lower bound\\
+\large Disproof of Conjecture 00000009690}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+Keep the algebraic arguments fixed at $2$ and $3$, and use integer
+coefficients. For every $C>0$ and every height cutoff $H_0$ there
+exist $a>0$, $b\geq0$ with actual height $H=\max(3,a,b)\geq H_0$
+such that
+\[
+ 0<|a\log2-b\log3|<\frac{C}{(\log H)^2}.
+\]
+Thus the conjectured lower bound fails already at $\varepsilon=1$,
+even allowing an arbitrary positive implied constant and an
+arbitrary sufficiently-large-height condition. The nonvanishing,
+integer coefficient bounds and unbounded actual heights are all
+proved in Lean 4.
+\end{abstract}
+
+\section*{Height convention and the statement being refuted}
+The standard coefficient-height parameter for integer linear
+forms is $\max(3,|b_1|,\ldots,|b_n|)$; see \cite[abstract]{bugeaud}.
+We use $b_1=a$, $b_2=-b$ and fixed logarithms of the positive
+rational algebraic numbers $2$ and $3$. Hence their heights and
+degrees do not vary. Integer coefficients are a subclass of the
+rational coefficients allowed by the conjecture.
+
+The claimed improvement would in particular provide a positive
+constant lower bound of order $(\log H)^{-2}$ for these fixed
+arguments, once $H$ is sufficiently large. We disprove even
+that version. This concerns the literal logarithmic lower bound
+in the source, without claiming to determine any correct optimal
+power $H^{-\kappa}$ in Baker's theory.
+
+\begin{lemma}\label{lem:nonzero}
+If $a>0$ and $b\geq0$ are integers, then
+$a\log2-b\log3\ne0$.
+\end{lemma}
+\begin{proof}
+Equality would imply $\log(2^a)=\log(3^b)$ and hence $2^a=3^b$.
+The left side is divisible by $2$; the right side is not.
+\end{proof}
+
+\begin{lemma}\label{lem:approx}
+For every integer $N\geq1$ there are integers $a,b$ with
+$1\leq a\leq N$, $0\leq b\leq N+1$, and
+\[
+ 0<|a\log2-b\log3|\leq\frac{\log3}{N+1}.
+\]
+\end{lemma}
+
+\newpage
+\begin{proof}
+Put $\xi=\log2/\log3\in(0,1)$. Dirichlet's approximation
+theorem gives $1\leq a\leq N$ and an integer $b$ with
+$|a\xi-b|\leq1/(N+1)$. One proof considers the $N+1$ points
+$0,\xi,\ldots,N\xi$ modulo $1$: one of their circular gaps
+is at most $1/(N+1)$, and taking the two endpoint indices
+gives the asserted approximation, including the possible
+gap crossing $1$.
+
+Because $a\xi\geq0$ and the error is strictly below $1$,
+the integer $b$ is nonnegative. Also $a\xi\leq N$ and the
+error is at most $1$, so $b\leq N+1$. Multiplication by
+$\log3>0$ proves the upper bound; Lemma~\ref{lem:nonzero}
+proves strict positivity.
+\end{proof}
+
+\begin{theorem}
+For every $C>0$ and $H_0\in\mathbb N$ there are integers
+$a>0$, $b\geq0$ such that $H=\max(3,a,b)\geq H_0$ and
+\[
+ 0<|a\log2-b\log3|<C/(\log H)^2.
+\]
+\end{theorem}
+\begin{proof}
+The nonzero forms with $1\leq a\leq H_0$ and
+$0\leq b\leq H_0$ form a finite set. There is therefore
+$\delta>0$ below every absolute value in this set; if the
+set is empty take $\delta=1$.
+
+Choose $N\geq2$ large enough that
+\[
+ \frac{\log3}{N+1}<\delta,\qquad
+ \frac{\log3\,(\log(N+1))^2}{N+1}<C.
+\]
+Both choices are possible by the elementary logarithmic
+growth limit. Obtain $a,b$ from Lemma~\ref{lem:approx}.
+Their actual height satisfies $H\leq N+1$. If $H<H_0$,
+both coefficients would be at most $H_0$, contradicting
+$|a\log2-b\log3|<\delta$. Thus $H\geq H_0$.
+Since $H\geq3$, logarithms are positive and monotone, and
+\[
+ |a\log2-b\log3|(\log H)^2
+ \leq \frac{\log3\,(\log(N+1))^2}{N+1}<C.
+\]
+Divide by $(\log H)^2>0$.
+\end{proof}
+
+This proves failure for every positive constant and every
+cutoff at $\varepsilon=1$. A claim for every
+$\varepsilon>0$ is consequently false. The actual maximum
+height is used throughout; inflating a declared upper bound
+is not the source of the contradiction.
+
+\newpage
+\section*{Formalization and reproducibility}
+The Lean project uses the actual real logarithm and integer
+coefficients. The nonvanishing lemma uses injectivity of
+the logarithm on positive reals and prime divisibility.
+The approximation lemma invokes Mathlib's proved Dirichlet
+theorem and establishes coefficient bounds and sign conditions.
+
+\texttt{logarithmic\_error\_limit} and
+\texttt{reciprocal\_error\_limit} prove the two needed
+limits. A finite-set induction proves a positive lower
+bound for the finitely many small-height forms. The final
+\texttt{counterexample} has arbitrary $C>0$ and $H_0$ and
+uses \texttt{height a b = max 3 (max a b)}. The theorem
+\texttt{no\_uniform\_bound} directly negates the existence
+of a positive constant and a large-height cutoff for the
+claimed $\varepsilon=1$ lower bound.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From the submitted \texttt{lean/} directory:
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The project is freshly built. The axiom audit contains only
+standard foundational axioms, with no proof placeholders,
+custom axioms or external computation oracles.
+
+The optional exact-check script \texttt{verify.py} uses
+only Python's standard library. It constructs rational
+intervals enclosing logarithms from the convergent series
+\[
+ \log u=2\sum_{j\geq0}\frac{t^{2j+1}}{2j+1},
+ \qquad t=\frac{u-1}{u+1},\quad 1\leq u\leq2,
+\]
+with a geometric remainder bound. It uses rational
+continued fractions to find examples, then checks their
+nonzero signs and error inequalities with exact fractions.
+Floating point is used only to display the already bounded
+errors. Finite examples do not prove the universal statement
+or a limit; those are proved by Lean. Run
+\texttt{python verify.py} and \texttt{tectonic main.tex}.
+
+The exact bilingual conjecture is in \texttt{SOURCE.md};
+provenance, real build logs, file hashes and PDF review are
+in \texttt{verification/}. The author performed an adversarial
+self-review. No independent reviewer or subagent was used.
+The argument is an application of classical approximation,
+not a claimed new result about linear forms in logarithms.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000009690. Exact source and upstream provenance
+are included with this submission.
+\bibitem{bugeaud} Y. Bugeaud, \emph{$B'$}, 2022,
+\href{https://arxiv.org/abs/2209.00275}{arXiv:2209.00275},
+abstract (coefficient-height convention and background).
+\bibitem{mathlib} The Mathlib community,
+\emph{Diophantine Approximation}, Dirichlet approximation
+theorem at the commit pinned above.
+\href{https://github.com/leanprover-community/mathlib4/blob/c44e0c8ee63ca166450922a373c7409c5d26b00b/Mathlib/NumberTheory/DiophantineApproximation/Basic.lean}{Lean source}.
+\end{thebibliography}
+\end{document}
