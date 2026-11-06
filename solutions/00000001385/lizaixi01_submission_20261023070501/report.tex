@@ -1,0 +1,119 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000001385: an infinite Hilbert spectral-count plateau}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{23 October 2026}
+\begin{document}
+\maketitle
+\section{A necessary jump clause fails}
+The source defines $N_T(\lambda)$ as a spectral counting
+\emph{function} and requires that after an infinite value, all
+higher values equal $2^{\aleph_0}$. With the standard Hilbert
+dimension of spectral subspaces, this necessary clause is false.
+Take the genuine probability circle
+\[
+ X=\mathbb R/\mathbb Z,\qquad \mu=\text{normalized Haar measure},
+ \qquad T(x)=x.
+\]
+Its actual Koopman operator on $E=L^2(X,\mu;\mathbb C)$ is
+$Uf=f\circ T=f$. Its only eigenvalue is the real number $1$,
+and the eigenspace is all of $E$. The genuine Fourier Hilbert
+basis is indexed by $\mathbb Z$. Consequently
+\[
+ N_T(1)=\aleph_0=N_T(2)\ne 2^{\aleph_0}.
+\]
+Here $1$ and $2$ are real \emph{thresholds}; $2$ is not asserted
+to be a second spectral point. Thus the infinite-value jump
+clause, and hence the source's conjunction under this standard
+function reading, is disproved. We do not need to determine its
+other claims about alternation or spectral-measure atomicity.
+
+\section{Actual transformations and cutoff subspaces}
+Lean constructs Mathlib's actual \texttt{AddCircle 1}, its Haar
+probability measure, and the actual \texttt{Lp} space with exponent
+$2$. The map $T$ is proved measure preserving and involutive.
+The operator $U$ is the actual
+\texttt{Lp.compMeasurePreserving} construction and its
+complex-linear refinement, not an assigned diagonal model.
+The proof establishes $U=\mathrm{id}$, existence of eigenvalue
+$1$, and the absence of any other eigenvalue.
+
+General complex eigenvalues have no specified order in the
+source. This example avoids inventing one: its spectrum consists
+only of the real eigenvalue $1$. The formal real-eigenvalue cutoff
+is the genuine closed subspace
+\[
+ S_a=\overline{\sum_{r\in\mathbb R,\ r\leq a}\ker(U-rI)}.
+\]
+For robustness, the package independently constructs the modulus
+cutoff
+\[
+ M_a=\overline{\sum_{z\in\mathbb C,\ |z|\leq a}\ker(U-zI)}.
+\]
+For every real $a\geq1$, the actual eigenspace at $1$ is one of
+the summands and already equals $E$, so $S_a=M_a=E$.
+Both cutoff interpretations give the displayed counterexample.
+
+\newpage
+\section{Dimension is proved from genuine Hilbert bases}
+Mathlib's actual Fourier Hilbert basis is used with all its
+orthonormality and completeness proofs. The formal argument
+also proves that \emph{every} Hilbert basis of $E$ has index
+cardinality $\aleph_0$, so its dimension is independent of the
+chosen Fourier enumeration. If $(b_i)_{i\in I}$ is another
+Hilbert basis, then for each Fourier vector $e_n$ the support of
+its square-summable coordinate vector in $(b_i)$ is countable.
+The union of those supports over $n\in\mathbb Z$ is all of $I$:
+otherwise a nonzero $b_i$ would be orthogonal to every Fourier
+vector, contradicting Fourier completeness. Thus $I$ is
+countable. It cannot be finite, because that would make $E$
+finite dimensional despite the infinite linearly independent
+Fourier family. Hence $|I|=\aleph_0$.
+
+The package defines the Hilbert dimension of a subspace by the
+infimum of the cardinalities admitting an actual Hilbert basis.
+For the relevant full subspace it proves that this set is the
+nonempty singleton $\{\aleph_0\}$, using an explicitly transported
+Fourier basis for existence and the preceding uniqueness proof.
+There is no empty-infimum fallback, no assigned value for $N_T$,
+and no substitution of Hamel \texttt{Module.rank} for Hilbert
+dimension. The two counting functions are obtained by applying
+this dimension definition to the actual cutoff subspaces.
+Cantor's strict inequality $\aleph_0<2^{\aleph_0}$ closes both
+formal negations of the required jump property.
+
+\section{Conventions, primary references and verification}
+The Hilbert interpretation is standard in this setting.
+S. New's Waterloo \emph{Chapter 2: Hilbert Spaces}, PDF/printed
+page 10, Theorem 2.35 and Definition 2.36, proves basis-cardinality
+uniqueness and explicitly uses Hilbert dimension for a Hilbert
+space unless otherwise specified, distinguished from Hamel
+dimension. B. Solomyak's \emph{Ergodic Theory} notes,
+21 November 2019, PDF page 1, formulate the actual Koopman
+operator on $L^2$ and orthogonal eigenfunction bases.
+The directly read primary sources are
+\href{https://www.math.uwaterloo.ca/~snew/PMATH453/Chap2HilbertSpaces.pdf}{New's notes}
+and
+\href{https://u.math.biu.ac.il/~solomyb/TEACH/20/ET/spectral.pdf}{Solomyak's notes}.
+
+The scope is explicit: this disproves the necessary infinite-value
+jump for the printed counting \emph{function}, with Hilbert
+dimension and real or modulus thresholds. It does not claim to
+refute a different Hamel-dimension interpretation, an unspecified
+ordering on arbitrary complex spectra, or a rule sampled only at
+distinct actual spectral points. The identity example has only
+one such point. These interpretations are not silently conflated.
+
+The package pins Lean 4.33.0 and Mathlib commit
+\begin{center}\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}\end{center}
+and supplies complete LaTeX/PDF, the original bilingual source,
+all named declaration axiom audits, a new root build and full
+official \texttt{leanchecker --fresh Main} replay. No
+\texttt{sorry}, \texttt{native\_decide} or additional axiom is used.
+OpenAI Codex assisted, with separate supervising AI proof/source/
+report/PDF review. This is not human certification; organizer
+acceptance is pending.
+\end{document}
