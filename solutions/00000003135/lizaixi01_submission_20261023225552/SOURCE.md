@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000003135
+
+**English.** Definition: The orbit method (Kirillov): representations of nilpotent groups as orbits. Conjecture: The bijection of the orbit correspondence: the unitary dual of a nilpotent Lie group is in one-to-one correspondence with coadjoint orbits, with the measure of the correspondence of Kirillov–Kostant–Souriau type. (orbit KKS bijection measure)
+
+**中文。** 定义：轨道方法（Kirillov）：幂零群的表示作为轨道。猜想：轨道对应的双射：幂零李群的西对偶与余伴随轨道的一一对应且对应的测度为 Kirillov–Kostant–Souriau 型。（轨道 KKS 双射测度）
