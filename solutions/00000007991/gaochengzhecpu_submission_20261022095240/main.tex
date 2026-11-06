@@ -1,0 +1,175 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{A regularity exponent cannot have slope tending to\newline
+minus infinity at infinity\\\large Disproof of Conjecture 00000007991}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+Every real function bounded below on a tail is incompatible with an
+ordinary derivative tending to $-\infty$ as its argument tends to
+$+\infty$. A mean value theorem argument proves this directly.
+An optimal H\"older regularity exponent is nonnegative, so the
+claimed slope limit for $\alpha(p)$ at $p=\infty$ is impossible.
+The argument applies to every such exponent function and requires
+no formula for the actual optimal $p$-Laplace exponent.
+\end{abstract}
+
+\section*{A general calculus obstruction}
+\begin{theorem}
+Let $f$ be a real function bounded below on a tail of the real line.
+Its ordinary derivative cannot satisfy
+\[
+             \lim_{x\to+\infty} f'(x)=-\infty.
+\]
+In particular, no eventually nonnegative real function has this
+ordinary derivative limit.
+\end{theorem}
+\begin{proof}
+Suppose such a limit exists. There are real numbers $L$ and $a$ such
+that, for every $x\geq a$, both $f(x)\geq L$ and $f'(x)\leq-1$.
+Here and below an ordinary derivative on this tail is meant.
+Set
+\[
+                 b=a+f(a)-L+1.
+\]
+Since $f(a)\geq L$, we have $b>a$. Differentiability on the tail
+implies continuity on $[a,b]$ and differentiability on $(a,b)$.
+The real mean value theorem gives a point $c\in(a,b)$ with
+\[
+ \frac{f(b)-f(a)}{b-a}=f'(c)\leq-1.
+\]
+Consequently
+\[
+ f(b)\leq f(a)-(b-a)=L-1<L,
+\]
+contradicting the lower bound at $b$.
+\end{proof}
+
+The proof only needs the eventual slope bound $f'\leq-1$.
+It concerns derivatives on actual real intervals, rather than a
+discrete sequence or finite-difference surrogate.
+
+\newpage
+\section*{Application to the exact conjecture}
+The source defines $\alpha(p)$ as the optimal exponent of
+$C^{1,\alpha}$ regularity of solutions of
+\[
+            \operatorname{div}(|\nabla u|^{p-2}\nabla u)=0.
+\]
+One of its explicit assertions, in both languages, is that the
+slope of the graph of $\alpha(p)$ tends to $-\infty$ as
+$p\to\infty$.
+
+A H\"older regularity exponent is nonnegative by its definition.
+For the usual range $0<\alpha\leq1$, a local gradient estimate has
+the form
+\[
+ |\nabla u(x)-\nabla u(y)|\leq C|x-y|^\alpha.
+\]
+An optimal exponent, whether attained or defined as a supremum of
+admissible nonnegative exponents, therefore cannot be negative.
+Only this necessary range condition is used here. In particular,
+the exact value, existence of an optimal endpoint estimate, and
+dependence on the spatial dimension are immaterial to the argument.
+
+Apply Theorem 1 with $f(p)=\alpha(p)$ and $L=0$ on the tail $p>2$.
+It gives
+\[
+ \neg\left(\alpha(p)\geq0\text{ for all }p>2
+       \quad\text{and}\quad
+       \alpha'(p)\longrightarrow-\infty
+                     \text{ as }p\to+\infty\right).
+\]
+Thus there is no candidate exponent function meeting even these
+two necessary parts of the conjecture. Additional PDE conditions
+can only restrict that already empty class of candidates.
+
+\section*{Scope and derivative convention}
+This refutes the negative-infinite-slope conjunct, hence the
+conjunction in the source. It does not purport to compute the
+actual optimal exponent, validate or refute the proposed
+eigenvalue formula separately, or settle the behavior as
+$p\to1$. No interpretation or sign assumption concerning the
+unspecified eigenvalue $\lambda_0$ is needed.
+
+The asserted graph slope is interpreted as the ordinary real
+derivative with respect to the stated horizontal coordinate $p$.
+It is not a slope after reparametrizing the axis, nor a limit taken
+only along a selected discrete sequence of values of $p$.
+The theorem is about a whole tail of real arguments.
+
+In Lean, \texttt{deriv} is a total function and equals zero at a
+point where the function is not differentiable. A proposed limit
+to $-\infty$ makes its values eventually at most $-1$. This
+\emph{forces} differentiability at every point of that tail;
+the proof explicitly derives this fact and then uses the
+ordinary mean value theorem. No prior differentiability
+hypothesis is silently added to the final Lean theorem.
+
+\newpage
+\section*{Formal conclusions and reproduction}
+The Lean project also checks the source's displayed scalar formula
+when its eigenvalue symbol is a fixed real parameter $\ell$.
+Nonnegativity at $p=3$ forces $\ell>-2$: otherwise its first
+branch $2/(4+3\ell)$ is negative.
+Put $c=\ell+2>0$ and
+$A=\max(3,\ell+5,4/c)$. For $p>A$, both denominators
+are positive and
+\[
+ (p-1)^2-(cp-2)=p(p-\ell-4)+3>0.
+\]
+Thus the minimum in the formula is exactly $1/(p-1)$
+on that entire open tail. Its actual derivative is
+$-1/(p-1)^2\to0$, also incompatible with the claimed
+limit. This supplementary result proves eventual
+differentiability for the displayed constant-parameter
+formula itself. The main contradiction on the preceding
+pages does not require that formula or any assumption
+about whether an intended eigenvalue could depend on $p$.
+
+The final theorem \texttt{conjecture\_cusp\_impossible}
+directly excludes every graph satisfying the necessary
+nonnegative range and the claimed ordinary slope limit.
+The general results use the actual real mean value theorem
+on the interval constructed above. A separate version takes
+values directly in the nonnegative reals. No PDE or special
+formula is built into the general function hypotheses.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From the submitted \texttt{lean/} directory:
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+The complete project is checked by a fresh build and strict
+Lean checking, with warnings treated as errors. Printed
+theorem dependencies are audited for standard foundational
+axioms only. There are no proof placeholders, custom axioms,
+or numerical computation oracles. No auxiliary numerical
+program is needed; the argument is an exact calculus proof.
+
+Compile this document with \texttt{tectonic main.tex}.
+The submission includes the exact bilingual source,
+provenance, actual build logs, artifact hashes and PDF
+checks. An author agent developed the formal proof and
+supplied a self-review; the parent reviewed the proof and
+the final artifacts separately. No external independent
+review or novelty of the elementary calculus fact is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000007991. Exact bilingual source and
+provenance included in this submission.
+\bibitem{mathlib} The Mathlib community,
+\emph{Mathlib}, revision specified above,
+the calculus library for real mean value theorems.
+The submitted source explicitly applies
+\texttt{exists\_deriv\_eq\_slope} on a real interval.
+\end{thebibliography}
+\end{document}
