@@ -1,0 +1,171 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\et}{\mathrm{\acute et}}
+\title{Third \'etale homotopy groups are abelian\newline
+\large Disproof of Conjecture 00000002440}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+Every third homotopy group is abelian by the Eckmann--Hilton
+argument. Applying this to each pointed space in an \'etale
+homotopy type shows that its third homotopy pro-group has an
+abelian-valued representative. Thus no smooth variety can have
+the internally nonabelian third \'etale homotopy group requested
+in the conjecture. Lean verifies the obstruction for actual
+cube-loop homotopy groups and entire diagrams of those groups.
+The standard \'etale-type and realization constructions connecting
+this universal result to varieties are explicitly stated as
+mathematical definition bridges outside the Lean formalization.
+\end{abstract}
+
+\section*{The obstruction for actual pointed spaces}
+Let $(Y,y)$ be any pointed topological space.
+Represent $\pi_3(Y,y)$ by continuous maps
+\[
+ f:[0,1]^3\longrightarrow Y,\qquad f(\partial[0,1]^3)=\{y\},
+\]
+modulo homotopy relative to the entire boundary. Concatenating
+in either of the first two coordinate directions gives two
+operations $m_0,m_1$ on these homotopy classes. Both have the
+constant class $e$ as a two-sided unit, and their actual
+coordinate concatenations satisfy interchange:
+\[
+ m_0\bigl(m_1(a,b),m_1(c,d)\bigr)
+ =m_1\bigl(m_0(a,c),m_0(b,d)\bigr).
+\]
+The interchange identity holds for the concrete cube maps;
+the unit identities hold on relative-boundary homotopy classes.
+Substitution gives
+\begin{align*}
+ m_0(a,b)
+ &=m_0\bigl(m_1(a,e),m_1(e,b)\bigr)\\
+ &=m_1\bigl(m_0(a,e),m_0(e,b)\bigr)=m_1(a,b),\\
+ m_0(a,b)
+ &=m_0\bigl(m_1(e,a),m_1(b,e)\bigr)\\
+ &=m_1\bigl(m_0(e,b),m_0(a,e)\bigr)=m_1(b,a).
+\end{align*}
+The operations coincide and commute. In particular, the genuine
+group $\pi_3(Y,y)$ is abelian for every pointed space.
+
+\newpage
+\section*{Application to the \'etale homotopy pro-group}
+For a pointed locally noetherian scheme $(X,\bar x)$, the standard
+Artin--Mazur--Friedlander \'etale homotopy type is a pointed
+pro-object in the homotopy category of simplicial sets. Its
+higher \'etale homotopy pro-groups are obtained by applying the
+ordinary pointed homotopy-group functor; see~\cite{Moutand}, \S2.1.
+Choose a pointed simplicial representative at each level and use
+geometric realization. Its third group is the actual group
+\[
+ \pi_3\bigl(|K_i|,k_i\bigr).
+\]
+Each of these groups is abelian by the previous argument. Every
+transition homomorphism is consequently a homomorphism of abelian
+groups. Hence the entire defining diagram factors through
+abelian groups before any inverse limit is taken. The \'etale
+third homotopy pro-group is therefore a pro-abelian group.
+
+\begin{theorem}
+Under the standard \'etale homotopy-group definition, no smooth
+variety $X$ has internally nonabelian $\pi_3^{\et}(X,\bar x)$.
+Consequently the variety required by Conjecture 00000002440
+does not exist.
+\end{theorem}
+\begin{proof}
+A smooth variety is locally noetherian. Its \'etale homotopy type
+and third homotopy pro-group have the representation just
+described, with all groups abelian. This is incompatible with
+internal noncommutativity. The additional condition that
+$\pi_1^{\et}$ be finite and the proposed Enriques-type construction
+cannot change this universal obstruction.
+\end{proof}
+
+\paragraph{Pro-objects and profinite conventions.}
+The conclusion is that the pro-group has an abelian-valued
+representative. It does not assert that every arbitrary
+pro-isomorphic presentation has abelian groups at every level.
+Also, an abelian inverse limit alone would not establish the
+required statement about a pro-group; the argument above is
+levelwise and gives the entire diagram factorization.
+
+If profinite completion is included in the convention, it
+preserves commutativity. Indeed every quotient image of an
+abelian group is abelian. A compatible-tuple inverse limit of
+abelian groups is a subgroup of their product with pointwise
+multiplication, which is again commutative. These observations
+are additional to, rather than replacements for, the levelwise
+pro-group argument.
+
+A possibly nontrivial action of $\pi_1$ on $\pi_3$ is a separate
+structure. Such an action cannot make the internal group
+operation on $\pi_3$ noncommutative, as explicitly required by
+both versions of the conjecture.
+
+\newpage
+\section*{What the Lean project verifies}
+The input \texttt{BasedSpace} contains only a carrier, a topology
+and a base point. Its \texttt{Pi3} is Mathlib's actual
+\texttt{HomotopyGroup.Pi 3}, the relative-boundary cube-loop
+homotopy quotient. No group or commutativity hypothesis is part
+of the input. Mathlib's proved Eckmann--Hilton construction
+supplies its commutative group structure. The submitted file
+exposes the actual distinct-coordinate interchange identity and
+the two unit laws; it also proves that reversing concatenation
+gives actual cube maps homotopic relative to the boundary.
+
+A diagram has actual pointed spaces at its objects. Its arrows
+are homomorphisms of their actual third homotopy groups, with
+identity and composition laws. It assumes
+no commutativity. For every indexing category the project
+constructs an explicit natural isomorphism between its
+group-valued diagram and the forgetful image of a diagram in
+\texttt{CommGrp}. Cofiltered diagrams are included. Thus the
+checked result handles every transition diagram that can arise
+in the stated application. It does not infer pro-commutativity
+from an inverse-limit calculation.
+
+Further theorems prove commutativity of arbitrary surjective
+quotient images and normal quotients of actual third homotopy
+groups. They construct the subgroup of all transition-compatible
+tuples and prove its multiplication commutative, for original
+groups and quotient diagrams alike.
+
+\paragraph{Explicit formal boundary.}
+Lean does not construct schemes, \'etale hypercovers, the \'etale
+type functor, geometric realization, its homotopy-group comparison,
+or the homomorphism functor induced by pointed maps. Those standard
+constructions are the mathematical bridges on page 2. The
+universal theorem for every actual pointed space and every
+homomorphism diagram is proved in Lean. No custom object is
+merely named an \'etale group and then assumed commutative.
+
+\paragraph{Reproduction.}
+Lean 4.19.0 is pinned. The Mathlib revision is
+\begin{center}
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+In \texttt{lean/}, run:
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Compile with \texttt{tectonic main.tex}. Actual fresh-build
+logs, hashes and eight printed axiom reports are included;
+only standard foundational axioms occur. No numerical oracle is
+used. The work received author, parent and internal cross-review;
+no external independent review is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000002440. Exact bilingual source included.
+\bibitem{Moutand} M. Moutand,
+\emph{On schemes with trivial higher \'etale homotopy groups},
+\href{https://arxiv.org/abs/2312.08505}{arXiv:2312.08505v2}
+(26 February 2026), \S2.1.
+\end{thebibliography}
+\end{document}
