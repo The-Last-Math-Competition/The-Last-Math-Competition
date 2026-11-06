@@ -1,0 +1,239 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{A Nine-Vertex Counterexample to Hypergraph Reconstruction:\\Disproof of Conjecture 00000001683}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+Two explicit simple $3$-uniform hypergraphs on nine vertices have equal
+vertex-deleted decks, including multiplicities, but are not isomorphic.
+Neither is a Steiner triple system. Thus they refute both the assertion
+of reconstruction for every order at least eight and the assertion that
+every counterexample must consist of Steiner triple systems. The example
+is a classical construction of Kocay; the contribution here is an explicit,
+self-contained certificate and its kernel-checked Lean verification.
+\end{abstract}
+
+\paragraph{Reading of the source.}
+Both source languages assert reconstruction for $n\geq8$ and state that
+any counterexample must be a twin pair of Steiner triple systems. We use
+the ordinary vertex deck: the multiset of isomorphism classes of the
+induced hypergraphs obtained by deleting one vertex. A simple
+$3$-uniform hypergraph on $V$ is a set of three-element subsets of $V$.
+An isomorphism is a bijection of vertices carrying the edge set exactly
+onto the other edge set. A Steiner triple system requires every pair of
+distinct vertices to belong to exactly one edge. In particular, it is a
+$2$-$(v,3,1)$ design; the source's phrase ``3-design parameters'' is not
+needed for the argument.
+
+\section*{The explicit pair}
+Write $abc$ for the unordered triple $\{a,b,c\}$. Let
+$V=\{0,1,\ldots,8\}$ and let the following twenty triples form $B$:
+\[
+\begin{aligned}
+B=\{&123,128,135,136,146,147,178,234,246,247,\\
+    &257,258,345,357,358,368,456,468,567,678\}.
+\end{aligned}
+\]
+Define
+\[
+\begin{aligned}
+A_X&=\{012,016,025,034,038,047,056,078\},\\
+A_Y&=\{014,018,023,027,036,045,058,067\},\\
+E(X)&=B\cup A_X,\qquad E(Y)=B\cup A_Y.
+\end{aligned}
+\]
+All listed triples have three distinct vertices, and within either edge
+set there are no repetitions. Thus both hypergraphs are simple,
+$3$-uniform, and have $28$ edges.
+
+\begin{theorem}
+The hypergraphs $X,Y$ have the same vertex deck but are not isomorphic.
+Neither $X$ nor $Y$ is a Steiner triple system. Consequently both clauses
+of the source described above are false.
+\end{theorem}
+
+\begin{proof}
+We prove the three assertions in turn.
+
+\emph{Equal decks.}
+The table gives permutations $f$ of $V$. The entries in the last nine
+columns are $f(0),\ldots,f(8)$. Each row is used for all deleted vertices
+in its first column.
+\[
+\begin{array}{c|rrrrrrrrr}
+\text{deleted }v&0&1&2&3&4&5&6&7&8\\\hline
+0   &0&1&2&3&4&5&6&7&8\\
+1,5 &0&1&8&7&6&5&4&3&2\\
+2,6 &0&7&2&5&8&3&6&1&4\\
+3,7 &0&5&8&3&6&1&4&7&2\\
+4,8 &0&7&6&5&4&3&2&1&8
+\end{array}
+\]
+Each row is an involution and fixes the relevant deleted vertex $v$.
+Substitution into the displayed edge sets gives the following exact
+equalities:
+\[
+\begin{array}{c|c|c}
+v&\#E(X-v)=\#E(Y-v)& f(E(X-v))=E(Y-v)\\\hline
+0&20&\text{yes}\\
+1,2,7,8&19&\text{yes, using the row for each }v\\
+3,4,5,6&18&\text{yes, using the row for each }v
+\end{array}
+\]
+These are finite equalities of sets of triples: apply the row permutation
+to every listed triple that avoids $v$, sort its entries, and compare
+with the other list after deleting triples containing $v$.
+They prove $X-v\cong Y-v$ for every $v$. The identity matching of the
+nine deleted vertices preserves all deck multiplicities.
+
+\emph{Non-isomorphism.}
+Let $d_H(a)$ count edges containing $a$, and let $c_H(a,b)$ count edges
+containing the distinct vertices $a,b$. An isomorphism preserves both
+quantities. The degree sequence in vertex order is, for both graphs,
+\[
+\bigl(d_H(0),\ldots,d_H(8)\bigr)=(8,9,9,10,10,10,10,9,9).
+\]
+Thus any isomorphism $e:X\longrightarrow Y$ must fix $0$, preserve
+$L=\{1,2,7,8\}$, and preserve $D=\{3,4,5,6\}$.
+Since $c_X(1,2)=3$, the ordered pair $(e(1),e(2))$ must be one of
+\[
+(1,8),\quad(2,7),\quad(7,2),\quad(8,1).
+\]
+Indeed the only unordered pairs in $L$ of $Y$ with codegree three are
+$\{1,8\}$ and $\{2,7\}$. For the next step, the codegrees in $Y$ between
+$D$ and $L$ are
+\[
+\begin{array}{c|rrrr}
+c_Y&1&2&7&8\\\hline
+3&3&3&1&2\\
+4&3&3&2&1\\
+5&1&2&3&3\\
+6&2&1&2&3
+\end{array}
+\]
+In $X$, we have
+\[
+(c_X(3,1),c_X(3,2))=(3,2),\qquad
+(c_X(4,1),c_X(4,2))=(2,3).
+\]
+The table therefore forces the additional image indicated in each row
+below. The last two columns give a contradiction to edge preservation.
+\[
+\begin{array}{cc|c|cc|cc}
+e(1)&e(2)&\text{forced image}&T&e(T)&T\in E(X)&e(T)\in E(Y)\\\hline
+1&8&e(3)=3&123&138&\text{yes}&\text{no}\\
+2&7&e(4)=5&124&257&\text{no}&\text{yes}\\
+7&2&e(4)=4&124&247&\text{no}&\text{yes}\\
+8&1&e(3)=6&123&168&\text{yes}&\text{no}
+\end{array}
+\]
+This exhausts all vertex bijections that could be isomorphisms.
+
+\emph{Failure of the Steiner condition.}
+In $X$, the pair $\{0,1\}$ belongs to the two edges $012,016$; in $Y$,
+it belongs to $014,018$. In each case its codegree is two, whereas a
+Steiner triple system requires codegree one. Since $9\geq8$, the pair
+refutes reconstruction in the claimed range, and it also refutes the
+claim that counterexamples must be Steiner systems.
+\end{proof}
+
+\paragraph{The congruence clause.}
+The order nine satisfies $9\equiv3\pmod6$. We do not dispute the usual
+necessary condition $v\equiv1,3\pmod6$ for a Steiner triple system.
+The counterexample invalidates the asserted restriction to Steiner
+systems, rather than that necessary condition itself. No meaning of
+``twin'' can restore the assertion when neither member is Steiner.
+
+\section*{Attribution}
+This is the $n=3$ case, with eight ordinary vertices and the additional
+vertex $0$, of Kocay's classical family \cite{kocay}. Cooper and Okur
+\cite{cooperokur}, Definitions 9--13 and Theorem 2.1, describe the
+construction. We give all edges and verify this finite pair directly;
+we do not claim a new nonreconstruction construction. No theorem about
+the infinite family or characteristic polynomials is used in our proof.
+
+\section*{Formal verification and scope}
+The Lean structure \texttt{Hypergraph3} is a Boolean relation on triples
+with proved symmetry under adjacent swaps and vanishing on repeated
+vertices. These properties express a simple $3$-uniform hypergraph.
+The concrete objects \texttt{X} and \texttt{Y} use a bit indexed by
+$81a+9b+c$ to represent the edge relation efficiently. The finite sets
+\texttt{edgesX} and \texttt{edgesY} contain exactly the unordered triples
+printed above. Their uniformity and cardinality $28$ are proved.
+The bridge theorems
+\begin{center}
+\texttt{edgeX\_iff\_mem},\qquad\texttt{edgeY\_iff\_mem}
+\end{center}
+prove, for every $a,b,c\in\operatorname{Fin}(9)$, that the encoded edge
+relation holds if and only if $\{a,b,c\}$ belongs to the corresponding
+displayed edge set. Thus the bit encoding does not replace the
+mathematical hypergraph with an unrelated numerical assertion.
+
+\texttt{IsIso} quantifies over every triple and preserves edges in both
+directions under an arbitrary vertex equivalence. \texttt{Hypomorphic}
+contains an outer bijection matching the deleted vertices and an inner
+vertex equivalence for each card; its restriction to the complements is
+an isomorphism. Conversely, any card isomorphism extends to such an
+equivalence by sending the omitted vertex to the omitted vertex. This
+is exactly equality of decks with multiplicity, not a weaker comparison
+of sets of card types. The finite equivalences and all card conditions
+are checked in \texttt{same\_deck}.
+
+\texttt{codegree} counts the actual third vertices completing a pair;
+\texttt{doubleDegree} counts ordered pairs completing a vertex and is
+twice its usual degree. Their preservation under arbitrary
+\texttt{IsIso} is proved by equivalences of the counting types.
+The theorem \texttt{not\_isomorphic} excludes every vertex equivalence,
+using exhaustive finite cases pruned by these proved invariants and
+by individual edge contradictions.
+
+The proposition \texttt{ReconstructionClaim} quantifies over every
+$n\geq8$ and all simple $3$-uniform hypergraphs on $\operatorname{Fin}(n)$.
+The final theorem
+\begin{center}\texttt{conjecture1683\_false : $\neg$ ReconstructionClaim}
+\end{center}
+is its negation. The theorems \texttt{X\_not\_steiner} and
+\texttt{Y\_not\_steiner} use the usual pair-codegree definition of a
+Steiner triple system. The theorem \texttt{steiner\_clause\_false}
+negates the universal claim that hypomorphic nonisomorphic pairs of
+order at least eight must both be Steiner systems. No statement about
+the arithmetic existence conditions for designs is formalised.
+
+All finite checks use kernel evaluation with \texttt{decide}.
+The development contains no placeholder proofs, native decision
+procedures, or custom axioms. Only three standard axioms occur in the audit:
+\begin{center}
+\texttt{propext},\quad \texttt{Classical.choice},\quad \texttt{Quot.sound}.
+\end{center}
+
+\section*{Source and reproduction}
+The exact bilingual source is included as \texttt{SOURCE.md}, from
+\begin{center}\small\texttt{conjectures/00000001683.md}.\end{center}
+The source snapshot is pinned to upstream commit
+\begin{center}\small\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\end{center}
+The project uses Lean 4.19.0 and Mathlib commit
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+From \texttt{lean/}, run \texttt{lake build}, then
+\begin{center}\small\texttt{lake env lean -DwarningAsError=true Main.lean}.
+\end{center}
+The supplied manifest pins the dependencies. Compile this document with
+Tectonic or a compatible LaTeX installation. No external numerical
+program is required to check the formal proof.
+
+\begin{thebibliography}{9}
+\raggedright
+\bibitem{kocay}
+W.~L. Kocay, \emph{A family of nonreconstructible hypergraphs},
+Journal of Combinatorial Theory, Series B \textbf{42} (1987), 46--63.
+\bibitem{cooperokur}
+J.~Cooper and U.~Okur, \emph{Polynomial Reconstruction Problem for
+Hypergraphs}, arXiv:2312.16152v2.
+\href{https://arxiv.org/html/2312.16152v2}{Public construction and attribution}.
+\end{thebibliography}
+\end{document}
