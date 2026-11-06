@@ -1,0 +1,130 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=21mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,microtype,booktabs}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\newtheorem{theorem}{Theorem}
+\title{A counterexample to the printed perfect-graph substitution speed formula}
+\author{lizaixi01 (AI-assisted submission)}
+\date{Conjecture 00000002195}
+\begin{document}
+\maketitle
+\vspace{-7mm}
+
+\textbf{Precise scope.} We use the usual \emph{labelled} speed and ordinary unrestricted
+single-vertex graph substitution. Both input properties are the \emph{full} hereditary
+property of finite perfect graphs. The printed statement specifies neither narrower
+input classes nor a labelled/unlabelled convention. Under this standard universal
+reading its asserted formula
+\[
+ s_n=\exp\bigl((\tfrac12+o(1))n\log n\bigr)
+\]
+is false. This does not assert a result about an unspecified restricted factorial
+subclass, an unlabelled speed, or the undefined generating-function clause.
+The complete original English and Chinese source is included separately.
+
+\section*{The actual objects}
+A finite graph is perfect when every induced subgraph has chromatic number equal
+to clique number, including the empty graph. In Lean, both numbers are native
+\texttt{SimpleGraph.chromaticNumber} and \texttt{SimpleGraph.cliqueNum}.
+\texttt{Perfect} quantifies over all embeddings of every finite labelled vertex
+set; \texttt{perfect\_all\_induced} proves the corresponding equality for every
+actual induced vertex subset. The full property is proved hereditary and
+invariant under genuine graph isomorphisms.
+
+For a graph $G$, a vertex $v$, and a graph $H$, form $G(v\leftarrow H)$ on
+$(V(G)\setminus\{v\})\sqcup V(H)$. Adjacency within each part is its original
+adjacency; an inserted vertex is adjacent to a surviving base vertex $x$ exactly
+when $x$ was adjacent to $v$. This is the ordinary operation in
+Klav\v{z}ar--Petkov\v{s}ek, printed p.~333, Example~4(iv).
+The Lean definition constructs all four adjacency cases and proves symmetry and
+looplessness. A true graph isomorphism identifies $K_1(v\leftarrow H)$ with $H$.
+
+Let $\mathcal P$ be the full perfect-graph property and let $\mathcal S$ consist
+of all graphs isomorphic to some $G(v\leftarrow H)$ with $G,H\in\mathcal P$.
+The actual product predicate quantifies over all finite sizes, both graphs, the
+chosen vertex and a genuine graph isomorphism; it does not merely declare a
+desired family to belong. It is invariant under relabelling. Its labelled speed is
+\[
+ s_n=\#\{K\text{ on }\{0,\ldots,n-1\}:K\in\mathcal S\}.
+\]
+Lean uses the true finite subtype cardinality. Finiteness and $s_n>0$ are proved,
+so there is no infinite-cardinality default or unproved logarithm convention.
+
+\section*{A true counting lower bound}
+For every Boolean $m\times m$ matrix $A$, use the vertex set
+$\{0,\ldots,m-1\}\sqcup\{0,\ldots,m-1\}$. Put an edge between the left $i$
+and right $j$ precisely when $A_{ij}$ is true, and put no edges within a half.
+This is an actual simple graph with an actual two-colouring. Every induced graph
+is two-colourable. Its native chromatic and clique numbers agree: both are $0$
+in the empty case, $1$ in the nonempty edgeless case, and $2$ if an edge exists.
+Thus each graph is genuinely perfect and belongs to $\mathcal S$ through the
+proved $K_1$ substitution isomorphism.
+
+Transport along the genuine equivalence of the two halves with $\operatorname{Fin}(m+m)$
+gives labelled graphs on $2m$ vertices. Their cross adjacencies recover every
+entry of $A$, proving an injection into the actual product subtype. Consequently
+\begin{equation}\label{lower}
+ 2^{m^2}\le s_{2m},\qquad
+ m^2\log 2\le\log s_{2m}.
+\end{equation}
+These are counts of distinct labelled graphs, not asserted counts of isomorphism classes.
+
+\section*{The asymptotic contradiction}
+\begin{theorem}
+For every finite real $C$, there is no eventual bound
+$\log s_n\le Cn\log n$. In particular, the printed formula is false for
+this actual substitution product.
+\end{theorem}
+\begin{proof}
+An eventual bound would hold along the cofinal sequence $n=2m$.
+For $m\ge1$, combine it with~\eqref{lower} and divide by the positive $m$ to obtain
+\[
+ \log 2\le 4C\,\frac{\log(2m)}{2m}.
+\]
+The right side tends to zero, using the native real logarithmic limit transported
+along the actual natural-number embeddings. Closedness of the order relation
+then gives $\log2\le0$, a contradiction.
+
+Precisely, the printed formula would provide a real sequence $\varepsilon_n\to0$
+and an eventual equality
+$s_n=\exp((1/2+\varepsilon_n)n\log n)$.
+Eventually $\varepsilon_n<1/2$ and $n\ge1$. Taking the actual logarithm gives
+$\log s_n\le n\log n$, the excluded bound with $C=1$.
+The Lean theorem proves this full error-sequence and eventual-equality implication.
+\end{proof}
+
+\section*{Formalization and reproduction}
+The complete 275-line proof has 33 explicit declarations: 22 theorems,
+10 definitions and one actual instance. All graph, isomorphism, induced-number,
+finite-cardinality, cast, positivity and filter-limit bridges used above are
+proved in Lean. The literature supplies standard terminology only; it supplies
+no Lean axiom. The proof uses no \texttt{sorry}, \texttt{native\_decide} or extra axiom.
+The namespace audit enumerates all owned declarations, including generated names,
+and calls ordinary \texttt{\#print axioms} for each.
+
+The project pins Lean~4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+From \texttt{lean/}, run \texttt{lean --version}, then \texttt{bash verify.sh}
+for the build, warning-as-error exhaustive axiom audit and official fresh-kernel
+replay. The exact commands, original logs, source hashes and execution receipts
+are included. Production timings are diagnostic, not controlled efficiency evidence.
+
+\begin{thebibliography}{9}
+\bibitem{KP}
+S.~Klav\v{z}ar and M.~Petkov\v{s}ek,
+\emph{On Characterizations with Forbidden Subgraphs},
+Colloquia Mathematica Societatis J\'anos Bolyai~52,
+Combinatorics, Eger (Hungary), 1987, pp.~331--339.
+Author-hosted scan; printed pp.~331--336 actually read.
+\url{https://users.fmf.uni-lj.si/klavzar/preprints/hereditary.pdf}.
+
+\bibitem{LMZ}
+V.~V.~Lozin, C.~Mayhill and V.~Zamaraev,
+\emph{A note on the speed of hereditary graph properties},
+Electronic Journal of Combinatorics~18(1) (2011), P157,
+doi:10.37236/644. Printed pp.~1--2 define the labelled speed and hereditary property.
+\url{https://wrap.warwick.ac.uk/id/eprint/38522/1/WRAP_Lozin_v18i1p157.pdf}.
+\end{thebibliography}
+\end{document}
