@@ -1,0 +1,179 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\pdfmapfile{+lm.map}
+\documentclass[11pt,letterpaper]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype}
+\usepackage[colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Syl}{\operatorname{Syl}}
+\newcommand{\Sres}{\operatorname{Sres}}
+\title{Disproof of Conjecture 00000005613}
+\author{}
+\date{20 October 2026}
+\begin{document}
+\maketitle
+\vspace{-1.5em}
+\begin{abstract}
+A third-order subresultant coefficient minor can vanish while its
+corresponding principal minor is nonzero. For the monic, squarefree,
+coprime, strictly interlacing polynomials $f(x)=x^3-4x$ and
+$g(x)=x^2-1$, the first subresultant is $-3x$: its constant-coefficient
+minor is zero, whereas its principal coefficient is $-3$. The example
+uses the actual Sylvester submatrix construction and is verified in
+Lean 4 using only the standard library.
+\end{abstract}
+
+\section{The precise clause and standard convention}
+Conjecture 00000005613\footnote{\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000005613.md}{Official conjecture 00000005613 on GitHub}, checked 20 October 2026.}
+asserts that ``a minor is zero if and only if the corresponding
+principal minor is zero'' in a discussion of third-order subresultant
+minors. We disprove this clause using standard subresultant coefficient
+minors and their canonical leading principal minor.
+
+For degrees $p,q$ and $i<\min(p,q)$, the $i$-th Sylvester submatrix
+has rows given by
+\[
+ x^{q-i-1}f,\ldots,f,\quad x^{p-i-1}g,\ldots,g,
+\]
+written as coefficient vectors in descending degree. Its dimensions
+are $(p+q-2i)\times(p+q-i)$. For a matrix $A$, let $M_{k,t}(A)$ be
+the determinant using its first $k$ rows, first $k-1$ columns, and
+column $k+t$ (one-based indexing). Thus $M_{k,0}$ is the leading
+principal minor. The standard polynomial subresultant is
+\[
+ \Sres_i(f,g)(x)=\sum_{j=0}^{i}
+ M_{p+q-2i,i-j}\bigl(\Syl_i(f,g)\bigr)x^j;
+\]
+its principal coefficient is $M_{p+q-2i,0}$.
+These conventions are stated explicitly in Kerber,
+Definitions 2.3.10--2.3.12\cite{Kerber}.
+
+The printed conjecture does not separately define ``spectrum,''
+``conversion,'' or ``corresponding.'' This disproof uses the standard
+coefficient/principal correspondence above. It makes no claim about an
+unspecified alternative correspondence or about the other undefined
+spectral assertions. In particular, the example is not merely an
+arbitrary matrix with unrelated minors. The target is an \emph{individual}
+coefficient minor, not the vanishing of the whole subresultant polynomial.
+In this example the whole first subresultant and its principal coefficient
+are both nonzero; that different equivalence is not being contradicted.
+
+\newpage
+\section{The counterexample}
+Take
+\[
+ f(x)=x^3-4x=(x+2)x(x-2),\qquad
+ g(x)=x^2-1=(x+1)(x-1).
+\]
+Their roots strictly alternate:
+\[
+ -2<-1<0<1<2.
+\]
+Both polynomials are monic and have distinct real roots. The
+coefficient-level identity
+\begin{equation}\label{eq:bezout}
+ x f(x)+(3-x^2)g(x)=-3
+\end{equation}
+proves they are coprime over $\Q$, $\R$, or $\mathbb C$: a common
+polynomial divisor would divide the nonzero constant $-3$.
+
+Here $p=3$, $q=2$, $i=1$, so the relevant minors have order
+$p+q-2i=3$. The rows of the first Sylvester submatrix are
+$f,xg,g$, in the basis $x^3,x^2,x,1$:
+\[
+ S=\Syl_1(f,g)=
+ \begin{pmatrix}
+ 1&0&-4&0\\
+ 1&0&-1&0\\
+ 0&1&0&-1
+ \end{pmatrix}.
+\]
+This matrix is generated from the polynomial coefficients and the
+prescribed shifts. Its principal coefficient is
+\begin{equation}\label{eq:principal}
+ M_{3,0}(S)=
+ \det\begin{pmatrix}
+ 1&0&-4\\1&0&-1\\0&1&0
+ \end{pmatrix}=-3\ne0.
+\end{equation}
+The corresponding constant-coefficient minor is
+\begin{equation}\label{eq:constant}
+ M_{3,1}(S)=
+ \det\begin{pmatrix}
+ 1&0&0\\1&0&0\\0&1&-1
+ \end{pmatrix}=0.
+\end{equation}
+The first determinant equals $-3$ by expansion along its second
+column. The second is zero because its first two rows agree.
+Consequently
+\[
+ \Sres_1(f,g)(x)=M_{3,0}(S)x+M_{3,1}(S)=-3x.
+\]
+
+\begin{theorem}
+The vanishing-equivalence clause of Conjecture 00000005613 is false
+under the standard subresultant coefficient/principal convention,
+even for monic squarefree coprime polynomials with strictly interlacing
+real roots.
+\end{theorem}
+\begin{proof}
+Equations \eqref{eq:constant} and \eqref{eq:principal} give a zero
+third-order coefficient minor whose corresponding principal minor is
+nonzero. This directly contradicts the asserted equivalence.
+\end{proof}
+
+\newpage
+\section{Formal verification and its boundary}
+\texttt{Subresultant.lean} defines polynomials by ascending rational
+coefficients, and generates the Sylvester submatrix for arbitrary
+$p,q,i$ by shifted coefficients. Its determinant is ordinary recursive
+Laplace expansion. The coefficient-minor and subresultant definitions
+implement the convention in Section 1 directly.
+
+The file proves exact degrees and monicity; the two determinant values;
+the first subresultant formula; the displayed matrix from its generated
+entries; rational factorizations and exact rational root sets; strict
+root ordering; and the B\'ezout identity. It also verifies the two
+factorizations and \eqref{eq:bezout} by finite coefficient-list
+multiplication, independently of evaluating $x$.
+
+The final theorem is \texttt{conjecture\_00000005613\_false}.
+It negates \texttt{VanishingEquivalence}, the claimed equivalence restricted to
+monic degree-three/degree-two inputs satisfying the explicit
+factorization-based strict-interlacing condition. This is a restricted
+instance of the stated universal clause, not an assertion that every
+remaining undefined term has been formalized.
+
+\textbf{Scalar-domain boundary.} Lean's scalar type here is
+\texttt{Rat}, not a formal type of real or complex numbers. The
+coefficient identities are checked exactly over $\Q$; their transfer
+along the usual embeddings into $\R$ and $\mathbb C$, and the resulting
+real-root and polynomial-coprimality interpretations, are the elementary
+mathematical steps explained above. The theorem
+\texttt{no\_common\_root} itself quantifies over rational inputs; it is
+not advertised as a formal general polynomial gcd theorem.
+
+Strict compilation under Lean 4.31.0 succeeds with only \texttt{Std}.
+All theorem axiom closures use at most \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}; there are no custom
+axioms, admitted proofs, or native-decision shortcuts.
+The supplied README gives the strict build and kernel-replay commands.
+The separate Python script recomputes the generic matrix, determinants,
+coefficient products, and B\'ezout identity using exact rational
+arithmetic; it is supplementary, not a substitute for the Lean proof.
+
+\begin{thebibliography}{1}
+\bibitem{Kerber}
+Michael Kerber.
+\emph{Geometric Algorithms for Algebraic Curves and Surfaces}.
+Dissertation, Universit\"at des Saarlandes, 2009,
+Section 2.3, Definitions 2.3.10--2.3.12, p. 30.
+\href{https://www.geometrie.tugraz.at/kerber/kerber_papers/kerber_diss.pdf}{Author-hosted full text}.
+\end{thebibliography}
+\end{document}

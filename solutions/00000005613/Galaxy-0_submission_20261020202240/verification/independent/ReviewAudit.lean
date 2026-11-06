@@ -1,0 +1,23 @@
+import Subresultant
+#print axioms TLMC5613.input_degrees
+#print axioms TLMC5613.f_evaluation
+#print axioms TLMC5613.g_evaluation
+#print axioms TLMC5613.f_product_coefficients
+#print axioms TLMC5613.g_product_coefficients
+#print axioms TLMC5613.f_coefficient_list
+#print axioms TLMC5613.g_coefficient_list
+#print axioms TLMC5613.f_factorization
+#print axioms TLMC5613.g_factorization
+#print axioms TLMC5613.f_roots
+#print axioms TLMC5613.g_roots
+#print axioms TLMC5613.strict_interlacing
+#print axioms TLMC5613.bezout_identity
+#print axioms TLMC5613.bezout_coefficients
+#print axioms TLMC5613.no_common_root
+#print axioms TLMC5613.generated_matrix
+#print axioms TLMC5613.principal_minor_value
+#print axioms TLMC5613.constant_minor_value
+#print axioms TLMC5613.principal_coefficient_value
+#print axioms TLMC5613.first_subresultant_value
+#print axioms TLMC5613.counterexample
+#print axioms TLMC5613.conjecture_00000005613_false
