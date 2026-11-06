@@ -1,0 +1,206 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.72in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{hyperref}
+\usepackage{microtype}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.45em}
+\newtheorem{theorem}{Theorem}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\Ext}{\operatorname{Ext}}
+\title{Problem 00000000561: a square-zero Koszul algebra\protect\\ excludes every finite cyclotomic denominator}
+\author{lizaixi01}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+\vspace{-1.8em}
+
+\textbf{Precise scope.}
+The printed conjecture asks that the Hilbert series of the Yoneda algebra of an
+$N$-Koszul algebra be rational with denominator $\prod_i(1-t^{d_i})$.
+The product has no printed index set. We use the ordinary rational-function
+meaning of a denominator: a \emph{finite polynomial} product, with positive
+integer $d_i$, allowing repetitions. Under this reading the denominator clause
+is false already for $N=2$. The example's series is itself rational.
+We do not rule out an infinite formal Euler product, or dispute rationality for
+this example. The full original English and Chinese text is in \texttt{SOURCE.md}.
+
+\begin{theorem}
+There is a connected quadratic $2$-Koszul $\Q$-algebra $A$, with augmentation
+$k=\Q$, such that its actual graded Yoneda spaces satisfy
+\[
+ \dim_\Q\Ext_A^n(k,k)=2^n\quad(n\geq0),\qquad
+ H(t)=\sum_{n\geq0}\dim_\Q\Ext_A^n(k,k)t^n=\frac1{1-2t}.
+\]
+For every finite family of positive integers $(d_i)$ and every $P\in\Q[t]$,
+\[
+ \left(\prod_i(1-t^{d_i})\right)H(t)\ne P(t).
+\]
+The empty family is allowed as well.
+\end{theorem}
+
+\section*{1. The algebra and its full linear minimal resolution}
+Use the native square-zero extension
+\[
+ A=\Q\oplus V,\quad V=\Q^{\{0,1\}},\qquad
+ (r,v)(s,w)=(rs,rw+sv).
+\]
+Let $\epsilon_a=(0,e_a)$ for the two genuine coordinate basis vectors $e_a$.
+All four products $\epsilon_a\epsilon_b$ vanish. The grading is
+$A_0=\Q\oplus0$, $A_1=0\oplus V$, and $A_j=0$ for $j\geq2$.
+The formalization constructs its actual submodules, native internal direct-sum
+decomposition and native \texttt{GradedAlgebra} structure. The degree-zero
+component is linearly isomorphic to $\Q$ and the two $\epsilon_a$ span degree one.
+
+This is a genuine quadratic presentation, rather than an assigned label:
+\[
+ A\simeq \Q\langle x_0,x_1\rangle/(x_ax_b\mid a,b\in\{0,1\}).
+\]
+Lean constructs the free algebra, the relation identifying each displayed
+length-two monomial with zero, and its native \texttt{RingQuot}. The free
+evaluation $x_a\mapsto\epsilon_a$ descends. In the reverse direction, a vector
+$v\in V$ maps to $\sum_a v_a\bar x_a$; products of any two such images vanish.
+The native square-zero-extension lift supplies the inverse homomorphism.
+The two composites are proved to be identities on all elements.
+
+Let $B_0$ be the one-element set and $B_{n+1}=\{0,1\}\times B_n$.
+These are actual finite binary words, with cardinality proved inductively to
+be $2^n$. Put $P_n=A^{B_n}$ and define actual $A$-linear maps
+\[
+ d_n:P_{n+1}\longrightarrow P_n,\qquad
+ (d_nf)(w)=\sum_{a=0}^1\epsilon_a f(a,w),
+ \qquad \eta:P_0\longrightarrow k,\quad\eta(f)=f(*)_0.
+\]
+Here $(r,v)_0=r$. Coordinate calculations give, for every $n,f,w,a$,
+\[
+ (d_nf)(w)_0=0,\qquad (d_nf)(w)_1(a)=f(a,w)_0.
+\]
+Consequently $d_nd_{n+1}=0$,
+$\ker d_n$ consists exactly of functions with zero scalar coordinates,
+and $\operatorname{im}d_{n+1}$ is exactly that same submodule.
+For surjectivity onto this submodule, lift $g$ by
+$f(a,w)=(g(w)_1(a),0)$. The same calculation proves
+$\ker\eta=\operatorname{im}d_0$ and $\eta$ is surjective.
+Thus the entire infinite complex is exact in every required degree.
+
+Each $P_n$ has the native finite free coordinate basis and is projective.
+Lean packages this exact augmented complex as an actual native
+\texttt{ProjectiveResolution}, including its quasi-isomorphism to $k[0]$.
+Give its basis vectors degree $n$: explicitly
+$(P_n)_j=A_{j-n}^{B_n}$ for $j\geq n$, and zero otherwise.
+The native component decompositions and graded scalar actions are constructed;
+every $d_n$ preserves internal degree, and the augmentation preserves the
+grading of $k$ concentrated in degree zero. On basis vectors,
+\[
+ d_n(e_{(a,w)})=\epsilon_a e_w.
+\]
+All matrix entries lie in degree one and in the actual augmentation ideal.
+The image is proved to equal the $A$-span of these positive-degree basis
+multiples. This is a minimal linear graded free resolution. It proves the
+ordinary Koszul defining criterion \cite[Definition 8.1]{MP}; in the $N$-Koszul
+notation $\nu_N(i)=N\lfloor i/2\rfloor+(i\bmod2)$, Lean proves
+$\nu_2(i)=i$ for every $i$. This is the $N=2$ case of the standard convention
+in \cite[p.~4, Definition 2.2]{Berger}. No theorem about Hilbert series is assumed.
+
+\section*{2. Native Ext and the denominator obstruction}
+For every actual $A$-linear map $P_n\to k$, precomposition with $d_n$ is zero,
+because every $\epsilon_a$ acts as zero on $k$. Evaluation on the genuine free
+basis gives a proved $\Q$-linear equivalence
+\[
+ \operatorname{Hom}_A(P_n,k)\simeq_\Q\Q^{B_n}.
+\]
+The inverse sends a coordinate family $c$ to
+$f\mapsto\sum_w f(w)_0c_w$. Reconstruction is proved on every $f$.
+The native projective-resolution comparison constructs all elements of the
+native $\Ext_A^n(k,k)$ from such cocycles. Its actual surjectivity theorem and
+coboundary criterion show that the map is bijective for $n>0$, since every
+possible boundary map is zero. Compatibility with the native $\Q$-scalar
+action is proved using Yoneda postcomposition. For $n=0$, native
+$\Ext^0\simeq\operatorname{Hom}_A(k,k)$ followed by evaluation at $1$ gives
+the actual equivalence with $\Q$.
+
+All native Ext spaces are therefore proved finite dimensional, and their
+finranks are derived from $|B_n|=2^n$. The Hilbert series is the actual formal
+power series whose coefficient is this native finrank. In particular, no
+infinite-dimensional finrank default is used. The proof uses the graded
+native Ext spaces; it includes native bilinear Yoneda composition but does
+not construct a separate bundled total Yoneda ring. Multiplication is not
+needed for this Hilbert-series assertion.
+
+The coefficient at zero is $1$ and successive coefficients double. Lean
+therefore proves the formal-series identity
+\[
+ (1-2t)H(t)=1.
+\]
+Suppose a finite positive family gave $D(t)H(t)=P(t)$, where
+$D(t)=\prod_i(1-t^{d_i})$. Multiplying by $1-2t$, commuting factors and using
+this identity gives $(1-2t)P(t)=D(t)$ as an identity of actual formal series.
+Injectivity of the native polynomial-to-power-series map makes this an
+identity of polynomials. Evaluating at $t=1/2$ gives
+\[
+ 0=D(1/2)=\prod_i(1-2^{-d_i})\ne0,
+\]
+because each $d_i>0$. Lean proves this nonvanishing for every finite index
+type, including repeated exponents and the empty product. This contradicts
+the finite-denominator clause independently of the source's particular
+degree-sequence choice.
+
+\newpage
+\section*{3. Formalization boundary and reproduction}
+All algebra, grading, full-degree exactness, projectivity, actual native Ext
+comparisons, dimensions, formal-series operations and the finite-denominator
+contradiction above are proved in \texttt{lean/Main.lean}. The conventional
+name ``$2$-Koszul'' is identified by its defining minimal-linear-resolution
+criterion; the proof supplies that criterion's full mathematical data.
+The general terminology and free quadratic presentation convention come from
+the cited definitions, not additional Lean axioms. In particular,
+\cite[Theorem 8.5]{MP} is background only; its Poincare-series formula is not
+used as an assumed computation. Selected complete pages 24--27 of that survey
+and page 4 of Berger were inspected, not the complete papers.
+
+Key declarations in namespace \texttt{TLMC561} are:
+\begin{center}
+\begin{tabular}{@{}l@{}}
+\path{actualQuadraticPresentation}\\
+\path{resolution}\\
+\path{full_linear_resolution_certificate}\\
+\path{graded_minimal_augmentation_certificate}\\
+\path{ext_finrank}\\
+\path{hilbert_identity}\\
+\path{no_finite_cyclotomic_denominator}
+\end{tabular}
+\end{center}
+The exhaustive check enumerates the actual
+namespace, including generated declarations, and issues ordinary
+\texttt{\#print axioms} for every name. Only \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound} are allowed; there is no
+\texttt{sorry}, \texttt{native\_decide} or additional axiom.
+
+The project pins Lean 4.33.0 and Mathlib commit
+\path{db584cd6d46c92f209a44c0f1c829460d327499d}.
+From \texttt{lean/}, run \texttt{lean --version}, then \texttt{./verify.sh}
+for the build, warning-as-error axioms audit and official fresh-kernel replay.
+Equivalently run the latter three commands separately:
+\begin{verbatim}
+lake build +Main
+lake env lean -DwarningAsError=true Check.lean
+lake env leanchecker --fresh Main
+\end{verbatim}
+The evidence directory records source-bound commands, logs and observed
+thread affinity; production timings are diagnostic, not a controlled
+research-efficiency result. Organizer acceptance is pending.
+
+\begin{thebibliography}{9}
+\bibitem{MP} J. McCullough and I. Peeva,
+\emph{Infinite Graded Free Resolutions}, August 2018 survey,
+pp.~24--27, especially Definition 8.1 and the discussion of Yoneda algebras.
+\url{https://pi.math.cornell.edu/~irena/papers/infiniteRes.pdf}.
+\bibitem{Berger} R. Berger,
+\emph{Gerasimov's theorem and $N$-Koszul algebras},
+arXiv:0801.3383v3, 19 December 2008, p.~4, Definition 2.2.
+\url{https://arxiv.org/abs/0801.3383}.
+\end{thebibliography}
+\end{document}
