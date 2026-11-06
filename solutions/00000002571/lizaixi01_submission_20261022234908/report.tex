@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000002571: the rank-one boundary of the printed bound}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{22 October 2026}
+\begin{document}
+\maketitle
+\section{The exact inequality as printed}
+The conjecture asserts the explicit bound
+\[
+ D(f)\leq 16\bigl(\log\operatorname{rank}(M_f)\bigr)^2.
+\]
+There is no restriction to rank at least two, additive constant, or
+replacement of the rank by its maximum with two. We refute this exact
+statement at rank one. This does not refute the usual asymptotic
+log-rank conjecture or a version with a low-rank regularization, and
+does not address the separate optimal-exponent assertion.
+
+There are two common matrix encodings; we give a witness for each.
+For the $\{0,1\}$ encoding, take $f(a,b)=a\land b$. For the sign
+encoding $M_f(a,b)=(-1)^{f(a,b)}$, take $f(a,b)=a\mathbin\oplus b$.
+Ordering the inputs as false, true gives
+\[
+ M_{\land}=\begin{pmatrix}0&0\\0&1\end{pmatrix},\qquad
+ M_{\oplus}^{\mathrm{sign}}=\begin{pmatrix}1&-1\\-1&1\end{pmatrix}.
+\]
+Both real matrices have rank one. Each is a nonzero outer product,
+so its rank is at most one, and a nonzero $1\times1$ minor proves
+the reverse inequality. This is the actual matrix rank computed
+in the formal proof, not a separately assigned rank value.
+
+\section{A positive communication cost}
+Suppose Bob must output the answer and no communication occurs.
+His answer can depend on his own input $b$, but cannot depend on
+Alice's private input $a$. XOR and AND both violate this condition:
+\[
+ (0\oplus0)\ne(1\oplus0),\qquad
+ (0\land1)\ne(1\land1).
+\]
+They also depend on Bob's input, so choosing Alice as the sole
+output party does not permit zero communication either.
+If both parties must output the answer, zero communication is
+likewise impossible.
+
+For the Bob-output convention, exactly one bit suffices: Alice
+sends her input and Bob evaluates $f(a,b)$. Thus $D(f)=1$ for each
+witness in that convention. We use only the positive lower bound
+for the contradiction, so no exact one-bit claim is needed for
+the convention requiring both parties to output.
+
+\newpage
+\section{The formal protocol and minimum}
+The Lean inductive type \texttt{Protocol} has Alice and Bob message
+nodes and Bob-output leaves. At an Alice node the transmitted bit
+is a function of Alice's local input; at a Bob node it is a function
+of Bob's local input. The chosen subtree incorporates the transcript.
+A leaf may output any function of Bob's local input. In particular,
+the model does not incorrectly force a zero-message protocol to
+output a global constant.
+
+The interpreter evaluates the actual protocol on a pair of inputs.
+Cost is worst-case tree depth. Correctness quantifies over all input
+pairs. An explicit one-bit correct protocol establishes a nonempty
+set of achievable costs, and \texttt{D} is its least natural-number
+cost, defined with \texttt{Nat.find}. The proof of
+\texttt{zero\_cost\_local} classifies every zero-cost protocol.
+It then proves the lower bounds and matches them with the explicit
+upper bounds; the number one is not inserted as a definition of
+communication complexity.
+
+Theorems \texttt{rank\_bit\_and} and \texttt{rank\_sign\_xor}
+use Mathlib's \texttt{Matrix.rank} over $\mathbf R$, outer-product
+rank bounds and the rank of a $1\times1$ submatrix.
+The final two counterexample theorems combine these ranks with
+the actual minimum costs and $\log_2 1=0$. The base of the logarithm
+does not affect this rank-one obstruction.
+
+The standard deterministic communication model and real
+$\{0,1\}$-matrix convention are described in
+Ben-Sasson, Lovett and Zewi,
+\href{https://arxiv.org/abs/1111.5884}{\emph{An additive combinatorics
+approach to the log-rank conjecture}}, section 1.1. Our contradiction
+concerns the exact low-rank formula printed in this competition,
+not the asymptotic notation used in that paper.
+
+\section{Verification and scope}
+The accompanying project pins Lean 4.33.0 and Mathlib commit
+\[
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\]
+The build, transitive axiom audit, official fresh kernel replay and
+source hashes are recorded in the package. No \texttt{sorry},
+\texttt{native\_decide}, or additional axiom is used. The original
+bilingual statement is preserved in \texttt{SOURCE.md}.
+OpenAI Codex assisted the proof and report; a separate supervising
+Codex agent reviewed the formal chain. This is AI review, not human
+certification. Organizer acceptance is pending.
+\end{document}
