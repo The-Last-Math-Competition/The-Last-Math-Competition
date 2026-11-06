@@ -30,32 +30,33 @@
 
 ## 排行榜（Leaderboard）
 
-截至 2026-10-19 的当前战绩——**10000 个猜想中已解决 912 个**（95 个证明，817 个证伪）。上榜的每一份提交都通过了完整审计——LaTeX 源码、PDF 文档，以及一个完整编译的 Lean 4 项目（Mathlib 或自包含核心 Lean）——无 `sorry`、无 `native_decide`、无额外公理——并通过语义审查确认 Lean 定理确实建立了该猜想或其否定。每位求解者的完整解题清单见 [leaderboard.md](./leaderboard.md)。
+截至 2026-11-06 的当前战绩——**10000 个猜想中已解决 1014 个**（99 个证明，915 个证伪）。上榜的每一份提交都通过了完整审计——LaTeX 源码、PDF 文档，以及一个完整编译的 Lean 4 项目（Mathlib 或自包含核心 Lean）——无 `sorry`、无 `native_decide`、无额外公理——并通过语义审查确认 Lean 定理确实建立了该猜想或其否定。每位求解者的完整解题清单见 [leaderboard.md](./leaderboard.md)。
 
 | # | GitHub ID | Solved | First solves | Proven | Disproven |
 |---|----------|-------:|-------------:|-------:|----------:|
 | 1 | [ziangni-sys](https://github.com/ziangni-sys) | 193 | 193 | 16 | 177 |
-| 2 | [Jackmeson1](https://github.com/Jackmeson1) | 173 | 173 | 32 | 141 |
+| 2 | [Jackmeson1](https://github.com/Jackmeson1) | 174 | 174 | 32 | 142 |
 | 3 | [gaochengzhecpu](https://github.com/gaochengzhecpu) | 121 | 121 | 7 | 114 |
 | 4 | [earthking11](https://github.com/earthking11) | 94 | 94 | 1 | 93 |
-| 5 | [C0ldSmi1e](https://github.com/C0ldSmi1e) | 80 | 80 | 10 | 70 |
-| 6 | [orionsheep](https://github.com/orionsheep) | 65 | 65 | 0 | 65 |
-| 7 | [feiyuceng06-prog](https://github.com/feiyuceng06-prog) | 36 | 36 | 8 | 28 |
-| 8 | [jilint777](https://github.com/jilint777) | 34 | 34 | 2 | 32 |
-| 9 | [Galaxy-0](https://github.com/Galaxy-0) | 25 | 25 | 6 | 19 |
-| 10 | [SucRunBug](https://github.com/SucRunBug) | 18 | 18 | 2 | 16 |
-| 11 | [lidangzzz](https://github.com/lidangzzz) | 16 | 16 | 2 | 14 |
-| 12 | [lizaixi01](https://github.com/lizaixi01) | 15 | 15 | 2 | 13 |
-| 13 | [zbw123456](https://github.com/zbw123456) | 13 | 13 | 2 | 11 |
-| 14 | [idealistichacker](https://github.com/idealistichacker) | 10 | 10 | 2 | 8 |
+| 5 | [lizaixi01](https://github.com/lizaixi01) | 86 | 86 | 2 | 84 |
+| 6 | [C0ldSmi1e](https://github.com/C0ldSmi1e) | 80 | 80 | 10 | 70 |
+| 7 | [orionsheep](https://github.com/orionsheep) | 65 | 65 | 0 | 65 |
+| 8 | [Galaxy-0](https://github.com/Galaxy-0) | 40 | 40 | 6 | 34 |
+| 9 | [feiyuceng06-prog](https://github.com/feiyuceng06-prog) | 36 | 36 | 8 | 28 |
+| 10 | [jilint777](https://github.com/jilint777) | 34 | 34 | 2 | 32 |
+| 11 | [SucRunBug](https://github.com/SucRunBug) | 18 | 18 | 2 | 16 |
+| 12 | [idealistichacker](https://github.com/idealistichacker) | 17 | 17 | 4 | 13 |
+| 13 | [lidangzzz](https://github.com/lidangzzz) | 16 | 16 | 2 | 14 |
+| 14 | [zbw123456](https://github.com/zbw123456) | 13 | 13 | 2 | 11 |
 | 15 | [AlyciaBHZ](https://github.com/AlyciaBHZ) | 8 | 8 | 2 | 6 |
-| 16 | [asfigh665](https://github.com/asfigh665) | 5 | 5 | 1 | 4 |
-| 17 | [GodBlf](https://github.com/GodBlf) | 4 | 4 | 0 | 4 |
-| 18 | [11zhangzheng](https://github.com/11zhangzheng) | 1 | 1 | 0 | 1 |
-| 19 | [champagnepapihz](https://github.com/champagnepapihz) | 1 | 1 | 0 | 1 |
-| 20 | [Cosica](https://github.com/Cosica) | 1 | 1 | 0 | 1 |
-| 21 | [LibertychaserUS](https://github.com/LibertychaserUS) | 1 | 1 | 0 | 1 |
-| 22 | [quantumtool](https://github.com/quantumtool) | 1 | 1 | 0 | 1 |
+| 16 | [LibertychaserUS](https://github.com/LibertychaserUS) | 8 | 8 | 2 | 6 |
+| 17 | [asfigh665](https://github.com/asfigh665) | 5 | 5 | 1 | 4 |
+| 18 | [GodBlf](https://github.com/GodBlf) | 4 | 4 | 0 | 4 |
+| 19 | [11zhangzheng](https://github.com/11zhangzheng) | 1 | 1 | 0 | 1 |
+| 20 | [champagnepapihz](https://github.com/champagnepapihz) | 1 | 1 | 0 | 1 |
+| 21 | [Cosica](https://github.com/Cosica) | 1 | 1 | 0 | 1 |
+| 22 | [jiakeboge](https://github.com/jiakeboge) | 1 | 1 | 0 | 1 |
+| 23 | [quantumtool](https://github.com/quantumtool) | 1 | 1 | 0 | 1 |
 
 ## 早期声明
 

@@ -30,32 +30,33 @@ This is The Last Math Competition — possibly the last mathematics competition 
 
 ## Leaderboard
 
-Current standings as of 2026-10-19 — **912 of the 10,000 conjectures solved** (95 proofs, 817 disproofs). Every submission below passed the full audit — LaTeX source, PDF, and a Lean 4 project (Mathlib or self-contained core Lean) that compiles with no `sorry`, no `native_decide`, and no extra axioms — together with a semantic review confirming that the Lean theorem establishes the conjecture or its negation. Complete per-solver conjecture lists: [leaderboard.md](./leaderboard.md).
+Current standings as of 2026-11-06 — **1014 of the 10,000 conjectures solved** (99 proofs, 915 disproofs). Every submission below passed the full audit — LaTeX source, PDF, and a Lean 4 project (Mathlib or self-contained core Lean) that compiles with no `sorry`, no `native_decide`, and no extra axioms — together with a semantic review confirming that the Lean theorem establishes the conjecture or its negation. Complete per-solver conjecture lists: [leaderboard.md](./leaderboard.md).
 
 | # | GitHub ID | Solved | First solves | Proven | Disproven |
 |---|----------|-------:|-------------:|-------:|----------:|
 | 1 | [ziangni-sys](https://github.com/ziangni-sys) | 193 | 193 | 16 | 177 |
-| 2 | [Jackmeson1](https://github.com/Jackmeson1) | 173 | 173 | 32 | 141 |
+| 2 | [Jackmeson1](https://github.com/Jackmeson1) | 174 | 174 | 32 | 142 |
 | 3 | [gaochengzhecpu](https://github.com/gaochengzhecpu) | 121 | 121 | 7 | 114 |
 | 4 | [earthking11](https://github.com/earthking11) | 94 | 94 | 1 | 93 |
-| 5 | [C0ldSmi1e](https://github.com/C0ldSmi1e) | 80 | 80 | 10 | 70 |
-| 6 | [orionsheep](https://github.com/orionsheep) | 65 | 65 | 0 | 65 |
-| 7 | [feiyuceng06-prog](https://github.com/feiyuceng06-prog) | 36 | 36 | 8 | 28 |
-| 8 | [jilint777](https://github.com/jilint777) | 34 | 34 | 2 | 32 |
-| 9 | [Galaxy-0](https://github.com/Galaxy-0) | 25 | 25 | 6 | 19 |
-| 10 | [SucRunBug](https://github.com/SucRunBug) | 18 | 18 | 2 | 16 |
-| 11 | [lidangzzz](https://github.com/lidangzzz) | 16 | 16 | 2 | 14 |
-| 12 | [lizaixi01](https://github.com/lizaixi01) | 15 | 15 | 2 | 13 |
-| 13 | [zbw123456](https://github.com/zbw123456) | 13 | 13 | 2 | 11 |
-| 14 | [idealistichacker](https://github.com/idealistichacker) | 10 | 10 | 2 | 8 |
+| 5 | [lizaixi01](https://github.com/lizaixi01) | 86 | 86 | 2 | 84 |
+| 6 | [C0ldSmi1e](https://github.com/C0ldSmi1e) | 80 | 80 | 10 | 70 |
+| 7 | [orionsheep](https://github.com/orionsheep) | 65 | 65 | 0 | 65 |
+| 8 | [Galaxy-0](https://github.com/Galaxy-0) | 40 | 40 | 6 | 34 |
+| 9 | [feiyuceng06-prog](https://github.com/feiyuceng06-prog) | 36 | 36 | 8 | 28 |
+| 10 | [jilint777](https://github.com/jilint777) | 34 | 34 | 2 | 32 |
+| 11 | [SucRunBug](https://github.com/SucRunBug) | 18 | 18 | 2 | 16 |
+| 12 | [idealistichacker](https://github.com/idealistichacker) | 17 | 17 | 4 | 13 |
+| 13 | [lidangzzz](https://github.com/lidangzzz) | 16 | 16 | 2 | 14 |
+| 14 | [zbw123456](https://github.com/zbw123456) | 13 | 13 | 2 | 11 |
 | 15 | [AlyciaBHZ](https://github.com/AlyciaBHZ) | 8 | 8 | 2 | 6 |
-| 16 | [asfigh665](https://github.com/asfigh665) | 5 | 5 | 1 | 4 |
-| 17 | [GodBlf](https://github.com/GodBlf) | 4 | 4 | 0 | 4 |
-| 18 | [11zhangzheng](https://github.com/11zhangzheng) | 1 | 1 | 0 | 1 |
-| 19 | [champagnepapihz](https://github.com/champagnepapihz) | 1 | 1 | 0 | 1 |
-| 20 | [Cosica](https://github.com/Cosica) | 1 | 1 | 0 | 1 |
-| 21 | [LibertychaserUS](https://github.com/LibertychaserUS) | 1 | 1 | 0 | 1 |
-| 22 | [quantumtool](https://github.com/quantumtool) | 1 | 1 | 0 | 1 |
+| 16 | [LibertychaserUS](https://github.com/LibertychaserUS) | 8 | 8 | 2 | 6 |
+| 17 | [asfigh665](https://github.com/asfigh665) | 5 | 5 | 1 | 4 |
+| 18 | [GodBlf](https://github.com/GodBlf) | 4 | 4 | 0 | 4 |
+| 19 | [11zhangzheng](https://github.com/11zhangzheng) | 1 | 1 | 0 | 1 |
+| 20 | [champagnepapihz](https://github.com/champagnepapihz) | 1 | 1 | 0 | 1 |
+| 21 | [Cosica](https://github.com/Cosica) | 1 | 1 | 0 | 1 |
+| 22 | [jiakeboge](https://github.com/jiakeboge) | 1 | 1 | 0 | 1 |
+| 23 | [quantumtool](https://github.com/quantumtool) | 1 | 1 | 0 | 1 |
 
 ## An Early-Stage Disclaimer
 
