@@ -1,0 +1,153 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.8in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,amsmath,amssymb,microtype}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\title{A once-punctured torus contradicts the finite counting formula\\
+\large Disproof of the explicit finite-count clause in problem 00000000568}
+\author{lizaixi01}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+\vspace{-1em}
+
+\textbf{Claim and scope.}
+The problem prints, in both languages, the necessary special case
+\[
+ N(g,1)=6g-3+\sum_i2^i\binom{2g}{i}.
+\]
+Under the usual complete binomial sum, this gives $N(1,1)=3+(1+4+4)=12$.
+We use the closed oriented torus with one interior marked point (one puncture).
+Its coefficient-free cluster algebra has infinitely many distinct cluster variables.
+The contradiction concerns this explicit finite formula, not the unspecified general
+Poincar\'e-coefficient formula and not a count of variables in a single cluster.
+
+\textbf{The published geometric model and its boundary.}
+Fomin--Shapiro--Thurston, Example 4.6, gives the once-punctured torus matrix
+\[
+ B=\begin{pmatrix}0&2&-2\\-2&0&2\\2&-2&0\end{pmatrix}.
+\]
+One may obtain the standard ideal triangulation from a fundamental square with
+opposite sides identified and a diagonal: there are three arc labels and two
+oriented triangular faces, with the same cyclic order of labels on both faces.
+Each face contributes one cyclic signed adjacency matrix; their sum is $B$.
+The finite adjacency calculation is included in Lean.
+Definitions 5.1--5.2 specify seeds, mutations, all cluster variables and their generated
+algebra. Theorem 7.11, with its explicit closed-one-puncture exception, uses the
+\emph{plain} component here; we do not combine the plain and notched components.
+
+The identification of this exact published matrix model with the marked torus,
+and the geometric interpretation of its flips, are the cited external geometric
+definition bridge. Lean proves the complete algebraic statement for that exact
+model. It does not reprove the classification of surfaces or the arc-complex
+comparison theorem, and it introduces no axiom asserting those results.
+
+\textbf{The full seed model.}
+Let $P=\mathbb Q[X_0,X_1,X_2]$ and $F=\operatorname{Frac}(P)$, using native
+multivariate polynomials and the native fraction field. The initial coordinates
+$x_i$ are the actual images of $X_i$ in $F$. They are algebraically independent
+and generate $F$ as a field over $\mathbb Q$.
+A formal seed consists of its three coordinates, its exchange matrix $B$ or $-B$,
+and proved algebraic independence and field generation. The native matrix mutation
+formula of Definition 4.7 is implemented, and every mutation sends $B$ to $-B$
+and $-B$ to $B$. For any index $k$ (indices modulo $3$), its coordinate mutation is
+\[
+ u'_k=\frac{u_{k+1}^{\,2}+u_{k+2}^{\,2}}{u_k},\qquad
+ u'_i=u_i\quad(i\ne k).
+\]
+This is proved equal to the usual positive-column monomial plus negative-column
+monomial exchange formula for the actual exchange matrix.
+All denominators are nonzero by algebraic independence. The numerator is nonzero
+because it is the evaluation of a nonzero polynomial; evaluating that polynomial
+at $(1,1,1)$ gives $2$.
+
+Every mutation preserves field generation: the unchanged coordinates and the new
+coordinate recover the old coordinate by the same exchange equation. A generating
+triple in $F$, whose transcendence degree is at least $3$ by the initial independent
+triple, is algebraically independent. This is proved using native transcendence
+basis results. Mutations are actual involutions, not relations imposed by an axiom.
+Consequently every finite word in \emph{all three} mutation directions gives a valid
+seed. Let $\mathcal X\subset F$ be precisely the set of coordinates of all these
+seeds. The algebra is the actual native $\mathbb Z$-subalgebra
+$\mathbb Z[\mathcal X]\subset F$. Thus the coefficient-free convention is used
+with integer ground ring; the variable set has not been rationalized or replaced
+by word labels. Coefficients in the exchange relation are both $1$, as for the
+trivial coefficient semifield.
+
+\textbf{A legal specialization and its invariant.}
+Use the native localization
+\[
+ L=P[(X_0X_1)^{-1}].
+\]
+It injects into $F$. There is also a genuine ring homomorphism
+$e:L\to\mathbb Q$ sending each $X_i$ to $1$, because the sole inverted generator
+$X_0X_1$ maps to the unit $1$. No field homomorphism $F\to\mathbb Q$ with these
+values is used or claimed.
+Write $x,y,z$ for the local coordinate images and set
+\[
+ c=(x^2+y^2+z^2)(xy)^{-1},\qquad
+ f_0=x,\quad f_1=y,\quad f_{n+2}=cf_{n+1}-f_n\quad\text{in }L.
+\]
+The localization inverse gives $cxy=x^2+y^2+z^2$. Induction proves the genuine
+polynomial invariant and exchange identity
+\[
+ f_n^2+f_{n+1}^2+z^2=cf_nf_{n+1},\qquad
+ f_nf_{n+2}=f_{n+1}^2+z^2.
+\]
+For $a_n=e(f_n)$, these definitions imply
+$a_0=a_1=1$ and $a_{n+2}=3a_{n+1}-a_n$.
+Induction gives $0<a_{n+1}$ and $a_n\le a_{n+1}$ for all $n$. Hence
+$a_{n+2}\ge2a_{n+1}>a_{n+1}$, and $n\mapsto a_{n+1}$ is strictly increasing.
+In particular all $f_n$ and their images in $F$ are nonzero.
+
+\textbf{The infinite family consists of actual cluster variables.}
+Let $\bar f_n$ denote the image of $f_n$ in $F$. Starting with the initial seed,
+repeat mutation in direction $0$ and then direction $1$, a total of $r$ pairs.
+The proved exchange identities and nonzero denominators give its exact cluster
+\[
+ (\bar f_{2r},\ \bar f_{2r+1},\ x_2).
+\]
+This path is embedded in the full finite-word seed model; direction $2$ is still
+available in that model. Thus $\bar f_{2r+1}\in\mathcal X$ for every $r$.
+If two of these actual rational functions were equal, injectivity of $L\to F$
+would give equality in $L$. Applying $e$ would give
+$a_{2r+1}=a_{2s+1}$, so strict increase yields $r=s$.
+This is an injection $\mathbb N\hookrightarrow\mathcal X$ and proves native
+\texttt{Set.Infinite}. In fact the proof excludes every finite set representing
+$\mathcal X$, for every proposed finite cardinal $N$, and therefore excludes $12$.
+It never uses the default value of \texttt{Nat.card} on an infinite type.
+
+\textbf{Formal verification and limits.}
+The complete proof ends with the following theorem:
+\begin{center}\texttt{lean/Main.lean: complete\_counterexample}\end{center}
+Use Lean 4.33.0 and the pinned Mathlib revision
+\begin{center}\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.\end{center}
+From the \texttt{lean/} directory run the following commands, or run
+\texttt{lean --version} followed by \texttt{./verify.sh} for the last three checks:
+\begin{verbatim}
+lean --version
+lake build +Main
+lake env lean -DwarningAsError=true Check.lean
+lake env leanchecker --fresh Main
+\end{verbatim}
+All actual namespace declarations, including structure-generated auxiliaries,
+are enumerated. Only \texttt{propext}, \texttt{Classical.choice} and
+\texttt{Quot.sound} are allowed. The finite adjacency checks use ordinary kernel
+decision proofs. There is no \texttt{sorry}, native decision evaluation, or extra
+axiom. Exact commands, source hashes, raw logs and execution observations accompany
+the submission. Production timings are diagnostic and are not controlled
+research-efficiency evidence. The full original bilingual source is retained.
+
+\begin{thebibliography}{1}
+\bibitem{FST}
+S. Fomin, M. Shapiro and D. Thurston,
+\emph{Cluster algebras and triangulated surfaces. Part I: Cluster complexes},
+Acta Mathematica \textbf{201} (2008), 83--146.
+\href{https://arxiv.org/pdf/math/0608367v3}{arXiv:math/0608367v3},
+printed pp.17--18 (Example 4.6, Definitions 4.7 and 5.1--5.2) and p.28
+(Proposition 7.10 and Theorem 7.11). These selected pages were read; no whole-paper
+read is claimed.
+\end{thebibliography}
+\end{document}
