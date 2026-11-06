@@ -1,0 +1,190 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{Cooperation discounts are not ratios of raw stage payoffs\\
+\large Disproof of Conjecture 00000008240}
+\author{GitHub: gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The first assertion of the conjecture identifies the critical discount
+for cooperation with the ratio of the one-period defection payoff to
+the cooperative payoff. A standard repeated prisoner's dilemma has a
+cooperative subgame-perfect equilibrium at discount $1/2$, whereas that
+ratio is $3/2$. We verify the equilibrium against every unilateral
+infinite action stream after every finite history. Lean formalizes the
+stage game, arbitrary pure history-dependent profiles, their infinite
+discounted payoffs, subgame perfection, and the resulting inequality for
+the infimum over all cooperative pure equilibria. The example and its
+equilibrium argument are classical; no new folk theorem is claimed.
+\end{abstract}
+
+\section*{The assertion and its interpretation}
+Both language versions assert the raw-payoff ratio
+\[
+ \delta_c=\frac{\text{one-period defection payoff}}
+ {\text{cooperative payoff}}.
+\]
+We interpret cooperation as perpetual mutual cooperation on the
+equilibrium path, with subgame-perfect incentives under perfect public
+monitoring. For a given stage game let $\mathcal S$ be the set of
+$\delta\in(0,1)$ for which such a pure history-dependent equilibrium
+exists, and define $\delta_c=\inf\mathcal S$. We will exhibit a member
+of $\mathcal S$ and prove that the set is bounded below, so this infimum
+is well defined. Any definition allowing mixed equilibria as well has
+a weakly smaller critical discount and gives the same contradiction.
+
+The source does not specify a noise model or a particular family of
+static profiles. We do not assign definitions to those later conjuncts:
+failure of the first conjunct refutes the conjunction. In particular,
+we do not interpret ``defection payoff'' as an already normalized
+payoff \emph{difference}. The standard difference formula
+$(T-R)/(T-P)$ for grim-trigger incentives is a different expression.
+
+\section*{A standard stage game}
+Consider two players with actions $C,D$ and payoffs
+\[
+\begin{array}{c|cc}
+ & C & D\\\hline
+ C &(2,2)&(0,3)\\
+ D &(3,0)&(1,1)
+\end{array}
+\]
+Thus $T=3>R=2>P=1>S=0$. Each player's infinite payoff is
+$\sum_{n\geq0}\delta^n u_n$. Multiplying this by $1-\delta$ would
+leave all incentives unchanged. Every such series converges for
+$0\leq\delta<1$ because $0\leq u_n\leq3$.
+
+This is a familiar textbook example, including the exact stage-payoff
+table in the course handout \cite{osborne}. The cooperative
+grim-trigger equilibrium at $\delta=1/2$ is also Proposition~1 of
+Levin's notes \cite{levin}, after adding one to every stage payoff.
+That addition preserves every discounted payoff comparison.
+
+\begin{theorem}
+This game has a subgame-perfect equilibrium with perpetual mutual
+cooperation at $\delta=1/2$. Consequently $\delta_c\leq1/2$, whereas
+$T/R=3/2$. The first assertion of Conjecture 00000008240 is false.
+\end{theorem}
+\begin{proof}
+Both players use grim trigger: cooperate until a defection by either
+player has occurred, and defect forever after that. At any finite
+history the public state is either $c$, with no past defection, or
+$p$, with punishment already triggered. At $\delta=1/2$, following
+the strategy gives continuation values
+\[
+ V(c)=2\sum_{n\geq0}2^{-n}=4,
+ \qquad V(p)=\sum_{n\geq0}2^{-n}=2.
+\]
+For an arbitrary deviator, the stage reward $r$, next state, and
+one-step value satisfy the following exhaustive table:
+\[
+\begin{array}{c|c|c|c|c}
+ \text{state}&\text{own action}&r&\text{next state}
+     &r+\tfrac12 V(\text{next state})\\\hline
+ c&C&2&c&4\\
+ c&D&3&p&4\\
+ p&C&0&p&1\\
+ p&D&1&p&2
+\end{array}
+\]
+In each case the last entry is at most the current state's value.
+For any infinite unilateral action stream, induction and telescoping
+therefore give, for every $N$,
+\[
+ \sum_{n=0}^{N-1}2^{-n}r_n+2^{-N}V(s_N)\leq V(s_0).
+\]
+The terminal value is nonnegative. Letting $N$ tend to infinity shows
+that the deviator's total payoff is at most $V(s_0)$, exactly the
+payoff from following grim trigger. This argument applies to both
+players and every finite history, including histories off the
+cooperative path. It proves subgame perfection against arbitrary
+pure deviations, not just a single defection. The same pointwise
+bound also rules out gains from randomized deviations by taking
+expectations.
+
+Starting from the empty history, both players cooperate forever.
+Thus $1/2\in\mathcal S$ and $\mathcal S\subset(0,1)$, whence
+$\delta_c\leq1/2$. Since the raw defection-to-cooperation payoff
+ratio is $3/2>1/2$, the asserted equality fails.
+\end{proof}
+
+\section*{Why raw payoff ratios are structurally unsuitable}
+Adding the same constant to every outcome payoff of a player adds a
+strategy-independent constant $k/(1-\delta)$ to the repeated payoff.
+It cannot change any equilibrium or the cooperation threshold. In
+contrast, the raw ratio $T/R$ changes to $(T+k)/(R+k)$.
+This is the basic defect in the proposed ratio. The counterexample
+uses an ordinary strictly ordered prisoner's dilemma and a standard
+cooperative equilibrium, with no degenerate discount or payoff.
+
+\section*{Formal verification and scope}
+The Lean namespace is \texttt{Conjecture8240}. Booleans encode the
+two actions, and the function \texttt{stage} is the first player's
+actual table; the second player's payoff is the same table with
+arguments interchanged. Finite histories store both players' actions.
+A \texttt{Profile} assigns an action to each player at every history.
+The recursive trajectory against a fixed opponent generates the
+actual history for each unilateral infinite action stream.
+
+The definition \texttt{SPE} quantifies over both players, every finite
+history, a compliant continuation, and every possible unilateral
+infinite stream. The definition \texttt{Cooperates} requires the
+all-$C$ stream to be compliant from the empty history for each player.
+\texttt{sustainable} ranges over all such pure profiles at
+$\delta\in(0,1)$; its infimum is \texttt{critical}. Thus the formal
+critical value is not restricted to grim-trigger profiles.
+
+The central formally verified results are
+\[
+\begin{gathered}
+ \texttt{history\_payoff\_summable},\quad
+ \texttt{grim\_is\_spe},\quad
+ \texttt{grim\_cooperates},\\
+ \texttt{half\_sustainable},\quad
+ \texttt{critical\_le\_half},\quad
+ \texttt{conjecture8240\_false}.
+\end{gathered}
+\]
+The final theorem negates \texttt{ClaimedRatio}, the specialization
+of the first conjectured equality to this explicit game.
+All objects needed for the pure-strategy counterexample, including
+convergence of discounted sums, are formalized. The paper's comments
+about randomized deviations, the larger mixed-strategy infimum, and
+invariance under additive payoff shifts are not separately formalized.
+No exact optimal value for $\delta_c$ is needed or claimed here.
+Only the usual Lean axioms of propositional extensionality, classical
+choice, and quotient soundness occur in the printed axiom audit.
+
+\section*{Source and reproduction}
+The unmodified bilingual conjecture is included as \texttt{SOURCE.md},
+retrieved from upstream commit
+\begin{center}\small
+\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.
+\end{center}
+Its SHA-256 digest and source path appear in
+\texttt{verification/SOURCE\_PROVENANCE.md}.
+The project pins Lean 4.19.0 and Mathlib commit
+\begin{center}\small
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+From the \texttt{lean} directory, run \texttt{lake build}, or
+\begin{center}\small
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+\end{center}
+The work was developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately. There is no external
+independent review.
+
+\begin{thebibliography}{9}
+\bibitem{levin} Jonathan Levin, \emph{Repeated Games I: Perfect
+Monitoring}, May 2006, Proposition~1.
+\url{https://web.stanford.edu/~jdlevin/Econ%20286/Repeated%20Games%20I.pdf}
+\bibitem{osborne} \emph{Chapter 14: Repeated Prisoner's Dilemma},
+Northwestern University course handout discussing Osborne's text,
+stage game and grim-trigger strategies, pp.~1--2.
+\url{https://sites.math.northwestern.edu/~clark/364/handouts/osborne14.pdf}
+\end{thebibliography}
+\end{document}
