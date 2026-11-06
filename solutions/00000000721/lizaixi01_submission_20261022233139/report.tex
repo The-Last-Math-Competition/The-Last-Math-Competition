@@ -1,0 +1,101 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{3em}
+\title{Conjecture 00000000721: negative factorial powers do not give an uncountable $p$-adic family}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{22 October 2026}
+\begin{document}
+\maketitle
+\section{The stated series and its ambient field}
+The source claims that the set
+\[
+ \left\{\sum_{n\geq1}a_n p^{-n!}:a_n\in\{0,\ldots,p-1\}\right\}
+\]
+contains an algebraically independent subfamily of cardinality
+$2^{\aleph_0}$ in $\overline{\mathbf Q}_p$.
+We retain the negative exponent exactly as stated and use the usual
+extension of the $p$-adic absolute value, normalized by $|p|_p=p^{-1}$.
+At $p=2$, every convergent series in this set is a finite sum and is
+rational. Its value set is therefore countable, which excludes the
+required cardinality regardless of algebraic independence.
+
+The ambient field in the proof is the actual algebraic closure
+$K=\overline{\mathbf Q}_2$ of $\mathbf Q_2$, equipped with its extended
+$2$-adic norm. Completeness is unnecessary: we consider series that
+actually converge in $K$. Changing the sign in the exponent would
+produce a different claim, to which this argument does not apply.
+
+\section{Convergence forces finite support}
+Let $a_n\in\{0,1\}$. If $a_n\ne0$, then $a_n=1$ and
+\[
+ |a_n2^{-n!}|_2=2^{n!}\geq1.                         \tag{1}
+\]
+In every normed additive group, convergence of the sequence of partial
+sums implies that the individual terms tend to zero: subtract the
+partial sum ending at $n-1$ from the one ending at $n$.
+It follows that eventually $|a_n2^{-n!}|_2<1$.
+By (1), all sufficiently late digits are zero.
+
+Consequently there is $N$ such that every convergent value is
+\[
+ \sum_{n=1}^{N} a_n 2^{-n!}\in\mathbf Q.
+\]
+The rational numbers are countable, and the field embedding
+$\mathbf Q\hookrightarrow K$ carries a countable set to a countable
+set. Thus the full set of actual series values is countable. Every
+subset is countable, whereas $2^{\aleph_0}>\aleph_0$ by Cantor's theorem.
+The specified continuum-sized subfamily cannot exist.
+
+\section{The two meanings of series convergence are covered}
+The code first proves the finite-support statement for Lean's
+\texttt{HasSum} predicate. It then explicitly treats the ordinary
+sequence of forward partial sums
+\[
+ s_N=\sum_{j=0}^{N-1} a_{j+1}2^{-(j+1)!}.
+\]
+If $s_N\to x$, then $s_{N+1}-s_N\to0$. Applying (1) to the terms shows
+that the digits eventually vanish. The resulting finite sum has a
+\texttt{HasSum} proof, and uniqueness of the partial-sum limit identifies
+its value with $x$. Conversely, \texttt{HasSum} implies convergence of
+these forward partial sums. Hence the two actual value sets coincide
+in this example. No value is assigned to any divergent series.
+
+The formal term sequence is indexed from zero, with term number $j$
+equal to $a_{j+1}2^{-(j+1)!}$ in the source indexing. Both this equality
+and the surjectivity of the digit reindexing are proved, so no zeroth
+factorial term has been inserted into the source series.
+
+\section{Formal objects and verification}
+\texttt{K} is Mathlib's \texttt{PadicAlgCl 2}, the algebraic closure with
+the spectral norm extending the $2$-adic norm. \texttt{norm\_\allowbreak two}
+uses that extension and the normalization on $\mathbf Q_2$.
+\texttt{norm\_\allowbreak term\_\allowbreak of\_\allowbreak nonzero}
+proves the lower bound (1), and the vanishing-term argument is in
+\texttt{vanishing\_\allowbreak eventually\_\allowbreak zero}.
+\texttt{series\_\allowbreak value\_\allowbreak rational} constructs the
+finite rational sum explicitly and proves that its field embedding is
+the actual sum value.
+
+\texttt{sequential\_\allowbreak hasSum} and
+\texttt{sourceSequentialValues\_\allowbreak eq} establish the ordinary
+partial-sum bridge. The final theorem
+\texttt{no\_\allowbreak continuum\_\allowbreak subfamily} directly
+negates the existence of a subset of the source value set whose
+\texttt{Cardinal.mk} equals $2^{\aleph_0}$. It therefore refutes a
+necessary condition of the original claim without assuming anything
+about the transcendence degree.
+
+The project pins Lean 4.33.0, Mathlib and all dependency commits. A new
+root project build, fourteen-declaration transitive axiom audit and
+official fresh-kernel replay are recorded with source hashes. No
+admitted proof, native decision shortcut or extra axiom is used.
+The original bilingual source is preserved from upstream commit\par\noindent
+\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\par
+OpenAI Codex assisted the mathematics, proof and report. A separate
+supervising Codex agent reviewed the sign, topology, indexing and both
+convergence interpretations. This is AI review, not human certification.
+The argument uses elementary necessary conditions for convergence and
+countability; no new mathematical result is claimed.
+\end{document}
