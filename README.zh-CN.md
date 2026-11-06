@@ -30,14 +30,14 @@
 
 ## 排行榜（Leaderboard）
 
-截至 2026-11-06 的当前战绩——**10000 个猜想中已解决 1074 个**（106 个证明，968 个证伪）。上榜的每一份提交都通过了完整审计——LaTeX 源码、PDF 文档，以及一个完整编译的 Lean 4 项目（Mathlib 或自包含核心 Lean）——无 `sorry`、无 `native_decide`、无额外公理——并通过语义审查确认 Lean 定理确实建立了该猜想或其否定。每位求解者的完整解题清单见 [leaderboard.md](./leaderboard.md)。
+截至 2026-11-06 的当前战绩——**10000 个猜想中已解决 1073 个**（106 个证明，967 个证伪）。上榜的每一份提交都通过了完整审计——LaTeX 源码、PDF 文档，以及一个完整编译的 Lean 4 项目（Mathlib 或自包含核心 Lean）——无 `sorry`、无 `native_decide`、无额外公理——并通过语义审查确认 Lean 定理确实建立了该猜想或其否定。每位求解者的完整解题清单见 [leaderboard.md](./leaderboard.md)。
 
 | # | GitHub ID | Solved | First solves | Proven | Disproven |
 |---|----------|-------:|-------------:|-------:|----------:|
 | 1 | [ziangni-sys](https://github.com/ziangni-sys) | 193 | 193 | 16 | 177 |
 | 2 | [Jackmeson1](https://github.com/Jackmeson1) | 174 | 174 | 32 | 142 |
 | 3 | [gaochengzhecpu](https://github.com/gaochengzhecpu) | 170 | 170 | 14 | 156 |
-| 4 | [lizaixi01](https://github.com/lizaixi01) | 96 | 96 | 2 | 94 |
+| 4 | [lizaixi01](https://github.com/lizaixi01) | 95 | 95 | 2 | 93 |
 | 5 | [earthking11](https://github.com/earthking11) | 94 | 94 | 1 | 93 |
 | 6 | [C0ldSmi1e](https://github.com/C0ldSmi1e) | 80 | 80 | 10 | 70 |
 | 7 | [orionsheep](https://github.com/orionsheep) | 65 | 65 | 0 | 65 |
