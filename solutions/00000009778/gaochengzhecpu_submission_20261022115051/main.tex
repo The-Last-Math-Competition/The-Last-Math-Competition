@@ -1,0 +1,190 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{An unavoidable even-power term in Volterra singular values\newline
+\large Disproof of Conjecture 00000009778}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The classical Volterra operator on $L^2(0,1)$ has ordered singular
+values $s_n=1/[\pi(n-1/2)]$, $n\geq1$. Consequently
+$n^2(s_n-1/(\pi n))\to1/(2\pi)\ne0$, excluding an expansion
+with only odd inverse powers. A full unrestricted expansion does
+exist; its even-power terms cannot be omitted. We give the
+actual operator-to-spectrum argument and explicitly separate it
+from the Lean-checked integral identities and asymptotic core.
+The Hilbert-space spectral identification is a stated mathematical
+bridge, not a claimed complete Lean formalization.
+\end{abstract}
+
+\section*{The actual compact operator}
+On the real or complex Hilbert space $H=L^2(0,1)$, set
+\[
+ (Vf)(x)=\int_0^x f(t)\,dt.
+\]
+Its kernel $\mathbf1_{\{0\leq t\leq x\leq1\}}$ is precisely an
+interval-indicator integration kernel, as required by the source.
+Its squared $L^2$ kernel norm is $1/2$, so $V$ is a bounded
+Hilbert--Schmidt operator and is compact. Every $L^2$ function on
+this finite interval is integrable, and the formula selects an
+absolutely continuous representative. Kernel diagonal conventions
+have no effect on the operator on $L^2$ equivalence classes.
+
+Fubini applied to the inner product gives the actual adjoint
+\[
+ (V^*g)(x)=\int_x^1 g(t)\,dt.
+\]
+Thus $A=V^*V$ is compact, positive and self-adjoint, with
+\[
+ (Af)(x)=\int_x^1\int_0^t f(s)\,ds\,dt
+       =\int_0^1\bigl(1-\max(x,s)\bigr)f(s)\,ds.
+\]
+Fubini is justified, for example, by integrability of
+$|f(s)||g(t)|$ on the square, using $L^2\subset L^1$ and
+Cauchy--Schwarz. Positivity follows from
+$\langle Af,f\rangle=\|Vf\|_2^2$.
+
+For arbitrary $f\in H$, the displayed representative $y=Af$
+satisfies
+\[
+ y\in C^1[0,1],\qquad y'(x)=-\int_0^x f(s)\,ds,
+ \qquad y''=-f\ \hbox{a.e.},\qquad y'(0)=0,\ y(1)=0.
+\]
+Here $y'$ is absolutely continuous; no classical second
+derivative of an arbitrary $L^2$ function is assumed.
+
+\newpage
+\section*{Complete spectral identification and ordering}
+Suppose $Af=\lambda f$ in $L^2$, with $f\ne0$ and
+$\lambda\ne0$. Positivity gives $\lambda>0$. Replace $f$ by
+the representative $\widetilde f=y/\lambda$. It is continuous,
+so the integral formula for $y'$ and the fundamental theorem
+of calculus upgrade $y$ to $C^2$. Consequently
+\[
+ \widetilde f''+\lambda^{-1}\widetilde f=0,
+ \qquad \widetilde f'(0)=0,\quad \widetilde f(1)=0
+\]
+hold classically everywhere. Writing $\omega=1/\sqrt\lambda>0$,
+the nonzero solutions are multiples of $\cos(\omega x)$, and
+$\cos\omega=0$. Therefore
+\[
+ \omega_n=(n-\tfrac12)\pi,\qquad
+ \lambda_n=\omega_n^{-2},\qquad n=1,2,\ldots .
+\]
+Conversely direct integration proves
+\[
+ V\cos(\omega_n x)=\frac{\sin(\omega_n x)}{\omega_n},\qquad
+ V^*\sin(\omega_n x)=\frac{\cos(\omega_n x)}{\omega_n}.
+\]
+Each listed eigenvalue thus occurs, with a one-dimensional
+eigenspace by the ODE classification. There are no other nonzero
+eigenvalues. The compact self-adjoint spectral theorem applies
+to $A$, not to the non-self-adjoint operator $V$. It gives
+exhaustiveness of the eigenvalue list with multiplicities.
+Also $\ker A=\ker V=\{0\}$: if $Vf=0$ a.e., its continuous
+primitive is zero everywhere, hence its derivative $f$ vanishes
+a.e. The positive eigenvalues above strictly decrease to zero.
+Taking their positive square roots gives the ordered singular values
+\[
+ s_n(V)=\sqrt{\lambda_n}=
+ \frac1{\pi(n-1/2)},\qquad n\geq1.
+\]
+This agrees with the squared Gram spectrum stated in
+Opmeer~\cite{Opmeer}, Example 31. The positive square root is
+essential; the eigenvalues of $V^*V$ are not the singular values of $V$.
+
+\section*{The missing even term}
+Exact algebra yields
+\[
+ n^2\left(s_n-\frac1{\pi n}\right)
+ =\frac{n}{\pi(2n-1)}\longrightarrow\frac1{2\pi}\ne0.
+\]
+An odd-only Poincar\'e expansion in $n^{-1}$ would, already
+through order three, give a real $c$ such that
+\[
+ n^3\left(s_n-\frac1{\pi n}-\frac c{n^3}\right)\longrightarrow0.
+\]
+Multiplying this limit by $1/n$ and adding $c/n$ would force
+the previous $n^2$-scaled difference to tend to zero, a contradiction.
+
+\newpage
+\begin{theorem}
+The Volterra singular values have a nonzero $n^{-2}$ coefficient,
+so they do not admit the conjectured odd-only inverse-power
+expansion. This remains true under every integer change of starting index.
+\end{theorem}
+\begin{proof}
+The first assertion follows from the nonzero limit on page 2.
+For an integer shift $k$, eventually
+$s_{n+k}=1/[\pi(n+a)]$ with $a=k-1/2\ne0$. Then
+\[
+ n^2\left(s_{n+k}-\frac1{\pi n}\right)
+ =-\frac a\pi\frac n{n+a}\longrightarrow-\frac a\pi\ne0.
+\]
+The same necessary odd-expansion condition is impossible.
+\end{proof}
+
+The ordinary full expansion actually is geometric:
+\[
+ s_n=\frac1{\pi n}\left(1+\frac1{2n}+\frac1{4n^2}+\cdots\right).
+\]
+Every displayed coefficient is nonzero. If ``odd corrections''
+were instead intended inside the relative factor, the relative
+$n^{-2}$ term $1/4$ also disproves that reading. A half-integer
+frequency variable $n-1/2$ is not an integer reindexing or an
+expansion in the stated integer $n$. We refute the parity
+restriction, not the existence of an unrestricted full expansion;
+the additional Bernoulli-coefficient clause need not be settled.
+
+\section*{Formalization boundary and reproduction}
+Lean defines genuine forward and backward interval integrals on
+real functions. It proves their displayed cosine-mode and Gram-mode
+identities for every mode and every real argument, including the
+half-integer boundary condition. Separately it proves the
+nonnegative square-root step from the published Gram formula,
+the actual scaled-difference limit, and failure of the necessary
+third-order odd expansion. Theorems quantify over any sequence
+eventually satisfying the exact spectral formula. They include
+every integer offset; $n=0$ is immaterial to the eventual statements.
+
+The actual $L^2$ bounded operator, adjoint theorem, regularity
+upgrade, compact spectral theorem and exhaustive ordered spectral
+identification on pages 1--2 are mathematical analysis outside
+this Lean project. They are substantive bridges, not definitions
+of a chosen sequence as singular values. The project does not
+claim that pointwise integral identities alone prove completeness
+or that the entire $L^2$ spectrum has been formalized.
+
+\newpage
+\section*{Reproduction and references}
+Lean 4.19.0 is pinned, with Mathlib revision
+\begin{center}
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+From \texttt{lean/}, run:
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Run \texttt{python verify.py} at the root for supplementary exact
+algebra checks. Compile with \texttt{tectonic main.tex}.
+Actual fresh-build logs and standard-foundation axiom reports
+are included. Author, parent and internal cross-review were
+performed; no external independent review is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000009778. Exact bilingual source included.
+\bibitem{Opmeer} M. R. Opmeer,
+\emph{Decay of singular values for infinite-dimensional systems
+with Gevrey regularity}, Systems \& Control Letters 137 (2020),
+104644, Example 31.
+\href{https://doi.org/10.1016/j.sysconle.2020.104644}{Publisher record};
+\href{https://purehost.bath.ac.uk/ws/portalfiles/portal/203458869/GevreySingularValues.pdf}{author manuscript},
+PDF page 23.
+\end{thebibliography}
+\end{document}
