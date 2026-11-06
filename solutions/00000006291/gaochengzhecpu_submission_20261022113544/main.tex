@@ -1,0 +1,203 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newcommand{\Kzero}{K_0}
+\newcommand{\Fp}{\mathbb F}
+\title{Different Fields Have the Same Scaled Ordered $K_0$:\\
+A Disproof of Conjecture 00000006291}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+The assertion that the zeroth $K$-group completely classifies regular rings
+fails already for the fields $\Fp_2$ and $\Fp_3$. Both are von Neumann regular,
+and their scaled ordered $K_0$ groups are isomorphic to
+$(\mathbb Z,\mathbb Z_{\geq0},1)$, although the rings are not isomorphic.
+The Lean proof constructs the Grothendieck group from actual finite-dimensional
+vector spaces and linear equivalences, verifies its universal property, and
+proves the counterexample with the positive cone and the unit class retained.
+\end{abstract}
+
+\paragraph{Reading of the source.}
+Both language versions assert that the zeroth group is a complete invariant
+of regular rings and describe a classification by ordered groups.
+We use the standard unital von Neumann meaning of regular:
+\[
+ \forall a\in R\ \exists b\in R,\qquad aba=a.
+\]
+The zeroth group is the algebraic Grothendieck group $K_0(R)$ of finitely
+generated projective right $R$-modules under direct sum. Its positive cone
+consists of the classes of actual modules, and its distinguished order unit
+is $[R]$. The rings here are commutative, so right versus left is immaterial.
+Completeness for ring isomorphism would imply, in particular,
+\begin{equation}\label{eq:claim}
+ (K_0(F),K_0(F)^+,[F])\cong(K_0(E),K_0(E)^+,[E])
+ \quad\Longrightarrow\quad F\cong E
+\end{equation}
+for every pair of fields $F,E$, since fields are regular.
+We disprove this necessary restriction. Retaining the positive cone and
+unit makes the counterexample stronger than one involving only abstract
+abelian groups. No common ground field or narrower class of regular rings
+is stipulated in the source; a classification theorem with such extra
+restrictions is outside the claim refuted here.
+
+\begin{theorem}\label{thm:main}
+The rings $\Fp_2$ and $\Fp_3$ are von Neumann regular and nonisomorphic, but
+\[
+ (K_0(\Fp_2),K_0(\Fp_2)^+,[\Fp_2])
+ \cong(\mathbb Z,\mathbb Z_{\geq0},1)
+ \cong(K_0(\Fp_3),K_0(\Fp_3)^+,[\Fp_3]).
+\]
+Consequently \eqref{eq:claim}, and hence the stated complete-invariant
+assertion for regular rings, is false.
+\end{theorem}
+
+\begin{lemma}\label{lem:field}
+For every field $F$, dimension induces a scaled ordered group isomorphism
+\[
+ (K_0(F),K_0(F)^+,[F])\cong(\mathbb Z,\mathbb Z_{\geq0},1).
+\]
+\end{lemma}
+\begin{proof}
+Every finitely generated $F$-module is a finite-dimensional vector space
+and has a finite basis. A free module is projective: to lift a linear map
+through a surjection, choose preimages of the images of basis vectors and
+extend linearly. Thus the finitely generated projective modules over $F$
+are precisely its finite-dimensional vector spaces. Their isomorphism
+classes form a commutative monoid under finite direct sum, which can be
+realized as the Cartesian product with componentwise vector operations.
+Dimension identifies this monoid with $(\mathbb N,+)$, because
+\[
+ P\cong F^{\dim_F P},\qquad
+ P\cong Q\ \Longleftrightarrow\ \dim_F P=\dim_F Q,
+ \qquad \dim_F(P\oplus Q)=\dim_F P+\dim_F Q.
+\]
+The following explicit group completion also specifies the construction
+used in Lean.
+
+Take pairs $(P,Q)$ of actual finite-dimensional vector spaces. Declare
+\begin{equation}\label{eq:rel}
+ (P,Q)\sim(P',Q')
+ \quad\Longleftrightarrow\quad
+ P\oplus Q'\cong P'\oplus Q.
+\end{equation}
+This is equivalent to equality of the integer differences
+$\dim P-\dim Q$ and $\dim P'-\dim Q'$ and is therefore an equivalence
+relation. It also agrees with the customary stabilized relation allowing
+an auxiliary summand $T$ on both sides of the isomorphism in
+\eqref{eq:rel}: equality of the resulting dimensions cancels $\dim T$,
+and the converse follows by taking $T=0$.
+
+On equivalence classes put
+\[
+ [(P,Q)]+[(P',Q')]=[(P\oplus P',Q\oplus Q')],
+ \qquad -[(P,Q)]=[(Q,P)].
+\]
+These operations are well-defined by the dimension criterion. The map
+\[
+ d([(P,Q)])=\dim_F P-\dim_F Q
+\]
+is well-defined and injective by \eqref{eq:rel}, and is surjective because
+an integer $z$ is represented by $(F^{\max(z,0)},F^{\max(-z,0)})$.
+It is an additive isomorphism to $\mathbb Z$.
+
+For completeness, this quotient has the defining universal property of
+the Grothendieck group. Let $A$ be any abelian group and let $f$ assign an
+element of $A$ to each finite-dimensional vector space, invariant under
+linear isomorphism, additive under direct sum, and zero on the zero space.
+Then
+\[
+ [(P,Q)]\longmapsto f(P)-f(Q)
+\]
+is well-defined: an isomorphism in \eqref{eq:rel} gives
+$f(P)+f(Q')=f(P')+f(Q)$. This map is additive and sends $[(P,0)]$ to
+$f(P)$. It is unique, because every class equals
+$[(P,0)]-[(Q,0)]$. Hence the quotient is the Grothendieck group of the
+specified monoid, namely $K_0(F)$. Equivalently, the exact-sequence
+presentation gives the same group: short exact sequences of projective
+modules split, and their relations are exactly direct-sum relations.
+
+The positive cone is the set of classes $[(P,0)]$. Their images under $d$
+are precisely the nonnegative integers, since $\dim_F P\geq0$ and every
+$n\geq0$ occurs for $P=F^n$. Thus the order is exactly
+\[
+ x\leq y\quad\Longleftrightarrow\quad y-x\in K_0(F)^+
+ \quad\Longleftrightarrow\quad d(x)\leq d(y).
+\]
+Finally $[F]$ has dimension one. This proves the scaled ordered assertion.
+\end{proof}
+
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+In any field, take $b=a^{-1}$ when $a\neq0$ and $b=0$ when $a=0$;
+then $aba=a$. Thus both fields are von Neumann regular.
+Apply Lemma~\ref{lem:field} to the two fields and compose one dimension
+isomorphism with the inverse of the other. The composition preserves
+addition, order, and the distinguished unit. A ring isomorphism between
+$\Fp_2$ and $\Fp_3$ would be a bijection between their underlying sets,
+which have different cardinalities $2$ and $3$. No such isomorphism exists.
+\end{proof}
+
+\section*{Formal verification and scope}
+The self-contained file \texttt{lean/Main.lean} uses Lean 4.19.0 and
+Mathlib at commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+Its bundled objects carry actual types, additive groups, scalar actions,
+and Mathlib's finite-generation instances. The following bridges are
+proved in Lean:
+\begin{itemize}
+\item Every bundled object is finitely generated and projective, every
+finitely generated module can be bundled, and every object is linearly
+isomorphic to the standard finite-dimensional space of its dimension.
+\item The defining relation is a genuine linear equivalence between
+cross direct sums; allowing an auxiliary stabilizing module gives the
+same relation.
+\item The rank map on the quotient is bijective. The abelian-group
+structure is transported along it, then proved to be direct sum on pair
+representatives, with coordinate exchange as additive inverse.
+\item The group completion has its universal property for every abelian
+target group. Its partial order is compatible with addition and is
+proved to be exactly the order coming from actual module classes.
+\item The unit class equals the class of the field as a module over
+itself. For every pair of fields an ordered additive group isomorphism
+preserving this unit is constructed.
+\item The two \texttt{ZMod} fields are regular, no ring isomorphism exists
+between them, and the universally quantified field-completeness
+assertion is negated.
+\end{itemize}
+The final theorem is
+\begin{center}\texttt{Conjecture6291.conjecture\_6291\_false}.\end{center}
+Its type is the negation of \texttt{FieldCompleteness}, which quantifies
+over every pair of fields and assumes regularity and an isomorphism of
+their scaled ordered groups before demanding a ring isomorphism.
+This is an explicitly stated necessary restriction of the source's
+complete-invariant assertion, not a formal construction of $K_0$ for
+arbitrary rings. The finite-projective/direct-sum definition is
+formalized with its universal property; the equivalence with the
+short-exact-sequence presentation is explained on paper. The remaining
+unspecified claims concerning continuous geometry are unnecessary once
+completeness has failed and are not asserted here. The axiom audits use
+only \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+\section*{Source and reproduction}
+The exact bilingual statement is included as \texttt{SOURCE.md}, from
+upstream commit
+\begin{center}\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\end{center}
+Its source hash and retrieval record are in
+\begin{center}\texttt{verification/SOURCE\_PROVENANCE.md}.\end{center}
+The computation $K_0(F)\cong\mathbb Z$ by dimension is also recorded in
+the Stacks Project, Section 10.55, Example 10.55.2:
+\href{https://stacks.math.columbia.edu/tag/00JC}{\texttt{stacks.math.columbia.edu/tag/00JC}}.
+The proof above supplies the group, cone, and unit calculation directly.
+
+With the pinned dependencies available, run in the \texttt{lean} directory:
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}\end{center}
+and \texttt{lake build} for a fresh project build. Compile
+\texttt{main.tex} with Tectonic or a compatible LaTeX installation.
+This submission was developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately. No external independent
+review is claimed.
+\end{document}
