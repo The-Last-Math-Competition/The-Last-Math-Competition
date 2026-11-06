@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\title{Conjecture 00000003883: the maximal ideal has F-pure threshold two}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{22 October 2026}
+\begin{document}
+\maketitle
+\section{Statement and the standard definition}
+The conjecture predicts that the F-pure threshold of $(x^a,y^b)$ equals
+$\min(a,b)$ when $\gcd(a,b)=1$ and the characteristic does not divide
+$\min(a,b)$. Take $a=b=1$ over the field $\mathbf F_2$. These hypotheses
+hold, but the ideal $(x,y)$ has F-pure threshold $2$, not $1$.
+
+We work at the origin of the regular polynomial ring
+$R=\mathbf F_2[x,y]$, with homogeneous maximal ideal $\mathfrak m=(x,y)$.
+We use the standard Frobenius definition of the F-pure threshold at that
+point. For an ideal $\mathfrak a\subseteq\mathfrak m$, put
+\[
+ \nu_{\mathfrak a}(2^e)=\max\{r\in\mathbf N:
+        \mathfrak a^r\not\subseteq\mathfrak m^{[2^e]}\},\qquad
+ \operatorname{fpt}_{\mathfrak m}(\mathfrak a)
+       =\lim_{e\to\infty}\frac{\nu_{\mathfrak a}(2^e)}{2^e}.
+\]
+This definition for non-principal ideals in a polynomial ring is stated
+explicitly in the introduction of Badilla-C\'espedes and
+Le\'on-Cardenal \cite{BC}, following Takagi--Watanabe \cite{TW}.
+It is the standard F-pure threshold expressed through Frobenius powers.
+The source's description in terms of test-ideal jumps is brief; here the
+precise convention is the threshold at the origin. We do not claim to
+formalize the general equivalence with test-ideal or splitting definitions.
+We formalize this standard definition and every step of its computation
+for the exhibited ideal, including existence of the maximum and limit.
+
+\section{The computation}
+Fix $e\geq0$ and write $q=2^e$. The iterated Frobenius homomorphism is
+$F^e(f)=f^q$. Its image ideal on $\mathfrak m$ is
+\[
+ \mathfrak m^{[q]}=(x^q,y^q).
+\]
+A polynomial belongs to this monomial ideal exactly when every monomial
+in its support has $x$-exponent at least $q$ or $y$-exponent at least $q$.
+Likewise, a polynomial belongs to $\mathfrak m^r$ exactly when all its
+monomials have total degree at least $r$.
+
+If $r>2(q-1)$, every pair of nonnegative exponents of total degree at
+least $r$ has a component at least $q$. Thus
+$\mathfrak m^r\subseteq(x^q,y^q)$.
+Conversely, if $r\leq2(q-1)$, the monomial $x^{q-1}y^{q-1}$ belongs to
+$\mathfrak m^r$ and does not belong to $(x^q,y^q)$. Therefore, for every
+$e,r\in\mathbf N$,
+\[
+ \mathfrak m^r\not\subseteq\mathfrak m^{[2^e]}
+   \quad\Longleftrightarrow\quad r\leq2(2^e-1).
+\]
+The maximum defining $\nu$ is consequently attained and is exactly
+$\nu_{\mathfrak m}(2^e)=2(2^e-1)$. Hence
+\[
+ \operatorname{fpt}_{\mathfrak m}(\mathfrak m)
+    =\lim_{e\to\infty}(2-2^{1-e})=2.
+\]
+Since $\gcd(1,1)=1$ and $2\nmid1$, the uncorrected clause of the
+conjecture predicts $1$. One counterexample to that clause refutes the
+conjunction; the unspecified correction clause is not needed.
+
+\section{Formal objects and verification}
+\texttt{R} is \texttt{MvPolynomial (Fin 2) (ZMod 2)}.
+\texttt{maximalIdeal} is the ideal spanned by its two variables.
+\texttt{frobeniusPower} uses \texttt{Ideal.map} on Mathlib's actual
+\texttt{iterateFrobenius} ring homomorphism. Theorems
+\texttt{frobeniusPower\_span} and \texttt{mem\_frobeniusPower} establish
+the generator and support descriptions; these are not assumptions.
+\texttt{power\_containment} proves both directions for all $e,r$.
+\texttt{noncontainment\_greatest} uses \texttt{IsGreatest} for the actual
+set of exponents, justifying the \texttt{sSup} in \texttt{nu}.
+\texttt{threshold\_limit} proves convergence in $\mathbf R$.
+\texttt{fPureThreshold} uses \texttt{limUnder} on that sequence, and
+\texttt{maximalIdeal\_fpt} identifies its value using the proved limit.
+The final existential \texttt{counterexample} includes positivity,
+coprimality, the characteristic condition, actual convergence, and the
+inequality with the predicted minimum.
+
+Earlier PR~283 attempted a different example but its Lean file only
+certified disconnected arithmetic. Its claimed universal bound
+$\operatorname{fpt}(I)\leq1$ is false for non-principal ideals; the present
+example itself disproves it. We do not use that bound or assume any
+comparison with log canonical thresholds. The prior submission's
+valuation-only discussion is also unnecessary here.
+
+The project pins Lean 4.33.0, Mathlib and all dependencies. Source-bound
+build, axiom audit and official fresh-kernel replay logs are supplied.
+No admitted proof, native decision shortcut or new axiom occurs.
+The bilingual source is fixed at upstream commit\par\noindent
+\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.\par
+OpenAI Codex produced the reasoning, proof and report; a separate
+supervising Codex agent reviewed the formal chain. This is AI review,
+not human certification. The formula is classical, not new mathematics.
+
+\begin{thebibliography}{2}
+\bibitem{BC} W. Badilla-C\'espedes and E. Le\'on-Cardenal,
+\emph{F-Pure Thresholds and F-Volumes of Some Non-Principal Ideals},
+Mediterranean Journal of Mathematics 22, 98 (2025), Introduction.
+\url{https://doi.org/10.1007/s00009-025-02860-z}.
+\bibitem{TW} S. Takagi and K.-i. Watanabe, \emph{On F-pure thresholds},
+Journal of Algebra 282 (2004), 278--297.
+\url{https://arxiv.org/abs/math/0312486}.
+\end{thebibliography}
+\end{document}
