@@ -1,0 +1,7 @@
+# Source at upstream b355e42906e6eaf52bc7e9d005e0ef02d8aa7400
+
+# 00000000079
+
+**English.** Conjecture: For every irrational α, the sequence ({αp_n}) is normal in the half-open unit interval 0 ≤ x < 1 (every digit block occurs with frequency equal to the inverse of its length).
+
+**中文。** 猜想：对每个无理 α,序列 ({αp_n}) 在单位半开区间 0≤x<1 中正规(所有数字块频率 = 长度之逆)。
