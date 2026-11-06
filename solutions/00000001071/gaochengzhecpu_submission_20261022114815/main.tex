@@ -1,0 +1,193 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\title{The Wrong Spectral Scale for Quadratic-Residue Graphs:\\A Disproof of Conjecture 00000001071}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+\begin{abstract}
+The source compares the smallest adjacency eigenvalue of a quadratic-residue
+graph with $-2\sqrt p$ and claims an error at most $p^{-1/4+\varepsilon}$.
+For the standard Paley graph, the discrepancy is at least
+$(3\sqrt p-1)/2$. If the source's parenthetical ``adjacency by $\pm1$''
+instead means differences $\pm1$, its graph is a cycle and the discrepancy
+is at least $2\sqrt p-2$. Both lower bounds are unbounded along the
+appropriate prime orders. The graph definitions, character identities,
+matrix arguments, prime-order quantifiers and negation of the error estimate
+are all formalized in Lean.
+\end{abstract}
+
+\paragraph{Reading of the source.}
+Both language versions name a quadratic-residue graph and also give the
+parenthetical adjacency rule $\pm1$. These descriptions need not describe
+the same graph. We therefore treat both explicitly. The standard undirected
+Paley graph $P_p$, for a prime $p\equiv1\pmod4$, has vertex set
+$\mathbb F_p$, with distinct vertices adjacent when their difference is a
+square. Under the literal difference-$\pm1$ rule, the graph is the cycle
+$C_p$ on $\mathbb Z/p\mathbb Z$. We use the ordinary, unnormalized adjacency
+matrix in each case. The phrase ``deviation from $-2\sqrt p$'' is read as
+$|\lambda_{\min}+2\sqrt p|$. Allowing a constant and an arbitrary starting
+point makes the estimate weaker than its displayed constant-one form, and
+our disproof covers this weaker asymptotic interpretation as well.
+
+\begin{theorem}\label{thm:main}
+Let $\lambda_{\min}(G)$ be the smallest eigenvalue of the real adjacency
+matrix of a finite graph $G$.
+\begin{enumerate}
+\item For every prime $p\equiv1\pmod4$,
+\[
+ |\lambda_{\min}(P_p)+2\sqrt p|\ \geq\ \frac{3\sqrt p-1}{2}.
+\]
+\item For every prime $p\geq3$,
+\[
+ |\lambda_{\min}(C_p)+2\sqrt p|\ \geq\ 2\sqrt p-2.
+\]
+\end{enumerate}
+For either family, for every real $B$ and every integer cutoff $N$, an
+admissible prime $p\geq N$ has discrepancy greater than $B$.
+Consequently neither family satisfies
+$|\lambda_{\min}+2\sqrt p|=O(p^{-1/4+\varepsilon})$ for every
+$\varepsilon>0$; already $\varepsilon=1/8$ fails.
+\end{theorem}
+
+\paragraph{Quadratic-character identities.}
+We give the argument over any finite field $F$ of odd characteristic,
+writing $q=|F|$ and assuming that $-1$ is a square. Let
+$\chi:F\longrightarrow\{0,1,-1\}$ be its quadratic character, extended by
+$\chi(0)=0$. Thus $\chi(-1)=1$, $\chi(u)^2=1$ for $u\ne0$, and
+$\sum_{u\in F}\chi(u)=0$.
+
+First,
+\begin{equation}\label{eq:jacobi}
+ \sum_{t\in F}\chi(t)\chi(1-t)=-1.
+\end{equation}
+Indeed the quadratic character equals its inverse as a multiplicative
+character, so the summand equals $\chi(t/(1-t))$ for $t\ne1$; at $t=1$
+the original summand is zero. The map
+\[
+ F\setminus\{1\}\longrightarrow F\setminus\{-1\},\qquad
+ t\longmapsto\frac{t}{1-t}
+\]
+is a bijection with inverse $u\mapsto u/(1+u)$. The sum is therefore
+$\sum_{u\ne-1}\chi(u)=-\chi(-1)=-1$.
+
+For $a\ne b$, put $d=a-b$ and substitute $x=b+dt$ to obtain
+\begin{equation}\label{eq:correlation}
+ \sum_{x\in F}\chi(a-x)\chi(x-b)
+ =\chi(d)^2\sum_{t\in F}\chi(1-t)\chi(t)=-1.
+\end{equation}
+For $a=b$, the summand is $\chi(a-x)^2$, since $\chi(-1)=1$, and its sum
+is $q-1$.
+
+\paragraph{The actual Paley adjacency matrix.}
+Index the following real matrices by $F$. Let $J$ be the all-ones matrix,
+let $I$ be the identity, and set
+\[
+ Q_{ab}=\chi(a-b),\qquad A=\frac{J-I+Q}{2}.
+\]
+On the diagonal $A_{aa}=0$; off the diagonal it is one exactly when
+$a-b$ is a square, and otherwise zero. Thus $A$ is precisely the adjacency
+matrix of the standard Paley graph, rather than a surrogate matrix.
+It is symmetric because $\chi(-1)=1$.
+The diagonal and off-diagonal calculations above give
+\begin{equation}\label{eq:matrix}
+ Q^2=qI-J.
+\end{equation}
+Each column of $Q$ sums to zero, by translating the character sum.
+Consequently every column of $A$ sums to $k=(q-1)/2$.
+
+Let $Ax=\lambda x$ with $x\ne0$, and put $s=\sum_a x_a$.
+Summing the eigenvector equation gives $ks=\lambda s$. If $\lambda=k$,
+then $\lambda\geq0$. Otherwise $s=0$, hence $Jx=0$ and
+\[
+ Qx=(2\lambda+1)x,\qquad
+ Q^2x=(2\lambda+1)^2x=qx.
+\]
+A nonzero coordinate of $x$ gives $(2\lambda+1)^2=q$. In either case,
+\begin{equation}\label{eq:lower}
+ \lambda\geq-\frac{1+\sqrt q}{2}.
+\end{equation}
+Applying this to the smallest adjacency eigenvalue and using $|u|\geq u$
+yields
+\[
+ |\lambda_{\min}+2\sqrt q|\geq\lambda_{\min}+2\sqrt q
+ \geq\frac{3\sqrt q-1}{2}.
+\]
+This proof needs only a spectral lower bound, not an unproved claim about
+the occurrence or multiplicities of either nontrivial eigenvalue.
+
+\paragraph{The literal difference-$\pm1$ graph.}
+More generally, let $G$ have maximum degree at most two and $Ax=\lambda x$
+with $x\ne0$. Choose $v$ maximizing $|x_v|$, which is positive. Then
+\[
+ |\lambda|\,|x_v|
+ =\left|\sum_{w\sim v}x_w\right|
+ \leq\sum_{w\sim v}|x_w|\leq2|x_v|.
+\]
+Thus $|\lambda|\leq2$. For $C_p$ this gives
+$\lambda_{\min}\geq-2$ and the second lower bound in
+Theorem~\ref{thm:main}.
+
+\paragraph{Prime orders and the asymptotic quantifiers.}
+There are arbitrarily large primes, and also arbitrarily large primes
+$p\equiv1\pmod4$. For the latter elementary fact, suppose that
+$r_1,\ldots,r_m$ list all such primes and take
+$M=(2r_1\cdots r_m)^2+1$. Every prime divisor $\ell$ of $M$ is odd,
+and $-1$ is a square modulo $\ell$. The corresponding nonzero residue
+has order four, so $4\mid\ell-1$. Also $\ell$ is not one of the $r_i$,
+a contradiction. These infinitude statements imply unboundedness.
+
+Given $B\in\mathbb R$ and $N$, take an admissible prime greater than both
+$N$ and $(|B|+2)^2$. Then $\sqrt p>|B|+2$, and each applicable lower bound
+in Theorem~\ref{thm:main} exceeds $B$.
+If the source's error estimate held at $\varepsilon=1/8$, some $C\geq0$
+and $N$ would give discrepancy at most $Cp^{-1/8}\leq C$ for all
+admissible primes $p\geq N$. This contradicts the preceding result with
+$B=C$. Failure of the error clause already disproves the conjunction in
+the source; no separate claim about its spectral-gap clause is needed.
+
+\paragraph{Formal verification and scope.}
+The file \texttt{lean/Main.lean} formalizes both readings. The standard
+Paley graph is a Mathlib \texttt{SimpleGraph} over \texttt{ZMod p}.
+Its adjacency is proved equivalent to distinctness and the standard
+\texttt{IsSquare} predicate on the difference. Its matrix is Mathlib's
+adjacency matrix. The quadratic character is Mathlib's actual finite-field
+character. The Jacobi sum identity is the library theorem for a character
+and its inverse; the affine change of variables, character correlation,
+matrix identity, column sums and spectral lower bound are proved in the
+submission. No desired spectrum is assumed.
+
+The smallest eigenvalue is the minimum of Mathlib's complete real
+eigenvalue list for a Hermitian matrix. A member of that list is supplied
+with a nonzero vector from its orthonormal eigenvector basis. The cycle
+uses Mathlib's \texttt{cycleGraph}, including its degree theorem. The
+formal prime statements have arbitrary real bounds and arbitrary natural
+cutoffs. They prove the negations of universally quantified error claims,
+including arbitrary nonnegative error constants. The final theorems are
+\begin{center}\small
+\texttt{Conjecture1071.Paley.not\_spectralClaim}\\
+\texttt{Conjecture1071.not\_spectralClaim}.
+\end{center}
+All mathematical bridges used above are covered by Lean, except that the
+elementary exposition of infinitude is replaced there by Mathlib's proved
+infinitude theorems. The argument does not concern an unspecified different
+graph family or an unstated rescaling of its adjacency matrix.
+
+\paragraph{Source and reproduction.}
+The original bilingual source is preserved in \texttt{SOURCE.md}; its
+commit and SHA-256 digest are recorded in
+\texttt{verification/SOURCE\_PROVENANCE.md}. The Lean project pins Lean
+4.19.0 and Mathlib commit
+\begin{center}\small\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+From the \texttt{lean} directory run
+\begin{center}\small\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+The printed axiom reports use only \texttt{propext},
+\texttt{Classical.choice} and \texttt{Quot.sound}.
+This submission was developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately. There is no claim of an
+external independent review.
+\end{document}
