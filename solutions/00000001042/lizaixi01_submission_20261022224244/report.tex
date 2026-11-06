@@ -1,0 +1,109 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+\title{Conjecture 00000001042: an exact affine variance and the fixed-degree asymptotic obstruction}
+\author{lizaixi01, with OpenAI Codex assistance}
+\date{22 October 2026}
+\begin{document}
+\maketitle
+
+\section{Statement, interpretation, and scope}
+The source conjecture says: ``The variance of the value-set size of a random
+polynomial $f$ uniform of degree $\leq d$ is asymptotically
+$q(1-1/e)/d$.'' The Chinese version likewise specifies degree at most $d$.
+The source is conjecture 00000001042 at upstream commit:\par\noindent
+\texttt{b355e42906e6eaf52bc7e9d005e0ef02d8aa7400}.
+
+We disprove the reading in which $q$ tends to infinity through finite-field
+cardinalities while $d$ is fixed, with the stated class including $d=1$.
+The source does not specify a limiting regime. We do not claim to settle a
+different formulation restricted to growing $d$, or one excluding $d=1$.
+Uniform means uniform on all coefficient vectors, including zero leading
+coefficients and the zero polynomial. In degree at most one this is the
+uniform distribution on the $q^2$ distinct formal polynomials $aX+b$.
+
+\section{Exact computation for every finite field}
+Let $K$ be any finite field of cardinality $q$, and let $(a,b)$ be uniform
+on $K^2$. Define the actual value-set size
+\[
+ V(a,b)=\#\{ax+b:x\in K\}.
+\]
+If $a=0$ the image is the singleton $\{b\}$, so $V=1$.
+If $a\ne0$, the inverse image of $y$ is $(y-b)/a$; hence the map is
+surjective and $V=q$. There are $q$ pairs with zero slope and $q(q-1)$
+with nonzero slope. Thus
+\[
+ \mathbb E[V^k]=\frac{1+(q-1)q^k}{q},\qquad
+ \mathbb E[V]=q-1+\frac1q.
+\]
+The variance, equivalently the uniform mean squared deviation, is
+\[
+ \operatorname{Var}(V)=\mathbb E[V^2]-\mathbb E[V]^2
+     =\frac{(q-1)^3}{q^2}.                         \tag{1}
+\]
+This is an identity for every finite field, not a finite numerical test.
+
+\section{Asymptotic contradiction}
+Let $p_n$ enumerate the primes in increasing order, and take
+$K_n=\mathbb Z/p_n\mathbb Z$. These are finite fields and $p_n\to\infty$.
+Equation (1) gives
+\[
+ \frac{\operatorname{Var}_{K_n}(V)}{p_n}
+    =\left(1-\frac1{p_n}\right)^3\longrightarrow 1.
+\]
+But $\exp(1)>1$, so $0<1-1/\exp(1)<1$.
+The proposed fixed-$d=1$ equivalence would instead imply a normalized
+limit $1-1/\exp(1)$. Uniqueness of limits yields a contradiction.
+In Lean we additionally refute the exact ratio formulation
+\[
+ \frac{\operatorname{Var}_{K_n}(V)}{p_n(1-1/\exp(1))}\longrightarrow 1.
+\]
+Failure along this legitimate unbounded sequence already disproves the
+asserted $q$-asymptotic reading.
+
+\section{Formalization and semantic correspondence}
+The standalone project uses Lean 4.33.0 and the pinned Mathlib revision in the project configuration and dependency manifest.
+The main theorems in \texttt{lean/Main.lean} are:
+\begin{itemize}
+\item \texttt{affineEquiv}: an explicit bijection between coefficient pairs
+and all formal polynomials of natural degree at most one;
+\texttt{affine\_eval} connects their evaluations to $ax+b$.
+Thus the uniform coefficient enumeration is exactly the requested uniform
+polynomial ensemble.
+\item \texttt{valueCount\_zero}, \texttt{valueCount\_ne\_zero}, and
+\texttt{sum\_power}: actual finite image cardinalities and exact sums.
+\item \texttt{variance\_is\_mean\_squared\_deviation} and
+\texttt{variance\_formula}: the standard variance definition and (1), with
+no assumed moment or counting formula.
+\item \texttt{normalized\_variance\_limit}: the true limit along actual
+prime fields. The final theorem
+\texttt{refutes\_asymptotic\_equivalence} proves failure of the
+conjectured ratio limit.
+\end{itemize}
+The only foundational axioms allowed are Lean's usual
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+There is no admitted proof, native decision shortcut, or new axiom.
+Reproduction commands and exact verification receipts accompany this report.
+
+\section{Previous submission and what is repaired}
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/155}{PR 155}
+already presented this elementary mathematical obstruction. It was closed
+unmerged: its Lean proof checked only $q=101$, while the general identity
+and the limiting argument remained in prose. A finite discrepancy alone
+does not disprove an asymptotic claim. The
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/pull/155\#issuecomment-5951812972}{maintainer's review}
+identified both missing formal steps and the unspecified limiting regime.
+This submission credits that prior observation, proves the general
+finite-field identity and the limiting contradiction in Lean, and explicitly
+limits its conclusion to the fixed-degree, growing-field interpretation.
+It makes no claim to new mathematics or to resolving every possible
+alternative interpretation of the incomplete source statement.
+
+\section{Provenance}
+OpenAI Codex performed the reasoning, Lean formalization, and report
+preparation for the submitting account. A separate supervising Codex agent
+read the original statement and full proof source for semantic review;
+this is an AI review, not a human certification. The official competition
+review and acceptance remain the maintainers' responsibility.
+\end{document}
