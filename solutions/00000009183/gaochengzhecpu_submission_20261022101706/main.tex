@@ -1,0 +1,164 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{A graphon does not determine a first-order limit\\
+\large Disproof of Conjecture 00000009183}
+\author{GitHub: gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The complete graphs and the complete graphs with one edge deleted have
+the same constant-one graphon limit. Both sequences have first-order
+limits, but the sentence asserting completeness distinguishes them at
+every size. Thus graphons cannot characterize first-order limits of dense
+graphs in the sense of determining their limiting first-order theories.
+The ordinary dense graph limit theorem is unaffected.
+\end{abstract}
+
+\section*{Statement and interpretation}
+The English source begins ``Definition: First-order limits of dense
+graphs'' and describes graphons as the characterization of the limit
+objects. The Chinese source likewise explicitly says first-order limits.
+We test the following necessary consequence of a graphon characterization:
+if two first-order convergent dense graph sequences have the same graphon
+limit, they have the same eventual truth value for every first-order
+sentence in the language with adjacency and equality.
+
+The source does not specify a formal convergence definition. We use the
+usual first-order convergence in which the proportions of satisfying
+assignments converge for every formula; for a sentence these proportions
+are its truth values, zero or one. Our sequences are convergent even in
+this stronger formula sense, as shown below. If ``first-order'' in the
+source were removed and only convergence of homomorphism densities were
+intended, the familiar graphon characterization would be correct. The
+counterexample concerns the first-order assertion actually present in both
+versions, not that corrected assertion.
+
+\section*{The counterexample}
+For every $N\geq 2$, let $A_N=K_N$, and obtain $B_N$ by deleting exactly
+one edge, whose endpoints are denoted $u,v$. Both graphs have $N$ vertices.
+Their ordered edge densities are
+\[
+ \frac{N(N-1)}{N^2}\longrightarrow1,
+ \qquad \frac{N(N-1)-2}{N^2}\longrightarrow1.
+\]
+In particular both sequences are dense.
+
+Partition $[0,1)$ into $N$ intervals $I_i$ of length $1/N$, and let
+$W_G$ be the usual adjacency step graphon: on $I_i\times I_j$ it is
+$1$ if $i,j$ are adjacent and $0$ otherwise. Values at the endpoint
+$1$ are immaterial. There are $N$ diagonal zero squares for $A_N$,
+and $N+2$ zero squares for $B_N$. Consequently
+\[
+ \|1-W_{A_N}\|_1=\frac1N,
+ \qquad \|1-W_{B_N}\|_1=\frac{N+2}{N^2}.
+\]
+The cut norm is bounded above by the $L^1$ norm, so both graphons
+converge in cut norm, and hence in cut distance, to the same graphon
+$W\equiv1$. This includes the diagonal error; it is not merely a
+comparison of the two edge counts.
+
+For completeness the same conclusion can be checked against every finite
+test graph. If $F$ has $m$ edges, independent uniform choices of its
+vertex images give, by the union bound,
+\[
+ 0\leq 1-t(F,A_N)\leq\frac mN,
+ \qquad 0\leq1-t(F,B_N)\leq\frac{m(N+2)}{N^2}.
+\]
+Each test edge fails with the displayed missing ordered-pair probability;
+independence between the different failure events is not needed.
+Thus all finite homomorphism densities converge to those of $W=1$.
+
+Now consider the first-order sentence
+\[
+ \sigma:=\forall x\,\forall y\,(x\ne y\ \Longrightarrow\ E(x,y)).
+\]
+Every $A_N$ satisfies $\sigma$, whereas every $B_N$ fails it, witnessed
+by $u,v$. Their limiting first-order theories therefore differ.
+
+\section*{Existence of the first-order limits}
+Here we also verify that the example is not relying on a sequence which
+fails to have a first-order limit. For $A_N,A_M$, the duplicator wins the
+$q$-round Ehrenfeucht--Fraisse game whenever $N,M\geq q$: equality of
+already selected vertices is preserved, and a fresh vertex is matched by
+a fresh vertex. All distinct selected vertices are adjacent.
+
+For $B_N,B_M$, the duplicator preserves the pair of exceptional vertices
+$\{u,v\}$, matching exceptional vertices to exceptional vertices and
+ordinary vertices to ordinary vertices. Once an exceptional vertex is
+selected its match is fixed, and the other exceptional vertex is matched
+to the remaining exceptional vertex if selected. Fresh ordinary vertices
+are always available when $N-2,M-2\geq q$. This is a partial isomorphism
+after every move: the only missing edge between distinct vertices is the
+exceptional pair. Thus every sentence of quantifier rank at most $q$ has
+constant truth value on each sequence once $N\geq q+2$.
+
+For the version of first-order convergence including formulas with free
+variables, fix a formula with $k$ free variables and quantifier rank $q$.
+The proportion of assignments with a repeated vertex or an exceptional
+vertex is at most
+\[
+ \binom{k}{2}/N+2k/N,
+\]
+which tends to zero. (For $A_N$, omit the second term.) All remaining
+assignments are injective and ordinary. Any two such assignments, in
+graphs of sizes at least $k+q+2$, extend the same partial isomorphism
+in the $q$-round game above. The formula therefore has one fixed truth
+value on these assignments, independent of the sufficiently large size.
+Its satisfaction proportion converges to that value. This proves the
+claimed first-order convergence for every formula.
+
+\section*{Formal verification and scope}
+The Lean development uses Mathlib's \texttt{SimpleGraph} on
+$\operatorname{Fin}(n+2)$, so $N=n+2$. It defines both graph sequences,
+their actual zero--one adjacency kernels, and the explicit semantic
+property represented by $\sigma$. It proves the truth and falsity of
+that property on the two graphs for every $n$.
+
+To connect the finite kernels to cut convergence, let $a_i,b_j\in[0,1]$
+be arbitrary. Lean proves nonnegativity and the uniform bound
+\[
+ 0\leq \frac1{N^2}\sum_{i,j}a_i b_j(1-W_{B_N}(i,j))
+       \leq \frac{N+2}{N^2},
+\]
+and the same upper bound for $A_N$, together with convergence of the
+upper bound to zero. This quantifies over all fractional rectangle
+weights, not only subsets of the vertex set. For measurable $S,T$, put
+$a_i=N\lambda(S\cap I_i)$ and $b_j=N\lambda(T\cap I_j)$.
+The left side is exactly
+$\int_{S\times T}(1-W_G)$ by the elementary integral formula for step
+functions. Since $1-W_G\geq0$, these inequalities are precisely uniform
+control of all cut rectangles.
+
+The development defines this finite-kernel cut convergence and the
+necessary assertion that a common constant-one limit determines the
+eventual truth of $\sigma$, and proves its negation. The final theorem is
+\begin{center}\texttt{Conjecture9183.conjecture9183\_false}.\end{center}
+Its statement is the negation of
+\begin{center}\texttt{GraphonDeterminesCompleteness}.\end{center}
+The only axioms reported are \texttt{propext}, \texttt{Classical.choice},
+and \texttt{Quot.sound}.
+
+The identification of the finite weighted sums with measurable
+step-graphon integrals, the homomorphism-density union bound, and the
+Ehrenfeucht--Fraisse arguments are proved here on paper. Lean does not
+implement a general syntax or satisfaction relation for arbitrary
+first-order formulas, or a general graphon measure space. Its sentence
+predicate is exactly the semantics of the displayed sentence. The source
+is informal; the Lean proposition explicitly records the necessary
+consequence being refuted instead of claiming a literal formalization of
+undefined prose.
+
+\section*{Source and reproduction}
+The unmodified bilingual statement is supplied as \texttt{SOURCE.md}.
+The source was frozen by the coordinating workflow; its SHA-256 is in the
+provenance file. Lean is pinned to 4.19.0 and Mathlib commit
+\begin{center}\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.\end{center}
+From the supplied Lean project, run
+\begin{center}\texttt{lake env lean -DwarningAsError=true Main.lean}.\end{center}
+This draft was developed by a delegated AI agent with a self-review;
+the coordinating agent reviews it separately. No external independent
+review is claimed.
+\end{document}
