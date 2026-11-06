@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: The quadratic-residue graph (adjacency by ±1). Conjecture: The deviation of the smallest eigenvalue of QR(p) from the limit −2√p is at most p^{−1/4+ε}, and the spectral gap is uniform via Weil sums (QR spectral uniformity). 定义：二次剩余图(±1 邻接)。猜想：QR(p) 的最小特征值的极限 −2√p 的偏差 ≤ p^{−1/4+ε} 且谱间隙由 Weil 和均匀(QR 谱均匀)。
+**Conjecture as filed.** The source names a quadratic-residue graph QR(p) with 'adjacency by ±1' and claims the deviation of its smallest eigenvalue from -2*sqrt(p) is at most p^(-1/4+epsilon), with a uniform spectral gap. The submission treats both natural readings: the standard Paley graph on F_p for p=1 mod 4 (adjacency by square differences), and the literal difference-±1 cycle C_p. Deviation is read as |lambda_min + 2*sqrt(p)|.
 
-**Decisive results.** The standard Paley graph at prime order p = 1 (mod 4) has smallest adjacency eigenvalue at least -(1 + sqrt(p))/2. Its discrepancy from -2 sqrt(p) is therefore at least (3 sqrt(p) - 1)/2 and is unbounded on those primes. The source's literal difference-±1 reading gives the cycle graph, with discrepancy at least 2 sqrt(p) - 2. Both readings contradict the claimed error even with an arbitrary Big-O constant and an arbitrary starting point. The decisive Lean declaration is `not_spectralClaim`, whose statement is: ¬ SpectralClaim := by. Read against the filed statement, this establishes the negation of the printed clause identified in the README.
+**Decisive results.** For the Paley graph A=(J-I+Q)/2 with Q_ab=chi(a-b), Lean proves Q^2=pI-J and column sums (p-1)/2, hence every adjacency eigenvalue lambda satisfies lambda >= -(1+sqrt(p))/2. The discrepancy is therefore at least (3 sqrt(p)-1)/2, which is unbounded along primes p=1 mod 4. For the literal cycle, maximum degree two gives |lambda|<=2 and discrepancy at least 2 sqrt(p)-2, also unbounded. Both SpectralClaim definitions are universally quantified over epsilon>0, a constant C and a cutoff N; the theorems refute them using epsilon=1/8 and arbitrary C,N. The hypotheses are satisfiable and the conclusion is the negation of the claimed error bound.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report states both readings, the Paley eigenvalue lower bound, the cycle degree bound, the unboundedness quantifiers and the failure at epsilon=1/8. Lean proves exactly those theorems; the report explicitly does not claim the separate uniform spectral-gap clause, which is not needed because the deviation clause is already false.
 
 ## Disposition
 

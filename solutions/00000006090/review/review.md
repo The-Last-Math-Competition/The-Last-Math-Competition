@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: Asymptotic convergence and the finite-scale spectrum are two layers. Conjecture: There exist two algorithms with the same asymptotic convergence rate but different finite-scale behavior, and the separation is realized by an explicit step-size pair with the same limit but different pre-asymptotics. (same asymptotics-different finite-spectrum step-size separation) 定义：渐近收敛与有限尺度谱指两层。猜想：存在两算法的渐近收敛率相同而有限尺度行为不同,分离由同极限异预渐近的显式步长对实现。（渐近同-有限谱异步长分离）
+**Conjecture as filed.** The source asks for two algorithms with the same asymptotic convergence rate but different finite-scale behavior, realized by an explicit step-size pair with the same limit but different pre-asymptotics. The submission uses gradient descent on f(x)=x^2/2 from x_0=1 with step schedule 1/2 throughout versus 1/4 at index m, 2/3 at m+1, and 1/2 elsewhere.
 
-**Decisive results.** Lean constructs two gradient-descent step-size schedules with the same asymptotic rate 1/2 and the same limit 0 but different finite-scale error curves, and verifies the recursive updates and exact error gap. The theorem `conjecture_6090_true : SeparationClaim` establishes the filed separation.
+**Decisive results.** Lean defines the actual gradient iterates using Mathlib's deriv, proves both step schedules lie in (0,1), proves the closed forms x_n=2^{-n} and y_n=(3/2)2^{-n} only at n=m+1, prefix equality through m, the exact error gap 2^{-(m+2)}, identical tails from m+2, convergence to 0, and successive-error ratio 1/2 for both. SeparationClaim existentially quantifies a single differentiable objective and, for every m, two valid schedules with these properties, exactly the source's existential separation. The hypotheses are satisfiable and the conclusion is not assumed.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report proves the same schedules, closed forms, exact gap, limits, rate and eventual equality; Lean's SeparationClaim and error_gap match. The report explicitly notes that the source defines no operator or numerical invariant called 'finite-scale spectrum' and that finite error behavior is the chosen natural reading.
 
 ## Disposition
 

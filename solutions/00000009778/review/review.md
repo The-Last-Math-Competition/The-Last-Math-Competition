@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: Singular values of the Volterra operator: the compact operator with interval-indicator integration kernel. Conjecture: The complete asymptotic expansion of Volterra singular values exists: the leading term is 1/(pi n) with corrections an odd-power series; each coefficient of the series is an explicit rational combination of Bernoulli numbers. (Volterra singular value full expansion) 定义：Volterra 算子的奇异值：积分核为区间示性的紧算子。猜想：Volterra 算子奇异值的完全渐近展开存在：主项为 1/(πn) 且修正项为奇次幂级数；级数的每个系数为 Bernoulli 数的显式有理组合。（Volterra 奇异值全展开）
+**Conjecture as filed.** The Volterra operator on L2(0,1) has kernel 1_{0<=t<=x}. The source claims its singular values have leading term 1/(pi n) with only odd inverse-power corrections, each coefficient a Bernoulli combination. The submission computes the actual singular values s_n=1/(pi(n-1/2)) and refutes the odd-only correction clause.
 
-**Decisive results.** The actual L2(0,1) Volterra singular values are s_n=1/[pi(n-1/2)], so n^2(s_n-1/(pi*n)) tends to 1/(2*pi), not zero. This excludes the necessary third-order condition for the claimed odd-only Poincare expansion and survives every integer change of starting index. The decisive Lean declaration is `gram_spectrum_refutes_odd_expansion`, whose statement is: theorem gram_spectrum_refutes_odd_expansion (s : ℕ → ℝ) (hnonneg : ∀ n, 1 ≤ n → 0 ≤ s n) (hgram : ∀ n, 1 ≤ n → (s n)^2 = 4 / (((2*(n : ℝ)-1)^2) * Real.pi^2)) : ¬ OddExpansionThroughThree s := by. Read against the filed statement, this establishes the negation of the printed clause identified in the README.
+**Decisive results.** The paper proves V*V has eigenvalues 1/(pi^2(n-1/2)^2), so s_n=1/[pi(n-1/2)]. Then n^2(s_n-1/(pi n)) = n/[pi(2n-1)] -> 1/(2 pi) != 0. Any expansion s_n=1/(pi n)+c/n^3+o(n^{-3}) containing only odd powers forces the same scaled difference to tend to 0; contradiction. Lean proves the asymptotic core for every nonnegative sequence satisfying the Gram formula and every integer reindexing. The spectral identification is a standard paper bridge, not assumed inside Lean. Thus the odd-only clause is false, so the filed conjunction is false.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report gives the actual L2 operator/adjoint/spectral proof, the formula s_n=1/[pi(n-1/2)], the nonzero limit 1/(2 pi), and the odd-expansion contradiction. It explicitly labels the L2 spectral identification as a substantive bridge outside Lean; Lean proves the conditional asymptotic core and the report claims no stronger formal result.
 
 ## Disposition
 

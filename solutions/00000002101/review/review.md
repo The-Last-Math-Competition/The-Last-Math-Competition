@@ -14,9 +14,9 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Literal reading: the parenthetical specifies the Stokes constant's value as φ^{1/2}, where φ is the usual golden ratio (1+√5)/2, while the main clause says the constant is a unit of Q(√5). The conjunction of the value and field-unit conditions is refuted.
+**Conjecture as filed.** Literal reading: the parenthetical specifies the Stokes constant's value as φ^{1/2}, where φ is the usual golden ratio (1 + √5)/2, while the main clause says the constant is a unit of Q(√5). The conjunction of the value and field-unit conditions is refuted.
 
-**Decisive results.** The theorem constructs the actual quadratic field Q(ω), ω^2 = 5, its real and complex embeddings, and the golden element g = (1+ω)/2 with native norm -1. If x^2 = g in the field, then N(x)^2 = N(g) = -1, impossible over Q. Hence no square root of φ lies in Q(√5), and both the positive real value √φ and its negative are excluded. Therefore no scalar can simultaneously have value φ^{1/2} and be a unit of Q(√5). The hypotheses are satisfiable and the conclusion is a pointwise impossibility, i.e. the negation of the printed value/unit conjunction.
+**Decisive results.** The theorem constructs the actual quadratic field Q(ω), ω^2 = 5, its real and complex embeddings, and the golden element g = (1 + ω)/2 with native norm -1. If x^2 = g in the field, then N(x)^2 = N(g) = -1, impossible over Q. Hence no square root of φ lies in Q(√5), and both the positive real value √φ and its negative are excluded. Therefore no scalar can simultaneously have value φ^{1/2} and be a unit of Q(√5); this is a pointwise impossibility and exactly the negation of the printed value/unit conjunction.
 
 **Report correspondence.** The report proves the same norm obstruction and the same real/complex branches, and explicitly states that it does not construct or assign a Stokes constant or refute the standalone field-unit claim. Lean and report agree.
 

@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Literal first clause: for the idempotent completion of the ordinary finite-dimensional representation category of the no-arrow Dynkin quiver A1, count maximal Ext-orthogonal objects (standard additive maximal-rigid / two-sided cluster-tilting conventions) and compare with ∏(e_i+h+1)/(e_i+1).
+**Conjecture as filed.** Literal first clause: for the idempotent completion of the ordinary finite-dimensional representation category of the no-arrow Dynkin quiver A1, count maximal Ext-orthogonal objects with the standard additive maximal-rigid / two-sided cluster-tilting conventions, and compare with ∏_i (e_i + h + 1)/(e_i + 1).
 
-**Decisive results.** The theorem constructs the actual Karoubi envelope of Rep(A1) over C and proves every nonzero object is maximal rigid. The full isomorphism quotient is infinite (injection from N via standard (n+1)), while the basic quotient has cardinality 1. The A1 Coxeter data give h = 2, e_1 = 1 and predicted product 2. Since neither 1 nor infinity equals 2, the printed formula fails under either counting convention. The hypotheses are satisfiable and the conclusion is the negation of the printed formula for this Dynkin quiver.
+**Decisive results.** The theorem constructs the actual Karoubi envelope of Rep(A1) over C and proves every nonzero object is maximal rigid (and satisfies the two-sided Ext-orthogonality characterization). The full isomorphism quotient is infinite (an injection from N via standard (n+1)), while the basic quotient has cardinality 1. The A1 Coxeter data give h = 2 and e_1 = 1, so the printed product is 2. Neither the infinite full count nor the basic count 1 equals 2, so the printed formula fails under either counting convention. The hypotheses are satisfiable and the conclusion is the negation of the printed formula for this Dynkin quiver.
 
-**Report correspondence.** The report states the same two counts, the same maximal-rigid and two-sided Ext definitions, and the same product 2. It explicitly disclaims the derived orbit cluster category and the preprojective clause. Lean and report agree.
+**Report correspondence.** The report states the same two counts, the same maximal-rigid and two-sided Ext definitions, and the same product 2. It explicitly disclaims the derived-orbit cluster category and the preprojective-algebra clause. Lean and report agree.
 
 ## Disposition
 

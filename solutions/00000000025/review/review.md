@@ -14,9 +14,9 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Literal reading of the printed 'if and only if': for each associated character of the same Galois extension, an exceptional window zero exists iff the character is real; combined with the printed pairwise exclusion for two non-overlapping irreducible characters.
+**Conjecture as filed.** Literal reading of the printed 'if and only if': for each associated primitive nonprincipal character of the same Galois extension, an exceptional window zero exists iff the character is real; combined with the printed pairwise exclusion for two non-overlapping irreducible characters.
 
-**Decisive results.** The theorem constructs K = Q(ζ8), two distinct primitive real characters χ_A and χ_B of conductor 8, proves their Galois representations irreducible, inequivalent and orthogonal, and proves the window is nonempty for every c > 0. The printed iff would give both real characters a window zero, while the printed exclusion forbids two non-overlapping characters from both having one. The resulting `¬(PrintedRealIff ∧ PrintedExclusion)` is a universal logical incompatibility; the report explicitly says it does not decide actual Siegel-zero existence. The hypotheses are satisfiable (the two characters exist) and the conclusion is the negation of the printed conjunction.
+**Decisive results.** The theorem constructs K = Q(ζ_8), two distinct primitive real characters χ_A and χ_B of conductor 8, proves their Galois representations irreducible, inequivalent and orthogonal, and proves the window is nonempty for every c > 0. The printed iff would give both real characters a window zero, while the printed exclusion forbids two non-overlapping characters from both having one. The resulting ¬(PrintedRealIff ∧ PrintedExclusion) is a universal logical incompatibility; the report explicitly says it does not decide actual Siegel-zero existence. The hypotheses are satisfiable (the two characters exist) and the conclusion is the negation of the printed conjunction.
 
 **Report correspondence.** The report states the same reading, the same two characters, the same window predicate, and the same incompatibility; it explicitly disclaims the standard necessity-only theorem and actual Siegel-zero existence. Lean and report agree.
 

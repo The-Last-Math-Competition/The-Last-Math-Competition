@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: Convergence of ordinal exponentiation: normal functions. Conjecture: The fixed-point chain of normal functions: the fixed-point sequence of a normal function is closed unbounded, with the ω-th term of the sequence the transfinite iteration limit. (normal function fixed point closed unbounded chain) 定义：序数指数的收敛：正规函数。猜想：正规函数的不动点链：正规函数的不动点列为闭无界且列的第 ω 项为超限迭代极限。（正规函数不动点闭无界链）
+**Conjecture as filed.** For every normal ordinal function f (strictly increasing and continuous at nonzero limits), the fixed points are closed and unbounded, the standard increasing enumeration d=deriv f is normal with range exactly the fixed points, d(ω)=sup_n d(n), and separately the least fixed point above any a is nfp f a=sup_n f^[n](a). The source's 'ω-th term ... transfinite iteration limit' is read as the derivative's ω-th value; the submission also proves the iteration formula.
 
-**Decisive results.** Lean proves, for every normal ordinal function, that the fixed-point set is closed and unbounded, that Mathlib's derivative enumerates it, that the ω-th term is the supremum of the finite iterates, and that the least fixed point above any ordinal is the transfinite iteration limit. The theorem `conjecture_3527_true : FixedPointClaim` establishes the filed statement.
+**Decisive results.** Lean proves closure as the equalizer of the continuous maps f and id, unboundedness from Mathlib's fixed-point theorem, the exact range and normality of Ordinal.deriv, its zero/successor/limit recursion, the omega limit, and the finite-iteration/least-fixed-point formula for every starting ordinal. FixedPointClaim universally quantifies every normal f and includes all these conclusions. The hypotheses are satisfiable (id is normal, and identity_limits is proved), and the conclusion is the source's classical claim rather than a narrowing.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report's theorem states the same closed/unbounded fixed-point class, normal enumeration, recursion clauses, d(ω) limit, and nfp iteration formula; it explicitly distinguishes d(ω) from iteration from zero. Lean's FixedPointClaim matches; no stronger prose claim.
 
 ## Disposition
 

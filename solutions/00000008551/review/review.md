@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Definition: The chromatic polynomial of a lattice is the polynomial of its intersection-disjoint maps. Conjecture: The roots of the chromatic polynomial of a geometric lattice alternate in sign; and the lower bound on moduli is controlled by an explicit expression of the critical exponent. (lattice chromatic polynomial root bounds) 定义：格的色多项式为其交不相交映射的多项式。猜想：几何格的色多项式的根符号交替；且模长下界由临界指数的显式式控制。(格色多项式根界)；且根模长下界恒由首项系数符号积控制。
+**Conjecture as filed.** The source says the roots of the chromatic polynomial of a geometric lattice alternate in sign (and makes a further modulus/critical-exponent claim). The submission reads the lattice chromatic polynomial as the standard characteristic polynomial chi_L(t)=sum_x mu(0,x) t^(r-r(x)), and also checks the graph chromatic polynomial of the bond lattice. 'Geometric' is read as finite, bounded, atomistic and upper-semimodular.
 
-**Decisive results.** The geometric partition lattice Pi_3 has characteristic polynomial (t-1)(t-2). Its distinct consecutive roots 1 and 2 are both positive. The triangle K_3 has chromatic polynomial t(t-1)(t-2), so the same obstruction holds for the associated graph normalization. The decisive Lean declaration is `triangle_not_alternating`, whose statement is: ¬ AlternatingRootSigns triangleChromatic. Read against the filed statement, this establishes the negation of the printed clause identified in the README.
+**Decisive results.** The partition lattice Pi_3 is finite, modular and atomistic, so geometric. Its Mobius values are 1,-1,-1,-1,2 and its characteristic polynomial is (t-1)(t-2). The consecutive distinct nonzero roots 1 and 2 are both positive, violating the necessary alternating condition a*b<0. The triangle K_3 has chromatic polynomial t(t-1)(t-2) with the same two consecutive positive nonzero roots. RootSignClause is the universal necessary condition over geometric lattices and disprove_root_sign_clause exhibits Pi_3 as a counterexample; GraphRootSignClause is similarly negated by K_3. The second modulus clause is not addressed because refuting the first conjunct already disproves the conjunction.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report proves exactly the same Pi_3 computation, rank and Mobius recurrence, factorization and root set, and the K_3 coloring count. It explicitly says coefficient alternation is a different true statement and that the modulus clauses are not needed; Lean's RootSignClause/GraphRootSignClause match those claims.
 
 ## Disposition
 

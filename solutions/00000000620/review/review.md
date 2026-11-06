@@ -14,7 +14,7 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Literal alternating clause: for an alternating knot diagram D, a single crossing change (flip one over/under relation) should perturb exactly one Khovanov group. Take D = closure of σ1^3 (the alternating trefoil) and flip its last crossing to D' = σ1σ1σ1^{-1}.
+**Conjecture as filed.** Literal alternating clause: for an alternating knot diagram D, a single crossing change (flip one over/under relation) should perturb exactly one Khovanov group. Take D = closure of σ1^3 (the alternating trefoil) and flip its last crossing to D' = σ1σ1σ1⁻¹.
 
 **Decisive results.** The theorem constructs the actual 3-crossing 2-braid port diagram, proves one component and alternating traversal, and proves only crossing 2 is flipped. It computes the unreduced normalized integral Khovanov cube for both diagrams: Kh^{2,5}(D) and Kh^{3,9}(D) are nonzero via explicit cycles and probes, while Kh^{2,5}(D') and Kh^{3,9}(D') are zero (a surjective top differential and the degree bound). Hence this single crossing change alters two graded groups, the exact negation of the alternating clause. The hypotheses are satisfiable (D is an alternating knot) and the conclusion is a concrete counterexample, not a weaker statement.
 

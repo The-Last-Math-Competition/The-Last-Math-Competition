@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Conjecture: There exists a smooth variety X with π₁^ét(X) finite but π₃^ét(X) nonabelian (noncommutativity of higher fundamental groups); the construction is of Enriques surface type. 猜想：存在光滑簇 X 使 π₁^{ét}(X) 有限但 π_3^{ét}(X) 非交换(高阶基本群的非交换性);构造由 Enriques 表面型。
+**Conjecture as filed.** The filed statement is an existence claim: some smooth variety X has finite etale pi_1 and nonabelian etale pi_3, with an Enriques-type construction. The submission reads 'nonabelian' as internal noncommutativity of the actual group/pro-group and proves the universal obstruction for every pointed topological space. The etale homotopy type is identified levelwise with actual spaces using the standard Artin-Mazur-Friedlander construction.
 
-**Decisive results.** Actual third homotopy groups are abelian by the cube-loop Eckmann-Hilton argument. The entire defining diagram of an etale third homotopy pro-group therefore has an abelian-valued representative, excluding the proposed internally nonabelian group for any smooth variety. The decisive Lean declaration is `no_nonabelian_layer`, whose statement is: ¬ ∃ i : I, Nonabelian (Pi3 (D.space i)) := by. Read against the filed statement, this establishes the negation of the printed clause identified in the README.
+**Decisive results.** For every BasedSpace X, Pi3 X is Mathlib's actual HomotopyGroup.Pi 3 and is abelian by the Eckmann-Hilton instance; moreover every diagram of such groups factors through CommGrp via abelian_factorization. Since each level of the etale pi_3 pro-group is pi_3 of a level space, the pro-group is pro-abelian. Hence no smooth variety can have internally nonabelian pi_3, which is the negation of the filed existential. The theorem is universal, the hypotheses are satisfiable, and no commutativity hypothesis is assumed.
 
-**Report correspondence.** The report, README and Lean sources were read. The report states the same construction and the same decisive conclusion; the Lean declaration matches the report's main theorem. The LaTeX source recompiled cleanly, and the build log reports only propext, Classical.choice and Quot.sound.
+**Report correspondence.** The report states the same universal topological obstruction, the abelian-valued diagram factorization, and the conclusion that the required variety cannot exist. It explicitly marks schemes, the etale type functor, geometric realization and the induced-map functor as standard mathematical bridges outside Lean; no hidden stronger formal claim is made.
 
 ## Disposition
 

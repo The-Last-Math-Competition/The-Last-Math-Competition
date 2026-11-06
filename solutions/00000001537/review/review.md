@@ -14,11 +14,11 @@
 
 ## Semantic audit
 
-**Conjecture as filed.** Ordinary integral cyclic cohomology HC^n(R) of R = Z[X]/(X^2), n ≥ 0, in the standard normalized (b*,B*) total cochain model; 'period 2' is read as at least an additive isomorphism HC^0(R) ≃ HC^2(R) with the printed two-point coefficient groups.
+**Conjecture as filed.** Ordinary integral cyclic cohomology HC^n(R) of R = Z[X]/(X^2), indexed from n = 0, in the standard normalized (b*,B*) total cochain model; 'period 2' is read as requiring at least an additive-group isomorphism HC^0(R) ≃ HC^2(R).
 
-**Decisive results.** The theorem proves the literal negation of the period-two claim: HC^0(R) is torsion-free (x + x = 0 implies x = 0), while HC^2(R) contains a nonzero 2-torsion class; hence there is no additive-group isomorphism HC^0(R) ≃ HC^2(R). The Lean constructs the actual AdjoinRoot(X^2), all normalized source cochains, the genuine b*/B* differential, the native total complex and its homology, and transports the calculation to the source algebra. The hypotheses are satisfiable and the conclusion is a universal obstruction, not a numerical special case. The comparison of the normalized model with the standard cyclic complex is the cited Loday 2.4.3 identification.
+**Decisive results.** For R = Z[X]/(X^2), Lean proves HC^0 is torsion-free (x + x = 0 implies x = 0) while HC^2 has a nonzero 2-torsion class (2 • y = 0, y ≠ 0); hence there is no additive-group isomorphism HC^0(R) ≃ HC^2(R). This is exactly the negation of the necessary period-two consequence. The source algebra is the actual AdjoinRoot(X^2), the cochain spaces and genuine b*/B* differentials are constructed, and the source complex is proved isomorphic to the dual-number complex; the hypotheses are satisfiable and the conclusion is a universal obstruction, not a numerical special case.
 
-**Report correspondence.** The report's final display (∀x∈HC^0, x+x=0 ⇒ x=0; ∃y∈HC^2, y≠0 and y+y=0; no additive equivalence) matches the Lean capstone and its supporting theorems. The report explicitly excludes HP, rational coefficients and eventual periodicity; it does not claim a stronger statement.
+**Report correspondence.** The report's final display (HC^0 torsion-free; a nonzero 2-torsion class in HC^2; no additive equivalence HC^0 ≃ HC^2) matches the Lean capstone and its supporting theorems. The report explicitly excludes HP, rational coefficients and unspecified eventual periodicity, and does not claim a stronger statement.
 
 ## Disposition
 
