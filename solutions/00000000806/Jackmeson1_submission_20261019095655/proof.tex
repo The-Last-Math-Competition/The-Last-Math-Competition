@@ -1,0 +1,153 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{hyperref}
+\usepackage{enumitem}
+\usepackage{xurl}
+\let\oldus\_
+\renewcommand{\_}{\oldus\allowbreak}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{A disproof of Conjecture 00000000806\\[2pt]
+\large The Dirichlet spectral gap ratio of two equal disks}
+\date{}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\section{The conjecture and the reading}
+
+\emph{Definition:} The spectral gap $\gamma(\Omega)=\lambda_2(\Omega)-\lambda_1(\Omega)$ and its ratio to the
+first eigenvalue $R(\Omega)=\gamma/\lambda_1$.
+\emph{Conjecture:} $\sup R(\Omega)$ is attained by the union of two equal-volume disjoint disks, with value
+$R=3/4$; every connected domain has $R$ strictly smaller.
+
+The text does not name the eigenvalue problem. We read $\lambda_k(\Omega)$ as the $k$-th Dirichlet
+eigenvalue of the Laplacian on an open set $\Omega\subset\mathbb R^2$ of finite area, counted with
+multiplicity (the standard convention). The conjecture is read as the conjunction of
+\begin{enumerate}[label=(\roman*)]
+  \item some pair of disjoint open disks of equal radius $r>0$ has $R(D_1\cup D_2)=3/4$;
+  \item $R(\Omega)\le 3/4$ for every nonempty open $\Omega$ of finite area;
+  \item $R(\Omega)<3/4$ for every connected open $\Omega$ of finite area.
+\end{enumerate}
+(Equal volume of two disks means equal radius.) We refute clause (i), hence the conjunction. Lean:
+\texttt{C806.Conjecture} is exactly this conjunction and \texttt{C806.not\_conjecture : $\neg$ Conjecture}.
+
+\section{Mathematical content}
+
+Let $D_1,D_2$ be disjoint open disks of equal radius. A Dirichlet eigenfunction on $D_1$ extended by zero
+is an eigenfunction on $D_1\cup D_2$, and likewise for $D_2$, with the same eigenvalue because $D_2$ is a
+translate of $D_1$. So the first eigenvalue of $D_1\cup D_2$ is attained twice: $\lambda_1=\lambda_2$,
+$\gamma=0$ and $R=0\neq 3/4$.
+
+\section{The formalization (file \texttt{lean/Conjecture806/Basic.lean}, namespace \texttt{C806})}
+
+We do not use a stipulated value of the eigenvalues. The Dirichlet eigenvalues are defined by the
+Courant--Fischer (min--max) variational principle, which is the standard definition of $\lambda_k(\Omega)$
+for an open set of finite measure and equals the $k$-th eigenvalue of the Dirichlet Laplacian counted with
+multiplicity.
+
+\begin{definition}[as in Lean]
+$E=\mathbb R^2$ (\texttt{EuclideanSpace $\mathbb R$ (Fin 2)}) with Lebesgue measure.
+\texttt{testSpace $\Omega$} is the real vector space $C_c^\infty(\Omega)$: functions $u:E\to\mathbb R$ with
+\texttt{ContDiff $\mathbb R$ $\infty$ $u$} (smoothness order $(\top:\mathbb N_\infty)$, not analytic),
+compact support, and $\operatorname{tsupport}u\subseteq\Omega$.
+With values in $[0,\infty]$:
+$N(u)=\int^{-}\|Du\|^2$, $D(u)=\int^{-}|u|^2$, $Q(u)=N(u)/D(u)$ (the Rayleigh quotient), and
+\[
+\lambda_k(\Omega)=\inf_{W\le C_c^\infty(\Omega),\ \dim W=k}\ \sup_{u\in W,\,u\neq 0}Q(u),\qquad
+R(\Omega)=\frac{\lambda_2(\Omega)-\lambda_1(\Omega)}{\lambda_1(\Omega)}
+\]
+(\texttt{toReal} is applied to $\lambda_k$ in the quotient; see conventions).
+\end{definition}
+
+\paragraph{Source for the definition.} Retrieved from
+\url{https://en.wikipedia.org/wiki/Dirichlet_eigenvalue}:
+``where each eigenvalue is counted according to its geometric multiplicity'' (so $\lambda_1\le\lambda_2$ with
+repetition) and ``the infimum is taken over all u of compact support that do not vanish identically in
+$\Omega$. By a density argument, this infimum agrees with that taken over nonzero $u\in H_0^1$''. The same
+page describes the max--min principle for $\lambda_k$; the Courant--Fischer--Weyl min--max principle is
+described at \url{https://en.wikipedia.org/wiki/Min-max_theorem}. Because $C_c^\infty(\Omega)$ is dense in
+$H_0^1(\Omega)$, the min--max over $C_c^\infty$ subspaces equals the min--max over $H_0^1$ subspaces; this
+density step is the one standard fact used in identifying our \texttt{lam} with the spectral object, and it is
+not reproved in Lean.
+
+\paragraph{Non-vacuity.} \texttt{testSpace\_ne\_bot} shows that every ball $B(c,r)$, $r>0$, carries a
+nonzero element of $C_c^\infty$ (a Mathlib \texttt{ContDiffBump}), so the quotients are not taken over an
+empty or trivial space.
+
+\section{Proof of $\lambda_1=\lambda_2$ on $A\cup B$}
+
+Let $A=B(c_1,r)$, $B=B(c_2,r)$ be disjoint, $v=c_2-c_1$; so $x\in B\iff x-v\in A$.
+\begin{enumerate}
+  \item $\lambda_1\le\lambda_2$ for every $\Omega$ (\texttt{lam1\_le\_lam2}). A $2$-dimensional $W$ contains
+        $u\neq0$; $\operatorname{span}\{u\}$ is $1$-dimensional and $Q(cu)=Q(u)$ for $c\neq0$
+        (\texttt{Q\_smul}), so $\lambda_1\le Q(u)\le\sup_WQ$.
+  \item \emph{Pair.} If $p\in C_c^\infty(A)$, $p\neq0$, let $q=p(\cdot-v)\in C_c^\infty(B)$. Then $p,q$ have
+        disjoint supports, so $|\nabla(ap+bq)|^2=a^2|\nabla p|^2+b^2|\nabla q|^2$ and likewise for $|ap+bq|^2$
+        (\texttt{N\_comb}, \texttt{D\_comb}); by translation invariance of Lebesgue measure
+        $N(q)=N(p)$, $D(q)=D(p)$ (\texttt{N\_tr}, \texttt{D\_tr}). Hence $Q$ is constant equal to $Q(p)$ on
+        $\operatorname{span}\{p,q\}\setminus0$ (\texttt{Q\_pair}), and $p,q$ are linearly independent
+        (evaluate at a point where $p\neq0$ and at its translate), so this span is an admissible
+        $2$-dimensional $W$ in $\Omega=A\cup B$: $\lambda_2(A\cup B)\le Q(p)$ (\texttt{lam2\_le\_Q\_A}).
+        The same for $p\in C_c^\infty(B)$ via the inverse translation (\texttt{lam2\_le\_Q\_B}).
+  \item \emph{Splitting.} Let $u\in C_c^\infty(A\cup B)$, $u\neq0$. Since $A,B$ are open and disjoint and
+        $\operatorname{tsupport}u\subset A\cup B$, the indicator pieces $u_A=1_Au$, $u_B=1_Bu$ are smooth
+        (locally equal to $u$ or $0$), lie in $C_c^\infty(A)$, $C_c^\infty(B)$ (\texttt{ind\_mem}) and
+        $u=u_A+u_B$ (\texttt{ind\_add}). By (2), $\lambda_2\,D(u_\bullet)\le N(u_\bullet)$ for both pieces
+        (trivially if a piece is $0$); adding, $\lambda_2D(u)\le N(u)$ using
+        $N(u)=N(u_A)+N(u_B)$, $D(u)=D(u_A)+D(u_B)$. Since $0<D(u)<\infty$ (continuous, compactly supported,
+        nonzero; \texttt{D\_ne\_zero}, \texttt{D\_ne\_top}) this gives $\lambda_2\le Q(u)$
+        (\texttt{lam2\_le\_Q}).
+  \item Therefore every $1$-dimensional $W$ has $\sup_WQ\ge\lambda_2$, i.e. $\lambda_2\le\lambda_1$
+        (\texttt{lam2\_le\_lam1}). With (1), $\lambda_1=\lambda_2$ (\texttt{R\_two\_disks}), so
+        $R=(\lambda_2-\lambda_1)/\lambda_1=0/\lambda_1=0$ in every case (also if $\lambda_1$ were $0$ or
+        $\infty$, since $x-x=0$ and $0/y=0$ in $\mathbb R$).
+\end{enumerate}
+
+\begin{theorem}[\texttt{R\_two\_disks}, \texttt{not\_conjecture}]
+For all $c_1,c_2\in\mathbb R^2$ and $r\in\mathbb R$ with $B(c_1,r)\cap B(c_2,r)=\emptyset$:
+$\lambda_1=\lambda_2$ and $R(B(c_1,r)\cup B(c_2,r))=0$. Hence clause (i) fails and $\neg\textsf{Conjecture}$.
+\end{theorem}
+
+\section{Conventions and scope}
+
+\begin{itemize}
+  \item Eigenvalues are counted with multiplicity (Courant--Fischer). This is the reading refuted.
+  \item The quotient is formed in $\mathbb R$ from \texttt{ENNReal.toReal} of $\lambda_k$, where $0/0=0$;
+        the result $R=0$ does not depend on the values of $\lambda_k$ once $\lambda_1=\lambda_2$.
+  \item Quantification: the refutation covers \emph{every} pair of disjoint open disks of equal radius (the
+        existential clause (i) fails, a fortiori any universal version), not only one pair.
+  \item \textbf{Not refuted in Lean.} A ``distinct eigenvalues'' convention ($\lambda_2$ = second \emph{distinct}
+        eigenvalue) is not formalized. Under it $R(D_1\cup D_2)$ would equal the single-disk value
+        $j_{1,1}^2/j_{0,1}^2-1\approx1.539$ (numerical computation, not a Lean statement), which is again
+        not $3/4$; that remark is outside the formal proof.
+  \item Clauses (ii) and (iii) are not used. (Numerically the single disk, which is connected, would have
+        $R\approx1.539>3/4$ in the distinct-eigenvalue reading, so (iii) looks false too; not formalized.)
+\end{itemize}
+
+\section{Relation to the earlier submission}
+
+The earlier attempt (PR \#1051, closed) was rejected because ``the Lean project does not formalise the
+conjecture. The spectral gap and ratio are modelled as subtraction and a pair of natural numbers; no domain,
+Laplacian or eigenvalue is defined.'' This submission defines the domain (open subsets of $\mathbb R^2$), the
+Dirichlet energy and Rayleigh quotient on $C_c^\infty(\Omega)$, the eigenvalues $\lambda_k(\Omega)$ by the
+min--max principle, and $R$, and it proves $R(D_1\cup D_2)=0$ for \emph{all} equal disjoint disks from these
+definitions.
+
+\section{Lean statement and axiom audit}
+
+Namespace \texttt{C806}: \texttt{testSpace}, \texttt{N}, \texttt{D}, \texttt{Q}, \texttt{lam}, \texttt{R},
+\texttt{Conjecture}; theorems \texttt{testSpace\_ne\_bot}, \texttt{lam1\_le\_lam2}, \texttt{lam2\_le\_Q},
+\texttt{lam2\_le\_lam1}, \texttt{R\_two\_disks}, \texttt{not\_conjecture}.
+\texttt{\#print axioms C806.not\_conjecture} reports only \texttt{propext}, \texttt{Classical.choice},
+\texttt{Quot.sound}; there is no \texttt{sorry} and no \texttt{native\_decide}. File length: 417 lines.
+
+\end{document}
