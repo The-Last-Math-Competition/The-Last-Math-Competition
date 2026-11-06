@@ -1,0 +1,204 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=24mm]{geometry}
+\usepackage{amsmath,amssymb,booktabs,enumitem}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist{nosep,leftmargin=*}
+\newcommand{\C}{\mathbb C}
+\newcommand{\E}{\mathcal E}
+\newcommand{\add}{\operatorname{add}}
+\newcommand{\Ext}{\operatorname{Ext}}
+\title{Problem 00000000567: the ordinary representation category\texorpdfstring{\\}{ }already fails in type \texorpdfstring{$A_1$}{A1}}
+\author{\texttt{lizaixi01}}
+\date{24 October 2026}
+\begin{document}
+\begin{center}
+{\Large\bfseries Problem 00000000567: the ordinary representation category\\
+already fails in type $A_1$}\par
+\smallskip
+\texttt{lizaixi01}\quad -- \quad 24 October 2026
+\end{center}
+
+\section*{Statement and scope}
+The first clause asserts that the number of pairwise nonisomorphic maximal
+Ext-orthogonal objects in the idempotent completion of the representation
+category of a Dynkin quiver is
+\[
+  \prod_{i=1}^{n}\frac{e_i+h+1}{e_i+1}.
+\]
+Take the ordinary category of finite-dimensional complex representations of the
+one-vertex, no-arrow quiver $A_1$. Let $\E$ be its Karoubi envelope. We prove
+two incompatible counts: with all object isomorphism classes there are
+infinitely many; with the customary additional \emph{basic} convention there
+is exactly one. The displayed product is $2$.
+
+We use the standard additive meaning of maximal rigidity, rather than a strict
+ordering of objects that would forbid repeated summands. Write $X\in\add T$
+when $X$ is a direct summand of a finite direct sum of copies of $T$.
+An object $T$ is maximal rigid if
+\[
+ \Ext^1(T,T)=0,\qquad
+ \bigl(\Ext^1(U,U)=0,\ T\in\add U\bigr)\Longrightarrow U\in\add T.
+\]
+We also prove the stronger, two-sided cluster-tilting condition
+\[
+ \add T=\{X:\Ext^1(T,X)=0\}=\{X:\Ext^1(X,T)=0\}.
+\]
+These are the add-closure conditions in Burban--Iyama--Keller--Reiten,
+Definition~1.1~\cite{bikr}. Basic objects are finite direct sums of pairwise
+nonisomorphic nonzero indecomposables.
+
+This disproof concerns the printed \emph{ordinary representation category}.
+It makes no assertion against the usual Catalan enumeration in the derived
+orbit cluster category $D^b(\operatorname{mod}H)/(\tau^{-1}[1])$, which is a
+different category~\cite{bmrrt}. The preprojective-algebra clause is not used.
+
+\section*{The complete category and its idempotents}
+A representation of this quiver consists of one finite-dimensional vector
+space: there are no arrow maps. Evaluation at the vertex and the constant
+representation functor are inverse equivalences. In Lean the category is
+literally the functor category from the native path category of the actual
+arrowless quiver to \texttt{FGModuleCat} over $\C$.
+
+For an arbitrary Karoubi object $(V,p)$ with $p^2=p$, evaluation yields an actual
+linear idempotent on $V$. Its range is finite dimensional. The maps
+\[
+ V\xrightarrow{\,p\,}\operatorname{im}p
+   \xrightarrow{\,\iota\,}V
+\]
+satisfy $\iota p=p$ on $V$ and $p\iota=1$ on $\operatorname{im}p$ (composition
+is written in function order here). Their representation-level lifts give an
+explicit isomorphism of $(V,p)$ with the identity idempotent on
+$\operatorname{im}p$. Thus all objects of $\E$, including arbitrary formal
+direct factors, are covered by the genuine equivalence
+$\E\simeq\operatorname{Vect}_{\C,\mathrm{fd}}$.
+
+\newpage
+\section*{Actual Ext, finite sums, and classification}
+Every epimorphism between finite-dimensional vector spaces is surjective and
+admits the required linear lifts. Hence every object is projective.
+Equivalence transports projectivity to every object of $\E$, and the native
+abelian-category groups satisfy
+\[
+                    \Ext^1_{\E}(X,Y)=0\quad\hbox{for all }X,Y.
+\]
+These are actual derived-category Ext groups, not values assigned to a
+replacement relation.
+
+Let $d(X)$ be the actual finite dimension of the corresponding vector space.
+A basis gives $X\simeq\C^{d(X)}$. Native finite biproducts satisfy
+\[
+ d\!\left(\bigoplus_i X_i\right)=\sum_i d(X_i).
+\]
+If $a\le b$, extension of coordinates by zero and restriction to the first $a$
+coordinates give a genuine retraction $\C^a\longrightarrow\C^b\longrightarrow
+\C^a$. Conversely any retraction induces an injective linear map, so it cannot
+decrease the available target dimension.
+
+If $T\ne0$ and $m=d(X)$, then $m\le m\,d(T)$. Applying the preceding
+retraction to a finite biproduct of $m$ copies of $T$ gives $X\in\add T$.
+If $T=0$, no such finite biproduct has the nonzero object $\C$ as a direct
+summand. Consequently
+\[
+ T\text{ is maximal rigid}\quad\Longleftrightarrow\quad T\ne0
+ \quad\Longleftrightarrow\quad T\text{ satisfies both Ext-orthogonal equalities}.
+\]
+In particular every actual $\C^{m+1}$ is a cluster-tilting object under these
+conditions. Different dimensions prohibit isomorphisms. Taking the quotient of
+the \emph{full} class of qualifying Karoubi objects by actual categorical
+isomorphism therefore admits an injection from $\mathbb N$ and is infinite.
+No finite-cardinality convention on an infinite type is used.
+
+An object is indecomposable precisely when its dimension is one. Indeed a
+positive dimension larger than one splits as $1+(d-1)$; a dimension-one
+biproduct decomposition forces one summand to have dimension zero.
+Therefore all nonzero indecomposables are isomorphic to $\C$. A finite
+pairwise-nonisomorphic indecomposable decomposition has at most one summand.
+Conversely the zero object and every dimension-one object have such a
+decomposition. Thus
+\[
+ T\text{ basic}\Longleftrightarrow d(T)\le1,
+ \qquad T\text{ basic and maximal rigid}\Longleftrightarrow d(T)=1.
+\]
+The quotient of all basic maximal-rigid objects is nonempty and a subsingleton;
+its actual finite cardinality is exactly $1$.
+
+\section*{Coxeter data derived from the root system}
+The formalization constructs the native rank-one root pairing on the complex
+line, with roots $1,-1$, coroot functionals $x\mapsto2x,-2x$, and evaluation
+pairing. Both root families span. The singleton positive simple root is an
+actual native base, with simple pairing $2$; its index set is explicitly
+identified with the quiver vertex set. This is the complexified standard
+$A_1$ root system.
+
+\newpage
+The Coxeter element is the product of its enumerated simple reflections. Here
+the genuine reflection formula gives $s(x)=x-2x=-x$. Its square is the identity
+and it is not the identity, so the actual group-theoretic order is $h=2$.
+The scalar $-1$ is a primitive $h$-th root of unity. The full complex line is
+the $-1$ eigenspace, and there are no other eigenvalues. Filtering the integers
+$0\le e<h$ by the actual eigenvalue condition $(-1)^e$ gives exactly $\{1\}$,
+with cardinality equal to the actual rank. Thus $e_1=1$ is derived from the
+reflection representation. The rank-one data also agree with
+Fomin--Reading, Section~13, printed page~29~\cite{fr}.
+The conjectured expression is therefore the genuine product
+\[
+   \prod_{e\in\{1\}}\frac{h+e+1}{e+1}
+       =\frac{2+1+1}{1+1}=2.
+\]
+It agrees with neither the infinite full-object count nor the basic count $1$.
+This refutes the first necessary clause and hence the printed conjunction.
+
+\section*{Formalization and reproducibility}
+The complete argument is in \texttt{lean/Main.lean}, namespace
+\texttt{TLMC567}. The table locates its main result and principal bridges.
+
+\begin{center}
+\small
+\begin{tabular}{ll}
+\toprule
+Bridge & Declaration\\
+\midrule
+Main result & \texttt{complete\_counterexample}\\
+All representations and their envelope & \texttt{envelopeEquivalence}\\
+Arbitrary actual idempotent image & \texttt{explicitImageIso}\\
+Native Ext vanishing & \texttt{envelope\_ext\_vanishes}\\
+Standard maximality characterization & \texttt{maximalRigid\_iff\_nonzero}\\
+Two-sided Ext characterization & \texttt{clusterTilting\_iff\_nonzero}\\
+Full-object quotient infinity & \texttt{allClass\_injective}\\
+Complete basic-object quotient count & \texttt{basic\_class\_count}\\
+Actual Coxeter order and exponents & \texttt{coxeter\_number\_eq\_two}\\
+ & \texttt{coxeter\_exponents\_eq}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The project pins Lean~4.33.0 and Mathlib commit\par
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.\par
+First run \texttt{lean --version}; then use \texttt{lean/verify.sh} for the
+root build, warning-as-error namespace audit and official full fresh-kernel replay.
+The accompanying receipts bind exact sources, commands, exit status and
+original execution data. \texttt{Check.lean} enumerates every owned declaration
+and invokes ordinary \texttt{\#print axioms} on each, including generated names.\par
+The allowed foundational axioms are only \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+\begin{thebibliography}{9}
+\small\raggedright
+\bibitem{bikr} I. Burban, O. Iyama, B. Keller and I. Reiten,
+\emph{Cluster tilting for one-dimensional hypersurface singularities},
+author manuscript, Definition~1.1, printed p.~3.
+\url{https://webusers.imj-prg.fr/~bernhard.keller/publ/ClusterSing.pdf}.
+\bibitem{bmrrt} A. B. Buan, R. Marsh, M. Reineke, I. Reiten and G. Todorov,
+\emph{Tilting theory and cluster combinatorics},
+arXiv:math/0402054v1 (2004), printed pp.~1--3, 9--11.
+\url{https://arxiv.org/pdf/math/0402054v1}.
+\bibitem{fr} S. Fomin and N. Reading,
+\emph{Generalized cluster complexes and Coxeter combinatorics},
+arXiv:math/0505085v3 (2006), printed pp.~28--29.
+\url{https://arxiv.org/pdf/math/0505085v3}.
+\end{thebibliography}
+\end{document}
