@@ -1,0 +1,132 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[margin=0.72in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern,microtype,amsmath,amssymb,amsthm,booktabs}
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newcommand{\R}{\mathbb R}
+\newcommand{\F}{\mathcal F}
+\newcommand{\ind}{\mathbf 1}
+\newcommand{\norm}[1]{\left\lVert #1\right\rVert}
+\title{A fixed interval already excludes square-root growth\\
+\large Disproof of the printed asymptotic in TLMC 00000001906}
+\author{lizaixi01}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+\vspace{-1.3em}
+\begin{abstract}
+For the conventional unweighted, rough Rubio de Francia square function on the real line, every admissible family of constants satisfies
+\(C_p\ge p/(8\pi e)\) for all real \(p\ge2\). A single fixed frequency interval suffices. The Lean proof constructs the native Fourier projections of genuine interval indicators, proves their integral identity by Fubini, and derives the native \(L^p\) bounds. It excludes even \(C_p=O(\sqrt p)\), hence any finite-coefficient square-root asymptotic.
+\end{abstract}
+
+\section{Precise model and scope}
+The printed bilingual conjecture names the Rubio de Francia inequality for arbitrary intervals and proposes a definite-coefficient \(p^{1/2}\) asymptotic. It does not specify the underlying domain or a Fourier normalization. We use the usual real-line, unweighted, \emph{rough} interval projections, as in \cite[pp.~1--2]{grs} and \cite[p.~2, Eq.~(1.1)]{dp}:
+\[
+ \F f(\xi)=\int_\R f(y)e^{-2\pi i y\xi}\,dy,
+ \qquad P_{[a,b]}f=\F^{-1}(\ind_{[a,b]}\F f),
+ \qquad S_\Omega f=\Big(\sum_{I\in\Omega}|P_I f|^2\Big)^{1/2}.
+\]
+Here \(\Omega\) is any finite family of pairwise disjoint bounded intervals. Endpoints have Lebesgue measure zero. A nonnegative \(C\) is called admissible at \(p\) when the native extended \(L^p\) inequality \(\norm{S_\Omega f}_p\le C\norm f_p\) holds for all these families and all integrable \(f\in L^p(\R)\). Every usual Rubio de Francia constant necessarily satisfies this test class. The singleton family \(\{[0,1]\}\) has \(S_\Omega f=|P_{[0,1]}f|\).
+
+We refute only the printed square-root asymptotic under this standard model. We neither dispute Rubio de Francia boundedness nor compute a sharp linear coefficient. We do not replace the operator by a smooth, martingale, or periodic square function. Theorem~1.1 of \cite{grs} concerns the lacunary operator; its later discussion separately treats arbitrary intervals on the circle. Those results motivate the scope but are not assumptions of our Lean proof. No transference or dilation theorem is needed.
+
+\section{The actual Fourier projection}
+For \(R\ge1\), put \(f_R=\ind_{[-R,R]}\). Native Lebesgue integration proves \(f_R\in L^1\cap L^p\), \(p>0\), and
+\[
+ \norm{f_R}_p=(2R)^{1/p}.
+\]
+The Fourier transform is bounded and continuous. Its restriction to \([0,1]\) is integrable, so its native inverse Fourier transform is continuous. The product phase in the iterated frequency/spatial integral has modulus one on a finite product measure. Fubini and the elementary exponential integral therefore give, whenever \(x>R\),
+\[
+ P_{[0,1]}f_R(x)=\int_{-R}^{R} K(x-y)\,dy,
+ \qquad K(t)=\frac{e^{2\pi i t}-1}{2\pi i t}\quad(t>0).
+\]
+Every kernel argument here is strictly positive. Thus no totalized division at zero is used. Substitution \(x=R+\delta\), \(\delta>0\), and taking the imaginary part yield the proved identity
+\begin{equation}\label{eq:imag}
+ \operatorname{Im}P_{[0,1]}f_R(R+\delta)
+ =\frac1{2\pi}\int_\delta^{2R+\delta}\frac{1-\cos(2\pi t)}t\,dt.
+\end{equation}
+The explicit integral is derived from the actual native Fourier operator; it is not substituted for its definition.
+
+\section{A uniform oscillatory bound}
+For \(1\le a\le b\), differentiate
+\[
+ F(t)=\frac{\sin(2\pi t)}{2\pi t},\qquad
+ F'(t)=\frac{\cos(2\pi t)}t-\frac{\sin(2\pi t)}{2\pi t^2}.
+\]
+The fundamental theorem of calculus, \(-1\le\sin\le1\), and the actual integral of \(t^{-2}\) give
+\[
+ \int_a^b\frac{\cos(2\pi t)}t\,dt
+ \le\frac1{2\pi b}+\frac1{2\pi a}
+   +\frac1{2\pi}\Big(\frac1a-\frac1b\Big)
+ =\frac1{\pi a}\le1.
+\]
+Only this one-sided bound is needed. If \(1\le\delta\le2\), then
+\((2R+\delta)/\delta\ge R\). Combining the logarithmic integral with \eqref{eq:imag} proves
+\begin{equation}\label{eq:lower}
+ \operatorname{Im}P_{[0,1]}f_R(R+\delta)
+ \ge\frac{\log R-1}{2\pi}.
+\end{equation}
+
+\section{Native norm bounds and the asymptotic contradiction}
+Take any real \(p\ge2\) and \(R=e^p\). The genuine interval
+\(E_p=[R+1,R+2]\) has Lebesgue measure one. On this entire interval, \eqref{eq:lower} and \(\operatorname{Im}z\le|z|\) imply
+\[
+ |P_{[0,1]}f_R(x)|\ge\frac{p-1}{2\pi},\qquad
+ \norm{P_{[0,1]}f_R}_p\ge\frac{p-1}{2\pi},\qquad
+ \norm{f_R}_p=2^{1/p}e\le2e.
+\]
+The proof of the output lower bound uses monotonicity of the native \texttt{eLpNorm} and the norm of a constant indicator on the actual measure-one interval. If a finite admissible bound is assumed, continuity and that bound explicitly imply native \texttt{MemLp} for the output. No infinite norm is converted to a default real zero.
+
+Applying the true singleton inequality now gives
+\[
+ \frac{p-1}{2\pi}\le2eC_p,\qquad
+ C_p\ge\frac{p-1}{4\pi e}\ge\frac{p}{8\pi e}.
+\]
+\begin{theorem}
+For every family \(C:\R\to\R\) admissible at every real \(p\ge2\), native \(C\ne O_{p\to\infty}(\sqrt p)\). Moreover, for every finite real \(L\), the actual ratio \(C_p/\sqrt p\) does not converge to \(L\).
+\end{theorem}
+\begin{proof}
+A supposed eventual bound \(|C_p|\le K\sqrt p\) contradicts the linear lower bound by taking \(p=t^2\) with \(t\) larger than both the threshold and \(8\pi eK\). A convergent ratio is eventually bounded, which would give precisely such a native big-O bound. Both conclusions are proved for the real \texttt{atTop} filter, so no passage from integer exponents is assumed.
+\end{proof}
+No optimal constant is defined by an unchecked infimum, and no norm, moment, or growth value is assigned.
+
+\newpage
+\section{Formal coverage and reproduction}
+The main namespace is \texttt{TLMC1906}. The Fourier identities are proved in:
+\begin{center}\begin{tabular}{@{}l@{}}
+\texttt{projection\_input\_double}, \texttt{projection\_input\_kernel\_shift},\\
+\texttt{projection\_input\_im}.
+\end{tabular}\end{center}
+The actual integral and norm estimates are proved in:
+\begin{center}\begin{tabular}{@{}l@{}}
+\texttt{cosine\_integral\_bound}, \texttt{exponential\_output\_lower},\\
+\texttt{Admissible.output\_memLp}, \texttt{Admissible.linear\_lower}.
+\end{tabular}\end{center}
+The native asymptotic conclusions are:
+\begin{center}\begin{tabular}{@{}l@{}}
+\texttt{no\_sqrt\_bigO}, \texttt{no\_finite\_sqrt\_coefficient}.
+\end{tabular}\end{center}
+
+The project pins Lean~4.33.0 and Mathlib commit
+\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+From \texttt{lean/}, run:
+\begin{verbatim}
+lean --version
+lake build +Main
+lake env lean -DwarningAsError=true Check.lean
+lake env leanchecker --fresh Main
+\end{verbatim}
+Equivalently, run \texttt{lean --version} followed by \texttt{./verify.sh} for the remaining three commands. The exhaustive check traverses all owned declarations, including generated ones, and invokes ordinary \texttt{\#print axioms}. Only \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound} are permitted. Source-bound command, cleanup, hash and CPU-affinity receipts accompany the submission. Production timings are diagnostic observations, not controlled efficiency evidence. The complete original bilingual statement is retained in \texttt{SOURCE.md}.
+
+\begin{thebibliography}{9}
+\bibitem{grs} R.~Garg, L.~Roncal and S.~Shrivastava,
+\emph{Quantitative weighted estimates for Rubio de Francia's Littlewood--Paley square function},
+arXiv:1809.02937v2 (7 October 2019), pp.~1--2.
+\url{https://arxiv.org/abs/1809.02937}.
+\bibitem{dp} F.~Di Plinio, M.~Fl\'orez-Amatriain, I.~Parissis and L.~Roncal,
+\emph{Pointwise localization and sharp weighted bounds for Rubio de Francia square functions},
+arXiv:2308.01442v3 (2024), pp.~1--2, especially Eq.~(1.1).
+\url{https://arxiv.org/abs/2308.01442}.
+\end{thebibliography}
+\end{document}
