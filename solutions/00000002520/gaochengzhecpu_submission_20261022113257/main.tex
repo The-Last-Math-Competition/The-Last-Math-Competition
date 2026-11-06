@@ -1,0 +1,222 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{hidelinks}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\newcommand{\C}{\mathbb C}
+\newcommand{\Z}{\mathbb Z}
+\newcommand{\F}{\mathcal F}
+\title{Conjecture 00000002520:\\Separated bases for finite tensor Fourier transforms}
+\author{GitHub: gaochengzhecpu}
+\date{}
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For any finite number of axes of arbitrary positive lengths, the
+multidimensional discrete Fourier transform is the tensor product of
+the one-dimensional transforms. We prove the full forward and inverse
+formulas, preservation of separability in both directions, and the
+product formula for an actual Fourier basis. Lean verifies the result
+for all finite shapes using Mathlib's discrete Fourier linear
+equivalence, tensor products, tensor-product bases, and canonical
+coordinate isomorphisms.
+\end{abstract}
+
+\section{Scope and precise statement}
+We read the source's tensor Fourier assertion in the standard setting
+of finite dimensional complex tensors and the discrete Fourier
+transform (DFT). The English statement specifies neither a continuous
+domain nor a function space. Its Chinese text repeats the terms for
+tensor, high-dimensional Fourier transform, and separated basis, but
+does not supply an additional coherent mathematical condition.
+The precise finite discrete statement below is the interpretation proved
+here. We make no claim about Fourier integrals on Euclidean spaces,
+infinite tensor products, or analytic convergence questions.
+
+Let $d\ge0$ and let $N_1,\ldots,N_d$ be arbitrary positive integers.
+Put
+\[
+G=\prod_{i=1}^d\Z/N_i\Z,\qquad
+\mathcal V=\C^G,\qquad M=\prod_{i=1}^dN_i.
+\]
+The empty product $G$ is a singleton, so $d=0$ gives $\mathcal V=\C$
+and $M=1$. For each axis use the standard additive character
+\[
+\chi_i(a)=\exp(2\pi\mathrm i\,a/N_i),
+\]
+where any integer representative of $a\in\Z/N_i\Z$ gives the same
+value. Define
+\[
+(\F f)(k)=\sum_{j\in G}\left(\prod_{i=1}^d\chi_i(-j_i k_i)\right)f(j).
+\]
+For $f_i:\Z/N_i\Z\to\C$, a separated array is
+$f(j)=\prod_i f_i(j_i)$.
+
+\begin{theorem}\label{thm:main}
+For every finite shape $(N_1,\ldots,N_d)$:
+\begin{enumerate}
+\item $\F$ is a complex linear equivalence. Its inverse is
+\[
+(\F^{-1}g)(j)=\frac1M\sum_{k\in G}
+  \left(\prod_{i=1}^d\chi_i(j_i k_i)\right)g(k).
+\]
+\item The transform factors as the tensor product of the
+one-dimensional DFTs under the canonical identification
+$\bigotimes_{i=1}^d\C^{\Z/N_i\Z}\simeq\mathcal V$.
+This identity holds for every tensor, whether separated or not.
+In particular,
+\[
+\F\left(\prod_i f_i(j_i)\right)(k)
+=\prod_i(\F_i f_i)(k_i),
+\qquad
+\F^{-1}\left(\prod_i g_i(k_i)\right)(j)
+=\prod_i(\F_i^{-1}g_i)(j_i).
+\]
+\item The vectors
+\[
+b_k(j)=\frac1M\prod_{i=1}^d\chi_i(j_i k_i),\qquad k\in G,
+\]
+form a basis of $\mathcal V$. Each vector is the product of its
+one-dimensional Fourier basis vectors
+$N_i^{-1}\chi_i(j_i k_i)$, and the coordinates of $f$ in this basis
+are exactly $(\F f)(k)$.
+\end{enumerate}
+\end{theorem}
+
+The normalization is deliberate: the forward transform is unnormalized,
+and the inverse carries $1/M$. Thus $b_k=\F^{-1}\delta_k$, where
+$\delta_k$ is the standard coordinate vector. Axis length one and the
+empty shape are included.
+
+\section{Proof}
+\begin{proof}
+The one-dimensional DFT on $\Z/N\Z$ is a complex linear equivalence
+with inverse
+\[
+(\F_N^{-1}g)(j)=N^{-1}\sum_{k\in\Z/N\Z}\chi(jk)g(k).
+\]
+Apply this equivalence along each axis. These operations are linear
+equivalences on the full array space, so their composition is again
+one. Expanding the successive finite sums and interchanging their order
+gives exactly the defining formula for $\F$. Reversing the composition
+and expanding the one-dimensional inverse formulas gives the displayed
+inverse, with normalization $\prod_iN_i^{-1}=1/M$.
+
+For a separated input, the summand factors into independent terms:
+\[
+\left(\prod_i\chi_i(-j_i k_i)\right)\prod_i f_i(j_i)
+=\prod_i\bigl(\chi_i(-j_i k_i)f_i(j_i)\bigr).
+\]
+Finite distributivity gives
+\[
+\sum_{j\in G}\prod_i\bigl(\chi_i(-j_i k_i)f_i(j_i)\bigr)
+=\prod_i\sum_{j_i\in\Z/N_i\Z}\chi_i(-j_i k_i)f_i(j_i).
+\]
+This is the forward separability formula. The same calculation with
+positive characters and the product inverse normalization proves the
+inverse separability formula.
+
+To identify the operator on actual tensor products, suppose the first
+axis has length $N$ and the remaining grid is $G'$. The canonical
+coordinate equivalence
+\[
+T:\C^{G'}\otimes_{\C}\C^{\Z/N\Z}
+\longrightarrow \C^{(\Z/N\Z)\times G'}
+\]
+sends $g\otimes f$ to the array $f(j_1)g(j')$. The separability formula
+shows
+\[
+T\circ(\F_{G'}\otimes\F_N)=\F_{(N,G')}\circ T
+\]
+on pure tensors. Pure tensors span the tensor product and both sides
+are linear, so the identity holds for every tensor. Induction on the
+number of axes proves the full factorization. The first-axis versus
+remaining-axis order above only uses the canonical permutation of
+tensor coordinates. The inverse identity follows by taking inverses.
+
+Finally, $\F^{-1}$ sends the coordinate basis $(\delta_k)$ to a basis
+$(b_k)$. Substituting $\delta_k$ into the inverse formula gives the
+displayed expression for $b_k$. Factoring the expression proves its
+product-basis form. Equivalently, the canonical tensor coordinate
+equivalence carries the tensor product of the remaining-axis Fourier
+basis and the first-axis Fourier basis onto the full Fourier basis.
+Since $\F b_k=\delta_k$, the Fourier values are precisely the basis
+coordinates. This proves every assertion, including the empty shape
+where all transforms are the identity.
+\end{proof}
+
+\section{Formal verification and scope}
+The Lean model records a shape as a list of natural numbers $n_i$ and
+uses the positive axis length $N_i=n_i+1$. Every finite list of positive
+lengths has this form; this encoding is also proved. Its recursive grid
+is a singleton for the empty shape and
+$\operatorname{ZMod}(n+1)\times G'$ when an axis is added.
+The arrays $G\to\C$ are the usual coordinate spaces of finite tensors.
+
+The transform \texttt{dftAll} is built from Mathlib's actual
+\texttt{ZMod.dft} linear equivalence, currying, and pointwise linear
+equivalences on remaining axes. It is not a symbolic operator postulated
+to satisfy separation. The proof then derives the complete character
+sum formulas for arbitrary arrays. Mathlib's \texttt{ZMod.stdAddChar}
+is the standard cyclic-group Fourier character used above.
+
+The formalization contains actual Mathlib tensor products and bases.
+The canonical coordinate equivalence uses
+\begin{center}
+\texttt{TensorProduct.piScalarRight}.
+\end{center}
+The theorem
+\begin{center}
+\texttt{TensorFourier.tensor\_factorization}
+\end{center}
+proves the operator identity for every element of the genuine tensor
+product, by tensor-product induction. Its inverse is proved separately.
+The theorem
+\begin{center}
+\texttt{TensorFourier.tensor\_product\_basis}
+\end{center}
+identifies Mathlib's actual \texttt{Basis.tensorProduct} with the full
+Fourier basis under those coordinates. The dimension is arbitrary in
+all these statements; no fixed two-dimensional example substitutes
+for the general claim.
+
+The universal proposition proved by
+\begin{center}
+\texttt{TensorFourier.conjecture}
+\end{center}
+includes the forward and inverse character sums, forward and inverse
+pure-factor separation, the full product-basis identity, actual
+tensor-product operator factorization, and tensor-product basis
+compatibility. All parts of Theorem~\ref{thm:main} in the stated finite
+discrete setting are checked. No continuous Fourier-transform assertion
+is claimed or left implicit.
+
+The strict check treats warnings as errors. The principal theorem
+audits contain only \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}. There are no unproved placeholders or added axioms.
+Development and self-review were performed by a delegated AI agent;
+the coordinating agent reviews the work separately. No external
+independent review is claimed.
+
+\section{Source and reproduction}
+The frozen bilingual statement is preserved in \texttt{SOURCE.md}.
+The verification folder records its provenance and SHA-256.
+The source is conjecture
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000002520.md}{00000002520}
+in the competition repository. Both languages were inspected, and the
+scope decision is stated explicitly above.
+
+The project pins Lean 4.19.0 and Mathlib commit
+\begin{center}
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}.
+\end{center}
+From \texttt{lean/}, obtain the pinned dependencies and Mathlib cache,
+then run \texttt{lake build} and
+\begin{center}
+\texttt{lake env lean -DwarningAsError=true Main.lean}.
+\end{center}
+The file ends with explicit axiom audits. Compile this paper with
+Tectonic or another LaTeX engine supporting the listed packages.
+\end{document}
