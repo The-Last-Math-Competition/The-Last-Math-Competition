@@ -1,0 +1,125 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=23mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\hypersetup{colorlinks=true,urlcolor=blue,linkcolor=blue}
+\newcommand{\R}{\mathbb R}
+\newcommand{\Specpar}{\mathcal S}
+\newcommand{\id}{\mathrm{id}}
+\title{A quadratic operator family with a two-dimensional affine parameter spectrum}
+\author{lizaixi01\quad Problem 00000007474}
+\date{25 October 2026}
+\begin{document}
+\maketitle
+\vspace{-5mm}
+
+\paragraph{Precise scope.}
+The printed conjecture says that the spectrum of a multiparameter quadratic
+operator family is a real algebraic curve, followed by an equality involving
+genus and pencil rank. Neither language bounds the number of parameters or
+specifies a projective quotient. We disprove only the first necessary clause
+under the standard \emph{affine parameter-spectrum} convention: the spectrum
+consists of parameter vectors at which the operator is not invertible.
+We use a real three-parameter family on the genuine Hilbert space $\R$.
+We do not compute genus or pencil rank, or refute a projectivized or
+otherwise restricted version.
+
+\paragraph{The actual quadratic bounded operators.}
+For $x=(s,t,u)\in\R^3$, put
+\[
+ L(x)=s+t+u,\qquad Q(x)=L(x)^2,\qquad
+ T_x=Q(x)\id_{\R}\in\mathcal B_{\R}(\R).
+\]
+Every $T_x$ is continuous, bounded and selfadjoint. The family depends
+continuously on $x$. Its actual coefficient polynomial
+$(X_0+X_1+X_2)^2$ is nonzero, homogeneous of degree two, and has total
+degree exactly two; in particular this is not a constant family given a
+quadratic label. At $(1,0,0)$ the operator is the identity, while at the
+origin it is zero.
+Multiplication by a real scalar $a$ is invertible exactly when $a\ne0$.
+Equivalently, $0$ belongs to its native operator spectrum exactly when
+$a=0$. Therefore the actual parameter spectrum is
+\[
+ \Specpar=\{x:0\in\operatorname{spec}_{\R}(T_x)\}
+ =\{(s,t,u):s+t+u=0\}.
+\]
+This set is nonempty and proper. The argument does not exploit an empty
+real locus or an identically singular family.
+
+\paragraph{The genuine vanishing ideal and coordinate ring.}
+Let $A=\R[X_0,X_1,X_2]$, $B=\R[Y_0,Y_1]$.
+Restrict every polynomial to every actual point of $\Specpar$:
+\[
+ \rho:A\longrightarrow\R^{\Specpar},\qquad
+ \rho(f)(x)=f(x),\qquad I(\Specpar)=\ker\rho.
+\]
+The coordinate ring is the native quotient $A/I(\Specpar)$.
+Define the algebra homomorphism
+\[
+ \pi:A\longrightarrow B,\quad
+ X_0\mapsto Y_0,\ X_1\mapsto Y_1,\ X_2\mapsto-(Y_0+Y_1).
+\]
+The inclusion $B\to A$, $Y_i\mapsto X_i$ for $i=0,1$, is a right inverse,
+so $\pi$ is surjective. Its evaluation identity is
+\[
+ (\pi f)(a,b)=f(a,b,-a-b).
+\]
+The map $(a,b)\mapsto(a,b,-a-b)$ covers precisely $\Specpar$.
+Consequently $\pi f=0$ implies $f|_{\Specpar}=0$.
+Conversely, if $f|_{\Specpar}=0$, then $\pi f$ vanishes at every real
+pair. Polynomial evaluation over the infinite integral domain $\R$
+separates polynomials, so $\pi f=0$. Hence
+\[
+ I(\Specpar)=\ker\pi,\qquad A/I(\Specpar)\simeq_{\R}B
+\]
+by the native first isomorphism theorem for algebras.
+
+\paragraph{Actual Krull dimension.}
+A field has Krull dimension zero. The Noetherian polynomial-ring theorem
+gives
+\[
+ \dim\R[Y_0,Y_1]=\dim\R+2=2.
+\]
+Transport through the proved algebra isomorphism yields
+\[
+ \operatorname{ringKrullDim}(A/I(\Specpar))=2\ne1.
+\]
+This is the genuine coordinate-ring Krull dimension, not the vector-space
+dimension of a chosen parameterization and not an assigned dimension value.
+A real algebraic curve has dimension one, so the actual affine parameter
+spectrum above fails the printed curve clause.
+
+\paragraph{Interpretation and formalization boundary.}
+The noninvertibility convention for parameter spectra appears explicitly
+in Grigorchuk--Yang\,[1]. Yang\,[2] distinguishes the affine preimage
+$P(A)$ from its projectivization $p(A)$. Those papers treat linear complex
+pencils; here we apply the same pointwise noninvertibility definition to
+the genuinely quadratic real family required by the source. They are
+definition references, not proofs of our example. The projectivization
+of our plane is a different object, so no conclusion about it is claimed.
+The usual dimension-one meaning of curve is stated in Stacks,
+Definition 33.43.1\,[3]. Lean proves the full operator, actual real-point
+restriction, quotient-ring isomorphism and native Krull-dimension chain.
+The terminology ``curve'' uses this standard dimension convention; no
+general theory of genus or arbitrary schemes is added as a Lean axiom.
+
+\paragraph{Reproduction.}
+The accompanying pinned Lean 4 project proves all declarations without
+\texttt{sorry}, \texttt{native\_decide} or additional axioms. Run
+\texttt{lean --version}, then \texttt{bash verify.sh} for the build,
+ordinary exhaustive namespace axiom check, and official fresh kernel replay.
+The package records the original commands, logs, source hashes and actual
+resource observations. Experimental timings are diagnostic until the
+preregistered complete experiment is analyzed.
+
+\begin{thebibliography}{9}\small
+\bibitem{gy} R. Grigorchuk and R. Yang,
+\emph{Joint spectrum and infinite dihedral group}, arXiv:1605.01547v3 (2017), abstract.
+\url{https://arxiv.org/abs/1605.01547}
+\bibitem{yang} R. Yang, \emph{Projective spectrum in Banach algebras},
+arXiv:0804.0387 (2008), abstract.
+\url{https://arxiv.org/abs/0804.0387}
+\bibitem{stacks} The Stacks Project, Section 33.43, Definition 33.43.1,
+\emph{Curves}, Tag 0A22.
+\url{https://stacks.math.columbia.edu/tag/0A22}
+\end{thebibliography}
+\end{document}
