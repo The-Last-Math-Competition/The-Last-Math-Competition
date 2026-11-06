@@ -1,0 +1,188 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\emergencystretch=2em
+\newtheorem{theorem}{Theorem}
+\title{A radius-one shift with entropy greater than log two\newline
+\large Disproof of Conjecture 00000009624}
+\author{gaochengzhecpu}\date{}
+\begin{document}\maketitle
+\begin{abstract}
+The bilateral full shift on three symbols is a
+surjective sliding-block automorphism with minimal
+radius one. Its actual dynamical cylinder covering
+number at time $n$ is $3^n$, giving topological entropy
+at least $\log3>\log2$. This violates the proposed
+bound $h\leq r\log2$ under the source's unrestricted
+finite-alphabet statement. The Lean proof directly
+uses Mathlib's topological entropy, not a word-count
+quantity merely named entropy.
+\end{abstract}
+
+\section*{The actual compact system and local rules}
+Let $\mathcal A=\{0,1,2\}$ have its discrete topology,
+and use the full configuration space
+\[
+                      X=\mathcal A^{\mathbb Z}
+\]
+with its product topology and product uniformity.
+It is compact. This is the full shift, also a shift
+of finite type with an empty list of forbidden words.
+The exact bilingual source does not restrict the
+alphabet to two symbols.
+
+Define $F:X\to X$ and $G:X\to X$ by
+\[
+                  F(x)_k=x_{k+1},\qquad G(x)_k=x_{k-1}.
+\]
+They are continuous because each output coordinate
+is a coordinate projection. Direct substitution
+gives $FG=GF=\operatorname{id}$, so $F$ is a
+homeomorphism and is surjective. It commutes with
+the underlying shift, being that shift itself;
+therefore it is an automorphism of this full shift.
+
+A radius-$r$ sliding-block rule uses the symmetric
+window $k-r,\ldots,k+r$ to produce output at $k$.
+For $F$, the radius-one rule sends $(a,b,c)$ to
+$c$; the inverse rule sends it to $a$. Thus both
+directions have radius one.
+
+This is also the true minimum radius. Let $x$ be
+the all-zero configuration and let $y$ be zero
+except that $y_1=1$. They agree at coordinate zero,
+but $F(x)_0=0$ and $F(y)_0=1$. A radius-zero rule
+could not distinguish them. Hence the minimal
+radius of $F$ is exactly one, not merely a padded
+choice of a larger window.
+
+\newpage
+\section*{Actual dynamical covering numbers}
+Use the genuine uniform entourage
+\[
+                      U=\{(x,y):x_0=y_0\}.
+\]
+It is an entourage because the alphabet is discrete
+and the zero-coordinate projection is uniformly
+continuous. The actual iterates satisfy
+$F^j(x)_k=x_{k+j}$ for every $j\geq0$.
+Consequently the $n$-step dynamical ball is exactly
+\[
+ B_n(x,U)=\{y:(F^j x,F^j y)\in U\ (0\leq j<n)\}
+       =\{y:y_j=x_j\ (0\leq j<n)\}.
+\]
+Thus these dynamical balls are precisely the actual
+length-$n$ cylinders in coordinates $0,\ldots,n-1$.
+
+Every word $w\in\mathcal A^n$ extends to a genuine
+bilateral configuration by setting all coordinates
+outside this block to zero. Reading the block back
+recovers $w$. Hence all $3^n$ words occur in the
+full system, not just in a proposed counting model.
+
+Let $r_n(U)$ be the minimal size of a finite family
+of such dynamical balls covering all of $X$.
+In any cover, each center has one length-$n$ word,
+and that ball covers only configurations with that
+same word. Since every word occurs, the map from
+centers to their words must be surjective; therefore
+there are at least $3^n$ centers.
+
+Conversely, choose the zero-extended configuration
+for every word. These form a cover of all $X$,
+and the extension map is injective because reading
+recovers the word. This cover has exactly $3^n$
+centers. We have proved the genuine minimum
+\[
+                             r_n(U)=3^n.
+\]
+The equality even holds at $n=0$, when one ball
+covers the nonempty configuration space.
+
+\section*{The genuine entropy obstruction}
+For the compact uniform system, Bowen--Dinaburg
+topological entropy is
+\[
+ h_{\rm top}(F)=\sup_{V\in\mathcal U_X}
+       \limsup_{n\to\infty}\frac1n\log r_n(V).
+\]
+Applying this definition to the actual entourage $U$
+and its exact minimum covering number gives
+\[
+           h_{\rm top}(F)\geq\log3>\log2=1\cdot\log2.
+\]
+Only this lower bound is needed; the formal proof
+does not claim an unproved upper bound on the
+total entropy. All logarithms use the same base,
+chosen to be the natural base in Lean.
+
+\newpage
+\section*{Conclusion, formalization and reproducibility}
+\begin{theorem}
+A surjective sliding-block automorphism of minimal
+radius one need not satisfy $h\leq\log2$.
+\end{theorem}
+\begin{proof}
+The actual three-symbol shift $F$ has minimal radius
+one and genuine topological entropy at least
+$\log3>\log2$, by the covering argument above.
+\end{proof}
+This refutes the first asserted bound as written.
+A binary-alphabet restriction would be an additional
+hypothesis, absent from both source versions.
+The equality-family and entropy-spectrum clauses
+need not be separately refuted once the proposed
+universal inequality is false.
+
+The Lean project uses the entire function space
+$\mathbb Z\to\operatorname{Fin}(3)$ with its actual
+discrete-product uniformity. It constructs the
+homeomorphism and inverse, proves surjectivity,
+uniform continuity, compactness, the two local rules,
+shift commutation and the radius-zero obstruction.
+No finite periodic state space replaces the full system.
+
+It proves the exact iterate formula and identifies
+actual dynamical balls with true block agreement.
+Reading and extending words give the lower and upper
+bounds for Mathlib's genuine dynamical-cover minimum.
+The library's original exponential-growth and
+topological-entropy definitions then give the
+entourage entropy $\log3$ and total entropy lower
+bound. A final theorem directly negates the
+universal radius--entropy inequality for the actual
+shift-commuting homeomorphisms. No external symbolic
+entropy bridge is assumed.
+
+The supplementary \texttt{verify.py} checks all words
+of lengths zero through eight, their actual extended
+orbit traces, both inverse identities and radius-one
+rules, and the radius-zero witness using exact symbols.
+These are finite consistency checks; Lean proves
+the full infinite-space and all-$n$ statements.
+
+Lean 4.19.0 and Mathlib revision\\
+\texttt{c44e0c8ee63ca166450922a373c7409c5d26b00b}
+are pinned. From \texttt{lean/}, run
+\begin{verbatim}
+lake exe cache get
+lake build
+lake env lean -DwarningAsError=true Main.lean
+\end{verbatim}
+Fresh-build logs, source and hashes are included.
+Printed dependencies contain only standard foundational
+axioms. Compile with \texttt{tectonic main.tex}.
+The author agent and parent reviewed the work internally;
+no external independent review is claimed.
+
+\begin{thebibliography}{9}
+\bibitem{source} The Last Math Competition,
+Conjecture 00000009624. Exact bilingual source included.
+\bibitem{mathlib} Mathlib, \emph{Topological entropy via
+covers}, pinned revision above. See the module
+\texttt{CoverEntropy} in the topological entropy library.
+The project directly uses these definitions and proves
+its own dynamical covering cardinalities.
+\end{thebibliography}
+\end{document}
