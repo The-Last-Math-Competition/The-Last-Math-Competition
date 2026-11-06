@@ -1,0 +1,132 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=25mm]{geometry}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+\newcommand{\N}{\mathbb N}
+\newcommand{\R}{\mathbb R}
+\title{A compact subshift without a harmonic entropy convergence bound}
+\author{Submission for TLMC problem 00000008488}
+\date{24 October 2026}
+\begin{document}
+\maketitle
+
+\paragraph{Claim and scope.}
+The conjecture includes a uniform $1/n$ convergence rate for finite-scale
+values in the equivalent definitions of Bowen topological entropy. We use
+the standard convention that $n$ is the orbit length and a finite-scale value
+is $n^{-1}\log r_n(U)$, where $r_n(U)$ is the minimum size of a spanning cover
+at a fixed entourage $U$. We give a compact continuous dynamical system for
+which even one fixed entourage admits no eventual $C/n$ error bound, for any
+constant $C$. This refutes that rate assertion under this explicit conventional
+interpretation. We do not dispute the classical equality of entropy definitions
+on compact systems, and make no claim about the unspecified noncompact
+boundary correction or periodic optimality clauses.
+
+\paragraph{The actual compact system.}
+Give $\{0,1\}^{\N}$ its product topology and usual compatible metric
+\[
+d(x,y)=\begin{cases}
+0,&x=y,\\
+2^{-\min\{j:x_j\ne y_j\}},&x\ne y.
+\end{cases}
+\]
+Let
+\[
+X=\{x\in\{0,1\}^{\N}:\text{at most one coordinate of }x\text{ is }1\},
+\qquad (Tx)_j=x_{j+1}.
+\]
+The condition defining $X$ is the intersection, over distinct $i,j$, of the
+closed conditions $x_i=0$ or $x_j=0$. Hence $X$ is a closed subset of a compact
+product and is compact. The left shift preserves $X$ and is continuous,
+as each output coordinate is an input coordinate. Write $z$ for the all-zero
+sequence and $e_j$ for the sequence whose unique $1$ occurs at $j$.
+
+For $m\geq0$ let $U_m$ mean agreement on the first $m$ coordinates. These
+are entourages, and every entourage contains some $U_m$. Indeed, agreement
+on the first $m$ coordinates is equivalent to $d(x,y)\leq2^{-m}$, and
+$2^{-m}$ tends to zero. Thus this family is cofinal in the actual metric
+uniformity of $X$.
+
+\paragraph{Exact spanning counts at a fixed scale.}
+For an entourage $U$ set
+\[
+U^{(n)}=\{(x,y):(T^k x,T^k y)\in U\text{ for }0\leq k<n\}.
+\]
+The number $r_n(U)$ is the minimum cardinality of a finite set of centres
+whose $U^{(n)}$-balls cover $X$. These are precisely the objects
+\texttt{Dynamics.dynEntourage} and \texttt{Dynamics.coverMincard} used in Lean.
+The actual iterates satisfy $(T^k x)_i=x_{i+k}$, so
+\[
+U_1^{(n)}=U_n.
+\]
+The $n+1$ points
+\[
+S_n=\{z,e_0,\ldots,e_{n-1}\}
+\]
+give a spanning cover: a point with its $1$ before coordinate $n$ is represented
+by that $e_j$, and every other point is represented by $z$. Their $U_n$-balls
+are pairwise disjoint. Consequently every spanning cover needs at least
+$n+1$ centres, and
+\[
+r_n(U_1)=n+1.
+\]
+The formal proof constructs $S_n$ from the injective map
+$\operatorname{Option}(\operatorname{Fin}n)\to X$ and proves its cardinality;
+the covering number is not assigned as a definition. It also proves this
+covering number is finite before its natural-number value is used.
+
+\paragraph{The full topological entropy is zero.}
+For any fixed $m$, the same construction with $S_{m+n}$ spans at scale
+$U_m$ for $n$ iterates. Thus
+\[
+1\leq r_n(U_m)\leq m+n+1,
+\qquad
+\lim_{n\to\infty}\frac{\log(m+n+1)}{n}=0.
+\]
+It follows that the entropy at every $U_m$ is zero. Since the $U_m$ are
+cofinal, the supremum over all entourages is also zero:
+\[
+h_{\rm top}(T)=0.
+\]
+Lean proves this equality for the native Bowen--Dinaburg quantity
+\texttt{Dynamics.coverEntropy}; it is not merely a limit of an independently
+chosen numerical sequence. The standard symbolic entropy convention is
+also recalled in \cite[p.~1]{mitchell}, but no external entropy evaluation
+is assumed in the formal proof.
+
+\paragraph{Failure of every harmonic bound.}
+For $n\geq1$, the actual finite-time value at $U_1$ is
+\[
+a_n=\frac{\log r_n(U_1)}{n}=\frac{\log(n+1)}n.
+\]
+Although $a_n\to h_{\rm top}(T)=0$, we have $na_n=\log(n+1)\to\infty$.
+More explicitly, for every $C\in\R$ and $N\in\N$ choose
+$n\geq\max\{N,1\}$ with $\log(n+1)>C$. Then
+\[
+\left|a_n-h_{\rm top}(T)\right|=\frac{\log(n+1)}n>\frac Cn.
+\]
+This is the full quantified obstruction to an eventual $O(1/n)$ bound,
+even at this single fixed scale. A bound uniform over scales or across the
+stated definitions therefore cannot hold.
+
+\paragraph{Formal files.}
+The complete construction and proof are in \texttt{lean/Main.lean}; the
+conclusion is \texttt{TLMC8488.counterexample}. The project pins Lean 4.33.0
+and Mathlib commit
+\begin{center}
+\small\texttt{db584cd6d46c92f209a44c0f1c829460d327499d}.
+\end{center}
+The full original bilingual source is preserved in \texttt{SOURCE.md}.
+Build commands, exhaustive namespace axiom checks, fresh-kernel receipts
+and file hashes accompany the submission.
+
+\begin{thebibliography}{1}
+\bibitem{mitchell}
+A.~Mitchell, \emph{On word complexity and topological entropy of random
+substitution subshifts}, arXiv:2305.04817v2 (2024).
+\href{https://arxiv.org/abs/2305.04817}{arxiv.org/abs/2305.04817}.
+\end{thebibliography}
+\end{document}
