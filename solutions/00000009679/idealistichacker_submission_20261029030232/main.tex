@@ -1,0 +1,202 @@
+\documentclass[11pt]{article}
+\usepackage[hmargin=0.85in,vmargin=0.8in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{1em}
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newcommand{\Q}{\mathbb Q}
+\newcommand{\C}{\mathbb C}
+\newcommand{\Hh}{\mathcal H}
+\newcommand{\SL}{\mathrm{SL}_2(\mathbb Z)}
+\title{AI-assisted disproof of conjecture 00000009679}
+\author{idealistichacker}
+\date{October 29, 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+With the standard complex-vector-space meaning of cusp form, the first
+universal clause of conjecture 00000009679 fails. The algebraic point
+$\tau=\sqrt2+i$ is outside every quadratic subfield of $\C$. The actual
+level-one weight-12 discriminant $\Delta=\eta^{24}$ is nonzero at $\tau$;
+thus the nonzero cusp form $f=\Delta(\tau)^{-1}\Delta$ has the algebraic
+value $f(\tau)=1$. This is evaluation rescaling, not Fourier or Hecke
+normalization. No algebraicity of the coefficients of $f$ is asserted.
+We separate the proof and recorded Lean core checks from full portable
+package reproduction. Independent PDF and final review remain necessary.
+\end{abstract}
+\section{The Clause and Its Hypotheses}
+Both source languages assert that every nonzero cusp modular form of
+weight $k\geq2$ has transcendental values at algebraic points outside
+imaginary quadratic fields. We use the standard analytic definition:
+$S_k(\SL)$ is a complex vector space of holomorphic modular forms
+vanishing at the cusps \cite[Definition 4.5, p.~49]{Milne}.
+In particular, for all $\left(\begin{smallmatrix}a&b\\c&d\end{smallmatrix}\right)
+\in\SL$, a member satisfies
+$f((az+b)/(cz+d))=(cz+d)^k f(z)$ on $\Hh$.
+Level one is already a valid instance of the asserted unrestricted class.
+Neither language imposes algebraic Fourier coefficients, a fixed
+coefficient field, first Fourier coefficient one, or a Hecke normalization.
+
+Writing $\overline{\Q}$ for the algebraic numbers in $\C$, the necessary
+level-one clause is
+\[
+ \begin{gathered}
+ \forall k\geq2\ \forall f\in S_k(\SL)\setminus\{0\}\
+ \forall z\in\Hh\cap\overline{\Q},\\
+ \bigl(z\text{ lies in no imaginary quadratic subfield of }\C\bigr)
+ \Longrightarrow f(z)\notin\overline{\Q}.
+ \end{gathered}
+\tag{U}
+\]
+We will fix one pair $(f,\tau)$, not vary the form during evaluation.
+The later CM-period/class-number clause is not analyzed; falsifying the
+necessary clause (U) suffices for the combined assertion as written.
+\section{An Algebraic Point Outside Every Quadratic Field}
+\begin{lemma}
+For the positive real square root $r=\sqrt2$, put $\tau=r+i$.
+Then $\tau\in\Hh\cap\overline{\Q}$, and $\tau$ belongs to no
+ degree-two intermediate field of $\C/\Q$.
+\end{lemma}
+\begin{proof}
+We have $\operatorname{Im}\tau=1>0$ and
+\[
+ \tau^2=1+2ri,\qquad (\tau^2-1)^2=-8,
+ \qquad \tau^4-2\tau^2+9=0.
+\]
+The last identity is a nonzero rational polynomial relation, proving
+algebraicity. Suppose $a\tau^2+b\tau+c=0$ with $a,b,c\in\Q$.
+Its imaginary part is $2ar+b=0$. If $a\ne0$, then
+$r=-b/(2a)\in\Q$, contradicting the irrationality of $\sqrt2$.
+Thus $a=0$, then $b=0$, and finally $c=0$. Consequently
+$1,\tau,\tau^2$ are linearly independent over $\Q$.
+If $\tau\in K\subseteq\C$ and $[K:\Q]=2$, all three elements lie in
+ the two-dimensional rational vector space $K$, a contradiction.
+This excludes every such $K$, in particular every imaginary quadratic
+field; excluding only $\Q(i)$ would not suffice.
+\end{proof}
+\newpage
+\section{The Actual Cusp Form and the Contradiction}
+For $z\in\Hh$, put $q=e^{2\pi iz}$ and use the convention
+\[
+ \Delta(z)=\eta(z)^{24}=q\prod_{n=1}^{\infty}(1-q^n)^{24}.
+\]
+This is the classical level-one weight-12 cusp form, with first Fourier
+coefficient one, and it has no zeros in $\Hh$.
+Milne's discriminant has a different nonzero constant factor.
+His \S5 (p.~67) states the weight-12 cusp-form property and identifies
+it with $(2\pi)^{12}\eta^{24}$; Proposition 3.12 (p.~47) establishes
+nonvanishing of the lattice discriminant \cite{Milne}.
+Dividing by that constant gives our convention. Any nonzero constant
+factor cancels in the evaluation rescaling below.
+
+Nonvanishing of the product is not inferred merely from nonvanishing
+of its factors. Since $0<|q|<1$, the sum $\sum_{n\geq1}|q|^n$ converges.
+For sufficiently large $n$, the analytic logarithm of $1-q^n$ near one
+has absolute value at most $2|q|^n$. The sum of these logarithms converges
+absolutely, so its exponential is nonzero. The finitely many omitted
+factors and $q$ are also nonzero. Hence $\Delta(z)\ne0$.
+\begin{theorem}
+There exist a nonzero $f\in S_{12}(\SL)$ and an algebraic
+$\tau\in\Hh$ outside every imaginary quadratic subfield of $\C$ such
+that $f(\tau)=1$. In particular, (U) is false.
+\end{theorem}
+\begin{proof}
+Choose the point in Lemma 1 and set
+\[
+ v=\Delta(\tau)\ne0,\qquad c=v^{-1},\qquad f(z)=c\Delta(z).
+\]
+A fixed complex scalar preserves the same weight-12 transformation law,
+holomorphy on $\Hh$, and vanishing at all cusps.
+Thus $f\in S_{12}(\SL)$, and $f(\tau)=v^{-1}v=1$; in particular $f\ne0$.
+Lemma 1 gives every required condition on $\tau$, and $12\geq2$.
+But $1\in\Q$ is algebraic, not transcendental over $\Q$, contradicting (U).
+\end{proof}
+\paragraph{Hypothesis audit.}
+The object is a genuine cusp form for $\SL$, not a constant function
+or a mock evaluation map. Its weight is the integer 12. Its nonzero
+status follows from its value 1. The point lies in the open upper
+half-plane, is algebraic over $\Q$, and lies in no degree-two subfield.
+No excluded CM point, zero form, boundary point, or vanishing
+discriminant is used.
+\paragraph{What this does not prove.}
+Choosing $\tau$ first and then fixing $f$ once and for all is legitimate
+when negating a universal assertion about both.
+The first Fourier coefficient of $f$ is $c$, not an asserted 1, and
+we prove neither that $c$ is algebraic nor that it is transcendental.
+We do not claim algebraic Fourier coefficients or a Fourier-normalized
+or Hecke-normalized arithmetic counterexample. Evaluation rescaling
+must not be confused with those normalizations. This argument does not
+overturn any theorem of Nesterenko, establish an arithmetic-restricted
+variant, or settle a CM-period or class-number claim. An applicable
+additional arithmetic convention would require a different analysis.
+\newpage
+\section{Lean Objects and the Evidence Boundary}
+\raggedright
+\small
+All names below have namespace \texttt{ModularValue9679}. This is an
+object map of the two complete sources read on October 29, 2026.
+Recorded core replays below are not a new Lean run by this paper author.
+\paragraph{Point module.}
+\texttt{AlgebraicPoint.lean} defines \texttt{point} as $\sqrt2+i$.
+Theorems \texttt{point\_im\_pos} and \texttt{point\_algebraic} give
+positivity and algebraicity. The latter uses closure of algebraic numbers
+under powers and addition, not the displayed quartic identity.
+The theorems \texttt{quadratic\_relation\_trivial} and
+\texttt{point\_triple\_independent} implement the independence argument.
+Crucially, \texttt{point\_not\_mem\_quadratic} takes an actual
+\texttt{IntermediateField Rat Complex} of rational \texttt{finrank} 2
+and excludes membership by the dimension bound; non-CM status is not
+assumed or encoded as an unexplained Boolean.
+\paragraph{Cusp-form module.}
+\texttt{NormalizedCusp.lean} defines \texttt{tau : UpperHalfPlane}
+using positivity. Its \texttt{ImaginaryQuadraticSubfield} requires an
+actual degree-two intermediate field and a nonreal element;
+\texttt{OutsideImaginaryQuadratic} quantifies over all such fields.
+The stronger point theorem supplies \texttt{tau\_outside\_imaginary\_quadratic}.
+The object \texttt{normalized} is a complex scalar multiple of the actual
+\texttt{CuspForm.discriminant} at level one and weight 12.
+Mathlib's \texttt{ModularForm.discriminant\_ne\_zero}, with the actual
+cusp-form coercion, supplies nonvanishing. The source gives
+\texttt{normalized\_value}, \texttt{normalized\_nonzero}, and
+\texttt{normalized\_value\_algebraic}. Finally,
+\texttt{level\_one\_value\_assertion\_false} negates the explicit
+universal clause, while \texttt{actual\_counterexample} packages the
+form, point, and their properties.
+\paragraph{Actual evidence and remaining work.}
+The parent receipt dated 2026-10-27, 05:30:59 UTC records both modules
+exiting zero in 33.813 seconds, with all 19 public theorem types and axiom
+closures checked. A separate core review records an independent replay
+on that date, 05:39:44--05:40:24 UTC, exiting zero in 41.032 seconds;
+its logs include those 19 theorems and six definition types, bodies, and
+axiom closures. All 25 recorded closures contain only \texttt{propext},
+\texttt{Classical.choice}, and \texttt{Quot.sound}. This author checked
+the actual receipts, logs, and matching source hashes, not a new Lean run.
+The review result lists a report and two further evidence files that are
+absent; none is relied on. These runs use Lean 4.33.1 and Mathlib
+\texttt{\small 0df444a360eaa60ab8c11dca51a86af692955474}.
+Shared pinned caches remain a trust boundary. Complete portable
+reproduction with all nine physical dependencies, a final package,
+independent PDF review, and publication clearance are not established by
+this paper. Separate author receipts record actual Tectonic compilation
+and page rendering, not an independent final review or upstream approval.
+\paragraph{Source anchor and disclosure.}
+The complete bilingual source is \texttt{conjectures/00000009679.md} at
+this locally anchored version, not a fresh upstream or duplicate check:
+\begin{quote}\footnotesize\ttfamily
+Commit: b355e42906e6eaf52bc7e9d005e0ef02d8aa7400\\
+Git blob: 541b54697f4283123781a066f17e9b0a7e3ec223\\
+Raw SHA-256:\\
+e3fd65548a676ba5dcee0340d2f9dd1aae6c2a069273e9d61799e4bba712b639
+\end{quote}
+This is an AI-assisted paper by the stated author. No affiliation,
+independent final-review approval, claim, or publication is asserted.
+\begin{thebibliography}{9}
+\bibitem{Milne} J. S. Milne, \emph{Modular Functions and Modular Forms},
+v1.31, March 22, 2017. Author's course notes, compact edition:
+Definition 4.5, p.~49; Proposition 3.12, p.~47; product formula at the
+start of \S5, p.~67. \url{https://www.jmilne.org/math/CourseNotes/MFc.pdf}.
+\end{thebibliography}
+\end{document}

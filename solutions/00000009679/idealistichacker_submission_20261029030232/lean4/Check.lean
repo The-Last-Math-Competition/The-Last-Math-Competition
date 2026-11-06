@@ -1,0 +1,40 @@
+import Main
+
+#check ModularValue9679.point_re
+#print axioms ModularValue9679.point_re
+#check ModularValue9679.point_im
+#print axioms ModularValue9679.point_im
+#check ModularValue9679.point_im_pos
+#print axioms ModularValue9679.point_im_pos
+#check ModularValue9679.point_sq_re
+#print axioms ModularValue9679.point_sq_re
+#check ModularValue9679.point_sq_im
+#print axioms ModularValue9679.point_sq_im
+#check ModularValue9679.point_algebraic
+#print axioms ModularValue9679.point_algebraic
+#check ModularValue9679.quadratic_relation_trivial
+#print axioms ModularValue9679.quadratic_relation_trivial
+#check ModularValue9679.point_triple_independent
+#print axioms ModularValue9679.point_triple_independent
+#check ModularValue9679.point_not_mem_quadratic
+#print axioms ModularValue9679.point_not_mem_quadratic
+#check ModularValue9679.tau_coe
+#print axioms ModularValue9679.tau_coe
+#check ModularValue9679.tau_algebraic
+#print axioms ModularValue9679.tau_algebraic
+#check ModularValue9679.tau_outside_imaginary_quadratic
+#print axioms ModularValue9679.tau_outside_imaginary_quadratic
+#check ModularValue9679.discriminant_at_tau_nonzero
+#print axioms ModularValue9679.discriminant_at_tau_nonzero
+#check ModularValue9679.normalized_value
+#print axioms ModularValue9679.normalized_value
+#check ModularValue9679.normalized_nonzero
+#print axioms ModularValue9679.normalized_nonzero
+#check ModularValue9679.normalized_value_algebraic
+#print axioms ModularValue9679.normalized_value_algebraic
+#check ModularValue9679.normalized_value_not_transcendental
+#print axioms ModularValue9679.normalized_value_not_transcendental
+#check ModularValue9679.level_one_value_assertion_false
+#print axioms ModularValue9679.level_one_value_assertion_false
+#check ModularValue9679.actual_counterexample
+#print axioms ModularValue9679.actual_counterexample
