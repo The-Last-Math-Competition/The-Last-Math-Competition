@@ -1,0 +1,70 @@
+\pdfmapfile{+symbols.map}
+\pdfmapfile{+cm.map}
+\pdfmapfile{+cmextra.map}
+\pdfmapfile{+lm.map}
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm,hyperref}
+\newtheorem{proposition}{Proposition}
+\title{Exchangeability does not imply a symmetric zero--one law\\\large A counterexample to the exchangeability-only wording of TLMC 00000009343}
+\author{Galaxy-0 submission, prepared with AI assistance}
+\date{26 October 2026 (UTC)}
+\begin{document}
+\maketitle
+\section{Scope of the claim}
+The English statement introduces ``the zero-one law of exchangeable sequences'' and then asserts a zero--one law on the symmetric sigma-algebra. Neither language states independence. We disprove that exchangeability-only assertion. We do \emph{not} disprove the classical Hewitt--Savage theorem, whose independent and identically distributed hypothesis is essential. If the intended problem implicitly reinstates that hypothesis merely by naming the classical theorem, the present counterexample does not apply to that corrected formulation.
+
+The exact statement is available at
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000009343.md}{the official problem page}.
+Its English and Chinese versions were checked on 26 October 2026.
+
+\section{Probability space and random sequence}
+Let $\Omega=\{0,1\}$ with its full power-set sigma-algebra and uniform probability
+\[
+ \mathbb P(E)=\tfrac12\mathbf1_E(0)+\tfrac12\mathbf1_E(1).
+\]
+This is a normalized probability measure: the masses are nonnegative and sum to one. Countable additivity follows directly because any pairwise disjoint sequence of subsets of a two-point set has at most two nonempty members. In particular this is not an assigned numerical value masquerading as a measure.
+
+For every $n\in\mathbb N$ define $X_n(\omega)=\omega$. Thus a single fair bit is repeated forever. Every coordinate has a fair Bernoulli distribution, but the coordinates are not independent.
+
+For any coordinate permutation $\pi:\mathbb N\to\mathbb N$ and every outcome $\omega$,
+\[
+ (X_{\pi(n)}(\omega))_{n\geq0}=(X_n(\omega))_{n\geq0}.
+\]
+This is pointwise equality, so in particular all finite-dimensional joint distributions are permutation invariant. The sequence is exchangeable. Indeed its distribution is invariant even under coordinate relabelings which are not bijective.
+
+\section{A genuinely symmetric event}
+On the full sequence space $\{0,1\}^{\mathbb N}$, take
+\[
+ A=\{x: \text{for every }n,\ x_n=1\}.
+\]
+The event is measurable for the product sigma-algebra, since it is the countable intersection of coordinate cylinder events. It is invariant under every bijective coordinate relabeling on \emph{the entire sequence space}, not merely on the two constant sequences in the support. More generally, for any surjection $\pi$,
+\[
+ [\forall n,\ x_{\pi(n)}=1]\quad\Longleftrightarrow\quad[\forall n,\ x_n=1].
+\]
+The reverse implication is immediate; for the forward implication, choose for each coordinate a preimage under $\pi$. Hence $A$ belongs to the usual symmetric sigma-algebra, including its finite-permutation version.
+
+But $X^{-1}(A)=\{1\}$. Consequently
+\[
+ \mathbb P(X\in A)=\tfrac12\notin\{0,1\}.
+\]
+\begin{proposition}
+There exists an exchangeable sequence with a symmetric measurable event of probability strictly between zero and one. Thus exchangeability alone does not imply the zero--one assertion stated in problem 9343.
+\end{proposition}
+\begin{proof}
+The sequence and event constructed above satisfy the hypotheses and have probability $1/2$.
+\end{proof}
+To locate the missing hypothesis explicitly,
+\[
+ \mathbb P(X_0=1,X_1=1)=\tfrac12
+ \ne \tfrac14=\mathbb P(X_0=1)\mathbb P(X_1=1).
+\]
+Thus there is no conflict with the classical iid theorem.
+
+\section{Formalization and verification boundaries}
+The accompanying dependency-free Lean 4.31.0 project uses the actual two-element type \texttt{Bool}, exact rational arithmetic, arbitrary events as predicates, and infinite sequences as functions from \texttt{Nat}. It defines the uniform measure by summing the two atom weights. It verifies normalization, nonnegativity and upper bounds, extensionality, finite disjoint additivity, and eventual emptiness of any countable disjoint family of events. The theorem \texttt{countable\_union\_probability} further proves that the probability of any countable disjoint union equals every sufficiently long finite partial sum. This is exact countable additivity for the finite space, not a simulation. No general real-valued measure-theory library or infinite-series API is imported.
+
+\texttt{X\_exchangeable} verifies equality of probabilities for every sequence predicate under every coordinate bijection. \texttt{allOnes\_surjective\_invariant} proves invariance on the entire sequence space. \texttt{allOnes\_probability} computes the pullback probability from the atom sum. The final negation theorem negates the universal zero--one law restricted to this genuine probability space, which is enough to refute a law quantified over all exchangeable sequences. \texttt{not\_independent\_first\_two} verifies the missing hypothesis directly.
+
+The formalization does not claim a formal proof of the classical Hewitt--Savage theorem, of general measure extension, or of de Finetti's theorem. It uses no assumed probability value or conjecture-specific axiom. Computable closed rational facts use kernel reduction, not native evaluation as proof. Exact commands and audit output accompany the project. Preparation and review are by AI; no human review or acceptance is claimed.
+\end{document}
