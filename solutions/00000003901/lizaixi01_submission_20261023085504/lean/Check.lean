@@ -1,0 +1,34 @@
+import Main
+
+#print axioms TLMC3901.R
+#print axioms TLMC3901.charTwo
+#print axioms TLMC3901.I
+#print axioms TLMC3901.ring_dimension
+#print axioms TLMC3901.maximal_ideal
+#print axioms TLMC3901.X_nonzero
+#print axioms TLMC3901.frobeniusPower
+#print axioms TLMC3901.frobeniusPower_eq
+#print axioms TLMC3901.power_le_I
+#print axioms TLMC3901.denominator
+#print axioms TLMC3901.QuotientAt
+#print axioms TLMC3901.mulX
+#print axioms TLMC3901.mulX_bijective
+#print axioms TLMC3901.mulXEquiv
+#print axioms TLMC3901.denominator_preimage
+#print axioms TLMC3901.denominator_image
+#print axioms TLMC3901.quotientEquiv
+#print axioms TLMC3901.quotient_length_succ
+#print axioms TLMC3901.frobeniusPower_le
+#print axioms TLMC3901.frobeniusDenominator
+#print axioms TLMC3901.FrobeniusQuotient
+#print axioms TLMC3901.actual_frobenius_length
+#print axioms TLMC3901.actual_length_finite
+#print axioms TLMC3901.lengthValue
+#print axioms TLMC3901.lengthValue_eq
+#print axioms TLMC3901.length_cofinally_unbounded
+#print axioms TLMC3901.length_not_bounded
+#print axioms TLMC3901.length_not_bigO_one
+#print axioms TLMC3901.proposed_dimension_minus_one_exponent_fails
+#print axioms TLMC3901.no_finite_leading_coefficient
+#print axioms TLMC3901.reversed_quotient_not_nested
+#print axioms TLMC3901.actual_counterexample
