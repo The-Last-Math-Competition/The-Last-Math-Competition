@@ -1,0 +1,73 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Disproof of Conjecture 00000004103\\
+\large A symmetric star with a torsion-free graph braid group}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+Let \(S=K_{1,4}\) be the star with center \(c\) and leaves
+\(0,1,2,3\). The map fixing \(c\) and sending each leaf \(i\) to
+\(3-i\) is an involutive graph automorphism. It exchanges two pairs
+of arms and fixes only the center. Nevertheless its two-strand
+graph braid group has no element of order two.
+
+\section*{The two-strand braid group of \(S\)}
+
+Let \(U_2(S)\) be the space of unordered pairs of distinct points of
+the geometric graph \(S\), so that \(B_2(S)=\pi_1(U_2(S))\). The
+unordered discrete configuration space \(UD_2(S)\) consists of pairs
+of cells of \(S\) with disjoint closures, with the two coordinates
+identified under swapping.
+
+The stable equivalence theorem of Prue and Scrimshaw
+\cite[Theorem~3.2]{prue-scrimshaw}, including its unordered version,
+applies here. For \(n=2\), the graph must be finite and connected
+with at least two vertices. The required distances between distinct
+essential vertices are at least \(n-1=1\) edge, and homotopically
+essential closed paths must have at least \(n+1=3\) edges. In \(S\)
+the distance condition holds for any two distinct vertices, and
+there are no homotopically essential closed paths because \(S\) is
+a tree. Thus \(U_2(S)\) deformation retracts onto \(UD_2(S)\).
+
+The four vertices of \(UD_2(S)\) of the form \(\{c,i\}\) correspond
+to the vertices of \(K_4\). The six vertices of the form \(\{i,j\}\),
+with \(i\ne j\) both leaves, correspond to the midpoints of its edges.
+The one-cell given by a point moving on the arm \(ci\), with a point
+fixed at the different leaf \(j\), joins \(\{c,j\}\) to \(\{i,j\}\).
+Hence each midpoint has precisely its two expected incident edges.
+There are no two-cells because any two closed arms meet at \(c\).
+This identifies \(UD_2(S)\) with the barycentric subdivision of \(K_4\).
+
+The resulting graph is connected and has ten vertices and twelve
+edges. Contracting a spanning tree gives a wedge of
+\(12-10+1=3\) circles, so \(B_2(S)\) is a free group of rank three.
+In a free group, any nonidentity element has a nonempty cyclically
+reduced conjugate, whose positive powers remain reduced and nonempty.
+Thus \(B_2(S)\) is torsion-free. In particular it contradicts the
+claim that an involutive star symmetry implies an element of order
+two in the graph braid group.
+
+\section*{Lean verification}
+
+The Lean~4.19.0 project checks the star automorphism, the incidences,
+the connectivity and cell counts of the finite configuration graph,
+and its cycle rank. It also proves directly in the free-group normal
+form that a self-inverse reduced word is empty, which excludes order
+two. The deformation retraction and the passage from the finite
+graph to its free fundamental group are given above. Run
+\verb|lake build| in \verb|lean/| to verify the formal results.
+
+\begin{thebibliography}{1}
+\bibitem{prue-scrimshaw}
+P.~Prue and T.~Scrimshaw,
+\emph{Abrams's stable equivalence for graph braid groups},
+\href{https://arxiv.org/abs/0909.5511}{arXiv:0909.5511}.
+\end{thebibliography}
+
+\end{document}
