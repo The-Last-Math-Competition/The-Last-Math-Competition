@@ -1,0 +1,100 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\lk}{\operatorname{lk}}
+\newcommand{\Ftwo}{\mathbb{F}_2}
+
+\title{A six-vertex counterexample to Conjecture 00000002729}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+The conjecture asserts that a simplicial complex is Cohen--Macaulay if and
+only if it is connected and every vertex link is Cohen--Macaulay. A pure
+two-dimensional complex disproves the converse over every coefficient field.
+
+\section*{The complex and its links}
+
+Let $\Delta$ consist of all subsets of the following six facets, where $abc$
+denotes the set $\{a,b,c\}$:
+\[
+  014,\quad 034,\quad 125,\quad 145,\quad 023,\quad 235.
+\]
+Every facet is a triangle and all six vertices occur. The edges along
+$0-1-2-3-4-5$ form a spanning path, so $\Delta$ is connected.
+For each vertex, deleting that vertex from each facet containing it gives
+the edges of its link. The resulting link graphs are exactly these paths:
+\[
+\begin{array}{c|c@{\qquad}c|c}
+v & \lk_\Delta(v) & v & \lk_\Delta(v) \\ \hline
+0 & 1-4-3-2 & 3 & 4-0-2-5\\
+1 & 0-4-5-2 & 4 & 3-0-1-5\\
+2 & 0-3-5-1 & 5 & 4-1-2-3
+\end{array}
+\]
+
+By Reisner's criterion~\cite[Theorem~5]{reisner}, a finite simplicial complex
+is Cohen--Macaulay over a field $k$ exactly when, for every face $F$ including
+the empty face, $\widetilde H_i(\lk_\Delta(F);k)=0$ for
+$i<\dim\lk_\Delta(F)$. In a pure one-dimensional complex, the empty-face
+condition is connectedness, since the complex is nonempty. The link of each
+vertex is zero-dimensional and has a vertex because each original vertex is
+in an edge. The edge links have dimension $-1$ and impose no condition.
+Consequently every path in the table is Cohen--Macaulay over $k$.
+
+\section*{The obstruction for the empty face}
+
+Write $[a,b]$ for an oriented edge. Define a $k$-valued linear functional $c$
+on the oriented edge chains by its values on edges with increasing endpoints:
+\[
+ c([0,2])=1,\qquad c([2,3])=-1,\qquad c([3,5])=1,
+\]
+with zero values on all other increasing edges. The facets $014$, $034$,
+$125$, and $145$ have no edges with nonzero value. The other two boundaries
+evaluate as
+\[
+\begin{aligned}
+c(\partial[0,2,3])&=c([2,3]-[0,3]+[0,2])=-1+1=0,\\
+c(\partial[2,3,5])&=c([3,5]-[2,5]+[2,3])=1-1=0.
+\end{aligned}
+\]
+Thus $c$ vanishes on every boundary of a two-chain. The one-chain
+$z=[0,1]+[1,2]-[0,2]$ is a cycle, since each vertex has total boundary
+coefficient zero, and $c(z)=-1\ne0$. Therefore $z$ is not a boundary and
+$\widetilde H_1(\Delta;k)=H_1(\Delta;k)\ne0$ over every field $k$.
+The empty face has link $\Delta$ of dimension two, so Reisner's criterion
+rules out Cohen--Macaulayness.
+
+\section*{Lean verification}
+
+The standalone Lean 4 project checks the disproof over $\Ftwo$, with the same
+triangles and the same cycle. Its predicate \texttt{cohenMacaulayF2} spells out
+Reisner's conditions for a pure two-dimensional complex. For the empty face
+these require connectedness and vanishing first homology. For a vertex, they
+require a nonempty, connected one-dimensional link. For an edge, they require
+its zero-dimensional link to have a vertex. A triangle link has no requirement
+below dimension $-1$.
+
+A list of edges or triangles represents a chain by counting the multiplicity
+of each simplex modulo two. Every simplicial chain over $\Ftwo$ has such a
+representation. The code verifies that the displayed cycle has zero boundary
+and compares edge chains coefficient by coefficient. It then proves that
+the sum of the three indicated edge coefficients modulo two vanishes on the
+boundary of every two-chain, by induction on the list of triangles. This sum
+is one on the cycle. The theorem \texttt{C2729.not\_localCriterion} negates
+the conjectured equivalence already on complexes represented by six
+triangular facets on six vertices. Run \texttt{lake build} from the
+\texttt{lean} directory to check the theorem.
+
+\begin{thebibliography}{1}
+\bibitem{reisner}
+G. A. Reisner, \emph{Cohen--Macaulay quotients of polynomial rings},
+Advances in Mathematics \textbf{21} (1976), 30--49.
+\href{https://doi.org/10.1016/0001-8708(76)90114-6}{DOI 10.1016/0001-8708(76)90114-6}.
+\end{thebibliography}
+
+\end{document}
