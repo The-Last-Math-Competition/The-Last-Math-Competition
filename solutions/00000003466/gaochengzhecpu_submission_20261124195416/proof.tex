@@ -1,0 +1,60 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}
+
+\title{A counterexample to Conjecture 00000003466}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+The conjecture claims that the triangle core preserves the chromatic number
+of every chordal graph and that the chromatic number of a general graph falls
+by at most one under core contraction. The chordal graph $K_3$ loses two
+colors when its unique triangle is contracted.
+
+\section*{The contraction and the counterexample}
+
+For a finite simple graph $G$ and a triangle $T$, let $q$ be the surjection
+that identifies the three vertices of $T$ and leaves every other vertex in
+its own class. Distinct quotient vertices are adjacent exactly when an edge
+of $G$ joins the corresponding classes. This is also the simple graph
+obtained by successively contracting two edges of $T$.
+
+Take the complete graph $G=K_3$. It is chordal because it has no cycle of
+length at least four. Its three vertices are pairwise adjacent, so a proper
+coloring uses at least three colors, and assigning a distinct color to each
+vertex gives $\chi(G)=3$. There is exactly one triangle. Contracting it leaves
+one vertex with no edges, so the contracted graph has chromatic number one.
+There are no triangles left and no contraction-order choices. Thus the
+ordinary chromatic number is not preserved even in the chordal case, and
+the drop $3-1=2$ exceeds the proposed bound for general graphs.
+
+The example can also retain an edge after contraction. Attach a pendant
+vertex to one vertex of $K_3$. All cycles still lie in the triangle, so the
+new graph is chordal. Its chromatic number is three because the pendant
+vertex can reuse a color of a nonneighbor in the triangle. Contracting the
+unique triangle leaves $K_2$, whose chromatic number is two. This gives a
+second failure of the chordal invariance claim.
+
+\section*{Coloring constraints and Lean verification}
+
+The quotient keeps the adjacency constraints between distinct classes.
+Within the contracted class, a single color variable cannot express the
+three pairwise inequalities on the original triangle. Retaining parallel
+edges between distinct classes leaves the vertex-coloring rule unchanged.
+Keeping an internal edge as a loop instead makes the quotient impossible to
+color properly. An extra label encoding three independent color variables
+would specify a coloring problem on the labeled classes in addition to the
+ordinary chromatic number of the underlying graph.
+
+The Lean 4 theorem \texttt{C3466.counterexample} gives the $K_3$ witness. It
+checks chordality using cyclic orders and chords, verifies that the quotient
+merges exactly the selected vertices, and proves both exact chromatic numbers.
+It negates the claimed preservation and the bound on the loss for that
+contraction. Run \texttt{lake build} in the \texttt{lean} directory to verify it.
+
+\end{document}
