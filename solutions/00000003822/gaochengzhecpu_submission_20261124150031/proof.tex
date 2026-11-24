@@ -1,0 +1,84 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+
+\title{Proof of Conjecture 00000003822\\
+\large Diameter of a finite-type highest-weight crystal}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+Let \(B(\lambda)\) be the finite-type highest-weight crystal of dominant
+integral weight \(\lambda\). Use the lowering arrows
+\(b\to f_i(b)\) when \(f_i(b)\) is defined. We prove that the diameter
+of the underlying undirected graph is \(\langle\lambda,2\rho^\vee\rangle\).
+
+\section*{A height and two distinguished vertices}
+
+Let \(2\rho^\vee\) be the sum of positive coroots and set
+\[
+   h(b)=\langle\operatorname{wt}(b),2\rho^\vee\rangle\in\mathbb Z .
+\]
+Each simple reflection \(s_i\) permutes the positive coroots other
+than \(\alpha_i^\vee\) and negates that one. Thus
+\(s_i(\rho^\vee)=\rho^\vee-\alpha_i^\vee\), which by the reflection
+formula gives \(\langle\alpha_i,\rho^\vee\rangle=1\). A lowering arrow
+subtracts a simple root from the weight and therefore decreases \(h\)
+by exactly \(2\).
+
+Write \(u\) for the highest vertex and \(D=h(u)=
+\langle\lambda,2\rho^\vee\rangle\). Every vertex is obtained by
+applying lowering operators to \(u\). The Sch\"utzenberger--Lusztig
+involution \(\xi\) reverses lowering arrows, up to the permutation
+of simple-root labels induced by the longest Weyl element \(w_0\).
+It satisfies \(\operatorname{wt}(\xi(b))=w_0\operatorname{wt}(b)\)
+and sends \(u\) to the lowest vertex \(v\)
+\cite[\S\S 3, 6.1]{azenhas}. Since \(w_0^{-1}\) sends the set of
+positive coroots to the set of negative coroots, invariance
+of the weight--coweight pairing gives
+\[
+  h(\xi(b))=\langle\operatorname{wt}(b),w_0^{-1}(2\rho^\vee)\rangle
+            =-h(b).
+\]
+In particular \(h(v)=-D\).
+
+\section*{Distance bounds}
+
+For any \(b\), choose a directed path \(u\to b\) and let \(r(b)\) be
+its length. The height drop shows \(2r(b)=D-h(b)\), so the length
+is independent of the choice of path. Applying \(\xi\) to a directed
+path from \(u\) to \(\xi(b)\) and reversing it gives a directed path
+from \(b\) to \(v\). Its length is \((h(b)+D)/2=D-r(b)\).
+In particular the length of a directed path \(u\to v\) is \(D\), so
+\(D\) is a nonnegative integer.
+
+For arbitrary vertices \(a,b\), the undirected walk via \(u\) has
+length \(r(a)+r(b)\), and the one via \(v\) has length
+\(2D-r(a)-r(b)\). These lengths sum to \(2D\), so at least one
+is at most \(D\). This bounds every graph distance above by \(D\).
+On any undirected walk from \(u\) to \(v\), one edge changes \(h\)
+by \(2\) in absolute value. The net drop is \(2D\), requiring at least
+\(D\) edges. Hence \(d(u,v)=D\), which proves the diameter formula.
+
+\section*{Lean verification}
+
+In the accompanying Lean~4.19.0 project, \verb|HasDiameter| characterizes the
+diameter by a walk-length bound for all pairs and a pair attaining that bound.
+
+The theorem \verb|crystal_diameter_from_weights| checks the proof using the
+lowering weight change, the pairing identities, generation from the highest
+vertex, and the weight and arrow properties of the involution. The
+application to \(B(\lambda)\) uses the crystal and root-system facts
+identified above. Run \verb|lake build| in \verb|lean/| to verify the theorem
+and print its axiom dependencies.
+
+\begin{thebibliography}{1}
+\bibitem{azenhas}
+O.~Azenhas, M.~Tarighat Feller, and J.~Torres,
+\emph{Symplectic cacti, virtualization and Berenstein--Kirillov groups},
+J. Comb. Algebra, DOI \texttt{10.4171/JCA/116}.
+\end{thebibliography}
+
+\end{document}
