@@ -1,0 +1,97 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+
+\title{Proof of Conjecture 00000000101\\
+\large A transitive subshift with exactly the prime least periods and \(1\)}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+The period of a periodic point means its least positive period. This is
+the period of its finite orbit, as distinguished from the multiples that
+also fix the point. We construct a two-sided subshift over \(\{0,1\}\).
+
+\section*{The gap rule and transitivity}
+
+For a finite binary word \(w\), record the positive distances between
+successive occurrences of \(1\), in order. The resulting list can be
+empty. Call \(w\) admissible if each nonempty contiguous block of \(k\)
+distances in its list satisfies at least one of these conditions
+\begin{itemize}
+  \item The distances are all equal to the same prime.
+  \item At least one of the distances is at least \(k\).
+\end{itemize}
+Let \(X\) consist of those \(x\in\{0,1\}^{\mathbb Z}\) whose every finite
+contiguous word is admissible. With the product topology, \(X\) is
+closed, because a violation is witnessed on finitely many coordinates.
+Shifting a sequence preserves this condition, in either direction,
+so \(X\) is a subshift. Its language is exactly the admissible words.
+Indeed, surround any such finite word with zeros in both directions.
+Every complete gap in the resulting bi-infinite point is a gap of
+the original finite word, and every gap block is inherited from it.
+The resulting point thus belongs to \(X\).
+
+For any admissible words \(u,v\), consider \(u0^m v\), where \(m\) can
+be made arbitrarily large. If either word has no \(1\), joining adds
+no complete gap. Otherwise let \(k_u,k_v\) be the numbers of complete
+gaps in \(u,v\). Choose \(m\ge k_u+k_v\). The new gap from the last
+\(1\) in \(u\) to the first \(1\) in \(v\) has length at least
+\(m+1\ge k_u+k_v+1\), the total number of complete gaps in
+\(u0^m v\). Any contiguous gap block that crosses the joining gap
+therefore satisfies the second condition. All other gap blocks were
+already admissible. This proves that \(u0^m v\) is admissible for
+every sufficiently large \(m\), and hence occurs in \(X\).
+For any two nonempty cylinders, take the words specifying them
+on their respective coordinate intervals. Place a joined word
+realizing the first at its specified interval. The second then occurs
+at the specified interval after a nonnegative number of left shifts,
+by taking \(m\) sufficiently large. Cylinders form a basis of the
+topology, so \(X\) is topologically transitive.
+
+\section*{Least periods}
+
+The all-zero point belongs to \(X\) and has least period \(1\).
+For each prime \(p\), the point having ones precisely at the multiples
+of \(p\) has every complete gap equal to \(p\), so belongs to \(X\).
+Its least period is \(p\), since shifting the \(1\) at \(0\) to a
+positive position smaller than \(p\) gives a \(0\).
+
+Conversely, suppose a periodic point of \(X\) contains a \(1\) and
+has least period \(n\). Choose a \(1\) at coordinate \(a\) and record
+the nonempty list \(G\) of complete gaps from the \(1\) at \(a\) to
+the \(1\) at \(a+n\), including the gap that ends at \(a+n\).
+The sum of \(G\) is \(n\). By periodicity, \(n+1\) consecutive
+copies of \(G\) form a contiguous gap block of this point. That block
+has length greater than \(n\) and every distance in it is at most
+\(n\). The gap rule forces its entries, and hence those of \(G\),
+to be equal to a single prime \(p\). Periodicity extends this list
+of gaps in both directions, so the ones occur exactly on
+\(a+p\mathbb Z\). This point has least period \(p\), proving that
+there are no other least periods.
+
+\section*{Lean verification}
+
+The accompanying Lean~4.19.0 project uses the run-length code of a finite
+binary word: either its all-zero length, or its leading and trailing
+zero lengths together with its list of complete gaps. The theorem
+\verb|transitive_language| proves that the admissible word language
+has the zero-padding joining property. This gives transitivity by the
+cylinder argument above. The theorem \verb|exact_least_period_spectrum|
+checks the spectrum on cyclic gap lists whose every finite repetition
+is admissible. A least-period orbit with a \(1\) has a nonempty primitive
+cyclic gap list, since a repetition of a shorter list would give a
+smaller period equal to that shorter list's sum. Conversely any such
+primitive list represents the binary point obtained by repeating its
+gaps in both directions. Its least period divides the sum of its gaps,
+since the least positive period divides every period by the division
+algorithm. If the least period were smaller than the sum, the list
+would repeat the shorter gap list of that least period, contradicting
+primitivity. The theorem \verb|binary_subshift_least_period_spectrum|
+also verifies the exact spectrum directly for integer-indexed binary
+points satisfying the gap rule. Run \verb|lake build| in \verb|lean/|
+to check the formal proofs and print their axiom dependencies.
+
+\end{document}
