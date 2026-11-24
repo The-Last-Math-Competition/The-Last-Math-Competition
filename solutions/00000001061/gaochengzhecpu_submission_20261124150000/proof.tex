@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+
+\title{Disproof of Conjecture 00000001061\\
+\large Equal discriminants and different point-count parities}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+Conjecture 00000001061 claims that the quadratic-character sign of the
+discriminant determines the parity of a hyperelliptic point count. Two
+smooth genus-two curves over the same field give opposite parities while
+having equal discriminants.
+
+\section*{The two curves}
+
+Work over \(k=\mathbb F_5\). For \(c\in\{0,-1\}\), set
+\[
+  f_c(x)=x^5-x+c,\qquad C_c:\ y^2=f_c(x),
+\]
+where \(C_c\) denotes the smooth projective model. The derivative
+\(f'_c=-1\) shows that the quintic is squarefree over an algebraic closure
+of \(k\). Its simple roots also show that it is a nonsquare in
+\(\overline{k}(x)\). Thus the double cover defined by \(y^2=f_c(x)\)
+is geometrically integral.
+
+The second chart, with coordinates \(u=1/x\) and \(v=y/x^3\), has equation
+\[
+  v^2=u-u^5+c u^6.
+\]
+Both charts are finite over their respective affine charts of
+\(\mathbb P^1\), since the equations are monic in \(y\) and \(v\).
+Their gluing is finite over \(\mathbb P^1\) and hence projective.
+The derivative of \(y^2-f_c(x)\) with respect to \(x\) is \(1\),
+so the first chart is smooth. In the second chart, the only point
+over \(u=0\) is \((u,v)=(0,0)\), where the derivative of
+\(v^2-u+u^5-cu^6\) with respect to \(u\) is \(-1\), so that point is
+smooth as well. This also proves there is exactly one \(k\)-point at
+infinity on each curve.
+
+For the genus, the degree-two map to \(\mathbb P^1\) branches precisely
+over the five simple zeros of \(f_c\) and at infinity. Each has
+ramification index two, since the respective right-hand side has a
+simple zero in its chart. At every other point the derivative in the
+square-root variable is nonzero. The ramification is tame in
+characteristic five, so Riemann--Hurwitz gives
+\(2g(C_c)-2=2(-2)+6=2\), and \(g(C_c)=2\).
+
+\section*{Discriminants and point counts}
+
+The resultant of a monic degree-five polynomial with the constant
+polynomial \(-1\) is the product of five copies of \(-1\), one for each
+root counted with multiplicity. Hence both quintics have discriminant
+\[
+  \operatorname{disc}(f_c)=(-1)^{5\cdot4/2}
+     \operatorname{Res}(f_c,f'_c)=(-1)^5=4 \quad\text{in }k.
+\]
+The quadratic character of \(4\) is \(+1\), since \(4=2^2\)
+in \(k\). The discriminant polynomial in \(y\) of \(y^2-f_c(x)\) is
+\(4f_c(x)\), whose polynomial discriminant is also the same for the
+two curves, by the degree-five scaling factor \(4^8\).
+
+For every \(x\in k\), \(x^5=x\), so \(f_c(x)=c\). Above each of the
+five choices of \(x\), \(C_0\) has the unique affine point with \(y=0\).
+Above each choice of \(x\), \(C_{-1}\) has two affine points, with
+\(y=2\) and \(y=-2\). Including the respective points at infinity yields
+\[
+  \#C_0(k)=5+1=6,\qquad \#C_{-1}(k)=10+1=11.
+\]
+Thus the same field, genus, and discriminant give different parities.
+The affine counts \(5\) and \(10\) also have different parities. Euler's
+criterion correctly evaluates the common character sign, but that sign
+cannot determine either parity.
+
+\section*{Lean verification}
+
+The accompanying project uses Lean 4.19.0 and the standard library.
+It computes the formal derivative from the coefficient list, evaluates the
+constant-polynomial resultant, and enumerates the five field elements in
+each affine fibre and at infinity. The two final theorems rule out a
+parity predictor from the discriminant sign on this family, for projective
+and affine counts respectively. Run \verb|lake build| in \verb|lean/| to
+verify both theorems and print their axiom dependencies.
+
+\end{document}
