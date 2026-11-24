@@ -1,0 +1,498 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{color}
+\usepackage{hyperref}
+
+\definecolor{linkblue}{rgb}{0,0,0.55}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=linkblue,
+  citecolor=linkblue,
+  urlcolor=linkblue
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Sub}{\operatorname{Sub}}
+\newcommand{\FF}{\mathbb{F}}
+
+\title{\textbf{A Complete Disproof of Conjecture 00000008537:\\
+Finite Modular Lattices That Admit No Subspace-Lattice Embedding}}
+\author{Formalized Submission for Conjecture 00000008537}
+\date{November 24, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture~00000008537 asserts that every finite modular lattice $L$ embeds into the
+subspace lattice of a vector space of linear dimension at most $|L|$, and that its
+minimal embeddings are of projective-geometry type. We disprove this conjecture in full
+generality. Specifically, we construct an explicit $43$-element modular lattice
+$L_{43}$---obtained as the ordinal gluing of the $16$-element Fano subspace lattice
+$\Sub(\FF_2^3)$ beneath the $28$-element ternary subspace lattice $\Sub(\FF_3^3)$ along
+$\hat{1}_{\Sub(\FF_2^3)} = \hat{0}_{\Sub(\FF_3^3)}$---together with an infinite sequence
+$\{L^{(m)}\}_{m \ge 0}$ of pairwise non-isomorphic finite modular lattices of
+cardinalities $43(m+1)$. Using elementary modulo-$W_0$ coordinate chases that require
+neither preservation of lattice bounds nor finite-dimensionality of the target vector
+space, we prove that any lattice embedding of $\Sub(\FF_2^3)$ into the subspace lattice
+$\Sub_K(V)$ of a left vector space $V$ over a division ring $K$ forces $1_K + 1_K = 0_K$,
+whereas any lattice embedding of $\Sub(\FF_3^3)$ into $\Sub_K(V)$ forces
+$1_K + 1_K + 1_K = 0_K$. Consequently, neither $L_{43}$ nor any $L^{(m)}$ admits a
+lattice embedding into $\Sub_K(V)$ for any field or division ring $K$ and any
+$K$-vector space $V$ of arbitrary (finite or infinite) dimension. Every definition,
+non-vacuity witness, and disproof theorem is formalized from first principles in
+self-contained Core Lean~4.19.0 without external dependencies.
+\end{abstract}
+
+\section{Official Problem Statement and Scope of the Disproof}
+
+The official bilingual text of Conjecture~00000008537 (reproduced byte-for-byte in
+\texttt{SOURCE.md}) reads as follows.
+
+\begin{quote}
+\textbf{English.} Definition: A modular lattice is a lattice satisfying the modular law.
+Conjecture: A finite modular lattice embeds into a subspace lattice with linear
+dimension at most $|L|$; and the minimal embeddings are of projective geometry type.
+(linear embedding dimension of modular lattices)
+\end{quote}
+
+The accompanying Chinese version states the identical definition and two-clause claim:
+first defining a modular lattice as a lattice satisfying the modular law, and then
+asserting that a finite modular lattice $L$ can be embedded into a subspace lattice of
+linear dimension at most $|L|$, with minimal embeddings of projective-geometry type.
+
+For Boolean and distributive lattices, classical representation theorems guarantee such
+linear-size embeddings: Birkhoff's representation theorem embeds every finite
+distributive lattice $D$ into a power-set lattice $2^{J(D)}$ with $|J(D)| \le |D|$, and
+hence into $\Sub_K(K^{|D|})$ over any field $K$. By contrast, it is a classical
+phenomenon going back to von Neumann and Hall--Dilworth~\cite{HallDilworth1944} that
+modularity alone does \emph{not} suffice for representability inside linear subspace
+lattices.
+
+To ensure that our disproof is immune to any boundary or convention choice, we establish
+impossibility in the strongest possible sense:
+\begin{enumerate}
+  \item \textbf{Unbounded lattice embeddings:} An embedding $\varphi : L \hookrightarrow M$
+  is required only to be injective and preserve binary meet ($\wedge$) and binary join
+  ($\vee$); it is \emph{not} required to map $\hat{0}_L$ to $\{0\}$ or $\hat{1}_L$ to
+  $V$, nor to preserve rank or covering relations.
+  \item \textbf{Arbitrary scalar fields and skew fields:} We allow $K$ to be any
+  commutative field or any noncommutative division ring (skew field) with $1_K \ne 0_K$.
+  \item \textbf{Arbitrary dimension:} We prove that no embedding $L_{43} \hookrightarrow
+  \Sub_K(V)$ exists for \emph{any} left $K$-vector space $V$ of \emph{any} dimension
+  whatsoever (finite or infinite), which a fortiori refutes the conjectured bound
+  $\dim_K(V) \le |L|$ under coordinate-space ($V = K^d$, $d \le |L|$), basis-dimension,
+  and spanning-set formulations alike.
+  \item \textbf{Infinite non-isomorphic family:} Taking direct products $L^{(m)} :=
+  L_{43} \times C_{m+1}$ with finite chains $C_{m+1} = \{0 < 1 < \dots < m\}$ yields
+  infinitely many pairwise non-isomorphic finite modular lattices of sizes
+  $|L^{(m)}| = 43(m+1)$, none of which embeds into any subspace lattice $\Sub_K(V)$.
+\end{enumerate}
+
+\section{Algebraic and Lattice-Theoretic Preliminaries}
+
+\begin{definition}[Lattice, Modular Lattice, and Lattice Embedding]\label{def:lattice}
+A \emph{lattice} is a triple $(L, \le, \wedge, \vee)$ where $(L, \le)$ is a partially
+ordered set in which every pair $a, b \in L$ possesses a greatest lower bound
+$a \wedge b$ and a least upper bound $a \vee b$. A lattice $L$ is \emph{modular} if it
+satisfies Dedekind's modular law:
+\begin{equation}\label{eq:modular}
+  \forall x, y, z \in L,\qquad z \le x \implies x \wedge (y \vee z) = (x \wedge y) \vee z.
+\end{equation}
+Equivalently (by interchanging meet and join via commutativity), for all $a, b, c \in L$,
+$a \le c \implies a \vee (b \wedge c) = (a \vee b) \wedge c$.
+
+Given lattices $L$ and $M$, a \emph{lattice embedding} $\varphi : L \hookrightarrow M$ is
+an injective map $\varphi : L \to M$ satisfying $\varphi(a \wedge b) = \varphi(a) \wedge
+\varphi(b)$ and $\varphi(a \vee b) = \varphi(a) \vee \varphi(b)$ for all $a, b \in L$.
+Since $a \le b \iff a \wedge b = a$, every lattice embedding automatically reflects and
+preserves order: $a \le b \iff \varphi(a) \le \varphi(b)$.
+\end{definition}
+
+\begin{definition}[Finite Cardinality]\label{def:card}
+A carrier set (or type) $X$ has \emph{exact finite cardinality} $|X| = n \in \mathbb{N}$
+if there exists a duplicate-free list $(x_1, \dots, x_n)$ of length $n$ in which every
+element of $X$ appears. Standard pigeonhole induction (removing the first occurrence of
+each element of one duplicate-free exhaustive list from another) shows that if $X$ has
+cardinality $m$ and cardinality $n$, then $m = n$.
+\end{definition}
+
+\begin{definition}[Division Rings, Vector Spaces, and Subspace Lattices]\label{def:subspace}
+A \emph{division ring} is a ring $(K, +, -, 0, \cdot, 1)$ with $1 \ne 0$ in which every
+nonzero element $a \in K \setminus \{0\}$ possesses a two-sided multiplicative inverse
+$a^{-1}$ ($a a^{-1} = a^{-1} a = 1$); a \emph{field} is a commutative division ring.
+A left \emph{$K$-vector space} is an abelian group $(V, +, -, 0)$ equipped with a scalar
+multiplication $K \times V \to V$, $(c, v) \mapsto c \cdot v$, satisfying $1 \cdot v = v$,
+$(ab) \cdot v = a \cdot (b \cdot v)$, $(a + b) \cdot v = a \cdot v + b \cdot v$, and
+$a \cdot (u + v) = a \cdot u + a \cdot v$.
+
+A \emph{linear subspace} $U \subseteq V$ is a subset containing $0$ and closed under
+vector addition and scalar multiplication. Ordered by inclusion $\subseteq$, the set
+$\Sub_K(V)$ of all linear subspaces of $V$ forms a lattice under intersection and
+Minkowski sum:
+\[
+  U \wedge W := U \cap W, \qquad
+  U \vee W := U + W = \{u + w : u \in U,\; w \in W\}.
+\]
+\end{definition}
+
+\begin{proposition}[Modularity of Subspace Lattices]\label{prop:sub-mod}
+For every division ring $K$ and every left $K$-vector space $V$, $\Sub_K(V)$ is a
+modular lattice.
+\end{proposition}
+\begin{proof}
+Let $X, Y, Z \in \Sub_K(V)$ satisfy $Z \subseteq X$. If $v \in X \cap (Y + Z)$, then
+$v = y + z$ with $y \in Y$ and $z \in Z \subseteq X$. Since $X$ is a subspace,
+$y = (y + z) - z = v - z \in X$, so $y \in X \cap Y$ and hence
+$v = y + z \in (X \cap Y) + Z$. Conversely, since $X \cap Y \subseteq X$ and
+$Z \subseteq X$, we have $(X \cap Y) + Z \subseteq X \cap (Y + Z)$.
+\end{proof}
+
+\begin{lemma}[Products and Sublattices Preserve Modularity]\label{lem:prod-mod}
+If $L_1$ and $L_2$ are modular lattices, then the direct product $L_1 \times L_2$ under
+componentwise order, meet, and join is a modular lattice. Moreover, any subset
+$S \subseteq L_1 \times L_2$ closed under componentwise meet and join forms a modular
+lattice under the restricted operations.
+\end{lemma}
+\begin{proof}
+For $(z_1, z_2) \le (x_1, x_2)$ in $L_1 \times L_2$, modularity holds in each coordinate
+separately: $x_i \wedge (y_i \vee z_i) = (x_i \wedge y_i) \vee z_i$ for $i \in \{1, 2\}$.
+If $S \subseteq L_1 \times L_2$ is closed under meet and join, the induced operations on
+$S$ satisfy the partial-order, greatest-lower-bound, least-upper-bound, and modular
+identities directly from $L_1 \times L_2$.
+\end{proof}
+
+\section{Finite Projective Plane Lattices \texorpdfstring{$\Sub(\FF_2^3)$ and $\Sub(\FF_3^3)$}{Sub(F2\^3) and Sub(F3\^3)}}
+
+For a prime field $\FF_p$ ($p \in \{2, 3\}$), every $1$-dimensional subspace of $\FF_p^3$
+is spanned by a unique projectively normalized vector whose first nonzero entry is $1$:
+\[
+  \mathcal{N}(\FF_p)
+  := \{(1, b, c) : b, c \in \FF_p\}
+     \;\sqcup\; \{(0, 1, c) : c \in \FF_p\}
+     \;\sqcup\; \{(0, 0, 1)\},
+\]
+which has cardinality $|\mathcal{N}(\FF_p)| = p^2 + p + 1$ ($7$ for $p = 2$, and $13$ for
+$p = 3$). Likewise, every $2$-dimensional subspace of $\FF_p^3$ is the orthogonal
+complement $n^\perp = \{v \in \FF_p^3 : n \cdot v = 0\}$ under the standard dot product
+$u \cdot v = u_1 v_1 + u_2 v_2 + u_3 v_3$ of a unique normal covector
+$n \in \mathcal{N}(\FF_p)$. Thus the full subspace lattice $\Sub_{\FF_p}(\FF_p^3)$ has an
+explicit finite carrier $\mathrm{Sub3}(\FF_p)$ of exact cardinality
+\[
+  |\mathrm{Sub3}(\FF_2)| = 1 + 7 + 7 + 1 = 16, \qquad
+  |\mathrm{Sub3}(\FF_3)| = 1 + 13 + 13 + 1 = 28,
+\]
+consisting of $\hat{0} = \{0\}$, lines $\langle p \rangle$ ($p \in \mathcal{N}(\FF_p)$),
+planes $n^\perp$ ($n \in \mathcal{N}(\FF_p)$), and $\hat{1} = \FF_p^3$. Using the
+three-dimensional cross product to express intersections of distinct planes and sums of
+distinct lines, the realization map $\mathrm{Sub3}(\FF_p) \to \Sub_{\FF_p}(\FF_p^3)$ is an
+injective meet- and join-preserving map onto all subspaces of $\FF_p^3$. By
+Proposition~\ref{prop:sub-mod}, both $\mathrm{Sub3}(\FF_2)$ and $\mathrm{Sub3}(\FF_3)$ are
+modular lattices, and each individually satisfies the conclusion of
+Conjecture~00000008537 in dimension $3 \le |\mathrm{Sub3}(\FF_p)|$.
+
+\section{Modulo-\texorpdfstring{$W_0$}{W0} Characteristic-Forcing Theorems}
+
+We now prove that embedding $\mathrm{Sub3}(\FF_2)$ or $\mathrm{Sub3}(\FF_3)$ into an
+arbitrary subspace lattice $\Sub_K(V)$ forces the characteristic of $K$ to be $2$ or $3$,
+respectively. No quotient spaces or dimension hypotheses on $V$ are required.
+
+Throughout this section, let $K$ be an arbitrary division ring and $V$ an arbitrary left
+$K$-vector space. For a fixed subspace $W_0 \in \Sub_K(V)$ and vectors $x, y \in V$, write
+\[
+  x \equiv y \pmod{W_0} \quad :\Longleftrightarrow \quad x - y \in W_0.
+\]
+Because $W_0$ is an additive subgroup of $V$, congruence modulo $W_0$ is an equivalence
+relation compatible with addition and negation.
+
+\begin{lemma}[Direct-Sum Frame Modulo $W_0$]\label{lem:frame}
+Let $W_0, A_1, A_2, A_3, D \in \Sub_K(V)$ be subspaces satisfying
+$W_0 \subseteq A_1, A_2, A_3, D$ together with the lattice identities
+\begin{align}
+  A_1 \cap (A_2 + A_3) &= W_0, &
+  A_2 \cap (A_1 + A_3) &= W_0, &
+  A_3 \cap (A_1 + A_2) &= W_0, \label{eq:ind}\\
+  D \cap (A_2 + A_3) &= W_0, &
+  D \cap (A_1 + A_3) &= W_0, &
+  D \cap (A_1 + A_2) &= W_0. \label{eq:Dgp}
+\end{align}
+Then:
+\begin{enumerate}
+  \item[\textup{(a)}] If $x_i, y_i \in A_i$ ($i = 1, 2, 3$) satisfy
+  $x_1 + x_2 + x_3 = y_1 + y_2 + y_3$, then $x_i \equiv y_i \pmod{W_0}$ for each
+  $i \in \{1, 2, 3\}$.
+  \item[\textup{(b)}] If $x_i, y_i \in A_i$ ($i = 1, 2, 3$) satisfy
+  $x_1 + x_2 + x_3 \in D$ and $y_1 + y_2 + y_3 \in D$, and $x_{i_0} \equiv y_{i_0}
+  \pmod{W_0}$ for \emph{one} index $i_0 \in \{1, 2, 3\}$, then $x_j \equiv y_j
+  \pmod{W_0}$ for \emph{all} $j \in \{1, 2, 3\}$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(a) Set $w_i := x_i - y_i \in A_i$. Then $w_1 + w_2 + w_3 = 0 \in W_0$. Since
+$W_0 \subseteq A_2 + A_3$ and $w_2 + w_3 \in A_2 + A_3$, we have
+$w_1 = (w_1 + w_2 + w_3) - (w_2 + w_3) \in A_1 \cap (A_2 + A_3) = W_0$ by~\eqref{eq:ind}.
+Permuting indices yields $w_2 \in W_0$ and $w_3 \in W_0$.
+
+(b) Suppose $i_0 = 1$ (the cases $i_0 = 2, 3$ follow by permuting $(A_1, A_2, A_3)$).
+Put $w_i := x_i - y_i \in A_i$. Then $w_1 + w_2 + w_3 \in D$ and $w_1 \in W_0 \subseteq D$,
+so $w_2 + w_3 = (w_1 + w_2 + w_3) - w_1 \in D \cap (A_2 + A_3) = W_0$ by~\eqref{eq:Dgp}.
+Applying part~(a) to $0 + w_2 + w_3 \equiv 0 \pmod{W_0}$ gives $w_2, w_3 \in W_0$.
+\end{proof}
+
+\begin{theorem}[Embedding $\mathrm{Sub3}(\FF_2)$ Forces Characteristic $2$]\label{thm:char2}
+Let $K$ be a division ring and $V$ a left $K$-vector space. If there exists a lattice
+embedding $\varphi : \mathrm{Sub3}(\FF_2) \hookrightarrow \Sub_K(V)$, then
+$1_K + 1_K = 0_K$.
+\end{theorem}
+\begin{proof}
+In $\mathrm{Sub3}(\FF_2)$, consider $\hat{0} = \{0\}$ and the seven $1$-dimensional lines
+\begin{gather*}
+  s_1 = \langle (1,0,0) \rangle, \quad
+  s_2 = \langle (0,1,0) \rangle, \quad
+  s_3 = \langle (0,0,1) \rangle, \quad
+  s_d = \langle (1,1,1) \rangle,\\
+  s_{12} = \langle (1,1,0) \rangle, \quad
+  s_{13} = \langle (1,0,1) \rangle, \quad
+  s_{23} = \langle (0,1,1) \rangle.
+\end{gather*}
+In $\mathrm{Sub3}(\FF_2)$, direct finite calculation verifies that $s_1, s_2, s_3, s_d$
+satisfy the independence relations mapped to~\eqref{eq:ind}--\eqref{eq:Dgp} with bottom
+$\hat{0}$, together with $s_1 \not\le \hat{0}$, $s_1 \le s_d \vee (s_2 \vee s_3)$, the
+diagonal-point identities
+\[
+  (s_1 \vee s_2) \wedge (s_3 \vee s_d) = s_{12}, \quad
+  (s_1 \vee s_3) \wedge (s_2 \vee s_d) = s_{13}, \quad
+  (s_2 \vee s_3) \wedge (s_1 \vee s_d) = s_{23},
+\]
+and the Fano collinearity relation $s_{23} \le s_{12} \vee s_{13}$ (since
+$(0,1,1) = (1,1,0) + (1,0,1)$ over $\FF_2$).
+
+Set $W_0 := \varphi(\hat{0})$, $A_i := \varphi(s_i)$, $D := \varphi(s_d)$, and
+$B_{ij} := \varphi(s_{ij})$. Because $\varphi$ preserves and reflects $\le$, $\wedge$, and
+$\vee$, we have $A_1 \not\subseteq W_0$, so there exists $u_1 \in A_1 \setminus W_0$.
+From $A_1 \subseteq D + (A_2 + A_3)$, write $u_1 = d_0 + a_2 + a_3$ with $d_0 \in D$,
+$a_2 \in A_2$, $a_3 \in A_3$, and set $u_2 := -a_2 \in A_2$, $u_3 := -a_3 \in A_3$, so
+that $u_1 + u_2 + u_3 = d_0 \in D$. Then
+\[
+  u_2 + u_3 = (-u_1) + d_0 \in (A_2 + A_3) \cap (A_1 + D) = B_{23} \subseteq B_{12} + B_{13}.
+\]
+Hence $u_2 + u_3 = y + z$ with $y \in B_{12} = (A_1 + A_2) \cap (A_3 + D)$ and
+$z \in B_{13} = (A_1 + A_3) \cap (A_2 + D)$. Unpacking these intersections yields
+$y = y_1 + y_2$ ($y_i \in A_i$) with $y_1 + y_2 + y_3 \in D$ for some $y_3 \in A_3$, and
+$z = z_1 + z_3$ ($z_i \in A_i$) with $z_1 + z_2 + z_3 \in D$ for some $z_2 \in A_2$.
+
+Rewriting $u_2 + u_3 = y + z$ as $(y_1 + z_1) + y_2 + z_3 = 0 + u_2 + u_3$ and applying
+Lemma~\ref{lem:frame}(a) gives
+\[
+  y_1 + z_1 \equiv 0 \pmod{W_0}, \qquad
+  y_2 \equiv u_2 \pmod{W_0}, \qquad
+  z_3 \equiv u_3 \pmod{W_0}.
+\]
+Applying Lemma~\ref{lem:frame}(b) to $y_1 + y_2 + y_3 \in D$ and $u_1 + u_2 + u_3 \in D$
+with $y_2 \equiv u_2 \pmod{W_0}$ yields $y_1 \equiv u_1 \pmod{W_0}$; applying
+Lemma~\ref{lem:frame}(b) to $z_1 + z_2 + z_3 \in D$ and $u_1 + u_2 + u_3 \in D$ with
+$z_3 \equiv u_3 \pmod{W_0}$ yields $z_1 \equiv u_1 \pmod{W_0}$. Therefore
+\[
+  (1_K + 1_K) \cdot u_1 = u_1 + u_1 \equiv y_1 + z_1 \equiv 0 \pmod{W_0},
+\]
+meaning $(1_K + 1_K) \cdot u_1 \in W_0$. If $1_K + 1_K \ne 0_K$, multiplying on the left
+by $(1_K + 1_K)^{-1}$ inside the subspace $W_0$ gives $u_1 \in W_0$, contradicting
+$u_1 \notin W_0$. Thus $1_K + 1_K = 0_K$.
+\end{proof}
+
+\begin{theorem}[Embedding $\mathrm{Sub3}(\FF_3)$ Forces Characteristic $3$]\label{thm:char3}
+Let $K$ be a division ring and $V$ a left $K$-vector space. If there exists a lattice
+embedding $\varphi : \mathrm{Sub3}(\FF_3) \hookrightarrow \Sub_K(V)$, then
+$1_K + 1_K + 1_K = 0_K$.
+\end{theorem}
+\begin{proof}
+In $\mathrm{Sub3}(\FF_3)$, retain the lines $s_1, s_2, s_3, s_d, s_{12}, s_{13}, s_{23}$
+from the proof of Theorem~\ref{thm:char2}, and adjoin the two additional lines
+\[
+  s_{c} := \langle (1, 2, 0) \rangle = (s_{13} \vee s_{23}) \wedge (s_1 \vee s_2), \qquad
+  s_{d'} := \langle (1, 2, 1) \rangle = (s_c \vee s_3) \wedge (s_{13} \vee s_2).
+\]
+Over $\FF_3$, $(1, 1, 0) = (1, 2, 1) + 2(0, 1, 1)$, so $s_{12} \le s_{d'} \vee s_{23}$ in
+$\mathrm{Sub3}(\FF_3)$. Let $W_0$, $A_1$, $A_2$, $A_3$, $D$, $B_{12}$, $B_{13}$, and
+$B_{23}$ denote the images under $\varphi$ as before, together with
+$C_{12} := \varphi(s_c)$ and $D' := \varphi(s_{d'})$.
+
+Choose $u_1 \in A_1 \setminus W_0$ and $u_2 \in A_2$, $u_3 \in A_3$ with
+$u_1 + u_2 + u_3 \in D$. Notice that $u_2 \notin W_0$: if $u_2 \in W_0$, then
+Lemma~\ref{lem:frame}(b) applied to $u_1 + u_2 + u_3 \in D$ and $0 + 0 + 0 \in D$ would
+imply $u_1 \in W_0$, a contradiction. Also $(-u_1) + (-u_2) + (-u_3) \in D$.
+
+Now $u_1 + u_2 = (u_1 + u_2 + u_3) - u_3 \in (A_1 + A_2) \cap (A_3 + D) = B_{12}
+\subseteq D' + B_{23}$, so $u_1 + u_2 = p + q$ with $p \in D'$ and $q \in B_{23}$.
+Unpacking $q \in B_{23}$ gives $q = q_2 + q_3$ ($q_i \in A_i$) with
+$q_1 + q_2 + q_3 \in D$ for some $q_1 \in A_1$. Unpacking
+$p \in D' = (C_{12} + A_3) \cap (B_{13} + A_2)$ gives $p = c + p_3$ ($c \in C_{12}$,
+$p_3 \in A_3$) and $p = (t_1 + t_3) + \tilde{a}_2$ with $t_i \in A_i$,
+$\tilde{a}_2 \in A_2$, and $t_1 + t_2 + t_3 \in D$. Finally, unpacking
+$c \in C_{12} = (B_{13} + B_{23}) \cap (A_1 + A_2)$ gives $c = c_1 + c_2$ ($c_i \in A_i$)
+and $c = (r_1 + r_3) + (s_2' + s_3')$ with $r_i, s_i' \in A_i$,
+$r_1 + r_2 + r_3 \in D$, and $s_1' + s_2' + s_3' \in D$.
+
+Applying Lemma~\ref{lem:frame}(a) to the three vector decompositions modulo $W_0$:
+\begin{enumerate}
+  \item From $c_1 + c_2 + 0 = r_1 + s_2' + (r_3 + s_3')$: $c_1 \equiv r_1$,
+  $c_2 \equiv s_2'$, and $r_3 + s_3' \equiv 0 \pmod{W_0}$.
+  \item From $c_1 + c_2 + p_3 = t_1 + \tilde{a}_2 + t_3$: $c_1 \equiv t_1$ and
+  $p_3 \equiv t_3 \pmod{W_0}$.
+  \item From $u_1 + u_2 + 0 = c_1 + (c_2 + q_2) + (p_3 + q_3)$: $u_1 \equiv c_1$,
+  $u_2 \equiv c_2 + q_2$, and $p_3 + q_3 \equiv 0 \pmod{W_0}$.
+\end{enumerate}
+Now apply Lemma~\ref{lem:frame}(b) four times:
+\begin{itemize}
+  \item Since $r_1 \equiv c_1 \equiv u_1 \pmod{W_0}$, comparing $r_1 + r_2 + r_3 \in D$
+  with $u_1 + u_2 + u_3 \in D$ gives $r_3 \equiv u_3 \pmod{W_0}$, hence
+  $s_3' \equiv -r_3 \equiv -u_3 \pmod{W_0}$.
+  \item Comparing $s_1' + s_2' + s_3' \in D$ with $(-u_1) + (-u_2) + (-u_3) \in D$ gives
+  $s_2' \equiv -u_2 \pmod{W_0}$, so $c_2 \equiv s_2' \equiv -u_2 \pmod{W_0}$.
+  \item Since $t_1 \equiv c_1 \equiv u_1 \pmod{W_0}$, comparing $t_1 + t_2 + t_3 \in D$
+  with $u_1 + u_2 + u_3 \in D$ gives $t_3 \equiv u_3 \pmod{W_0}$, hence
+  $p_3 \equiv t_3 \equiv u_3 \pmod{W_0}$ and $q_3 \equiv -p_3 \equiv -u_3 \pmod{W_0}$.
+  \item Comparing $q_1 + q_2 + q_3 \in D$ with $(-u_1) + (-u_2) + (-u_3) \in D$ gives
+  $q_2 \equiv -u_2 \pmod{W_0}$.
+\end{itemize}
+Substituting $c_2 \equiv -u_2$ and $q_2 \equiv -u_2$ into $u_2 \equiv c_2 + q_2
+\pmod{W_0}$ yields $u_2 \equiv -u_2 - u_2 \pmod{W_0}$, i.e.,
+\[
+  (1_K + 1_K + 1_K) \cdot u_2 = u_2 + u_2 + u_2 \in W_0.
+\]
+If $1_K + 1_K + 1_K \ne 0_K$, multiplying by $(1_K + 1_K + 1_K)^{-1}$ gives
+$u_2 \in W_0$, contradicting $u_2 \notin W_0$. Hence $1_K + 1_K + 1_K = 0_K$.
+\end{proof}
+
+\section{The \texorpdfstring{$43$}{43}-Element Counterexample and Infinite Family}
+
+\begin{definition}[The $43$-Element Glued Modular Lattice $L_{43}$]\label{def:L43}
+Define $L_{43}$ as the subset of the product lattice
+$\mathrm{Sub3}(\FF_2) \times \mathrm{Sub3}(\FF_3)$ given by
+\[
+  L_{43} := \{(x, y) \in \mathrm{Sub3}(\FF_2) \times \mathrm{Sub3}(\FF_3) :
+              y = \hat{0}_{\mathrm{Sub3}(\FF_3)} \text{ or }
+              x = \hat{1}_{\mathrm{Sub3}(\FF_2)}\}.
+\]
+\end{definition}
+
+\begin{theorem}[Main Disproof of Conjecture~00000008537]\label{thm:main}
+The set $L_{43}$ equipped with the componentwise order, meet, and join of
+$\mathrm{Sub3}(\FF_2) \times \mathrm{Sub3}(\FF_3)$ satisfies:
+\begin{enumerate}
+  \item[\textup{(1)}] $L_{43}$ is a finite modular lattice of exact cardinality
+  $|L_{43}| = 43$.
+  \item[\textup{(2)}] For every division ring (and hence every field) $K$ and every left
+  $K$-vector space $V$ of arbitrary finite or infinite dimension, there does \emph{not}
+  exist any lattice embedding $\Phi : L_{43} \hookrightarrow \Sub_K(V)$.
+  \item[\textup{(3)}] In particular, Conjecture~00000008537 is false: there is no field
+  (or division ring) $K$ and no $K$-vector space $V$ of linear dimension $d \le |L_{43}|$
+  (nor of any larger dimension) such that $L_{43}$ embeds into $\Sub_K(V)$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+(1) Let $p = (x_1, y_1)$ and $q = (x_2, y_2)$ lie in $L_{43}$. If either $y_1 = \hat{0}$
+or $y_2 = \hat{0}$, then $y_1 \wedge y_2 = \hat{0}$, so $p \wedge q \in L_{43}$; otherwise
+$x_1 = x_2 = \hat{1}$, so $x_1 \wedge x_2 = \hat{1}$ and again $p \wedge q \in L_{43}$.
+Dually, if either $x_1 = \hat{1}$ or $x_2 = \hat{1}$, then $x_1 \vee x_2 = \hat{1}$, while
+otherwise $y_1 = y_2 = \hat{0}$ gives $y_1 \vee y_2 = \hat{0}$; hence $p \vee q \in L_{43}$.
+By Lemma~\ref{lem:prod-mod}, $L_{43}$ is a modular lattice. Moreover, $L_{43}$ is the
+disjoint union of $\{(x, \hat{0}) : x \in \mathrm{Sub3}(\FF_2)\}$ ($16$ elements) and
+$\{(\hat{1}, y) : y \in \mathrm{Sub3}(\FF_3) \setminus \{\hat{0}\}\}$ ($27$ elements), so
+$|L_{43}| = 16 + 27 = 43$.
+
+(2) The maps $\iota_2 : \mathrm{Sub3}(\FF_2) \hookrightarrow L_{43}$, $x \mapsto
+(x, \hat{0})$, and $\iota_3 : \mathrm{Sub3}(\FF_3) \hookrightarrow L_{43}$,
+$y \mapsto (\hat{1}, y)$, are injective and preserve componentwise meet and join. Suppose
+for contradiction that $\Phi : L_{43} \hookrightarrow \Sub_K(V)$ is a lattice embedding.
+Then $\Phi \circ \iota_2 : \mathrm{Sub3}(\FF_2) \hookrightarrow \Sub_K(V)$ and
+$\Phi \circ \iota_3 : \mathrm{Sub3}(\FF_3) \hookrightarrow \Sub_K(V)$ are lattice
+embeddings into the same subspace lattice $\Sub_K(V)$. By Theorem~\ref{thm:char2},
+$1_K + 1_K = 0_K$; by Theorem~\ref{thm:char3}, $(1_K + 1_K) + 1_K = 0_K$. Subtracting
+yields $1_K = 0_K$, contradicting $1_K \ne 0_K$ in the division ring $K$.
+
+(3) Immediate from~(1) and~(2), which falsify the first conjunct of
+Conjecture~00000008537 (and show that the set of subspace embeddings of $L_{43}$ is empty,
+so no minimal subspace embedding exists).
+\end{proof}
+
+\begin{corollary}[Infinite Family of Non-Isomorphic Counterexamples]\label{cor:family}
+For each integer $m \ge 0$, let $C_{m+1} = \{0 < 1 < \dots < m\}$ be the $(m+1)$-element
+chain lattice, and set $L^{(m)} := L_{43} \times C_{m+1}$. Then:
+\begin{enumerate}
+  \item[\textup{(1)}] Each $L^{(m)}$ is a finite modular lattice of exact cardinality
+  $|L^{(m)}| = 43(m + 1)$.
+  \item[\textup{(2)}] For $m_1 \ne m_2$, $L^{(m_1)}$ and $L^{(m_2)}$ have distinct
+  cardinalities and are therefore non-isomorphic lattices.
+  \item[\textup{(3)}] None of the lattices $L^{(m)}$ ($m \ge 0$) embeds into $\Sub_K(V)$
+  for any division ring (or field) $K$ and any left $K$-vector space $V$.
+\end{enumerate}
+\end{corollary}
+\begin{proof}
+Every linearly ordered set satisfies $\min(x, \max(y, z)) = \max(\min(x, y), z)$ for
+$z \le x$ and is therefore modular; hence $L^{(m)}$ is modular of cardinality
+$43(m+1)$ by Lemma~\ref{lem:prod-mod}. Uniqueness of finite cardinality
+(Definition~\ref{def:card}) implies $L^{(m_1)} \not\cong L^{(m_2)}$ for $m_1 \ne m_2$.
+Finally, $z \mapsto (z, 0)$ is a lattice embedding $L_{43} \hookrightarrow L^{(m)}$, so
+any embedding $L^{(m)} \hookrightarrow \Sub_K(V)$ would restrict to an embedding
+$L_{43} \hookrightarrow \Sub_K(V)$, contradicting Theorem~\ref{thm:main}(2).
+\end{proof}
+
+\section{Summary of Formal Verification in Core Lean 4.19.0}
+
+The entire proof is formalized from scratch in \texttt{lean/Main.lean} using Core
+Lean~\texttt{v4.19.0} with \texttt{-DwarningAsError=true} and zero external package
+dependencies. Table~\ref{tab:correspondence} records the correspondence between the
+mathematical results above and the machine-checked declarations in \texttt{Main.lean}.
+In addition to the disproof theorems, \texttt{sub3F2\_positive\_witness} formally proves
+that $\mathrm{Sub3}(\FF_2)$ satisfies all positive predicates of our formalization
+(modularity, cardinality~$16$, an explicit basis of length $3 \le 16$ for $\FF_2^3$, and a
+canonical lattice embedding into $\Sub_{\FF_2}(\FF_2^3)$), confirming non-vacuity of every
+definition.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}l>{\raggedright\arraybackslash}p{0.62\textwidth}@{}}
+\toprule
+\textbf{Paper Reference} & \textbf{Lean 4 Declaration in \texttt{Conjecture8537}} \\
+\midrule
+Definition~\ref{def:lattice} & \texttt{Lattice}, \texttt{IsModularLattice}, \texttt{isModular\_iff\_dual}, \texttt{LatticeEmbedding} \\
+Definition~\ref{def:card} & \texttt{HasCardinality}, \texttt{hasCardinality\_unique} \\
+Definition~\ref{def:subspace} & \texttt{DivisionRing}, \texttt{Field}, \texttt{VectorSpace}, \texttt{Subspace} \\
+Proposition~\ref{prop:sub-mod} & \texttt{subspace\_isModular} \\
+Section~3 ($\FF_2^3$, $\FF_3^3$) & \texttt{sub3F2\_isModular}, \texttt{sub3F3\_isModular}, \texttt{sub3F2\_positive\_witness} \\
+Lemma~\ref{lem:frame} & \texttt{frame\_eq\_mod}, \texttt{frame\_D\_from\_1}, \texttt{frame\_D\_from\_2}, \texttt{frame\_D\_from\_3} \\
+Theorem~\ref{thm:char2} & \texttt{embed\_sub3\_F2\_forces\_char2} \\
+Theorem~\ref{thm:char3} & \texttt{embed\_sub3\_F3\_forces\_char3} \\
+Theorem~\ref{thm:main}(1)--(2) & \texttt{counterexample\_isModular}, \texttt{counterexample\_hasCardinality}, \texttt{counterexample\_no\_subspace\_embedding} \\
+Theorem~\ref{thm:main}(3) & \texttt{disproof\_conjecture8537\_coordField}, \texttt{disproof\_conjecture8537\_basisField}, \texttt{disproof\_conjecture8537\_spanDivisionRing}, \texttt{disproof\_conjecture8537\_full}, \texttt{disproof\_everyFiniteModularEmbedsInSubspace} \\
+Corollary~\ref{cor:family} & \texttt{counterexampleFamily\_isModular}, \texttt{counterexampleFamily\_hasCardinality}, \texttt{counterexampleFamily\_pairwise\_noniso}, \texttt{counterexampleFamily\_no\_subspace\_embedding} \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between paper statements and Lean~4 declarations.}
+\label{tab:correspondence}
+\end{table}
+
+\begin{thebibliography}{9}
+\bibitem{HallDilworth1944}
+M.~Hall and R.~P.~Dilworth,
+\emph{The imbedding problem for modular lattices},
+Ann.\ of Math.\ (2) \textbf{45} (1944), 450--456.
+\end{thebibliography}
+
+\end{document}
