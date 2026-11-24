@@ -1,0 +1,103 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}
+
+\title{Chromatic polynomials do not determine configuration Euler characteristics\\[2pt]
+  \large Disproof of Conjecture 00000004093}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+The four-vertex path $P_4$ and the three-leaf star $K_{1,3}$ have the same
+chromatic polynomial. Their two-particle configuration spaces have
+different ordinary Euler characteristics, both for labeled particles and
+for unlabeled particles.
+
+\section*{The graphs and their chromatic polynomials}
+
+On vertices $0,1,2,3$, the path has edges $01,12,23$ and the star has edges
+$01,12,13$. In either tree, a root has $k$ possible colors and each of the
+three remaining vertices has $k-1$ choices once its parent has been colored.
+Thus both graphs have chromatic polynomial $P(t)=t(t-1)^3$. In particular,
+both have $P(-2)=54$ and $P(-1)=8$.
+
+\section*{The configuration spaces}
+
+For a graph $G$ with geometric realization $|G|$, let
+$F_2(G)=\{(x,y)\in |G|^2:x\ne y\}$ and let $U_2(G)$ be its quotient by the
+coordinate swap. Write $D_2(G)$ for the finite cubical subcomplex with cells
+$c\times d$ whose closures in $|G|$ are disjoint. Here $c$ and $d$ are
+vertices or open edges of $G$.
+
+The stable equivalence theorem of Prue and Scrimshaw~\cite[Theorem~3.2]{ps}
+gives a deformation retraction from $F_n(G)$ to its discretization for a
+finite connected graph with at least $n$ vertices, provided that every path
+between distinct vertices of degree other than two has at least $n-1$
+edges and every noncontractible closed path has at least $n+1$ edges.
+The theorem also gives the corresponding retraction for unlabeled particles.
+Both graphs satisfy these conditions at $n=2$: a path between distinct
+vertices has at least one edge, and a tree has no noncontractible loops.
+
+For these two graphs the retraction can also be seen directly. On the
+product of an edge with itself, continuously move the lesser and greater
+positions to the two endpoints by linear interpolation. On the product of
+two incident distinct edges, let $u,v\in[0,1]$ be coordinates measured from
+their common endpoint and interpolate linearly to
+$(u/\max(u,v),v/\max(u,v))$. The maximum is positive in a configuration.
+On the product of disjoint edges keep the configuration fixed. These
+motions preserve distinctness of the particles. When one particle is at
+a vertex, the formulas agree on intersecting products of edges. A vertex
+incident to the other particle's edge stays fixed and the other particle
+moves toward its far endpoint. A nonincident vertex gives a stationary
+configuration. Pairs of distinct vertices also stay fixed. The local
+motions therefore glue to a continuous deformation, end in $D_2(G)$, and
+fix it pointwise. They commute with the coordinate swap, so they descend
+to the unlabeled space.
+
+\section*{Cell counts and the contradiction}
+
+For either graph there are $4\cdot3=12$ ordered vertex pairs. Each edge
+has two vertices outside its closure, so there are $2\cdot3\cdot2=12$
+one-cells, counting both placements of the vertex coordinate. The path
+has exactly one pair of disjoint edges, $01$ and $23$, giving two ordered
+two-cells. Every pair of star edges meets at vertex $1$, so the star has
+no two-cells. Coordinate swap pairs distinct cells of the same dimension.
+The unordered quotient has one cell per pair, giving the counts below.
+\[
+\begin{array}{c|rrr|r}
+\text{Space} & \text{0-cells} & \text{1-cells} & \text{2-cells} & \chi \\ \hline
+F_2(P_4)     & 12 & 12 & 2 & 2 \\
+F_2(K_{1,3}) & 12 & 12 & 0 & 0 \\
+U_2(P_4)     &  6 &  6 & 1 & 1 \\
+U_2(K_{1,3}) &  6 &  6 & 0 & 0
+\end{array}
+\]
+These are counts in the respective deformation retracts. The factor of two
+between the ordered and unordered Euler characteristics comes from the
+two-sheeted covering. A universal expression in $P_G(-n)$ and $P_G(-1)$
+at $n=2$ would give the same value for both graphs, contradicting either
+pair of Euler characteristics in the table.
+
+\section*{Lean verification}
+
+The Lean 4 project enumerates products of cells with disjoint closures
+and one representative of each swap orbit. It checks the counts above.
+It also gives an explicit bijection between proper colorings of the two
+graphs for every finite palette. Keep the first three colors fixed and
+apply the transposition of the colors on vertices $1$ and $2$ to the color
+on vertex $3$. The same transformation recovers the original coloring.
+The theorem \texttt{C4093.no\_chromatic\_rule} rules out any recovery of
+either cell Euler characteristic from this chromatic data. Run
+\texttt{lake build} in the \texttt{lean} directory to check it.
+
+\begin{thebibliography}{1}
+\bibitem{ps}
+P.~Prue and T.~Scrimshaw, \emph{Abrams's stable equivalence for graph braid groups}.
+\href{https://arxiv.org/abs/0909.5511}{arXiv:0909.5511}.
+\end{thebibliography}
+
+\end{document}
