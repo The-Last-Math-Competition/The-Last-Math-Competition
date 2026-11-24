@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Convergent denominators of \(e\)\\[2pt]\large Proof of Conjecture 00000000346}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+Let $q_n$ be the denominator of the $n$th regular continued-fraction
+convergent of $e$, with the integer part indexed by zero. For every real
+$\varepsilon>0$ we prove the limit
+\[
+\lim_{n\to\infty}\frac{q_{n+1}}{q_n^{1+\varepsilon}}=0,
+\]
+which gives the asserted limit superior.
+
+\section*{Denominator bounds}
+
+Euler's continued fraction for $e$~\cite[\S21]{euler} has $a_0=2$ and,
+for every integer $j\ge 0$,
+\[
+(a_{3j+1},a_{3j+2},a_{3j+3})=(1,2(j+1),1).
+\]
+Cohn~\cite[Theorem~1]{cohn} gives a modern proof in the equivalent form
+that starts $[1,0,1,\ldots]$, where the initial $1,0,1$ combines to $2$.
+The convergent denominators obey $q_{-1}=0$, $q_0=1$, and
+\[
+q_{n+1}=a_{n+1}q_n+q_{n-1}\qquad(n\ge0).
+\]
+The block formula gives $1\le a_{n+1}\le n+1$. The recurrence makes
+the denominators positive and nondecreasing for $n\ge0$. Consequently,
+\[
+q_{n+1}\le(n+2)q_n,
+\qquad
+q_{n+2}\ge q_{n+1}+q_n\ge2q_n,
+\qquad
+q_{2s}\ge2^s\quad(s\ge0),
+\]
+where the last inequality follows by induction from $q_0=1$.
+
+\section*{A bound using integer powers}
+
+Fix positive integers $r,B$, set $d=4r$, and put $s=\lfloor n/d\rfloor$.
+For $n\ge B(d+2)d$, we have $s\ge B(d+2)$. As $n<d(s+1)$,
+\[
+B(n+2)\le B(d+2)(s+1)\le s(s+1)<(s+1)^2.
+\]
+The inequality $s+1\le2^s$ follows by induction on $s$. Since $n\ge ds$,
+the denominator bound gives
+\[
+q_n\ge q_{ds}\ge 2^{2rs}=\bigl((2^s)^2\bigr)^r
+    \ge \bigl((s+1)^2\bigr)^r.
+\]
+It follows that $(B(n+2))^r<q_n$, and hence
+\begin{equation}
+ (Bq_{n+1})^r\le (B(n+2))^r q_n^r<q_n^{r+1}.
+ \label{eq:integer-bound}
+\end{equation}
+
+\section*{Passage to real exponents}
+
+Let $\varepsilon>0$ and $\delta>0$. By the Archimedean property, choose
+positive integers $r$ and $B$ with $1/r\le\varepsilon$ and $1/B<\delta$.
+Taking the positive $r$th root of~\eqref{eq:integer-bound} and dividing by
+$Bq_n^{1+1/r}$ gives, for all $n\ge B(d+2)d$,
+\[
+0\le \frac{q_{n+1}}{q_n^{1+\varepsilon}}
+\le \frac{q_{n+1}}{q_n^{1+1/r}} < \frac1B<\delta,
+\]
+using $q_n\ge1$ for the middle inequality. This proves the limit.
+
+The Lean 4 project formalizes the displayed block formula and the
+denominator recurrence. Its theorem
+\texttt{C346.eventual\_rational\_bounds} proves~\eqref{eq:integer-bound}
+for every positive $r$ and $B$, using the threshold above. Run
+\texttt{lake build} in the \texttt{lean} directory to check the integer proof.
+
+\begin{thebibliography}{2}
+\bibitem{euler}
+L.~Euler, \emph{De fractionibus continuis dissertatio}, Commentarii
+Academiae Scientiarum Petropolitanae \textbf{9} (1744), 98--137, E71.
+\href{https://scholarlycommons.pacific.edu/euler-works/71/}{Euler Archive}.
+
+\bibitem{cohn}
+H.~Cohn, \emph{A short proof of the simple continued fraction expansion of $e$},
+American Mathematical Monthly \textbf{113} (2006), 57--62.
+\href{https://doi.org/10.2307/27641837}{DOI 10.2307/27641837}.
+\end{thebibliography}
+
+\end{document}
