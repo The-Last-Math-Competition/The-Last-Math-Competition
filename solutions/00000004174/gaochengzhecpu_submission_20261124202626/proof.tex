@@ -1,0 +1,72 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{A cubic family of off-diagonal Vinogradov solutions}
+\author{The Last Math Competition, conjecture 00000004174}
+\date{}
+\begin{document}
+\maketitle
+
+For the standard Vinogradov system with degree \(k=2\) and three variables
+on each side, the off-diagonal count need not lose even a positive power
+of the size bound compared with the diagonal count. This disproves the
+conjecture's order-drop clause.
+
+Let \(x,y\in\{1,\ldots,X\}^{3}\) be ordered triples. The two equations are
+\[
+ x_1+x_2+x_3=y_1+y_2+y_3,
+ \qquad x_1^2+x_2^2+x_3^2=y_1^2+y_2^2+y_3^2.
+\]
+We call a solution diagonal if \(y\) is a permutation of \(x\), with an
+arbitrary permutation allowed even when some coordinates repeat. The
+constructed pairs satisfy both equalities and hence the corresponding
+congruences modulo every positive modulus. Conversely, for modulus
+\(q>3X^2\), the two congruences on this box imply the equalities because
+the differences of the two sums have absolute value less than \(q\).
+
+\paragraph{Construction.}
+For any integer \(M\ge 1\), choose \(a,b,c\) independently from the intervals
+\[
+ M\le a,b\le 2M-1,\qquad 3M\le c\le 4M-1.
+\]
+Set \(t=a+b-2c\), \(w=(1,1,-2)\), and define
+\[
+ x=(3a,3b,3c),\qquad
+ y=x-tw=(2a-b+2c,-a+2b+2c,2a+2b-c).
+\]
+The entries of \(w\) sum to zero, so subtracting \(tw\) preserves the first
+power sum. Moreover \(x\cdot w=3t\) and \(w\cdot w=6\), giving
+\[
+ \|y\|^2-\|x\|^2=-2t(3t)+6t^2=0.
+\]
+All six coordinates lie in \([1,12M]\). Indeed,
+\(3M\le x_1,x_2\le 6M-3\), \(9M\le x_3\le 12M-3\),
+\(6M+1\le y_1,y_2\le 11M-4\), and \(1\le y_3\le 5M-4\).
+Only \(x_3\) exceeds \(6M\) among the entries of \(x\), while both \(y_1\)
+and \(y_2\) exceed \(6M\). Thus the triples cannot be permutations of one
+another. Finally, the entries of \(x\) recover \(a,b,c\), so the construction
+produces \(M^3\) distinct ordered pairs.
+
+\paragraph{Counting consequence.}
+For \(X\ge 24\), take \(M=\lfloor X/12\rfloor\ge X/24\). The off-diagonal
+count is at least \(\lfloor X/12\rfloor^3\), while the diagonal count is at
+most \(6X^3\) because each left triple has at most six reorderings. The
+ratio of the off-diagonal count to the diagonal count is therefore bounded
+below by a positive constant. The sharper classical asymptotic for the total
+count, \(J_{3,2}(X)\sim (18/\pi^2)X^3\log X\) \cite{bb}, implies that the
+off-diagonal count even has the leading asymptotic of the total count.
+
+\paragraph{Formal verification.}
+In \texttt{Vinogradov.lean}, the theorem \texttt{cubic\_off\_diagonal}
+constructs an injection from \(\operatorname{Fin}(M)^3\) into the bounded
+off-diagonal solutions at \(X=12M\). The codomain requires the two
+equalities and both congruences modulo every modulus. The construction,
+including bounds and exclusion of every permutation, is checked in Lean 4
+without external dependencies.
+
+\begin{thebibliography}{1}
+\bibitem{bb}
+V.~Blomer and J.~Br\"udern, \emph{The number of integer points on
+Vinogradov's quadric}, Monatsh. Math. \textbf{160} (2010), 243--256.
+\end{thebibliography}
+\end{document}
