@@ -1,0 +1,89 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=1in]{geometry}
+\title{A Gram determinant of three in a Korkine--Zolotarev basis of \(E_8\)}
+\author{The Last Math Competition, conjecture 00000000354}
+\date{}
+\begin{document}
+\maketitle
+
+The rank-two Gram determinant in every Korkine--Zolotarev (KZ) basis of
+\(E_8\) equals \(3\). This disproves the claim that the Gram determinant
+chain consists of powers of two.
+It also agrees with the squared Gram--Schmidt lengths tabulated by
+Khandani and Esmaeili \cite[p.~154]{ke}. The argument below derives the
+first two lengths directly from the coordinates of \(E_8\).
+
+Write the lattice in the standard Euclidean coordinates as
+\[
+ E_8=\bigl\{x\in \mathbb Z^8\cup(\mathbb Z+\tfrac12)^8:
+                         \textstyle\sum_i x_i\in 2\mathbb Z\bigr\}.
+\]
+The minimum nonzero squared length is \(2\). For a vector with half-integral
+coordinates the eight squares are at least \(1/4\) each. A nonzero integral
+vector with even coordinate sum either has at least two nonzero entries or
+has one nonzero even entry. Both cases give squared length at least \(2\).
+The vector \((1,-1,0,0,0,0,0,0)\) attains the bound, so any first vector
+\(u\) in a KZ basis has squared length \(2\).
+
+For any \(v\in E_8\) having nonzero projection to \(u^\perp\), choose an integer
+\(k\) with \(\lvert\langle u,v\rangle-2k\rvert\le 1\). Then \(w=v-ku\) is
+a nonzero lattice vector with the same orthogonal projection as \(v\). Its
+projected squared length satisfies
+\[
+ \|w\|^2-\frac{\langle u,w\rangle^2}{\|u\|^2}
+        \ge 2-\frac12=\frac32.
+\]
+For every choice of \(u\), there is a lattice vector \(v\) with
+\(\|v\|^2=2\) and \(\langle u,v\rangle=1\). If \(u\) is integral, it has
+exactly two nonzero coordinates, each equal to \(1\) or \(-1\). Pick a nonzero
+coordinate \(i\) and a zero coordinate \(j\), and take \(v=u_i e_i+e_j\),
+where \(e_i\) is the \(i\)-th coordinate unit vector. If \(u\) is
+half-integral, all its coordinates equal \(\pm\tfrac12\). Take
+\(v=2u_i e_i+2u_j e_j\) for any distinct \(i,j\). In either case \(v\) has
+integer coordinates of even sum, squared norm two, and inner product one
+with \(u\). Thus its projection attains the lower bound, and the second
+vector of any KZ basis has projected squared length \(3/2\).
+
+For concreteness, the pair \(u=(1,-1,0,0,0,0,0,0)\) and
+\(v=(1,0,1,0,0,0,0,0)\) satisfies the first two minimizations. Its
+Gram--Schmidt coefficient is \(1/2\), so the pair also satisfies the usual
+size reduction. It extends to a KZ basis. Indeed, its span intersects \(E_8\) in
+\(\mathbb Zu+\mathbb Zv\): every point in the intersection is integral because
+its last five coordinates are zero, and its coefficients on \(u,v\) are
+the negative of the second coordinate and the third coordinate,
+respectively. At each subsequent stage the projection along the existing
+rational span is a discrete lattice, since orthogonal projection onto the
+complement of a rational subspace has a rational matrix with bounded
+denominators. A shortest nonzero projected vector generates the
+intersection of that projected lattice with its line. Adjoining a lift
+therefore preserves the property that the chosen vectors generate all
+lattice points in their span. Continuing to rank eight gives a basis with
+the successive shortest-projection property. Subtracting earlier basis
+vectors for size reduction leaves the spans and projected lengths intact.
+
+The Gram determinant of any first pair is the product of the first two
+squared orthogonalized lengths, namely \(2(3/2)=3\). For the explicit pair,
+\[
+ \det\begin{pmatrix}2&1\\1&2\end{pmatrix}=3.
+\]
+Since \(3\) is an odd integer greater than one, it is not a power of two.
+
+\paragraph{Lean model.} In \texttt{Gram.lean}, vectors are doubled so that all
+coordinates are integers. Membership means that the coordinates have the
+same parity and sum to a multiple of four. In this model the squared norm
+is four times its Euclidean value and the Gram determinant is sixteen
+times its Euclidean value. The Lean proof verifies the first squared norm
+minimum, the universal lower bound for the next positive Gram determinant,
+and an attaining neighboring root for every shortest first vector. Its
+conclusion \texttt{everyKZSecondGram} gives \(48/16=3\) for all pairs obeying
+the first two KZ minimizations. The theorem \texttt{explicitKZPrefix}
+independently verifies the displayed pair.
+
+\begin{thebibliography}{1}
+\bibitem{ke}
+A.~K. Khandani and M. Esmaeili, \emph{Successive minimization of the state
+complexity of the self-dual lattices using Korkin--Zolotarev reduced basis},
+Designs, Codes and Cryptography \textbf{24} (2001), 145--158.
+\end{thebibliography}
+\end{document}
