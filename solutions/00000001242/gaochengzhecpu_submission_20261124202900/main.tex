@@ -1,0 +1,524 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\ml}{\operatorname{ml}}
+\newcommand{\Reach}{\operatorname{Reach}}
+\newcommand{\ceilhalf}[1]{\lceil #1 / 2 \rceil}
+\newcommand{\floorhalf}[1]{\lfloor #1 / 2 \rfloor}
+
+\title{\textbf{Disproof of Conjecture 00000001242:\\
+Extremal Minimum Light Numbers in the Lit-Only $\sigma$-Game\\
+and Odd Bipartitions}}
+\author{Formal Verification and Mathematical Analysis}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We disprove Conjecture~00000001242, which asserts that in the lamp lighting game
+(the lit-only $\sigma$-game) on an $n$-vertex simple graph $G$, the minimum light
+number satisfies $\operatorname{min-lit}(G) \le \ceilhalf{n}$ if and only if $G$
+admits an odd bipartition. To ensure that our refutation is independent of any
+ambiguity in literature conventions, we formalize and analyze all $24$ combinations
+arising from the two standard lit-only move rules---the open-neighborhood rule
+$\sigma^-$ and the closed-neighborhood rule $\sigma^+$---three extremal definitions
+of the minimum light number (starting from the all-lit configuration $V$, worst-case
+over all initial configurations $S_0 \subseteq V$, and worst-case over all non-empty
+initial configurations $\emptyset \neq S_0 \subseteq V$), and four interpretations
+of possessing an odd bipartition.
+
+We prove that the forward implication ($\implies$) fails across all $24$ conventions,
+even on connected graphs, connected bipartite graphs, and trees:
+(1)~for every $n \ge 3$, the complete graph $K_n$ is connected and non-bipartite,
+yet reaches at most $\ceilhalf{n}$ lit vertices in at most one move from every
+initial configuration under both $\sigma^-$ and $\sigma^+$ (with minimal connected
+counterexample $K_3$ on $n = 3$ vertices);
+(2)~for every $k \ge 1$, the balanced even complete bipartite graph $K_{2k,2k}$ of
+order $n = 4k$ is connected and bipartite with unique part sizes $(2k, 2k)$ (both
+even), yet reaches at most $2k = \ceilhalf{4k}$ lit vertices in at most one move from
+every initial configuration under both $\sigma^-$ and $\sigma^+$; and
+(3)~the $4$-vertex path $P_4$ is a tree with unique bipartition sizes $(2, 2)$, yet
+satisfies $\operatorname{min-lit}(P_4) \le 1 < 2 = \ceilhalf{4}$ under all six game
+variants. Furthermore, under the standard open-neighborhood rule $\sigma^-$, the
+converse implication ($\Longleftarrow$) also fails for the infinite families
+$\overline{K_{2m}}$ and $K_2 \sqcup \overline{K_{2m}}$ ($m \ge 1$). All definitions,
+positive non-vacuity witnesses, infinite families, and master refutation theorems
+have been machine-checked in Core Lean~4.19.0 without external dependencies or
+extra axioms, and independently cross-checked by exhaustive Python enumeration up
+to $n = 6$.
+\end{abstract}
+
+\section{Introduction and Problem Statement}
+
+Conjecture~00000001242 concerns the \emph{lamp lighting game}, known in the
+combinatorial game and algebraic graph theory literature as the \emph{lit-only
+$\sigma$-game} (introduced on trees and general graphs by Wang and Wu~\cite{WangWu2006}
+as a directed restriction of Sutner's $\sigma$-game~\cite{Sutner1989}, and further
+investigated by Wu and Wang~\cite{WuWang2008} and Goldwasser, Klostermeyer, and
+Ware~\cite{GKW2009}). The official statement reads verbatim:
+
+\begin{quote}
+\textbf{Conjecture 00000001242.}
+\emph{Definition: The lamp lighting game (lit-only sigma-game). Conjecture: The
+graphs with min-lit number at most $\lceil n/2 \rceil$ are exactly those with an
+odd bipartition (a lit-only extremal characterization).}
+\end{quote}
+
+The accompanying Chinese formulation states equivalently that the structure of
+$n$-vertex graphs with $\text{min-lit} \le \ceilhalf{n}$ is characterized by having
+an odd-part bipartition (\emph{qi-bu er-fen}).
+
+When formalizing statements from the lit-only $\sigma$-game literature, three
+axes of definitional convention arise naturally:
+\begin{enumerate}
+\item[(A)] \textbf{Lit-only move rule.} Choosing a currently lit vertex $v \in S$
+either toggles all open neighbors $u \in N_G(v)$ while keeping $v$ lit (the
+standard open-neighborhood rule $\sigma^-$ of Wang and Wu~\cite{WangWu2006}), or
+toggles the closed neighborhood $N_G[v] = \{v\} \cup N_G(v)$ (the closed-neighborhood
+lit-only rule $\sigma^+$).
+\item[(B)] \textbf{Minimum light number ($\operatorname{min-lit}$).} The graph invariant
+is defined either starting from the all-lit configuration $S_0 = V$ (denoted
+$\ml_{\mathbf{1}}^\star(G)$), or as the worst-case minimum reachable lit count
+$l(G) = \max_{S_0 \subseteq V} \min_{S \in \Reach(S_0)} |S|$ over all initial
+configurations $S_0 \subseteq V$ (denoted $\ml_{\max}^\star(G)$), or over all
+non-empty initial configurations $\emptyset \neq S_0 \subseteq V$ (denoted
+$\ml_{\neq\emptyset}^\star(G)$).
+\item[(C)] \textbf{Odd bipartition.} For a simple graph $G = (V, E)$, possessing an
+``odd bipartition'' may require the existence of a valid bipartition $V = A \sqcup B$
+with at least one part of odd size ($\mathcal{B}_1$), or with \emph{both} parts of
+odd size ($\mathcal{B}_2$), or require $G$ to be bipartite with \emph{every}
+bipartition having at least one odd part ($\mathcal{B}_3$) or both parts odd
+($\mathcal{B}_4$).
+\end{enumerate}
+
+In this paper we prove that \textbf{Conjecture~00000001242 is false under every
+single combination of these conventions} ($2 \times 3 \times 4 = 24$ formalizations),
+and remains false even when the universe of graphs is restricted to connected
+graphs, to connected bipartite graphs, or to trees.
+
+\section{Preliminaries and Formal Definitions}
+
+Throughout, let $n \in \mathbb{N}$ with $n \ge 1$, and write $[n] = \{0, 1, \dots, n-1\}$.
+Note that for all $n, k \in \mathbb{N}$, the ceiling $\ceilhalf{n} = \lfloor (n+1)/2 \rfloor$
+is uniquely characterized by $\ceilhalf{n} \le k \iff n \le 2k$; in particular,
+$n \le 2\ceilhalf{n} \le n + 1$.
+
+\begin{definition}[Simple Graphs, Connectivity, Trees, and Bipartitions]
+\label{def:graphs}
+A \emph{finite simple undirected graph} of order $n$ is a pair $G = ([n], E)$
+where $E$ is an irreflexive, symmetric binary adjacency relation on $[n]$. For
+$v \in [n]$, write $N_G(v) = \{u \in [n] : \{u, v\} \in E\}$ and
+$N_G[v] = \{v\} \cup N_G(v)$.
+\begin{enumerate}
+\item[(i)] A \emph{walk} from $u$ to $w$ in $G$ is a finite sequence
+$u = v_0, v_1, \dots, v_r = w$ ($r \ge 0$) with $\{v_i, v_{i+1}\} \in E$ for all
+$0 \le i < r$. We say $G$ is \emph{connected} if $n \ge 1$ and a walk exists
+between every pair of vertices $u, w \in [n]$.
+\item[(ii)] A \emph{simple cycle} in $G$ is an injective map $f : [k] \to [n]$ with
+$k \ge 3$ such that $\{f(i), f((i+1) \bmod k)\} \in E$ for every $i \in [k]$.
+A \emph{tree} is a connected graph $G$ containing no simple cycle.
+\item[(iii)] A \emph{bipartition} of $G$ is a $2$-coloring $\chi : [n] \to \{\mathrm{true}, \mathrm{false}\}$
+(identifying $A = \chi^{-1}(\mathrm{true})$ and $B = \chi^{-1}(\mathrm{false})$, so
+$[n] = A \sqcup B$ and $|A| + |B| = n$) such that $\chi(u) \neq \chi(v)$ whenever
+$\{u, v\} \in E$. We say $G$ is \emph{bipartite} if at least one bipartition of $G$ exists.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Odd Bipartition Predicates]
+\label{def:oddbip}
+For a simple graph $G$ of order $n$, we define the four odd-bipartition predicates:
+\begin{align*}
+\mathcal{B}_1(G) &: \iff \exists \text{ bipartition } [n] = A \sqcup B \text{ of } G \text{ with } |A| \text{ odd or } |B| \text{ odd}, \\
+\mathcal{B}_2(G) &: \iff \exists \text{ bipartition } [n] = A \sqcup B \text{ of } G \text{ with } |A| \text{ odd and } |B| \text{ odd}, \\
+\mathcal{B}_3(G) &: \iff G \text{ is bipartite and every bipartition } [n] = A \sqcup B \text{ has } |A| \text{ odd or } |B| \text{ odd}, \\
+\mathcal{B}_4(G) &: \iff G \text{ is bipartite and every bipartition } [n] = A \sqcup B \text{ has } |A| \text{ odd and } |B| \text{ odd}.
+\end{align*}
+Note that each $\mathcal{B}_i(G)$ ($i \in \{1,2,3,4\}$) implies that $G$ is bipartite.
+Moreover, if both $|A|$ and $|B|$ are odd, both parts are automatically non-empty.
+\end{definition}
+
+\begin{lemma}[Uniqueness of Bipartition on Connected Graphs]
+\label{lem:unique-bip}
+Let $G$ be a connected simple graph on $[n]$. If $\chi_1, \chi_2 : [n] \to \{\mathrm{true}, \mathrm{false}\}$
+are bipartitions of $G$, then either $\chi_2 = \chi_1$ or $\chi_2 = \neg \chi_1$
+(pointwise negation). Consequently, if $G$ is connected and admits a bipartition
+$[n] = A_0 \sqcup B_0$ where $|A_0|$ and $|B_0|$ are both even, then $\mathcal{B}_i(G)$
+is false for every $i \in \{1, 2, 3, 4\}$.
+\end{lemma}
+
+\begin{proof}
+For any edge $\{u, v\} \in E$, we have $\chi_1(u) \neq \chi_1(v)$ and
+$\chi_2(u) \neq \chi_2(v)$ in $\{\mathrm{true}, \mathrm{false}\}$, so the Boolean
+equivalence $(\chi_1(u) = \chi_2(u))$ coincides with $(\chi_1(v) = \chi_2(v))$.
+By induction along finite walks from $u_0 = 0 \in [n]$ to any $v \in [n]$, connectivity
+implies that $(\chi_1(v) = \chi_2(v))$ is constant over $v \in [n]$. If its value at
+$u_0$ is true, $\chi_2 = \chi_1$; otherwise $\chi_2 = \neg \chi_1$. Thus every
+bipartition of $G$ has unordered part sizes $\{|A_0|, |B_0|\}$, both of which are
+even, refuting $\mathcal{B}_1(G), \dots, \mathcal{B}_4(G)$.
+\end{proof}
+
+\begin{definition}[Lit-Only $\sigma$-Game and Minimum Light Numbers]
+\label{def:minlit}
+A \emph{configuration} on $G = ([n], E)$ is a subset $S \subseteq [n]$ of lit vertices
+(equivalently its indicator $c : [n] \to \{\mathrm{true}, \mathrm{false}\}$ with lit
+count $|S| = |\{u \in [n] : c(u) = \mathrm{true}\}|$). Given $S \subseteq [n]$ and
+a \emph{currently lit} vertex $v \in S$, a single legal lit-only move produces:
+\[
+\begin{aligned}
+S &\xrightarrow{\sigma^-, v} S \triangle N_G(v) &&\text{(open-neighborhood rule)}, \\
+S &\xrightarrow{\sigma^+, v} S \triangle N_G[v] &&\text{(closed-neighborhood rule)},
+\end{aligned}
+\]
+where $\triangle$ denotes symmetric difference. Notice that since $G$ is loopless
+($v \notin N_G(v)$), $v$ remains in $S \triangle N_G(v)$ under $\sigma^-$, whereas
+$v \notin S \triangle N_G[v]$ under $\sigma^+$. For $\star \in \{-, +\}$ and
+$S_0 \subseteq [n]$, let $\Reach_G^\star(S_0)$ denote the set of configurations
+reachable from $S_0$ by finite sequences of zero or more legal $\sigma^\star$-moves,
+and set
+\[
+\ml_G^\star(S_0) := \min \{ |S| : S \in \Reach_G^\star(S_0) \}.
+\]
+This minimum is well-defined and attained in $\{0, 1, \dots, n\}$ since
+$S_0 \in \Reach_G^\star(S_0)$ and $|S| \in \{0, \dots, n\}$ for all $S$. The three
+standard graph invariants are:
+\[
+\ml_{\mathbf{1}}^\star(G) := \ml_G^\star([n]), \qquad
+\ml_{\max}^\star(G) := \max_{S_0 \subseteq [n]} \ml_G^\star(S_0), \qquad
+\ml_{\neq\emptyset}^\star(G) := \max_{\emptyset \neq S_0 \subseteq [n]} \ml_G^\star(S_0).
+\]
+Since $\ml_G^\star(\emptyset) = 0$ and $[n] \neq \emptyset$ for $n \ge 1$, we have
+$\ml_{\max}^\star(G) = \ml_{\neq\emptyset}^\star(G) \ge \ml_{\mathbf{1}}^\star(G)$
+for every $n \ge 1$.
+\end{definition}
+
+\begin{proposition}[Positive Non-Vacuity and Non-Triviality Witnesses]
+\label{prop:witnesses}
+The definitions of $\ml$ and $\mathcal{B}_1, \dots, \mathcal{B}_4$ are inhabited and
+non-trivial:
+\begin{enumerate}
+\item[(a)] On $K_2$ ($n = 2$, $\ceilhalf{2} = 1$), $K_2$ is connected, satisfies
+$\mathcal{B}_1, \mathcal{B}_2, \mathcal{B}_3, \mathcal{B}_4$ via its unique bipartition
+$\{0\} \sqcup \{1\}$ of odd sizes $(1, 1)$, and satisfies
+$\ml_{\mathbf{1}}^-(K_2) = \ml_{\max}^-(K_2) = \ml_{\max}^+(K_2) = 1 \le 1$ and
+$\ml_{\mathbf{1}}^+(K_2) = 0 \le 1$.
+\item[(b)] On the edgeless graph $\overline{K_2}$ ($n = 2$), no $\sigma^-$-move alters
+any configuration, so $\ml_{\mathbf{1}}^-(\overline{K_2}) = 2 > 1 = \ceilhalf{2}$.
+\item[(c)] On the connected octahedron graph $K_{2,2,2}$ ($n = 6$, $\ceilhalf{6} = 3$)
+with antipodal non-edges $\{0,1\}$, $\{2,3\}$, $\{4,5\}$, starting from
+$S_0 = \{0, 1, 2, 3\}$ ($|S_0| = 4$), every $\sigma^-$-move preserves the property
+that each antipodal pair is monochromatic and exactly two of the three pairs are lit:
+pressing a lit vertex $v$ keeps $v$'s own pair lit, turns the other lit pair off,
+and turns the unlit pair on. Hence $|S| = 4$ for all $S \in \Reach_{K_{2,2,2}}^-(S_0)$,
+giving $\ml_{\max}^-(K_{2,2,2}) \ge \ml_{K_{2,2,2}}^-(S_0) = 4 > 3 = \ceilhalf{6}$.
+\end{enumerate}
+\end{proposition}
+
+\section{Refutation of Necessity (\texorpdfstring{$\implies$}{=>}) Across All Conventions}
+
+We first prove that $\operatorname{min-lit}(G) \le \ceilhalf{n}$ does \emph{not}
+imply that $G$ has an odd bipartition, under any of the $24$ conventions.
+
+\begin{theorem}[Connected Non-Bipartite Infinite Family $K_n$, $n \ge 3$]
+\label{thm:kn}
+For every integer $n \ge 3$, the complete graph $K_n$ is connected and non-bipartite
+(hence $\mathcal{B}_i(K_n)$ is false for all $i \in \{1, 2, 3, 4\}$), yet from
+\emph{every} initial configuration $S_0 \subseteq [n]$ at most one move suffices to
+reach a configuration of size at most $\ceilhalf{n}$ under both $\sigma^-$ and
+$\sigma^+$. Consequently, for both $\star \in \{-, +\}$,
+\[
+\ml_{\mathbf{1}}^\star(K_n) \le \ml_{\max}^\star(K_n) = \ml_{\neq\emptyset}^\star(K_n) \le \ceilhalf{n}.
+\]
+In particular, $K_3$ ($n = 3$, $\ceilhalf{3} = 2$) is a minimal connected counterexample
+across all $24$ conventions.
+\end{theorem}
+
+\begin{proof}
+Since $n \ge 3$, every pair of distinct vertices in $K_n$ is adjacent, so $K_n$ is
+connected. Moreover, $\{0, 1, 2\} \subseteq [n]$ induces a triangle: for any
+$\chi : [n] \to \{\mathrm{true}, \mathrm{false}\}$, two of $\chi(0), \chi(1), \chi(2)$
+are equal by the pigeonhole principle, so $K_n$ admits no bipartition at all.
+
+Now let $S_0 \subseteq [n]$ be an arbitrary initial configuration. If
+$|S_0| \le \ceilhalf{n}$, zero moves reach $S_0$ itself. Otherwise
+$|S_0| \ge \ceilhalf{n} + 1 \ge 1$, so we may choose a lit vertex $v \in S_0$ and
+press $v$:
+\begin{itemize}
+\item Under $\sigma^-$, $N_{K_n}(v) = [n] \setminus \{v\}$, so pressing $v$ yields
+$S_1 = \{v\} \cup ([n] \setminus S_0)$. Every vertex $u \neq v$ belongs to exactly
+one of $S_0$ and $S_1$, while $v \in S_0 \cap S_1$, whence
+$|S_0| + |S_1| = n + 1$. Since $n \le 2\ceilhalf{n}$ and $|S_0| \ge \ceilhalf{n} + 1$,
+we obtain
+\[
+|S_1| = n + 1 - |S_0| \le (2\ceilhalf{n} + 1) - (\ceilhalf{n} + 1) = \ceilhalf{n}.
+\]
+\item Under $\sigma^+$, $N_{K_n}[v] = [n]$, so pressing $v$ yields the exact
+complement $S_1 = [n] \setminus S_0$, giving $|S_0| + |S_1| = n$ and thus
+$|S_1| = n - |S_0| \le 2\ceilhalf{n} - (\ceilhalf{n} + 1) = \ceilhalf{n} - 1 < \ceilhalf{n}$.
+\end{itemize}
+In every case, a configuration of size at most $\ceilhalf{n}$ is reached in at most one move.
+\end{proof}
+
+Next we show that restricting the conjecture to \emph{connected bipartite graphs}
+or even to \emph{trees} still fails to rescue it.
+
+\begin{theorem}[Connected Bipartite Infinite Family $K_{2k,2k}$, $k \ge 1$]
+\label{thm:k2k}
+For every integer $k \ge 1$, let $K_{2k,2k}$ be the complete bipartite graph of
+order $n = 4k$ with parts $L = \{0, \dots, 2k-1\}$ and $R = \{2k, \dots, 4k-1\}$.
+Then $K_{2k,2k}$ is connected and bipartite, satisfies $\neg \mathcal{B}_i(K_{2k,2k})$
+for every $i \in \{1, 2, 3, 4\}$, and satisfies
+\[
+\ml_{\mathbf{1}}^\star(K_{2k,2k}) \le \ml_{\max}^\star(K_{2k,2k})
+= \ml_{\neq\emptyset}^\star(K_{2k,2k}) \le 2k = \ceilhalf{4k}
+\qquad (\star \in \{-, +\}).
+\]
+\end{theorem}
+
+\begin{proof}
+Since $k \ge 1$, both $L$ and $R$ are non-empty and every $u \in L$ is adjacent to
+every $w \in R$; thus $K_{2k,2k}$ is connected (every vertex in $R$ is adjacent to
+$0 \in L$, and every vertex in $L$ reaches $0$ in two steps via $2k \in R$). The
+canonical bipartition $[4k] = L \sqcup R$ has even part sizes $|L| = 2k$ and
+$|R| = 2k$. By Lemma~\ref{lem:unique-bip}, $\mathcal{B}_i(K_{2k,2k})$ fails for
+all $i \in \{1, 2, 3, 4\}$.
+
+Let $S_0 \subseteq [4k]$ be any configuration. If $|S_0| \le 2k$, zero moves
+suffice. Suppose $|S_0| > 2k$. Since $|L| = 2k$ and $|R| = 2k$, we cannot have
+$S_0 \subseteq R$ (else $|S_0| \le |R| = 2k$) nor $S_0 \subseteq L$ (else
+$|S_0| \le |L| = 2k$). Hence there exist lit vertices $u \in S_0 \cap L$ and
+$w \in S_0 \cap R$. Consider the two $1$-move configurations $S_1$ (obtained by
+pressing $u$) and $S_2$ (obtained by pressing $w$):
+\begin{itemize}
+\item Under $\sigma^-$, pressing $u \in L$ toggles $R$ and fixes $L$, so
+$S_1 = (S_0 \cap L) \cup (R \setminus S_0)$, while pressing $w \in R$ toggles $L$
+and fixes $R$, so $S_2 = (L \setminus S_0) \cup (S_0 \cap R) = [4k] \setminus S_1$.
+Hence $S_1$ and $S_2$ are disjoint ($S_1 \cap S_2 = \emptyset$), giving
+$|S_1| + |S_2| = 4k$.
+\item Under $\sigma^+$, pressing $u \in S_0 \cap L$ additionally turns $u$ off
+($S_1' = S_1 \setminus \{u\}$) and pressing $w \in S_0 \cap R$ additionally turns
+$w$ off ($S_2' = S_2 \setminus \{w\}$), so $S_1' \cap S_2' = \emptyset$ and
+$|S_1'| + |S_2'| = 4k - 2 \le 4k$.
+\end{itemize}
+In both cases, the sum of the two $1$-move lit counts is at most $4k$, so at least
+one of the two moves produces at most $2k = \ceilhalf{4k}$ lit vertices.
+\end{proof}
+
+\begin{theorem}[Tree Counterexample $P_4$]
+\label{thm:p4}
+Let $P_4$ be the $4$-vertex path on $[4] = \{0, 1, 2, 3\}$ with edges
+$\{0,1\}, \{1,2\}, \{2,3\}$. Then $P_4$ is a tree, satisfies $\neg \mathcal{B}_i(P_4)$
+for every $i \in \{1, 2, 3, 4\}$, and satisfies
+$\ml_{\mathbf{1}}^\star(P_4) \le \ml_{\max}^\star(P_4) = \ml_{\neq\emptyset}^\star(P_4) \le 2 = \ceilhalf{4}$
+for both $\star \in \{-, +\}$ (indeed, $\ml_{\max}^-(P_4) = 1$ and $\ml_{\max}^+(P_4) = 0$).
+\end{theorem}
+
+\begin{proof}
+Clearly $P_4$ is connected via the path $0 - 1 - 2 - 3$. Suppose for contradiction
+that $f : [k] \to [4]$ ($k \ge 3$) is a simple cycle in $P_4$. For each $i \in [k]$,
+the indices $i_{\mathrm{prev}} = (i + k - 1) \bmod k$ and $i_{\mathrm{next}} = (i + 1) \bmod k$
+are distinct because $k \ge 3$, so by injectivity $f(i_{\mathrm{prev}}) \neq f(i_{\mathrm{next}})$
+are two distinct neighbors of $f(i)$ in $P_4$. Since vertices $0$ and $3$ have degree~$1$
+in $P_4$, $f(i) \in \{1, 2\}$ for all $i \in [k]$. Then $f(0), f(1), f(2) \in \{1, 2\}$
+contradicts injectivity of $f$. Thus $P_4$ is a tree.
+
+The parity coloring $\chi_0(i) = (i \bmod 2 = 0)$ partitions $[4]$ into
+$A_0 = \{0, 2\}$ and $B_0 = \{1, 3\}$, each of even size $2$. By
+Lemma~\ref{lem:unique-bip}, $\mathcal{B}_i(P_4)$ is false for all $i \in \{1,2,3,4\}$.
+
+Finally, for any $S_0 \subseteq [4]$, if $|S_0| \le 2$ zero moves suffice. There are
+only five configurations with $|S_0| \ge 3$, and each reaches $\le 2$ lit vertices
+in a single move using the \emph{same} vertex under both $\sigma^-$ and $\sigma^+$:
+\begin{center}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Initial $S_0$ ($|S_0| \ge 3$) & Pressed $v \in S_0$ & Result under $\sigma^-$ ($|S_1|$) & Result under $\sigma^+$ ($|S_1|$) \\
+\midrule
+$\{1, 2, 3\}$ & $v = 2$ & $\{2\}$ ($1 \le 2$) & $\emptyset$ ($0 \le 2$) \\
+$\{0, 2, 3\}$ & $v = 3$ & $\{0, 3\}$ ($2 \le 2$) & $\{0\}$ ($1 \le 2$) \\
+$\{0, 1, 3\}$ & $v = 0$ & $\{0, 3\}$ ($2 \le 2$) & $\{3\}$ ($1 \le 2$) \\
+$\{0, 1, 2\}$ & $v = 1$ & $\{1\}$ ($1 \le 2$) & $\emptyset$ ($0 \le 2$) \\
+$\{0, 1, 2, 3\}$ & $v = 1$ & $\{1, 3\}$ ($2 \le 2$) & $\{3\}$ ($1 \le 2$) \\
+\bottomrule
+\end{tabular}
+\end{center}
+Hence $\ml_{\max}^\star(P_4) \le 2 = \ceilhalf{4}$ for both $\star \in \{-, +\}$.
+\end{proof}
+
+\section{Refutation of Sufficiency (\texorpdfstring{$\Longleftarrow$}{<=}) Under \texorpdfstring{$\sigma^-$}{sigma-} and Census Analysis}
+
+Under the standard open-neighborhood lit-only rule $\sigma^-$ of Wang and
+Wu~\cite{WangWu2006}, the converse direction of Conjecture~00000001242 also fails
+for infinite families of graphs, both edgeless and with edges.
+
+\begin{theorem}[Failure of Sufficiency Under $\sigma^-$]
+\label{thm:converse}
+For every integer $m \ge 1$:
+\begin{enumerate}
+\item[(a)] The edgeless graph $\overline{K_{2m}}$ of order $n = 2m$ satisfies both
+$\mathcal{B}_1(\overline{K_{2m}})$ and $\mathcal{B}_2(\overline{K_{2m}})$ via the
+odd-odd bipartition $\{0\} \sqcup \{1, \dots, 2m-1\}$ of sizes $(1, 2m-1)$, yet
+\[
+\ml_{\mathbf{1}}^-(\overline{K_{2m}}) = \ml_{\max}^-(\overline{K_{2m}})
+= \ml_{\neq\emptyset}^-(\overline{K_{2m}}) = 2m > m = \ceilhalf{2m}.
+\]
+\item[(b)] The graph $G_m = K_2 \sqcup \overline{K_{2m}}$ of order $n = 2m + 2$ with
+single edge $\{0, 1\}$ has a non-empty edge set, satisfies both $\mathcal{B}_1(G_m)$
+and $\mathcal{B}_2(G_m)$ via the odd-odd bipartition $\{0\} \sqcup \{1, 2, \dots, 2m+1\}$
+of sizes $(1, 2m+1)$, yet
+\[
+\ml_{\mathbf{1}}^-(G_m) = \ml_{\max}^-(G_m) = \ml_{\neq\emptyset}^-(G_m)
+= 2m + 1 > m + 1 = \ceilhalf{2m + 2}.
+\]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(a) is immediate because $N_{\overline{K_{2m}}}(v) = \emptyset$ for all $v$,
+leaving $[2m]$ invariant under all $\sigma^-$-moves. For part~(b), $\{0, 1\}$ crosses
+between $A = \{0\}$ ($|A| = 1$) and $B = \{1, \dots, 2m+1\}$ ($|B| = 2m+1$), so
+$(A, B)$ is a valid odd-odd bipartition. Starting from $S_0 = [2m+2]$, consider the
+predicate $\mathcal{I}(S)$ stating that $(0 \in S \lor 1 \in S)$ and
+$\{2, \dots, 2m+1\} \subseteq S$. Clearly $\mathcal{I}([2m+2])$ holds. If $\mathcal{I}(S)$
+holds and $v \in S$ is pressed under $\sigma^-$:
+\begin{itemize}
+\item Every $i \ge 2$ has $N_{G_m}(i) = \emptyset$, so $i \in S'$ for all $i \ge 2$.
+\item If $v = 0$, then $0$ stays lit in $S'$; if $v = 1$, then $1$ stays lit in $S'$;
+and if $v \ge 2$, then $N_{G_m}(v) = \emptyset$, so $S' = S$ preserves $0 \in S \lor 1 \in S$.
+\end{itemize}
+By induction on reachability, $\mathcal{I}(S)$ holds for every $S \in \Reach_{G_m}^-([2m+2])$.
+Thus at most one vertex of $[2m+2]$ (either $0$ or $1$) can be unlit in $S$, so
+$|S| \ge 2m + 1 > m + 1 = \ceilhalf{2m+2}$ for all $S \in \Reach_{G_m}^-([2m+2])$.
+(Pressing $0$ from $[2m+2]$ reaches $\{0, 2, \dots, 2m+1\}$ of size $2m + 1$, so the
+exact value is $2m + 1$.)
+\end{proof}
+
+\begin{remark}[Exhaustive Small-Order Census Across All $24$ Conventions]
+To map the complete empirical behavior on small graphs, our companion Python script
+\texttt{verify.py} evaluates all $1{,}099$ labelled simple graphs on $1 \le n \le 5$
+vertices and all $208$ non-isomorphic simple graphs on $1 \le n \le 6$ vertices
+(matching OEIS A000088 counts $1, 2, 4, 11, 34, 156$ and connected OEIS A001349
+counts $1, 1, 2, 6, 21, 112$). Table~\ref{tab:census} summarizes the non-isomorphic
+counterexample counts for representative conventions over $1 \le n \le 6$. Notice
+that under $\sigma^+$, every graph on $n \le 6$ satisfies $\ml_{\max}^+(G) \le \floorhalf{n} \le \ceilhalf{n}$,
+making necessity ($\implies$) fail on \emph{every} graph lacking an odd bipartition.
+Even on connected graphs under $\sigma^-$, $111$ of the $112$ connected graphs on
+$n = 6$ satisfy $\ml_{\max}^-(G) \le 3$ (the sole exception being $K_{2,2,2}$ from
+Proposition~\ref{prop:witnesses}(c)).
+\end{remark}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Non-isomorphic counterexamples among the $208$ simple graphs on $1 \le n \le 6$
+vertices across graph scopes (\texttt{all}: all graphs; \texttt{conn}: connected;
+\texttt{bip\_c}: connected bipartite; \texttt{tree}: trees).}
+\label{tab:census}
+\begin{tabular}{@{}llrrrrr@{}}
+\toprule
+Game Objective & Odd-Bip Mode & \multicolumn{4}{c}{Failures of $(\implies)$} & Failures of $(\Longleftarrow)$ \\
+\cmidrule(lr){3-6} \cmidrule(l){7-7}
+ & & \texttt{all} & \texttt{conn} & \texttt{bip\_c} & \texttt{tree} & \texttt{all} \\
+\midrule
+$\sigma^-$ from all-lit ($\ml_{\mathbf{1}}^-$) & $\mathcal{B}_1$ (\texttt{existsSomeOdd}) & 156 & 123 & 8 & 3 & 11 \\
+$\sigma^-$ from all-lit ($\ml_{\mathbf{1}}^-$) & $\mathcal{B}_2$ (\texttt{existsBothOdd}) & 170 & 130 & 15 & 8 & 8 \\
+$\sigma^-$ worst-case ($\ml_{\max}^- = \ml_{\neq\emptyset}^-$) & $\mathcal{B}_1$ (\texttt{existsSomeOdd}) & 147 & 122 & 8 & 3 & 11 \\
+$\sigma^-$ worst-case ($\ml_{\max}^- = \ml_{\neq\emptyset}^-$) & $\mathcal{B}_2$ (\texttt{existsBothOdd}) & 161 & 129 & 15 & 8 & 8 \\
+$\sigma^+$ from all-lit ($\ml_{\mathbf{1}}^+$) & $\mathcal{B}_1$ (\texttt{existsSomeOdd}) & 157 & 123 & 8 & 3 & 0 \\
+$\sigma^+$ worst-case ($\ml_{\max}^+ = \ml_{\neq\emptyset}^+$) & $\mathcal{B}_2$ (\texttt{existsBothOdd}) & 174 & 130 & 15 & 8 & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Master Refutation and Formal Verification}
+
+Combining Theorems~\ref{thm:kn}, \ref{thm:k2k}, and~\ref{thm:p4} immediately yields
+our main conclusion.
+
+\begin{corollary}[Master Disproof Across All Conventions and Graph Classes]
+\label{cor:master}
+For every choice of move rule $\star \in \{\sigma^-, \sigma^+\}$, every choice of
+minimum light number $\ml \in \{\ml_{\mathbf{1}}^\star, \ml_{\max}^\star, \ml_{\neq\emptyset}^\star\}$,
+and every choice of odd-bipartition predicate $\mathcal{B} \in \{\mathcal{B}_1, \mathcal{B}_2, \mathcal{B}_3, \mathcal{B}_4\}$,
+the biconditional characterization
+\[
+\forall n \ge 1,\ \forall G \text{ on } [n],\qquad
+\ml(G) \le \ceilhalf{n} \iff \mathcal{B}(G)
+\]
+is \textbf{false}. Moreover, the characterization remains \textbf{false} when
+quantification is restricted to connected graphs (witnessed by $K_n$ for all $n \ge 3$),
+to connected bipartite graphs (witnessed by $K_{2k,2k}$ for all $k \ge 1$), or to
+trees (witnessed by $P_4$).
+\end{corollary}
+
+\subsection*{Correspondence with Core Lean 4.19.0 Formalization}
+
+All definitions and results in this paper are formalized in self-contained Core
+Lean~4.19.0 in \texttt{lean/Main.lean} (compiled with \texttt{-DwarningAsError=true},
+zero \texttt{sorry}, zero \texttt{native\_decide}, and depending solely on Lean's
+standard kernel axioms \texttt{propext}, \texttt{Classical.choice}, and
+\texttt{Quot.sound}):
+
+\begin{itemize}
+\item \textbf{Definitions~\ref{def:graphs}--\ref{def:minlit}:}\\
+\texttt{SimpleGraph}, \texttt{SimpleGraph.IsConnected}, \texttt{SimpleGraph.IsTree},
+\texttt{HasOddBipartition}, \texttt{MoveRule}, \texttt{Step}, \texttt{Reach},
+\texttt{minLit}, and \texttt{Conjecture00000001242}.
+\item \textbf{Proposition~\ref{prop:witnesses} (Non-vacuity \& non-triviality):}\\
+\texttt{k2\_positive\_witness}, \texttt{emptyGraph2\_minLit\_eq\_two}, and\\
+\texttt{octahedronGraph\_worstAll\_gt\_ceilHalf}.
+\item \textbf{Theorem~\ref{thm:kn} ($K_3$ and infinite family $K_n$, $n \ge 3$):}\\
+\texttt{k3\_counterexample\_all\_conventions} and
+\texttt{kn\_infinite\_counterexample\_family}.
+\item \textbf{Theorem~\ref{thm:k2k} (Connected bipartite family $K_{2k,2k}$, $k \ge 1$):}\\
+\texttt{k2k\_bipartite\_infinite\_counterexample\_family}.
+\item \textbf{Theorem~\ref{thm:p4} (Tree counterexample $P_4$):}\\
+\texttt{p4\_tree\_counterexample\_all\_conventions}.
+\item \textbf{Theorem~\ref{thm:converse} (Converse refutation under $\sigma^-$):}\\
+\texttt{emptyGraph\_even\_converse\_counterexample} and\\
+\texttt{k2PlusEmpty\_converse\_counterexample}.
+\item \textbf{Corollary~\ref{cor:master} (Master refutations across all $24$ conventions):}\\
+\texttt{conjecture\_00000001242\_false\_all\_conventions},\\
+\texttt{conjecture\_00000001242\_false\_connected\_all\_conventions},\\
+\texttt{conjecture\_00000001242\_false\_connected\_bipartite\_all\_conventions}, and\\
+\texttt{conjecture\_00000001242\_false\_trees\_all\_conventions}.
+\end{itemize}
+
+\begin{thebibliography}{9}
+
+\bibitem{GKW2009}
+J.~L. Goldwasser, W.~F. Klostermeyer, and H.~Ware,
+\emph{The lit-only sigma-game on trees and grids},
+ARS Combinatoria \textbf{93} (2009), 309--326.
+
+\bibitem{Sutner1989}
+K.~Sutner,
+\emph{Linear cellular automata and the Garden-of-Eden},
+The Mathematical Intelligencer \textbf{11} (1989), no.~2, 49--53.
+
+\bibitem{WangWu2006}
+F.-H. Wang and Y.-L. Wu,
+\emph{Minimum light number of lit-only $\sigma$-game on a tree},
+Theoretical Computer Science \textbf{352} (2006), no.~1--3, 188--199.
+
+\bibitem{WuWang2008}
+Y.-L. Wu and F.-H. Wang,
+\emph{Minimum light number of the lit-only $\sigma$-game on graphs},
+Discrete Mathematics \textbf{308} (2008), 5722--5732.
+
+\end{thebibliography}
+
+\end{document}
