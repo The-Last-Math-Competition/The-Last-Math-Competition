@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+
+\title{Disproof of Conjecture 00000002731\\
+\large Equal \(h\)-vectors and different simplicial surjection behavior}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+Consider the following two one-dimensional simplicial complexes on the
+vertices \(0,1,2,3\). Their maximal faces are the listed edges.
+\[
+\begin{array}{c|l|c}
+\text{Complex} & \text{Edges} & \text{Chromatic number}\\ \hline
+C & 01,\ 12,\ 23,\ 03 & 2\\
+T & 01,\ 02,\ 12,\ 23 & 3
+\end{array}
+\]
+Both are connected and pure because they contain the spanning path
+\(0\!-\!1\!-\!2\!-\!3\). The coloring with vertex colors \(0,1,0,1\)
+is proper for \(C\), and its edge \(01\) requires at least two colors.
+The triangle \(012\) in \(T\) requires three colors, and the assignment
+\(0,1,2,0\) is a proper three-coloring.
+
+\section*{Equal \(h\)-vectors}
+
+For either complex \(K\) we have \(f_{-1}=1\), \(f_0=4\), and \(f_1=4\).
+The defining identity for its \(h\)-vector gives
+\[
+  \sum_{i=0}^{2} h_i t^{2-i}
+   = \sum_{i=0}^{2} f_{i-1}(t-1)^{2-i}
+   = (t-1)^2+4(t-1)+4 = t^2+2t+1 .
+\]
+Thus both full \(h\)-vectors are \((1,2,1)\).
+
+\section*{Different surjection behavior}
+
+A simplicial map to a simplex is dimension-preserving exactly when
+the endpoints of each source edge have distinct images. For a source
+with an edge, the target therefore needs at least two vertices.
+Surjectivity on faces requires a source face to map to the full target
+simplex, which allows at most two target vertices. For surjectivity on
+geometric realizations, the same upper bound follows because the target
+barycenter lies in the image of a source face only if that face maps to
+all target vertices. In either sense the target must be a \(1\)-simplex.
+
+For this target, a dimension-preserving map is a proper two-coloring.
+The image of any source edge is the full target edge, so such a map
+is surjective. The coloring of \(C\) gives a dimension-preserving
+surjection, while the triangle in \(T\) rules one out. Thus the common
+\(h\)-vector cannot determine existence of the surjection or the
+chromatic number. In particular any ascending-segment statistic of
+that vector agrees for the two complexes and cannot give the stated
+criterion.
+
+\section*{Lean verification}
+
+The Lean~4.19.0 project lists the faces via their vertices and edges.
+It proves the target-size restriction, computes both \(h\)-vectors,
+establishes the two chromatic numbers, and rules out any criterion
+depending only on the \(h\)-vector. Run \verb|lake build| in
+\verb|lean/| to verify the proofs and print their axiom dependencies.
+
+\end{document}
