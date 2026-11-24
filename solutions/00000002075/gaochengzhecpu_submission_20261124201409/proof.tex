@@ -1,0 +1,87 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Unbounded word lengths at fixed target arity\\[2pt]\large Disproof of Conjecture 00000002075}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+For every fixed positive target degree $d$, morphisms from object $1$ to
+object $d$ in the Lawvere theory of groups have unbounded shortest
+representative lengths. This disproves the proposed $d^4$ bound and any
+eventual polynomial bound in the target degree alone.
+
+\section*{A family with exact word lengths}
+
+Object $d$ is the $d$-fold power of the distinguished object. In the term
+presentation of the group Lawvere theory, a map $m\to d$ is a $d$-tuple
+of group words in $m$ variables, modulo the group identities. Equivalently,
+it is a homomorphism $F_d\to F_m$, where $F_j$ is the free group on $j$
+generators~\cite[p.~869]{lawvere}. Word length counts each generator letter
+or inverse letter once, summed over the tuple. The empty
+word represents the identity element $1$.
+
+Fix $d\ge1$. For each nonnegative integer $N$ consider
+\[
+  f_N=(x^N,1,\ldots,1)\colon 1\longrightarrow d.
+\]
+Evaluate its terms in the additive group $\mathbb Z$, assigning the input
+$x$ the value $1\in\mathbb Z$. The first coordinate of $f_N$ then has
+value $N$. Any word representing that coordinate must have the same
+value, since the group identities hold in $\mathbb Z$. Each letter
+contributes $1$ or $-1$, so the length of the first word is at least $N$.
+The representative with $N$ copies of $x$ in the first word and empty
+words in all other coordinates attains that length. Thus the shortest
+word length of $f_N$ is exactly $N$.
+
+The argument applies at every fixed $d\ge1$. Given a proposed bound
+$B(d)$, take an integer $N>B(d)$ at a positive target degree where the
+bound is claimed.
+
+\section*{Group terms and compositional expressions}
+
+The same lower bound on variable occurrences holds if a representative
+is written as a tree of terms in the usual group signature, with binary
+multiplication, unary inverse, and the identity constant. Evaluated at
+$x=1\in\mathbb Z$, a variable contributes $1$, an identity contributes
+$0$, an inverse negates the value, and a multiplication adds its two
+values. Induction and the triangle inequality show that the absolute
+value of the evaluation is at most the number of variable occurrences.
+Any term for the first coordinate still needs at least $N$ occurrences.
+Even counting only multiplication and inverse symbols, a term tree with
+$N$ variable occurrences has at least $N-1$ multiplication symbols,
+because the number of leaves is one more than the number of binary nodes.
+
+Explicit composition can shorten some expressions. For example, repeated
+substitution of $x^2$ produces powers $x^{2^k}$ using $k$ copies of that
+map. For any fixed finite alphabet used to record composition, symbols,
+and indices, a length bound at a fixed $d$ permits only finitely many
+strings. The maps $f_N$ remain pairwise distinct because their first
+coordinates take different values at $1\in\mathbb Z$. This rules out a
+target-only bound for that encoding as well. Providing a separate
+unit-cost symbol for every power $x^N$ would instead introduce infinitely
+many primitives.
+
+\section*{Lean verification}
+
+The Lean 4 project represents group terms and their interpretations in all
+groups through the usual group operations and equations. It verifies
+distinctness of the maps $f_N$, the lower bound on occurrences for any term
+tuple representing $f_N$, and the exact word length. The theorem
+\texttt{C2075.no\_eventual\_target\_bound} rules out any eventual target-only
+bound on term occurrences. Run \texttt{lake build} in the \texttt{lean}
+directory to check it.
+
+\begin{thebibliography}{1}
+\bibitem{lawvere}
+F.~W. Lawvere, \emph{Functorial semantics of algebraic theories},
+Proceedings of the National Academy of Sciences \textbf{50} (1963), 869--872.
+\href{https://doi.org/10.1073/pnas.50.5.869}{DOI 10.1073/pnas.50.5.869}.
+\end{thebibliography}
+
+\end{document}
