@@ -1,0 +1,427 @@
+\documentclass[11pt,a4paper]{amsart}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[margin=1in]{geometry}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\ara}{\mathrm{ara}}
+\newcommand{\pd}{\mathrm{pd}}
+\newcommand{\htid}{\mathrm{ht}}
+\newcommand{\depth}{\mathrm{depth}}
+\newcommand{\lk}{\mathrm{lk}}
+\newcommand{\RP}{\mathbb{RP}}
+\newcommand{\FF}{\mathbb{F}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\mm}{\mathfrak{m}}
+\newcommand{\pp}{\mathfrak{p}}
+
+\title[Disproof of Conjecture 00000000505 on Edge Ideals]{Arithmetical Rank and Projective Dimension of Edge Ideals:\\ A Complete Disproof of Conjecture 00000000505}
+
+\date{}
+
+\begin{document}
+
+\begin{abstract}
+We study Conjecture~\texttt{00000000505}, which asserts that for the edge ideal $I(G)$ of any finite simple graph $G$ over a field $k$, the arithmetical rank satisfies $\ara(I(G)) \le \pd + 1$, with equality whenever $G$ is Cohen--Macaulay. In combinatorial commutative algebra there are two standard conventions for the projective dimension $\pd$ attached to $I(G) \subseteq R = k[x_0,\dots,x_{n-1}]$: the quotient convention $\pd = \pd_R(R/I(G))$ and the ideal-module convention $\pd = \pd_R(I(G))$. We prove that Conjecture~\texttt{00000000505} is \textbf{false} over every field $k$ under \emph{both} conventions, and even when restricted to graphs with non-empty edge sets:
+\begin{enumerate}
+  \item[(i)] Under the standard quotient convention $\pd = \pd_R(R/I(G))$, the single-edge graph $G = K_2$ is Cohen--Macaulay over every field $k$ with $\ara(I(K_2)) = 1$ and $\pd_R(R/I(K_2)) = 1$, violating the claimed equality $1 = 1 + 1$. More generally, every complete graph $K_n$ ($n \ge 2$) is Cohen--Macaulay with $\ara(I(K_n)) = \pd_R(R/I(K_n)) = n - 1 \neq n$.
+  \item[(ii)] Under the ideal-module convention $\pd = \pd_R(I(G))$, any edgeless graph $\overline{K_n}$ ($n \ge 1$) is Cohen--Macaulay with $\ara(I(\overline{K_n})) = 0$ and $\pd_R(I(\overline{K_n})) = 0$, violating $0 = 0 + 1$.
+  \item[(iii)] Even for non-empty Cohen--Macaulay graphs, \emph{both} the inequality $\ara(I(G)) \le \pd + 1$ and the Cohen--Macaulay equality fail under \emph{both} conventions over every field $k$. For $\mathrm{char}(k) \neq 2$, Katzman's $11$-vertex graph $G_{11}$ (the complement of a minimal flag triangulation of $\RP^2$) is Cohen--Macaulay with $\pd_R(I(G_{11})) + 1 = \pd_R(R/I(G_{11})) = 8$ while $\ara(I(G_{11})) \ge 9$, and its disjoint union $G_{11} \sqcup G_{11}$ ($22$ vertices) is Cohen--Macaulay with $\pd_R(I) + 1 = 16$, $\pd_R(R/I) + 1 = 17$, and $\ara(I) \ge 18$. For $\mathrm{char}(k) = 2$, an explicit $17$-vertex flag triangulation of the mod-$3$ Moore space $M(\ZZ/3\ZZ,1)$ provides an $84$-edge Cohen--Macaulay graph $G_{(3)}$ with $\pd_R(I) + 1 = 14 < 15 \le \ara(I)$ and $\ara(I(G_{(3)} \sqcup G_{(3)})) \ge 30 > 29 = \pd_R(R/I) + 1$.
+\end{enumerate}
+The algebraic disproofs on $K_2$ and $\overline{K_1}$ over an arbitrary field are formalized from first principles in Core Lean~4.19.0 with zero external dependencies and zero custom axioms, and all combinatorial and homological invariants are verified by an accompanying Python suite.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction and Problem Formulation}
+
+ Conjecture~\texttt{00000000505} reads verbatim (in English and in translation of the accompanying Chinese formulation):
+\begin{quote}
+\emph{Definition: The arithmetical rank $\ara(I)$ of an edge ideal. Conjecture: For any graph, $\ara(I(G)) \le \pd + 1$, with equality for Cohen--Macaulay graphs.}
+\end{quote}
+
+Let $k$ be an arbitrary field, and let $G = (V, E)$ be a finite simple undirected graph on $n = |V|$ vertices, identified with $\{0, 1, \dots, n-1\}$. In the standard $\mathbb{N}$-graded polynomial ring $R = k[x_0, \dots, x_{n-1}]$ with $\deg(x_i) = 1$ and homogeneous maximal ideal $\mm = (x_0, \dots, x_{n-1})$, the \emph{edge ideal} of $G$ is the quadratic squarefree monomial ideal
+\[
+  I(G) \;=\; \bigl( x_u x_v : \{u, v\} \in E \bigr) \;\subseteq\; R,
+\]
+with the convention $I(G) = (0)$ when $E = \emptyset$.
+
+\begin{definition}[Arithmetical rank]
+Let $R$ be a commutative ring with identity and $I \subseteq R$ an ideal. The \emph{radical} of $I$ is $\sqrt{I} = \{g \in R : \exists\, m \ge 1,\; g^m \in I\}$. The \emph{arithmetical rank} $\ara(I)$ of $I$ is the least integer $r \in \mathbb{N}$ for which there exist $r$ elements $f_1, \dots, f_r \in R$ satisfying
+\[
+  \sqrt{(f_1, \dots, f_r)} \;=\; \sqrt{I},
+\]
+where the empty family ($r = 0$) generates the zero ideal $(0)$. Since $I(G)$ is generated by squarefree monomials over a field $k$, $I(G)$ is a radical ideal, so $\sqrt{I(G)} = I(G)$.
+\end{definition}
+
+\begin{definition}[Projective dimension and the two conventions]
+For a finitely generated $R$-module $M$, the \emph{projective dimension} $\pd_R(M) \in \mathbb{N}$ is the minimum integer $d \ge 0$ such that there exists an exact sequence of projective $R$-modules
+\[
+  0 \longrightarrow P_d \longrightarrow P_{d-1} \longrightarrow \cdots \longrightarrow P_1 \longrightarrow P_0 \longrightarrow M \longrightarrow 0.
+\]
+In combinatorial commutative algebra, two conventions for the abbreviation $\pd$ appear in the edge-ideal literature:
+\begin{itemize}
+  \item \textbf{(C1) Quotient convention} (standard in Lyubeznik~\cite{Lyubeznik1988}, Barile~\cite{Barile2008}, Kimura--Terai~\cite{KimuraTerai2009}, and Villarreal~\cite{Villarreal2015}): $\pd := \pd_R(R/I(G))$, the projective dimension of the edge ring $R/I(G)$.
+  \item \textbf{(C2) Ideal-module convention} (used in Herzog--Hibi~\cite{HerzogHibi2011} and \texttt{Macaulay2}'s \texttt{pdim(I)}): $\pd := \pd_R(I(G))$, the projective dimension of $I(G)$ as an $R$-submodule of $R$.
+\end{itemize}
+Whenever $E(G) \neq \emptyset$, we have $0 \subsetneq I(G) \subseteq \mm \subsetneq R$; the short exact sequence $0 \to I(G) \to R \to R/I(G) \to 0$ and the non-projectivity of $R/I(G)$ yield the exact shift
+\begin{equation}\label{eq:pd-shift}
+  \pd_R(R/I(G)) \;=\; \pd_R(I(G)) + 1 \qquad (E(G) \neq \emptyset).
+\end{equation}
+For an edgeless graph ($E(G) = \emptyset$), $I(G) = (0) \cong R^0$ is free of rank $0$ and $R/I(G) \cong R$ is free of rank $1$, so $\pd_R(I(G)) = \pd_R(R/I(G)) = 0$. (Some authors assign $\pd_R(0) = -\infty$; see Remark~\ref{rem:zero-pd}.)
+\end{definition}
+
+\begin{definition}[Dimension, depth, and CM graphs]
+Let $I \subsetneq R = k[x_0,\dots,x_{n-1}]$ be a proper homogeneous ideal.
+\begin{enumerate}
+  \item[(a)] The \emph{Krull dimension} $\dim(R/I)$ is the supremum of lengths $d \ge 0$ of strictly increasing chains $I \subseteq \pp_0 \subsetneq \pp_1 \subsetneq \cdots \subsetneq \pp_d$ of prime ideals of $R$.
+  \item[(b)] A sequence $r_1, \dots, r_t \in \mm$ is an \emph{$\mm$-regular sequence} on $R/I$ if $I + (r_1,\dots,r_t) \neq R$ and for each $j \in \{1,\dots,t\}$, $r_j$ is a non-zero-divisor on $R/\bigl(I + (r_1,\dots,r_{j-1})\bigr)$. The \emph{depth} $\depth_{\mm}(R/I)$ is the maximum length of an $\mm$-regular sequence on $R/I$.
+  \item[(c)] A graph $G$ is \emph{Cohen--Macaulay over $k$} if $I(G) \neq R$ and the $\mm$-depth $\depth_{\mm}(R/I(G))$ coincides with the Krull dimension $\dim(R/I(G))$.
+\end{enumerate}
+\end{definition}
+
+Recall that by a foundational theorem of Lyubeznik~\cite[Theorem~1]{Lyubeznik1988}, every squarefree monomial ideal $I \subseteq R$ satisfies the \emph{lower} bound
+\begin{equation}\label{eq:lyubeznik}
+  \pd_R(R/I) \;\le\; \ara(I).
+\end{equation}
+Under Convention~\textbf{(C2)}, identity~\eqref{eq:pd-shift} rewrites $\pd + 1 = \pd_R(I(G)) + 1$ as $\pd_R(R/I(G))$ for every non-empty graph $G$. Thus, for non-empty graphs under~\textbf{(C2)}, Conjecture~\texttt{00000000505} proposes the reverse inequality $\ara(I(G)) \le \pd_R(R/I(G))$---which, combined with~\eqref{eq:lyubeznik}, would force $\ara(I(G)) = \pd_R(R/I(G))$ universally and would force every Cohen--Macaulay edge ideal (where $\pd_R(R/I) = \htid(I)$ by Auslander--Buchsbaum) to be a set-theoretic complete intersection. Under Convention~\textbf{(C1)}, on the other hand, $\pd + 1 = \pd_R(R/I(G)) + 1$ is shifted upward by $1$, causing the Cohen--Macaulay equality clause to fail immediately on $K_2$.
+
+Table~\ref{tab:summary} summarizes our counterexamples showing that Conjecture~\texttt{00000000505} is false over every field $k$ under every convention.
+
+\begin{table}[ht]
+\centering
+\caption{Summary of Cohen--Macaulay counterexamples to Conjecture~\texttt{00000000505}.}\label{tab:summary}
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{llccccc}
+\hline
+Graph $G$ & Field $k$ & $(|V|,|E|)$ & $\ara(I(G))$ & $\pd_R(R/I)+1$ & $\pd_R(I)+1$ & Violated \\
+\hline
+$\overline{K_n}\;(n \ge 1)$ & any $k$ & $(n,0)$ & $0$ & $1$ & $1$ & CM eq.\ in \textbf{(C1)}, \textbf{(C2)} \\
+$K_2$ & any $k$ & $(2,1)$ & $1$ & $2$ & $1$ & CM eq.\ in \textbf{(C1)} \\
+$K_n\;(n \ge 2)$ & any $k$ & $(n,\binom{n}{2})$ & $n-1$ & $n$ & $n-1$ & CM eq.\ in \textbf{(C1)} \\
+$G_{11}$ (flag $\RP^2$) & $\mathrm{char}(k) \neq 2$ & $(11,25)$ & $9$ or $10$ & $9$ & $8$ & Ineq.\ \& CM eq.\ in \textbf{(C2)} \\
+$G_{11} \sqcup G_{11}$ & $\mathrm{char}(k) \neq 2$ & $(22,50)$ & $\ge 18$ & $17$ & $16$ & Ineq.\ \& CM eq.\ in \textbf{(C1)}, \textbf{(C2)} \\
+$G_{(3)}$ (flag $M_3$) & $\mathrm{char}(k) \neq 3$ & $(17,84)$ & $\ge 15$ & $15$ & $14$ & Ineq.\ \& CM eq.\ in \textbf{(C2)} \\
+$G_{(3)} \sqcup G_{(3)}$ & $\mathrm{char}(k) \neq 3$ & $(34,168)$ & $\ge 30$ & $29$ & $28$ & Ineq.\ \& CM eq.\ in \textbf{(C1)}, \textbf{(C2)} \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Elementary Algebraic Disproofs on \texorpdfstring{$K_2$}{K2} and \texorpdfstring{$\overline{K_n}$}{Kn-bar}}\label{sec:elementary}
+
+We begin with completely elementary, characteristic-free commutative-algebraic proofs on $G = K_2$ and $G = \overline{K_n}$ over an arbitrary field $k$. These proofs require no homological or topological machinery beyond polynomial division in one variable and match our Core Lean~4 formalization step by step.
+
+Let $k$ be any field, $R = k[x_0, x_1]$, and $G = K_2$ on $V = \{0, 1\}$ with $E = \{\{0, 1\}\}$, so that $I(K_2) = (x_0 x_1) \subseteq R$. Let $\mathrm{ev}_{x_1=0} : R \to k[x_0]$ and $\mathrm{ev}_{x_0=0} : R \to k[x_1]$ denote the surjective $k$-algebra homomorphisms sending $x_1 \mapsto 0$ and $x_0 \mapsto 0$, respectively.
+
+\begin{lemma}[Ideal membership and arithmetical rank of $I(K_2)$]\label{lem:k2-ara}
+For every $h \in R = k[x_0, x_1]$, we have $h \in (x_0 x_1)$ if and only if $\mathrm{ev}_{x_1=0}(h) = 0$ and $\mathrm{ev}_{x_0=0}(h) = 0$. Consequently, $\ara(I(K_2)) = 1$.
+\end{lemma}
+
+\begin{proof}
+If $h = q \cdot x_0 x_1$, then both $\mathrm{ev}_{x_1=0}(h)$ and $\mathrm{ev}_{x_0=0}(h)$ vanish because $\mathrm{ev}_{x_1=0}(x_1) = 0$ and $\mathrm{ev}_{x_0=0}(x_0) = 0$. Conversely, write $h = \sum_{i,j \ge 0} c_{i,j} x_0^i x_1^j$. If $\mathrm{ev}_{x_1=0}(h) = \sum_{i \ge 0} c_{i,0} x_0^i = 0$ and $\mathrm{ev}_{x_0=0}(h) = \sum_{j \ge 0} c_{0,j} x_1^j = 0$, then $c_{i,0} = 0$ for all $i$ and $c_{0,j} = 0$ for all $j$, so $h = x_0 x_1 \sum_{i,j \ge 0} c_{i+1,j+1} x_0^i x_1^j \in (x_0 x_1)$.
+
+Taking $f_1 = x_0 x_1$ gives $\sqrt{(f_1)} = \sqrt{I(K_2)}$, so $\ara(I(K_2)) \le 1$. On the other hand, if $\ara(I(K_2)) = 0$, then $\sqrt{(0)} = \sqrt{I(K_2)}$, so $(x_0 x_1)^m = 0$ for some $m \ge 1$. Since $R = k[x_0, x_1]$ is an integral domain and $x_0 x_1 \neq 0$, this is impossible. Hence $\ara(I(K_2)) = 1$.
+\end{proof}
+
+\begin{lemma}[Projective dimension of $R/I(K_2)$]\label{lem:k2-pd}
+Over $R = k[x_0, x_1]$, we have $\pd_R(I(K_2)) = 0$ and $\pd_R(R/I(K_2)) = 1$.
+\end{lemma}
+
+\begin{proof}
+Since $R$ is an integral domain and $x_0 x_1 \neq 0$, multiplication by $x_0 x_1$ defines an $R$-linear isomorphism $R \xrightarrow{\sim} I(K_2)$, so $I(K_2)$ is free of rank $1$ and $\pd_R(I(K_2)) = 0$. This yields the free resolution of length $1$:
+\[
+  0 \longrightarrow R \xrightarrow{\;\cdot x_0 x_1\;} R \xrightarrow{\;\pi\;} R/I(K_2) \longrightarrow 0,
+\]
+showing $\pd_R(R/I(K_2)) \le 1$. Suppose for contradiction that $\pd_R(R/I(K_2)) = 0$, i.e., $R/I(K_2)$ is projective, hence an $R$-linear direct summand of $R^s$ for some $s \in \mathbb{N}$. Over the integral domain $R$, every free module $R^s$ is torsion-free, so any projective $R$-module is torsion-free. However, in $R/I(K_2)$ we have $x_0 \neq 0$ in $R$ and $x_0 \cdot \overline{x_1} = \overline{x_0 x_1} = 0$, while $\overline{x_1} \neq 0$ because $\mathrm{ev}_{x_0=0}(x_1) = x_1 \neq 0$ implies $x_1 \notin (x_0 x_1)$ by Lemma~\ref{lem:k2-ara}. This contradiction proves $\pd_R(R/I(K_2)) = 1$.
+\end{proof}
+
+\begin{lemma}[Cohen--Macaulayness of $K_2$]\label{lem:k2-cm}
+Over every field $k$, the quotient ring $R/I(K_2) = k[x_0, x_1]/(x_0 x_1)$ satisfies
+\[
+  \dim(R/I(K_2)) \;=\; 1 \;=\; \depth_{\mm}(R/I(K_2)),
+\]
+so $K_2$ is a Cohen--Macaulay graph over $k$.
+\end{lemma}
+
+\begin{proof}
+First, $1 \notin I(K_2)$ since $\mathrm{ev}_{x_1=0}(1) = 1 \neq 0$.
+
+\smallskip
+\noindent\emph{Step 1: $\dim(R/I(K_2)) = 1$.}
+The ideals $\pp_0 = (x_1) = \ker(\mathrm{ev}_{x_1=0})$ and $\pp_1 = (x_0, x_1)$ are prime because $R/\pp_0 \cong k[x_0]$ and $R/\pp_1 \cong k$ are integral domains, and $I(K_2) \subseteq \pp_0 \subsetneq \pp_1$ (since $x_0 \in \pp_1 \setminus \pp_0$). Thus $\dim(R/I(K_2)) \ge 1$.
+
+Suppose $I(K_2) \subseteq \mathfrak{q}_0 \subsetneq \mathfrak{q}_1 \subsetneq \mathfrak{q}_2$ were a strictly increasing chain of prime ideals in $R$ of length $2$. Since $x_0 x_1 \in I(K_2) \subseteq \mathfrak{q}_0$ and $\mathfrak{q}_0$ is prime, either $x_1 \in \mathfrak{q}_0$ or $x_0 \in \mathfrak{q}_0$. By symmetry, assume $x_1 \in \mathfrak{q}_0$. Let $\iota : k[x_0] \hookrightarrow R$ be the natural inclusion; then for every $h \in R$, $h - \iota(\mathrm{ev}_{x_1=0}(h)) \in (x_1) \subseteq \mathfrak{q}_0$. Pulling back along $\iota$ therefore produces a strictly increasing chain $\iota^{-1}(\mathfrak{q}_0) \subsetneq \iota^{-1}(\mathfrak{q}_1) \subsetneq \iota^{-1}(\mathfrak{q}_2)$ of three prime ideals in $k[x_0]$. Because $k$ is a field, Euclidean division makes $k[x_0]$ a principal ideal domain: if $(g_1) \subsetneq (g_2)$ are nonzero prime ideals in $k[x_0]$, writing $g_1 = q g_2$ forces either $g_2 \in (g_1)$ (impossible) or $q = s g_1$, whence $g_1(1 - s g_2) = 0$ and $s g_2 = 1$, contradicting $1 \notin (g_2)$. Thus no chain of length $\ge 2$ exists, and $\dim(R/I(K_2)) = 1$.
+
+\smallskip
+\noindent\emph{Step 2: $\depth_{\mm}(R/I(K_2)) = 1$.}
+Put $\theta = x_1 - x_0 \in \mm$. Note that $1 \notin I(K_2) + (\theta)$ because evaluating at $(0,0)$ sends both $x_0 x_1$ and $\theta$ to $0 \neq 1$. If $\theta f \in (x_0 x_1)$, applying $\mathrm{ev}_{x_1=0}$ and $\mathrm{ev}_{x_0=0}$ gives $(-x_0)\,\mathrm{ev}_{x_1=0}(f) = 0$ in $k[x_0]$ and $x_1\,\mathrm{ev}_{x_0=0}(f) = 0$ in $k[x_1]$. Since $k[x_0]$ and $k[x_1]$ are domains, $\mathrm{ev}_{x_1=0}(f) = 0$ and $\mathrm{ev}_{x_0=0}(f) = 0$, so $f \in (x_0 x_1)$ by Lemma~\ref{lem:k2-ara}. Thus $(\theta)$ is an $\mm$-regular sequence of length $1$, giving $\depth_{\mm}(R/I(K_2)) \ge 1$.
+
+Suppose for contradiction that $(r_1, r_2, \dots)$ is an $\mm$-regular sequence of length $e \ge 2$ on $R/I(K_2)$. Put $p = \mathrm{ev}_{x_1=0}(r_1) \in k[x_0]$ and $q = \mathrm{ev}_{x_0=0}(r_1) \in k[x_1]$. Since $r_1 \in \mm$, $p(0) = q(0) = 0$. If $p = 0$, then Lemma~\ref{lem:k2-ara} gives $r_1 x_0 \in (x_0 x_1)$ while $x_0 \notin (x_0 x_1)$, contradicting regularity of $r_1$; hence $p \neq 0$, and symmetrically $q \neq 0$. Consider $z := p(x_0) \in R$, which satisfies $\mathrm{ev}_{x_1=0}(z) = p$ and $\mathrm{ev}_{x_0=0}(z) = p(0) = 0$. For $r_2 \in \mm$, put $p_2 = \mathrm{ev}_{x_1=0}(r_2) \in k[x_0]$, noting $p_2(0) = 0$. Examining
+\[
+  w \;:=\; r_2 z - p_2(x_0)\, r_1 \;\in\; R,
+\]
+we find $\mathrm{ev}_{x_1=0}(w) = p_2 p - p_2 p = 0$ and $\mathrm{ev}_{x_0=0}(w) = \mathrm{ev}_{x_0=0}(r_2)\cdot 0 - p_2(0)\,q = 0$, so $w \in (x_0 x_1)$ by Lemma~\ref{lem:k2-ara}. Therefore $r_2 z = w + p_2(x_0)\,r_1 \in (x_0 x_1) + (r_1)$. By regularity of $r_2$ on $R/\bigl((x_0 x_1) + (r_1)\bigr)$, we must have $z \in (x_0 x_1) + (r_1)$, say $z = a + u r_1$ with $a \in (x_0 x_1)$ and $u \in R$. Applying $\mathrm{ev}_{x_1=0}$ yields $p = \mathrm{ev}_{x_1=0}(u)\,p$ in $k[x_0]$, so $\mathrm{ev}_{x_1=0}(u) = 1$ and hence $u(0,0) = 1$; applying $\mathrm{ev}_{x_0=0}$ yields $0 = \mathrm{ev}_{x_0=0}(u)\,q$ in $k[x_1]$, so $\mathrm{ev}_{x_0=0}(u) = 0$ and hence $u(0,0) = 0$, contradicting $1 \neq 0$ in $k$. Thus $\depth_{\mm}(R/I(K_2)) = 1$.
+\end{proof}
+
+\begin{theorem}[Disproof under Convention~\textbf{(C1)} on non-empty graphs]\label{thm:c1-disproof}
+Over every field $k$, Conjecture~\texttt{00000000505} is false under Convention~\textbf{(C1)} ($\pd = \pd_R(R/I(G))$), even when restricted to finite simple graphs with $E(G) \neq \emptyset$: the Cohen--Macaulay graph $G = K_2$ satisfies $\ara(I(K_2)) = 1 \neq 2 = \pd_R(R/I(K_2)) + 1$.
+\end{theorem}
+
+\begin{proof}
+Combine Lemmas~\ref{lem:k2-ara}, \ref{lem:k2-pd}, and~\ref{lem:k2-cm}.
+\end{proof}
+
+\begin{remark}[All complete graphs $K_n$, $n \ge 2$]
+More generally, for every $n \ge 2$, $I(K_n) = (x_i x_j : 0 \le i < j < n)$ has minimal prime ideals $(x_0,\dots,\widehat{x_\ell},\dots,x_{n-1})$ of height $n - 1$, and $R/I(K_n)$ is Cohen--Macaulay of dimension $1$ (with regular element $x_0 + \dots + x_{n-1}$) and $\pd_R(R/I(K_n)) = n - 1$. Partitioning the edges of $K_n$ into the $n - 1$ stars $P_\ell = \{x_i x_{\ell+1} : 0 \le i \le \ell\}$ ($\ell = 0,\dots,n-2$) satisfies Schmitt--Vogel's lemma (Lemma~\ref{lem:sv} below), giving $\ara(I(K_n)) = n - 1 \neq n = \pd_R(R/I(K_n)) + 1$.
+\end{remark}
+
+\begin{proposition}[Disproof under Convention~\textbf{(C2)} on edgeless graphs]\label{prop:edgeless}
+Let $n \ge 1$ and let $\overline{K_n}$ be the edgeless graph on $n$ vertices over any field $k$. Then $\overline{K_n}$ is Cohen--Macaulay over $k$ with $\ara(I(\overline{K_n})) = 0$, $\pd_R(I(\overline{K_n})) = 0$, and $\pd_R(R/I(\overline{K_n})) = 0$. Consequently, $\ara(I(\overline{K_n})) = 0 \neq 1 = \pd + 1$ under both~\textbf{(C1)} and~\textbf{(C2)}.
+\end{proposition}
+
+\begin{proof}
+Here $I(\overline{K_n}) = (0) \subseteq R = k[x_0,\dots,x_{n-1}]$. Since $R$ is an integral domain, $\sqrt{(0)} = (0)$ is generated by the empty list of length $0$, so $\ara((0)) = 0$. As $R$-modules, $(0) \cong R^0$ and $R/(0) \cong R^1$ are free, so $\pd_R((0)) = \pd_R(R/(0)) = 0$. Finally, $R$ has prime chain $(0) \subsetneq (x_0) \subsetneq (x_0,x_1) \subsetneq \dots \subsetneq \mm$ of maximal length $n$ and $\mm$-regular sequence $(x_0,\dots,x_{n-1})$ of maximal length $n$ (in particular, for $n = 1$, $R = k[x_0]$ is a PID with $\dim R = \depth_{\mm} R = 1$), so $\overline{K_n}$ is Cohen--Macaulay over $k$.
+\end{proof}
+
+\begin{remark}\label{rem:zero-pd}
+If one instead adopts the convention $\pd_R(0) = -\infty$ for the zero module, then on $\overline{K_n}$ ($n \ge 1$) the inequality $\ara(I(\overline{K_n})) \le \pd_R(I(\overline{K_n})) + 1$ becomes $0 \le -\infty$, which also fails.
+\end{remark}
+
+\section{Non-Empty Counterexamples Under Convention~(C2) and Universal Failure of the Upper Bound}\label{sec:flag-manifolds}
+
+A natural follow-up question is whether Conjecture~\texttt{00000000505} becomes true under Convention~\textbf{(C2)} ($\pd = \pd_R(I(G))$, so $\pd + 1 = \pd_R(R/I(G))$) if one restricts to graphs with $E(G) \neq \emptyset$, or whether at least the upper bound $\ara(I(G)) \le \pd_R(R/I(G)) + 1$ under Convention~\textbf{(C1)} holds for all graphs. In this section we prove that the answer to \emph{both} questions is \textbf{negative} over every field $k$.
+
+\subsection{Stanley--Reisner theory of flag complexes and topological lower bounds}
+
+Recall that a finite simplicial complex $\Delta$ on vertex set $V = \{0,\dots,n-1\}$ is \emph{flag} (or a \emph{clique complex}) if every minimal non-face of $\Delta$ has cardinality $2$. Let $G = G(\Delta)$ be the graph on $V$ whose edges are the $2$-element non-faces of $\Delta$ (the complement of the $1$-skeleton of $\Delta$). Then the Stanley--Reisner ideal $I_\Delta = \bigl(\prod_{i \in \sigma} x_i : \sigma \notin \Delta\bigr) \subseteq R = k[x_0,\dots,x_{n-1}]$ coincides with the edge ideal $I(G)$.
+
+We recall three standard pillars of combinatorial commutative algebra and algebraic geometry:
+
+\begin{lemma}[Reisner's criterion and Hochster's formula {\cite{Reisner1976,HerzogHibi2011}}]\label{lem:reisner-hochster}
+Let $\Delta$ be a finite simplicial complex on $n$ vertices of dimension $d - 1$ ($d \ge 1$) over a field $k$, with $I_\Delta \subseteq R = k[x_0,\dots,x_{n-1}]$.
+\begin{enumerate}
+  \item[(a)] $\dim(R/I_\Delta) = d$, and $R/I_\Delta$ is Cohen--Macaulay over $k$ if and only if for every face $F \in \Delta$ (including $F = \emptyset$) and every integer $i < \dim(\lk_\Delta(F))$, the reduced simplicial homology $\widetilde{H}_i(\lk_\Delta(F); k)$ vanishes, where $\lk_\Delta(F) = \{H \in \Delta : H \cap F = \emptyset,\; H \cup F \in \Delta\}$. When $R/I_\Delta$ is Cohen--Macaulay over $k$, the Auslander--Buchsbaum formula gives $\pd_R(R/I_\Delta) = n - d$.
+  \item[(b)] For every homological degree $p \ge 1$ and subset $J \subseteq \{0,\dots,n-1\}$, the multigraded Betti number of $R/I_\Delta$ over $k$ is given by
+  \[
+    \beta_{p,J}^k(R/I_\Delta) \;=\; \dim_k \widetilde{H}_{|J| - p - 1}(\Delta_J; k),
+  \]
+  where $\Delta_J = \{F \in \Delta : F \subseteq J\}$ is the induced subcomplex on $J$.
+\end{enumerate}
+\end{lemma}
+
+\begin{lemma}[Bruns--Schw\"anzl and Yan cohomological lower bound {\cite{BrunsSchwanzl1990,Yan2000}}]\label{lem:yan-bound}
+Let $\Delta$ be a simplicial complex on $n$ vertices and $k$ any field. Suppose $\ell$ is a prime with $\ell \neq \mathrm{char}(k)$, $J \subseteq \{0,\dots,n-1\}$ is a non-empty subset, and $\widetilde{H}_i(\Delta_J; \FF_\ell) \neq 0$. Then in $R = k[x_0,\dots,x_{n-1}]$,
+\begin{equation}\label{eq:yan-bound}
+  \ara_R(I_\Delta) \;\ge\; 2|J| - i - 1 - n.
+\end{equation}
+In particular, taking $J = \{0,\dots,n-1\}$ ($|J| = n$) yields $\ara_R(I_\Delta) \ge n - i - 1$ whenever $\widetilde{H}_i(\Delta; \FF_\ell) \neq 0$ for some prime $\ell \neq \mathrm{char}(k)$.
+\end{lemma}
+
+\begin{proof}[Proof sketch (self-contained overview of {\cite{BrunsSchwanzl1990,Yan2000}})]
+Suppose $f_1,\dots,f_r \in R$ satisfy $\sqrt{(f_1,\dots,f_r)} = I_\Delta$. Passing to an algebraically closed extension $K$ of $k$ (for $\mathrm{char}(k) = 0$, we may embed the finitely generated subfield of $k$ generated by all coefficients of $f_1,\dots,f_r$ and the radical-membership witnesses into $\CC$), the complement $U = \mathbb{A}^n_K \setminus V(I_\Delta) = \bigcup_{j=1}^r D(f_j)$ is covered by $r$ principal affine open subsets $D(f_j)$ whose intersections $D(f_{j_0}\cdots f_{j_p})$ are again smooth affine $K$-varieties of dimension $n$.
+\begin{itemize}
+  \item For $K = \CC$ (Bruns--Schw\"anzl~\cite{BrunsSchwanzl1990}), the Andreotti--Frankel theorem implies $H^q_{\mathrm{sing}}(W; \FF_\ell) = 0$ for every smooth complex affine $n$-fold $W$ and all $q > n$. The \v{C}ech spectral sequence $E_1^{p,q} = \bigoplus_{|S|=p+1} H^q_{\mathrm{sing}}(D(f_S); \FF_\ell) \Rightarrow H^{p+q}_{\mathrm{sing}}(U; \FF_\ell)$ has $E_1^{p,q} = 0$ whenever $p \ge r$ or $q > n$, forcing $H^m_{\mathrm{sing}}(U; \FF_\ell) = 0$ for all $m \ge n + r$. Meanwhile, $V(I_\Delta) = \bigcup_{F \in \Delta} \CC^F$ is a coordinate subspace arrangement whose complement $U$ satisfies the Goresky--MacPherson formula $\widetilde{H}^m_{\mathrm{sing}}(U; \FF_\ell) \cong \bigoplus_{J \subseteq [n]} \widetilde{H}_{2|J| - m - 2}(\Delta_J; \FF_\ell)$. If $\widetilde{H}_i(\Delta_J; \FF_\ell) \neq 0$, then $H^m_{\mathrm{sing}}(U; \FF_\ell) \neq 0$ at $m = 2|J| - i - 2$ (note $m \ge 1$ whenever $I_\Delta \neq R$), whence $2|J| - i - 2 < n + r$, i.e., $r \ge 2|J| - i - 1 - n$.
+  \item For arbitrary $\mathrm{char}(k) \neq \ell$, Yan~\cite[Theorem~2.2 and Corollary~3.2]{Yan2000} replaces singular cohomology by Grothendieck's $\ell$-adic / mod-$\ell$ \'etale cohomology $H^m_{\text{\'et}}(U_K; \FF_\ell)$: Artin--Grothendieck affine Lefschetz vanishing gives $H^q_{\text{\'et}}(W; \FF_\ell) = 0$ for $q > n$, the \v{C}ech spectral sequence gives $H^m_{\text{\'et}}(U_K; \FF_\ell) = 0$ for $m \ge n + r$, and Yan's \'etale Goresky--MacPherson formula identifies $\widetilde{H}^m_{\text{\'et}}(U_K; \FF_\ell)$ with $\bigoplus_{J \subseteq [n]} \widetilde{H}_{2|J| - m - 2}(\Delta_J; \FF_\ell)$, yielding the exact same inequality~\eqref{eq:yan-bound}. \qedhere
+\end{itemize}
+\end{proof}
+
+We also record Schmitt--Vogel's lemma for constructive upper bounds on $\ara(I(G))$:
+
+\begin{lemma}[Schmitt--Vogel {\cite[Lemma, p.~249]{SchmittVogel1979}}]\label{lem:sv}
+Let $R$ be a commutative ring and $P \subseteq R$ a finite set partitioned into $r$ subsets $P_0, P_1, \dots, P_{r-1}$ such that $|P_0| = 1$ and, for each $1 \le \ell < r$ and any distinct $a, b \in P_\ell$, the product $ab$ lies in the ideal generated by $\bigcup_{m < \ell} P_m$. Setting $g_\ell = \sum_{a \in P_\ell} a$, one has $\sqrt{(g_0,\dots,g_{r-1})} = \sqrt{(P)}$, so $\ara((P)) \le r$.
+\end{lemma}
+
+\subsection{Counterexample in \texorpdfstring{$\mathrm{char}(k) \neq 2$}{char(k) != 2}: Katzman's \texorpdfstring{$11$}{11}-vertex flag \texorpdfstring{$\RP^2$}{RP2} graph \texorpdfstring{$G_{11}$}{G11}}
+
+Let $V = \{0, 1, \dots, 10\}$ ($n = 11$) and let $\Delta_{11}$ be the $2$-dimensional simplicial complex generated by the $20$ facets (triangles)
+\begin{equation}\label{eq:rp2-facets}
+\begin{aligned}
+  &\{0,1,2\},\; \{0,1,5\},\; \{0,2,3\},\; \{0,3,4\},\; \{0,4,5\},\\
+  &\{1,2,7\},\; \{1,5,6\},\; \{1,6,9\},\; \{1,7,9\},\; \{2,3,8\},\\
+  &\{2,7,10\},\; \{2,8,10\},\; \{3,4,9\},\; \{3,6,8\},\; \{3,6,9\},\\
+  &\{4,5,10\},\; \{4,7,9\},\; \{4,7,10\},\; \{5,6,8\},\; \{5,8,10\}.
+\end{aligned}
+\end{equation}
+This complex is one of the four vertex-minimal $11$-vertex flag triangulations of the real projective plane $\RP^2$ discovered in the edge-ideal context by Katzman~\cite[Section~3]{Katzman2006}. Direct inspection (verified exhaustively in \texttt{verify.py}) confirms:
+\begin{enumerate}
+  \item[(1)] $\Delta_{11}$ has $11$ vertices, $30$ edges, and $20$ triangles; every edge of $\Delta_{11}$ belongs to exactly $2$ triangles, and the link $\lk_{\Delta_{11}}(v)$ of each vertex $v \in V$ is a single chordless cycle of length $5$ or $6$. Hence $|\Delta_{11}|$ is a closed connected $2$-manifold of Euler characteristic $\chi(\Delta_{11}) = 11 - 30 + 20 = 1$, i.e., $|\Delta_{11}| \cong \RP^2$.
+  \item[(2)] Every $3$-clique in the $1$-skeleton of $\Delta_{11}$ is one of the $20$ facets in~\eqref{eq:rp2-facets}, and no $4$-clique exists. Thus $\Delta_{11}$ is a \emph{flag} complex, and $I_{\Delta_{11}} = I(G_{11})$ is the edge ideal of its complement graph $G_{11}$, which has $\binom{11}{2} - 30 = 25$ edges:
+  \begin{align*}
+    E(G_{11}) \;=\; \bigl\{
+    &\{0,6\},\{0,7\},\{0,8\},\{0,9\},\{0,10\},\{1,3\},\{1,4\},\{1,8\},\{1,10\},\\
+    &\{2,4\},\{2,5\},\{2,6\},\{2,9\},\{3,5\},\{3,7\},\{3,10\},\{4,6\},\{4,8\},\\
+    &\{5,7\},\{5,9\},\{6,7\},\{6,10\},\{7,8\},\{8,9\},\{9,10\} \bigr\}.
+  \end{align*}
+\end{enumerate}
+
+\begin{proposition}[Properties of $G_{11}$ over $\mathrm{char}(k) \neq 2$]\label{prop:g11}
+Let $k$ be any field with $\mathrm{char}(k) \neq 2$ and $R = k[x_0,\dots,x_{10}]$. Then:
+\begin{enumerate}
+  \item[(a)] $G_{11}$ is Cohen--Macaulay over $k$ of Krull dimension $3$, with $\pd_R(R/I(G_{11})) = 8$ and $\pd_R(I(G_{11})) = 7$.
+  \item[(b)] $9 \le \ara_R(I(G_{11})) \le 10$; in particular, under Convention~\textbf{(C2)} ($\pd = \pd_R(I(G_{11})) = 7$),
+  \[
+    \ara_R(I(G_{11})) \;\ge\; 9 \;>\; 8 \;=\; \pd_R(I(G_{11})) + 1,
+  \]
+  violating \emph{both} the inequality $\ara(I(G)) \le \pd + 1$ and equality for Cohen--Macaulay graphs.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) Since $|\Delta_{11}| \cong \RP^2$, integral homology is $\widetilde{H}_0(\Delta_{11};\ZZ) = 0$, $\widetilde{H}_1(\Delta_{11};\ZZ) \cong \ZZ/2\ZZ$, and $\widetilde{H}_2(\Delta_{11};\ZZ) = 0$. By the universal coefficient theorem, for every field $k$ with $\mathrm{char}(k) \neq 2$ we have $\widetilde{H}_i(\Delta_{11}; k) = 0$ for all $i$. Every vertex link $\lk_{\Delta_{11}}(v)$ is a cycle ($\dim = 1$), so $\widetilde{H}_{-1}(\lk_{\Delta_{11}}(v); k) = \widetilde{H}_0(\lk_{\Delta_{11}}(v); k) = 0$, and every edge link consists of $2$ points ($\dim = 0$), so $\widetilde{H}_{-1}(\lk_{\Delta_{11}}(e); k) = 0$. By Reisner's criterion (Lemma~\ref{lem:reisner-hochster}(a)), $R/I(G_{11})$ is Cohen--Macaulay of dimension $3$, so $\pd_R(R/I(G_{11})) = 11 - 3 = 8$ and $\pd_R(I(G_{11})) = 7$ by~\eqref{eq:pd-shift}. (Exhaustive evaluation of Hochster's formula across all $2^{11}-1 = 2047$ non-empty subsets $J \subseteq V$ yields the total Betti sequence $(1, 25, 105, 247, 396, 406, 245, 80, 11)$ over $\QQ$ and $\FF_3$, versus $(1, 25, 105, 247, 396, 406, 245, 80, 12, 1)$ over $\FF_2$.)
+
+(b) Over $\FF_2$, $\widetilde{H}_1(\Delta_{11}; \FF_2) \cong \FF_2 \neq 0$. Applying Lemma~\ref{lem:yan-bound} with $\ell = 2 \neq \mathrm{char}(k)$, $J = V$ ($|J| = 11$), and $i = 1$ gives
+\[
+  \ara_R(I(G_{11})) \;\ge\; 11 - 1 - 1 \;=\; 9 \;>\; 8 \;=\; \pd_R(I(G_{11})) + 1.
+\]
+Moreover, partitioning the $25$ edge monomials of $G_{11}$ into the $10$ subsets
+\begin{align*}
+  P_0 &= \{x_9 x_{10}\}, &
+  P_1 &= \{x_1 x_{10},\, x_8 x_9\},\\
+  P_2 &= \{x_0 x_6\}, &
+  P_3 &= \{x_7 x_8,\, x_5 x_9\},\\
+  P_4 &= \{x_1 x_4,\, x_6 x_{10},\, x_0 x_{10}\}, &
+  P_5 &= \{x_1 x_8,\, x_0 x_9,\, x_6 x_7,\, x_4 x_8\},\\
+  P_6 &= \{x_3 x_7,\, x_4 x_6,\, x_0 x_8\}, &
+  P_7 &= \{x_5 x_7,\, x_3 x_5,\, x_2 x_9\},\\
+  P_8 &= \{x_3 x_{10},\, x_2 x_5,\, x_0 x_7,\, x_1 x_3\}, &
+  P_9 &= \{x_2 x_6,\, x_2 x_4\}
+\end{align*}
+satisfies Lemma~\ref{lem:sv}, establishing $\ara_R(I(G_{11})) \le 10$.
+\end{proof}
+
+\subsection{Simultaneous failure of \texorpdfstring{$\ara(I(G)) \le \pd + 1$}{ara(I(G)) <= pd + 1} via \texorpdfstring{$G_{11} \sqcup G_{11}$}{G11 U G11}}
+
+Even under Convention~\textbf{(C1)}, where $\pd_R(R/I(G_{11})) + 1 = 9$, taking the vertex-disjoint union of two copies of $G_{11}$ amplifies the homological torsion gap to $2$ and breaks the upper bound $\ara(I(G)) \le \pd + 1$ under \emph{both} conventions simultaneously:
+
+\begin{theorem}[Simultaneous failure on $G_{22} = G_{11} \sqcup G_{11}$]\label{thm:g22}
+Let $G_{22} = G_{11} \sqcup G_{11}$ ($22$ vertices, $50$ edges), and let $k$ be any field with $\mathrm{char}(k) \neq 2$. Over $R = k[x_0,\dots,x_{21}]$, $G_{22}$ is Cohen--Macaulay of dimension $6$, with
+\[
+  \pd_R(I(G_{22})) + 1 \;=\; 16, \qquad
+  \pd_R(R/I(G_{22})) + 1 \;=\; 17, \qquad
+  \ara_R(I(G_{22})) \;\ge\; 18.
+\]
+Hence $G_{22}$ violates \emph{both} the inequality $\ara(I(G)) \le \pd + 1$ and the Cohen--Macaulay equality under \emph{both} Conventions~\textbf{(C1)} and~\textbf{(C2)}.
+\end{theorem}
+
+\begin{proof}
+The independence/clique complex of a disjoint union of graphs is the simplicial join: $\Delta(G_{11} \sqcup G_{11}) = \Delta_{11} * \Delta_{11}$, and $R/I(G_{22}) \cong \bigl(k[x_0,\dots,x_{10}]/I(G_{11})\bigr) \otimes_k \bigl(k[x_{11},\dots,x_{21}]/I(G_{11})\bigr)$. Tensoring minimal graded free resolutions over $k$ shows that $\pd_R(R/I(G_{22})) = 8 + 8 = 16$ and $\dim(R/I(G_{22})) = 3 + 3 = 6 = 22 - 16 = \depth_{\mm}(R/I(G_{22}))$, so $G_{22}$ is Cohen--Macaulay over $k$ with $\pd_R(I(G_{22})) = 15$.
+
+For reduced homology over the field $\FF_2$, the K\"unneth formula for the simplicial join gives
+\[
+  \widetilde{H}_r(\Delta_{11} * \Delta_{11}; \FF_2) \;\cong\; \bigoplus_{a + b = r - 1} \widetilde{H}_a(\Delta_{11}; \FF_2) \otimes_{\FF_2} \widetilde{H}_b(\Delta_{11}; \FF_2).
+\]
+Since $\widetilde{H}_1(\Delta_{11}; \FF_2) \cong \FF_2$, taking $a = b = 1$ yields a non-zero summand in degree $r = 1 + 1 + 1 = 3$, so $\widetilde{H}_3(\Delta_{11} * \Delta_{11}; \FF_2) \neq 0$. Applying Lemma~\ref{lem:yan-bound} with $\ell = 2 \neq \mathrm{char}(k)$, $|J| = n = 22$, and $i = 3$ yields
+\[
+  \ara_R(I(G_{22})) \;\ge\; 22 - 3 - 1 \;=\; 18 \;>\; 17 \;=\; \pd_R(R/I(G_{22})) + 1 \;>\; 16 \;=\; \pd_R(I(G_{22})) + 1. \qedhere
+\]
+\end{proof}
+
+\subsection{Characteristic-\texorpdfstring{$2$}{2} completion via the mod-\texorpdfstring{$3$}{3} Moore space}
+
+When $\mathrm{char}(k) = 2$, $G_{11}$ is not Cohen--Macaulay ($\pd_{\FF_2}(R/I(G_{11})) = 9$). To obtain non-empty Cohen--Macaulay counterexamples in characteristic~$2$ (and indeed for every field of characteristic $\neq 3$), we replace $2$-torsion by $3$-torsion using an explicit $17$-vertex flag triangulation $\Delta_{(3)}$ of the mod-$3$ Moore space $M(\ZZ/3\ZZ, 1) = S^1 \cup_{\times 3} e^2$.
+
+Let $V_{(3)} = \{0, 1, \dots, 16\}$ ($n = 17$), consisting of a core $4$-cycle $(0,1,2,3)$, an inner $12$-cycle $(4,5,\dots,15)$ wrapping $3$ times around $(0,1,2,3)$, and an apex vertex $16$ coning the $12$-cycle. Explicitly, let $\Delta_{(3)}$ be generated by the $36$ triangles (for $0 \le s \le 11$, with indices taken modulo $12$ and $4$ as indicated):
+\begin{equation}\label{eq:moore-facets}
+\begin{aligned}
+  &\{16,\, 4 + s,\, 4 + ((s+1) \bmod 12)\},\\
+  &\{4 + s,\, s \bmod 4,\, (s+1) \bmod 4\}, \qquad
+   \{4 + s,\, 4 + ((s+1) \bmod 12),\, (s+1) \bmod 4\}.
+\end{aligned}
+\end{equation}
+
+\begin{proposition}[Characteristic-$2$ counterexamples $G_{(3)}$ and $G_{(3)} \sqcup G_{(3)}$]\label{prop:moore}
+The complex $\Delta_{(3)}$ has $17$ vertices, $52$ edges, and $36$ triangles, and is a pure $2$-dimensional flag complex whose complement graph $G_{(3)}$ has $\binom{17}{2} - 52 = 84$ edges. For every field $k$ with $\mathrm{char}(k) \neq 3$ (in particular, for every field of characteristic~$2$):
+\begin{enumerate}
+  \item[(a)] $G_{(3)}$ has Krull dimension $3$ and is Cohen--Macaulay over $k$, with
+  \[
+    \pd_R(R/I(G_{(3)})) = 14, \quad \pd_R(I(G_{(3)})) = 13, \quad
+    \ara_R(I(G_{(3)})) \;\ge\; 15 \;>\; 14 \;=\; \pd_R(I(G_{(3)})) + 1.
+  \]
+  \item[(b)] The disjoint union $G_{(3)} \sqcup G_{(3)}$ ($34$ vertices, $168$ edges) is Cohen--Macaulay over $k$ of dimension $6$, with $\pd_R(I) + 1 = 28$, $\pd_R(R/I) + 1 = 29$, and $\ara_R(I) \ge 30$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Direct check on~\eqref{eq:moore-facets} (verified in \texttt{verify.py}) confirms that every $3$-clique of $\Delta_{(3)}$ is one of its $36$ triangles and no $4$-clique exists, so $\Delta_{(3)}$ is flag and $I_{\Delta_{(3)}} = I(G_{(3)})$. Geometrically, $|\Delta_{(3)}| \cong S^1 \cup_{\times 3} e^2$ has $\widetilde{H}_0(\Delta_{(3)};\ZZ) = 0$, $\widetilde{H}_1(\Delta_{(3)};\ZZ) \cong \ZZ/3\ZZ$, and $\widetilde{H}_2(\Delta_{(3)};\ZZ) = 0$ (verified directly from the $17 \times 52$ and $52 \times 36$ boundary matrices $\partial_1, \partial_2$: $\mathrm{rank}_k(\partial_1) = 16$ over every field, $\mathrm{rank}_k(\partial_2) = 36$ for $\mathrm{char}(k) \neq 3$, and $\mathrm{rank}_{\FF_3}(\partial_2) = 35$).
+
+When $\mathrm{char}(k) \neq 3$, we therefore have $\widetilde{H}_i(\Delta_{(3)}; k) = 0$ for all $i$. Every edge of $\Delta_{(3)}$ lies in $2$ triangles (interior edges) or $3$ triangles (the $4$ core-circle edges), so $\lk_{\Delta_{(3)}}(e) \neq \emptyset$ ($\widetilde{H}_{-1} = 0$). Every vertex link $\lk_{\Delta_{(3)}}(v)$ is a connected $1$-dimensional graph (a $12$-cycle for $v = 16$, a $6$-cycle for $4 \le v \le 15$, and a connected $8$-vertex, $9$-edge subdivided theta graph for $0 \le v \le 3$), so $\widetilde{H}_{-1}(\lk_{\Delta_{(3)}}(v); k) = \widetilde{H}_0(\lk_{\Delta_{(3)}}(v); k) = 0$. By Reisner's criterion (Lemma~\ref{lem:reisner-hochster}(a)), $R/I(G_{(3)})$ is Cohen--Macaulay over $k$ of dimension $3$, giving $\pd_R(R/I(G_{(3)})) = 17 - 3 = 14$ and $\pd_R(I(G_{(3)})) = 13$.
+
+Since $\widetilde{H}_1(\Delta_{(3)}; \FF_3) \cong \FF_3 \neq 0$ and $\ell = 3 \neq \mathrm{char}(k)$, Lemma~\ref{lem:yan-bound} gives $\ara_R(I(G_{(3)})) \ge 17 - 1 - 1 = 15 > 14$. For $G_{(3)} \sqcup G_{(3)}$ ($n = 34$), K\"unneth on $\Delta_{(3)} * \Delta_{(3)}$ gives $\widetilde{H}_3(\Delta_{(3)} * \Delta_{(3)}; \FF_3) \neq 0$, so Lemma~\ref{lem:yan-bound} yields $\ara_R(I(G_{(3)} \sqcup G_{(3)})) \ge 34 - 3 - 1 = 30 > 29 = \pd_R(R/I) + 1 > 28 = \pd_R(I) + 1$.
+\end{proof}
+
+Combining Theorem~\ref{thm:g22} (for $\mathrm{char}(k) \neq 2$) and Proposition~\ref{prop:moore} (for $\mathrm{char}(k) = 2$) establishes that Conjecture~\texttt{00000000505} fails in full generality---both its upper bound and its Cohen--Macaulay equality, under both Conventions~\textbf{(C1)} and~\textbf{(C2)}, on non-empty Cohen--Macaulay graphs---over \emph{every} field $k$.
+
+\section{Formal Verification in Core Lean 4 and Computational Verification}\label{sec:lean}
+
+{\sloppy
+We accompany this paper with two independent machine verification artifacts:
+
+\begin{enumerate}
+  \item[(1)] \textbf{Core Lean~4.19.0 Formalization (\texttt{lean/}):} Built strictly with toolchain \texttt{leanprover/lean4:v4.19.0}, zero external dependencies (no Mathlib), compiler flag \texttt{-DwarningAsError=true}, zero \texttt{sorry}, \texttt{admit}, or \texttt{native\_decide}, and zero custom axioms:
+  \begin{itemize}
+    \item \texttt{Ring.lean} and \texttt{Poly.lean} construct commutative rings (\texttt{CAlgRing}), integral domains, fields (\texttt{CAlgField}), ideals, finite spans, radicals, arithmetical rank (\texttt{IsArithmeticalRank}), univariate polynomials $\mathrm{Poly}\,R$ with Euclidean division and PID prime-chain bound (\texttt{Poly.no\_prime\_chain\_len\_two}), and iterated multivariate polynomial rings $\mathrm{MPoly}\,n\,K \cong K[x_0,\dots,x_{n-1}]$ with the homogeneous maximal ideal $\mm$.
+    \item \texttt{Module.lean} and \texttt{DimensionDepth.lean} formalize $R$-modules, direct-summand projectivity (\texttt{IsProjective}), finite projective resolutions (\texttt{HasProjResolution}), projective dimension (\texttt{IsProjDim}), quotient modules $R/I$, ideal modules $I$, prime-chain Krull dimension (\texttt{IsKrullDimQuot}), $\mm$-regular-sequence depth (\texttt{IsDepthQuot}), and graded Cohen--Macaulayness (\texttt{IsCohenMacaulayQuot}).
+    \item \texttt{EdgeIdeal.lean} defines finite simple graphs, edge ideals $I(G)$, and proves over every field $K$:
+    \begin{itemize}
+      \item \texttt{disproof\_conjecture505\_quotientPD\_nonEmpty} (Theorem~\ref{thm:c1-disproof} via $G = K_2$),
+      \item \texttt{disproof\_conjecture505\_quotientPD} (general graphs under~\textbf{(C1)}),
+      \item \texttt{disproof\_conjecture505\_idealPD} (Proposition~\ref{prop:edgeless} via $G = \overline{K_1}$ under~\textbf{(C2)}),
+      \item \texttt{disproof\_over\_F2} (concrete field instantiation on $\FF_2$ confirming hypothesis non-vacuity).
+    \end{itemize}
+  \end{itemize}
+  \item[(2)] \textbf{Python Verification Suite (\texttt{verify.py}):} Independently computes exact simplicial boundary ranks, Reisner link homology, full Hochster multigraded Betti tables across all $2^{11}-1 = 2047$ vertex subsets of $\Delta_{11}$, Schmitt--Vogel radical partitions, and symbolic polynomial identities for $\overline{K_n}$, $K_2, K_3, K_4, P_3, P_4, C_4, C_5$, $G_{11}$, $G_{22}$, and $G_{(3)}$.
+\end{enumerate}
+\par}
+
+\begin{thebibliography}{9}
+
+\bibitem{Barile2008}
+M.~Barile, \emph{On the arithmetical rank of the edge ideals of forests}, Comm.\ Algebra \textbf{36} (2008), no.~12, 4678--4703.
+
+\bibitem{BrunsSchwanzl1990}
+W.~Bruns and R.~Schw\"anzl, \emph{The number of equations defining a determinantal variety}, Bull.\ London Math.\ Soc.\ \textbf{22} (1990), no.~5, 439--444.
+
+\bibitem{HerzogHibi2011}
+J.~Herzog and T.~Hibi, \emph{Monomial Ideals}, Graduate Texts in Mathematics, vol.~260, Springer-Verlag, London, 2011.
+
+\bibitem{Katzman2006}
+M.~Katzman, \emph{Characteristic-independence of Betti numbers of graph ideals}, J.~Combin.\ Theory Ser.~A \textbf{113} (2006), no.~3, 435--454.
+
+\bibitem{KimuraTerai2009}
+K.~Kimura and N.~Terai, \emph{Binomial arithmetical rank of edge ideals of forests}, Proc.\ Amer.\ Math.\ Soc.\ \textbf{137} (2009), no.~11, 3625--3632.
+
+\bibitem{Lyubeznik1988}
+G.~Lyubeznik, \emph{On the arithmetical rank of monomial ideals}, J.~Algebra \textbf{112} (1988), no.~1, 86--89.
+
+\bibitem{Reisner1976}
+G.~A.~Reisner, \emph{Cohen--Macaulay quotients of polynomial rings}, Adv.\ Math.\ \textbf{21} (1976), no.~1, 30--49.
+
+\bibitem{SchmittVogel1979}
+T.~Schmitt and W.~Vogel, \emph{Note on set-theoretic complete intersections}, Math.\ Ann.\ \textbf{245} (1979), no.~3, 247--253.
+
+\bibitem{Villarreal2015}
+R.~H.~Villarreal, \emph{Monomial Algebras}, 2nd ed., Monographs and Research Notes in Mathematics, CRC Press, Boca Raton, FL, 2015.
+
+\bibitem{Yan2000}
+Z.~Yan, \emph{An \'etale analog of the Goresky--MacPherson formula for subspace arrangements}, J.~Pure Appl.\ Algebra \textbf{146} (2000), no.~3, 305--318.
+
+\end{thebibliography}
+
+\end{document}
