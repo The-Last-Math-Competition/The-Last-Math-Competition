@@ -1,0 +1,321 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\emergencystretch}{1.8em}
+\newcommand{\ust}{\_\allowbreak}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\RePt}{\mathrm{Re}}
+\newcommand{\ImPt}{\mathrm{Im}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\Sym}{\mathrm{Sym}}
+\newcommand{\Herm}{\mathcal{H}}
+\newcommand{\Sp}{\mathcal{S}}
+\newcommand{\Ap}{\mathcal{A}}
+\newcommand{\Alt}{\mathrm{Alt}}
+
+\title{\textbf{Disproof and Complete Taxonomic Analysis of Conjecture 00000007169:\\
+Fiedler's Additive Eigenvalue Inequalities, Ordering Corrections,\\
+and Antisymmetrization}}
+\author{Formal Mathematical Analysis \& Lean 4 Verification Package}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007169} (\emph{antisymmetric Fiedler additive correction}), which asserts under the heading of ``Fiedler with the additive inequalities of eigenvalues'' that \emph{``the ordering correction of additive inequalities holds, and the optimum of the correction is antisymmetrization.''} The statement is a logical conjunction $P \wedge Q$. We prove that while Clause~$P$ holds in its classical Lidskii--Wielandt--Ky Fan--Weyl--Fiedler form, Clause~$Q$ is \textbf{false across every standard mathematical interpretation of antisymmetrization for all matrix dimensions $n \ge 2$}, rendering the conjunctive conjecture \textbf{false}.
+
+Specifically, for Hermitian (or real symmetric) matrices $A, B \in \Herm_n$ with non-increasing eigenvalue vectors $\alpha^\downarrow, \beta^\downarrow \in \R^n$ and reverse-ordered vector $\beta^\uparrow = (\beta_n, \dots, \beta_1)$, the eigenvalue vector $\gamma^\downarrow = \lambda^\downarrow(A + B)$ satisfies two-sided majorization $(\alpha^\downarrow + \beta^\uparrow)^\downarrow \prec \gamma^\downarrow \prec \alpha^\downarrow + \beta^\downarrow$ and Fiedler's (1971) determinant inequality $\prod_{i=1}^n (\alpha_i + \beta_i) \le \det(A + B) \le \prod_{i=1}^n (\alpha_i + \beta_{n+1-i})$ (for $A, B \ge 0$). However, the ordering-corrected extremum $(\alpha^\downarrow + \beta^\uparrow)^\downarrow$ is realized by \textbf{commuting Hermitian/symmetric matrices aligned in opposite eigenvalue order} via the longest permutation $w_0(i) = n + 1 - i$ --- \emph{not} by antisymmetrization. Conflating reverse spectral ordering ($\beta^\uparrow$) with antisymmetrization fails under all five canonical meanings of the term: (1)~matrix antisymmetrization $\Ap(M) = \frac{1}{2}(M - M^*)$ vanishes identically on $\Herm_n$, while non-Hermitian skew parts $M_r = H_r + K_r$ destroy Weyl/Ky Fan and Fiedler bounds altogether; (2)~skew-symmetric orthogonal conjugation $A + K B K^\top$ fails already at $n = 2$ ($\det = 400 < 625$ on explicit integer positive semidefinite matrices) and is impossible in all odd dimensions $n \ge 3$ ($\det K = 0$), while complex skew-Hermitian unitary conjugation ($U^* = -U$) fails for $n \ge 3$ by a $3$-cycle spectral obstruction; (3)~the Lie commutator $[A, B] = A B - B A$ vanishes at \emph{both} Lidskii--Fiedler extrema and yields strictly interior spectra when maximized; (4)~the Young alternating projector $\Alt(\beta)$ vanishes identically for $n \ge 3$ and violates trace conservation for $n = 2$, while $\mathrm{sgn}(w_0) = +1$ whenever $n \equiv 0, 1 \pmod{4}$; and (5)~for Fiedler's (1973) Laplacian algebraic connectivity $\lambda_2^\uparrow(L_1 + L_2)$, additive equality is realized by commuting symmetric Laplacians whereas skew-symmetric circulations produce non-real eigenvalues. All positive theorems and all five refutations are proved in self-contained Core Lean~4.19.0 with zero external dependencies and zero \texttt{sorry}s, and independently verified in pure Python.
+\end{abstract}
+
+\section{Problem Statement and Mathematical Diagnosis}
+
+\subsection{Source Conjecture}
+Conjecture \texttt{00000007169} (\texttt{SOURCE.md}) is given in English and Chinese as follows:
+\begin{quote}
+\textbf{English.} Definition: Fiedler with the additive inequalities of eigenvalues. Conjecture: The ordering correction of additive inequalities holds, and the optimum of the correction is antisymmetrization. (antisymmetric Fiedler additive correction)
+\end{quote}
+The parallel Chinese text (\emph{``Fiedler: additive inequalities of eigenvalues. Conjecture: Fiedler's additivity: the ordering correction of additive inequalities [holds] and the optimum of the [cor]rection is antisymmetrization''}) confirms that the conjecture asserts two linked claims:
+\begin{itemize}
+  \item \textbf{Clause $P$ (Ordering Correction):} Naive unpermuted eigenvalue additivity fails for matrix sums $A + B$, but holds once index ordering / permutation rearrangement is incorporated.
+  \item \textbf{Clause $Q$ (Antisymmetrization Optimality):} The optimal (tightest) realization of this ordering correction is achieved by \emph{antisymmetrization} (\emph{f\v{a}n du\`{\i}ch\={e}ng hu\`{a}}).
+\end{itemize}
+
+\subsection{Origin of the Conflation and Summary of Results}
+Let $\Herm_n \subset M_n(\C)$ denote the real vector space of $n \times n$ Hermitian matrices (containing $\Sym_n(\R)$). For $A \in \Herm_n$, write $\lambda^\downarrow(A) = (\lambda_1^\downarrow(A) \ge \dots \ge \lambda_n^\downarrow(A))$ and $\lambda^\uparrow(A) = (\lambda_n^\downarrow(A), \dots, \lambda_1^\downarrow(A))$. In Lidskii--Wielandt majorization~\cite{Lidskii1950,Wielandt1955} and Miroslav Fiedler's classical 1971 theorem on $\det(A + B)$~\cite{Fiedler1971}, the two extreme spectra over the unitary orbit $\{(U A U^*, V B V^*) : U, V \in \mathrm{U}(n)\}$ are:
+\[
+  \bigl(\lambda^\downarrow(A) + \lambda^\uparrow(B)\bigr)^\downarrow
+  \;\prec\;
+  \lambda^\downarrow(U A U^* + V B V^*)
+  \;\prec\;
+  \lambda^\downarrow(A) + \lambda^\downarrow(B).
+\]
+The lower majorization bound (which maximizes $\det(A + B)$ when $A, B \ge 0$ and minimizes convex symmetric spreads such as $\sum_i \gamma_i^2$) pairs $\lambda^\downarrow(A)$ with $\lambda^\uparrow(B)$ via the \emph{order-reversing permutation} $w_0(i) = n + 1 - i$. Crucially, a matrix pair $(A', B')$ realizing $(\lambda^\downarrow(A) + \lambda^\uparrow(B))^\downarrow$ consists of \textbf{commuting Hermitian matrices} ($A' = U \diag(\alpha_1,\dots,\alpha_n) U^*$, $B' = U \diag(\beta_n,\dots,\beta_1) U^*$) whose sum $A' + B'$ is again Hermitian/symmetric with zero skew-Hermitian part.
+
+Conjecture \texttt{00000007169} conflates \emph{anti-monotonic (reverse) eigenvalue ordering} with \emph{algebraic antisymmetrization}. Table~\ref{tab:taxonomy} summarizes the fate of Clause~$Q$ across every standard mathematical meaning of antisymmetrization for $n \ge 2$.
+
+\begin{table}[ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.31\textwidth} >{\centering\arraybackslash}p{0.11\textwidth} >{\raggedright\arraybackslash}p{0.50\textwidth}}
+\hline
+\textbf{Reading of Antisymmetrization} & \textbf{Clause $Q$} & \textbf{Failure Mechanism / Witness ($n \ge 2$)} \\
+\hline
+\textbf{1A.} $\Ap(M) = \frac{1}{2}(M - M^*)$ on $\Herm_n$ & \textbf{False} & $\Ap(A) = \Ap(B) = \Ap(A+B) = 0$ (loses trace); true Fiedler optimum $A + B_{\mathrm{rev}}$ has $\Ap = 0, \Sp = \mathrm{id}$. \\
+\textbf{1B.} Non-Hermitian $M_r = H_r + K_r$ ($K_r^* = -K_r \ne 0$) & \textbf{False} & $M_1 = \bigl(\begin{smallmatrix}4&1\\-1&2\end{smallmatrix}\bigr)$, $M_2 = M_1^\top$ ($\lambda = (3,3)$) give $\lambda(M_1+M_2) = (8,4)$, violating Weyl ($8 > 6$) and Fiedler ($\det = 32 < 36$); $H + K_3$ has complex roots $2 \pm i\sqrt{5}$. \\
+\textbf{2A.} Real skew-symmetric orthogonal conjugation $A + K B K^\top$ & \textbf{False} & $n=2$: $A = \diag(25,0)$, $B = \bigl(\begin{smallmatrix}16&12\\12&9\end{smallmatrix}\bigr)$ give $\det = 400 < 625$ for all $K = \pm J_2$, while symmetric $Q$ attains $625$; odd $n \ge 3$: $\det K = 0$ always. \\
+\textbf{2B.} Complex skew-Hermitian unitary $A + U B U^*$ ($U^* = -U$) & \textbf{False} & $n \ge 3$: $A = \diag(3,2,1)$, $B = \diag(2,3,1)$ requires a $3$-cycle $U$ to reach $4 I_3$, contradicting $U^* = -U$. \\
+\textbf{3.} Lie commutator $[A, B] = A B - B A$ & \textbf{False} & $[A, B] = 0$ at \emph{both} extrema; maximizing $\|[A, B]\|_F^2$ gives strictly interior spread $2\sqrt{a^2+b^2}$. \\
+\textbf{4.} Young projector $\Alt(\beta)$ \& parity of $w_0$ & \textbf{False} & $\Alt(\beta) = 0$ for all $n \ge 3$; $\sum_i \Alt(\beta)_i = 0$ for $n = 2$; $\mathrm{sgn}(w_0) = +1$ for $n \equiv 0, 1 \pmod{4}$. \\
+\textbf{5.} Fiedler value $\lambda_2^\uparrow(L_1 + L_2)$ on Laplacians & \textbf{False} & Equality $\lambda_2^\uparrow(2 L_{K_3}) = 3 + 3 = 6$ holds at $\Ap = 0$; skew circulations $K_t$ yield complex eigenvalues $6 \pm i\sqrt{3}\,t$. \\
+\hline
+\end{tabular}
+\caption{Complete evaluation of Conjecture \texttt{00000007169} across all natural readings ($n \ge 2$).}
+\label{tab:taxonomy}
+\end{table}
+
+\section{Positive Ordering-Corrected Additive Eigenvalue Theorems}
+
+We first establish the precise positive theorems validating Clause~$P$ and characterizing its true extremizers.
+
+\subsection{Failure of Uncorrected Additivity and Weyl--Ky Fan--Lidskii Corrections}
+Naive entrywise subadditivity $\gamma_k \le \alpha_k + \beta_k$ fails for every $n \ge 2$: taking $A = \diag(2, 0) \oplus 0_{n-2}$ and $B = \diag(0, 2) \oplus 0_{n-2}$ gives $\alpha^\downarrow = \beta^\downarrow = (2, 0, \dots, 0)$ whereas $\lambda^\downarrow(A + B) = (2, 2, 0, \dots, 0)$, so $\gamma_2 = 2 > 0 + 0 = \alpha_2 + \beta_2$.
+
+\begin{theorem}[Ky Fan Additive Majorization for All $n \ge 1$ \cite{KyFan1949}]\label{thm:kyfan}
+Let $A, B \in \Herm_n$ (or orthogonally diagonalizable matrices over any linearly ordered commutative ring $R$) have non-increasing eigenvalues $\alpha = (\alpha_1 \ge \dots \ge \alpha_n)$ and $\beta = (\beta_1 \ge \dots \ge \beta_n)$, and let $A + B$ have non-increasing eigenvalues $\gamma = (\gamma_1 \ge \dots \ge \gamma_n)$. Then $\tr(A + B) = \sum_{i=1}^n \gamma_i = \sum_{i=1}^n (\alpha_i + \beta_i)$, and for every $1 \le k \le n$,
+\begin{equation}\label{eq:kyfan}
+  \sum_{i=1}^k \gamma_i \;\le\; \sum_{i=1}^k \alpha_i + \sum_{i=1}^k \beta_i.
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Let $A = Q_A \diag(\alpha) Q_A^\top$, $B = Q_B \diag(\beta) Q_B^\top$, and $A + B = U \diag(\gamma) U^\top$ with $Q_A, Q_B, U$ orthogonal (or unitary). Denoting the columns of $U$ by $u_1, \dots, u_n$, we have $\sum_{r=1}^k \gamma_r = \sum_{r=1}^k \langle u_r, (A + B) u_r \rangle = \sum_{r=1}^k \langle u_r, A u_r \rangle + \sum_{r=1}^k \langle u_r, B u_r \rangle$. Setting $W = U^\top Q_A$ (which is orthogonal), $\sum_{r=1}^k \langle u_r, A u_r \rangle = \sum_{j=1}^n w_j \alpha_j$ where $w_j = \sum_{r=1}^k W_{rj}^2$ satisfies $0 \le w_j \le \sum_{r=1}^n W_{rj}^2 = 1$ and $\sum_{j=1}^n w_j = \sum_{r=1}^k \sum_{j=1}^n W_{rj}^2 = k$. If $k = n$, $1 - w_j \ge 0$ and $\sum_{j=1}^n (1 - w_j) = 0$ force $w_j = 1$ for all $j$, proving trace conservation. If $k < n$, choosing the pivot $p = \alpha_{k+1}$ gives
+\[
+  \sum_{j=1}^k \alpha_j - \sum_{j=1}^n w_j \alpha_j
+  = \sum_{j=1}^k (1 - w_j)\alpha_j - \sum_{j=k+1}^n w_j \alpha_j
+  \ge \sum_{j=1}^k (1 - w_j) p - \sum_{j=k+1}^n w_j p
+  = \Bigl(k - \sum_{j=1}^n w_j\Bigr) p = 0.
+\]
+Applying the same argument to $B$ yields \eqref{eq:kyfan}.
+\end{proof}
+
+\subsection{Fiedler's Permutation Product Bounds and Uniqueness of Reverse Ordering}
+Fiedler~\cite{Fiedler1971} proved that for positive semidefinite Hermitian matrices $A, B \ge 0$, $\det(A + B)$ is bounded between the comonotonic product $\prod_{i=1}^n (\alpha_i + \beta_i)$ and the reverse-order product $\prod_{i=1}^n (\alpha_i + \beta_{n+1-i})$. At the heart of Fiedler's theorem lies the sharp symmetric-group extremal theorem, which we prove together with its strict uniqueness condition in Core Lean~4 for all $n \in \N$.
+
+\begin{theorem}[All-$n$ Rearrangement and Fiedler Product Theorem]\label{thm:fiedler-perm}
+Let $R$ be a linearly ordered commutative ring, let $\alpha_1 \ge \dots \ge \alpha_n$ and $\beta_1 \ge \dots \ge \beta_n$ in $R$, and let $\pi \in S_n$.
+\begin{enumerate}
+  \item \textbf{Two-sided rearrangement:} $\sum_{i=1}^n \alpha_i \beta_{n+1-i} \le \sum_{i=1}^n \alpha_i \beta_{\pi(i)} \le \sum_{i=1}^n \alpha_i \beta_i$.
+  \item \textbf{Fiedler product bounds:} If $\alpha_n \ge 0$ and $\beta_n \ge 0$, then
+  \begin{equation}\label{eq:fiedler-perm}
+    \prod_{i=1}^n (\alpha_i + \beta_i)
+    \;\le\;
+    \prod_{i=1}^n (\alpha_i + \beta_{\pi(i)})
+    \;\le\;
+    \prod_{i=1}^n (\alpha_i + \beta_{n+1-i}).
+  \end{equation}
+  \item \textbf{Strict uniqueness of reverse ordering:} If $\alpha_1 > \dots > \alpha_n > 0$ and $\beta_1 > \dots > \beta_n > 0$, then equality holds on the right-hand side of~\eqref{eq:fiedler-perm} \emph{if and only if} $\pi = w_0$, i.e., $\pi(i) = n + 1 - i$ for every $1 \le i \le n$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For any $a_1 \ge a_2$ and $b_1 \ge b_2$, direct expansion gives the two-point Fiedler exchange identity
+\begin{equation}\label{eq:swap-id}
+  (a_1 + b_2)(a_2 + b_1) - (a_1 + b_1)(a_2 + b_2)
+  = (a_1 b_1 + a_2 b_2) - (a_1 b_2 + a_2 b_1)
+  = (a_1 - a_2)(b_1 - b_2) \ge 0,
+\end{equation}
+which is strictly positive whenever $a_1 > a_2$ and $b_1 > b_2$. We prove the upper bound in~\eqref{eq:fiedler-perm} and Part~3 by induction on $n$, rewriting $\pi = w_0 \circ q$ for $q \in S_n$. For $n = m + 1$, if $q(m+1) = m + 1$, then $\pi(m+1) = 1$, peeling off the positive factor $\alpha_{m+1} + \beta_1 > 0$ and reducing to $S_m$ on $(\alpha_1,\dots,\alpha_m)$ and $(\beta_2,\dots,\beta_{m+1})$. If $q(m+1) = s \le m$, let $r = q^{-1}(m+1) \le m$ and set $q' = q \circ (r,\; m+1)$. Since $\alpha_r \ge \alpha_{m+1}$ and $\beta_1 = \beta_{w_0(m+1)} \ge \beta_{w_0(s)}$, \eqref{eq:swap-id} yields
+\[
+  (\alpha_r + \beta_1)(\alpha_{m+1} + \beta_{w_0(s)})
+  \;\le\;
+  (\alpha_r + \beta_{w_0(s)})(\alpha_{m+1} + \beta_1),
+\]
+with strict inequality when $\alpha, \beta$ are strictly decreasing. Multiplying by the remaining non-negative (resp.\ strictly positive) product and applying the $q'(m+1) = m+1$ case establishes both the upper bound and the characterization $q = \mathrm{id} \iff \pi = w_0$. The lower bound in~\eqref{eq:fiedler-perm} and Part~1 follow analogously.
+\end{proof}
+
+\begin{theorem}[Complete $2 \times 2$ Non-Commuting Lidskii--Wielandt--Fiedler Theorem]\label{thm:lwf-2x2}
+Let $A, B \in \Sym_2(R)$ be orthogonally diagonalizable with eigenvalues $\alpha_1 \ge \alpha_2$ and $\beta_1 \ge \beta_2$, and let $A + B$ have eigenvalues $\gamma_1 \ge \gamma_2$. Then $\gamma_1 + \gamma_2 = (\alpha_1 + \alpha_2) + (\beta_1 + \beta_2)$,
+\[
+  \max(\alpha_1 + \beta_2,\; \alpha_2 + \beta_1) \;\le\; \gamma_1 \;\le\; \alpha_1 + \beta_1,
+  \qquad
+  (\alpha_1 + \beta_1)(\alpha_2 + \beta_2) \;\le\; \gamma_1 \gamma_2 \;\le\; (\alpha_1 + \beta_2)(\alpha_2 + \beta_1).
+\]
+\end{theorem}
+
+\begin{proof}
+Theorem~\ref{thm:kyfan} at $k = 1, 2$ gives $\gamma_1 \le \alpha_1 + \beta_1$ and $\gamma_1 + \gamma_2 = (\alpha_1 + \alpha_2) + (\beta_1 + \beta_2)$. Evaluating the Rayleigh quotient of $A + B$ at the unit top eigenvector $u_1$ of $A$ yields $\gamma_1 \ge \langle u_1, A u_1 \rangle + \langle u_1, B u_1 \rangle \ge \alpha_1 + \beta_2$; evaluating at the unit top eigenvector $v_1$ of $B$ yields $\gamma_1 \ge \alpha_2 + \beta_1$. Finally, whenever $x_1 + x_2 = y_1 + y_2$ and $y_2 \le y_1 \le x_1$, the algebraic identity $y_1 y_2 - x_1 x_2 = (x_1 - y_1)(x_1 - y_2) \ge 0$ implies $x_1 x_2 \le y_1 y_2$; applying this to $(x_1, x_2) = (\alpha_1 + \beta_1, \alpha_2 + \beta_2)$, $(y_1, y_2) = (\gamma_1, \gamma_2)$ and to $(x_1, x_2) = (\gamma_1, \gamma_2)$, $(y_1, y_2) = (\alpha^\downarrow + \beta^\uparrow)^\downarrow$ yields both determinant inequalities without even requiring $\alpha_2, \beta_2 \ge 0$.
+\end{proof}
+
+\subsection{Cartesian Decomposition and Bendixson's Quadratic-Form Identity}
+Over any linearly ordered field $F$ (and over $\C$), every matrix $M \in M_n(F)$ admits a unique Cartesian (Toeplitz) decomposition
+\[
+  M = \Sp(M) + \Ap(M), \qquad
+  \Sp(M) = \tfrac{1}{2}(M + M^\top), \qquad
+  \Ap(M) = \tfrac{1}{2}(M - M^\top),
+\]
+with $\Sp(M)^\top = \Sp(M)$ and $\Ap(M)^\top = -\Ap(M)$.
+
+\begin{proposition}[Bendixson Quadratic-Form Vanishing]\label{prop:bendixson}
+For every $K \in M_n(R)$ satisfying $K^\top = -K$ and every $x \in R^n$, $\langle x, K x \rangle = 0$. Consequently, over a linearly ordered field $F$, $\langle x, M x \rangle = \langle x, \Sp(M) x \rangle$ for all $M \in M_n(F)$ and $x \in F^n$; in particular, every real eigenvalue $\lambda$ of $M$ satisfies $\lambda_{\min}(\Sp(M)) \le \lambda \le \lambda_{\max}(\Sp(M))$.
+\end{proposition}
+
+\begin{proof}
+Swapping summation indices gives $\sum_{i,j} x_i K_{ij} x_j = \sum_{i,j} x_j K_{ji} x_i = -\sum_{i,j} x_i K_{ij} x_j$, so $2 \langle x, K x \rangle = 0$, forcing $\langle x, K x \rangle = 0$ in the ordered domain $R$.
+\end{proof}
+
+\section{Disproof Across All Five Readings of Antisymmetrization}
+
+We now prove that under every standard mathematical reading of ``antisymmetrization,'' Clause~$Q$ is false for all dimensions $n \ge 2$.
+
+\subsection{Reading 1: Matrix Antisymmetrization $\Ap(M) = \frac{1}{2}(M - M^*)$}
+
+\begin{proposition}[Refutation of Reading 1 for All $n \ge 2$]\label{prop:refute1}
+Let $n = m + 2 \ge 2$.
+\begin{enumerate}
+  \item \textbf{Vanishing on the Hermitian/symmetric domain:} For all $A, B \in \Sym_n(F)$ (or $\Herm_n$), $\Ap(A) = \Ap(B) = \Ap(A + B) = 0$. For $A = \diag(n, n-1, \dots, 1)$ and $B_{\mathrm{rev}} = \diag(1, 2, \dots, n)$, the true Fiedler optimum $A + B_{\mathrm{rev}} = (n+1) I_n$ is purely symmetric ($\Ap(A + B_{\mathrm{rev}}) = 0$) with $\tr(A + B_{\mathrm{rev}}) = n(n+1) > 0 = \tr(\Ap(A + B_{\mathrm{rev}}))$.
+  \item \textbf{Breakdown of Weyl/Ky Fan and Fiedler bounds under nonzero skew parts:} Define $M_1, M_2 \in M_n(\Z)$ by
+  \[
+    M_1 = \begin{pmatrix} 4 & 1 \\ -1 & 2 \end{pmatrix} \oplus 3 I_{n-2},
+    \qquad
+    M_2 = M_1^\top = \begin{pmatrix} 4 & -1 \\ 1 & 2 \end{pmatrix} \oplus 3 I_{n-2}.
+  \]
+  Then $\Ap(M_1) = -\Ap(M_2) \ne 0$, and $(M_1 - 3 I_n)^2 = (M_2 - 3 I_n)^2 = 0$, so $M_1$ and $M_2$ each have exact real spectrum $(3, \dots, 3)$. Every permutation sum of $\lambda(M_1)$ and $\lambda(M_2)$ equals $(6, \dots, 6)$. Yet $M_1 + M_2 = \diag(8, 4) \oplus 6 I_{n-2}$ is symmetric with top eigenvalue $\lambda_1(M_1 + M_2) = 8 > 3 + 3 = 6$ (violating Weyl and Ky Fan subadditivity) and determinant $\det(M_1 + M_2) = 32 \cdot 6^{n-2} < 36 \cdot 6^{n-2}$ (violating Fiedler's lower determinant bound).
+  \item \textbf{Loss of real spectrum:} Adding $K_3 = \bigl(\begin{smallmatrix}0 & 3 \\ -3 & 0\end{smallmatrix}\bigr)$ to $H = \diag(4, 0)$ yields characteristic polynomial $x^2 - 4x + 9$ with discriminant $\Delta = 16 - 36 = -20 < 0$ (non-real roots $2 \pm i\sqrt{5}$) and unbounded determinant $\det(H + K_t) = t^2 \to +\infty$ as $t \to \infty$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Each identity is direct: $(M_1 - 3 I_n)$ has top-left block $\bigl(\begin{smallmatrix}1 & 1 \\ -1 & -1\end{smallmatrix}\bigr)$ whose square is zero, while $M_1 + M_2$ cancels the skew-symmetric blocks to give $\diag(8, 4) \oplus 6 I_{n-2}$.
+\end{proof}
+
+\subsection{Reading 2: Skew-Symmetric and Skew-Hermitian Basis Conjugation}
+For $2 \times 2$ \emph{already-diagonal} matrices $A = \diag(\alpha_1, \alpha_2)$ and $B = \diag(\beta_1, \beta_2)$, the signed swap matrix $J_2 = \bigl(\begin{smallmatrix}0 & 1 \\ -1 & 0\end{smallmatrix}\bigr)$ happens to be skew-symmetric and orthogonal ($J_2^\top = -J_2$, $J_2^\top J_2 = I_2$) and satisfies $J_2 B J_2^\top = \diag(\beta_2, \beta_1)$. One might ask whether conjugating $B$ by an orthogonal skew-symmetric matrix $K$ (or unitary skew-Hermitian matrix $U^* = -U$) realizes the Fiedler optimum in general. This fails in every dimension $n \ge 2$.
+
+\begin{theorem}[Refutation of Reading 2 Across Real and Complex Domains]\label{thm:refute2}
+\leavevmode
+\begin{enumerate}
+  \item \textbf{Universal $2 \times 2$ (and block-lifted $n \ge 2$) real failure:} Consider the positive semidefinite integer symmetric matrices
+  \[
+    A_2 = \begin{pmatrix} 25 & 0 \\ 0 & 0 \end{pmatrix}, \qquad
+    B_2 = \begin{pmatrix} 16 & 12 \\ 12 & 9 \end{pmatrix}, \qquad
+    Q_2 = \frac{1}{5}\begin{pmatrix} -3 & 4 \\ 4 & 3 \end{pmatrix}.
+  \]
+  Both $A_2$ and $B_2$ have eigenvalues $(25, 0)$. The \emph{symmetric} orthogonal reflection $Q_2$ ($Q_2^\top = Q_2$, $Q_2^2 = I_2$) achieves the Fiedler reverse-order optimum $A_2 + Q_2 B_2 Q_2^\top = 25 I_2$ with $\det = 625$. By contrast, \emph{every} skew-symmetric orthogonal matrix $K \in M_2(\R)$ ($K^\top = -K$, $K^\top K = I_2$) satisfies $K_{11} = K_{22} = 0$, $K_{21} = -K_{12}$, and $K_{12}^2 = 1$, hence
+  \[
+    A_2 + K B_2 K^\top = \begin{pmatrix} 34 & -12 \\ -12 & 16 \end{pmatrix},
+    \qquad
+    \det(A_2 + K B_2 K^\top) = 400 < 625,
+  \]
+  with eigenvalues $(40, 10) \ne (25, 25)$. Taking direct sums with $I_{n-2}$ extends this strict gap ($400 \cdot 2^{n-2} < 625 \cdot 2^{n-2}$) to every $n \ge 2$.
+  \item \textbf{Odd-dimension singularity ($n = 2m + 1 \ge 3$):} Every skew-symmetric matrix $K \in M_{2m+1}(\R)$ satisfies $\det(K) = \det(-K^\top) = (-1)^{2m+1}\det(K) = -\det(K)$, so $\det(K) = 0$; no orthogonal or invertible skew-symmetric matrix exists in any odd dimension.
+  \item \textbf{Complex skew-Hermitian $3$-cycle obstruction ($n \ge 3$):} Let $A_3 = \diag(3, 2, 1)$ and $B_3 = \diag(2, 3, 1)$ in $\Herm_3$. The real $3$-cycle permutation matrix $P_3$ ($P_3 e_3 = e_1, P_3 e_1 = e_2, P_3 e_2 = e_3$) is unitary and achieves the Fiedler optimum $A_3 + P_3 B_3 P_3^* = 4 I_3$ ($\det = 64$). However, there exists \emph{no} skew-Hermitian unitary matrix $U \in M_3(\C)$ ($U^* = -U$, $U U^* = I_3$) satisfying $A_3 + U B_3 U^* = 4 I_3$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Parts~1 and~2 are immediate from the entries of $K B_2 K^\top$ and skew-symmetry of $\det$. For Part~3, suppose $U \in M_3(\C)$ satisfies $U U^* = I_3$ and $M := U B_3 U^* = 4 I_3 - A_3 = \diag(1, 2, 3)$. Comparing $(M)_{11} = 2|U_{11}|^2 + 3|U_{12}|^2 + |U_{13}|^2 = 1$ with $(U U^*)_{11} = |U_{11}|^2 + |U_{12}|^2 + |U_{13}|^2 = 1$ gives $|U_{11}|^2 + 2|U_{12}|^2 = 0$, whence $U_{11} = U_{12} = 0$ and $|U_{13}|^2 = 1$. Similarly, comparing $3(U U^*)_{33} = 3$ with $(M)_{33} = 2|U_{31}|^2 + 3|U_{32}|^2 + |U_{33}|^2 = 3$ gives $|U_{31}|^2 + 2|U_{33}|^2 = 0$, so $U_{31} = 0$. If $U^* = -U$, then $U_{13} = -\overline{U_{31}} = 0$, contradicting $|U_{13}|^2 = 1$. Direct sum with $2 I_{n-3}$ extends the obstruction to all $n \ge 3$.
+\end{proof}
+
+\subsection{Reading 3: Lie-Algebraic Product Antisymmetrization $[A, B] = A B - B A$}
+
+\begin{proposition}[Bloch-Sphere Commutator Identity]\label{prop:refute3}
+Let $a, b > 0$ and $c^2 + s^2 = 1$, and set
+\[
+  A = \begin{pmatrix} a & 0 \\ 0 & -a \end{pmatrix}, \qquad
+  B(c, s) = \begin{pmatrix} b c & b s \\ b s & -b c \end{pmatrix}.
+\]
+Then $-\det(A + B(c, s)) = a^2 + b^2 + 2 a b c$ (equal to the squared top eigenvalue of $A + B(c,s)$), whereas $\|[A, B(c, s)]\|_F^2 = 8 a^2 b^2 s^2 = 8 a^2 b^2 (1 - c^2)$. Consequently:
+\begin{enumerate}
+  \item Both the comonotonic extremum ($c = 1$, eigenvalues $\pm(a+b)$) and the Fiedler reverse-order extremum ($c = -1$, eigenvalues $\pm|a-b|$) occur at $[A, B] = 0$.
+  \item Maximizing $\|[A, B]\|_F^2$ ($c = 0, s = \pm 1$) yields $-\det(A + B(0, \pm 1)) = a^2 + b^2$, which satisfies $(a - b)^2 < a^2 + b^2 < (a + b)^2$ and strictly misses both extrema.
+\end{enumerate}
+\end{proposition}
+
+\subsection{Reading 4: Young Alternating Antisymmetrizer and Parity of $w_0$}
+
+\begin{proposition}[Refutation of Permutation Antisymmetrization]\label{prop:refute4}
+Consider the Young alternating operator $\Alt_{\mathrm{raw}}(\beta) = \sum_{\sigma \in S_n} \mathrm{sgn}(\sigma)\,\sigma(\beta)$ on $R^n$:
+\begin{enumerate}
+  \item For $n = 2$, $\Alt_{\mathrm{raw}}(\beta_1, \beta_2) = (\beta_1 - \beta_2,\; \beta_2 - \beta_1)$ has coordinate sum $0$, violating trace additivity whenever $\beta_1 + \beta_2 \ne 0$.
+  \item For every $n \ge 3$, $\Alt_{\mathrm{raw}}(\beta) = (0, \dots, 0)$ vanishes identically for all $\beta \in R^n$ because each point stabilizer $S_{n-1}$ ($n - 1 \ge 2$) has equally many even and odd permutations.
+  \item The order-reversing permutation $w_0(i) = n + 1 - i$ has $\binom{n}{2} = \frac{n(n-1)}{2}$ inversions, which is \textbf{even} ($\mathrm{sgn}(w_0) = +1$) whenever $n \equiv 0, 1 \pmod{4}$ (e.g., $n = 4, 5, 8, 9$).
+\end{enumerate}
+\end{proposition}
+
+\subsection{Reading 5: Fiedler Algebraic Connectivity on Graph Laplacians}
+In spectral graph theory, Fiedler~\cite{Fiedler1973} introduced the \emph{algebraic connectivity} $a(G) = \lambda_2^\uparrow(L_G)$ of an undirected graph Laplacian $L_G \ge 0$ ($L_G \mathbf{1} = 0$). Because all undirected Laplacians share the null line $\R \mathbf{1}$, restricted to $\mathbf{1}^\perp$ the Fiedler value is $\lambda_{\min}(L_G|_{\mathbf{1}^\perp})$, so Courant--Fischer gives superadditivity $\lambda_2^\uparrow(L_1 + L_2) \ge \lambda_2^\uparrow(L_1) + \lambda_2^\uparrow(L_2)$ directly without sign reversal. On the complete graph $K_3$, $L_{K_3} = 3 I_3 - \mathbf{1}\mathbf{1}^\top$ satisfies $\Ap(L_{K_3}) = 0$ and attains exact additivity $\lambda_2^\uparrow(L_{K_3} + L_{K_3}) = 3 + 3 = 6$ via symmetric commuting alignment, whereas adding any nonzero zero-row-sum skew-symmetric circulation $K_t = t\bigl(\begin{smallmatrix}0&1&-1\\-1&0&1\\1&-1&0\end{smallmatrix}\bigr)$ ($t \ne 0$) yields characteristic polynomial $x^2 - 12x + (36 + 3t^2)$ on $\mathbf{1}^\perp$ with strictly negative discriminant $\Delta = -12 t^2 < 0$ (complex eigenvalues $6 \pm i\sqrt{3}\,t$).
+
+\section{Core Lean 4.19.0 Formalization and Verification Summary}
+
+All positive theorems and all five refutations are formalized from first principles in standalone Core Lean~4 (\texttt{leanprover/lean4:v4.19.0}, \texttt{lean/Main.lean}) with zero external dependencies (\texttt{packages = []} in \texttt{lake-manifest.json}), compiled with \texttt{-DwarningAsError=true}, and audited via \texttt{\#print axioms}.
+
+\begin{enumerate}
+  \item \textbf{Constructive Non-Vacuity (\S1--\S4):} The ordered algebraic classes \texttt{Linear\allowbreak Ordered\allowbreak Comm\allowbreak Ring} and \texttt{Linear\allowbreak Ordered\allowbreak Field} are constructively instantiated via \texttt{Int} and exact rational numbers \texttt{QField} (\texttt{Quotient RawRat.setoid}), alongside Cayley--Dickson complex numbers \texttt{Complex R}, matrix operations, unique Cartesian decomposition (\texttt{cartesian\ust decomp}, \texttt{cartesian\ust unique}), and Bendixson's identity (\texttt{quadForm\ust eq\ust symPart}).
+  \item \textbf{Positive Fiedler, Rearrangement \& Ky Fan Theorems (\S5--\S6):}
+  \begin{itemize}
+    \item \texttt{rearrangement\ust bounds\ust all\ust n}: two-sided rearrangement inequality for all $n \in \N$.
+    \item \texttt{fiedler\ust perm\ust prod\ust bounds\ust all\ust n} \& \texttt{fiedler\ust perm\ust prod\ust eq\ust max\ust iff\ust revPerm}: Fiedler's (1971) permutation product bounds and strict uniqueness of \texttt{revPerm n} for all $n \in \N$.
+    \item \texttt{ky\ust fan\ust additive\ust majorization\ust all\ust n}: full $n \times n$ Ky Fan partial-sum majorization and trace additivity for all $n, k \in \N$ ($k \le n$).
+    \item \texttt{lidskii\ust wielandt\ust fiedler\ust 2x2}: complete $2 \times 2$ non-commuting majorization and Fiedler determinant inequalities.
+  \end{itemize}
+  \item \textbf{Five Refutations \& Master Theorem (\S7--\S8):}
+  \texttt{refute\ust reading1\ust matrix\ust antisymmetrization}, \texttt{det3\ust eq\ust zero\ust of\ust isSkewSym}, \texttt{refute\ust reading2\ust real\ust skew\ust conj\ust 2x2}, \texttt{refute\ust reading2\ust complex\ust skewHermitian\ust 3cycle}, \texttt{refute\ust reading3\ust commutator\ust antisymmetrization}, \texttt{refute\ust reading4\ust perm\ust antisymmetrization}, \texttt{refute\ust reading5\ust laplacian\ust antisymmetrization}, and the concrete \texttt{QField} synthesis theorem \texttt{conjecture\ust 00000007169\ust complete\ust resolution}.
+\end{enumerate}
+
+An independent pure-Python script (\texttt{verify.py}) cross-checks all exact $\Q$ counterexamples ($n = 2,\dots,6$), exhaustive $S_2,\dots,S_5$ permutation extrema, $300$ random Laplacian pairs, and $1{,}200$ random real symmetric and complex Hermitian matrix pairs.
+
+\begin{thebibliography}{9}
+
+\bibitem{Bhatia1997}
+R.~Bhatia, \emph{Matrix Analysis}, Graduate Texts in Mathematics, vol.~169, Springer, New York, 1997.
+
+\bibitem{KyFan1949}
+K.~Fan, On a theorem of Weyl concerning eigenvalues of linear transformations~I, \emph{Proc.\ Natl.\ Acad.\ Sci.\ U.S.A.} \textbf{35} (1949), 652--655.
+
+\bibitem{FanHoffman1955}
+K.~Fan and A.~J.~Hoffman, Some metric inequalities in the space of matrices, \emph{Proc.\ Amer.\ Math.\ Soc.} \textbf{6} (1955), 111--116.
+
+\bibitem{Fiedler1971}
+M.~Fiedler, Bounds for the determinant of the sum of Hermitian matrices, \emph{Proc.\ Amer.\ Math.\ Soc.} \textbf{30} (1971), 27--31.
+
+\bibitem{Fiedler1973}
+M.~Fiedler, Algebraic connectivity of graphs, \emph{Czechoslovak Math.\ J.} \textbf{23} (1973), 298--305.
+
+\bibitem{Lidskii1950}
+V.~B.~Lidskii, On the proper values of the sum and product of symmetric matrices, \emph{Dokl.\ Akad.\ Nauk SSSR} \textbf{75} (1950), 769--772.
+
+\bibitem{Weyl1912}
+H.~Weyl, Das asymptotische Verteilungsgesetz der Eigenwerte linearer partieller Differentialgleichungen, \emph{Math.\ Ann.} \textbf{71} (1912), 441--479.
+
+\bibitem{Wielandt1955}
+H.~Wielandt, An extremum property of sums of eigenvalues, \emph{Proc.\ Amer.\ Math.\ Soc.} \textbf{6} (1955), 106--110.
+
+\end{thebibliography}
+
+\end{document}
