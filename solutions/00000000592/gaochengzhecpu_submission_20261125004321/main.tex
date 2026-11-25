@@ -1,0 +1,274 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+
+\setlength{\emergencystretch}{1.5em}
+\renewcommand{\arraystretch}{1.22}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{\textbf{Disproof of the Degree-Alignment Conjecture for the\\Graded Canonical Module of a Semigroup-Graded Ring}}
+\author{Conjecture 00000000592 --- Formal Resolution and Structural Analysis}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000000592} in the \textbf{negative}. For a numerical semigroup $S \subseteq \mathbb{N}$ and a field $k$, the semigroup ring $R = k[S] = \bigoplus_{s \in S} k t^s$ is a $1$-dimensional Cohen--Macaulay positively $\mathbb{Z}$-graded domain whose graded canonical module $\omega_R = \underline{\mathrm{Hom}}_k(H^1_{\mathfrak{m}}(R), k)$ is isomorphic to $\bigoplus_{d \in \mathbb{Z},\, -d \notin S} k t^d$ (unique up to an arbitrary grading shift $\omega = \omega_R(-c)$, $c \in \mathbb{Z}$). While the minimal number of homogeneous generators of $\omega$ does equal the Cohen--Macaulay type $\mathrm{type}(R) = |\mathrm{PF}(S)|$, the set of minimal generator degrees of $\omega = \omega_R(-c)$ is $-\mathrm{PF}(S) + c$, \emph{not} $\mathrm{PF}(S) + c$. Because graded Matlis duality negates degrees and reverses consecutive gap order, $-\mathrm{PF}(S) + c$ is a constant translate of $\mathrm{PF}(S)$ if and only if $\mathrm{PF}(S)$ is reflection-symmetric. This symmetry holds automatically whenever $\mathrm{type}(R) \le 2$---hence for \emph{every} numerical semigroup of embedding dimension $e(S) \le 3$ by Herzog's theorem, as well as for all numerical semigroups of genus $g(S) \le 3$, multiplicity $m(S) \le 3$, Frobenius number $F(S) \le 4$, and all arithmetic-progression generator families---explaining why empirical checks on small or structured examples appear to confirm the conjecture. At embedding dimension $e = 4$ (also $g = 4$, $m = 4$, $F = 5$), the numerical semigroup $S = \langle 4, 6, 7, 9 \rangle = \mathbb{N} \setminus \{1, 2, 3, 5\}$ has $\mathrm{type}(R) = 3$ and $\mathrm{PF}(S) = \{2, 3, 5\}$ with consecutive gap vector $(1, 2)$, whereas $\mathrm{Deg}_{\min}(\omega_R(-c)) = \{-5 + c, -3 + c, -2 + c\}$ has consecutive gap vector $(2, 1) \ne (1, 2)$, refuting the conjecture for every shift constant in $\mathbb{Z}$ (and yielding Cohen--Macaulay counterexamples $k[S \times \mathbb{N}^{d-1}]$ in every Krull dimension $d \ge 1$). Moreover, for general non-Cohen--Macaulay positively $\mathbb{Z}$-graded affine semigroup rings, even the generator-count equality $\mu_R(\omega_R) = \mathrm{type}(R)$ fails: on Macaulay's smooth rational quartic curve semigroup $S_{\mathrm{Mac}} = \langle (4,0), (3,1), (1,3), (0,4) \rangle \subseteq \mathbb{N}^2$ ($\dim R = 2$, $\mathrm{edim}\, R = 4$, $\mathrm{depth}\, R = 1$), one has $\mathrm{type}(R) = |\mathrm{PF}(S_{\mathrm{Mac}})| = 1$ while $\mu_R(\omega_R) = 3$. All core results and both counterexamples are formally verified in Core Lean~4.19.0 without external dependencies or custom axioms.
+\end{abstract}
+
+\section{Introduction and Problem Analysis}
+
+Conjecture~\texttt{00000000592} states (in English, paired in \texttt{SOURCE.md} with the corresponding Chinese formulation specifying a semigroup $\mathbb{Z}$-graded ring and its pseudo-Frobenius numbers):
+
+\begin{quote}
+\emph{Definition: The graded canonical module $\omega$ of a semigroup-graded ring. Conjecture: The minimal number of generators of $\omega$ equals the type, and its set of degrees is exactly the pseudo-Frobenius numbers plus a constant (an aligned correspondence, verified up to dimension $4$).}
+\end{quote}
+
+Both the English and Chinese formulations invoke three standard invariants of commutative algebra and semigroup theory:
+\begin{enumerate}
+  \item[(i)] a positively $\mathbb{Z}$-graded semigroup ring $R = k[S]$ over a field $k$, with homogeneous maximal ideal $\mathfrak{m} = R_{>0}$ and graded canonical module $\omega$ (defined canonically via Goto--Watanabe~\cite{GW1,GW2} as $\omega_R = \underline{\mathrm{Hom}}_k(H^{\dim R}_{\mathfrak{m}}(R), k)$, or up to an arbitrary grading shift $\omega \cong \omega_R(-c)$ with $c \in \mathbb{Z}$, since the conjecture itself allows an arbitrary additive constant);
+  \item[(ii)] the minimal number of homogeneous generators $\mu_R(\omega) = \dim_k(\omega / \mathfrak{m}\omega)$ and the set $\mathrm{Deg}_{\min}(\omega) \subseteq \mathbb{Z}$ of degrees appearing in any minimal homogeneous generating set of $\omega$; and
+  \item[(iii)] the ring-theoretic type $\mathrm{type}(R) = \dim_k \mathrm{Ext}^{\mathrm{depth}\, R}_R(k, R)$ and the set of \emph{pseudo-Frobenius numbers} $\mathrm{PF}(S) \subseteq \mathbb{Z}$.
+\end{enumerate}
+
+Because ``pseudo-Frobenius numbers'' ($\mathrm{PF}(S) \subseteq \mathbb{Z}$) and ``plus a constant'' ($+ c$ with $c \in \mathbb{Z}$) are scalar $\mathbb{Z}$-valued invariants, the primary setting of the conjecture is that of a \emph{numerical semigroup ring} $R = k[S]$ ($S \subseteq \mathbb{N}$ a submonoid with finite complement $|\mathbb{N} \setminus S| < \infty$), presented as $k[x_1, \dots, x_e]/I_S$ with positive weights $\deg(x_i) = n_i$, where ``dimension $4$'' commonly refers to the ambient polynomial dimension / embedding dimension $e(S) = \dim_k(\mathfrak{m}/\mathfrak{m}^2) = 4$ (or genus $g(S) = \dim_k(k[t]/k[S]) = 4$, or multiplicity $m(S) = \dim_k(R / t^m R) = 4$). Nevertheless, to ensure complete coverage of every legitimate reading of ``semigroup $\mathbb{Z}$-graded ring'' and ``dimension $4$,'' we analyze:
+\begin{itemize}
+  \item \textbf{Setting A ($1$-dimensional Cohen--Macaulay numerical semigroup rings $R = k[S]$):} Here the first assertion $\mu_R(\omega) = \mathrm{type}(R) = |\mathrm{PF}(S)|$ \emph{holds universally}, whereas the second assertion $\mathrm{Deg}_{\min}(\omega) = \mathrm{PF}(S) + c'$ \emph{fails} already at embedding dimension $e = 4$ (and genus $g = 4$, multiplicity $m = 4$, Krull dimension $1$) on $S = \langle 4, 6, 7, 9 \rangle$.
+  \item \textbf{Setting B (Higher-Krull-dimension Cohen--Macaulay $\mathbb{Z}$-graded affine semigroup rings):} Polynomial extensions $R_d = k[S \times \mathbb{N}^{d-1}] \cong k[S][y_1, \dots, y_{d-1}]$ ($\deg y_j = 1$) provide Cohen--Macaulay positively $\mathbb{Z}$-graded semigroup rings of \emph{every} Krull dimension $d \ge 1$ (including $d = 2, 3, 4, 5$) whose minimal canonical generator degrees retain the reflected gap vector $(2, 1) \ne (1, 2)$.
+  \item \textbf{Setting C (Non-Cohen--Macaulay positively $\mathbb{Z}$-graded affine semigroup rings):} Once Cohen--Macaulayness is not assumed, \emph{even the first assertion} $\mu_R(\omega) = \mathrm{type}(R)$ fails at Krull dimension $2$ and embedding dimension $4$, as witnessed by Macaulay's smooth rational quartic curve $S_{\mathrm{Mac}} = \langle (4,0), (3,1), (1,3), (0,4) \rangle \subseteq \mathbb{N}^2$.
+\end{itemize}
+
+\section{Graded Local Duality and Exact Canonical Degrees}
+
+Let $S \subseteq \mathbb{N}$ be a numerical semigroup ($0 \in S$, $S + S \subseteq S$, and $|\mathbb{N} \setminus S| < \infty$), and let $k$ be any field. Write $R = k[S] = \bigoplus_{s \in S} k t^s \subseteq k[t]$ with $\deg(t^s) = s$ and homogeneous maximal ideal $\mathfrak{m} = \bigoplus_{s \in S \setminus \{0\}} k t^s$. Recall from Herzog--Kunz~\cite{HK} and Rosales--Garc\'ia-S\'anchez~\cite[Ch.~2]{RGS} that the set of \emph{pseudo-Frobenius numbers} of $S$ is
+\begin{equation}\label{eq:pf-def}
+  \mathrm{PF}(S) = \{ x \in \mathbb{Z} \setminus S : x + s \in S \text{ for all } s \in S \setminus \{0\} \}.
+\end{equation}
+Since $|\mathbb{N} \setminus S| < \infty$, there exists $B \ge 0$ such that every integer $n > B$ belongs to $S$. Choosing $s_0 = B + 1 \in S \setminus \{0\}$, every $x \in \mathrm{PF}(S)$ satisfies $x \le B$ (as $x \notin S$) and $x + (B + 1) \ge 0$ (as $x + s_0 \in S \subseteq \mathbb{N}$), so $\mathrm{PF}(S) \subseteq [-(B+1), B]$ is nonempty and finite; when $S \ne \mathbb{N}$, $\mathrm{PF}(S) \subseteq \mathbb{N} \setminus S$ with $\max \mathrm{PF}(S) = F(S)$ (the Frobenius number of $S$), whereas $\mathrm{PF}(\mathbb{N}) = \{-1\}$.
+
+\begin{proposition}[Local cohomology, socle, and Goto--Watanabe canonical module {\cite{GW1,GW2,BH}}]\label{prop:local-duality}
+Let $S \subseteq \mathbb{N}$ be a numerical semigroup and $R = k[S]$ over any field $k$.
+\begin{enumerate}
+  \item[(a)] $R$ is a $1$-dimensional Cohen--Macaulay $\mathbb{Z}$-graded domain, with top graded local cohomology
+  \[
+    H^1_{\mathfrak{m}}(R) \cong \frac{k[t, t^{-1}]}{k[S]} = \bigoplus_{n \in \mathbb{Z} \setminus S} k \cdot \overline{t^n}.
+  \]
+  \item[(b)] The socle $\mathrm{Soc}\bigl(H^1_{\mathfrak{m}}(R)\bigr) = \{ u \in H^1_{\mathfrak{m}}(R) : \mathfrak{m} u = 0 \} \cong \underline{\mathrm{Ext}}^1_R(k, R)$ is $1$-dimensional in each degree $n \in \mathrm{PF}(S)$ and $0$ in all other degrees. Consequently, the Cohen--Macaulay type of $R$ is $\mathrm{type}(R) = \dim_k \mathrm{Ext}^1_R(k, R) = |\mathrm{PF}(S)|$.
+  \item[(c)] The graded canonical module $\omega_R = \underline{\mathrm{Hom}}_k\bigl(H^1_{\mathfrak{m}}(R), k\bigr)$ is canonically isomorphic as a $\mathbb{Z}$-graded $R$-module to the fractional ideal
+  \[
+    \omega_R \cong \bigoplus_{\substack{d \in \mathbb{Z} \\ -d \notin S}} k \cdot t^d \subseteq k[t, t^{-1}],
+  \]
+  and any graded canonical module $\omega$ of $R$ has the form $\omega \cong \omega_R(-c) = \bigoplus_{c - d \notin S} k \cdot t^d$ for a unique shift $c \in \mathbb{Z}$ (with $c = F(S)$ recovering the standard canonical ideal $K(S) \subseteq R$).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Pick any $m \in S \setminus \{0\}$. Then $t^m \in \mathfrak{m}$ is a nonzerodivisor and homogeneous parameter of $R$, so $\mathrm{depth}(R) = \dim(R) = 1$. Because every integer $n > B$ lies in $S$, for any $n \in \mathbb{Z}$ and sufficiently large $q \ge 0$ we have $n + qm > B$, hence $t^n = t^{n+qm}(t^m)^{-q} \in R[t^{-m}]$. Thus $R[t^{-m}] = k[t, t^{-1}]$, and the \v{C}ech complex $0 \to R \to R[t^{-m}] \to 0$ yields $H^1_{\mathfrak{m}}(R) \cong k[t, t^{-1}]/k[S]$, proving~(a).
+
+For $n \in \mathbb{Z} \setminus S$, $\overline{t^n} \in H^1_{\mathfrak{m}}(R)_n$ is annihilated by $t^s$ ($s \in S \setminus \{0\}$) if and only if $n + s \in S$. By~\eqref{eq:pf-def}, this holds for all $s \in S \setminus \{0\}$ precisely when $n \in \mathrm{PF}(S)$. Since $t^m$ is $R$-regular with $\deg(t^m) = m$, the short exact sequence $0 \to R(-m) \xrightarrow{t^m} R \to R/(t^m) \to 0$ identifies $\dim_k \mathrm{Ext}^1_R(k, R) = \dim_k \mathrm{Soc}(R/t^m R) = \dim_k \mathrm{Soc}(H^1_{\mathfrak{m}}(R)) = |\mathrm{PF}(S)|$, proving~(b).
+
+Finally, by definition of the graded $k$-dual, $(\omega_R)_d = \mathrm{Hom}_k(H^1_{\mathfrak{m}}(R)_{-d}, k)$ is $1$-dimensional if $-d \notin S$ and $0$ if $-d \in S$. If $-d \notin S$ and $s \in S$, then $-(d+s) \notin S$ as well, because $-(d+s) \in S$ would imply $-d = -(d+s) + s \in S + S \subseteq S$, a contradiction. Thus $M = \bigoplus_{-d \notin S} k t^d \subseteq k[t, t^{-1}]$ is a $\mathbb{Z}$-graded $R$-submodule, and the pairing $\langle t^d, \overline{t^{-d}} \rangle = 1$ identifies $M \cong \omega_R$. Uniqueness of the graded canonical module of a positively graded Cohen--Macaulay ring over a field up to degree shift~\cite[Prop.~3.6.12]{BH} gives $\omega \cong \omega_R(-c)$ for a unique $c \in \mathbb{Z}$, proving~(c).
+\end{proof}
+
+\begin{theorem}[Exact minimal homogeneous generators of $\omega_R(-c)$]\label{thm:min-gens}
+Let $S \subseteq \mathbb{N}$ be a numerical semigroup, $k$ any field, $R = k[S]$, and $c \in \mathbb{Z}$. For $\omega = \omega_R(-c)$:
+\begin{enumerate}
+  \item[(a)] Every minimal homogeneous generating set $G$ of $\omega$ over $R$ has cardinality $|G| = |\mathrm{PF}(S)| = \mathrm{type}(R)$.
+  \item[(b)] Every minimal homogeneous generating set $G$ of $\omega$ over $R$ has the exact degree set
+  \begin{equation}\label{eq:true-degrees}
+    \mathrm{Deg}_{\min}\bigl(\omega_R(-c)\bigr) = -\mathrm{PF}(S) + c = \{ -f + c : f \in \mathrm{PF}(S) \}.
+  \end{equation}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Let $\omega = \bigoplus_{c - d \notin S} k e_d$, where $t^s \cdot e_d = e_{d+s}$ for $s \in S$. Since $c - d > B$ implies $c - d \in S$, we have $\omega_d = 0$ for all $d < c - B$.
+
+First, take any $d \in \mathbb{Z}$ with $c - d \notin S$, and set $x = c - d \notin S$. Among all $s \in S$ with $x + s \notin S$, we have $x + s \le B$, hence $0 \le s \le B - x$. Let $s^* \in S$ be the \emph{largest} element of $S$ such that $f := x + s^* \notin S$. For every $s' \in S \setminus \{0\}$ we have $s' > 0$ and $s^* + s' \in S$ with $s^* + s' > s^*$, so maximality of $s^*$ forces $f + s' = x + (s^* + s') \in S$. Hence $f \in \mathrm{PF}(S)$, and with $d_0 = -f + c = c - (x + s^*)$ we have $e_d = t^{s^*} \cdot e_{d_0}$. Therefore $\{ e_{-f + c} : f \in \mathrm{PF}(S) \}$ generates $\omega$ as a graded $R$-module and has cardinality $|\mathrm{PF}(S)|$.
+
+Conversely, let $G = \{g_1, \dots, g_r\}$ be \emph{any} homogeneous generating set of $\omega$ with $\deg(g_i) = d_i$, and fix $f \in \mathrm{PF}(S)$. Set $d_0 = -f + c$, so $c - d_0 = f \notin S$ and $e_{d_0} \ne 0$. Express $e_{d_0} = \sum_{i=1}^r r_i g_i$ with homogeneous $r_i \in R_{d_0 - d_i}$. For any index $i$ with $d_i \ne d_0$: if $d_0 - d_i \notin S$, then $R_{d_0 - d_i} = 0$ so $r_i = 0$; if $d_0 - d_i \in S$, then $d_0 - d_i \in S \setminus \{0\}$, so $f \in \mathrm{PF}(S)$ implies $c - d_i = f + (d_0 - d_i) \in S$, whence $\omega_{d_i} = 0$ and $g_i = 0$. Since $e_{d_0} \ne 0$, at least one $g_i \ne 0$ must satisfy $d_i = -f + c$. As $f \mapsto -f + c$ is injective on $\mathrm{PF}(S)$, we obtain $|G| \ge |\mathrm{PF}(S)|$, with equality $|G| = |\mathrm{PF}(S)|$ if and only if $G$ has exactly one generator in each degree $-f + c$ ($f \in \mathrm{PF}(S)$) and none elsewhere.
+\end{proof}
+
+\begin{remark}[Origin of the sign confusion via free resolutions]\label{rem:syzygy-twist}
+Present $R = P/I_S$ over $P = k[x_1, \dots, x_e]$ with $\deg(x_j) = w_j > 0$ and $W = \sum_{j=1}^e w_j$. By Auslander--Buchsbaum, $\mathrm{pdim}_P(R) = e - 1$, and the last free module in the minimal graded free resolution of $R$ over $P$ is $F_{e-1} = \bigoplus_{f \in \mathrm{PF}(S)} P(-W - f)$, whose Betti twists $W + f$ are indeed $\mathrm{PF}(S) + W$. However, dualizing into $\omega_P = P(-W)$ to compute $\omega_R \cong \underline{\mathrm{Ext}}^{e-1}_P(R, P(-W))$ yields a minimal presentation beginning with
+\[
+  \underline{\mathrm{Hom}}_P\bigl(F_{e-1}, P(-W)\bigr) = \bigoplus_{f \in \mathrm{PF}(S)} P(f) \twoheadrightarrow \omega_R.
+\]
+Because the shifted free module $P(f)$ satisfies $P(f)_d = P_{d + f}$, its unit generator $1 \in P_0 = P(f)_{-f}$ sits in degree $-f$, \emph{not} $+f$. Confusing either the top $\mathrm{Tor}$ degrees $W + \mathrm{PF}(S)$ or the positive twist notation $P(+f)$ with the generator degrees of $\omega_R$ omits the sign reversal $f \mapsto -f$.
+\end{remark}
+
+\section{Reflection-Symmetry Criterion and Why Small Regimes Agree}
+
+\begin{proposition}[Exact alignment criterion]\label{prop:symmetry}
+Let $S \subseteq \mathbb{N}$ be a numerical semigroup with $\mathrm{PF}(S) = \{f_1 < f_2 < \dots < f_t\}$, and let $\omega = \omega_R(-c)$ ($c \in \mathbb{Z}$). There exists $c' \in \mathbb{Z}$ such that $\mathrm{Deg}_{\min}(\omega) = \mathrm{PF}(S) + c'$ if and only if $\mathrm{PF}(S)$ is \emph{reflection-symmetric}, meaning $f_i + f_{t + 1 - i}$ is independent of $i \in \{1, \dots, t\}$ (equivalently, the consecutive gap vector $(f_2 - f_1, \dots, f_t - f_{t-1})$ is a palindrome).
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:min-gens}(b), the sorted elements of $\mathrm{Deg}_{\min}(\omega)$ are $-f_t + c < -f_{t-1} + c < \dots < -f_1 + c$, while the sorted elements of $\mathrm{PF}(S) + c'$ are $f_1 + c' < f_2 + c' < \dots < f_t + c'$. Two finite subsets of $\mathbb{Z}$ of size $t$ coincide if and only if their $i$-th smallest elements coincide for every $1 \le i \le t$, i.e., $-f_{t + 1 - i} + c = f_i + c'$, or $f_i + f_{t + 1 - i} = c - c'$.
+\end{proof}
+
+\begin{corollary}[Automatic alignment in small or structured families]\label{cor:small-regimes}
+The equality $\mathrm{Deg}_{\min}(\omega) = \mathrm{PF}(S) + c'$ holds for \emph{every} numerical semigroup $S$ in each of the following classes:
+\begin{enumerate}
+  \item[(1)] $\mathrm{type}(S) \le 2$ (take $c' = c - 2f_1$ if $t = 1$, and $c' = c - (f_1 + f_2)$ if $t = 2$); in particular, \textbf{all symmetric and pseudo-symmetric semigroups}, \textbf{all embedding dimensions $e(S) \le 3$} (since $e(S) \le 3 \implies \mathrm{type}(S) \le 2$ by Herzog~\cite{Herzog70}), and \textbf{all multiplicities $m(S) \le 3$} (since $e(S) \le m(S)$).
+  \item[(2)] \textbf{All genera $g(S) \le 3$ and all Frobenius numbers $F(S) \le 4$}: the only semigroups there with $t(S) \ge 3$ are $S = \langle 4, 5, 6, 7 \rangle$ ($\mathrm{PF} = \{1, 2, 3\}$) and $S = \langle 5, 6, 7, 8, 9 \rangle$ ($\mathrm{PF} = \{1, 2, 3, 4\}$), whose $\mathrm{PF}$ sets are arithmetic progressions and hence palindromic.
+  \item[(3)] \textbf{All arithmetic-progression generator semigroups} $S = \langle a, a + d, \dots, a + k d \rangle$ ($\gcd(a, d) = 1$): by Roberts~\cite{Roberts} and Patil--Singh~\cite{PS}, $\mathrm{PF}(S)$ is always an arithmetic progression of common difference $d$, so $-\mathrm{PF}(S)$ is always a shift of $\mathrm{PF}(S)$ in \emph{every} embedding dimension.
+\end{enumerate}
+\end{corollary}
+
+Table~\ref{tab:genus-census} summarizes the exhaustive census of all numerical semigroups of genus $g \le 6$ (verified by \texttt{verify.py}), showing that $S = \langle 4, 6, 7, 9 \rangle$ is the \emph{unique} minimal counterexample by genus, multiplicity, Frobenius number, and embedding dimension simultaneously.
+
+\begin{table}[ht]
+\centering
+\caption{Exhaustive census of numerical semigroups by genus $g = |\mathbb{N} \setminus S| \le 6$.}
+\label{tab:genus-census}
+\vspace{4pt}
+\small
+\begin{tabular}{cccl}
+\hline
+Genus $g$ & Total $S$ & Counterexamples & Minimal counterexamples at genus $g$ \\
+\hline
+$0, 1, 2, 3$ & $1, 1, 2, 4$ & $0$ & None ($\mathrm{PF}(S)$ has size $\le 2$ or equals $\{1,2,3\}$) \\
+$4$ & $7$ & $1$ & $S = \langle 4, 6, 7, 9 \rangle$, $\mathrm{PF} = \{2, 3, 5\}$, $-\mathrm{PF} = \{-5, -3, -2\}$ \\
+$5$ & $12$ & $4$ & e.g.\ $\langle 5, 6, 8, 9 \rangle$ ($\mathrm{PF} = \{3, 4, 7\}$), $\langle 4, 7, 9, 10 \rangle$ ($\mathrm{PF} = \{3, 5, 6\}$) \\
+$6$ & $23$ & $5$ & e.g.\ $\langle 5, 6, 9, 13 \rangle$ ($\mathrm{PF} = \{4, 7, 8\}$), $\langle 4, 6, 11, 13 \rangle$ ($\mathrm{PF} = \{2, 7, 9\}$) \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Explicit Counterexamples Across All Interpretations}
+
+\subsection{Primary Counterexample: $S = \langle 4, 6, 7, 9 \rangle$ ($\dim R = 1$, $\mathrm{edim}\, R = 4$)}
+
+\begin{theorem}[Disproof on $S = \langle 4, 6, 7, 9 \rangle$]\label{thm:cex-4679}
+Let $S = \langle 4, 6, 7, 9 \rangle \subseteq \mathbb{N}$ and $R = k[S]$ over any field $k$.
+\begin{enumerate}
+  \item[(a)] $S = \mathbb{N} \setminus \{1, 2, 3, 5\}$, with minimal semigroup generators $\{4, 6, 7, 9\}$, embedding dimension $e(S) = 4$, multiplicity $m(S) = 4$, genus $g(S) = 4$, and Frobenius number $F(S) = 5$.
+  \item[(b)] $\mathrm{PF}(S) = \{2, 3, 5\}$ and $\mathrm{type}(R) = 3$.
+  \item[(c)] For every grading shift $c \in \mathbb{Z}$ of the graded canonical module $\omega = \omega_R(-c)$, one has $\mu_R(\omega) = 3 = \mathrm{type}(R)$ and $\mathrm{Deg}_{\min}(\omega) = \{-5 + c, -3 + c, -2 + c\}$. There exists \textbf{no} integer $c' \in \mathbb{Z}$ such that $\mathrm{Deg}_{\min}(\omega) = \mathrm{PF}(S) + c'$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) Clearly $0, 4, 6, 7, 8 = 4 + 4, 9 \in S$, whereas $1, 2, 3, 5$ cannot be written as nonnegative integer combinations of $4, 6, 7, 9$. Since $6, 7, 8, 9 \in S$ are four consecutive integers and $4 \in S$, any integer $n \ge 6$ can be written as $n = 4q + (6 + r)$ with $q \ge 0$ and $r \in \{0, 1, 2, 3\}$, so $n \in S$. Hence $S = \mathbb{N} \setminus \{1, 2, 3, 5\}$. None of $4, 6, 7, 9$ lies in $(S \setminus \{0\}) + (S \setminus \{0\}) = \{8\} \cup \mathbb{Z}_{\ge 10}$, while $8 = 4 + 4$ and every $n \ge 10$ satisfies $n - 4 \ge 6 \implies n - 4 \in S \setminus \{0\}$. Thus $\{4, 6, 7, 9\}$ is the unique minimal semigroup generating set of $S$, giving $e(S) = 4$.
+
+(b) Every $x \in \mathrm{PF}(S)$ lies in $\mathbb{N} \setminus S = \{1, 2, 3, 5\}$ (for $x < 0$, if $x \le -5$ then $x + 4 < 0 \notin S$; if $x = -4$ then $x + 6 = 2 \notin S$; if $x \in \{-3, -2, -1\}$ then $x + 4 \in \{1, 2, 3\} \subseteq \mathbb{Z} \setminus S$). Testing $\{1, 2, 3, 5\}$:
+\begin{itemize}
+  \item $1 \notin \mathrm{PF}(S)$, since $4 \in S \setminus \{0\}$ and $1 + 4 = 5 \notin S$;
+  \item for $x \in \{2, 3, 5\}$ and every $s \in S \setminus \{0\}$, we have $s \ge 4$, hence $x + s \ge 2 + 4 = 6$, so $x + s \in S$.
+\end{itemize}
+Thus $\mathrm{PF}(S) = \{2, 3, 5\}$ and $\mathrm{type}(R) = |\mathrm{PF}(S)| = 3$.
+
+(c) By Theorem~\ref{thm:min-gens}, $\mu_R(\omega) = 3$ and $\mathrm{Deg}_{\min}(\omega) = \{-5 + c, -3 + c, -2 + c\}$. Suppose $\{-5 + c, -3 + c, -2 + c\} = \{2 + c', 3 + c', 5 + c'\}$ for some $c' \in \mathbb{Z}$. Matching minimum, middle, and maximum elements of the two $3$-element sets forces
+\[
+  -5 + c = 2 + c', \qquad -3 + c = 3 + c', \qquad -2 + c = 5 + c'.
+\]
+Subtracting the first equation from the second yields $2 = 1$, a contradiction. (Equivalently, over $P = k[x_1, x_2, x_3, x_4]$ with $\deg = (4, 6, 7, 9)$ and $W = 26$, the minimal graded free resolution of $R$ is
+\[
+  0 \longrightarrow P(-28) \oplus P(-29) \oplus P(-31) \longrightarrow F_2 \longrightarrow F_1 \longrightarrow P \longrightarrow R \longrightarrow 0
+\]
+with $\mathrm{rk}(F_1) = 6$, $\mathrm{rk}(F_2) = 8$, and dualizing into $\omega_P = P(-26)$ yields $P(2) \oplus P(3) \oplus P(5) \twoheadrightarrow \omega_R$, generated in degrees $\{-2, -3, -5\}$.)
+\end{proof}
+
+\subsection{Higher-Krull-Dimension Cohen--Macaulay Extensions ($d \ge 1$)}
+
+For any integer $d \ge 1$, consider the affine semigroup $S_d = S \times \mathbb{N}^{d-1} \subseteq \mathbb{N}^d$ where $S = \langle 4, 6, 7, 9 \rangle$, equipped with the positive $\mathbb{Z}$-grading $\deg(s, a_1, \dots, a_{d-1}) = s + a_1 + \dots + a_{d-1}$. Then $R_d = k[S_d] \cong k[S][y_1, \dots, y_{d-1}]$ ($\deg y_j = 1$) is a Cohen--Macaulay positively $\mathbb{Z}$-graded semigroup domain of \emph{Krull dimension $d$} and type $3$. Because $\omega_{R_d} \cong \omega_{k[S]} \otimes_k k[y_1, \dots, y_{d-1}](-(d-1))$, its minimal homogeneous generators have degrees $\{-5 + d - 1, -3 + d - 1, -2 + d - 1\}$ (up to shift), whose consecutive differences remain $(2, 1)$ in every Krull dimension $d = 1, 2, 3, 4, 5, \dots$, whereas any scalar $\mathrm{PF}$ invariant inherited from $S$ has consecutive differences $(1, 2)$.
+
+\subsection{Non-Cohen--Macaulay Counterexample: Macaulay's Quartic Curve}
+
+If Cohen--Macaulayness is dropped for higher-rank positively $\mathbb{Z}$-graded affine semigroup rings, even the generator-count half $\mu_R(\omega_R) = \mathrm{type}(R)$ fails.
+
+\begin{theorem}[Failure of $\mu_R(\omega_R) = \mathrm{type}(R)$ on Macaulay's quartic semigroup]\label{thm:macaulay}
+Let $S_{\mathrm{Mac}} = \langle (1,0), (1,1), (1,3), (1,4) \rangle \subseteq \mathbb{N}^2$ (isomorphic to $\langle (4,0), (3,1), (1,3), (0,4) \rangle$), standard $\mathbb{Z}$-graded by the first coordinate, and let $R = k[S_{\mathrm{Mac}}]$. Then:
+\begin{enumerate}
+  \item[(a)] $\dim R = 2$, $\mathrm{edim}\, R = 4$, and $\mathrm{depth}\, R = 1$ ($R$ is not Cohen--Macaulay).
+  \item[(b)] $\mathrm{PF}(S_{\mathrm{Mac}}) = \{ p \in \mathbb{Z}^2 \setminus S_{\mathrm{Mac}} : p + q \in S_{\mathrm{Mac}}\;\forall q \in S_{\mathrm{Mac}} \setminus \{(0,0)\} \} = \{(1, 2)\}$ has size $1$, and the ring-theoretic type is $\mathrm{type}(R) = \dim_k \mathrm{Ext}^1_R(k, R) = 1$.
+  \item[(c)] The graded canonical module $\omega_R = \underline{\mathrm{Hom}}_k(H^2_{\mathfrak{m}}(R), k)$ is isomorphic to $\bigoplus_{d \ge 1,\, 1 \le b \le 4d - 1} k x^{(d, b)}$ and requires $\mu_R(\omega_R) = 3 \ne 1$ minimal homogeneous generators, namely $x^{(1,1)}, x^{(1,2)}, x^{(1,3)}$ (all of $\mathbb{Z}$-degree $1$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Direct induction on $d \ge 0$ shows $S_{\mathrm{Mac}} = \{(0,0)\} \cup \{(1, b) : b \in \{0, 1, 3, 4\}\} \cup \{(d, b) : d \ge 2,\, 0 \le b \le 4d\}$. Thus the normalization $\widetilde{S} = \{(d, b) \in \mathbb{N}^2 : 0 \le b \le 4d\}$ satisfies $\widetilde{S} \setminus S_{\mathrm{Mac}} = \{(1, 2)\}$, yielding an exact sequence of $\mathbb{Z}$-graded $R$-modules
+\begin{equation}\label{eq:macaulay-ses}
+  0 \longrightarrow R \longrightarrow k[\widetilde{S}] \longrightarrow k(-1) \longrightarrow 0.
+\end{equation}
+Since $\widetilde{S}$ is normal of rank $2$, $k[\widetilde{S}]$ is $2$-dimensional Cohen--Macaulay by Hochster's theorem~\cite{Hochster}, and $x^{(1,0)}, x^{(1,4)} \in \mathfrak{m}_R$ form a $k[\widetilde{S}]$-regular sequence, so $\mathrm{depth}_R(k[\widetilde{S}]) = 2$ and $H^0_{\mathfrak{m}}(k[\widetilde{S}]) = H^1_{\mathfrak{m}}(k[\widetilde{S}]) = 0$. The local cohomology sequence of~\eqref{eq:macaulay-ses} gives $H^0_{\mathfrak{m}}(R) = 0$, $H^1_{\mathfrak{m}}(R) \cong k(-1) \ne 0$ (hence $\mathrm{depth}\, R = 1$), and $H^2_{\mathfrak{m}}(R) \cong H^2_{\mathfrak{m}}(k[\widetilde{S}])$. Likewise, applying $\mathrm{Hom}_R(k, -)$ to~\eqref{eq:macaulay-ses} yields $0 = \mathrm{Hom}_R(k, k[\widetilde{S}]) \to \mathrm{Hom}_R(k, k(-1)) \xrightarrow{\sim} \mathrm{Ext}^1_R(k, R) \to \mathrm{Ext}^1_R(k, k[\widetilde{S}]) = 0$, so $\mathrm{type}(R) = \dim_k \mathrm{Ext}^1_R(k, R) = 1$, matching $\mathrm{PF}(S_{\mathrm{Mac}}) = \{(1, 2)\}$ (for any $(d, b) \notin S_{\mathrm{Mac}}$, requiring $(d+1, b) \in S_{\mathrm{Mac}}$ and $(d+1, b+4) \in S_{\mathrm{Mac}}$ forces $d \ge 0$ and $0 \le b \le 4d$, leaving only $(1, 2)$).
+
+Finally, $\omega_R = \underline{\mathrm{Hom}}_k(H^2_{\mathfrak{m}}(R), k) \cong \omega_{k[\widetilde{S}]}$ is given by the Danilov--Stanley theorem~\cite[Thm.~6.3.5]{BH} as the interior lattice module $\bigoplus_{d \ge 1,\, 1 \le b \le 4d-1} k x^{(d, b)}$. Its degree-$1$ elements $(1,1), (1,2), (1,3)$ cannot be decomposed using $S_{\mathrm{Mac}} \setminus \{(0,0)\}$ (which starts in degree $1$, whereas $\omega_R$ vanishes in degree $0$), and for every $d \ge 2$ and $1 \le b \le 4d - 1$, subtracting $(1,0)$ (if $b \le 4d - 5$), $(1,4)$ (if $b \ge 5$), or $(1,1)$ from $(2,4) = (1,3) + (1,1)$ reduces $(d, b)$ to degree $d - 1$. Hence $\{(1,1), (1,2), (1,3)\}$ is the unique minimal monomial generating set of $\omega_R$ over $R$, so $\mu_R(\omega_R) = 3 \ne 1 = \mathrm{type}(R)$.
+\end{proof}
+
+\section{Formal Verification in Lean 4 and Independent Checks}
+
+The entire proof architecture is formalized in Core Lean~4.19.0 (\texttt{lean/Main.lean}) with zero external dependencies, zero \texttt{sorry}, zero \texttt{native\_decide}, and only the standard foundational axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}), compiled with \texttt{-DwarningAsError=true}. Over an arbitrary field \texttt{K} (\texttt{CommField K}, witnessed non-vacuously by \texttt{Bool}), \texttt{Main.lean} constructs the graded ring \texttt{RingHomog}, local cohomology \texttt{LocalCohomHomog}, canonical module \texttt{OmegaHomog} with $K[S]$-equivariant Matlis pairing, formal $K[S]$-linear combinations \texttt{GenComb}, and proves every theorem listed in Table~\ref{tab:lean-map}. Independently, \texttt{verify.py} confirms all semigroup, local cohomology, Koszul Betti, Hilbert series, and genus-$6$ census computations using exact arithmetic.
+
+\begin{table}[ht]
+\centering
+\caption{Core Lean~4 declarations in \texttt{lean/Main.lean} corresponding to our main results.}
+\label{tab:lean-map}
+\vspace{4pt}
+\small
+\begin{tabular}{ll}
+\hline
+Mathematical Result & Lean~4 Declaration (\texttt{Conjecture00000000592.*}) \\
+\hline
+Non-vacuity of \texttt{CommField} ($\mathbb{F}_2$) & \texttt{instCommFieldBool} \\
+Socle of $H^1_{\mathfrak{m}}(K[S])$ vs.\ $\mathrm{PF}(S)$ (Prop.~\ref{prop:local-duality}b) & \texttt{socle\_nontrivial\_iff\_pf} \\
+$K[S]$-equivariance of Matlis pairing (Prop.~\ref{prop:local-duality}c) & \texttt{matlisPair\_smul\_compat} \\
+Exact minimal generators of $\omega_S(c)$ (Thm.~\ref{thm:min-gens}) & \texttt{minimal\_gen\_characterization} \\
+Positive alignment for $\mathrm{type}(S) \le 2$ (Cor.~\ref{cor:small-regimes}) & \texttt{alignment\_of\_type\_le\_two} \\
+Witness $S_{357} = \langle 3, 5, 7 \rangle$: $e = 3$, $\mathrm{PF} = \{2, 4\}$ & \texttt{S357\_edim\_three} / \texttt{S357\_pf\_two\_four} \\
+$S_{4679} = \langle 4, 6, 7, 9 \rangle$ monoid presentation (Thm.~\ref{thm:cex-4679}a) & \texttt{S4679\_iff\_generated\_by\_4\_6\_7\_9} \\
+$S_{4679}$ embedding dimension $e = 4$ (Thm.~\ref{thm:cex-4679}a) & \texttt{S4679\_edim\_four} \\
+$S_{4679}$ pseudo-Frobenius set $\{2, 3, 5\}$ (Thm.~\ref{thm:cex-4679}b) & \texttt{S4679\_pf\_two\_three\_five} \\
+Disproof over all fields $K$ and shifts (Thm.~\ref{thm:cex-4679}c) & \texttt{conjecture\_592\_false\_numerical} \\
+Concrete witness over $\mathbb{F}_2$ at $c = 0$ & \texttt{conjecture\_592\_counterexample\_exists} \\
+$S_{\mathrm{Mac}}$ monoid presentation (Thm.~\ref{thm:macaulay}) & \texttt{SMacaulay\_iff\_generated} \\
+$S_{\mathrm{Mac}}$ unique $\mathrm{PF}$ element $(1, 2)$ (Thm.~\ref{thm:macaulay}b) & \texttt{SMacaulay\_unique\_pf} \\
+Non-CM disproof: $\mu(\omega) = 3 \ne 1$ (Thm.~\ref{thm:macaulay}c) & \texttt{conjecture\_592\_false\_macaulay} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{thebibliography}{9}
+
+\bibitem{BH}
+W.~Bruns and J.~Herzog, \emph{Cohen--Macaulay Rings}, revised ed., Cambridge Studies in Advanced Mathematics, vol.~39, Cambridge University Press, 1998.
+
+\bibitem{GW1}
+S.~Goto and K.~Watanabe, On graded rings, I, \emph{J.\ Math.\ Soc.\ Japan} \textbf{30} (1978), no.~2, 179--213.
+
+\bibitem{GW2}
+S.~Goto and K.~Watanabe, On graded rings, II ($\mathbb{Z}^n$-graded rings), \emph{Tokyo J.\ Math.} \textbf{1} (1978), no.~2, 237--261.
+
+\bibitem{Herzog70}
+J.~Herzog, Generators and relations of abelian semigroups and semigroup rings, \emph{Manuscripta Math.} \textbf{3} (1970), 175--193.
+
+\bibitem{HK}
+J.~Herzog and E.~Kunz, Die Wertehalbgruppe eines lokalen Ringes der Dimension~$1$, \emph{Sitzungsber.\ Heidelb.\ Akad.\ Wiss.\ Math.-Natur.\ Kl.} (1971), 2.~Abh., 27--67.
+
+\bibitem{Hochster}
+M.~Hochster, Rings of invariants of tori, Cohen--Macaulay rings generated by monomials, and polytopes, \emph{Ann.\ of Math.\ (2)} \textbf{96} (1972), 318--337.
+
+\bibitem{PS}
+D.~P.~Patil and B.~Singh, Generators for the derivation modules and the relation ideals of certain curves, \emph{Manuscripta Math.} \textbf{68} (1990), 327--335.
+
+\bibitem{Roberts}
+J.~B.~Roberts, Note on linear forms, \emph{Proc.\ Amer.\ Math.\ Soc.} \textbf{7} (1956), 465--469.
+
+\bibitem{RGS}
+J.~C.~Rosales and P.~A.~Garc\'ia-S\'anchez, \emph{Numerical Semigroups}, Developments in Mathematics, vol.~20, Springer, New York, 2009.
+
+\end{thebibliography}
+
+\end{document}
