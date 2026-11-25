@@ -1,0 +1,398 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+\renewcommand{\arraystretch}{1.15}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\NC}{\mathrm{NC}}
+\newcommand{\conn}{\mathrm{conn}}
+\newcommand{\crpair}{\mathrm{cr}}
+\newcommand{\cl}{\mathrm{cl}}
+\newcommand{\fr}{\mathrm{fr}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\title{\textbf{Refutation of Conjecture 00000004763:\\
+Nonlinearity, Crossing-Graph Topology, and Unbounded Inverse Bandwidth in Free--Classical Cumulant Conversion}}
+\author{Formal Disproof and Verification Package (\texttt{00000004763})}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We analyze and refute Conjecture~\texttt{00000004763}, which asserts that the conversion between Speicher's free cumulants $(\kappa_n)_{n \ge 1}$ and classical cumulants $(c_n)_{n \ge 1}$ is always a low-order rational combination whose coefficients are determined by weighted crossing-pair counts, that the first two nontrivial conversion coefficients are $1$ and $-1$, and that an associated conversion matrix over the field of rational functions has an inverse of finite bandwidth (specifically, finite bandwidth of the Stirling-type triangle).
+
+We show that the conjecture is \textbf{false} in every constituent claim beyond an accidental low-order phenomenon at $n = 4$:
+\begin{enumerate}
+  \item[(i)] \textbf{Unbounded algebraic degree and index depth:} Both maps $c \mapsto \kappa(c)$ and $\kappa \mapsto c(\kappa)$ are nonlinear polynomial transformations whose algebraic degree at order $n = 2d$ equals $d \to \infty$ (and whose variable dependence reaches down to $c_2,\kappa_2$ at every order $n \ge 4$). Along the Gaussian ray $c = (0,t,0,\dots)$ and the Wigner semicircle ray $\kappa = (0,t,0,\dots)$, no rational function $P(t)/Q(t)$ of bounded degree $(D,D)$ can represent either conversion for all $n$.
+  \item[(ii)] \textbf{Insufficiency of crossing-pair counts:} At $n = 8$, explicit pairings of $\{1,\dots,8\}$ with identical block-size signature $(2,2,2,2)$ and identical crossing-pair count $\crpair(\pi) = 3$ have distinct crossing-graph connectivity (weights $0$ vs.\ $+1$ in $\kappa_8(c)$ and $0$ vs.\ $-1$ in $c_8(\kappa)$), and even among \emph{connected} crossing pairings with $\crpair(\pi) = 4$, the paw graph and $4$-cycle yield distinct Tutte activities $T_{G(\pi)}(1,0) \in \{2,3\}$ (weights $-2$ vs.\ $-3$ in $c_8(\kappa)$).
+  \item[(iii)] \textbf{First two nontrivial coefficients:} Orders $1,2,3$ satisfy $\kappa_n = c_n$. In $c \mapsto \kappa$, all coefficients are strictly positive integers, starting with $(+1,+5)$ at $n = 4,5$; in $\kappa \mapsto c$, the first two nontrivial coefficients are $(-1,-5)$ at $n = 4,5$ (or $(-1,-9,+5)$ on even cumulants). The numbers $+1$ and $-1$ are the $n = 4$ coefficients of the two \emph{opposite} directions ($\kappa_4 = c_4 + c_2^2$ and $c_4 = \kappa_4 - \kappa_2^2$), not of a single conversion.
+  \item[(iv)] \textbf{Unbounded inverse bandwidth:} Across every canonical lower-triangular matrix associated with free--classical cumulant conversion---the Stirling and Narayana triangles $S, N$, the block-count transitions $N^{-1}S$ and $S^{-1}N$ (where we prove $(S^{-1}N)_{n,2} = (-1)^{n-1}(n-2)!(H_{n-2}-1) \ne 0$ for all $n \ge 4$), the Bell and Kreweras polynomial triangles $B(c), B^{\NC}(\kappa)$ over $\Q(c_1,c_2,\dots)$, the Jacobian $J = \partial\kappa/\partial c$, and the moment-recurrence matrices $L_{\fr}(m)^{-1}L_{\cl}(m)$ over $\Q(m_1,m_2,\dots)$---both the conversion matrix and its inverse have lower bandwidth growing linearly with $n$ ($n - 1$ or $n - 2$).
+\end{enumerate}
+All core definitions, positive low-order identities, non-vacuity witnesses, and universal refutation theorems are machine-checked from first principles in Core Lean~4.19.0 with zero external dependencies and zero axioms beyond Lean's foundational kernel, and cross-checked in Python (\texttt{verify.py}).
+\end{abstract}
+
+\section{Introduction and Problem Statement}
+
+\subsection{Exact Statement of Conjecture \texttt{00000004763}}
+
+The conjecture (stated identically in English and Chinese in \texttt{SOURCE.md}) reads verbatim in English:
+
+\begin{quote}
+\textbf{Definition:} Free cumulants and classical cumulants are the noncommutative and commutative combinatorial systems of moment functionals. \textbf{Conjecture:} Their conversion is always a low-order rational combination with coefficients given by weighted crossing pair counts; the first two nontrivial conversion coefficients are $1$ and $-1$; the conversion matrix is invertible over the field of rational functions, with finite bandwidth of the inverse (finite bandwidth of the Stirling-type triangle). \emph{(rational conversion of free-classical cumulants)}
+\end{quote}
+
+The parallel Chinese text confirms the exact technical meaning of each phrase: \emph{low-order rational combination} (low-degree/low-order rational expression), \emph{weighted crossing-pair counts} (combinatorial weights depending on the count of crossing pairs), \emph{first two nontrivial conversion coefficients $1$ and $-1$}, and \emph{invertibility over the field of rational functions with finite bandwidth of the inverse (finite bandwidth of the Stirling-type triangle)}.
+
+\subsection{Summary of Results and Origin of the Misconception}
+
+Why might such a conjecture appear plausible upon inspecting low orders? For a normalized unital linear functional $\varphi$ with moments $m_n = \varphi(X^n)$ ($m_0 = 1$), classical cumulants $(c_n)_{n \ge 1}$ sum over the lattice $\Pi_n$ of all set partitions of $\{1,\dots,n\}$, whereas Speicher's free cumulants $(\kappa_n)_{n \ge 1}$~\cite{Speicher1994,NicaSpeicher2006} sum over the sublattice $\NC_n \subseteq \Pi_n$ of noncrossing partitions:
+\begin{equation}\label{eq:moment-cumulant}
+  m_n = \sum_{\pi \in \Pi_n} \prod_{B \in \pi} c_{|B|}
+      = \sum_{\pi \in \NC_n} \prod_{B \in \pi} \kappa_{|B|}
+  \qquad (n \ge 1).
+\end{equation}
+For $n \in \{1,2,3\}$, no two disjoint blocks of $\{1,\dots,n\}$ can cross, so $\Pi_n = \NC_n$ and $\kappa_n = c_n$. At $n = 4$, $|\Pi_4| = 15$ while $|\NC_4| = C_4 = 14$; the unique crossing partition is the single crossing chord pair $\pi_\times = \{\{1,3\},\{2,4\}\}$ of block-size type $(2,2)$, which immediately gives
+\begin{equation}\label{eq:n4-pair}
+  \kappa_4 = c_4 + c_2^2, \qquad c_4 = \kappa_4 - \kappa_2^2.
+\end{equation}
+Looking only at $n \le 4$:
+\begin{itemize}
+  \item the discrepancy $\kappa_4 - c_4 = c_2^2$ is quadratic (low-order),
+  \item it is counted by a single crossing pair of blocks,
+  \item the forward and inverse coefficients are $+1$ and $-1$, and
+  \item up to $4 \times 4$, every lower-triangular transition matrix trivially has bandwidth at most $3$.
+\end{itemize}
+
+Beginning at $n = 5, 6, 8$, however, every single extrapolation from~\eqref{eq:n4-pair} breaks down completely. We establish:
+\begin{enumerate}
+  \item \textbf{Refutation of Subclaim~1 (Section~\ref{sec:degree}):} Both $\kappa_n(c)$ and $c_n(\kappa)$ are nonlinear polynomials of exact algebraic degree $\lfloor n/2 \rfloor \to \infty$ and index depth $n - 2 \to \infty$. Neither direction admits a uniform representation by polynomials---or even rational functions $P/Q$---of bounded degree $\le D$.
+  \item \textbf{Refutation of Subclaim~2 (Section~\ref{sec:crossing}):} By the results of Lehner~\cite{Lehner2002}, Josuat-Verg\`es~\cite{JosuatVerges2013}, and Arizmendi, Hasebe, Lehner, and Vargas~\cite{AHLV2015}, the conversion weights depend on global graph connectivity and cycle topology (Tutte activity $T_{G(\pi)}(1,0)$) of the crossing graph $G(\pi)$, not merely on its edge count $\crpair(\pi)$. Explicit pairings of $\{1,\dots,8\}$ refute any functional dependence on block sizes and $\crpair(\pi)$, even when restricted to connected crossing graphs.
+  \item \textbf{Refutation of Subclaim~3 (Section~\ref{sec:coeffs}):} No single conversion direction has $(1,-1)$ as its first two nontrivial coefficients: $c \mapsto \kappa$ has $(+1,+5)$ (indeed all coefficients of $\kappa_n(c)$ are strictly positive), while $\kappa \mapsto c$ has $(-1,-5)$ (or $(-1,-9,+5)$ on even cumulants).
+  \item \textbf{Refutation of Subclaim~4 (Section~\ref{sec:bandwidth}):} Every canonical lower-triangular matrix formulation---whether scalar Stirling and Narayana triangles $S, N, N^{-1}S, S^{-1}N$, Bell and Kreweras triangles $B(c), B^{\NC}(\kappa)$ over $\Q(c_1,c_2,\dots)$ (where the rational function field is genuinely required to invert the diagonal entries $c_1^n$), the Jacobian $J = \partial\kappa/\partial c$, or the moment-recurrence matrices $L_{\fr}(m)^{-1}L_{\cl}(m)$ over $\Q(m_1,m_2,\dots)$---has inverse bandwidth growing linearly as $n - 1$ or $n - 2 \to \infty$.
+\end{enumerate}
+
+\section{Combinatorial Foundations and Exact Low-Order Conversions}\label{sec:prelim}
+
+\subsection{Moment--Cumulant Recurrences and Shift Invariance}
+
+Let $\Pi_n$ denote the set of set partitions of $[n] = \{1,\dots,n\}$. Two disjoint blocks $A,B \in \pi$ \emph{cross} if there exist $1 \le a < b < c < d \le n$ with either ($a,c \in A$ and $b,d \in B$) or ($a,c \in B$ and $b,d \in A$). A partition $\pi \in \Pi_n$ is \emph{noncrossing} ($\pi \in \NC_n$) if no two blocks of $\pi$ cross.
+
+Equivalently, in terms of the exponential generating series $M_{\mathrm{egf}}(z) = 1 + \sum_{n \ge 1} m_n z^n / n! = \exp\bigl(\sum_{k \ge 1} c_k z^k / k!\bigr)$ and the ordinary moment series $M(z) = 1 + \sum_{n \ge 1} m_n z^n = C(z M(z))$ with $C(w) = 1 + \sum_{k \ge 1} \kappa_k w^k$, differentiating the former and expanding the latter yield the triangular recurrences ($m_0 = 1$):
+\begin{align}
+  m_n &= \sum_{k=1}^{n} \binom{n-1}{k-1} c_k m_{n-k}, \label{eq:cl-rec}\\
+  m_n &= \sum_{k=1}^{n} \kappa_k \,[z^{n-k}]\, M(z)^k
+       = \sum_{k=1}^{n} \kappa_k \sum_{\substack{i_1+\dots+i_k = n-k \\ i_r \ge 0}} m_{i_1}\cdots m_{i_k}. \label{eq:fr-rec}
+\end{align}
+Since the $k = n$ summand in~\eqref{eq:cl-rec} is $c_n$ and in~\eqref{eq:fr-rec} is $\kappa_n$, both maps $c \leftrightarrow m$ and $\kappa \leftrightarrow m$ are unitriangular polynomial bijections over $\Z$. Eliminating $m$ yields mutually inverse polynomial transformations $\kappa_n = \kappa_n(c_1,\dots,c_n)$ and $c_n = c_n(\kappa_1,\dots,\kappa_n)$.
+
+For every partition $\pi \in \Pi_n$, define its \emph{crossing graph} $G(\pi)$ to have vertex set $\pi$ and an undirected edge $\{A,B\}$ whenever $A$ and $B$ cross; let $\crpair(\pi) = |E(G(\pi))|$ be its crossing-pair count. Let $\Pi_n^{\conn} \subseteq \Pi_n$ denote the subset of partitions for which $G(\pi)$ is connected. Note that a singleton block $\{x\}$ cannot cross any block, so for $n \ge 2$ no partition in $\Pi_n^{\conn}$ contains a singleton; hence both $\kappa_n(c)$ and $c_n(\kappa)$ are independent of $c_1 = \kappa_1$ for all $n \ge 2$ (reflecting translation invariance of higher cumulants).
+
+\begin{theorem}[Connected-crossing and Tutte-activity formulas~\cite{Lehner2002,BBLS2011,JosuatVerges2013,AHLV2015}]\label{thm:conn-tutte}
+For every $n \ge 1$,
+\begin{align}
+  \kappa_n(c) &= \sum_{\pi \in \Pi_n^{\conn}} \prod_{B \in \pi} c_{|B|}, \label{eq:lehner}\\
+  c_n(\kappa) &= \sum_{\pi \in \Pi_n^{\conn}} (-1)^{|\pi|-1} T_{G(\pi)}(1,0) \prod_{B \in \pi} \kappa_{|B|}, \label{eq:ahlv}
+\end{align}
+where $T_G(x,y)$ is the Tutte polynomial of a connected graph $G$, and $T_G(1,0) \ge 1$ counts the acyclic orientations of $G$ having a prescribed vertex as unique source~\cite{GreeneZaslavsky1983}.
+\end{theorem}
+
+\subsection{Explicit Conversion Polynomials Through Order \texorpdfstring{$n = 8$}{n = 8}}
+
+Evaluating~\eqref{eq:cl-rec}--\eqref{eq:fr-rec} (and independently~\eqref{eq:lehner}--\eqref{eq:ahlv}) produces the exact universal conversion polynomials for $1 \le n \le 8$:
+\begin{align*}
+  \kappa_1 &= c_1, \qquad \kappa_2 = c_2, \qquad \kappa_3 = c_3, \qquad \kappa_4 = c_4 + c_2^2, \qquad \kappa_5 = c_5 + 5 c_3 c_2,\\
+  \kappa_6 &= c_6 + 9 c_4 c_2 + 7 c_3^2 + 4 c_2^3, \qquad
+  \kappa_7 = c_7 + 14 c_5 c_2 + 28 c_4 c_3 + 42 c_3 c_2^2,\\
+  \kappa_8 &= c_8 + 20 c_6 c_2 + 48 c_5 c_3 + 31 c_4^2 + 102 c_4 c_2^2 + 156 c_3^2 c_2 + 27 c_2^4,
+\end{align*}
+and in the inverse direction:
+\begin{align*}
+  c_1 &= \kappa_1, \qquad c_2 = \kappa_2, \qquad c_3 = \kappa_3, \qquad c_4 = \kappa_4 - \kappa_2^2, \qquad c_5 = \kappa_5 - 5 \kappa_3 \kappa_2,\\
+  c_6 &= \kappa_6 - 9 \kappa_4 \kappa_2 - 7 \kappa_3^2 + 5 \kappa_2^3, \qquad
+  c_7 = \kappa_7 - 14 \kappa_5 \kappa_2 - 28 \kappa_4 \kappa_3 + 56 \kappa_3 \kappa_2^2,\\
+  c_8 &= \kappa_8 - 20 \kappa_6 \kappa_2 - 48 \kappa_5 \kappa_3 - 31 \kappa_4^2 + 140 \kappa_4 \kappa_2^2 + 224 \kappa_3^2 \kappa_2 - 56 \kappa_2^4.
+\end{align*}
+Note already at $n = 6$ the discrepancy between $+4 c_2^3$ in $\kappa_6(c)$ and $+5 \kappa_2^3$ in $c_6(\kappa)$: among the $4$ connected chord diagrams on $6$ points, three have crossing graph $P_3$ (a tree, $T_{P_3}(1,0) = 1$) while the spoke diagram $\{\{1,4\},\{2,5\},\{3,6\}\}$ has crossing graph $K_3$ (a $3$-cycle, $T_{K_3}(1,0) = 2$), giving $(-1)^{3-1}(3\cdot 1 + 1\cdot 2) = +5$.
+
+\section{Refutation of Subclaim 1: Unbounded Algebraic Degree and Index Depth}\label{sec:degree}
+
+We first prove that neither $c \mapsto \kappa(c)$ nor $\kappa \mapsto c(\kappa)$ is a low-order polynomial or rational combination.
+
+\begin{theorem}[Unbounded forward degree along the Gaussian ray]\label{thm:gauss-degree}
+Define the Gaussian cumulant ray $c^{(t)}$ by $c^{(t)}_2 = t$ and $c^{(t)}_n = 0$ for $n \ne 2$. Then for every $d \ge 1$,
+\begin{equation}\label{eq:gauss-homog}
+  \kappa_{2d}\bigl(c^{(t)}\bigr) = a_d \, t^d, \qquad \kappa_{2d-1}\bigl(c^{(t)}\bigr) = 0,
+\end{equation}
+where $a_d = [c_2^d]\,\kappa_{2d}(c) = \kappa_{2d}\bigl(c^{(1)}\bigr) \in \Z$ satisfies Stein's recurrence~\cite{Stein1978}
+\begin{equation}\label{eq:stein}
+  a_1 = 1, \qquad a_d = (d - 1)\sum_{j=1}^{d-1} a_j a_{d-j} \quad (d \ge 2).
+\end{equation}
+In particular, $a_d \ge (d-1)! \ge 1$ for every $d \ge 1$ ($a_d = 1, 1, 4, 27, 248, 2830, \dots$), so $\deg \kappa_{2d}(c) = d \to \infty$.
+\end{theorem}
+
+\begin{proof}
+At $c = c^{(t)}$, recurrence~\eqref{eq:cl-rec} reduces to $m_0 = 1$, $m_1 = 0$, and $m_n = (n-1) t m_{n-2}$ ($n \ge 2$), whence $m_{2d-1} = 0$ and $m_{2d} = (2d-1)!!\, t^d$. Inducting on~\eqref{eq:fr-rec} gives~\eqref{eq:gauss-homog}. At $t = 1$, $M(z) = \sum_{d \ge 0} (2d-1)!!\, z^{2d}$ satisfies the formal differential identity $M(z) = 1 + z^2 M(z) + z^3 M'(z)$. Substituting $M(z) = C(w)$ with $w = z C(w)$ gives $M'(z) = C'(w) C(w)^2 / (C(w) - w C'(w))$, hence
+\[
+  \bigl(C(w) - 1\bigr)\bigl(C(w) - w C'(w)\bigr) = w^2.
+\]
+For $C(w) = 1 + \sum_{d \ge 1} a_d w^{2d}$, extracting $[w^2]$ gives $a_1 = 1$, and extracting $[w^{2d}]$ ($d \ge 2$) gives $a_d = \sum_{j=1}^{d-1}(2d - 2j - 1)a_j a_{d-j}$. Averaging $j$ with $d - j$ yields~\eqref{eq:stein}, from which $a_d \ge (d-1)!$ follows by induction ($a_1 = 1$, and for $d \ge 2$ the single term $j = 1$ gives $a_d \ge (d-1) a_1 a_{d-1} \ge (d-1)!$).
+
+\emph{Elementary alternative proof (formalized in Lean):} Even without Stein's recurrence, for $1 \le i \le d - 1$ one has $(2i-1)!!(2(d-i)-1)!! \le (2d-3)!!$, whence $[z^{2d}]M(z)^2 \le 3(2d-1)!!$ and by induction $[z^{2d}]M(z)^r \le 3^r (2d-1)!!$ for all $r,d \ge 0$. If $a_j = 0$ for all $j > D$, then~\eqref{eq:fr-rec} at $n = 2d$ ($d > D$) would give $(2d-1)!! = \sum_{j=1}^D a_j [z^{2(d-j)}]M(z)^{2j} \le \bigl(\sum_{j=1}^D |a_j| 3^{2j}\bigr)(2d-3)!!$, contradicting $2d - 1 > \sum_{j=1}^D |a_j| 3^{2j}$.
+\end{proof}
+
+As remarked in the introduction, unbounded degree of a polynomial automorphism does not automatically imply unbounded degree of its inverse (consider the triangular automorphism $y_1 = x_1$, $y_k = x_k + y_{k-1}^2$, whose inverse $x_k = y_k - y_{k-1}^2$ has degree $2$). We therefore prove directly that the inverse map $\kappa \mapsto c(\kappa)$ also has unbounded degree.
+
+\begin{theorem}[Unbounded inverse degree along the Wigner semicircle ray]\label{thm:wigner-degree}
+Define the Wigner cumulant ray $\kappa^{(t)}$ by $\kappa^{(t)}_2 = t$ and $\kappa^{(t)}_n = 0$ for $n \ne 2$. Then for every $d \ge 1$,
+\begin{equation}\label{eq:wigner-homog}
+  c_{2d}\bigl(\kappa^{(t)}\bigr) = b_d \, t^d, \qquad c_{2d-1}\bigl(\kappa^{(t)}\bigr) = 0,
+\end{equation}
+where $b_d = [\kappa_2^d]\,c_{2d}(\kappa) = c_{2d}\bigl(\kappa^{(1)}\bigr) \in \Z$ satisfies the exact polynomial identity
+\begin{equation}\label{eq:wigner-poly}
+  2d = \sum_{j=1}^{d} \frac{b_j}{(2j-1)!}\, \frac{d!}{(d-j)!}\, \frac{(d+1)!}{(d+1-j)!}
+  \qquad (d \ge 1).
+\end{equation}
+In particular, $b_d \ne 0$ for infinitely many $d$---in fact, $(-1)^{d-1} b_d = \frac{(2d)!}{d} 4^d \sum_{m=1}^\infty j_{1,m}^{-2d} > 0$ for every $d \ge 1$, where $0 < j_{1,1} < j_{1,2} < \cdots$ are the positive zeros of the Bessel function $J_1$ ($b_d = 1, -1, 5, -56, 1092, -32670, \dots$).
+\end{theorem}
+
+\begin{proof}
+At $\kappa = \kappa^{(t)}$,~\eqref{eq:fr-rec} yields $m_{2d-1} = 0$ and $m_{2d} = C_d t^d$, where $C_0 = 1$ and $C_{d+1} = \sum_{i=0}^d C_i C_{d-i}$ are the Catalan numbers, giving~\eqref{eq:wigner-homog}. Setting $U(z) = 1 - 2z C(z)$ where $C(z) = \sum_{d \ge 0} C_d z^d$, Cauchy convolution gives $U(z)^2 = 1 - 4z$. Applying the formal Euler derivation $(E A)_n = n A_n$ gives $2 U \cdot E(U) = -4z$, hence $(1 - 4z) E(U) = U \cdot (U E(U)) = -2z U$, whose coefficient of $z^{d+2}$ yields $(d+2)C_{d+1} = 2(2d+1)C_d$ and inductively $d!(d+1)! C_d = (2d)!$. Substituting $m_{2d} = \frac{(2d)!}{d!(d+1)!}$ into the even-order classical recurrence $C_d = \sum_{j=1}^d \binom{2d-1}{2j-1} b_j C_{d-j}$ and dividing by $\frac{(2d-1)!}{d!(d+1)!}$ yields~\eqref{eq:wigner-poly}.
+
+To see purely algebraically that $b_d$ cannot vanish for all $d > D$, suppose $K = \max\{j \ge 1 : b_j \ne 0\}$ existed. Since $b_1 = 1$ and $b_2 = -1$, we have $K \ge 2$. Then for all $d > K$, the right-hand side of~\eqref{eq:wigner-poly} is a polynomial in $d$ of exact degree $2K \ge 4$ with nonzero leading coefficient $b_K / (2K-1)!$, which cannot equal the linear function $2d$ for all $d > K$. (Analytically, $1 + \sum_{d \ge 1} C_d \frac{z^{2d}}{(2d)!} = \frac{I_1(2z)}{z} = \prod_{m=1}^\infty \bigl(1 + \frac{4z^2}{j_{1,m}^2}\bigr)$, whose logarithm immediately gives the strictly alternating Bessel-zero series for $b_d$.)
+\end{proof}
+
+\begin{corollary}[Impossibility of low-order rational combinations and unbounded index depth]\label{cor:no-low-order}
+\leavevmode
+\begin{enumerate}
+  \item[(a)] For every degree bound $D \in \N$, there exist even orders $n_1, n_2 > 2D$ such that neither $t \mapsto \kappa_{n_1}(c^{(t)})$ nor $t \mapsto c_{n_2}(\kappa^{(t)})$ can be written as $P(t)/Q(t)$ for any polynomials $P,Q \in \Z[t]$ of degree $\le D$ with $Q \not\equiv 0$. A fortiori, neither conversion is uniformly a rational function of degree $\le D$ in the cumulants.
+  \item[(b)] For every $n \ge 5$, $[c_{n-2}c_2]\,\kappa_n(c) = \frac{n(n-3)}{2} > 0$ and $[\kappa_{n-2}\kappa_2]\,c_n(\kappa) = -\frac{n(n-3)}{2} < 0$ (counting the $\binom{n}{2} - n$ unordered $2$-block crossing partitions of $[n]$ of block sizes $\{n-2,2\}$). Thus every conversion polynomial of order $n \ge 4$ depends nontrivially on cumulants of index $2$, i.e.\ at unbounded index distance $n - 2$ below $n$.
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+For~(a), pick $d_1 > D$ with $a_{d_1} \ne 0$ (Theorem~\ref{thm:gauss-degree}) and $d_2 > D$ with $b_{d_2} \ne 0$ (Theorem~\ref{thm:wigner-degree}). If $a_{d_1} t^{d_1} Q(t) = P(t)$ held for all $t \ge 1$ where $Q(t) \ne 0$, with $\deg Q = K \le D$ ($q_K \ne 0$), the left-hand side would have degree $d_1 + K \ge d_1 > D \ge \deg P$, impossible at large integer $t$; similarly for $b_{d_2} t^{d_2}$. For~(b), a $2$-element subset $\{u,v\} \subset [n]$ ($n \ge 5$) fails to cross $[n] \setminus \{u,v\}$ if and only if $u,v$ are cyclically adjacent ($n$ choices out of $\binom{n}{2}$), leaving $\binom{n}{2} - n = \frac{n(n-3)}{2}$ connected crossing $2$-partitions of type $(n-2,2)$.
+\end{proof}
+
+\section{Refutation of Subclaims 2 and 3: Crossing-Graph Topology and Nontrivial Coefficients}\label{sec:crossing}\label{sec:coeffs}
+
+\subsection{Crossing-Pair Counts Do Not Determine Conversion Coefficients}
+
+Conjecture~\texttt{00000004763} asserts that the conversion coefficients are given by \emph{weighted crossing pair counts}. If the weight contributed by a set partition $\pi \in \Pi_n$ to $\kappa_n(c)$ or $c_n(\kappa)$ were any function $W\bigl((|B|)_{B \in \pi},\, \crpair(\pi)\bigr)$ of its block sizes and crossing-pair count $\crpair(\pi)$, then any two partitions of $[n]$ with the same multiset of block sizes and the same number of crossing block pairs would carry equal weights. This fails already for perfect matchings of $[8]$ (block-size signature $(2,2,2,2)$), for two distinct topological reasons.
+
+\begin{theorem}[Explicit $n = 8$ counterexamples to crossing-pair-count parameterization]\label{thm:crossing-ce}
+Consider the following four set partitions of $[8]$, each consisting of four blocks of size $2$:
+\begin{align*}
+  \pi_{\mathrm{disc}} &= \bigl\{\{1,8\},\{2,5\},\{3,6\},\{4,7\}\bigr\}, &
+  \pi_{\mathrm{tree}} &= \bigl\{\{1,7\},\{2,6\},\{3,5\},\{4,8\}\bigr\},\\
+  \pi_{\mathrm{paw}}  &= \bigl\{\{1,7\},\{2,5\},\{3,6\},\{4,8\}\bigr\}, &
+  \pi_{C_4}           &= \bigl\{\{1,6\},\{2,5\},\{3,8\},\{4,7\}\bigr\}.
+\end{align*}
+\begin{enumerate}
+  \item[(a)] \textbf{Connectivity obstruction at $\crpair = 3$:} Both $\pi_{\mathrm{disc}}$ and $\pi_{\mathrm{tree}}$ have $\crpair = 3$ crossing pairs. However, $G(\pi_{\mathrm{disc}}) \cong K_1 \sqcup K_3$ is disconnected ($w_{\fr} = 0$, $w_{\cl} = 0$), whereas $G(\pi_{\mathrm{tree}}) \cong K_{1,3}$ is a connected tree ($w_{\fr} = +1$, $w_{\cl} = -1$).
+  \item[(b)] \textbf{Cycle/Tutte obstruction at $\crpair = 4$ (even on connected crossing graphs):} Both $\pi_{\mathrm{paw}}$ and $\pi_{C_4}$ are connected and have $\crpair = 4$ crossing pairs. However, $G(\pi_{\mathrm{paw}})$ is the paw graph ($K_3$ with a pendant edge), which has $T_{\mathrm{paw}}(1,0) = 2$ and inverse weight $(-1)^{4-1}\cdot 2 = -2$ in $c_8(\kappa)$, whereas $G(\pi_{C_4}) \cong C_4$ is the $4$-cycle, which has $T_{C_4}(1,0) = 3$ and inverse weight $(-1)^{4-1}\cdot 3 = -3$ in $c_8(\kappa)$.
+\end{enumerate}
+Consequently, no function $W(\text{block sizes}, \crpair(\pi))$ reproduces the forward conversion weights on $\Pi_8$, nor even the inverse conversion weights restricted to $\Pi_8^{\conn}$.
+\end{theorem}
+
+\begin{proof}
+For $\pi_{\mathrm{disc}}$, block $\{1,8\}$ encloses $\{2,\dots,7\}$ without crossing any block, while $\{2,5\}$, $\{3,6\}$, and $\{4,7\}$ mutually cross ($3$ edges, $K_1 \sqcup K_3$). In $\pi_{\mathrm{tree}}$, $\{4,8\}$ crosses each of the three nested blocks $\{1,7\}$, $\{2,6\}$, $\{3,5\}$, which do not cross one another ($3$ edges, star $K_{1,3}$, $T_{K_{1,3}}(1,0) = 1$). In $\pi_{\mathrm{paw}}$, $\{2,5\}$ crosses $\{3,6\}$, and $\{4,8\}$ crosses $\{1,7\}$, $\{2,5\}$, $\{3,6\}$, while $\{1,7\}$ crosses neither $\{2,5\}$ nor $\{3,6\}$ ($4$ edges, paw graph; orienting $\{1,7\} \to \{4,8\}$ as unique source leaves $2$ acyclic orientations on the triangle $\{\{4,8\},\{2,5\},\{3,6\}\}$). In $\pi_{C_4}$, the nested pair $\{\{1,6\},\{2,5\}\}$ and the nested pair $\{\{3,8\},\{4,7\}\}$ form a complete bipartite crossing graph $K_{2,2} \cong C_4$ ($4$ edges; fixing $\{1,6\}$ as unique source forces $\{1,6\} \to \{3,8\}$ and $\{1,6\} \to \{4,7\}$, and $3$ of the $4$ orientations of the remaining two incident edges to $\{2,5\}$ avoid making $\{2,5\}$ a second source, so $T_{C_4}(1,0) = 3$). Summing over all $105$ matchings of $[8]$ confirms $\sum w_{\fr} = 27 = [c_2^4]\kappa_8$ and $\sum w_{\cl} = -56 = [\kappa_2^4]c_8$.
+\end{proof}
+
+\subsection{The First Two Nontrivial Conversion Coefficients Are Not \texorpdfstring{$1$ and $-1$}{1 and -1}}
+
+\begin{proposition}[Exhaustive check of initial nontrivial coefficients]\label{prop:coeffs}
+Orders $n = 1,2,3$ have $\kappa_n = c_n$ (zero off-diagonal conversion terms). Ordering nontrivial conversion coefficients by increasing order $n \ge 4$:
+\begin{enumerate}
+  \item[(a)] In $c \mapsto \kappa(c)$, every coefficient of $\kappa_n(c)$ is a \emph{strictly positive} integer by~\eqref{eq:lehner}; the first two nontrivial coefficients are $+1$ ($\kappa_4 = c_4 + 1\cdot c_2^2$) and $+5$ ($\kappa_5 = c_5 + 5 c_3 c_2$), or $(+1,+9,+7,+4)$ if restricted to even orders $n = 4,6$. Thus $-1$ never occurs in $c \mapsto \kappa$.
+  \item[(b)] In $\kappa \mapsto c(\kappa)$, the first two nontrivial coefficients are $-1$ ($c_4 = \kappa_4 - 1\cdot \kappa_2^2$) and $-5$ ($c_5 = \kappa_5 - 5 \kappa_3 \kappa_2$); restricted to centered symmetric laws ($\kappa_{\mathrm{odd}} = 0$), $c_4 = \kappa_4 - \kappa_2^2$ and $c_6 = \kappa_6 - 9\kappa_4\kappa_2 + 5\kappa_2^3$, giving $(-1,-9,+5)$ (or $(-1,+5)$ along $\kappa_2^d$).
+  \item[(c)] In the scalar block-count transition triangles (Section~\ref{sec:bandwidth}), the first two nontrivial off-diagonal entries are $(+1,-5)$ in $N^{-1}S$ and $(-1,+5)$ in $S^{-1}N$.
+\end{enumerate}
+In no consistent single conversion direction are the first two nontrivial coefficients $1$ and $-1$; the conjecture conflates $+1 = [c_2^2]\kappa_4(c)$ and $-1 = [\kappa_2^2]c_4(\kappa)$ from opposite directions.
+\end{proposition}
+
+\section{Refutation of Subclaim 4: Unbounded Inverse Bandwidth of Conversion Matrices and Stirling-Type Triangles}\label{sec:bandwidth}
+
+Because the direct cumulant conversion $c \leftrightarrow \kappa$ is nonlinear ($\kappa_4(2e_2) = 4 \ne 2 = 2\kappa_4(e_2)$), there is no constant scalar matrix $M$ satisfying $\kappa = M c$. Instead, the parenthetical explanation in \texttt{SOURCE.md}---\emph{``invertible over the field of rational functions, with finite bandwidth of the inverse (finite bandwidth of the Stirling-type triangle)''}---points directly to the standard lower-triangular matrices associated with moment--cumulant combinatorics. We analyze \emph{all four} canonical matrix families and prove that every one of them (together with its inverse) has unbounded lower bandwidth.
+
+Let a $1$-indexed lower-triangular matrix $M = (M_{n,k})_{1 \le k \le n}$ have \emph{row-$n$ lower bandwidth} $\mathrm{bw}_n(M) = \max\{n - k : 1 \le k \le n,\, M_{n,k} \ne 0\}$, and say $M$ has \emph{finite lower bandwidth} if $\sup_{n \ge 1} \mathrm{bw}_n(M) < \infty$.
+
+\subsection{Stirling, Narayana, and Block-Count Transition Triangles}
+
+Let $S = (S(n,k))_{n,k \ge 1}$ be the Stirling triangle of the second kind ($S(n,k) = \#\{\pi \in \Pi_n : |\pi| = k\}$) with inverse $S^{-1} = (s(n,k))_{n,k \ge 1}$ (signed Stirling numbers of the first kind), and let $N = (N(n,k))_{n,k \ge 1}$ be the Narayana triangle ($N(n,k) = \#\{\pi \in \NC_n : |\pi| = k\} = \frac{1}{n}\binom{n}{k}\binom{n}{k-1}$). Evaluating~\eqref{eq:moment-cumulant} at $c_j = t$ and $\kappa_j = t$ maps the monomial vector $(t, t^2, t^3, \dots)^\top$ to classical Touchard moments $S(t,t^2,\dots)^\top$ and free Narayana moments $N(t,t^2,\dots)^\top$, connected by the mutually inverse unitriangular block-count conversion matrices
+\[
+  T_{\cl\to\fr} = N^{-1} S, \qquad T_{\fr\to\cl} = T_{\cl\to\fr}^{-1} = S^{-1} N.
+\]
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.8pt}
+\begin{tabular}{@{}rllcc@{}}
+\hline
+$n$ & Row $n$ of $T_{\cl\to\fr} = N^{-1}S$ & Row $n$ of $T_{\fr\to\cl} = S^{-1}N$ & $\mathrm{bw}_n(N^{-1}S)$ & $\mathrm{bw}_n(S^{-1}N)$ \\
+\hline
+$1$ & $[1]$ & $[1]$ & $0$ & $0$ \\
+$2$ & $[0, 1]$ & $[0, 1]$ & $0$ & $0$ \\
+$3$ & $[0, 0, 1]$ & $[0, 0, 1]$ & $0$ & $0$ \\
+$4$ & $[0, 1, 0, 1]$ & $[0, -1, 0, 1]$ & $2$ & $2$ \\
+$5$ & $[0, -5, 5, 0, 1]$ & $[0, 5, -5, 0, 1]$ & $3$ & $3$ \\
+$6$ & $[0, 41, -35, 15, 0, 1]$ & $[0, -26, 35, -15, 0, 1]$ & $4$ & $4$ \\
+$7$ & $[0, -469, 406, -140, 35, 0, 1]$ & $[0, 154, -231, 140, -35, 0, 1]$ & $5$ & $5$ \\
+$8$ & $[0, 7155, -6188, 2191, -420, 70, 0, 1]$ & $[0, -1044, 1638, -1141, 420, -70, 0, 1]$ & $6$ & $6$ \\
+\hline
+\end{tabular}
+\caption{First eight rows of the mutually inverse block-count conversion triangles $N^{-1}S$ and $S^{-1}N$. Both have zero column~$1$ ($n \ge 2$) and zero first subdiagonal, but nonzero column~$2$ for all $n \ge 4$, yielding unbounded bandwidth $n - 2$.}
+\label{tab:triangles}
+\end{table}
+
+\begin{theorem}[Unbounded inverse bandwidth of Stirling, Narayana, and block-count transitions]\label{thm:stirling-narayana-bw}
+\leavevmode
+\begin{enumerate}
+  \item[(a)] $(S^{-1})_{n,1} = s(n,1) = (-1)^{n-1}(n-1)! \ne 0$ for all $n \ge 1$, so $\mathrm{bw}_n(S^{-1}) = n - 1 \to \infty$. Likewise, $N^{-1}$ has unbounded lower bandwidth ($\sup_n \mathrm{bw}_n(N^{-1}) = \infty$).
+  \item[(b)] For every $n \ge 3$, the $(n,2)$-entry of $T_{\fr\to\cl} = (N^{-1}S)^{-1} = S^{-1}N$ is given in closed form by
+  \begin{equation}\label{eq:s1-nar-closed}
+    (S^{-1}N)_{n,2} = (-1)^{n-1}(n - 2)!\bigl(H_{n-2} - 1\bigr), \qquad H_m = \sum_{j=1}^m \frac{1}{j}.
+  \end{equation}
+  In particular, $(S^{-1}N)_{n,2} \ne 0$ for every $n \ge 4$, so $\mathrm{bw}_n\bigl((N^{-1}S)^{-1}\bigr) = n - 2 \to \infty$.
+  \item[(c)] The inverse matrix $(S^{-1}N)^{-1} = N^{-1}S$ also has unbounded lower bandwidth: $(N^{-1}S)_{k,2} \ne 0$ for infinitely many $k$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) For $S^{-1}$, $s(1,1) = 1$ and $s(n+1,1) = -n\,s(n,1)$ give $s(n,1) = (-1)^{n-1}(n-1)!$. For $N^{-1}$, suppose $(N^{-1})_{k,1} = 0$ for all $k > B + 1$, and let $K = \max\{k \ge 1 : (N^{-1})_{k,1} \ne 0\}$ ($K \ge 1$ since $(N^{-1})_{1,1} = 1$). Since $N(2,1) = 1$ and $(N N^{-1})_{2,1} = 0$, we have $K \ge 2$. Multiplying $(N N^{-1})_{n,1} = 0$ ($n > K$) by $K!(K-1)!$ expresses $0 = \sum_{k=1}^K (N^{-1})_{k,1} \frac{K!(K-1)!}{k!(k-1)!} (n-1)_{k-1}(n)_{k-1}$, a polynomial in $n$ of exact degree $2K - 2 \ge 2$ with nonzero leading term, a contradiction for large $n$.
+
+(b) Since $N(r,2) = \binom{r}{2}$ and $\sum_{r=1}^n s(n,r) x^r = x(x-1)\cdots(x-n+1) = (x-1)q_n(x)$ where $q_n(x) = x\prod_{j=2}^{n-1}(x-j)$, differentiating twice at $x = 1$ gives
+\[
+  (S^{-1}N)_{n,2} = \sum_{r=2}^n s(n,r)\binom{r}{2} = q_n'(1) = q_n(1)\left(1 + \sum_{j=2}^{n-1}\frac{1}{1-j}\right) = (-1)^{n-2}(n-2)!\bigl(1 - H_{n-2}\bigr),
+\]
+which is~\eqref{eq:s1-nar-closed}. (In our Lean formalization, we prove the equivalent division-free recurrence $w_3 = 0$, $w_{n+1} = (n-1)w_n + (n-2)!$ for $w_n = (-1)^{n-1}(S^{-1}N)_{n,2}$, giving $w_n \ge 1$ for all $n \ge 4$; since $(S^{-1}N)_{n,1} = \sum_{r=1}^n s(n,r) = 0$ for $n \ge 2$, $\mathrm{bw}_n(S^{-1}N) = n - 2$.)
+
+(c) Using $S = N(N^{-1}S)$ at column $2$, we have $2^{n-1} - 1 = S(n,2) = \sum_{k=2}^n N(n,k)(N^{-1}S)_{k,2}$. If $(N^{-1}S)_{k,2} = 0$ for all $k > B + 2$, then since $0 \le N(n,k) \le n^{2k} \le n^{2B+4}$ for $k \le B + 2$, we would have $2^{n-1} - 1 \le \bigl(\sum_{k=2}^{B+2} |(N^{-1}S)_{k,2}|\bigr) n^{2B+4}$ for all $n \ge 2$, contradicting exponential growth of $2^{n-1}$.
+\end{proof}
+
+\subsection{Rational-Function Triangles: Bell/Kreweras, Jacobian, and Moment-Recurrence Matrices}
+
+Why did Conjecture~\texttt{00000004763} specifically invoke \emph{``invertible over the field of rational functions''} alongside \emph{``the Stirling-type triangle''}? In the combinatorics of cumulants, the partial exponential Bell polynomials and their noncrossing Kreweras counterparts form lower-triangular ``Stirling-type triangles'' with polynomial entries:
+\[
+  B_{n,k}(c) = \sum_{\substack{\pi \in \Pi_n \\ |\pi| = k}} \prod_{B \in \pi} c_{|B|}, \qquad
+  B^{\NC}_{n,k}(\kappa) = \sum_{\substack{\pi \in \NC_n \\ |\pi| = k}} \prod_{B \in \pi} \kappa_{|B|}
+  \qquad (1 \le k \le n).
+\]
+Their diagonal entries are $B_{n,n}(c) = c_1^n$ and $B^{\NC}_{n,n}(\kappa) = \kappa_1^n$, which are \emph{not} units in the polynomial ring $\Q[c_1,c_2,\dots]$; passing to the rational function field $\mathbb{F} = \Q(c_1,c_2,\dots) = \Q(\kappa_1,\kappa_2,\dots) = \Q(m_1,m_2,\dots)$ is precisely what makes $B(c)$ and $B^{\NC}(\kappa)$ invertible! Yet finite inverse bandwidth fails for these matrices and for every other canonical matrix over $\mathbb{F}$:
+
+\begin{theorem}[Unbounded inverse bandwidth over the field of rational functions $\mathbb{F}$]\label{thm:rat-matrices-bw}
+Over $\mathbb{F} = \Q(c_1,c_2,\dots) = \Q(m_1,m_2,\dots)$, every one of the following invertible lower-triangular matrices and its inverse has unbounded lower bandwidth:
+\begin{enumerate}
+  \item[(a)] \textbf{Bell and Kreweras Stirling-type triangles:} $B(c)^{-1}$ and $B^{\NC}(\kappa)^{-1}$ have row-$n$ bandwidth $n - 1$, while the transition matrices $B^{\NC}(c)^{-1}B(c)$ and $B(c)^{-1}B^{\NC}(c)$ have unbounded bandwidth (with $\mathrm{bw}_n\bigl(B(c)^{-1}B^{\NC}(c)\bigr) \ge n - 2$ for all $n \ge 4$).
+  \item[(b)] \textbf{Jacobian conversion matrix:} $J_{n,k} = \frac{\partial \kappa_n}{\partial c_k}$ and its inverse $(J^{-1})_{n,k} = \frac{\partial c_n}{\partial \kappa_k}$ satisfy $J_{n,1} = (J^{-1})_{n,1} = 0$ ($n \ge 2$) and $J_{n,2} \ne 0$, $(J^{-1})_{n,2} \ne 0$ for all $n \ge 4$, so $\mathrm{bw}_n(J) = \mathrm{bw}_n(J^{-1}) = n - 2 \to \infty$.
+  \item[(c)] \textbf{Canonical moment-recurrence conversion matrix:} Writing~\eqref{eq:cl-rec}--\eqref{eq:fr-rec} directly in matrix form $L_{\cl}(m) c = m = L_{\fr}(m)\kappa$ with $(L_{\cl}(m))_{n,k} = \binom{n-1}{k-1} m_{n-k}$ and $(L_{\fr}(m))_{n,k} = [z^{n-k}]M(z)^k$, the conversion matrix $T_{\mathrm{rec}}(m) = L_{\fr}(m)^{-1}L_{\cl}(m)$ ($\kappa = T_{\mathrm{rec}}(m) c$) and its inverse $T_{\mathrm{rec}}(m)^{-1} = L_{\cl}(m)^{-1}L_{\fr}(m)$ ($c = T_{\mathrm{rec}}(m)^{-1}\kappa$) satisfy, for all $n \ge 4$,
+  \begin{equation}\label{eq:trec-col2}
+    [m_{n-2}]\,\bigl(T_{\mathrm{rec}}(m)\bigr)_{n,2} = n - 3 > 0, \qquad
+    [m_{n-2}]\,\bigl(T_{\mathrm{rec}}(m)^{-1}\bigr)_{n,2} = -(n - 3) < 0,
+  \end{equation}
+  with column~$1$ equal to $0$ for $n \ge 2$, so $\mathrm{bw}_n(T_{\mathrm{rec}}) = \mathrm{bw}_n(T_{\mathrm{rec}}^{-1}) = n - 2 \to \infty$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) At the specialization $c_j = 1$ ($\forall j \ge 1$), which is regular since $c_1^n = 1 \ne 0$, $B(c)$ specializes to $S$ and $B^{\NC}(c)$ specializes to $N$. Any entry in $\mathbb{F}$ whose specialization at $c_j = 1$ is nonzero must be nonzero in $\mathbb{F}$, so Theorem~\ref{thm:stirling-narayana-bw} immediately transfers to $B(c)^{-1}$, $B^{\NC}(\kappa)^{-1}$, $B(c)^{-1}B^{\NC}(c)$, and $B^{\NC}(c)^{-1}B(c)$.
+
+(b) For $n \ge 2$, $\kappa_n(c)$ and $c_n(\kappa)$ are independent of $c_1,\kappa_1$, so column~$1$ vanishes for $n \ge 2$. For $n = 4$, $\frac{\partial \kappa_4}{\partial c_2} = 2c_2 \ne 0$ and $\frac{\partial c_4}{\partial \kappa_2} = -2\kappa_2 \ne 0$; for $n \ge 5$, Corollary~\ref{cor:no-low-order}(b) gives $[c_{n-2}]\frac{\partial \kappa_n}{\partial c_2} = \frac{n(n-3)}{2} \ne 0$ and $[\kappa_{n-2}]\frac{\partial c_n}{\partial \kappa_2} = -\frac{n(n-3)}{2} \ne 0$.
+
+(c) Evaluate $L_{\cl}(m)$ and $L_{\fr}(m)$ at the single-spike moment sequence $m^{(n-2)}$ defined by $m_0 = 1$, $m_{n-2} = 1$, and $m_d = 0$ for all $d \notin \{0,n-2\}$ ($n \ge 4$, so $n - 2 \ge 2$). For every $2 \le k \le r < n$, we have $0 \le r - k < n - 2$, so $m_{r-k} = \delta_{r,k}$ and both $L_{\cl}(m^{(n-2)})$ and $L_{\fr}(m^{(n-2)})$ coincide with the identity matrix on indices $2 \le k \le r < n$. At row $n$, column $2$, $(L_{\cl}(m^{(n-2)}))_{n,2} = \binom{n-1}{1}m_{n-2} = n - 1$ while $(L_{\fr}(m^{(n-2)}))_{n,2} = [z^{n-2}](1 + z^{n-2})^2 = 2$. Forward substitution gives $(L_{\fr}^{-1})_{n,2} = -2$ and $(L_{\cl}^{-1})_{n,2} = -(n-1)$, whence $(T_{\mathrm{rec}}(m^{(n-2)}))_{n,2} = (-2)\cdot 1 + 1\cdot(n-1) = n - 3$ and $(T_{\mathrm{rec}}(m^{(n-2)})^{-1})_{n,2} = -(n-1)\cdot 1 + 1\cdot 2 = -(n-3)$, proving~\eqref{eq:trec-col2}.
+\end{proof}
+
+\newpage
+\section{Formal Verification in Core Lean 4.19.0 and Computational Suite}\label{sec:lean}
+
+The complete formalization in \texttt{lean/} compiles under pure Core Lean~4 (\texttt{v4.19.0}) with strict warning-as-error checking, zero external dependencies, zero \texttt{sorry}, \texttt{admit}, or \texttt{native\_decide}, and zero custom axioms. Table~\ref{tab:lean-map} maps the paper's theorems to their formal counterparts; \texttt{verify.py} independently checks partition enumerations ($n \le 8$), Tutte activities ($n \le 7$), Stein and Wigner sequences ($d \le 12$), and matrix bandwidths ($n \le 15$).
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.92}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.0cm}l>{\raggedright\arraybackslash}p{7.4cm}@{}}
+\hline
+Mathematical Result & Lean Module & Formal Theorem Identifier \\
+\hline
+Classical \& free inversion & \texttt{Basic} & \texttt{freeToClassical\_classicalToFree}, \newline \texttt{classicalToFree\_freeToClassical} \\
+Low-order formulas ($n \le 6$) & \texttt{LowOrderAndCrossing} & \texttt{classicalToFree\_one}..\texttt{\_six\_centered}, \newline \texttt{freeToClassical\_one}..\texttt{\_six\_centered} \\
+Strict nonlinearity ($n = 4$) & \texttt{LowOrderAndCrossing} & \texttt{conversion\_strictly\_nonlinear} \\
+Refutation of Subclaim 2 & \texttt{LowOrderAndCrossing} & \texttt{no\_weight\_function\_of\_crossing\_pair\_count} \\
+Refutation of Subclaim 3 & \texttt{LowOrderAndCrossing} & \texttt{first\_two\_nontrivial\_coeffs\_} \newline \texttt{not\_one\_and\_neg\_one} \\
+Catalan factorial identity & \texttt{UnboundedDegree} & \texttt{catalan\_mul\_factZ} \\
+Refutation of Subclaim 1 & \texttt{UnboundedDegree} & \texttt{not\_low\_order\_rational\_combination} \\
+Bandwidth non-vacuity & \texttt{InverseBandwidth} & \texttt{bandwidth\_nonvacuity} \\
+$(S^{-1}N)_{n,2}$ exact formula & \texttt{InverseBandwidth} & \texttt{T\_frToCl\_col\_two\_exact}, \newline \texttt{T\_frToCl\_col\_two\_ne\_zero} \\
+Unbounded bandwidth ($S^{-1}, N^{-1}S$) & \texttt{InverseBandwidth} & \texttt{stirling2\_and\_inv\_unbounded\_bandwidth}, \newline \texttt{not\_finite\_bandwidth\_inv\_T\_frToCl} \\
+Recurrence matrices $T_{\mathrm{rec}}(m)^{\pm 1}$ & \texttt{InverseBandwidth} & \texttt{T\_rec\_col\_two\_singleMoment}, \newline \texttt{not\_uniform\_finite\_bandwidth\_T\_rec} \\
+Master disproof theorems & \texttt{Conjecture00000004763} & \texttt{conjecture\_00000004763\_positive\_foundations}, \newline \texttt{conjecture\_00000004763\_disproof} \\
+\hline
+\end{tabular}
+\caption{Correspondence between mathematical results and machine-checked Core Lean~4.19.0 theorems.}
+\label{tab:lean-map}
+\end{table}
+
+\begin{thebibliography}{9}\small\setlength{\itemsep}{2pt}
+
+\bibitem{AHLV2015}
+O.~Arizmendi, T.~Hasebe, F.~Lehner, and C.~Vargas,
+\emph{Relations between cumulants in noncommutative probability},
+Adv.\ Math.\ \textbf{282} (2015), 56--92.
+
+\bibitem{BBLS2011}
+S.~T.~Belinschi, M.~Bo\.zejko, F.~Lehner, and R.~Speicher,
+\emph{The normal distribution is $\boxplus$-infinitely divisible},
+Adv.\ Math.\ \textbf{226} (2011), no.~4, 3677--3698.
+
+\bibitem{GreeneZaslavsky1983}
+C.~Greene and T.~Zaslavsky,
+\emph{On the interpretation of Whitney numbers through arrangements of hyperplanes, zonotopes, non-Radon partitions, and orientations of graphs},
+Trans.\ Amer.\ Math.\ Soc.\ \textbf{280} (1983), no.~1, 97--126.
+
+\bibitem{JosuatVerges2013}
+M.~Josuat-Verg\`es,
+\emph{Cumulants of the $q$-semicircular law, Tutte polynomials, and heaps},
+Canad.\ J.\ Math.\ \textbf{65} (2013), no.~4, 863--878.
+
+\bibitem{Lehner2002}
+F.~Lehner,
+\emph{Free cumulants, lattices, and $q$-deformations},
+Bull.\ Pol.\ Acad.\ Sci.\ Math.\ \textbf{50} (2002), no.~2, 249--272.
+
+\bibitem{NicaSpeicher2006}
+A.~Nica and R.~Speicher,
+\emph{Lectures on the Combinatorics of Free Probability},
+London Math.\ Soc.\ Lecture Note Ser., vol.~335, Cambridge Univ.\ Press, 2006.
+
+\bibitem{Speicher1994}
+R.~Speicher,
+\emph{Multiplicative functions on the lattice of non-crossing partitions and free convolution},
+Math.\ Ann.\ \textbf{298} (1994), no.~4, 611--628.
+
+\bibitem{Stein1978}
+P.~R.~Stein,
+\emph{On a class of linked diagrams, I. Enumeration},
+J.\ Combin.\ Theory Ser.\ A \textbf{24} (1978), no.~3, 357--366.
+
+\end{thebibliography}
+
+\end{document}
