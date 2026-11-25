@@ -1,0 +1,532 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\setlength{\emergencystretch}{1.5em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\rk}{\mathrm{rk}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+
+\title{\textbf{Disproof of Conjecture 00000008534:\\
+Whitney Log-Concavity, Unimodularity, and Flat Strata of Geometric Lattices}}
+\author{Formal Mathematical Verification Report}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture~00000008534 (\emph{Whitney log-concavity}) asserts that the Whitney numbers of a
+geometric lattice (defined as its rank distribution) form a log-concave sequence, that
+log-concavity is strict when the lattice is unimodular, and that otherwise the first flat occurs
+at the doubly-flat element stratum. We disprove this conjecture unconditionally across every
+natural mathematical convention. Specifically, the rank-$2$ geometric lattice
+$M_4 \cong L(U_{2,4})$ of the $4$-point uniform line is the canonical minimal non-unimodular
+(non-regular, non-binary) geometric lattice, yet both its Whitney numbers of the second kind
+$(W_0, W_1, W_2) = (1, 4, 1)$ and its unsigned Whitney numbers of the first kind
+$(|w_0|, |w_1|, |w_2|) = (1, 4, 3)$ are strictly log-concave ($4^2 = 16 > 1$ and $4^2 = 16 > 3$)
+and contain no adjacent plateau ($1 \neq 4 \neq 1$ and $1 \neq 4 \neq 3$). Because no flat
+occurs at \emph{any} rank index, the non-unimodular branch fails for every possible
+interpretation of the ``doubly-flat element stratum.'' We also exhibit higher-rank non-modular
+counterexamples such as $L(U_{3,5})$, analyze unimodular boundary cases ($B_1$ and $B_3$) and
+positive non-vacuity witnesses ($B_2$, $M_3$, and $L(U_{3,4})$), and report a complete
+dependency-free formalization in Core Lean~4 (v4.19.0).
+\end{abstract}
+
+\section{Problem Statement and Overview}
+
+\subsection{Original Statement}
+Conjecture~00000008534 in \texttt{SOURCE.md} states verbatim:
+\begin{quote}
+\textbf{Definition:} The Whitney numbers of a lattice are its rank distribution.\\
+\textbf{Conjecture:} The Whitney numbers of a geometric lattice form a log-concave sequence;
+log-concavity is strict when the lattice is unimodular; otherwise the first flat occurs at the
+doubly-flat element stratum. (\emph{Whitney log-concavity})
+\end{quote}
+The accompanying Chinese statement expresses the identical three-part claim: defining a
+lattice's Whitney numbers as its rank distribution, asserting log-concavity for geometric
+lattices, asserting strict log-concavity when the lattice is unimodular, and asserting that
+otherwise (when the lattice is not unimodular) the first flat appears at the doubly-flat element
+stratum.
+
+\subsection{Summary of Results}
+The conjecture decomposes into three clauses for a finite geometric lattice $L$ of rank $r$ with
+Whitney sequence $a(L) = (a_0, a_1, \dots, a_r)$:
+\begin{enumerate}
+  \item[(I)] $a(L)$ is log-concave: $a_k^2 \ge a_{k-1} a_{k+1}$ for all $1 \le k \le r - 1$;
+  \item[(II)] if $L$ is unimodular, then log-concavity of $a(L)$ is strict;
+  \item[(III)] otherwise (if $L$ is not unimodular), $a(L)$ exhibits at least one flat, and the first
+    flat occurs at the doubly-flat element stratum of $L$.
+\end{enumerate}
+
+We prove that the conjecture is \textbf{false} under every standard convention:
+\begin{itemize}
+  \item \textbf{Primary convention (rank distribution $W_k(L)$ and log-concavity equality
+    $W_k^2 = W_{k-1} W_{k+1}$):} The $6$-element geometric lattice $M_4 \cong L(U_{2,4})$ is
+    non-unimodular (indeed not even $\F_2$-representable), yet $W(M_4) = (1, 4, 1)$ satisfies
+    $W_1^2 = 16 > 1 = W_0 W_2$ at its sole interior rank $k = 1$. No flat exists at any index,
+    refuting Clause~(III) regardless of how the ``doubly-flat element stratum'' is defined
+    (Theorem~\ref{thm:disproof-W2}).
+  \item \textbf{First-kind convention (unsigned Whitney numbers $|w_k(L)|$):} On the same lattice
+    $M_4$, the lower-interval M\"obius function yields $(w_0, w_1, w_2) = (1, -4, 3)$ and
+    $|w(M_4)| = (1, 4, 3)$, which satisfies $|w_1|^2 = 16 > 3 = |w_0||w_2|$, again with zero
+    flats (Theorem~\ref{thm:disproof-W1}). More generally, the Heron--Rota--Welsh theorem proved
+    by Adiprasito, Huh, and Katz~\cite{AHK2018} implies strict log-concavity of $|w_k(L)|$ for
+    \emph{every} geometric lattice of rank $r \ge 2$, unimodular or not.
+  \item \textbf{Value-plateau convention (adjacent equality $a_k = a_{k+1}$):} If ``flat'' is
+    instead read as a horizontal plateau $a_k = a_{k+1}$, \emph{both} branches of the dichotomy
+    fail simultaneously: non-unimodular $M_4$ has no plateau in $(1, 4, 1)$ or $(1, 4, 3)$,
+    whereas the unimodular Boolean lattice $B_3 \cong L(U_{3,3})$ of rank $3$ has
+    $W(B_3) = |w(B_3)| = (1, 3, 3, 1)$ with plateau $a_1 = a_2 = 3$, refuting Clause~(II)
+    as well (Theorem~\ref{thm:plateau}).
+  \item \textbf{Higher-rank non-modular and modularity-conflation checks:} In rank $3$,
+    $L(U_{3,5})$ is simultaneously non-unimodular and non-modular as a lattice, yet both
+    $W = (1, 5, 10, 1)$ and $|w| = (1, 5, 10, 6)$ are strictly log-concave and plateau-free.
+    Furthermore, the graphic lattice $L(U_{3,4}) \cong L(M(C_4))$ is unimodular ($3 \times 4$
+    totally unimodular representation) yet non-modular, with $W = (1, 4, 6, 1)$ and
+    $|w| = (1, 4, 6, 3)$ strictly log-concave and plateau-free, refuting the statement even if
+    ``unimodular'' were conflated with lattice modularity (Proposition~\ref{prop:boundary}).
+\end{itemize}
+
+\section{Mathematical Definitions and Conventions}
+
+\begin{definition}[Finite geometric lattice]
+\label{def:geom-lattice}
+A finite bounded lattice $(L, \le, \vee, \wedge, \hat{0}, \hat{1})$ is a \emph{geometric lattice}
+if it satisfies:
+\begin{enumerate}
+  \item[(1)] \textbf{Grading:} There exists a rank function $\rk : L \to \mathbb{N}$ such that
+    $\rk(\hat{0}) = 0$, $x < y \implies \rk(x) < \rk(y)$, and $x \lessdot y \implies
+    \rk(y) = \rk(x) + 1$, where $x \lessdot y$ denotes the cover relation ($x < y$ and no $z \in L$
+    satisfies $x < z < y$). The rank of $L$ is $r = \rk(\hat{1})$.
+  \item[(2)] \textbf{Upper semimodularity:} For all $x, y \in L$,
+    $\rk(x \vee y) + \rk(x \wedge y) \le \rk(x) + \rk(y)$.
+    (If equality holds for all $x, y \in L$, then $L$ is called \emph{modular}.)
+  \item[(3)] \textbf{Atomicity:} Let $\mathcal{A}(L) = \{a \in L : \hat{0} \lessdot a\} = \{a \in L :
+    \rk(a) = 1\}$ be the set of \emph{atoms} of $L$. Every element $x \in L$ is the join of the
+    atoms below it; equivalently, for all $x, u \in L$,
+    \[
+      \bigl(\forall a \in \mathcal{A}(L),\; a \le x \implies a \le u\bigr) \implies x \le u.
+    \]
+\end{enumerate}
+\end{definition}
+
+Note that $\rk$ is uniquely determined by $(L, \le)$ via saturated chains from $\hat{0}$
+(formalized as \texttt{rk\_unique} in \texttt{Main.lean}). By Birkhoff--Whitney cryptomorphism
+\cite{Oxley2011,White1986}, finite geometric lattices are up to isomorphism precisely the lattices
+of flats $L(M)$ of finite simple matroids $M$ on ground set $E = \mathcal{A}(L)$ with flat rank
+$r_M(S) = \rk_L\bigl(\bigvee_{a \in S} a\bigr)$ for $S \subseteq \mathcal{A}(L)$.
+
+\begin{definition}[Whitney numbers of the second and first kind]
+\label{def:whitney}
+Let $L$ be a finite geometric lattice of rank $r$.
+\begin{enumerate}
+  \item[(1)] The \emph{Whitney numbers of the second kind} (the \emph{rank distribution} of $L$, as
+    defined in \texttt{SOURCE.md}) are
+    \[
+      W_k(L) = \bigl|\{x \in L : \rk(x) = k\}\bigr|, \qquad 0 \le k \le r.
+    \]
+  \item[(2)] Let $\mu_L(\hat{0}, -): L \to \Z$ be the lower-interval M\"obius function determined
+    recursively by $\mu_L(\hat{0}, \hat{0}) = 1$ and $\sum_{y \le x} \mu_L(\hat{0}, y) = 0$ for
+    all $x > \hat{0}$. The \emph{signed} and \emph{unsigned Whitney numbers of the first kind} are
+    \[
+      w_k(L) = \sum_{\substack{x \in L \\ \rk(x) = k}} \mu_L(\hat{0}, x), \qquad
+      |w_k(L)| = \bigl|w_k(L)\bigr|, \qquad 0 \le k \le r.
+    \]
+\end{enumerate}
+\end{definition}
+
+\begin{remark}[Signed versus unsigned first kind]
+By Rota's sign theorem~\cite{Rota1964}, every geometric lattice satisfies
+$(-1)^k w_k(L) = |w_k(L)| > 0$ for $0 \le k \le r$. For $r \ge 1$, $w_1(L) = -W_1(L) < 0$, so
+real logarithms $\log a_k$ apply only to the unsigned sequence $|w_k(L)|$; moreover, in quadratic
+form $w_k^2 = |w_k|^2$ and $w_{k-1}w_{k+1} = (-1)^{2k}|w_{k-1}||w_{k+1}| = |w_{k-1}||w_{k+1}|$,
+so quadratic log-concavity inequalities on $w_k$ and $|w_k|$ are algebraically identical.
+\end{remark}
+
+\begin{definition}[Total unimodularity and unimodular geometric lattices]
+\label{def:unimodular}
+An integer matrix $A \in \Z^{m \times n}$ is \emph{totally unimodular} if every $k \times k$
+submatrix of $A$ (for every $0 \le k \le \min(m, n)$ and strictly increasing row and column
+selections $0 \le r_0 < \dots < r_{k-1} < m$, $0 \le c_0 < \dots < c_{k-1} < n$, with empty
+$0 \times 0$ determinant equal to $1$) has determinant in $\{-1, 0, 1\}$.
+
+Given a geometric lattice $L$ with atom bijection $\alpha : \{0, \dots, n-1\} \xrightarrow{\sim}
+\mathcal{A}(L)$, an integer matrix $A \in \Z^{m \times n}$ \emph{represents $L$ over $\Q$}
+(respectively, \emph{over $\F_2$}) if for every subset $S \subseteq \{0, \dots, n-1\}$, the
+determinantal column rank of $A_{\bullet, S}$ over $\Q$ (respectively, modulo $2$) equals
+$d = \rk_L\bigl(\bigvee_{j \in S} \alpha(j)\bigr)$: $A_{\bullet, S}$ possesses a $d \times d$
+minor with $\det \neq 0$ (respectively, $\det \equiv 1 \pmod{2}$), and every $s \times s$ minor of
+$A_{\bullet, S}$ with $s > d$ vanishes (respectively, is even).
+
+A geometric lattice $L$ is \emph{unimodular} (or \emph{regular}~\cite{Tutte1958,White1986,Oxley2011})
+if there exist $m, n \ge 0$, an atom bijection $\alpha$, and a totally unimodular matrix
+$A \in \Z^{m \times n}$ representing $L$ over $\Q$. Similarly, $L$ is \emph{binary} if it admits
+an integer matrix representing $L$ over $\F_2$.
+\end{definition}
+
+Note that allowing an arbitrary row count $m \ge 0$ in Definition~\ref{def:unimodular} is strictly
+more general than fixing $m = \rk(L)$ (accommodating, e.g., vertex-edge incidence matrices of
+graphs), so proving non-unimodularity against all $m \ge 0$ gives the strongest possible negative
+theorem.
+
+\begin{definition}[Log-concavity, strict log-concavity, and flats]
+\label{def:lc-flat}
+Let $a = (a_0, a_1, \dots, a_r)$ be a sequence of nonnegative integers.
+\begin{enumerate}
+  \item[(1)] $a$ is \emph{log-concave} if $a_k^2 \ge a_{k-1} a_{k+1}$ for all $1 \le k \le r - 1$,
+    and \emph{strictly log-concave} if $a_k^2 > a_{k-1} a_{k+1}$ for all $1 \le k \le r - 1$.
+    We say $a$ is \emph{non-vacuously strictly log-concave} if in addition $r \ge 2$ (so at least
+    one interior index exists).
+  \item[(2)] A \emph{log-concavity flat} (\emph{LC-flat}) of $a$ is an interior index
+    $k \in \{1, \dots, r-1\}$ at which $a_k^2 = a_{k-1} a_{k+1}$ (so $(k-1, \log a_{k-1})$,
+    $(k, \log a_k)$, $(k+1, \log a_{k+1})$ are collinear).
+  \item[(3)] A \emph{value-plateau flat} (\emph{plateau}) of $a$ is an index $k \in \{0, \dots, r-1\}$
+    at which $a_k = a_{k+1}$.
+  \item[(4)] Given a flat predicate $\mathcal{F}(a, k)$, index $s$ is the \emph{first flat} of $a$ if
+    $\mathcal{F}(a, s)$ holds and $\neg \mathcal{F}(a, j)$ holds for all $0 \le j < s$. A general
+    \emph{stratum specification} assigns to each geometric lattice $L$ a subset of ranks
+    $S(L) \subseteq \mathbb{N}$; the first flat occurs in $S(L)$ if there exists $s \in S(L)$
+    that is the first flat of $a$.
+\end{enumerate}
+\end{definition}
+
+\section{Main Disproof via \texorpdfstring{$M_4 \cong L(U_{2,4})$}{M4 = L(U(2,4))}}
+
+\subsection{Tutte's Modulo-2 Bridge Lemma}
+
+\begin{lemma}[Unimodular implies binary]
+\label{lem:tu-binary}
+Every unimodular geometric lattice is binary.
+\end{lemma}
+
+\begin{proof}
+Suppose $A \in \Z^{m \times n}$ is totally unimodular and represents $L$ over $\Q$ with respect
+to atom bijection $\alpha$. For every $k \times k$ submatrix $B$ of $A$, total unimodularity gives
+$\det(B) \in \{-1, 0, 1\}$, whence $\det(B) \neq 0$ if and only if $\det(B) \equiv 1 \pmod{2}$.
+Thus for every column subset $S$ and every $d \ge 0$, $A_{\bullet, S}$ has a non-vanishing
+$d \times d$ minor over $\Q$ if and only if it has a non-vanishing $d \times d$ minor modulo~$2$.
+Hence the same matrix $A$ represents $L$ over $\F_2$.
+\end{proof}
+
+\subsection{The Geometric Lattice \texorpdfstring{$M_4 \cong L(U_{2,4})$}{M4 = L(U(2,4))} and Non-Unimodularity}
+
+Let $E = \{0, 1, 2, 3\}$ and let $M_4 = L(U_{2,4})$ consist of the $6$ subsets
+\[
+  \hat{0} = \emptyset, \qquad
+  a_0 = \{0\},\; a_1 = \{1\},\; a_2 = \{2\},\; a_3 = \{3\}, \qquad
+  \hat{1} = \{0, 1, 2, 3\},
+\]
+ordered by inclusion, with $x \wedge y = x \cap y$ and $x \vee y = \hat{1}$ whenever $x, y$ are
+incomparable (and $x \cup y$ otherwise). Defining $\rk(\hat{0}) = 0$, $\rk(a_i) = 1$ for
+$0 \le i \le 3$, and $\rk(\hat{1}) = 2$, one checks immediately that $M_4$ is a finite modular
+(hence upper-semimodular) atomic graded lattice of rank $2$, i.e., a geometric lattice.
+
+\begin{lemma}[Modulo-2 Cramer--Pl\"ucker projection]
+\label{lem:cramer-plucker}
+Let $A \in \Z^{m \times n}$, $r_0, r_1, s_0, s_1 \in \{0, \dots, m-1\}$, and
+$c_0, c_1, c_a, c_b \in \{0, \dots, n-1\}$. Write $\det_2(i_0, i_1; j_0, j_1) =
+A_{i_0, j_0} A_{i_1, j_1} - A_{i_0, j_1} A_{i_1, j_0}$ and $\det_3(i_0, i_1, i_2; j_0, j_1, j_2)$
+for the $3 \times 3$ determinant. If $\det_2(r_0, r_1; c_0, c_1) \equiv 1 \pmod{2}$ and the four
+$3 \times 3$ determinants $\det_3(r_0, r_1, s_t; c_0, c_1, c_u)$ ($t \in \{0,1\}$,
+$u \in \{a,b\}$) are all even, then
+\[
+  \det_2(r_0, r_1; c_a, c_b) \equiv 0 \pmod{2} \implies
+  \det_2(s_0, s_1; c_a, c_b) \equiv 0 \pmod{2}.
+\]
+\end{lemma}
+
+\begin{proof}
+Set $\delta = \det_2(r_0, r_1; c_0, c_1)$. Expanding $\det_3(r_0, r_1, s; c_0, c_1, c)$ along row
+$s$ gives the exact polynomial identity in $\Z$:
+\[
+  \delta A_{s, c} = \det_3(r_0, r_1, s; c_0, c_1, c)
+    + \det_2(r_0, r_1; c_0, c) A_{s, c_1} - \det_2(r_0, r_1; c_1, c) A_{s, c_0}.
+\]
+Reducing modulo $2$ for $s \in \{s_0, s_1\}$ and $c \in \{c_a, c_b\}$ eliminates the even
+$3 \times 3$ determinants, and substituting into $\delta^2 \det_2(s_0, s_1; c_a, c_b) =
+(\delta A_{s_0, c_a})(\delta A_{s_1, c_b}) - (\delta A_{s_0, c_b})(\delta A_{s_1, c_a})$ yields
+\[
+\begin{aligned}
+  \delta^2 \det_2(s_0, s_1; c_a, c_b)
+  &\equiv \det_2(s_0, s_1; c_0, c_1) \bigl(\det_2(r_0, r_1; c_0, c_a)\det_2(r_0, r_1; c_1, c_b) \\
+  &\qquad\quad - \det_2(r_0, r_1; c_0, c_b)\det_2(r_0, r_1; c_1, c_a)\bigr) \pmod{2}.
+\end{aligned}
+\]
+By the $2 \times 2$ Pl\"ucker identity, the parenthesized factor equals
+$\delta \det_2(r_0, r_1; c_a, c_b)$. Since $\delta \equiv 1 \pmod{2}$ implies
+$\delta^2 \equiv 1 \pmod{2}$, $\det_2(r_0, r_1; c_a, c_b) \equiv 0 \pmod{2}$ forces
+$\det_2(s_0, s_1; c_a, c_b) \equiv 0 \pmod{2}$.
+\end{proof}
+
+\begin{proposition}[$M_4$ is neither binary nor unimodular]
+\label{prop:m4-not-unimodular}
+The geometric lattice $M_4 \cong L(U_{2,4})$ is not binary, and therefore not unimodular.
+\end{proposition}
+
+\begin{proof}
+Suppose toward a contradiction that $A \in \Z^{m \times n}$ represents $M_4$ over $\F_2$ via atom
+bijection $\alpha$. Let $c_0, c_1, c_2, c_3 \in \{0, \dots, n-1\}$ be the distinct preimages of
+the four atoms $a_0, a_1, a_2, a_3$. Every pair $\{a_i, a_j\}$ ($i \neq j$) has join $\hat{1}$ of
+rank $2$, so $A_{\bullet, \{c_i, c_j\}}$ possesses an odd $2 \times 2$ minor. In particular, there
+exist rows $r_0, r_1$ with $\det_2(r_0, r_1; c_0, c_1) \equiv 1 \pmod{2}$. Moreover, every subset
+of atoms has lattice join of rank at most $\rk(\hat{1}) = 2 < 3$, so all $3 \times 3$ minors of
+$A$ on $\{c_0, c_1, c_k\}$ ($k \in \{0,1,2,3\}$) are even (minors with repeated rows or columns
+vanish identically, and sorting distinct indices changes $\det_3$ only by a sign $\pm 1$).
+Applying Lemma~\ref{lem:cramer-plucker}, if $\det_2(r_0, r_1; c_i, c_j)$ were even for some
+$0 \le i < j \le 3$, then $\det_2(s_0, s_1; c_i, c_j)$ would be even for \emph{all} row pairs
+$(s_0, s_1)$, contradicting that $\{a_i, a_j\}$ has rank $2$. Thus all $\binom{4}{2} = 6$ minors
+$\det_2(r_0, r_1; c_i, c_j)$ ($0 \le i < j \le 3$) are odd.
+
+Now consider the four column vectors $v_i = (A_{r_0, c_i} \bmod 2,\; A_{r_1, c_i} \bmod 2) \in
+\F_2^2$ for $0 \le i \le 3$. None of the $v_i$ can equal $(0,0)$ and no two $v_i, v_j$ ($i \neq j$)
+can coincide, as either would force $\det_2(r_0, r_1; c_i, c_j) \equiv 0 \pmod{2}$. Since
+$\F_2^2 \setminus \{(0,0)\} = \{(0,1), (1,0), (1,1)\}$ has cardinality $3 < 4$, this contradicts
+the pigeonhole principle. Hence $M_4$ is not binary, and by Lemma~\ref{lem:tu-binary} it is not
+unimodular.
+\end{proof}
+
+\subsection{Whitney Numbers of \texorpdfstring{$M_4$}{M4} and Refutation of the Conjecture}
+
+\begin{theorem}[Disproof under Whitney numbers of the second kind]
+\label{thm:disproof-W2}
+For every stratum specification $S$, Conjecture~00000008534 is false for the rank distribution
+$W_k(L)$.
+\end{theorem}
+
+\begin{proof}
+In $M_4$, there is $1$ element of rank $0$ ($\hat{0}$), $4$ elements of rank $1$
+($a_0, a_1, a_2, a_3$), and $1$ element of rank $2$ ($\hat{1}$), so
+\[
+  \bigl(W_0(M_4),\, W_1(M_4),\, W_2(M_4)\bigr) = (1, 4, 1).
+\]
+By Proposition~\ref{prop:m4-not-unimodular}, $M_4$ is a non-unimodular geometric lattice, so the
+``otherwise'' branch of Conjecture~00000008534 requires the existence of a first flat in
+$W(M_4)$ lying in $S(M_4)$. However, the unique interior rank is $k = 1$, where
+\[
+  W_1(M_4)^2 = 4^2 = 16 > 1 = 1 \cdot 1 = W_0(M_4) W_2(M_4),
+\]
+so $W_1(M_4)^2 \neq W_0(M_4) W_2(M_4)$ and $W(M_4)$ has no LC-flat at any index. (Likewise
+$W_0 = 1 \neq 4 = W_1$ and $W_1 = 4 \neq 1 = W_2$, so $W(M_4)$ has no plateau flat either.) Thus
+no flat exists in $W(M_4)$, contradicting Clause~(III) for every $S$.
+\end{proof}
+
+\begin{theorem}[Disproof under unsigned Whitney numbers of the first kind]
+\label{thm:disproof-W1}
+For every stratum specification $S$, Conjecture~00000008534 is also false when formulated for the
+unsigned Whitney numbers of the first kind $|w_k(L)|$.
+\end{theorem}
+
+\begin{proof}
+On $M_4$, $\mu(\hat{0}, \hat{0}) = 1$, $\mu(\hat{0}, a_i) = -1$ for $0 \le i \le 3$, and
+$\mu(\hat{0}, \hat{1}) = -\bigl(1 + 4(-1)\bigr) = 3$. Summing by rank gives
+$(w_0, w_1, w_2) = (1, -4, 3)$ and
+\[
+  \bigl(|w_0(M_4)|,\, |w_1(M_4)|,\, |w_2(M_4)|\bigr) = (1, 4, 3).
+\]
+At the unique interior index $k = 1$, $|w_1(M_4)|^2 = 16 > 3 = 1 \cdot 3 = |w_0(M_4)||w_2(M_4)|$,
+and consecutive entries satisfy $1 \neq 4 \neq 3$. Hence $|w(M_4)|$ has neither an LC-flat nor a
+plateau flat at any index, while $M_4$ is non-unimodular.
+\end{proof}
+
+\section{Convention Analysis, Higher-Rank Counterexamples, and Witnesses}
+
+\subsection{Simultaneous Failure of Both Branches under Value Plateaus}
+
+\begin{theorem}[Disproof under the adjacent-plateau convention]
+\label{thm:plateau}
+Suppose ``flat'' is interpreted as an adjacent value plateau $a_k = a_{k+1}$ and ``strict'' as the
+absence of plateaus. Then both branches of Conjecture~00000008534 fail simultaneously for both
+$W_k$ and $|w_k|$:
+\begin{enumerate}
+  \item[(a)] $M_4 \cong L(U_{2,4})$ is non-unimodular yet has no plateau in $W(M_4) = (1, 4, 1)$ or
+    $|w(M_4)| = (1, 4, 3)$;
+  \item[(b)] the rank-$3$ Boolean lattice $B_3 \cong L(U_{3,3})$ is unimodular (represented over $\Q$
+    by the totally unimodular $3 \times 3$ identity matrix $I_3$), yet
+    $W(B_3) = |w(B_3)| = (1, 3, 3, 1)$ has a plateau at $k = 1$ ($3 = 3$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(a) was established in Theorems~\ref{thm:disproof-W2}--\ref{thm:disproof-W1}. For~(b), the
+power set lattice $B_3$ of $\{0, 1, 2\}$ has rank $3$, $W_k(B_3) = \binom{3}{k}$, and
+$\mu(\hat{0}, S) = (-1)^{|S|}$, giving $|w_k(B_3)| = \binom{3}{k}$ and $(1, 3, 3, 1)$. Every
+submatrix of $I_3$ has determinant in $\{0, 1\} \subseteq \{-1, 0, 1\}$ and subsets of columns of
+$I_3$ have rank equal to their cardinality, so $B_3$ is unimodular; yet $a_1 = a_2 = 3$.
+\end{proof}
+
+\subsection{Higher-Rank Non-Modular Counterexamples and Unimodular Witnesses}
+
+\begin{proposition}[Positive witnesses, boundary cases, and modularity separation]
+\label{prop:boundary}
+\leavevmode
+\begin{enumerate}
+  \item[(1)] \textbf{Positive non-vacuity witnesses:} The Boolean lattice $B_2 \cong L(U_{2,2})$
+    (represented by $I_2$), the triangle graphic lattice $M_3 \cong L(U_{2,3}) \cong L(M(K_3))$
+    (represented by $\bigl(\begin{smallmatrix}1 & 0 & 1\\ 0 & 1 & 1\end{smallmatrix}\bigr)$), and
+    the $4$-cycle graphic lattice $L(U_{3,4}) \cong L(M(C_4))$ (represented by $[I_3 \mid \mathbf{1}]$)
+    are all unimodular geometric lattices of rank $r \ge 2$ whose second-kind and unsigned
+    first-kind Whitney sequences are non-vacuously strictly log-concave and plateau-free:
+    \begin{align*}
+      W(B_2) &= (1, 2, 1), & |w(B_2)| &= (1, 2, 1); \\
+      W(M_3) &= (1, 3, 1), & |w(M_3)| &= (1, 3, 2); \\
+      W\bigl(L(U_{3,4})\bigr) &= (1, 4, 6, 1), & \bigl|w\bigl(L(U_{3,4})\bigr)\bigr| &= (1, 4, 6, 3).
+    \end{align*}
+  \item[(2)] \textbf{Rank-$1$ vacuity boundary:} $B_1 \cong L(U_{1,1})$ is unimodular with
+    $W(B_1) = |w(B_1)| = (1, 1)$, which is vacuously strictly log-concave (no interior index
+    $1 \le k \le 0$) but fails non-vacuous strict log-concavity ($r \ge 2$) and has plateau
+    $a_0 = a_1 = 1$.
+  \item[(3)] \textbf{Unimodularity versus lattice modularity:} $M_4$ is modular ($2 + 0 = 1 + 1$ on
+    distinct atoms) yet non-unimodular, whereas $L(U_{3,4})$ is unimodular yet non-modular:
+    disjoint rank-$2$ flats $\{0,1\}$ and $\{2,3\}$ satisfy
+    $\rk(\{0,1\} \vee \{2,3\}) + \rk(\{0,1\} \wedge \{2,3\}) = 3 + 0 < 2 + 2$. Since
+    $W(L(U_{3,4})) = (1, 4, 6, 1)$ and $|w(L(U_{3,4}))| = (1, 4, 6, 3)$ have no LC-flat and no
+    plateau, $L(U_{3,4})$ also disproves the conjecture if ``unimodular'' is conflated with
+    lattice modularity.
+  \item[(4)] \textbf{Higher-rank non-modular non-unimodular counterexample $L(U_{3,5})$:} The uniform
+    matroid $U_{3,5}$ of rank $3$ on $5$ elements has $17$ flats ($1$ of rank $0$, $5$ singletons
+    of rank $1$, $\binom{5}{2} = 10$ pairs of rank $2$, and $1$ top flat of rank $3$). It is
+    non-modular ($\rk(\{0,1\}) + \rk(\{2,3\}) = 4 > 3$) and non-binary (hence non-unimodular): in
+    any $3 \times 5$ binary representation normalized so the first three columns form $I_3$, all
+    $\binom{5}{3} = 10$ triples must be independent over $\F_2$, forcing both remaining columns
+    to equal $(1,1,1)^{\mathsf{T}}$ and hence to coincide, a contradiction. Yet
+    $W(L(U_{3,5})) = (1, 5, 10, 1)$ ($25 > 10$, $100 > 5$) and
+    $|w(L(U_{3,5}))| = (1, 5, 10, 6)$ ($25 > 10$, $100 > 30$) are strictly log-concave and
+    plateau-free.
+\end{enumerate}
+\end{proposition}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.2}
+\caption{Summary of concrete geometric lattices and Whitney sequences across conventions.}
+\label{tab:summary}
+\begin{tabular}{lcccccc}
+\hline
+Lattice $L$ & Rank $r$ & Unimodular? & Modular? & $W(L)$ & $|w(L)|$ & LC-flat / Plateau \\
+\hline
+$B_1 \cong L(U_{1,1})$ & $1$ & Yes & Yes & $(1, 1)$ & $(1, 1)$ & None / $k=0$ \\
+$B_2 \cong L(U_{2,2})$ & $2$ & Yes & Yes & $(1, 2, 1)$ & $(1, 2, 1)$ & None / None \\
+$M_3 \cong L(U_{2,3})$ & $2$ & Yes & Yes & $(1, 3, 1)$ & $(1, 3, 2)$ & None / None \\
+$M_4 \cong L(U_{2,4})$ & $2$ & \textbf{No} & Yes & $(1, 4, 1)$ & $(1, 4, 3)$ & \textbf{None / None} \\
+$B_3 \cong L(U_{3,3})$ & $3$ & Yes & Yes & $(1, 3, 3, 1)$ & $(1, 3, 3, 1)$ & None / $k=1$ \\
+$L(U_{3,4}) \cong L(M(C_4))$ & $3$ & Yes & \textbf{No} & $(1, 4, 6, 1)$ & $(1, 4, 6, 3)$ & \textbf{None / None} \\
+$L(U_{3,5})$ & $3$ & \textbf{No} & \textbf{No} & $(1, 5, 10, 1)$ & $(1, 5, 10, 6)$ & \textbf{None / None} \\
+$L(F_7) = \mathrm{PG}(2,2)$ & $3$ & \textbf{No} & Yes & $(1, 7, 7, 1)$ & $(1, 7, 14, 8)$ & \textbf{None} / $W$: $k=1$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{remark}[Broader context in matroid Hodge theory]
+For unsigned Whitney numbers of the first kind $|w_k(L)|$, Adiprasito, Huh, and Katz~\cite{AHK2018}
+proved log-concavity for all matroids, and Braden, Huh, Matherne, Proudfoot, and
+Wang~\cite{BHMPW2020} established ultra-log-concavity
+$\bigl(|w_k|/\binom{r}{k}\bigr)^2 \ge \bigl(|w_{k-1}|/\binom{r}{k-1}\bigr)
+\bigl(|w_{k+1}|/\binom{r}{k+1}\bigr)$, which implies strict log-concavity $|w_k|^2 >
+|w_{k-1}||w_{k+1}|$ for \emph{every} geometric lattice of rank $r \ge 2$. For Whitney numbers of
+the second kind $W_k(L)$, Rota's log-concavity conjecture~\cite{Rota1971} remains open in general
+rank, while the Dowling--Wilson top-heavy inequalities $W_k \le W_{r-k}$ ($k \le r/2$) were proved
+for all geometric lattices in~\cite{BHMPW2022}. In neither sequence does non-unimodularity force a
+log-concavity flat.
+\end{remark}
+
+\section{Formal Verification in Core Lean 4 and Python}
+
+All definitions and theorems are formalized from first principles in self-contained Core Lean~4
+(toolchain \texttt{v4.19.0}, file \texttt{lean/Main.lean}) with zero external dependencies, strict
+compiler flag \texttt{-DwarningAsError=true}, zero \texttt{sorry}, \texttt{admit}, or
+\texttt{native\_decide}, and only standard kernel axioms (\texttt{propext} and \texttt{Quot.sound},
+verified via \texttt{\#print axioms}). Table~\ref{tab:lean-map} maps the mathematical results of
+this paper to their Lean~4 declarations, complemented by independent checks in \texttt{verify.py}.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\caption{Paper statements and corresponding Core Lean~4 declarations.}
+\label{tab:lean-map}
+\begin{tabular}{ll}
+\hline
+Paper Item & Lean 4 Declaration (\texttt{WhitneyLogConcavity.*}) \\
+\hline
+Definition~\ref{def:geom-lattice} \& rank uniqueness & \texttt{GeometricLattice}, \texttt{IsModular}, \texttt{rk\_unique} \\
+Definition~\ref{def:whitney} (Whitney sequences) & \texttt{whitneySecond}, \texttt{whitneyFirstUnsigned} \\
+Definition~\ref{def:whitney} (M\"obius identity) & \texttt{muBot\_bot}, \texttt{muBot\_interval\_sum\_zero} \\
+Definition~\ref{def:unimodular} & \texttt{det}, \texttt{IsTotallyUnimodular}, \texttt{IsUnimodular}, \texttt{IsBinary} \\
+Lemma~\ref{lem:tu-binary} (TU $\implies$ binary) & \texttt{unimodular\_implies\_binary} \\
+Lemma~\ref{lem:cramer-plucker} & \texttt{cramer\_plucker\_mod2} \\
+Proposition~\ref{prop:m4-not-unimodular} & \texttt{not\_isBinary\_M4}, \texttt{not\_isUnimodular\_M4} \\
+Theorem~\ref{thm:disproof-W2} ($W_k$ disproof) & \texttt{disproof\_conjecture\_secondKind\_lcFlat} \\
+Theorem~\ref{thm:disproof-W1} ($|w_k|$ disproof) & \texttt{disproof\_conjecture\_firstKind\_lcFlat} \\
+Theorem~\ref{thm:plateau} (plateau disproof) & \texttt{disproof\_conjecture\_plateau\_both\_branches} \\
+Proposition~\ref{prop:boundary}(1) (positive witnesses) & \texttt{positive\_witnesses\_unimodular} \\
+Proposition~\ref{prop:boundary}(2)--(3) (boundaries) & \texttt{boundary\_and\_modularity\_checks} \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{thebibliography}{9}
+
+\bibitem{AHK2018}
+K.~Adiprasito, J.~Huh, and E.~Katz,
+\emph{Hodge theory for combinatorial geometries},
+Ann.\ of Math.\ (2) \textbf{188} (2018), no.~2, 381--452.
+
+\bibitem{BHMPW2020}
+T.~Braden, J.~Huh, J.~P.~Matherne, N.~Proudfoot, and B.~Wang,
+\emph{Singular Hodge theory for combinatorial geometries},
+arXiv:2010.06088 (2020).
+
+\bibitem{BHMPW2022}
+T.~Braden, J.~Huh, J.~P.~Matherne, N.~Proudfoot, and B.~Wang,
+\emph{A semi-small decomposition of the Chow ring of a matroid},
+Adv.\ Math.\ \textbf{409} (2022), Paper No.~108646.
+
+\bibitem{Oxley2011}
+J.~Oxley,
+\emph{Matroid Theory}, 2nd ed.,
+Oxford Graduate Texts in Mathematics, vol.~21, Oxford Univ.\ Press, 2011.
+
+\bibitem{Rota1964}
+G.-C.~Rota,
+\emph{On the foundations of combinatorial theory I. Theory of M\"obius functions},
+Z.\ Wahrscheinlichkeitstheorie und Verw.\ Gebiete \textbf{2} (1964), 340--368.
+
+\bibitem{Rota1971}
+G.-C.~Rota,
+\emph{Combinatorial theory, old and new},
+in \emph{Actes du Congr\`es International des Math\'ematiciens (Nice, 1970)}, Tome~3,
+Gauthier-Villars, Paris, 1971, pp.~229--233.
+
+\bibitem{Tutte1958}
+W.~T.~Tutte,
+\emph{A homotopy theorem for matroids, I, II},
+Trans.\ Amer.\ Math.\ Soc.\ \textbf{88} (1958), 144--174.
+
+\bibitem{White1986}
+N.~White (ed.),
+\emph{Theory of Matroids},
+Encyclopedia of Mathematics and its Applications, vol.~26, Cambridge Univ.\ Press, 1986.
+
+\end{thebibliography}
+
+\end{document}
