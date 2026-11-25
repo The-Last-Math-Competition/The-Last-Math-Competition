@@ -1,0 +1,376 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\CCl}{\mathbb{C}\mathrm{l}}
+\newcommand{\End}{\mathrm{End}}
+\newcommand{\Hom}{\mathrm{Hom}}
+\newcommand{\rad}{\mathrm{rad}}
+\newcommand{\Span}{\mathrm{span}}
+\newcommand{\Tr}{\mathrm{Tr}}
+\newcommand{\id}{\mathrm{id}}
+
+\title{\textbf{Spinors as Minimal Left Ideals: Exact Split Characterization and Structural Refutations of Conjecture 00000007604}}
+\author{Formal Resolution and Verification Report}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007604}, which defines algebraic spinors as elements of minimal left ideals of a Clifford algebra and asserts that (i) the realization dimension equals the half-dimension power of two $2^{n/2}$, (ii) the spectrum is complete, (iii) the carrier of the realization is the minimal ideal, and (iv) the carrier of the minimal ideal is the matrix realization of the simple module.
+We prove that as an unqualified universal statement for quadratic spaces $(V, Q)$ of dimension $n = \dim_K V$, the conjecture is \textbf{false}, failing across three independent structural regimes:
+\begin{enumerate}
+  \item \textbf{Odd dimensions ($n = 2m + 1$):} $2^{n/2} = 2^m\sqrt{2}$ is irrational, so no module over any field can have dimension $2^{n/2}$; moreover, in split/complex odd Clifford algebras $\Cl_{m+1,m}(K) \cong M_{2^m}(K) \oplus M_{2^m}(K)$ (such as $\Cl_{1,0}(K) \cong K \times K$ at $n = 1$), every minimal nonzero left ideal has dimension $2^{(n-1)/2} \neq 2^{n/2}$, fails to be faithful, and realizes only half of the central/generator eigenvalue spectrum.
+  \item \textbf{Even-dimensional division-algebra obstructions (real/rational Bott periodicity):} Even when $n = 2m$ is even and $Q$ is nondegenerate, if the Wedderburn division algebra $\mathbb{D}$ is nontrivial, minimal left ideals have dimension $(\dim_K \mathbb{D})^{1/2} \cdot 2^{n/2} > 2^{n/2}$. Concretely, in $\Cl_{0,2}(K) \cong \mathbb{H}_K$ ($n = 2$, $K \in \{\mathbb{Q}, \mathbb{R}\}$), every nonzero element is invertible, the unique minimal nonzero left ideal is the full $4$-dimensional algebra ($\dim_K S = 4 \neq 2 = 2^{2/2}$), left multiplication embeds $\mathbb{H}_K$ properly into $M_4(K)$ rather than $M_2(K)$, and Clifford generators have no $K$-eigenvalues.
+  \item \textbf{Degenerate quadratic forms ($Q$ degenerate, e.g.\ $Q = 0$):} Over \emph{every} field $K$ (including $\mathbb{C}$) and in even dimension $n = 2m \ge 2$, the exterior Clifford algebra $\Cl(V, 0) = \Lambda(V)$ is a local non-semisimple ring whose unique minimal nonzero left ideal is the $1$-dimensional top exterior line $\Lambda^n(V)$ ($\dim_K S = 1 \neq 2^{n/2}$), which satisfies $S^2 = 0$, contains no nonzero idempotent, and carries the trivial zero action of $V$.
+\end{enumerate}
+Conversely, we prove a positive non-vacuity and exact characterization theorem: under the classical Cartan--Chevalley reading of ``minimal ideal'' as ``minimal left ideal,'' all four clauses hold simultaneously whenever $(V, Q)$ is an \emph{even-dimensional nondegenerate split (neutral) quadratic space} ($\Cl(V, Q) \cong M_{2^m}(K)$, which over $\mathbb{C}$ covers all nondegenerate forms of even dimension $n = 2m$, and over $\mathbb{R}$ covers signatures $p + q = 2m$ with $p - q \equiv 0, 2 \pmod{8}$ under $v^2 = +Q(v)\cdot 1$). Both the positive witness $\Cl_{1,1}(\mathbb{Q}) \cong M_2(\mathbb{Q})$ and complete minimal-ideal classifications for the counterexamples $\Cl_{1,0}(\mathbb{Q})$, $\Cl_{0,2}(\mathbb{Q}) \cong \mathbb{H}_{\mathbb{Q}}$, and $\Lambda(\mathbb{Q}^2)$ are machine-checked in Core Lean~4.19.0 with zero external dependencies and zero \texttt{sorry}s.
+\end{abstract}
+
+\section{Introduction and Analysis of the Problem Statement}
+
+\subsection{Original Problem Statement}
+Conjecture \texttt{00000007604} in \texttt{SOURCE.md} is stated bilingually in English and Chinese. The English text reads verbatim:
+\begin{quote}
+\textbf{Definition:} Spinors as elements of minimal left ideals.
+\textbf{Conjecture:} The realization dimension equals the half-dimension power of two and the spectrum is complete; the carrier of the realization is the minimal ideal; and the carrier of the minimal ideal is the matrix realization of the simple module. \emph{(spinor half-dimension power of two)}
+\end{quote}
+The accompanying Chinese text carries the exact clause-by-clause correspondence:
+\begin{enumerate}
+  \item \emph{Definition:} Algebraic spinors are defined as elements of minimal (nonzero) left ideals $S \subset \Cl(V, Q)$ of the Clifford algebra associated with an $n$-dimensional quadratic vector space $(V, Q)$ over a base field $K$ ($\mathrm{char}\,K \neq 2$).
+  \item \emph{Clause C1 (Half-dimension power of two):} The dimension of the spinor realization satisfies
+  \begin{equation}\label{eq:half-dim}
+    \dim_K S = 2^{n/2}, \qquad \text{equivalently} \qquad (\dim_K S)^2 = 2^n = \dim_K \Cl(V, Q).
+  \end{equation}
+  \item \emph{Clause C2 (Complete spectrum):} The spinor realization exhibits spectral completeness---both in the Cartan weight-space sense (joint eigenvalues of a maximal commuting family of Clifford involutions realize all $2^{n/2}$ sign patterns $(\pm 1, \dots, \pm 1)$ with multiplicity~$1$) and in the Burnside/Wedderburn operator sense (left multiplication $\rho_S : \Cl(V, Q) \to \End_K(S)$ is faithful and surjective onto the full endomorphism algebra).
+  \item \emph{Clause C3 (Minimal ideal carrier):} The underlying vector space (carrier) of the spinor realization is the minimal [left] ideal $S$ itself.
+  \item \emph{Clause C4 (Matrix realization of the simple module):} Under an algebra isomorphism $\Cl(V, Q) \cong M_{2^{n/2}}(K)$ sending a primitive idempotent $e \in \Cl(V, Q)$ to a diagonal matrix unit $E_{jj}$, the minimal left ideal $S = \Cl(V, Q) e$ is realized concretely as the $j$-th single-column subspace of $M_{2^{n/2}}(K)$, giving the standard column-vector matrix realization of the unique simple $\Cl(V, Q)$-module.
+\end{enumerate}
+
+\begin{remark}[Minimal left ideal vs.\ minimal two-sided ideal in Clauses C3--C4]\label{rem:two-sided}
+Notice that the Definition explicitly specifies \emph{minimal left ideals}, whereas Clauses C3--C4 abbreviate this to ``the minimal ideal.'' Under the charitable reading (standard in Cartan~\cite{Cartan1966}, Chevalley~\cite{Chevalley1954}, and Lounesto~\cite{Lounesto2001}), ``the minimal ideal'' refers anaphorically to the minimal \emph{left} ideal introduced in the Definition; under this reading, Clauses C1--C4 form a celebrated true theorem in the even-dimensional split/complex nondegenerate regime (Theorem~\ref{thm:positive-split}). If instead ``minimal ideal'' were read literally as a minimal nonzero \emph{two-sided} ideal $J \trianglelefteq \Cl(V, Q)$, then even for $\Cl_{1,1}(K) \cong M_2(K)$ ($n = 2$), simplicity of $M_2(K)$ forces $J = M_2(K)$ of dimension $4 = 2^n \neq 2 = 2^{n/2}$, which as a left module decomposes as $S \oplus S$ and is \emph{not} simple. Even granting the charitable minimal-left-ideal reading throughout, Conjecture \texttt{00000007604} fails outside the even-dimensional split/complex nondegenerate class.
+\end{remark}
+
+\subsection{Summary of Results across Standard Clifford Settings}
+Table~\ref{tab:overview} summarizes the status of Conjecture \texttt{00000007604} across the principal families of Clifford algebras $\Cl(V, Q)$ (using the convention $v^2 = +Q(v)\cdot 1$).
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}llllll@{}}
+\hline
+\textbf{Regime / Example} & $\dim V$ & \textbf{Algebra $\Cl(V,Q)$} & $\dim_K S$ & $2^{n/2}$ & \textbf{Status} \\
+\hline
+Split even $\Cl_{m,m}(K)$, $\CCl_{2m}$ & $2m$ & $M_{2^m}(K)$ & $2^m$ & $2^m$ & \textbf{Holds} (Thm.~\ref{thm:positive-split}) \\
+Real $\Cl_{p,q}(\mathbb{R})$, $p{-}q \equiv 0,2\;(8)$ & $2m$ & $M_{2^m}(\mathbb{R})$ & $2^m$ & $2^m$ & \textbf{Holds} (Thm.~\ref{thm:bott}) \\
+\hline
+Split/complex odd $\Cl_{m+1,m}(K)$, $\CCl_{2m+1}$ & $2m{+}1$ & $M_{2^m}(K) \oplus M_{2^m}(K)$ & $2^m$ & $2^m\sqrt{2}$ & \textbf{Fails} (Thm.~\ref{thm:odd-split}) \\
+Concrete odd $\Cl_{1,0}(\mathbb{Q})$ & $1$ & $\mathbb{Q} \times \mathbb{Q}$ & $1$ & $\sqrt{2}$ & \textbf{Fails} (Cor.~\ref{cor:cl10}) \\
+Non-split odd $\Cl_{0,1}(\mathbb{R})$ & $1$ & $\mathbb{C}$ & $2$ & $\sqrt{2}$ & \textbf{Fails} (Thm.~\ref{thm:bott}) \\
+Quaternionic even $\Cl_{0,2}(\mathbb{Q}), \Cl_{0,2}(\mathbb{R})$ & $2$ & $\mathbb{H}_K$ (division) & $4$ & $2$ & \textbf{Fails} (Thm.~\ref{thm:cl02}) \\
+Real $\Cl_{p,q}(\mathbb{R})$, $p{-}q \equiv 4,6\;(8)$ & $2m$ & $M_{2^{m-1}}(\mathbb{H})$ & $2^{m+1}$ & $2^m$ & \textbf{Fails} (Thm.~\ref{thm:bott}) \\
+Exterior / degenerate $\Lambda(K^n)$ ($n \ge 1$) & $n$ & $\Lambda(K^n)$ (local) & $1$ & $2^{n/2}$ & \textbf{Fails} (Thm.~\ref{thm:exterior}) \\
+\hline
+\end{tabular}
+\caption{Exact minimal left ideal dimension $\dim_K S$ versus $2^{n/2}$ across Clifford algebra regimes under $v^2 = +Q(v)\cdot 1$.}
+\label{tab:overview}
+\end{table}
+
+\section{Algebraic Foundations}
+
+Let $K$ be a field with $\mathrm{char}\,K \neq 2$, let $V$ be an $n$-dimensional $K$-vector space ($n \ge 0$), and let $Q : V \to K$ be a quadratic form with associated symmetric bilinear form
+\[
+  B_Q(u, v) = \frac{1}{2}\bigl(Q(u + v) - Q(u) - Q(v)\bigr), \qquad B_Q(v, v) = Q(v).
+\]
+
+\begin{definition}[Clifford algebra]
+The \emph{Clifford algebra} $\Cl(V, Q)$ is the quotient of the tensor algebra $T(V) = \bigoplus_{k \ge 0} V^{\otimes k}$ by the two-sided ideal generated by $\{v \otimes v - Q(v)\cdot 1 : v \in V\}$. Equivalently, for every $u, v \in V \subset \Cl(V, Q)$,
+\begin{equation}\label{eq:cliff-rel}
+  v^2 = Q(v)\cdot 1, \qquad uv + vu = 2 B_Q(u, v)\cdot 1.
+\end{equation}
+If $(e_1, \dots, e_n)$ is a $B_Q$-orthogonal basis of $V$ with $Q(e_i) = q_i \in K$, then $e_i^2 = q_i \cdot 1$, $e_i e_j = -e_j e_i$ for $i \neq j$, and the ordered monomials $\{e_{i_1}\cdots e_{i_k} : 1 \le i_1 < \dots < i_k \le n\}$ form a $K$-basis of $\Cl(V, Q)$ of dimension $\dim_K \Cl(V, Q) = 2^n$ (Poincar\'e--Birkhoff--Witt theorem for Clifford algebras~\cite{Chevalley1954}).
+\end{definition}
+
+\begin{remark}[Sign conventions]
+For real signature $(p, q)$ ($n = p + q$), we write $\Cl_{p,q}(K)$ for the Clifford algebra of $Q(x_1, \dots, x_n) = \sum_{i=1}^p x_i^2 - \sum_{j=1}^q x_{p+j}^2$ under~\eqref{eq:cliff-rel}. Authors in Riemannian spin geometry~\cite{LawsonMichelsohn1989} often adopt the opposite sign $v^2 = -Q(v)\cdot 1$, which simply interchanges $(p, q) \leftrightarrow (q, p)$ (replacing $p - q \bmod 8$ by $q - p \bmod 8$). None of our positive or negative conclusions depend on this convention: $\Cl_{m,m}$ and $\Lambda(V)$ are sign-symmetric, odd dimensions remain odd, and in dimension $n = 2$ the division algebra $\mathbb{H}$ appears either at $\Cl_{0,2}$ (under $v^2 = +Q(v)$) or at $\Cl_{2,0}$ (under $v^2 = -Q(v)$).
+\end{remark}
+
+\begin{definition}[Minimal left ideals and algebraic spinors]
+Let $A$ be a unital associative $K$-algebra. A $K$-subspace $S \subseteq A$ is a \emph{minimal (nonzero) left ideal} if:
+\begin{enumerate}
+  \item $A S \subseteq S$ ($S$ is a left ideal, hence a left $A$-module under left multiplication $\rho_S(a)(x) = ax$),
+  \item $S \neq \{0\}$, and
+  \item for every left ideal $I \subseteq S$, either $I = \{0\}$ or $I = S$ (equivalently, $S$ is a simple left $A$-module embedded as a left ideal of $A$).
+\end{enumerate}
+Following Cartan and Chevalley~\cite{Chevalley1954,Lounesto2001}, \emph{algebraic spinors} of $(V, Q)$ are elements of a minimal left ideal $S \subseteq \Cl(V, Q)$.
+\end{definition}
+
+\section{Positive Non-Vacuity Theorem: The Even-Dimensional Split Regime}
+
+We first establish that in the classical Cartan--Chevalley setting---an even-dimensional nondegenerate split (neutral) quadratic space---every clause of Conjecture \texttt{00000007604} holds rigorously.
+
+\begin{theorem}[Positive realization in even-dimensional split Clifford algebras]\label{thm:positive-split}
+Let $K$ be a field with $\mathrm{char}\,K \neq 2$, and let $(V, Q)$ be a nondegenerate split quadratic space of even dimension $n = 2m$ ($m \ge 1$), so that $V = W \oplus W^*$ is the direct sum of $m$-dimensional totally isotropic subspaces with dual bases $(f_1, \dots, f_m)$ of $W$ and $(f_1^*, \dots, f_m^*)$ of $W^*$ satisfying
+\[
+  f_i^2 = (f_i^*)^2 = 0, \qquad f_i f_j + f_j f_i = 0, \qquad f_i^* f_j^* + f_j^* f_i^* = 0, \qquad f_i f_j^* + f_j^* f_i = \delta_{ij}\cdot 1.
+\]
+Set $e = (f_1^* f_1)\cdots(f_m^* f_m) \in \Cl(V, Q)$ and $S = \Cl(V, Q) e$. Then:
+\begin{enumerate}
+  \item \textbf{Minimal left ideal and exact half-dimension power of two:} $e^2 = e \neq 0$ is a primitive idempotent, $S = \Lambda(W) e$ is a minimal nonzero left ideal of $\Cl(V, Q)$ with ordered $K$-basis $\{f_{i_1}\cdots f_{i_k} e : 1 \le i_1 < \dots < i_k \le m\}$, and
+  \[
+    \dim_K S = 2^m = 2^{n/2}.
+  \]
+  \item \textbf{Faithful matrix isomorphism:} The left multiplication map $\rho_S : \Cl(V, Q) \to \End_K(S)$ is an isomorphism of $K$-algebras:
+  \[
+    \Cl(V, Q) \xrightarrow{\;\sim\;} \End_K(S) \cong M_{2^m}(K).
+  \]
+  Consequently, $\Cl(V, Q)$ is central simple and $S$ is (up to isomorphism) its unique simple left module.
+  \item \textbf{Complete Cartan weight spectrum:} The elements $\sigma_j = f_j f_j^* - f_j^* f_j \in \Cl(V, Q)$ ($1 \le j \le m$) pairwise commute and satisfy $\sigma_j^2 = 1$. On $S$, each basis vector $f_I e$ ($I \subseteq \{1,\dots,m\}$) is a joint eigenvector with $\sigma_j (f_I e) = \varepsilon_{I,j} (f_I e)$, where $\varepsilon_{I,j} = +1$ if $j \in I$ and $\varepsilon_{I,j} = -1$ if $j \notin I$. Thus every sign tuple in $\{\pm 1\}^m$ occurs on $S$ with multiplicity~$1$.
+  \item \textbf{Single-column matrix carrier:} Ordering the basis $\{b_1, \dots, b_{2^m}\}$ of $S$ with $b_1 = e = f_\emptyset e$, the induced matrix isomorphism $\Phi : \Cl(V, Q) \xrightarrow{\sim} M_{2^m}(K)$ satisfies $\Phi(e) = E_{1,1}$, and $\Phi(S) = M_{2^m}(K) E_{1,1}$ is the first-column subspace of $M_{2^m}(K)$, carrying the canonical left action of $M_{2^m}(K)$ on column vectors $K^{2^m}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For each $j \in \{1,\dots,m\}$, set $e_j = f_j^* f_j$. Since $(f_j^*)^2 = 0$ and $f_j f_j^* = 1 - f_j^* f_j$, we have $e_j^2 = f_j^* (f_j f_j^*) f_j = f_j^*(1 - f_j^* f_j) f_j = f_j^* f_j = e_j$. For $i \neq j$, $f_i$ and $f_i^*$ anticommute with both $f_j$ and $f_j^*$, so $e_i$ commutes with $e_j$. Hence $e = e_1 \cdots e_m$ satisfies $e^2 = e$.
+
+Using $f_j^* e_j = (f_j^*)^2 f_j = 0$ and commutativity of $e_j$ with $e_k$ ($k \neq j$), we obtain $f_j^* e = 0$ for all $j$. Every monomial in $\Cl(V, Q)$ can be reordered via $f_i f_j^* = \delta_{ij} - f_j^* f_i$ so that all $f^*$-factors stand to the right of all $f$-factors; acting on $e$, every term with at least one $f_j^*$ vanishes, leaving $S = \Cl(V, Q) e = \Span_K\{f_I e : I \subseteq \{1,\dots,m\}\}$, so $\dim_K S \le 2^m$. Moreover, for $I = \{i_1 < \dots < i_k\}$, multiplying $\sum_J c_J f_J e = 0$ on the left by $f_{i_k}^* \cdots f_{i_1}^*$ and projecting via $e$ isolates $c_I e = 0$; since in the exterior model on $\Lambda(W)$ (where $f_j$ acts by $f_j \wedge -$ and $f_j^*$ acts by interior contraction $\iota_{f_j^*}$) the operator corresponding to $e$ sends $1 \mapsto 1 \neq 0$, we have $e \neq 0$, linear independence of $\{f_I e\}$, and $\dim_K S = 2^m = 2^{n/2}$.
+
+The interior/exterior action on $\Lambda(W)$ defines a $K$-algebra homomorphism $\Cl(V, Q) \to \End_K(\Lambda(W))$ intertwined with $\rho_S$ via $u \mapsto u \cdot e$ ($\Lambda(W) \xrightarrow{\sim} S$). For any subset $I, J \subseteq \{1,\dots,m\}$, the operator $\bigl(\prod_{i \in I} f_i\bigr) e \bigl(\prod_{j \in J}^{\text{rev}} f_j^*\bigr)$ sends $f_J e \mapsto f_I e$ and annihilates $f_K e$ for $K \neq J$, exhibiting all $2^m \times 2^m$ matrix units of $\End_K(S)$. Hence $\rho_S : \Cl(V, Q) \to \End_K(S) \cong M_{2^m}(K)$ is surjective; since $\dim_K \Cl(V, Q) = 2^{2m} = (2^m)^2 = \dim_K M_{2^m}(K)$, $\rho_S$ is an isomorphism. Minimality of $S = \Cl(V, Q) e$ and uniqueness of the simple module now follow immediately from the standard Wedderburn structure of $M_{2^m}(K)$, where $\Phi(e) = E_{1,1}$ identifies $\Phi(S) = M_{2^m}(K) E_{1,1}$ with the first column of $M_{2^m}(K)$.
+
+Finally, $\sigma_j = f_j f_j^* - f_j^* f_j = 1 - 2 e_j$ commutes with $\sigma_k$ ($k \neq j$) and satisfies $\sigma_j^2 = 1 - 4e_j + 4e_j^2 = 1$. If $j \notin I$, then $e_j f_I e = f_I e_j e = f_I e$, so $\sigma_j(f_I e) = (1 - 2)(f_I e) = -f_I e$; if $j \in I$, writing $f_I = \pm f_j f_{I \setminus \{j\}}$ gives $e_j f_j = f_j^* f_j^2 = 0$, so $e_j(f_I e) = 0$ and $\sigma_j(f_I e) = +f_I e$. Thus the $2^m$ basis spinors $\{f_I e\}$ diagonalize $(\sigma_1,\dots,\sigma_m)$ with distinct eigenvalues covering all of $\{\pm 1\}^m$.
+\end{proof}
+
+\begin{example}[Concrete $n = 2$ witness $\Cl_{1,1}(\mathbb{Q}) \cong M_2(\mathbb{Q})$, formalized in Lean~4]\label{ex:cl11}
+For $V = \mathbb{Q}^2$ with $Q(x_1, x_2) = x_1^2 - x_2^2$ ($e_1^2 = +1$, $e_2^2 = -1$, $e_{12} = e_1 e_2 = -e_2 e_1$), the map
+\[
+  \Phi_{1,1}(a_0 + a_1 e_1 + a_2 e_2 + a_{12} e_{12}) =
+  \begin{pmatrix}
+    a_0 + a_1 & -a_2 - a_{12} \\
+    a_2 - a_{12} & a_0 - a_1
+  \end{pmatrix}
+\]
+is an explicit $\mathbb{Q}$-algebra isomorphism $\Cl_{1,1}(\mathbb{Q}) \xrightarrow{\sim} M_2(\mathbb{Q})$. The primitive idempotent $e = \frac{1 + e_1}{2}$ satisfies $\Phi_{1,1}(e) = E_{1,1} = \bigl(\begin{smallmatrix}1&0\\0&0\end{smallmatrix}\bigr)$, and $S_{1,1} = \Cl_{1,1}(\mathbb{Q}) e$ has $\mathbb{Q}$-basis $s_+ = e$ and $s_- = e_2 e = \frac{e_2 - e_{12}}{2}$ with $\Phi_{1,1}(s_+) = \bigl(\begin{smallmatrix}1&0\\0&0\end{smallmatrix}\bigr)$, $\Phi_{1,1}(s_-) = \bigl(\begin{smallmatrix}0&0\\1&0\end{smallmatrix}\bigr)$, $\dim_{\mathbb{Q}} S_{1,1} = 2 = 2^{2/2}$, $e_1 s_\pm = \pm s_\pm$, and $\Phi_{1,1}(S_{1,1}) = \bigl\{\bigl(\begin{smallmatrix}u&0\\v&0\end{smallmatrix}\bigr) : u,v \in \mathbb{Q}\bigr\}$.
+\end{example}
+
+\begin{corollary}[Complex even dimensions]\label{cor:complex-even}
+Over any algebraically closed field $K$ with $\mathrm{char}\,K \neq 2$ (in particular $K = \mathbb{C}$), every nondegenerate quadratic form $Q$ in even dimension $n = 2m$ is split ($\CCl_{2m} \cong M_{2^m}(\mathbb{C})$), so Theorem~\ref{thm:positive-split} holds for every nondegenerate even-dimensional complex Clifford algebra.
+\end{corollary}
+
+\section{Refutation Regime I: Odd Dimensions \texorpdfstring{($n = 2m + 1$)}{(n = 2m + 1)}}
+
+We now show that Conjecture \texttt{00000007604} fails unconditionally in \emph{every} odd dimension $n = 2m + 1$, even over $\mathbb{C}$ or for split signatures over $\mathbb{Q}$ and $\mathbb{R}$.
+
+\begin{proposition}[Arithmetic impossibility in odd dimensions]\label{prop:odd-arith}
+For every integer $m \ge 0$, let $n = 2m + 1$. There exists no integer $d \in \mathbb{Z}$ and no rational number $q \in \mathbb{Q}$ satisfying $q^2 = 2^n$. In particular, no finite-dimensional vector space $S$ over any field $K$ can satisfy $\dim_K S = 2^{n/2}$ (nor $(\dim_K S)^2 = 2^n$).
+\end{proposition}
+
+\begin{proof}
+Suppose $(a/b)^2 = 2^{2m+1}$ with $a, b \in \mathbb{Z}$, $b > 0$, $\gcd(a, b) = 1$. Then $a^2 = 2^{2m+1} b^2$; comparing $2$-adic valuations gives $2 v_2(a) = 2m + 1 + 2 v_2(b)$, reducing modulo~$2$ to $0 \equiv 1 \pmod{2}$, a contradiction.
+\end{proof}
+
+Beyond the arithmetic obstruction on $2^{n/2}$, odd-dimensional split/complex Clifford algebras fail the faithfulness, uniqueness, and spectral completeness clauses as well.
+
+\begin{theorem}[Structural failure in odd-dimensional split and complex Clifford algebras]\label{thm:odd-split}
+Let $K$ be a field with $\mathrm{char}\,K \neq 2$, and let $(V, Q)$ have odd dimension $n = 2m + 1$ with orthogonal basis $(e_1, \dots, e_{m+1}, u_1, \dots, u_m)$ satisfying $Q(e_i) = +1$ and $Q(u_j) = -1$ (giving $\Cl_{m+1,m}(K)$; over $K = \mathbb{C}$, every nondegenerate odd-dimensional space $\CCl_{2m+1}$ is isomorphic to this algebra). Define the signed volume element
+\[
+  \omega = e_{m+1} (e_1 u_1)\cdots(e_m u_m) \in \Cl_{m+1,m}(K).
+\]
+Then:
+\begin{enumerate}
+  \item $\omega$ lies in the center $Z(\Cl_{m+1,m}(K))$ and satisfies $\omega^2 = +1$.
+  \item The central orthogonal idempotents $p_+ = \frac{1 + \omega}{2}$ and $p_- = \frac{1 - \omega}{2}$ decompose the algebra into two two-sided simple ideals:
+  \[
+    \Cl_{m+1,m}(K) = p_+ \Cl_{m+1,m}(K) \oplus p_- \Cl_{m+1,m}(K) \cong M_{2^m}(K) \oplus M_{2^m}(K).
+  \]
+  \item Every minimal nonzero left ideal $S \subset \Cl_{m+1,m}(K)$ lies either entirely in $p_+ \Cl_{m+1,m}(K)$ or entirely in $p_- \Cl_{m+1,m}(K)$, and satisfies:
+  \begin{enumerate}
+    \item $\dim_K S = 2^m = 2^{(n-1)/2} \neq 2^{n/2}$, with $(\dim_K S)^2 = 2^{2m} = 2^{n-1} \neq 2^n$;
+    \item $S$ is \textbf{not faithful}: the complementary simple block $p_\mp \Cl_{m+1,m}(K)$ of dimension $2^{2m} = 2^{n-1} \ge 1$ annihilates $S$, so $\rho_S : \Cl_{m+1,m}(K) \to \End_K(S) \cong M_{2^m}(K)$ has nonzero kernel;
+    \item \textbf{Incomplete spectrum:} Although $\omega \in \Cl_{m+1,m}(K)$ has eigenvalues $\{+1, -1\}$ in the regular representation, on any single minimal left ideal $S$ the operator $\omega|_S$ equals either $+\id_S$ or $-\id_S$, missing half of its spectrum (and $\Cl_{m+1,m}(K)$ has \emph{two} non-isomorphic simple modules $S_+$ and $S_-$, rather than ``the simple module'').
+  \end{enumerate}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Each pair $\sigma_j = e_j u_j$ ($1 \le j \le m$) satisfies $\sigma_j^2 = -e_j^2 u_j^2 = -(+1)(-1) = +1$ and commutes with $e_{m+1}$ as well as with $\sigma_k$ for $k \neq j$. Furthermore, $e_j \sigma_j = e_j^2 u_j = u_j = -\sigma_j e_j$ and $u_j \sigma_j = -e_j u_j^2 = e_j = -\sigma_j u_j$, so both $e_j$ and $u_j$ anticommute with $\sigma_j$ and also anticommute with $e_{m+1}$ (while commuting with $\sigma_k$ for $k \neq j$). Consequently, conjugating $\omega = e_{m+1}\sigma_1\cdots\sigma_m$ by $e_j$ or $u_j$ produces two sign reversals that cancel, and conjugating by $e_{m+1}$ produces none; hence $\omega \in Z(\Cl_{m+1,m}(K))$. Moreover,
+\[
+  \omega^2 = e_{m+1}^2 \sigma_1^2 \cdots \sigma_m^2 = (+1)(+1)^m = +1.
+\]
+Therefore $p_\pm = \frac{1 \pm \omega}{2}$ are nonzero orthogonal central idempotents ($p_+ + p_- = 1$, $p_+ p_- = 0$). Restricting the even subalgebra $\Cl_{m,m}(K) = \langle e_1,\dots,e_m, u_1,\dots,u_m \rangle \cong M_{2^m}(K)$ via $x \mapsto p_\pm x$ yields $K$-algebra isomorphisms $\Cl_{m,m}(K) \xrightarrow{\sim} p_\pm \Cl_{m+1,m}(K) \cong M_{2^m}(K)$ (injective by simplicity of $M_{2^m}(K)$ and surjective by dimension counting $2^{2m} + 2^{2m} = 2^{2m+1}$).
+
+Now let $S \subset \Cl_{m+1,m}(K)$ be any minimal nonzero left ideal. Since $S = p_+ S \oplus p_- S$ is a direct sum of left ideals inside $S$, minimality forces either $p_- S = 0$ (so $S \subseteq p_+ \Cl_{m+1,m}(K) \cong M_{2^m}(K)$) or $p_+ S = 0$ (so $S \subseteq p_- \Cl_{m+1,m}(K) \cong M_{2^m}(K)$). In either case, $S$ is a minimal left ideal of $M_{2^m}(K)$, hence $\dim_K S = 2^m = 2^{(n-1)/2}$, $\ker \rho_S = p_\mp \Cl_{m+1,m}(K)$ has dimension $2^{2m} > 0$, and $\omega$ acts on $S$ purely by the scalar $+1$ (if $S \subset p_+ \Cl$) or $-1$ (if $S \subset p_- \Cl$).
+\end{proof}
+
+\begin{corollary}[Minimal counterexample at $n = 1$: $\Cl_{1,0}(K) \cong K \times K$]\label{cor:cl10}
+At $n = 1$ ($m = 0$) with $Q(x) = x^2$, $\Cl_{1,0}(K) = K \oplus K e_1$ ($e_1^2 = 1$) has exactly two minimal nonzero left ideals,
+\[
+  S_+ = K\Bigl(\frac{1 + e_1}{2}\Bigr), \qquad S_- = K\Bigl(\frac{1 - e_1}{2}\Bigr),
+\]
+each of dimension $\dim_K S_\pm = 1$ (so $(\dim_K S_\pm)^2 = 1 \neq 2 = 2^1$), with nonzero annihilator $\ker \rho_{S_\pm} = S_\mp \neq \{0\}$ and incomplete generator spectrum $\mathrm{Spec}(e_1|_{S_\pm}) = \{\pm 1\} \subsetneq \{+1, -1\}$.
+\end{corollary}
+
+\section{Refutation Regime II: Quaternionic and Bott Obstructions}
+
+One might conjecture that restricting to \emph{even} dimension $n = 2m$ and \emph{nondegenerate} quadratic forms $Q$ rescues Conjecture \texttt{00000007604}. Over non-algebraically-closed fields---including $\mathbb{Q}$ and the physically foundational real field $\mathbb{R}$---this fails because a central simple algebra over $K$ has the Wedderburn form $M_k(\mathbb{D})$ for a central division $K$-algebra $\mathbb{D}$, which need not be $K$ itself.
+
+\begin{proposition}[General Brauer/Wedderburn dimension inflation]\label{prop:wedderburn}
+Suppose $\dim_K V = n = 2m$ is even, $Q$ is nondegenerate, and $\Cl(V, Q) \cong M_k(\mathbb{D})$ where $\mathbb{D}$ is a central division $K$-algebra of Schur index $d \ge 1$ ($\dim_K \mathbb{D} = d^2$). Since $2^{2m} = \dim_K \Cl(V, Q) = k^2 d^2$, we have $k d = 2^m = 2^{n/2}$, and every minimal nonzero left ideal $S \subset \Cl(V, Q)$ is isomorphic to the column module $\mathbb{D}^k$, whose $K$-dimension is
+\begin{equation}\label{eq:schur-dim}
+  \dim_K S = k \cdot \dim_K \mathbb{D} = k d^2 = d \cdot (kd) = d \cdot 2^{n/2}.
+\end{equation}
+Thus $\dim_K S = 2^{n/2}$ holds if and only if $d = 1$ ($\mathbb{D} = K$, i.e.\ $\Cl(V, Q)$ is split). Whenever $d > 1$, $\dim_K S = d \cdot 2^{n/2} > 2^{n/2}$, and the image $\rho_S(\Cl(V, Q)) \cong M_k(\mathbb{D})$ has $K$-dimension $2^n$, which is a proper subalgebra of $\End_K(S) \cong M_{d \cdot 2^{n/2}}(K)$ (of dimension $d^2 2^n > 2^n$, with nontrivial commutant $\End_{\Cl}(S) \cong \mathbb{D}^{\mathrm{op}}$).
+\end{proposition}
+
+\begin{theorem}[Even-dimensional counterexample $\Cl_{0,2}(K) \cong \mathbb{H}_K$ at $n = 2$]\label{thm:cl02}
+Let $K$ be any formally real field (in particular $K = \mathbb{Q}$ or $K = \mathbb{R}$), and let $V = K^2$ ($n = 2$) carry the nondegenerate negative-definite quadratic form $Q(x_1, x_2) = -x_1^2 - x_2^2$. Let $\Cl_{0,2}(K)$ have orthogonal generators $e_1, e_2$ with $e_1^2 = -1$, $e_2^2 = -1$, and $e_{12} = e_1 e_2 = -e_2 e_1$ ($e_{12}^2 = -1$). Then:
+\begin{enumerate}
+  \item \textbf{Quaternion division ring:} For every $q = a_0 + a_1 e_1 + a_2 e_2 + a_{12} e_{12} \in \Cl_{0,2}(K)$, set $\bar{q} = a_0 - a_1 e_1 - a_2 e_2 - a_{12} e_{12}$ and $N(q) = a_0^2 + a_1^2 + a_2^2 + a_{12}^2 \in K$. Then $q \bar{q} = \bar{q} q = N(q) \cdot 1$, and because $K$ is formally real, $N(q) = 0 \iff q = 0$. Hence every $q \neq 0$ has two-sided inverse $q^{-1} = N(q)^{-1}\bar{q}$, so $\Cl_{0,2}(K) \cong \mathbb{H}_K$ is a division ring.
+  \item \textbf{Absence of proper idempotents and unique minimal left ideal of dimension $4 \neq 2$:} The only idempotents in $\Cl_{0,2}(K)$ are $0$ and $1$, and the \textbf{unique} minimal nonzero left ideal of $\Cl_{0,2}(K)$ is $S = \Cl_{0,2}(K)$ itself, with
+  \[
+    \dim_K S = 4 = 2 \cdot 2^{2/2} \neq 2 = 2^{2/2}.
+  \]
+  \item \textbf{Failure of full matrix realization and real/rational spectrum:} Left multiplication embeds $\Cl_{0,2}(K)$ as a $4$-dimensional subalgebra of $\End_K(S) \cong M_4(K)$ ($\dim_K M_4(K) = 16$), not $M_2(K)$, and no nonzero vector $v \in V \setminus \{0\}$ admits any eigenvalue $\lambda \in K$ on $S$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Direct expansion in the basis $(1, e_1, e_2, e_{12})$ gives $q \bar{q} = \bar{q} q = (a_0^2 + a_1^2 + a_2^2 + a_{12}^2)\cdot 1$ because all cross terms cancel via $e_1 e_2 = -e_2 e_1$, $e_1 e_{12} = -e_2 = -e_{12} e_1$, and $e_2 e_{12} = e_1 = -e_{12} e_2$. Over a formally real field $K$, a sum of squares vanishes if and only if each summand vanishes, so $q \neq 0 \implies N(q) \neq 0$ and $q (N(q)^{-1}\bar{q}) = (N(q)^{-1}\bar{q}) q = 1$.
+
+If $e^2 = e$ and $e \neq 0$, multiplying on the left by $e^{-1}$ yields $e = 1$. If $I \subseteq \Cl_{0,2}(K)$ is any nonzero left ideal containing $q \neq 0$, then for every $x \in \Cl_{0,2}(K)$, $x = (x q^{-1}) q \in I$, so $I = \Cl_{0,2}(K)$. Thus $S = \Cl_{0,2}(K)$ is the unique minimal nonzero left ideal, of dimension $\dim_K S = 4 \neq 2$. Finally, if $v \in V \setminus \{0\}$ satisfied $v s = \lambda s$ for some $s \in S \setminus \{0\}$ and $\lambda \in K$, multiplying on the left by $v$ and on the right by $s^{-1}$ would give $Q(v)\cdot 1 = v^2 = \lambda^2 \cdot 1$, i.e.\ $\lambda^2 + v_1^2 + v_2^2 = 0$ with $(v_1, v_2) \neq (0,0)$, impossible in $K$.
+\end{proof}
+
+Combining Theorem~\ref{thm:positive-split}, Theorem~\ref{thm:odd-split}, and Proposition~\ref{prop:wedderburn} with the Atiyah--Bott--Shapiro classification~\cite{AtiyahBottShapiro1964} yields the complete modulo-$8$ determination of real minimal spinor dimensions.
+
+\begin{theorem}[Complete real Bott periodicity classification of minimal left ideal dimensions]\label{thm:bott}
+Let $n = p + q \ge 1$ and write $n = 2m$ (if even) or $n = 2m + 1$ (if odd). Under $v^2 = +Q(v)\cdot 1$, the structure of $\Cl_{p,q}(\mathbb{R})$ and the real dimension $\dim_{\mathbb{R}} S$ of every minimal nonzero left ideal $S \subset \Cl_{p,q}(\mathbb{R})$ depend solely on $n$ and $s = (p - q) \bmod 8$ according to Table~\ref{tab:bott}. In particular, for $n \ge 1$,
+\[
+  \dim_{\mathbb{R}} S = 2^{n/2} \quad \Longleftrightarrow \quad n \text{ is even and } p - q \equiv 0 \text{ or } 2 \pmod{8}.
+\]
+\end{theorem}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}cccccl@{}}
+\hline
+$(p-q)\bmod 8$ & Parity of $n$ & $\Cl_{p,q}(\mathbb{R})$ & Simple Ideal $S$ & $\dim_{\mathbb{R}} S$ & Comparison with $2^{n/2}$ \\
+\hline
+$0$ & $n = 2m$ & $M_{2^m}(\mathbb{R})$ & $\mathbb{R}^{2^m}$ & $2^m$ & $= 2^{n/2}$ (\textbf{holds}) \\
+$1$ & $n = 2m{+}1$ & $M_{2^m}(\mathbb{R}) \oplus M_{2^m}(\mathbb{R})$ & $\mathbb{R}^{2^m}$ & $2^m$ & $= 2^{(n-1)/2} \neq 2^{n/2}$ (fails) \\
+$2$ & $n = 2m$ & $M_{2^m}(\mathbb{R})$ & $\mathbb{R}^{2^m}$ & $2^m$ & $= 2^{n/2}$ (\textbf{holds}) \\
+$3$ & $n = 2m{+}1$ & $M_{2^m}(\mathbb{C})$ & $\mathbb{C}^{2^m}$ & $2^{m+1}$ & $= 2^{(n+1)/2} \neq 2^{n/2}$ (fails) \\
+$4$ & $n = 2m$ & $M_{2^{m-1}}(\mathbb{H})$ & $\mathbb{H}^{2^{m-1}}$ & $2^{m+1}$ & $= 2 \cdot 2^{n/2} \neq 2^{n/2}$ (fails) \\
+$5$ & $n = 2m{+}1$ & $M_{2^{m-1}}(\mathbb{H}) \oplus M_{2^{m-1}}(\mathbb{H})$ & $\mathbb{H}^{2^{m-1}}$ & $2^{m+1}$ & $= 2^{(n+1)/2} \neq 2^{n/2}$ (fails) \\
+$6$ & $n = 2m$ & $M_{2^{m-1}}(\mathbb{H})$ & $\mathbb{H}^{2^{m-1}}$ & $2^{m+1}$ & $= 2 \cdot 2^{n/2} \neq 2^{n/2}$ (fails) \\
+$7$ & $n = 2m{+}1$ & $M_{2^m}(\mathbb{C})$ & $\mathbb{C}^{2^m}$ & $2^{m+1}$ & $= 2^{(n+1)/2} \neq 2^{n/2}$ (fails) \\
+\hline
+\end{tabular}
+\caption{Modulo-$8$ periodicity of $\Cl_{p,q}(\mathbb{R})$ ($n = p + q \ge 1$) and real minimal left ideal dimension $\dim_{\mathbb{R}} S$ under $v^2 = +Q(v)\cdot 1$ (for $s \in \{4,5,6\}$, $n \ge 2$ so $m \ge 1$).}
+\label{tab:bott}
+\end{table}
+
+\begin{proof}
+The algebra isomorphisms in column~3 are the classical periodicity relations $\Cl_{1,1}(\mathbb{R}) \cong \Cl_{2,0}(\mathbb{R}) \cong M_2(\mathbb{R})$, $\Cl_{0,2}(\mathbb{R}) \cong \mathbb{H}$, $\Cl_{1,0}(\mathbb{R}) \cong \mathbb{R} \oplus \mathbb{R}$, $\Cl_{0,1}(\mathbb{R}) \cong \mathbb{C}$, $\Cl_{p+1,q+1}(\mathbb{R}) \cong M_2(\Cl_{p,q}(\mathbb{R}))$, $\Cl_{p+2,q}(\mathbb{R}) \cong \Cl_{q,p}(\mathbb{R}) \otimes_{\mathbb{R}} M_2(\mathbb{R})$, and $\Cl_{p,q+2}(\mathbb{R}) \cong \Cl_{q,p}(\mathbb{R}) \otimes_{\mathbb{R}} \mathbb{H}$~\cite{AtiyahBottShapiro1964,LawsonMichelsohn1989}. For $M_k(\mathbb{D})$ (or $M_k(\mathbb{D}) \oplus M_k(\mathbb{D})$), every minimal nonzero left ideal is isomorphic as a real vector space to $\mathbb{D}^k$, of real dimension $k \cdot \dim_{\mathbb{R}}\mathbb{D}$ where $\dim_{\mathbb{R}} \mathbb{R} = 1$, $\dim_{\mathbb{R}} \mathbb{C} = 2$, and $\dim_{\mathbb{R}} \mathbb{H} = 4$. Comparing column~5 with $2^{n/2}$ establishes the stated equivalence.
+\end{proof}
+
+\section{Refutation Regime III: Degenerate Quadratic Forms and Exterior Algebras}
+
+Finally, even over an algebraically closed field such as $K = \mathbb{C}$ and in even dimension $n = 2m \ge 2$, Conjecture \texttt{00000007604} fails catastrophically whenever the quadratic form $Q$ is degenerate.
+
+\begin{theorem}[Collapse of minimal left ideals in the exterior Clifford algebra $\Lambda(V)$]\label{thm:exterior}
+Let $K$ be any field, let $V$ be a $K$-vector space of dimension $n \ge 1$ with basis $(e_1, \dots, e_n)$, and let $Q = 0$, so that $\Cl(V, 0) = \Lambda(V) = \bigoplus_{k=0}^n \Lambda^k(V)$ is the exterior algebra. Then:
+\begin{enumerate}
+  \item \textbf{Local non-semisimple structure:} The augmentation ideal $\mathfrak{m} = \bigoplus_{k=1}^n \Lambda^k(V)$ of dimension $2^n - 1$ is nilpotent ($\mathfrak{m}^{n+1} = 0$) and equals the Jacobson radical $J(\Lambda(V))$. Every $a \in \Lambda(V) \setminus \mathfrak{m}$ is a unit, so $\Lambda(V)$ is a local Artinian algebra whose only idempotents are $0$ and $1$.
+  \item \textbf{Unique $1$-dimensional minimal left ideal:} Every nonzero left ideal $I \subseteq \Lambda(V)$ contains the top-degree line $\Lambda^n(V) = K(e_1 \wedge \dots \wedge e_n)$. Consequently, $S_{\mathrm{top}} = \Lambda^n(V)$ is the \textbf{unique} minimal nonzero left ideal of $\Lambda(V)$, and
+  \[
+    \dim_K S_{\mathrm{top}} = 1 \neq 2^{n/2} \qquad \text{for all } n \ge 1
+  \]
+  (in particular, in even dimension $n = 2m \ge 2$, $\dim_K S_{\mathrm{top}} = 1 < 2^m = 2^{n/2}$).
+  \item \textbf{Nilpotence and trivial Clifford action:} $S_{\mathrm{top}}^2 = 0$ (so $S_{\mathrm{top}}$ contains no nonzero idempotent and cannot be written as $\Lambda(V) e$ for any idempotent $e$), and $v \wedge s = 0$ for all $v \in V$ and $s \in S_{\mathrm{top}}$. Thus $\rho_{S_{\mathrm{top}}} : \Lambda(V) \to \End_K(S_{\mathrm{top}}) \cong K$ is merely the scalar augmentation map with kernel $\mathfrak{m}$ of dimension $2^n - 1$, annihilating the entire generating space $V$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Every $x \in \mathfrak{m}$ is a sum of homogeneous elements of positive degree; since $\Lambda^k(V) = 0$ for $k > n$, any product of $n + 1$ elements of $\mathfrak{m}$ vanishes, so $x^{n+1} = 0$. If $a = c_0 \cdot 1 + x$ with $c_0 \in K^\times$ and $x \in \mathfrak{m}$, then $a^{-1} = c_0^{-1}\sum_{j=0}^n (-c_0^{-1}x)^j$ is a two-sided inverse. Hence $\mathfrak{m}$ is the unique maximal left (and two-sided) ideal, i.e.\ $J(\Lambda(V)) = \mathfrak{m}$, and any idempotent $e \in \Lambda(V)$ satisfies $e(1 - e) = 0$; since $e \in \mathfrak{m}$ or $1 - e \in \mathfrak{m}$ cannot both hold, one of $e, 1 - e$ is a unit, forcing $e \in \{0, 1\}$.
+
+Next let $I \subseteq \Lambda(V)$ be any nonzero left ideal and pick $0 \neq y \in I$. Write $y = \sum_{J \subseteq \{1,\dots,n\}} c_J e_J$ in the ordered wedge basis $e_J = \bigwedge_{j \in J} e_j$, and choose a subset $J_0$ of \emph{minimal cardinality} $|J_0| = k$ such that $c_{J_0} \neq 0$. Set $J_0^c = \{1,\dots,n\} \setminus J_0$ of cardinality $n - k$. For every $J \subseteq \{1,\dots,n\}$ with $c_J \neq 0$:
+\begin{itemize}
+  \item if $|J| > k$, then $|J_0^c| + |J| > (n - k) + k = n$, so $e_{J_0^c} \wedge e_J = 0$;
+  \item if $|J| = k$ and $J \neq J_0$, then $J \cap J_0^c \neq \emptyset$, so $e_{J_0^c} \wedge e_J = 0$;
+  \item for $J = J_0$, $e_{J_0^c} \wedge e_{J_0} = \varepsilon \, e_{\{1,\dots,n\}}$ with $\varepsilon \in \{\pm 1\}$.
+\end{itemize}
+Therefore $(\varepsilon c_{J_0}^{-1} e_{J_0^c}) \wedge y = e_{\{1,\dots,n\}} \in I$, so $\Lambda^n(V) \subseteq I$. Since $\dim_K \Lambda^n(V) = 1$, $S_{\mathrm{top}} = \Lambda^n(V)$ is the unique minimal nonzero left ideal. Because $n \ge 1$, $2n > n$ implies $S_{\mathrm{top}}^2 \subseteq \Lambda^{2n}(V) = 0$, and $V \wedge \Lambda^n(V) \subseteq \Lambda^{n+1}(V) = 0$.
+\end{proof}
+
+\begin{remark}[General degenerate quadratic forms]
+More generally, if $\rad(B_Q) = V^\perp = \{z \in V : B_Q(z, V) = 0 \text{ and } Q(z) = 0\}$ has dimension $r \ge 1$, then $V = V_0 \perp R$ with $R = V^\perp$ ($\dim_K R = r$) and $V_0$ nondegenerate of dimension $n - r$. Any nonzero $z \in R$ anticommutes with $V$ and satisfies $z^2 = 0$, so the two-sided ideal $(R) = \Cl(V, Q) R \Cl(V, Q)$ is nilpotent ($(R)^{r+1} = 0$) and equals $J(\Cl(V, Q))$, with $\Cl(V, Q)/J(\Cl(V, Q)) \cong \Cl(V_0, Q|_{V_0})$. Every minimal nonzero left ideal $S \subseteq \Cl(V, Q)$ is annihilated on the left by $J(\Cl(V, Q))$, hence lies inside the left socle $\Lambda^r(R) \cdot \Cl(V, Q)$ where $S^2 = 0$ and $R$ acts as zero; as a module over $\Cl(V_0, Q|_{V_0})$, $S$ is a minimal left ideal of a Clifford algebra in strictly smaller dimension $n - r < n$ (so over $\mathbb{C}$, $\dim_{\mathbb{C}} S = 2^{\lfloor (n-r)/2 \rfloor} < 2^{n/2}$).
+\end{remark}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Suite}
+
+\subsection{Core Lean 4.19.0 Architecture}
+The core algebraic structures, positive split witness, and all three refutation regimes are formalized in \textbf{Core Lean~4.19.0} (\texttt{leanprover/lean4:v4.19.0}, \texttt{-DwarningAsError=true}) inside \texttt{lean/} with zero external dependencies, zero \texttt{sorry}/\texttt{admit}, zero \texttt{native\_decide}, and zero custom axioms:
+\begin{itemize}
+  \item \texttt{PolyNorm.lean}: Self-contained verified sparse multivariate polynomial normalizer over $\mathbb{Z}$ using pure structural pattern matching so polynomial identities reduce in the Lean kernel via \texttt{decide}.
+  \item \texttt{RatField.lean}: Quotient construction of the exact rational field $\mathbb{Q}$ (\texttt{RatQ}), complete field axioms, four-square anisotropy (\texttt{four\_squares\_eq\_zero}), irrationality of $\sqrt{2^{2m+1}}$ for all $m \in \mathbb{N}$ (\texttt{odd\_pow\_two\_not\_nat\_sq} and \texttt{odd\_pow\_two\_not\_rat\_sq}), and direct lifting of \texttt{PolyNorm} to \texttt{RatQ}.
+  \item \texttt{AlgebraicFramework.lean}: Unital associative $\mathbb{Q}$-algebras (\texttt{QAlgebra}), left and two-sided ideals, minimal nonzero left ideals (\texttt{IsMinimalLeftIdeal}), faithfulness, nilpotence, exact $\mathbb{Q}$-linear dimension \texttt{HasQDim} via explicit linear bijection with $\mathbb{Q}^d$, and unconditional dimension-invariance theorems (\texttt{dim\_one\_not\_dim\_two} and \texttt{dim\_four\_not\_dim\_two}).
+  \item \texttt{PositiveSplitCl11.lean}: Parametric Clifford families \texttt{Cl1} ($n = 1$) and \texttt{Cl2} ($n = 2$) proving $v^2 = Q(v)\cdot 1$, the $2\times 2$ matrix algebra \texttt{M2Q}, the explicit isomorphism $\Phi_{1,1} : \Cl_{1,1}(\mathbb{Q}) \xrightarrow{\sim} M_2(\mathbb{Q})$ (\texttt{Cl11.isoM2}), and full positive verification of $S_{1,1} = \Cl_{1,1}(\mathbb{Q}) e$: minimality, dimension $2 = 2^{2/2}$, faithfulness, complete $\{+1, -1\}$ Cartan weight spectrum, and single-column matrix carrier in $M_2(\mathbb{Q})$.
+  \item \texttt{Counterexamples.lean}: Complete classifications of \emph{all} minimal nonzero left ideals, proving the refutations in odd dimension $\Cl_{1,0}(\mathbb{Q})$ (\texttt{Cl10.refutation\_cl10}), even quaternionic signature $\Cl_{0,2}(\mathbb{Q}) \cong \mathbb{H}_{\mathbb{Q}}$ (\texttt{Cl02.refutation\_cl02}), and even degenerate signature $\Lambda(\mathbb{Q}^2)$ (\texttt{Ext2.refutation\_ext2}).
+  \item \texttt{SpinorMinimalIdeals.lean}: Root module assembling the four-part master resolution theorem (\texttt{conjecture\_00000007604\_complete\_resolution}).
+\end{itemize}
+
+\subsection{Standalone Exact Computational Verification}
+The standalone Python~3 script \texttt{verify.py} (using only \texttt{fractions.Fraction} from the standard library) independently constructs $\Cl(V, Q)$ over $\mathbb{Q}$ for diagonal forms of signature $(p, q, r)$ up to $n = 4$, verifies basis associativity on $24$ Clifford algebras, computes exact centers and Dickson trace Jacobson radicals, verifies the positive split realizations $\Cl_{1,1}$ ($\dim S = 2$) and $\Cl_{2,2}$ ($\dim S = 4$ with all $4$ joint Cartan sign weights), confirms the refutations in $\Cl_{1,0}$, $\Cl_{0,1}$, $\Cl_{2,1}$, $\Cl_{0,2} = \mathbb{H}$, $\Cl_{4,0}/\Cl_{0,4} \cong M_2(\mathbb{H})$, $\Lambda(V_1),\dots,\Lambda(V_4)$, and $\Cl(\mathrm{diag}(1,0))$, and checks all $44$ signatures $(p, q)$ with $1 \le p + q \le 8$ against the modulo-$8$ Bott periodicity classification of Theorem~\ref{thm:bott}.
+
+\begin{thebibliography}{9}
+
+\bibitem{AtiyahBottShapiro1964}
+M.~F. Atiyah, R.~Bott, and A.~Shapiro,
+\emph{Clifford modules},
+Topology \textbf{3} (1964), Suppl.~1, 3--38.
+
+\bibitem{Cartan1966}
+\'E.~Cartan,
+\emph{The Theory of Spinors},
+Hermann, Paris, 1966 (English translation of \emph{Le\c{c}ons sur la th\'eorie des spineurs}, 1938).
+
+\bibitem{Chevalley1954}
+C.~Chevalley,
+\emph{The Algebraic Theory of Spinors},
+Columbia University Press, New York, 1954.
+
+\bibitem{LawsonMichelsohn1989}
+H.~B. Lawson, Jr. and M.-L. Michelsohn,
+\emph{Spin Geometry},
+Princeton Mathematical Series, vol.~38, Princeton University Press, Princeton, NJ, 1989.
+
+\bibitem{Lounesto2001}
+P.~Lounesto,
+\emph{Clifford Algebras and Spinors}, 2nd ed.,
+London Mathematical Society Lecture Note Series, vol.~286, Cambridge University Press, Cambridge, 2001.
+
+\end{thebibliography}
+
+\end{document}
