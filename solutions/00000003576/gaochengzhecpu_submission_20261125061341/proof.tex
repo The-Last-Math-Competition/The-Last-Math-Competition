@@ -1,0 +1,100 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+
+\title{A flat connection with nonabelian tangent holonomy\\[2pt]
+  \large Disproof of Conjecture 00000003576}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+An open subset of the real Banach space $\mathbb C^3\cong\mathbb R^6$
+admits a flat tangent connection whose linear holonomy group is $S_3$.
+
+\section*{A covering and a flat connection}
+
+Let $U\subset\mathbb C^3$ be the open set of ordered triples of distinct
+points. For $z=(z_0,z_1,z_2)\in U$ define $q(z)=(a_2,a_1,a_0)$ by
+\[
+  \prod_{i=0}^2 (T-z_i)=T^3+a_2T^2+a_1T+a_0.
+\]
+The fibers of $q$ consist exactly of the triples obtained by permuting
+the three coordinates. For $h\in\mathbb C^3$, the derivative $Dq_z(h)$
+is the coefficient vector of
+\[
+ -\sum_{i=0}^2 h_i\prod_{j\ne i}(T-z_j).
+\]
+If this polynomial vanishes identically, evaluation at $T=z_i$ gives
+$h_i\prod_{j\ne i}(z_i-z_j)=0$ for each $i$. The roots are distinct, so
+$h=0$. Thus $Dq_z$ is invertible and $q$ is a local diffeomorphism. In
+particular, its image $M=q(U)$ is open in $\mathbb R^6$.
+
+Choose a small neighborhood $V$ of any $z\in U$ on which $q$ is a
+diffeomorphism onto an open set. It may be chosen so that its six
+permuted copies are disjoint, since the action is free. Because the
+fibers are permutation orbits, the inverse image of $q(V)$ is the
+disjoint union of those copies. Hence $q\colon U\to M$ is a covering
+with deck action by permutations of the coordinate blocks.
+
+Equip $U$ with the standard flat connection in its global coordinates.
+The deck transformations are restrictions of linear permutations and
+preserve this connection. In the coordinates of local inverse sheets
+of $q$, put the connection coefficients on $M$ equal to zero. Any two
+such coordinates differ locally by a constant linear permutation, so
+these local connections agree on overlaps. The resulting tangent
+connection on $M$ is flat and $q$ pulls it back to the standard one
+on $U$.
+
+\section*{Two lifted loops and their transport}
+
+Take $x=((-2,0),(0,0),(2,0))\in U$, writing each complex coordinate as
+a plane point. To interchange the first two or the last two ordered
+points, let $c=(-1,0)$ or $c=(1,0)$ be the midpoint of the selected pair.
+Replace the pair by $c+r,c-r$, keeping the third point fixed, and follow
+these two successive segments with $0\le s\le1$ on each:
+\[
+ r=(s-1,s),\qquad r=(s,1-s).
+\]
+The segments meet at $r=(0,1)$. The vector $r$ never vanishes, so the
+two moving points remain distinct. Their first coordinates lie in
+$[-2,0]$ for the first swap and $[0,2]$ for the second, whereas the
+fixed point has first coordinate $2$ or $-2$, respectively. The paths
+therefore remain in $U$. They start at $x$ and end at $g_{01}x$ and
+$g_{12}x$, where $g_{01}$ and $g_{12}$ are the respective adjacent
+coordinate transpositions. Their projections under $q$ are loops
+based at $q(x)$.
+
+Upstairs parallel transport keeps a coordinate vector $v$ fixed.
+Consequently a loop whose lift ends at $gx$ transports $Dq_x(v)$ to
+$Dq_{gx}(v)$. Differentiating $q\circ g=q$ yields
+\[
+ Dq_{gx}\circ g=Dq_x,
+ \qquad (Dq_x)^{-1}\circ Dq_{gx}=g^{-1}.
+\]
+Under the tangent identification by $Dq_x$, the two displayed loops
+act by $g_{01}$ and $g_{12}$, since transpositions are involutions. If
+$e_i$ denotes the vector with $(1,0)$ in block $i$ and zeros elsewhere,
+then
+\[
+  g_{01}g_{12}e_0=e_1,\qquad g_{12}g_{01}e_0=e_2.
+\]
+Thus the linear holonomy is nonabelian. In fact, every loop lifts to a
+path ending at a permutation of $x$, and the two displayed transport
+operators generate the faithful block action of $S_3$.
+
+\section*{Lean verification}
+
+The Lean 4 project checks both piecewise affine paths at every rational
+parameter $s/D$ with $D>0$ and $0\le s\le D$, using integer coordinate
+numerators. It verifies collision freedom, segment gluing, and the
+permuted endpoints. The formulas above establish the same claims over
+the real intervals. The theorem
+\texttt{C3576.lifted\_transports\_do\_not\_commute} checks the algebraic
+transport deduction from the derivative identity, including the explicit
+noncommuting witness. Run \texttt{lake build} in the \texttt{lean}
+directory to verify the project.
+
+\end{document}
