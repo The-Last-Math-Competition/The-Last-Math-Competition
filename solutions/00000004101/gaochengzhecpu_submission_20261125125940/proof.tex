@@ -1,0 +1,75 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+\begin{center}
+  {\Large\bfseries A tree with six-strand braid group of cohomological dimension at least three\par}
+  \smallskip
+  Disproof of Conjecture 00000004101
+\end{center}
+
+Let $\Gamma$ have the path $0-1-2-3-4-5-6$, leaves $7,8$ attached
+to $0$, leaf $9$ attached to $3$, and leaves $10,11$ attached to $6$.
+We write $P_6(\Gamma)$ and $B_6(\Gamma)$ for the fundamental groups
+of its ordered and unordered six-point configuration spaces.
+
+\section*{Acyclicity and the three essential vertices}
+
+Every nonzero vertex has exactly one neighbor of smaller index. Repeatedly
+following this neighbor reaches $0$, so the graph is connected. In a
+simple cycle, the vertex of largest index would have two distinct lower
+neighbors on that cycle. Hence there are no cycles at all and $\Gamma$ is
+a tree. Its only vertices of valence at least three are $0,3,6$, each of
+valence three. Their closed stars have vertex sets
+\[
+ \{0,1,7,8\},\qquad \{2,3,4,9\},\qquad \{5,6,10,11\},
+\]
+which are pairwise disjoint. The open stars are contractible.
+
+\section*{A rank-three subgroup}
+
+Apply Knudsen's toric subgroup construction~\cite[Proposition~3.4(1)]{knudsen}
+to $W=\{0,3,6\}$ and six particle labels, assigning the pairs $\{1,2\}$,
+$\{3,4\}$, and $\{5,6\}$ to the three vertices, respectively. This is a
+binary $W$-partition. For Knudsen's basepoint of bivalent vertices,
+subdivide the two edges $1-2$ and $4-5$ once each to obtain six distinct
+bivalent vertices. This leaves the three
+closed stars unchanged and gives homeomorphic configuration spaces.
+
+For this partition $\lambda$, Proposition~3.4(1) says that the composite
+$\delta_\lambda\circ\tau_\lambda$ is injective. Therefore the toric map
+$\tau_\lambda\colon\mathbb Z^W\to P_6(\Gamma)$ is injective. The ordered
+configuration space covers the unordered one by forgetting the labels,
+which induces an injection $P_6(\Gamma)\hookrightarrow B_6(\Gamma)$.
+Thus $B_6(\Gamma)$ has a subgroup isomorphic to $\mathbb Z^3$.
+
+Cohomological dimension cannot increase when passing to a subgroup:
+restricting a projective resolution over the larger group ring gives a
+projective resolution over the subgroup ring, since the larger group
+ring is free over the subgroup ring. The three-torus is a classifying
+space for $\mathbb Z^3$ and has nonzero third integral cohomology, so
+$\operatorname{cd}(\mathbb Z^3)=3$. Consequently
+\[
+ \operatorname{cd}\bigl(B_6(\Gamma)\bigr)\ge3.
+\]
+The graph contains no two vertex-disjoint cycles, while its six-strand
+braid group violates the asserted upper bound of two.
+
+\section*{Lean verification}
+
+The Lean 4 project checks the finite graph, proves connectivity and
+acyclicity from the unique lower neighbors, and checks the essential
+vertices, disjoint closed stars, and particle partition. From the
+explicitly stated subgroup and dimension assumptions above, it deduces
+the contradiction to the proposed dimension criterion. Run
+\texttt{lake build} in the \texttt{lean} directory to check it.
+
+\begin{thebibliography}{1}
+\bibitem{knudsen}
+B.~Knudsen, \emph{The topological complexity of pure graph braid groups is
+stably maximal}, \href{https://arxiv.org/abs/2206.06268}{arXiv:2206.06268}.
+\end{thebibliography}
+
+\end{document}
