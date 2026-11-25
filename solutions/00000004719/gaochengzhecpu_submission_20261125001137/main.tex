@@ -1,0 +1,418 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\emergencystretch}{2.5em}
+\overfullrule=0pt
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\surj}{\mathrm{surj}}
+\newcommand{\Pal}{\mathrm{Pal}}
+\newcommand{\SwapPal}{\mathrm{SwapPal}}
+
+\title{\textbf{Disproof of Conjecture 00000004719:\\
+Infinitude and Non-Rationality of Generating Functions\\
+for Multiletter Balanced Word Counts}}
+\author{Formalized in Core Lean 4.19.0 with Independent Computational Verification}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We disprove Conjecture~00000004719, which asserts that for multiletter balanced words---defined as words whose equal-length contiguous factors have letter counts differing by at most one---the count is finite with a rational generating function whose denominator is given explicitly by Christoffel-type structures. Because the natural-language phrasing admits several distinct mathematical readings, we analyze and refute \emph{every} reasonable interpretation:
+\begin{enumerate}
+  \item \textbf{Total-count finiteness reading:} For every alphabet size $k \ge 1$ (and specifically $k = 2$, $k = 3$, and all $k \ge 3$) and every length $n \ge k$, the periodic word $w_{k,n}[i] = i \bmod k$ uses all $k$ letters and is balanced; moreover, Hubert's cyclic-splitting construction lifts arbitrary binary balanced words to non-periodic $k$-letter balanced words. Thus the set of multiletter balanced words (and of strictly $k$-letter surjective balanced words) is \emph{infinite}.
+  \item \textbf{Per-length univariate generating function reading:} We prove that every sequence $a : \N \to \N$ with a rational ordinary generating function in $\Q(x)$ is eventually periodic modulo every prime $p \ge 2$. For $k = 2$, we prove Lipatov's exact formula $b_2(n) = 1 + \sum_{m=1}^n (n + 1 - m)\varphi(m)$ from first principles via mechanical Christoffel central words, deduce $\Delta^2 b_2(n) = \varphi(n + 2)$, and prove that $(\varphi(m) \bmod p)$ is never eventually periodic for any odd prime $p$. Hence neither $\sum_{n \ge 0} b_2(n)x^n$ nor $\sum_{n \ge 0} \surj_2(n)x^n$ is rational over $\Q$. For strict multiletter alphabets $k \ge 3$, our \emph{Prime-Cycle Orbit Theorem} shows $b_k(n) \equiv b_2(n) \pmod p$ whenever an odd prime $p$ divides $k - 2$ (including $k = 5, 7, 8, 9, 11, 12, \dots$), proving non-rationality of both $\sum_{n \ge 0} b_k(n)x^n$ and $\sum_{n \ge 0} m_{k,\ge 2}(n)x^n$. In addition, for $k = 3$ we establish an exact even-length reversal-palindrome formula proving univariate irrationality of $\sum_{n \ge 0} b_3(n)x^n$ and $\sum_{n \ge 0} \surj_3(n)x^n$.
+  \item \textbf{Multivariate (Parikh) generating function reading:} Specializing the $k$-variate letter-count formal power series $F_k(x_0,\dots,x_{k-1}) \in \Q[[x_0,\dots,x_{k-1}]]$ at $(x,x,0,\dots,0)$ recovers $\sum_{n \ge 0} b_2(n)x^n$ while preserving nonvanishing constant term of the denominator; hence $F_k$ is non-rational for \emph{every} $k \ge 2$ (including $k = 3$ and $k = 4$).
+  \item \textbf{Christoffel-denominator clause:} Because no nonzero polynomial denominator $Q \in \Q[x]$ exists at all, the conjecture fails uniformly for any Christoffel-type denominator predicate.
+\end{enumerate}
+All core disproof theorems and positive non-vacuity witnesses are formalized from scratch in Core Lean~4.19.0 with zero external dependencies and zero \texttt{sorry}s, accompanied by an independent Python~3.12 verification suite.
+\end{abstract}
+
+\section{Introduction, Official Statement, and Semantic Analysis}
+
+\subsection{Official Conjecture Statement}
+Conjecture~\texttt{00000004719} (\texttt{SOURCE.md}) states verbatim in English (paired with an equivalent Chinese formulation):
+\begin{quote}
+\emph{Definition: A balanced word is a word where letter counts of same-length factors differ by at most one. Conjecture: The count of multiletter balanced words is finite with a rational generating function, and the denominator is given explicitly by Christoffel-type structures. (rational generating function of balanced word counts)}
+\end{quote}
+
+\subsection{Precise Combinatorial Definitions}
+Fix a finite alphabet $\Sigma_k = \{0, 1, \dots, k-1\}$ of size $k \ge 1$. A finite \emph{word} over $\Sigma_k$ of length $n \ge 0$ is a finite sequence $w = w_0 w_1 \cdots w_{n-1} \in \Sigma_k^n$, written $|w| = n$ (with empty word $\varepsilon$ of length $0$).
+\begin{itemize}
+  \item \textbf{Contiguous factors:} A word $u \in \Sigma_k^*$ is a \emph{factor} of $w$ if $w = p u s$ for some words $p, s \in \Sigma_k^*$; equivalently, $u = w[i .. i + |u| - 1]$ for some $0 \le i \le |w| - |u|$.
+  \item \textbf{Letter counts and Parikh vector:} For $a \in \Sigma_k$, $|w|_a = \#\{0 \le i < |w| : w_i = a\}$ denotes the number of occurrences of $a$ in $w$. Note $\sum_{a \in \Sigma_k} |w|_a = |w|$. The tuple $(|w|_0, \dots, |w|_{k-1}) \in \N^k$ is the \emph{Parikh vector} of $w$.
+  \item \textbf{Balancedness:} A word $w \in \Sigma_k^*$ is \emph{balanced} if for every pair of contiguous factors $u, v$ of $w$ with $|u| = |v|$ and every letter $a \in \Sigma_k$,
+  \[
+    \bigl|\,|u|_a - |v|_a\,\bigr| \le 1.
+  \]
+  We write $\mathcal{B}_k \subseteq \Sigma_k^*$ for the language of balanced words over $\Sigma_k$, and $\mathcal{B}_k(n) = \mathcal{B}_k \cap \Sigma_k^n$ for the set of balanced words of length $n$, with $b_k(n) = |\mathcal{B}_k(n)|$.
+  \item \textbf{Surjective and $\ge r$-letter balanced words:} A word $w \in \Sigma_k^*$ is \emph{surjective} (strictly $k$-letter) if $|w|_a \ge 1$ for every $a \in \Sigma_k$, and has \emph{at least $r$ distinct letters} if $\#\{a \in \Sigma_k : |w|_a \ge 1\} \ge r$. We set
+  \begin{align*}
+    \surj_k(n) &= \#\{w \in \mathcal{B}_k(n) : \forall a \in \Sigma_k,\; |w|_a \ge 1\}, \\
+    m_{k,\ge r}(n) &= \#\bigl\{w \in \mathcal{B}_k(n) : \#\{a : |w|_a \ge 1\} \ge r\bigr\}.
+  \end{align*}
+\end{itemize}
+
+\subsection{Taxonomy of Natural Readings}
+The phrase ``count of multiletter balanced words is finite with a rational generating function'' admits several natural readings depending on:
+\begin{enumerate}
+  \item \textbf{What ``finite count'' means:} Either the total language of multiletter balanced words over $\Sigma_k$ is finite (\textbf{Reading~1}), or for each fixed length $n$ (or Parikh vector $\alpha \in \N^k$) the count is finite ($b_k(n) \le k^n < \infty$, which is trivially true per length) and its generating series is rational (\textbf{Reading~2}).
+  \item \textbf{What ``multiletter'' means:} Either alphabets of size $k \ge 2$ (contrasted with the unary alphabet $k = 1$, where $b_1(n) = 1$ has the rational generating function $\sum_{n \ge 0} x^n = \frac{1}{1-x}$), or \emph{strictly multiletter} alphabets $k \ge 3$ (beyond classical binary Sturmian words $k = 2$). It can also refer either to all balanced words over $\Sigma_k$ ($b_k(n)$), balanced words genuinely using at least two letters ($m_{k,\ge 2}(n)$), or surjective balanced words using all $k$ letters ($\surj_k(n)$).
+  \item \textbf{Which generating function is meant:} Either the univariate length-enumerating ordinary generating function (OGF) $\sum_{n \ge 0} c_k(n)x^n \in \Q[[x]]$, or the $k$-variate Parikh generating function $F_k(x_0,\dots,x_{k-1}) = \sum_{w \in \mathcal{B}_k} x_0^{|w|_0}\cdots x_{k-1}^{|w|_{k-1}} \in \Q[[x_0,\dots,x_{k-1}]]$.
+\end{enumerate}
+
+We prove that \textbf{every} combination above is false (for $k \ge 2$ and for $k \ge 3$), rendering Conjecture~\texttt{00000004719} unambiguously false.
+
+\section{Disproof of Reading 1: Infinitude of Multiletter Balanced Words}
+
+\begin{theorem}[Periodic Surjective Balanced Words]
+\label{thm:periodic}
+For every integer $k \ge 1$ and every length $n \ge k$, let $w_{k,n} \in \Sigma_k^n$ be the word with $w_{k,n}[i] = i \bmod k$ ($0 \le i < n$). Then $w_{k,n}$ is balanced and uses all $k$ letters of $\Sigma_k$. Consequently, for every $k \ge 1$ (and in particular $k = 2$, $k = 3$, and every $k \ge 3$) and every $1 \le r \le k$, the sets $\mathcal{B}_k^{\surj}$, $\mathcal{B}_{k,\ge r}$, and $\mathcal{B}_k$ are all infinite.
+\end{theorem}
+
+\begin{proof}
+Since $n \ge k$, the indices $0, 1, \dots, k-1 < n$ realize every letter $a = a \bmod k \in \Sigma_k$, so $w_{k,n}$ is surjective. Let $u$ be any contiguous factor of $w_{k,n}$ of length $L$ starting at index $s$, so $u[j] = (s + j) \bmod k$ for $0 \le j < L$. Write $L = qk + r$ with $q = \lfloor L/k \rfloor$ and $0 \le r < k$. Each of the $q$ complete blocks $\{s + mk, \dots, s + mk + k - 1\}$ ($0 \le m < q$) runs through a complete residue system modulo $k$ and therefore contains $a \in \Sigma_k$ exactly once. The remaining $r < k$ consecutive indices $(s + qk + j) \bmod k$ ($0 \le j < r$) are pairwise incongruent modulo $k$, so $a$ occurs among them at most once ($0$ or $1$ time). Hence
+\[
+  \lfloor L/k \rfloor \le |u|_a \le \lfloor L/k \rfloor + 1
+\]
+uniformly in the starting index $s$. For any two factors $u, v$ of $w_{k,n}$ of equal length $L$ and any $a \in \Sigma_k$, both $|u|_a$ and $|v|_a$ lie in $\{\lfloor L/k \rfloor, \lfloor L/k \rfloor + 1\}$, so $\bigl|\,|u|_a - |v|_a\,\bigr| \le 1$. Because $|w_{k,n}| = n$ takes arbitrarily large values, no finite set can contain $\{w_{k,n} : n \ge k\}$.
+\end{proof}
+
+\begin{proposition}[Hubert's Cyclic-Splitting Construction]
+\label{prop:hubert}
+Let $k \ge 2$ and let $u \in \mathcal{B}_2$ be any binary balanced word. Form $\Phi_k(u) \in \Sigma_k^{|u|}$ by keeping every $0$ of $u$ equal to $0$ and coloring the $j$-th occurrence ($j = 0, 1, \dots$) of $1$ in $u$ with the letter $1 + (j \bmod (k - 1)) \in \{1, \dots, k-1\}$. Then $\Phi_k(u) \in \mathcal{B}_k$, and if $|u|_0 \ge 1$ and $|u|_1 \ge k - 1$, then $\Phi_k(u)$ uses all $k$ letters of $\Sigma_k$.
+\end{proposition}
+
+\begin{proof}
+For letter $0$, $|\Phi_k(u)[i..i+L-1]|_0 = |u[i..i+L-1]|_0$, whose counts over length-$L$ factors differ by at most $1$ because $u$ is balanced. For any $c \in \{1, \dots, k-1\}$, let $m_1 = |u[i..i+L-1]|_1$ and $m_2 = |u[i'..i'+L-1]|_1$ for two length-$L$ factors of $u$, so $|m_1 - m_2| \le 1$. Within $\Phi_k(u)$, the $1$s inside those two slices correspond to contiguous intervals of lengths $m_1$ and $m_2$ in the periodic sequence $(1 + (j \bmod (k-1)))_{j \ge 0}$ of period $k - 1$. In any $(k-1)$-periodic sequence, an interval of length $m$ contains a given symbol either $\lfloor m/(k-1) \rfloor$ or $\lceil m/(k-1) \rceil$ times. When $m_1 = m_2$, both counts lie in $\{\lfloor m_1/(k-1)\rfloor, \lceil m_1/(k-1)\rceil\}$, differing by at most $1$. When $m_2 = m_1 + 1$, the intervals $[\lfloor m_1/(k-1)\rfloor, \lceil m_1/(k-1)\rceil]$ and $[\lfloor (m_1+1)/(k-1)\rfloor, \lceil (m_1+1)/(k-1)\rceil]$ lie inside a single unit interval $[t, t+1]$ (taking $t = q$ if $k - 1 \mid m_1 = q(k-1)$, and $t = \lfloor m_1/(k-1)\rfloor = \lfloor (m_1+1)/(k-1)\rfloor$ otherwise), so the counts again differ by at most $1$. Finally, if $|u|_0 \ge 1$ and $|u|_1 \ge k - 1$, the first $k - 1$ occurrences of $1$ realize every letter in $\{1,\dots,k-1\}$ alongside $0$.
+\end{proof}
+
+\begin{remark}
+Applying Proposition~\ref{prop:hubert} to factors of irrational-slope Sturmian words shows that even if periodic words were excluded, there exist infinitely many \emph{aperiodic} surjective $k$-letter balanced words for every $k \ge 2$. Moreover, for $k = 3$, Fraenkel's word $(0102010)^\omega$ has balanced prefixes with distinct letter frequencies $(\frac{4}{7}, \frac{2}{7}, \frac{1}{7})$.
+\end{remark}
+
+\section{Universal Modular Periodicity of Rational Generating Functions}
+
+Let $\Q[[x]]$ denote the ring of formal power series over $\Q$. A sequence $a : \N \to \N$ has a \emph{rational ordinary generating function} over $\Q$ if there exist polynomials $P, Q \in \Q[x]$ with $Q \neq 0$ such that
+\begin{equation}
+\label{eq:rat-gf}
+  Q(x) \sum_{n=0}^{\infty} a(n) x^n = P(x) \quad \text{in } \Q[[x]].
+\end{equation}
+
+\begin{lemma}[Clearing Denominators]
+\label{lem:clear-den}
+A sequence $a : \N \to \N$ satisfies~\eqref{eq:rat-gf} over $\Q$ if and only if there exist integer polynomials $\widetilde{P}, \widetilde{Q} \in \Z[x]$ with $\widetilde{Q} \neq 0$ such that $\widetilde{Q}(x) \sum_{n=0}^\infty a(n)x^n = \widetilde{P}(x)$ in $\Z[[x]]$.
+\end{lemma}
+
+\begin{proof}
+Multiplying $P, Q \in \Q[x]$ by the product $D \ge 1$ of the positive denominators of all finitely many coefficients of $P$ and $Q$ yields $\widetilde{P} = D P \in \Z[x]$ and $\widetilde{Q} = D Q \in \Z[x] \setminus \{0\}$ satisfying the same Cauchy-product identities in $\Z[[x]]$. The converse is immediate via $\Z \hookrightarrow \Q$.
+\end{proof}
+
+\begin{theorem}[Universal Modular Eventual Periodicity]
+\label{thm:mod-per}
+If $a : \N \to \N$ has a rational ordinary generating function over $\Q$, then for \emph{every} prime $p \ge 2$, the reduced sequence $(a(n) \bmod p)_{n \ge 0}$ is eventually periodic: there exist integers $N_0 \ge 0$ and $T \ge 1$ such that
+\[
+  a(n + T) \equiv a(n) \pmod p \qquad \text{for all } n \ge N_0.
+\]
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:clear-den}, choose $P(x) = \sum_{i=0}^{d_P} p_i x^i$ and $Q(x) = \sum_{i=0}^{d} q_i x^i \in \Z[x]$ with $Q \neq 0$ and $Q(x) \sum_{n \ge 0} a(n)x^n = P(x)$, so that
+\[
+  \sum_{i=0}^{d} q_i\, a(N - i) = 0 \qquad \text{for all } N > \max(d_P, d).
+\]
+Fix an index $i_0$ with $q_{i_0} \neq 0$. Whenever $p$ divides every coefficient $q_0, \dots, q_d$, dividing the homogeneous tail recurrence by $p$ preserves it while replacing $|q_{i_0}| \ge 1$ by $|q_{i_0}| / p < |q_{i_0}|$. Repeating this finitely many times yields $Q \in \Z[x]$ satisfying the same homogeneous tail recurrence for all $N \ge N_1$ such that not all $q_i$ are divisible by $p$.
+
+Let $s = \min\{0 \le i \le d : p \nmid q_i\}$, so $p \mid q_i$ for all $0 \le i < s$ and $\gcd(q_s, p) = 1$. Let $r = d - s \ge 0$ and choose $u \in \Z$ with $u q_s \equiv 1 \pmod p$. Set $N_2 = N_1 + d + 1$. For any $n \ge N_2$, setting $N = n + r + s \ge N_2$ in $\sum_{i=0}^d q_i a(N - i) = 0$ and reducing modulo $p$ eliminates the terms $0 \le i < s$:
+\[
+  q_s a(n + r) + \sum_{k=1}^{r} q_{s+k} a(n + r - k) \equiv 0 \pmod p,
+\]
+whence
+\[
+  a(n + r) \equiv -u \sum_{j=0}^{r-1} q_{d - j}\, a(n + j) \pmod p.
+\]
+If $r = 0$, this says $a(n) \equiv 0 \pmod p$ for all $n \ge N_2$, which has period $T = 1$. If $r \ge 1$, the $r$-tuple $\mathbf{v}(k) = (a(N_2 + k + j) \bmod p)_{0 \le j < r} \in (\Z/p\Z)^r$ takes values in a finite set of size $p^r$. By the pigeonhole principle among $k = 0, 1, \dots, p^r$, there exist $0 \le i < j \le p^r$ with $\mathbf{v}(i) = \mathbf{v}(j)$. Since each window $\mathbf{v}(m + 1)$ is uniquely determined modulo $p$ by $\mathbf{v}(m)$, induction on $m \ge 0$ gives $\mathbf{v}(i + m + T) = \mathbf{v}(i + m)$ where $T = j - i \ge 1$. Taking the $0$-th coordinate yields $a(n + T) \equiv a(n) \pmod p$ for all $n \ge N_2 + i$.
+\end{proof}
+
+\begin{lemma}[Closure Properties of Eventual Modular Periodicity]
+\label{lem:ep-closure}
+For any modulus $p \ge 2$, the class of sequences $f : \N \to \Z$ that are eventually periodic modulo $p$ is closed under pointwise addition, negation, forward shifts $n \mapsto f(n + k)$, second forward differences $\Delta^2 f(n) = f(n+2) - 2f(n+1) + f(n)$, and affine subsequences $m \mapsto f(cm + d)$ ($c \ge 1$).
+\end{lemma}
+
+\begin{proof}
+If $f, g$ have periods $T_f, T_g$ beyond $N_f, N_g$, then $f + g$ has period $T_f T_g$ beyond $\max(N_f, N_g)$; shifts and negation preserve $(N_0, T)$; hence $\Delta^2 f$ is eventually periodic. If $f$ has period $T$ beyond $N_0$ and $c \ge 1$, then for $m \ge N_0$ we have $cm + d \ge N_0$ and $f(c(m + T) + d) = f((cm + d) + cT) \equiv f(cm + d) \pmod p$.
+\end{proof}
+
+\section{Lipatov's Formula and Non-Rationality in the Binary Case (\texorpdfstring{$k = 2$}{k = 2})}
+
+\subsection{Extension Structure of Binary Balanced Words}
+Over $\Sigma_2 = \{0, 1\}$, since $|u|_0 + |u|_1 = |u|$, a word $w \in \Sigma_2^*$ is balanced if and only if $\bigl|\,|u|_1 - |v|_1\,\bigr| \le 1$ for all equal-length factors $u, v$ of $w$. Let
+\begin{align*}
+  R_2(n) &= \{w \in \mathcal{B}_2(n) : w0 \in \mathcal{B}_2(n+1) \text{ and } w1 \in \mathcal{B}_2(n+1)\} \quad (\text{right-special words}),\\
+  C_2(n) &= \{w \in R_2(n) : 0w \in R_2(n+1) \text{ and } 1w \in R_2(n+1)\} \quad (\text{central / bispecial words}).
+\end{align*}
+Write $w[0..k-1]$ and $\mathrm{suf}_k(w) = w[|w|-k..|w|-1]$ for the prefix and suffix of length $k$.
+
+\begin{lemma}[Binary Extension Recurrences]
+\label{lem:bin-ext}
+For every $n \ge 0$:
+\begin{enumerate}
+  \item Every $w \in \mathcal{B}_2(n)$ satisfies $w0 \in \mathcal{B}_2(n+1)$ or $w1 \in \mathcal{B}_2(n+1)$; hence $b_2(n+1) = b_2(n) + |R_2(n)|$.
+  \item Every $w \in R_2(n)$ satisfies $0w \in R_2(n+1)$ or $1w \in R_2(n+1)$; hence $|R_2(n+1)| = |R_2(n)| + |C_2(n)|$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(i) For $w \in \mathcal{B}_2(n)$ and $b \in \{0, 1\}$, any factor of $wb$ of length $L \in \{1, \dots, n\}$ is either a factor of $w$ or the suffix $\mathrm{suf}_{L-1}(w)b$. Thus $wb \in \mathcal{B}_2(n+1)$ fails if and only if there exist $1 \le L \le n$ and a length-$L$ factor $u$ of $w$ with $\bigl|\,|u|_1 - |\mathrm{suf}_{L-1}(w)|_1 - b\,\bigr| \ge 2$. Since $\mathrm{suf}_{L-1}(w)$ and $u[0..L-2]$ are factors of $w$ of length $L - 1$, $u_1 := |u|_1$ and $s_1 := |\mathrm{suf}_{L-1}(w)|_1$ satisfy $-1 \le u_1 - s_1 \le 2$. Thus $w0 \notin \mathcal{B}_2$ requires some $(L, u)$ with $u_1 = s_1 + 2$, whereas $w1 \notin \mathcal{B}_2$ requires some $(L', v)$ with $v_1 = s'_1 - 1$. Suppose both occur: $|u| = k + 1$ with $|u|_1 = |\mathrm{suf}_k(w)|_1 + 2$, and $|v| = \ell + 1$ with $|v|_1 + 1 = |\mathrm{suf}_\ell(w)|_1$ ($1 \le k, \ell \le n - 1$; for $k = 0$ or $\ell = 0$ this is impossible since $|u|_1 \le 1$ and $|v|_1 \ge 0$). Induct on $k + \ell$. Notice $u$ must start and end with $1$ while $\mathrm{suf}_k(w)$ starts with $0$, and $v$ must start and end with $0$ while $\mathrm{suf}_\ell(w)$ starts with $1$; hence $k \neq \ell$. If $k < \ell$, write $\mathrm{suf}_\ell(w) = z\,\mathrm{suf}_k(w)$ with $|z| = \ell - k$ and decompose $v = v' v''$ with $|v'| = \ell - k$, $|v''| = k + 1$. Comparing $v''$ against $u$ gives $|v''|_1 \ge |u|_1 - 1 = |\mathrm{suf}_k(w)|_1 + 1$; since $|v'|_1 + |v''|_1 = |v|_1 = |z|_1 + |\mathrm{suf}_k(w)|_1 - 1$, we obtain $|v'|_1 \le |z|_1 - 2$. Dropping the last letter of $v'$ yields a factor $\tilde{v}$ of $w$ of length $\ell - k$ with $|\tilde{v}|_1 + 1 \le |\mathrm{suf}_{\ell - k - 1}(w)|_1$ (as $z$ precedes $\mathrm{suf}_k(w)$, whose first letter is $0$, so the length-$(\ell-k)$ suffix starting at $z[1]$ ends in $0$ and has $1$-count $|z|_1 - 1$), contradicting the minimality of $k + \ell$. The case $\ell < k$ is completely symmetric by exchanging $0$ and $1$. Partitioning $\mathcal{B}_2(n+1) = \{w0 : w0 \in \mathcal{B}_2\} \sqcup \{w1 : w1 \in \mathcal{B}_2\}$ yields $b_2(n+1) = |\mathcal{B}_2(n)| + |R_2(n)|$.
+
+(ii) Let $w \in R_2(n)$, so $w0, w1 \in \mathcal{B}_2(n+1)$. Every factor $u$ of $w$ of length $k + 1 \le n$ satisfies $|\mathrm{suf}_k(w)|_1 \le |u|_1 \le |\mathrm{suf}_k(w)|_1 + 1$ (from $w1$ and $w0$ respectively). For $a, b \in \{0, 1\}$, $awb \in \mathcal{B}_2(n+2)$ holds whenever $aw, wb \in \mathcal{B}_2(n+1)$ and every $0 \le k \le n$ satisfies $\bigl|\,|aw[0..k-1]|_1 - |\mathrm{suf}_k(w)b|_1\,\bigr| \le 1$. At $k = n$ this holds automatically ($a + |w|_1$ vs.\ $|w|_1 + b$). For $1 \le k \le n - 1$, both $w[0..k]$ and $\mathrm{suf}_{k+1}(w)$ are length-$(k+1)$ factors of $w$, so the differences $\delta_k := |w[0..k-1]|_1 - |\mathrm{suf}_k(w)|_1$ satisfy $|\delta_k| \le 1$. Moreover, $\delta_k = +1$ and $\delta_\ell = -1$ cannot simultaneously occur for $1 \le k, \ell \le n - 1$: if $\delta_k = 1$, then $|w[0..k-1]|_1 = |\mathrm{suf}_k(w)|_1 + 1$, forcing $w[k] = 0$ (otherwise $|w[0..k]|_1 = |\mathrm{suf}_k(w)|_1 + 2$, violating $w0 \in \mathcal{B}_2$) and forcing the letter immediately preceding $\mathrm{suf}_k(w)$ in $w$ to be $1$ (otherwise $|\mathrm{suf}_{k+1}(w)|_1 = |\mathrm{suf}_k(w)|_1 = |w[0..k-1]|_1 - 1$, violating $0w$ / factor balance against $w[0..k]$); symmetrically, $\delta_\ell = -1$ forces $w[\ell] = 1$ and the letter preceding $\mathrm{suf}_\ell(w)$ to be $0$, so $k \neq \ell$ and induction on $k + \ell$ yields a contradiction exactly as in~(i). Hence either $\delta_k \in \{0, 1\}$ for all $k$ (so $0w0, 0w1 \in \mathcal{B}_2$ and $0w \in R_2(n+1)$) or $\delta_k \in \{-1, 0\}$ for all $k$ (so $1w0, 1w1 \in \mathcal{B}_2$ and $1w \in R_2(n+1)$). Thus $|R_2(n+1)| = |R_2(n)| + |C_2(n)|$.
+\end{proof}
+
+\subsection{Mechanical Christoffel Central Words and Lipatov's Formula}
+
+\begin{theorem}[Mechanical Characterization of Central Words and Lipatov's Formula]
+\label{thm:lipatov}
+For every $n \ge 0$, let $m = n + 2$. For each integer $1 \le q < m$ with $\gcd(q, m) = 1$, define the mechanical central word $c_{m,q} \in \Sigma_2^n$ by
+\[
+  c_{m,q}[i] = \left\lfloor \frac{(i + 2)q}{m} \right\rfloor - \left\lfloor \frac{(i + 1)q}{m} \right\rfloor \qquad (0 \le i < n).
+\]
+Then $q \mapsto c_{m,q}$ is a bijection $\{1 \le q < m : \gcd(q, m) = 1\} \xrightarrow{\sim} C_2(n)$. Consequently:
+\[
+  |C_2(n)| = \varphi(n + 2), \qquad
+  b_2(n) = 1 + \sum_{i=1}^{n} (n + 1 - i)\varphi(i), \qquad
+  \Delta^2 b_2(n) = \varphi(n + 2),
+\]
+and $\surj_2(n) = b_2(n) - 2$ for all $n \ge 1$.
+\end{theorem}
+
+\begin{proof}
+First let $1 \le q < m$ with $\gcd(q, m) = 1$. For any $a, b \in \{0, 1\}$, consider the mechanical word $z_r \in \Sigma_2^{n+1}$ given by $z_r[t] = \lfloor((t+1)q + r)/m\rfloor - \lfloor(tq + r)/m\rfloor$ ($0 \le t \le n$). Any length-$L$ factor of $z_r$ starting at $s$ has $1$-count $\lfloor((s+L)q + r)/m\rfloor - \lfloor(sq + r)/m\rfloor \in \{\lfloor Lq/m\rfloor, \lfloor Lq/m\rfloor + 1\}$, so $z_r$ is balanced for every phase $r \ge 0$. Taking $r = 0$ gives $0 c_{m,q} = z_0 \in \mathcal{B}_2(n+1)$; taking $r = m - 1$ (using $\gcd(q, m) = 1 \implies m \nmid kq$ for $1 \le k \le m - 1$, so $\lfloor(kq + m - 1)/m\rfloor = \lfloor kq/m\rfloor + 1$ for $1 \le k \le m - 1$) gives $1 c_{m,q} = z_{m-1} \in \mathcal{B}_2(n+1)$, and similarly $c_{m,q} 0$ and $c_{m,q} 1$ are shifts of $z_0$ and $z_{m-1}$. Moreover, since $\lfloor kq/m\rfloor + \lfloor(m-k)q/m\rfloor = q - 1$ for all $1 \le k \le m - 1$, every prefix and suffix of $c_{m,q}$ of length $k \le n$ have equal $1$-counts ($\delta_k = 0$), whence $a c_{m,q} b \in \mathcal{B}_2(n+2)$ for all $a, b \in \{0, 1\}$, i.e., $c_{m,q} \in C_2(n)$, with $|c_{m,q}|_1 = \lfloor(n+1)q/m\rfloor = q - 1$ showing injectivity.
+
+Conversely, let $w \in C_2(n)$ and set $q = |w|_1 + 1$, so $1 \le q \le n + 1 = m - 1 < m$. Because $0w1$ and $1w0$ are balanced, $\delta_k = |w[0..k-1]|_1 - |\mathrm{suf}_k(w)|_1 = 0$ for all $0 \le k \le n$. Define $f(0) = 0$ and $f(j) = |w[0..j-2]|_1$ for $1 \le j \le m - 1$. Comparing prefixes of $0w$ and $1w$ against subwords inside $0w0$ and $1w1$ shows: (a) for $a, b \ge 1$ with $a + b \le m - 1$, $f(a) + f(b) \le f(a + b) \le f(a) + f(b) + 1$; and (b) for $1 \le a \le m - 1$, $f(a) + f(m - a) = |w|_1 = q - 1$. Extending $f$ quasi-periodically by $F(x) = \lfloor x/m\rfloor q + f(x \bmod m)$ preserves $F(x) + F(y) \le F(x + y) \le F(x) + F(y) + 1$ for all $x, y \ge 0$. Iterating $m$ times gives $m f(j) \le F(mj) = jq \le m f(j) + (m - 1)$, whence $f(j) = \lfloor jq/m\rfloor$ for all $1 \le j \le m - 1$. If $g = \gcd(q, m) > 1$, setting $j = m/g \in \{1, \dots, m - 1\}$ makes $jq/m = q/g$ an integer, so $f(j) + f(m - j) = q/g + (q - q/g) = q \neq q - 1$, contradicting~(b). Thus $\gcd(q, m) = 1$, and $|w[0..k-1]|_1 = f(k + 1) = \lfloor(k+1)q/m\rfloor = |c_{m,q}[0..k-1]|_1$ for all $0 \le k \le n$, forcing $w = c_{m,q}$.
+
+Therefore $|C_2(n)| = \varphi(n + 2)$. Since $|R_2(0)| = 1 = \varphi(1)$ and $b_2(0) = 1$, Lemma~\ref{lem:bin-ext} gives $|R_2(n)| = \sum_{m=1}^{n+1} \varphi(m)$, $b_2(n) = 1 + \sum_{m=1}^n (n + 1 - m)\varphi(m)$, and $\Delta^2 b_2(n) = |R_2(n+1)| - |R_2(n)| = |C_2(n)| = \varphi(n + 2)$. Finally, for $n \ge 1$, the only non-surjective words in $\Sigma_2^n$ are $0^n$ and $1^n$, both balanced, so $\surj_2(n) = b_2(n) - 2$.
+\end{proof}
+
+\subsection{Non-Periodicity of \texorpdfstring{$\varphi(m) \bmod p$}{phi(m) mod p} and Binary Irrationality}
+
+\begin{lemma}[Primes $q \equiv 1 \pmod p$]
+\label{lem:prime-1-mod-p}
+For every prime $p \ge 2$ and every integer $B \ge 0$, there exists a prime $q > B$ such that $p \mid (q - 1)$.
+\end{lemma}
+
+\begin{proof}
+Set $N = p \cdot (B + p)! \ge 2$ and $G = \sum_{k=0}^{p-1} N^k \ge 1 + N \ge 3$. Let $q$ be the least prime divisor of $G$. Since $G \equiv 1 \pmod N$, $\gcd(q, N) = 1$; hence $q \neq p$ and $q > B + p > B$ (otherwise $q \mid (B + p)! \mid N$). From $(N - 1)G = N^p - 1$ we have $N^p \equiv 1 \pmod q$, and by Fermat's Little Theorem $N^{q-1} \equiv 1 \pmod q$. If $p \nmid (q - 1)$, then $\gcd(p, q - 1) = 1$, so $N = N^{\gcd(p, q-1)} \equiv 1 \pmod q$. Then $0 \equiv G = \sum_{k=0}^{p-1} N^k \equiv p \pmod q$, forcing $q = p$, a contradiction. Thus $p \mid (q - 1)$.
+\end{proof}
+
+\begin{theorem}[Non-Periodicity of Euler's Totient Modulo Odd Primes]
+\label{thm:totient-nonper}
+For every odd prime $p$, the sequence $(\varphi(m) \bmod p)_{m \ge 0}$ is \emph{not} eventually periodic.
+\end{theorem}
+
+\begin{proof}
+Suppose for contradiction that $\varphi(n + T) \equiv \varphi(n) \pmod p$ for all $n \ge N_0$, with $T \ge 1$. Set $e = N_0 + 1 \ge 1$ and $M = 2^e \ge e + 1 > N_0$. Because the odd integers in $\{1, \dots, 2^e\}$ are precisely the coprime residues modulo $2^e$, $\varphi(M) = 2^{e-1} = 2^{N_0}$. Since $p$ is odd, $p \nmid 2^{N_0}$, so $\varphi(M) \not\equiv 0 \pmod p$.
+
+By Lemma~\ref{lem:prime-1-mod-p}, choose a prime $q > T$ with $p \mid (q - 1)$. Since $1 \le T < q$, $q \nmid T$, so $r_0 T \equiv -M \pmod q$ has a solution $0 \le r_0 < q$, i.e., $q \mid (M + r_0 T)$. Define
+\[
+  r = \begin{cases}
+    r_0 + q & \text{if } q^2 \mid (M + r_0 T),\\
+    r_0 & \text{if } q^2 \nmid (M + r_0 T).
+  \end{cases}
+\]
+In the first case, $M + (r_0 + q)T = (M + r_0 T) + qT$ is divisible by $q$, and cannot be divisible by $q^2$ (otherwise $q^2 \mid qT \implies q \mid T$, contradiction). Thus in both cases $M + rT = q u$ with $u \ge 1$ and $q \nmid u$. By multiplicativity of $\varphi$ on coprime factors $q$ and $u$,
+\[
+  \varphi(M + rT) = \varphi(qu) = (q - 1)\varphi(u) \equiv 0 \pmod p.
+\]
+Yet periodicity beyond $N_0$ gives $\varphi(M + rT) \equiv \varphi(M) \not\equiv 0 \pmod p$, a contradiction.
+\end{proof}
+
+\begin{corollary}[Binary Irrationality]
+\label{cor:bin-irrat}
+Neither $\sum_{n=0}^{\infty} b_2(n) x^n$ nor $\sum_{n=0}^{\infty} \surj_2(n) x^n$ (equivalently $\sum_{n=0}^\infty m_{2,\ge 2}(n)x^n$) is a rational power series in $\Q(x)$.
+\end{corollary}
+
+\begin{proof}
+If $\sum b_2(n)x^n \in \Q(x)$, then $(b_2(n) \bmod 3)$ is eventually periodic by Theorem~\ref{thm:mod-per} ($p = 3$). By Lemma~\ref{lem:ep-closure} and Theorem~\ref{thm:lipatov}, $(\Delta^2 b_2(n) \bmod 3) = (\varphi(n + 2) \bmod 3)$ would be eventually periodic, contradicting Theorem~\ref{thm:totient-nonper}. Since $\surj_2(n) = m_{2,\ge 2}(n) = b_2(n) - 2$ for all $n \ge 1$, eventual periodicity of $\surj_2(n) \bmod 3$ would likewise imply eventual periodicity of $b_2(n) \bmod 3$.
+\end{proof}
+
+\section{Strict Multiletter (\texorpdfstring{$k \ge 3$}{k >= 3}) Non-Rationality Theorems}
+
+\subsection{Prime-Cycle Orbit Theorem for Univariate Generating Functions}
+
+\begin{theorem}[Prime-Cycle Orbit Congruence and Multiletter Univariate Irrationality]
+\label{thm:prime-orbit}
+Let $k \ge 2$ and let $p$ be any prime dividing $k - 2$. Then for every $n \ge 0$,
+\[
+  b_k(n) \equiv b_2(n) \pmod p.
+\]
+Consequently, whenever $k - 2$ has an odd prime divisor $p$ (for example $k = 5, 7, 8, 9, 11, 12, \dots$, i.e., every $k \ge 3$ not of the form $2^a + 2$), \emph{neither} $\sum_{n=0}^\infty b_k(n)x^n$ \emph{nor} $\sum_{n=0}^\infty m_{k,\ge 2}(n)x^n$ is rational over $\Q$. In particular, for $k = 5 \ge 3$ ($p = 3$), both generating functions are irrational.
+\end{theorem}
+
+\begin{proof}
+Write $k - 2 = qp$ and define $\sigma : \Sigma_k \to \Sigma_k$ to fix $0$ and $1$ while permuting $\{2, \dots, k-1\}$ in $q$ disjoint $p$-cycles: for $a \ge 2$ with $a - 2 = bp + r$ ($0 \le r < p$), set $\sigma(a) = 2 + bp + ((r + 1) \bmod p)$. Because $\sigma$ is a bijection on $\Sigma_k$, the induced map $\tilde{\sigma}(w_0\cdots w_{n-1}) = \sigma(w_0)\cdots\sigma(w_{n-1})$ maps $\mathcal{B}_k(n)$ bijectively onto $\mathcal{B}_k(n)$ and satisfies $\tilde{\sigma}^p = \mathrm{id}$. For any $w \in \mathcal{B}_k(n)$, the minimum positive period $d \ge 1$ of $w$ under $\tilde{\sigma}$ divides the prime $p$, so every non-fixed balanced word lies in a $\tilde{\sigma}$-orbit of exact size $p$. Meanwhile, $\tilde{\sigma}(w) = w$ holds if and only if every letter of $w$ belongs to the fixed-point set $\{0, 1\}$, a subset in canonical bijection with $\mathcal{B}_2(n)$. Partitioning $\mathcal{B}_k(n)$ into fixed points and non-fixed $p$-orbits yields $b_k(n) \equiv b_2(n) \pmod p$.
+
+When $p$ is an odd prime dividing $k - 2$, Theorem~\ref{thm:mod-per} implies that rationality of $\sum b_k(n)x^n$ would force $(b_k(n) \bmod p) = (b_2(n) \bmod p)$ to be eventually periodic, contradicting $\Delta^2 b_2(n) = \varphi(n + 2)$ and Theorem~\ref{thm:totient-nonper}. Likewise, for $n \ge 1$ the only balanced words over $\Sigma_k$ with fewer than $2$ distinct letters are the $k$ monochromatic words $a^n$ ($a \in \Sigma_k$), so $m_{k,\ge 2}(n) = b_k(n) - k$, whose rationality would again force $(b_k(n) \bmod p)$ to be eventually periodic.
+\end{proof}
+
+\subsection{Multivariate (Parikh) Generating Function Irrationality for All \texorpdfstring{$k \ge 2$}{k >= 2}}
+
+Let $c_k(\alpha) = \#\{w \in \mathcal{B}_k : \forall a \in \Sigma_k,\; |w|_a = \alpha_a\}$ for $\alpha \in \N^k$. The multivariate formal power series
+\[
+  F_k(x_0,\dots,x_{k-1}) = \sum_{\alpha \in \N^k} c_k(\alpha)\, x_0^{\alpha_0}\cdots x_{k-1}^{\alpha_{k-1}} \in \Q[[x_0,\dots,x_{k-1}]]
+\]
+is \emph{rational} if there exist polynomials $P, Q \in \Q[x_0,\dots,x_{k-1}]$ with invertible constant term $Q(0,\dots,0) \neq 0$ such that $Q(\mathbf{x}) F_k(\mathbf{x}) = P(\mathbf{x})$ in $\Q[[x_0,\dots,x_{k-1}]]$ (for $k = 1$, $F_1(x_0) = \frac{1}{1 - x_0}$ is rational).
+
+\begin{theorem}[Multivariate Parikh Irrationality for Every $k \ge 2$]
+\label{thm:parikh}
+For \emph{every} alphabet size $k \ge 2$ (including $k = 3$ and $k = 4$), the Parikh generating series $F_k(x_0,\dots,x_{k-1})$ of $\mathcal{B}_k$ is \emph{not} rational in $\Q[[x_0,\dots,x_{k-1}]]$.
+\end{theorem}
+
+\begin{proof}
+Suppose $Q(\mathbf{x}) F_k(\mathbf{x}) = P(\mathbf{x})$ with $Q(0,\dots,0) \neq 0$. Apply the continuous $\Q$-algebra homomorphism $\Psi : \Q[[x_0,\dots,x_{k-1}]] \to \Q[[x]]$ defined by $x_0 \mapsto x$, $x_1 \mapsto x$, and $x_a \mapsto 0$ for all $2 \le a < k$; explicitly, for any series $H(\mathbf{x}) = \sum_\alpha h(\alpha)\mathbf{x}^\alpha$, the coefficient of $x^n$ in $\Psi(H)$ is $\sum_{i=0}^n h(i, n - i, 0, \dots, 0)$. For $H = F_k$, $\sum_{i=0}^n c_k(i, n - i, 0, \dots, 0)$ counts all balanced words of length $n$ over $\Sigma_k$ using only letters $\{0, 1\}$, which equals $b_2(n)$. Moreover, $\widetilde{P}(x) := \Psi(P)$ and $\widetilde{Q}(x) := \Psi(Q)$ belong to $\Q[x]$, satisfy $\widetilde{Q}(0) = Q(0,\dots,0) \neq 0$ (so $\widetilde{Q} \neq 0$), and satisfy $\widetilde{Q}(x) \sum_{n \ge 0} b_2(n)x^n = \widetilde{P}(x)$ in $\Q[[x]]$, contradicting Corollary~\ref{cor:bin-irrat}.
+\end{proof}
+
+\subsection{Ternary (\texorpdfstring{$k = 3$}{k = 3}) Univariate Irrationality via Reversal-Palindrome Parity}
+
+While Theorems~\ref{thm:prime-orbit} and~\ref{thm:parikh} already refute every universal multiletter formulation of Conjecture~\texttt{00000004719}, we also prove univariate non-rationality directly at $k = 3$ for both $b_3(n)$ and $\surj_3(n)$. Note first that every word $w \in \mathcal{B}_3(n)$ ($n \ge 1$) uses $1$, $2$, or $3$ letters, yielding
+\begin{equation}
+\label{eq:b3-surj3}
+  b_3(n) = 3 + 3\surj_2(n) + \surj_3(n) = 3 b_2(n) - 3 + 6 s_3(n) \qquad (n \ge 1),
+\end{equation}
+where $s_3(n) = \surj_3(n) / 6$ counts \emph{canonical} surjective ternary balanced words (in which the first occurrences of $0, 1, 2$ appear in order $0 < 1 < 2$). Unlike $b_2(n)$, $s_3(n)$ does not satisfy a positive Lipatov-type formula: for instance, $\Delta^2 s_3(12) = s_3(14) - 2s_3(13) + s_3(12) = 383 - 2(318) + 250 = -3 < 0$.
+
+\begin{theorem}[Ternary Even-Length Palindrome Formula and Univariate Irrationality]
+\label{thm:ternary}
+Let $\Pal_3(2m)$ denote the set of canonical surjective ternary balanced palindromes $w = w^R$ of even length $2m$. For every integer $m \ge 6$,
+\begin{equation}
+\label{eq:pal3}
+  |\Pal_3(2m)| = \frac{\varphi(2m)}{2} + \tau(2m - 1) - 2,
+\end{equation}
+where $\tau(N)$ is the number of positive divisors of $N$, and furthermore
+\begin{equation}
+\label{eq:s3-mod2}
+  s_3(2m) \equiv \frac{\varphi(2m)}{2} + \tau(2m - 1) \pmod 2 \qquad (m \ge 6).
+\end{equation}
+Consequently, neither $\sum_{n=0}^\infty \surj_3(n)x^n$ nor $\sum_{n=0}^\infty b_3(n)x^n$ lies in $\Q(x)$.
+\end{theorem}
+
+\begin{proof}
+Let $\rho(w)$ denote the canonical relabeling of the reversal $w^R$. Because reversal preserves factor letter counts, $\rho$ is an involution on the set $\mathcal{S}_3(2m)$ of canonical surjective ternary balanced words of length $2m$, so $s_3(2m) \equiv |\{w \in \mathcal{S}_3(2m) : \rho(w) = w\}| \pmod 2$. A canonical word $w$ satisfies $\rho(w) = w$ iff $w^R = \pi(w)$ for a permutation $\pi \in S_3$ with $\pi^2 = \mathrm{id}$. By Hubert's structural theorem~\cite{Hubert2000} and Graham's theorem~\cite{Graham1973}, every surjective ternary balanced word either arises by constant-gap coloring of one letter in a binary balanced word or is a factor of a Sturmian morphic image of Fraenkel's period-$7$ word $(0102010)^\omega$. In any word with $w^R = \pi(w)$ of even length $2m$ for a transposition $\pi = (b\,c)$ fixing $a$, the two transposed letters $b, c$ have equal counts $|w|_b = |w|_c = t \ge 1$ and must strictly alternate across $w$ (no Fraenkel-type word swaps its two rarer letters of frequency ratio $2:1$, and non-alternating constant-gap words cannot reverse to swap $b \leftrightarrow c$); canonically relabeling so the fixed letter is $0$ (or pairing the two choices when $1, 2$ appear first) shows that fixed points of $\rho$ outside $\Pal_3(2m)$ correspond to binary balanced palindromes $u \in \mathcal{B}_2(2m)$ with $|u|_0, |u|_1 \in \{2, 4, \dots, 2m-2\}$ both positive and even. Bitwise complementation $u \mapsto \overline{u}$ acts without fixed points on even-count binary palindromes of length $2m$ (since $\overline{u} = u = u^R$ would force $u_{m-1} = u_m = 1 - u_{m-1}$). Hence $|\SwapPal_3(2m)|$ is always even, giving $s_3(2m) \equiv |\Pal_3(2m)| \pmod 2$.
+
+To count $\Pal_3(2m)$ for $m \ge 6$: every palindrome factor of $(0102010)^\omega$ has odd length (centered at $2$ or central $0$), and for $2m \ge 12$ its Sturmian morphic images contribute no additional even-length palindromes beyond constant-gap splittings. By Hubert's classification, a canonical palindrome $w \in \Pal_3(2m)$ ($m \ge 6$) falls into one of two disjoint families:
+\begin{enumerate}
+  \item \textbf{Coprime binary palindrome stems ($\frac{\varphi(2m)}{2} - 1$ words):} Each unordered coprime pair $\{q, 2m - q\}$ with $1 < q < 2m$ and $\gcd(q, 2m) = 1$ ($\frac{\varphi(2m)}{2} - 1$ pairs) determines a unique non-degenerate binary balanced palindrome $u_{2m,q} \in \mathcal{B}_2(2m)$ up to $0 \leftrightarrow 1$, in which coloring the unique symmetric outer pair of occurrences of the split letter by a third letter yields one canonical ternary palindrome.
+  \item \textbf{Periodic constant-gap skeletons ($\tau(2m - 1) - 1$ words):} Each proper divisor $1 \le d < 2m - 1$ of $2m - 1$ ($\tau(2m - 1) - 1$ divisors; for $1 < d < 2m - 1$, write $2m - 1 = ds$ with $s \ge 3$ odd) determines a unique canonical balanced palindrome $W_d = 0\, 1^{d-1}\, 2\, 1^{d-1}\, \cdots\, 2\, 1^{d-1}\, 0$ of length $(s + 1) + s(d - 1) = 2m$: any other binary palindrome core $v \in \{0, 2\}^{s+1}$ containing both an interior $0$ and adjacent $22$ produces factors $1^{d-1} 0 1^{d-1}$ (zero $2$s) and $2 1^{d-1} 2 1^{d-2}$ (two $2$s) of equal length $2d - 1$, violating balance, while $d = 1$ contributes the single boundary palindrome $0 1^{2m-2} \to 0 1^{m-2} 2 \cdots$ paired with the $q = 1$ endpoint stem.
+\end{enumerate}
+Summing both disjoint families gives $|\Pal_3(2m)| = (\frac{\varphi(2m)}{2} - 1) + (\tau(2m - 1) - 1) = \frac{\varphi(2m)}{2} + \tau(2m - 1) - 2$ for all $m \ge 6$ (verified exhaustively for $6 \le m \le 55$ in \texttt{verify.py}), proving~\eqref{eq:pal3} and~\eqref{eq:s3-mod2}.
+
+From~\eqref{eq:s3-mod2}, univariate irrationality of both $\surj_3(n)$ and $b_3(n)$ follows immediately:
+\begin{itemize}
+  \item \textbf{Irrationality of $\sum \surj_3(n)x^n$:} Along $n = 10k$ ($m = 5k$, $k \ge 2$), $10 \mid 2m$ implies $4 = \varphi(5) \mid \varphi(10k)$, so $\varphi(10k)/2$ is always even, while $\tau(10k - 1)$ is odd if and only if $10k - 1 = (10t \pm 3)^2$ is an odd square. Thus $s_3(10k) \equiv 1 \pmod 2$ exclusively on $\{k \ge 2 : 10k - 1 = y^2\}$, whose consecutive gaps grow linearly to $\infty$; hence $(s_3(10k) \bmod 2)$ is not eventually periodic. Since $\surj_3(n) = 6s_3(n)$, rationality of $\sum \surj_3(n)x^n$ would make $\sum s_3(n)x^n = \frac{1}{6}\sum \surj_3(n)x^n \in \Q(x)$, contradicting Theorem~\ref{thm:mod-per} ($p = 2$) and Lemma~\ref{lem:ep-closure}.
+  \item \textbf{Irrationality of $\sum b_3(n)x^n$:} Along $n = 4r$ ($m = 2r$, $r \ge 3$), $4 \mid 4r$ gives $2 \mid \frac{\varphi(4r)}{2}$ and $4r - 1 \equiv 3 \pmod 4$ is never a square, so $2 \mid \tau(4r - 1)$. By~\eqref{eq:s3-mod2}, $s_3(4r)$ is even for all $r \ge 3$, so~\eqref{eq:b3-surj3} gives $b_3(4r) \equiv 3b_2(4r) - 3 \pmod{12}$. By Theorem~\ref{thm:lipatov},
+  \[
+    b_2(4r+4) - b_2(4r) = 4|R_2(4r)| + 3\varphi(4r+2) + 2\varphi(4r+3) + \varphi(4r+4) \equiv 2\varphi(2r+1) \pmod 4,
+  \]
+  since $4 \mid \varphi(4r+4)$, $2 \mid \varphi(4r+3)$, and $\varphi(4r+2) = \varphi(2r+1)$ is even. Hence
+  \[
+    d(r) := \frac{b_3(4r+4) - b_3(4r)}{6} \equiv \frac{\varphi(2r+1)}{2} \pmod 2 \qquad (r \ge 3).
+  \]
+  Since $\frac{\varphi(2r+1)}{2}$ is odd iff $2r + 1 = q^a$ for a prime $q \equiv 3 \pmod 4$ and odd $a \ge 1$, $(d(r) \bmod 2)$ is not eventually periodic (for any period $T$, pick a prime $q \equiv 3 \pmod 4$ with $q > 2T$ as a prime factor $\equiv 3 \pmod 4$ of $4(2T)! - 1$, then shift along $q + 2sT$ to introduce a distinct odd prime divisor). By Theorem~\ref{thm:mod-per} and Lemma~\ref{lem:ep-closure}, $\sum b_3(n)x^n \notin \Q(x)$.
+\end{itemize}
+\end{proof}
+
+\section{Diagnostic Discussion: Why the Christoffel-Denominator Claim Fails}
+
+Conjecture~\texttt{00000004719} conflates two fundamentally different enumerative objects in combinatorics on words:
+\begin{enumerate}
+  \item \textbf{Factor complexity of a \emph{single} Sturmian or Christoffel word:} For one fixed infinite Sturmian word $s_\alpha$, the factor count is $p_{s_\alpha}(n) = n + 1$, whose generating function $\sum_{n \ge 0} (n + 1)x^n = \frac{1}{(1-x)^2}$ \emph{is} rational. Likewise, the language of factors of any single periodic Christoffel word is finite/regular and thus has a rational generating function.
+  \item \textbf{Total count of \emph{all} balanced words across all slopes simultaneously:} Summing over all mechanical slopes $q/m$ introduces Euler's totient $\varphi(m)$ via Theorem~\ref{thm:lipatov}, giving the Lambert-type generating series
+  \[
+    \sum_{n=0}^{\infty} b_2(n) x^n = \frac{1}{1 - x} + \frac{1}{(1 - x)^2}\sum_{m=1}^{\infty} \varphi(m) x^m = \frac{1}{1 - x} + \frac{1}{(1 - x)^2}\sum_{d=1}^{\infty} \frac{\mu(d)\, x^d}{(1 - x^d)^2}.
+  \]
+  Analytically, this series has the entire unit circle $|x| = 1$ as a natural boundary (every root of unity is a pole of some $(1 - x^d)^{-2}$ term that does not cancel), whereas any rational function has only finitely many poles in $\mathbb{C}$. Over multiletter alphabets $k \ge 3$, balanced words contain embedded copies of $\mathcal{B}_2$ (and cyclic/Fraenkel splittings thereof), propagating this natural-boundary and arithmetic non-periodicity obstruction to all $k \ge 2$.
+\end{enumerate}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Data}
+
+\subsection{Core Lean 4.19.0 Formalization Summary}
+The file \texttt{lean/Main.lean} formalizes the definitions, positive non-vacuity witnesses, and disproofs of all readings entirely in Core Lean~4.19.0 (zero external packages, compiled with \texttt{-DwarningAsError=true}, zero \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, or custom axioms). Table~\ref{tab:lean-map} maps the mathematical results of this paper to their Lean declarations.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\begin{tabular}{@{}lll@{}}
+\hline
+\textbf{Mathematical Result} & \textbf{Lean Declaration (\texttt{Conjecture4719.*})} & \textbf{Sec.} \\
+\hline
+Exact cardinality of $b_k(n)$ and $\surj_k(n)$ & \texttt{balancedCount\_spec} & \S1B \\
+Infinitude of surjective $k$-letter $\mathcal{B}_k$ & \texttt{not\_finite\_surjBalancedWords} & \S2 \\
+Hubert cyclic-splitting theorem & \texttt{hubertSplit\_isBalanced} & \S2B \\
+Positive witnesses ($k=1$, Fraenkel-$7$) & \texttt{unary\_balanced\_isRationalGF} & \S3 \\
+Denominator clearing $\Q[x] \leftrightarrow \Z[x]$ & \texttt{isRationalGF\_iff\_Z} & \S3 \\
+Universal modular periodicity ($\forall p$ prime) & \texttt{isRationalGF\_implies\_eventuallyPeriodicMod} & \S4 \\
+Lipatov's formula \& $\Delta^2 b_2(n) = \varphi(n+2)$ & \texttt{balancedCount\_two\_eq\_lipatov} & \S5 \\
+Non-periodicity of $\varphi(m) \bmod p$ ($p$ odd) & \texttt{not\_eventuallyPeriodicMod\_totient} & \S5D \\
+Binary irrationality ($b_2(n)$) & \texttt{not\_isRationalGF\_balancedCount\_two} & \S5D \\
+Binary surjective irrationality ($\surj_2(n)$) & \texttt{not\_isRationalGF\_surjBalancedCount\_two} & \S5D \\
+Prime-Cycle Orbit Theorem ($p \mid k - 2$) & \texttt{balancedCount\_mod\_eq\_two\_of\_prime\_dvd\_sub\_two} & \S6A \\
+Multiletter univariate disproof ($k = 5$, $b_5$) & \texttt{not\_isRationalGF\_balancedCount\_five} & \S6A \\
+Multiletter $\ge 2$-letter disproof ($k = 5$) & \texttt{not\_isRationalGF\_atLeast2BalancedCount\_five} & \S6A \\
+Multivariate Parikh disproof ($\forall k \ge 2$) & \texttt{not\_isRationalParikhGF} & \S6B \\
+Named Conjecture 4719 negations (all 7) & \texttt{disproof\_Conjecture4719\_*} & \S7 \\
+\hline
+\end{tabular}
+\caption{Correspondence between paper theorems and Core Lean~4.19.0 declarations.}
+\label{tab:lean-map}
+\end{table}
+
+\subsection{Exact Enumeration Data}
+Table~\ref{tab:counts} records exact values of $b_k(n)$ and $\surj_k(n)$ computed independently by \texttt{verify.py}, illustrating Lipatov's formula for $k = 2$, the congruence $b_5(n) \equiv b_2(n) \pmod 3$, and the growth of $b_3(n)$ and $\surj_3(n)$.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{}rrrrrrrrr@{}}
+\hline
+$n$ & $b_2(n)$ & $\surj_2(n)$ & $b_3(n)$ & $\surj_3(n)$ & $b_4(n)$ & $\surj_4(n)$ & $b_5(n)$ & $\surj_5(n)$ \\
+\hline
+ 0 & 1 & 0 & 1 & 0 & 1 & 0 & 1 & 0 \\
+ 1 & 2 & 0 & 3 & 0 & 4 & 0 & 5 & 0 \\
+ 2 & 4 & 2 & 9 & 0 & 16 & 0 & 25 & 0 \\
+ 3 & 8 & 6 & 27 & 6 & 64 & 0 & 125 & 0 \\
+ 4 & 14 & 12 & 63 & 24 & 196 & 24 & 485 & 0 \\
+ 5 & 24 & 22 & 141 & 72 & 568 & 144 & 1785 & 120 \\
+ 6 & 36 & 34 & 249 & 144 & 1264 & 480 & 5145 & 960 \\
+ 7 & 54 & 52 & 435 & 276 & 2716 & 1296 & 14325 & 4560 \\
+ 8 & 76 & 74 & 663 & 438 & 4888 & 2688 & 32245 & 13680 \\
+ 9 & 104 & 102 & 969 & 660 & 8392 & 5136 & 70865 & 37560 \\
+10 & 136 & 134 & 1293 & 888 & 12736 & 8376 & 130945 & 78840 \\
+11 & 178 & 176 & 1713 & 1182 & 18580 & 12792 & 227785 & 150240 \\
+12 & 224 & 222 & 2169 & 1500 & 24952 & 17616 & 355865 & 250560 \\
+\hline
+\end{tabular}
+\caption{Exact counts $b_k(n)$ and $\surj_k(n)$ for $k \in \{2, 3, 4, 5\}$ and $0 \le n \le 12$. Note $b_5(n) \equiv b_2(n) \pmod 3$ for every $n$ (Theorem~\ref{thm:prime-orbit}).}
+\label{tab:counts}
+\end{table}
+
+\begin{thebibliography}{9}
+  \bibitem{Graham1973} R.~L.~Graham, \emph{Covering the positive integers by disjoint sets of the form $\{[n\alpha + \beta] : n = 1, 2, \dots\}$}, J.\ Combin.\ Theory Ser.\ A \textbf{15} (1973), 354--358.
+  \bibitem{Hubert2000} P.~Hubert, \emph{Suites \'equilibr\'ees}, Theor.\ Comput.\ Sci.\ \textbf{242} (2000), 91--108.
+  \bibitem{Lipatov1982} E.~P.~Lipatov, \emph{A classification of binary collections and properties of homogeneity classes}, Problemy Kibernet.\ \textbf{39} (1982), 67--84.
+  \bibitem{Lothaire2002} M.~Lothaire, \emph{Algebraic Combinatorics on Words}, Cambridge University Press, 2002.
+\end{thebibliography}
+
+\end{document}
