@@ -1,0 +1,669 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{color}
+\usepackage{hyperref}
+
+\definecolor{linkblue}{rgb}{0,0,0.55}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=linkblue,
+  citecolor=linkblue,
+  urlcolor=linkblue
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\NC}{\operatorname{NC}}
+\newcommand{\Sym}{\mathfrak{S}}
+
+\title{\textbf{A Complete Disproof of Conjecture 00000004768:\\
+Prime-Factor Obstructions to Hook-Length Product Formulas\\
+for Linear Extensions of Noncrossing Partition Lattices}}
+\author{Formalized Submission for Conjecture 00000004768}
+\date{November 24, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture~00000004768 asserts that the number of linear extensions $e(\NC_n)$ of the
+noncrossing partition lattice $\NC_n$ ordered by refinement is given by an explicit
+hook-length type product whose denominator is the product of block sizes, and that the
+count is computable in polynomial time. We disprove this conjecture unconditionally.
+While the literal block-size hook-length formula $|{\NC_n}|! / D_n$ with
+$D_n = \prod_{\pi \in \NC_n} \prod_{B \in \pi} |B|$ holds for $n = 1$ ($1!/1 = 1$) and
+$n = 2$ ($2!/2 = 1$), it already fails at $n = 3$, where $|\NC_3| = 5$, $D_3 = 24$, and
+$|\NC_3|!/D_3 = 5 \ne 6 = e(\NC_3)$. More fundamentally, at $n = 4$ ($|\NC_4| = C_4 = 14$),
+we give both a self-contained pencil-and-paper proof via a bipartite telescoping
+neighborhood identity and an exact order-ideal recurrence proof that
+\[
+  e(\NC_4) = 1{,}399{,}200 = 2^5 \cdot 3 \cdot 5^2 \cdot 11 \cdot 53.
+\]
+Because $53$ is prime and $53 > 14 = |\NC_4|$, $e(\NC_4)$ does not divide $|\NC_4|!$
+(nor $(|\NC_4|-2)! = 12!$, nor $m!$ for any $m < 53$). Consequently, $\NC_4$ admits
+\emph{no} integer-valued poset hook-length product formula
+$|\NC_4|! = e(\NC_4) \prod_{\pi \in \NC_4} h(\pi)$ for any function
+$h : \NC_4 \to \mathbb{Z}_{\ge 1}$ whatsoever, and no rational quotient
+$(\prod_i a_i)/D_4$ whose numerator factors are positive integers bounded by $52$ (in
+particular bounded by $|\NC_4| = 14$, $n = 4$, $2n = 8$, $n^2 = 16$, $2^n = 16$, or
+$|\NC_5| = 42$) can equal $e(\NC_4)$. We also show that the analogous claims fail for
+the unrestricted partition lattice $\Pi_n$. Every definition, lattice axiom, non-vacuity
+witness, DP enumeration, and impossibility theorem is formalized from first principles
+in Core Lean~4.19.0 without \texttt{sorry}, \texttt{native\_decide}, or external
+dependencies.
+\end{abstract}
+
+\section{Official Problem Statement and Overview}
+
+The official bilingual statement of Conjecture~00000004768 (reproduced byte-for-byte in
+\texttt{SOURCE.md}) reads as follows.
+
+\begin{quote}
+\textbf{English.} Definition: The noncrossing lattice is the poset lattice of partitions
+under refinement. Conjecture: Its linear extension count is an explicit hook-length type
+product, the denominator is the product of block sizes, and the count is computable in
+polynomial time. (hook-length product of NC linear extensions)
+\end{quote}
+
+The accompanying Chinese text states the identical definition and three-part claim:
+defining the noncrossing lattice as the refinement poset lattice of partitions, and
+conjecturing that its linear extension count is an explicit hook-length type product
+with block-size product denominator and is computable in polynomial time.
+
+\subsection*{Mathematical Context and Diagnosis of the Failure}
+
+For $n \ge 1$, the \emph{noncrossing partition lattice} $\NC_n$, introduced by
+Kreweras~\cite{Kreweras1972} (see also Edelman~\cite{Edelman1980}, Simion~\cite{Simion2000},
+and Stanley~\cite{StanleyEC1}), consists of all set partitions of $[n] := \{1, \dots, n\}$
+having no crossing blocks $a < b < c < d$ ($a, c \in A$, $b, d \in B$, $A \ne B$),
+ordered by block refinement. Its cardinality is the Catalan number
+$|\NC_n| = C_n = \frac{1}{n+1}\binom{2n}{n}$.
+
+In enumerative combinatorics, two classical product formulas are well known in adjacent
+settings, explaining how such a conjecture might plausibly arise:
+\begin{enumerate}
+  \item \textbf{Maximal chains of $\NC_n$ vs.\ linear extensions of $\NC_n$:}
+  Edelman~\cite{Edelman1980} proved that the number of \emph{maximal chains} from
+  $\hat{0}$ to $\hat{1}$ in $\NC_n$ equals $n^{n-2}$ (a clean product computable in
+  polynomial time). However, a maximal chain of $\NC_n$ has length $n - 1$, whereas a
+  \emph{linear extension} of $\NC_n$ is a total order of all $C_n$ elements of $\NC_n$
+  compatible with refinement.
+  \item \textbf{Coincidental agreement at $n = 1$ and $n = 2$:}
+  In classical poset hook-length formulas---such as the Frame--Robinson--Thrall formula
+  for Young diagrams~\cite{FRT1954}, Knuth's subtree hook formula for rooted forests, and
+  Proctor's $d$-complete poset formulas---a finite poset $P$ of size $N = |P|$ satisfies
+  $e(P) = N! / \prod_{x \in P} h(x)$ for positive integers $h(x)$. Let
+  \[
+    D_n := \prod_{\pi \in \NC_n} \prod_{B \in \pi} |B|
+  \]
+  denote the product of all block sizes across $\NC_n$. For $n = 1$ ($|\NC_1| = 1$,
+  $D_1 = 1$, $e(\NC_1) = 1$) and $n = 2$ ($|\NC_2| = 2$, $D_2 = (1 \cdot 1) \cdot 2 = 2$,
+  $e(\NC_2) = 1$), the formula $|\NC_n|! / D_n$ actually equals $e(\NC_n)$!
+\end{enumerate}
+
+Despite holding at $n = 1$ and $n = 2$, the conjecture breaks down completely for $n \ge 3$:
+\begin{itemize}
+  \item \textbf{Direct failure of the block-size denominator at $n = 3$:}
+  We have $|\NC_3| = 5$ (the modular diamond $M_3$), $e(\NC_3) = 3! = 6$, and
+  $D_3 = 1 \cdot 2 \cdot 2 \cdot 2 \cdot 3 = 24$, giving $|\NC_3|! / D_3 = 120 / 24 = 5 \ne 6$.
+  \item \textbf{Irreparable prime-factor obstruction at $n = 4$:}
+  We have $|\NC_4| = 14$, $D_4 = 2^{12} \cdot 3^4 = 331{,}776$, and
+  \[
+    e(\NC_4) = 1{,}399{,}200 = 2^5 \cdot 3 \cdot 5^2 \cdot 11 \cdot 53.
+  \]
+  Because the prime $53$ divides $e(\NC_4)$ while $53 > 14 = |\NC_4|$, $e(\NC_4)$ does
+  not divide $14!$ (nor $12! = (|\NC_4|-2)!$, nor $m!$ for any $m < 53$). This rules out
+  \emph{every} integer hook-length formula $|\NC_4|! = e(\NC_4) \prod_{\pi \in \NC_4} h(\pi)$
+  irrespective of the choice of integer hooks $h(\pi)$, as well as every rational quotient
+  $(\prod_i a_i) / D_4$ with positive integer numerator factors $a_i < 53$.
+  \item \textbf{Super-Catalan prime explosion at $n = 5$:}
+  At $n = 5$ ($|\NC_5| = 42$), exact dynamic programming over the $2{,}342{,}194$ lower
+  sets of $\NC_5 \setminus \{\hat{0}, \hat{1}\}$ yields a $35$-digit integer
+  $e(\NC_5)$ divisible by both a $10$-digit prime ($5{,}273{,}727{,}821$) and a $20$-digit
+  prime ($71{,}064{,}201{,}736{,}056{,}904{,}919$).
+  \item \textbf{Failure on the full partition lattice $\Pi_n$:}
+  Even if the informal wording ``the poset lattice of partitions under refinement'' were
+  interpreted as the full Bell-number partition lattice $\Pi_n$ ($|\Pi_n| = B_n$), we have
+  $\Pi_3 = \NC_3$ (already failing at $n = 3$). Moreover, at $n = 4$ ($|\Pi_4| = 15$),
+  we obtain $e(\Pi_4) = 10{,}368{,}000 = 2^{10} \cdot 3^4 \cdot 5^3$ and
+  $D(\Pi_4) = 1{,}327{,}104$, so $15! \ne e(\Pi_4) D(\Pi_4)$ and $e(\Pi_4)$ fails to divide
+  $(|\Pi_4|-2)! = 13!$ since $5^3 \mid e(\Pi_4)$ while $v_5(13!) = 2$.
+\end{itemize}
+
+Crucially, because Conjecture~00000004768 is a universal conjunction asserting both an
+explicit hook-length / block-size product formula and polynomial-time computability,
+disproving the product-formula clauses refutes the conjecture \emph{unconditionally}---with
+zero reliance on unproven complexity-theoretic hypotheses such as $\mathrm{\#P} \not\subseteq
+\mathrm{FP}$ (cf.\ Remark~\ref{rem:complexity}).
+
+\section{Combinatorial and Order-Theoretic Preliminaries}
+
+\begin{definition}[Set Partitions, Noncrossing Partitions, and Refinement]\label{def:nc}
+For $n \in \mathbb{N}$, let $[n] := \{0, 1, \dots, n-1\}$ (written $\{1, \dots, n\}$ in
+$1$-indexed notation in examples). A \emph{set partition} of $[n]$ is a collection $\pi$
+of nonempty, pairwise disjoint subsets $B \subseteq [n]$ (called \emph{blocks}) whose
+union is $[n]$. We write $x \sim_\pi y$ when $x$ and $y$ lie in the same block of $\pi$.
+
+A set partition $\pi \in \Pi_n$ is \emph{noncrossing} if for all $a, b, c, d \in [n]$
+with $a < b < c < d$,
+\begin{equation}\label{eq:nc}
+  (a \sim_\pi c \;\land\; b \sim_\pi d) \implies a \sim_\pi b.
+\end{equation}
+Equivalently, $\pi$ has no two distinct blocks $A \ne B$ with $a, c \in A$ and
+$b, d \in B$ for $a < b < c < d$. Let $\NC_n \subseteq \Pi_n$ denote the set of all
+noncrossing partitions of $[n]$.
+
+For $\pi_1, \pi_2 \in \Pi_n$, we say that $\pi_1$ \emph{refines} $\pi_2$, written
+$\pi_1 \preceq \pi_2$, if every block $B_1 \in \pi_1$ is contained in some block
+$B_2 \in \pi_2$ (equivalently, $\forall x, y \in [n],\; x \sim_{\pi_1} y \implies
+x \sim_{\pi_2} y$).
+\end{definition}
+
+\begin{proposition}[Lattice Structure of $\Pi_n$ and $\NC_n$]\label{prop:lattice}
+For every $n \in \mathbb{N}$, both $(\Pi_n, \preceq)$ and $(\NC_n, \preceq)$ are finite
+bounded lattices:
+\begin{enumerate}
+  \item Relation refinement $\preceq$ is reflexive, transitive, and antisymmetric.
+  \item For $\pi_1, \pi_2 \in \Pi_n$, the partition $\pi_1 \wedge \pi_2$ defined by
+  $x \sim_{\pi_1 \wedge \pi_2} y \iff (x \sim_{\pi_1} y \land x \sim_{\pi_2} y)$ is the
+  greatest lower bound of $\pi_1$ and $\pi_2$ in $\Pi_n$. Moreover, if $\pi_1, \pi_2 \in
+  \NC_n$, then $\pi_1 \wedge \pi_2 \in \NC_n$, so $\NC_n$ inherits the exact meet of
+  $\Pi_n$.
+  \item The single-block partition $\hat{1}_n$ ($x \sim_{\hat{1}_n} y$ for all $x, y$,
+  or $\emptyset$ when $n = 0$) lies in $\NC_n$ and satisfies $\pi \preceq \hat{1}_n$ for
+  all $\pi$. Because $\Pi_n$ and $\NC_n$ are finite, have $\hat{1}_n$, and admit all
+  binary meets, every pair $\pi_1, \pi_2$ possesses a least upper bound given by the
+  meet of all upper bounds:
+  \[
+    \pi_1 \vee_{\NC_n} \pi_2
+    = \bigwedge \{\tau \in \NC_n : \pi_1 \preceq \tau \;\text{and}\; \pi_2 \preceq \tau\}.
+  \]
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Reflexivity and transitivity of $\preceq$ are immediate from implication on
+$\sim_\pi$; antisymmetry holds because two equivalence relations on $[n]$ with mutual
+implication have identical equivalence classes and hence identical blocks.
+
+If $\pi_1, \pi_2 \in \NC_n$ and $a < b < c < d$ satisfy $a \sim_{\pi_1 \wedge \pi_2} c$
+and $b \sim_{\pi_1 \wedge \pi_2} d$, then $a \sim_{\pi_i} c$ and $b \sim_{\pi_i} d$ for
+$i \in \{1, 2\}$. By~\eqref{eq:nc} applied to $\pi_1$ and $\pi_2$, $a \sim_{\pi_1} b$ and
+$a \sim_{\pi_2} b$, so $a \sim_{\pi_1 \wedge \pi_2} b$. Thus $\pi_1 \wedge \pi_2 \in
+\NC_n$. For $\hat{1}_n$, condition~\eqref{eq:nc} holds trivially since $a \sim_{\hat{1}_n}
+b$ is always true. Finally, for any $\pi_1, \pi_2 \in \NC_n$, the finite set $U(\pi_1,
+\pi_2) = \{\tau \in \NC_n : \pi_1 \preceq \tau \land \pi_2 \preceq \tau\}$ is nonempty
+(it contains $\hat{1}_n$); its finite meet $s := \bigwedge_{\tau \in U(\pi_1, \pi_2)}
+\tau \in \NC_n$ satisfies $\pi_1 \preceq s$ and $\pi_2 \preceq s$ because both $\pi_1$
+and $\pi_2$ lie below every factor $\tau$, and satisfies $s \preceq \sigma$ for every
+upper bound $\sigma \in U(\pi_1, \pi_2)$ by projection onto the factor $\sigma$. (Note
+that for $n \ge 4$, $\vee_{\NC_n}$ differs from $\vee_{\Pi_n}$: in $\NC_4$,
+$\{13|2|4\} \vee_{\Pi_4} \{1|24|3\} = \{13|24\} \notin \NC_4$, whereas
+$\{13|2|4\} \vee_{\NC_4} \{1|24|3\} = \{1234\} = \hat{1}_4$.)
+\end{proof}
+
+\begin{definition}[Linear Extensions and Hook-Length Products]\label{def:linext}
+Let $(P, \preceq)$ be a finite poset of cardinality $N = |P|$. A \emph{linear extension}
+of $P$ is a duplicate-free exhaustive sequence $(x_0, x_1, \dots, x_{N-1})$ of the
+elements of $P$ such that $x_i \preceq x_j \implies i \le j$ for all $0 \le i, j < N$
+(equivalently, a bijection $f : P \to \{0, \dots, N-1\}$ satisfying $x \preceq y \implies
+f(x) \le f(y)$). The number of linear extensions of $P$ is denoted $e(P)$.
+
+A poset $P$ admits an \emph{integer hook-length product formula} if there exist positive
+integers $h(x) \in \mathbb{Z}_{\ge 1}$ ($x \in P$) such that
+\begin{equation}\label{eq:hook}
+  |P|! = e(P) \cdot \prod_{x \in P} h(x).
+\end{equation}
+For $\NC_n$, the \emph{block-size product} is defined by
+\begin{equation}\label{eq:dn}
+  D_n := \prod_{\pi \in \NC_n} \prod_{B \in \pi} |B|.
+\end{equation}
+\end{definition}
+
+\section{Exact Hand-Verifiable Determination of \texorpdfstring{$e(\NC_4) = 1{,}399{,}200$}{e(NC4) = 1,399,200}}
+
+To make our disproof completely transparent without relying on opaque black-box search,
+we establish $e(\NC_4) = 1{,}399{,}200$ by two independent routes: first, a completely
+elementary pencil-and-paper derivation exploiting the bipartite height-$2$ structure and
+dihedral $D_4$ symmetry of $\NC_4 \setminus \{\hat{0}, \hat{1}\}$; and second, Birkhoff's
+order-ideal dynamic programming recurrence over $J(\NC_4)$ (certified in the Lean~4
+kernel in \texttt{Main.lean}).
+
+\subsection{A Telescoping Formula for Height-2 Bipartite Posets}
+
+\begin{lemma}[Bipartite Telescoping Identity]\label{lem:bipartite}
+Let $Q = A \sqcup B$ be a finite poset partitioned into minimal elements $A$ and maximal
+elements $B$ (so $x \prec y$ in $Q$ implies $x \in A$ and $y \in B$). Assume that every
+$a \in A$ has at least one upper bound in $B$. For each subset $X \subseteq B$, let
+$N(X) := \{a \in A : \exists b \in X,\, a \prec b\}$ be its lower neighborhood in $A$.
+Then
+\begin{equation}\label{eq:bipartite}
+  e(Q) = \sum_{\sigma \in \Sym_B}
+  \frac{(|A| + |B|)!}{\prod_{j=1}^{|B|} \bigl(j + |N(\{\sigma(1), \dots, \sigma(j)\})|\bigr)},
+\end{equation}
+where $\Sym_B$ is the set of all $|B|!$ bijections $\sigma : \{1, \dots, |B|\} \to B$.
+\end{lemma}
+
+\begin{proof}
+Every linear extension $L$ of $Q$ restricts on $B$ to a unique total order
+$b_1 \prec_L b_2 \prec_L \dots \prec_L b_r$, where $r = |B|$ and $b_j = \sigma(j)$ for a
+unique $\sigma \in \Sym_B$. Fix $\sigma \in \Sym_B$. Since no two elements of $A$ are
+comparable and no element of $B$ lies below any element of $A$, an ordering $L$ of
+$A \sqcup B$ inducing $b_1 \prec_L \dots \prec_L b_r$ is a linear extension of $Q$ if and
+only if every $a \in A$ precedes all elements of $U(a) := \{b \in B : a \prec b\}$, which
+holds if and only if $a$ precedes the \emph{$\sigma$-earliest} element of $U(a)$.
+
+Partition $A = A_1 \sqcup \dots \sqcup A_r$ by letting $A_j$ be the set of $a \in A$
+whose earliest upper bound in $(b_1, \dots, b_r)$ is $b_j$ (well defined since $U(a) \ne
+\emptyset$). Set $c_j := |A_j|$ and $S_j := \sum_{i=1}^j c_i$. Observe that
+$a \in A_1 \sqcup \dots \sqcup A_j \iff U(a) \cap \{b_1, \dots, b_j\} \ne \emptyset \iff
+a \in N(\{b_1, \dots, b_j\})$, so $S_j = |N(\{b_1, \dots, b_j\})|$ and $S_r = |A|$.
+
+For each $1 \le j \le r$, let $Q_{\le j} := \{b_1, \dots, b_j\} \cup \bigcup_{i=1}^j A_i$
+(of size $j + S_j$). In any valid total order of $Q_{\le j}$ respecting $b_1 \prec_L
+\dots \prec_L b_j$ and $A_i \prec_L b_i$ ($1 \le i \le j$), the element $b_j$ \emph{must
+appear last}, because $b_i \prec_L b_j$ for all $i < j$ and $a \prec_L b_i \preceq_L b_j$
+for all $a \in A_i$ ($i \le j$). Conversely, once $b_j$ is placed last in $Q_{\le j}$,
+the condition $A_j \prec_L b_j$ is automatically satisfied and the $c_j$ elements of
+$A_j$ have no remaining order constraints with $Q_{\le j-1}$ (which has size
+$j - 1 + S_{j-1}$). Interleaving $c_j$ unconstrained elements into a sequence of length
+$j - 1 + S_{j-1}$ can be done in $\frac{(j - 1 + S_{j-1} + c_j)!}{(j - 1 + S_{j-1})!} =
+\frac{(j - 1 + S_j)!}{(j - 1 + S_{j-1})!}$ ways (with $c_1! = \frac{S_1!}{0!}$ at $j = 1$).
+Multiplying over $j = 1, \dots, r$ yields a telescoping product:
+\[
+  \prod_{j=1}^r \frac{(j - 1 + S_j)!}{(j - 1 + S_{j-1})!}
+  = \frac{(r - 1 + S_r)!}{\prod_{j=1}^{r-1} (j + S_j)}
+  = \frac{(r + S_r)!}{\prod_{j=1}^r (j + S_j)}
+  = \frac{(|A| + |B|)!}{\prod_{j=1}^{|B|} (j + S_j)},
+\]
+since $S_r = |A|$. Summing over all $\sigma \in \Sym_B$ gives~\eqref{eq:bipartite}.
+\end{proof}
+
+\subsection{Explicit Evaluation for \texorpdfstring{$\NC_4$}{NC4}}
+
+\begin{theorem}\label{thm:nc4}
+We have $|\NC_1| = 1$ with $e(\NC_1) = 1$, $|\NC_2| = 2$ with $e(\NC_2) = 1$,
+$|\NC_3| = 5$ with $e(\NC_3) = 6$, and $|\NC_4| = 14$ with
+\[
+  e(\NC_4) = 1{,}399{,}200 = 2^5 \cdot 3 \cdot 5^2 \cdot 11 \cdot 53.
+\]
+\end{theorem}
+
+\begin{proof}
+For $n = 1$, $\NC_1 = \{\{1\}\}$ has $1$ linear extension. For $n = 2$,
+$\NC_2 = \{\{1|2\} \prec \{12\}\}$ is a $2$-element chain with $1$ linear extension.
+For $n = 3$, every partition of $\{1, 2, 3\}$ is noncrossing (crossing requires $4$
+elements), so $\NC_3 = \Pi_3$ consists of $\hat{0} = \{1|2|3\}$, $\hat{1} = \{123\}$, and
+three pairwise incomparable atoms $\{12|3\}, \{13|2\}, \{23|1\}$; since $\hat{0}$ must
+come first and $\hat{1}$ last, $e(\NC_3) = 3! = 6$.
+
+Now let $n = 4$. Among the $B_4 = 15$ set partitions of $\{1, 2, 3, 4\}$, the \emph{only}
+crossing partition is $\{13|24\}$ ($1 < 2 < 3 < 4$), so $|\NC_4| = 15 - 1 = 14 = C_4$.
+Every linear extension of $\NC_4$ places $\hat{0} = \{1|2|3|4\}$ first and
+$\hat{1} = \{1234\}$ last, so $e(\NC_4) = e(Q_4)$, where $Q_4 := \NC_4 \setminus
+\{\hat{0}, \hat{1}\}$ has $12$ elements partitioned into $6$ minimal elements (atoms $A$,
+with $3$ blocks of sizes $2,1,1$) and $6$ maximal elements (coatoms $B$, with $2$ blocks):
+\begin{align*}
+  A &= \bigl\{\, s_{12}=\{12|3|4\},\; s_{23}=\{1|23|4\},\;
+                 s_{34}=\{1|2|34\},\; s_{14}=\{14|2|3\}, \\
+    &\phantom{=\bigl\{\,\;} d_{13}=\{13|2|4\},\; d_{24}=\{1|24|3\} \,\bigr\}, \\
+  B &= \bigl\{\, t_{123}=\{123|4\},\; t_{234}=\{1|234\},\;
+                 t_{134}=\{134|2\},\; t_{124}=\{124|3\}, \\
+    &\phantom{=\bigl\{\,\;} p_1=\{12|34\},\; p_2=\{14|23\} \,\bigr\}.
+\end{align*}
+Each atom $a \in A$ can be identified with its $2$-element block (an edge or diagonal of
+the $4$-cycle $(1,2,3,4)$). The lower neighborhoods $N(b) \subseteq A$ for $b \in B$ are:
+\begin{align*}
+  N(t_{123}) &= \{s_{12}, s_{23}, d_{13}\}, &
+  N(t_{234}) &= \{s_{23}, s_{34}, d_{24}\}, \\
+  N(t_{134}) &= \{s_{34}, s_{14}, d_{13}\}, &
+  N(t_{124}) &= \{s_{12}, s_{14}, d_{24}\}, \\
+  N(p_1)     &= \{s_{12}, s_{34}\}, &
+  N(p_2)     &= \{s_{23}, s_{14}\}.
+\end{align*}
+Notice that:
+\begin{itemize}
+  \item $N(p_1)$ and $N(p_2)$ partition the $4$ side atoms $\{s_{12}, s_{23}, s_{34},
+  s_{14}\}$ into two disjoint pairs of size $2$, and contain neither diagonal ($d_{13},
+  d_{24}$).
+  \item The four $3$-block coatoms split into two opposite pairs
+  $T_{\mathrm{odd}} = \{t_{123}, t_{134}\}$ (sharing $d_{13}$ and covering all $4$ sides:
+  $|N(t_{123}) \cup N(t_{134})| = 5$, omitting only $d_{24}$) and
+  $T_{\mathrm{even}} = \{t_{234}, t_{124}\}$ (sharing $d_{24}$ and covering all $4$ sides:
+  $|N(t_{234}) \cup N(t_{124})| = 5$, omitting only $d_{13}$).
+  \item Any $t \in T_{\mathrm{odd}}$ and $t' \in T_{\mathrm{even}}$ share exactly one side
+  atom, so $|N(t) \cup N(t')| = 3 + 3 - 1 = 5$ (covering both diagonals and $3$ of the
+  $4$ sides).
+  \item Each $t \in T := T_{\mathrm{odd}} \cup T_{\mathrm{even}}$ shares one side atom
+  with $p_1$ and one side atom with $p_2$, so $|N(t) \cup N(p_k)| = 3 + 2 - 1 = 4$ for
+  $k \in \{1, 2\}$.
+  \item Since every atom has $|U(a)| \ge 2$ (specifically, $|U(s_{ij})| = 3$ and
+  $|U(d_{ik})| = 2$), any $5$ coatoms cover all $6$ atoms ($S_5 = S_6 = 6$ for every
+  $\sigma \in \Sym_B$).
+\end{itemize}
+
+We classify all $6! = 720$ permutations $\sigma = (b_1, \dots, b_6) \in \Sym_B$ by
+their neighborhood-size profile $(S_1, S_2, S_3, S_4, S_5, S_6)$:
+
+\medskip
+\noindent\textbf{Case I: $b_1 \in \{p_1, p_2\}$ ($2$ choices for $b_1$; $S_1 = 2$).}
+Let $p'$ denote the other $2+2$ coatom.
+\begin{enumerate}
+  \item \emph{Subcase I.a: $b_2 = p'$ ($1$ choice; $N(\{b_1,b_2\}) = \{s_{12},s_{23},
+  s_{34},s_{14}\}$, so $S_2 = 4$).}
+  Then $b_3 \in T$ ($4$ choices) adds one diagonal, giving $S_3 = 5$. Of the $3$ remaining
+  elements of $T$, the $1$ element in the same diagonal-pair as $b_3$ leaves $S_4 = 5$
+  (followed by $2! = 2$ choices for $(b_5, b_6)$, giving $2 \cdot 1 \cdot 4 \cdot 1 \cdot
+  2 = 16$ permutations with profile $(2,4,5,5,6,6)$), while the $2$ elements in the
+  opposite diagonal-pair add the second diagonal, giving $S_4 = 6$ ($2 \cdot 1 \cdot 4
+  \cdot 2 \cdot 2 = 32$ permutations with profile $(2,4,5,6,6,6)$).
+
+  \item \emph{Subcase I.b: $b_2 \in T$ ($4$ choices; $|N(b_1) \cup N(b_2)| = 4$, omitting
+  one side atom $s^*$ and one diagonal $d^*$, so $S_2 = 4$).}
+  Among the $4$ remaining coatoms ($p'$ plus $3$ elements of $T$):
+  \begin{itemize}
+    \item $p'$ adds $s^*$ (giving $S_3 = 5$, still missing $d^*$), and the partner
+    $t_{\mathrm{same}}$ of $b_2$ also adds $s^*$ without $d^*$ ($S_3 = 5$): that is $2$
+    choices for $b_3$ with $S_3 = 5$ and missing only $d^*$. Among the $3$ remaining
+    coatoms, $1$ choice (whichever of $\{p', t_{\mathrm{same}}\}$ was not $b_3$) still
+    omits $d^*$ ($S_4 = 5$, giving $2 \cdot 4 \cdot 2 \cdot 1 \cdot 2! = 32$ permutations
+    with $(2,4,5,5,6,6)$), while $2$ choices (the opposite pair in $T$) supply $d^*$
+    ($S_4 = 6$, giving $2 \cdot 4 \cdot 2 \cdot 2 \cdot 2! = 64$ permutations with
+    $(2,4,5,6,6,6)$).
+    \item Of the $2$ elements of $T$ in the opposite diagonal-pair from $b_2$, one element
+    $t_{\mathrm{opp},1}$ contains both $s^*$ and $d^*$, giving $S_3 = 6$ immediately
+    ($2 \cdot 4 \cdot 1 \cdot 3! = 48$ permutations with $(2,4,6,6,6,6)$), while the other
+    element $t_{\mathrm{opp},2}$ adds $d^*$ without $s^*$, giving $S_3 = 5$. In the latter
+    subcase, the single missing atom $s^*$ belongs to all three remaining coatoms
+    $p'$, $t_{\mathrm{same}}$, and $t_{\mathrm{opp},1}$, so $S_4 = 6$ for all $3! = 6$
+    completions, yielding $2 \cdot 4 \cdot 1 \cdot 6 = 48$ permutations with
+    $(2,4,5,6,6,6)$.
+  \end{itemize}
+\end{enumerate}
+Summing Case~I gives $16 + 32 = 48$ of $(2,4,5,5,6,6)$, $32 + 64 + 48 = 144$ of
+$(2,4,5,6,6,6)$, and $48$ of $(2,4,6,6,6,6)$ (total $240$).
+
+\medskip
+\noindent\textbf{Case II: $b_1 \in T$ ($4$ choices for $b_1$; $S_1 = 3$).}
+Without loss of generality (by $D_4$ symmetry), let $b_1 = t_{123}$, so $N(b_1) =
+\{s_{12}, s_{23}, d_{13}\}$ and the $3$ missing atoms are $\{s_{34}, s_{14}, d_{24}\}$.
+\begin{enumerate}
+  \item \emph{Subcase II.a: $b_2 \in \{p_1, p_2\}$ ($2$ choices; $S_2 = 4$, missing one
+  side atom $s^*$ and $d_{24}$).}
+  Exactly as in Subcase~I.b (since $\{b_1, b_2\}$ is the same unordered pair of one $T$-coatom
+  and one $p$-coatom!), the $24$ completions of $(b_3, b_4, b_5, b_6)$ split into $4$ with
+  $(S_3,S_4) = (5,5)$, $14$ with $(S_3,S_4) = (5,6)$, and $6$ with $(S_3,S_4) = (6,6)$.
+  Multiplying by $4 \cdot 2 = 8$ gives $32$ of $(3,4,5,5,6,6)$, $112$ of $(3,4,5,6,6,6)$,
+  and $48$ of $(3,4,6,6,6,6)$ (subtotal $192$).
+
+  \item \emph{Subcase II.b: $b_2 = t_{134}$ (the partner of $b_1$, $1$ choice; $S_2 = 5$,
+  missing only $d_{24}$).}
+  Of the $4$ remaining coatoms $\{p_1, p_2, t_{234}, t_{124}\}$, choosing $b_3, b_4 =
+  \{p_1, p_2\}$ ($2$ ways) keeps $S_3 = S_4 = 5$ ($4 \cdot 1 \cdot 2 \cdot 2! = 16$ of
+  $(3,5,5,5,6,6)$); choosing $b_3 \in \{p_1, p_2\}$ and $b_4 \in \{t_{234}, t_{124}\}$
+  gives $S_3 = 5, S_4 = 6$ ($4 \cdot 1 \cdot 2 \cdot 2 \cdot 2! = 32$ of $(3,5,5,6,6,6)$);
+  and choosing $b_3 \in \{t_{234}, t_{124}\}$ gives $S_3 = 6$ ($4 \cdot 1 \cdot 2 \cdot
+  3! = 48$ of $(3,5,6,6,6,6)$).
+
+  \item \emph{Subcase II.c: $b_2 \in \{t_{234}, t_{124}\}$ ($2$ choices; $S_2 = 5$,
+  missing only one side atom $s^*$, say $s_{14}$ when $b_2 = t_{234}$).}
+  Among the $4$ remaining coatoms $\{t_{134}, t_{124}, p_1, p_2\}$, only $p_1 = \{12|34\}$
+  omits $s_{14}$, while the other $3$ contain $s_{14}$! Thus $b_3 = p_1$ gives $S_3 = 5,
+  S_4 = 6$ ($4 \cdot 2 \cdot 1 \cdot 3! = 48$ of $(3,5,5,6,6,6)$), and $b_3 \ne p_1$
+  gives $S_3 = 6$ ($4 \cdot 2 \cdot 3 \cdot 3! = 144$ of $(3,5,6,6,6,6)$).
+\end{enumerate}
+
+Table~\ref{tab:nc4} sums the $9$ profile contributions via Lemma~\ref{lem:bipartite}
+($12! = 479{,}001{,}600$).
+
+\begin{table}[ht]
+\centering
+\caption{Exact hand-verifiable evaluation of $e(\NC_4)$ via Lemma~\ref{lem:bipartite}.}
+\label{tab:nc4}
+\vspace{4pt}
+\begin{tabular}{@{}lcrr@{}}
+\toprule
+Profile $(S_1,S_2,S_3,S_4,S_5,S_6)$ & Permutations & $12! / \prod_{j=1}^6 (j + S_j)$ & Subtotal \\
+\midrule
+$(2, 4, 5, 5, 6, 6)$ & $48$  & $479{,}001{,}600 / 171{,}072 = 2{,}800$ & $134{,}400$ \\
+$(2, 4, 5, 6, 6, 6)$ & $144$ & $479{,}001{,}600 / 190{,}080 = 2{,}520$ & $362{,}880$ \\
+$(2, 4, 6, 6, 6, 6)$ & $48$  & $479{,}001{,}600 / 213{,}840 = 2{,}240$ & $107{,}520$ \\
+$(3, 4, 5, 5, 6, 6)$ & $32$  & $479{,}001{,}600 / 228{,}096 = 2{,}100$ & $67{,}200$ \\
+$(3, 4, 5, 6, 6, 6)$ & $112$ & $479{,}001{,}600 / 253{,}440 = 1{,}890$ & $211{,}680$ \\
+$(3, 4, 6, 6, 6, 6)$ & $48$  & $479{,}001{,}600 / 285{,}120 = 1{,}680$ & $80{,}640$ \\
+$(3, 5, 5, 5, 6, 6)$ & $16$  & $479{,}001{,}600 / 266{,}112 = 1{,}800$ & $28{,}800$ \\
+$(3, 5, 5, 6, 6, 6)$ & $80$  & $479{,}001{,}600 / 295{,}680 = 1{,}620$ & $129{,}600$ \\
+$(3, 5, 6, 6, 6, 6)$ & $192$ & $479{,}001{,}600 / 332{,}640 = 1{,}440$ & $276{,}480$ \\
+\midrule
+\textbf{Total} & $\mathbf{720}$ & --- & $\mathbf{1{,}399{,}200}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Finally, $1{,}399{,}200 = 32 \cdot 43{,}725 = 2^5 \cdot 3 \cdot 14{,}575 = 2^5 \cdot 3
+\cdot 5^2 \cdot 583 = 2^5 \cdot 3 \cdot 5^2 \cdot 11 \cdot 53$, and $53$ has no prime
+factor $\le \lfloor\sqrt{53}\rfloor = 7$ ($53 \equiv 1 \pmod 2$, $2 \pmod 3$, $3 \pmod 5$,
+$4 \pmod 7$), so $53$ is prime.
+\end{proof}
+
+\subsection{Order-Ideal Dynamic Programming Certificate}
+
+For a general finite poset $(P, \preceq)$, let $J(P)$ denote the distributive lattice of
+lower sets (order ideals) $I \subseteq P$ ($\forall x, y \in P,\; y \in I \land x \preceq
+y \implies x \in I$). Every nonempty linear extension $L = (x_0, \dots, x_{k-1})$ of a
+lower set $I$ ends at a unique element $z = x_{k-1} \in \max(I) := \{z \in I : \forall y
+\in I,\, z \preceq y \implies y = z\}$, and $(x_0, \dots, x_{k-2})$ is a linear extension
+of the lower set $I \setminus \{z\}$. Hence $e(\emptyset) = 1$ and
+\begin{equation}\label{eq:dp}
+  e(I) = \sum_{z \in \max(I)} e(I \setminus \{z\}) \qquad (I \in J(P),\; I \ne \emptyset).
+\end{equation}
+For $\NC_4$, $|J(\NC_4)| = 234$ (with $|J(Q_4)| = 232$), so recurrence~\eqref{eq:dp}
+requires only $234$ states and executes directly inside the Core Lean~4.19.0 kernel via
+\texttt{decide}, certifying $e(\NC_4) = 1{,}399{,}200$ independently of
+Table~\ref{tab:nc4}.
+
+\section{Disproof of Conjecture 00000004768 Under All Formulations}
+
+We now show that every mathematical reading of Conjecture~00000004768 fails.
+
+\begin{theorem}[Failure of the Block-Size Hook-Length Formula]\label{thm:blocksize}
+Let $D_n = \prod_{\pi \in \NC_n} \prod_{B \in \pi} |B|$. Although $|\NC_n|! = e(\NC_n)
+\cdot D_n$ holds for $n = 1$ ($1! = 1 \cdot 1$) and $n = 2$ ($2! = 1 \cdot 2$), it fails
+for $n = 3$ and $n = 4$:
+\begin{enumerate}
+  \item At $n = 3$: $|\NC_3| = 5$, $e(\NC_3) = 6$, and $D_3 = 1 \cdot 2^3 \cdot 3 = 24$,
+  so $|\NC_3|! = 120 \ne 144 = e(\NC_3) \cdot D_3$.
+  \item At $n = 4$: $|\NC_4| = 14$, $e(\NC_4) = 1{,}399{,}200$, and $D_4 = 1 \cdot 2^6
+  \cdot 3^4 \cdot 4^2 \cdot 4 = 2^{12} \cdot 3^4 = 331{,}776$ ($1$ bottom of product $1$,
+  $6$ atoms of product $2$, $4$ coatoms of type $3+1$ of product $3$, $2$ coatoms of type
+  $2+2$ of product $4$, and $1$ top of product $4$), so $|\NC_4|! / D_4 = 525{,}525 / 2
+  \notin \mathbb{Z}$ and $|\NC_4|! \ne e(\NC_4) \cdot D_4$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Immediate from Theorem~\ref{thm:nc4} and direct multiplication of the block sizes on
+$\NC_3$ and $\NC_4$.
+\end{proof}
+
+\begin{theorem}[Universal Prime-Factor Impossibility of Hook-Length Products on $\NC_4$]
+\label{thm:universal}
+The lattice $\NC_4$ satisfies the following unconditional obstructions:
+\begin{enumerate}
+  \item \textbf{No integer poset hook-length formula:} For every integer $0 \le m < 53$
+  and every $D \in \mathbb{N}$, $m! \ne e(\NC_4) \cdot D$. In particular (taking $m =
+  |\NC_4| = 14$, $m = |\NC_4 \setminus \{\hat{0}, \hat{1}\}| = 12$, or $m = 2n = 8$),
+  there exists \emph{no} function $h : \NC_4 \to \mathbb{Z}_{\ge 1}$ (and no function on
+  $\NC_4 \setminus \{\hat{0}, \hat{1}\}$) satisfying $|\NC_4|! = e(\NC_4) \prod_{\pi \in
+  \NC_4} h(\pi)$ or $(|\NC_4|-2)! = e(\NC_4) \prod_{\pi} h(\pi)$.
+  \item \textbf{No bounded-factor rational product:}
+  For every $D \in \mathbb{N}$---including the block-size product $D_4 = 331{,}776$,
+  the block-factorial product $D_4^{!} = 31{,}850{,}496 = 2^{17} \cdot 3^5$, and the
+  principal ideal/filter products $\prod_{\pi \in \NC_4} |I(\pi)| = \prod_{\pi \in \NC_4}
+  |U(\pi)| = 8{,}960{,}000 = 2^{11} \cdot 5^4 \cdot 7$---and every finite sequence of
+  integers $a_1, \dots, a_k$ satisfying $1 \le a_i < 53$ (in particular $1 \le a_i \le
+  |\NC_4| = 14$ or $1 \le a_i \le 2|\NC_4| = 28$),
+  \[
+    \prod_{i=1}^k a_i \ne e(\NC_4) \cdot D.
+  \]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:nc4}, $53$ is prime and $e(\NC_4) = 53 \cdot 26{,}400$, so
+$53 \mid e(\NC_4) \cdot D$ for every $D \in \mathbb{N}$. By Euclid's
+lemma, if $53$ divides a finite product $\prod_{i=1}^k a_i$ of positive integers, then
+$53 \mid a_i$ for some $i$, whence $a_i \ge 53$. Applying this to $m! = \prod_{i=1}^m i$
+for $m < 53$ gives $53 \nmid m!$ and proves~(1); applying it to arbitrary positive
+factors $a_i < 53$ proves~(2).
+\end{proof}
+
+\begin{proposition}[Failure on the Unrestricted Partition Lattice $\Pi_n$]\label{prop:pi4}
+Let $\Pi_n$ be the full lattice of all $B_n$ set partitions of $[n]$ under refinement,
+with block-size product $D(\Pi_n) := \prod_{\pi \in \Pi_n} \prod_{B \in \pi} |B|$.
+\begin{enumerate}
+  \item At $n = 3$, $\Pi_3 = \NC_3$, so $|\Pi_3|! = 120 \ne 144 = e(\Pi_3) \cdot D(\Pi_3)$.
+  \item At $n = 4$, $|\Pi_4| = 15$, $|J(\Pi_4)| = 347$, $D(\Pi_4) = 2^{14} \cdot 3^4 =
+  1{,}327{,}104$, and exact order-ideal dynamic programming yields
+  \[
+    e(\Pi_4) = 10{,}368{,}000 = 2^{10} \cdot 3^4 \cdot 5^3.
+  \]
+  Hence $|\Pi_4|! \ne e(\Pi_4) \cdot D(\Pi_4)$, and $(|\Pi_4|-2)! = 13!$ is not even
+  divisible by $e(\Pi_4)$ because $5^3 = 125 \mid e(\Pi_4)$ whereas $13! \equiv 50
+  \not\equiv 0 \pmod{125}$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Part~(1) is Theorem~\ref{thm:blocksize}(1). For part~(2), adding the single crossing
+partition $\{13|24\}$ (block sizes $2, 2$, product $4$) to $\NC_4$ multiplies $D_4 =
+331{,}776$ by $4$ to give $D(\Pi_4) = 1{,}327{,}104$, and recurrence~\eqref{eq:dp} over
+the $347$ lower sets of $\Pi_4$ gives $e(\Pi_4) = 10{,}368{,}000 = 125 \cdot 82{,}944$.
+Since $v_5(13!) = \lfloor 13/5 \rfloor = 2$, $125 \nmid 13!$, so $e(\Pi_4) \nmid 13!$.
+\end{proof}
+
+\begin{remark}[Irregular Primes at $n = 5$ and Complexity]
+\label{rem:complexity}
+\leavevmode
+\begin{enumerate}
+  \item For $n = 5$ ($|\NC_5| = C_5 = 42$), evaluating recurrence~\eqref{eq:dp} across
+  the $2{,}342{,}194$ lower sets of $\NC_5 \setminus \{\hat{0}, \hat{1}\}$ yields the
+  exact $35$-digit count
+  \begin{align*}
+    e(\NC_5)
+    &= 11{,}513{,}034{,}478{,}774{,}265{,}804{,}098{,}008{,}622{,}049{,}280 \\
+    &= 2^{11} \cdot 3 \cdot 5 \cdot 5{,}273{,}727{,}821 \cdot
+       71{,}064{,}201{,}736{,}056{,}904{,}919,
+  \end{align*}
+  whose $10$-digit and $20$-digit prime factors rule out not merely factorials bounded by
+  $|\NC_n|$, but any low-degree polynomial product formula in $n$ or $C_n$.
+  \item Brightwell and Winkler~\cite{BrightwellWinkler1991} proved that counting linear
+  extensions of a finite poset (even of height~$2$) is $\mathrm{\#P}$-complete in the input
+  size $|P|$; note also that for $\NC_n$, the lattice size itself grows exponentially as
+  $|\NC_n| = C_n = \Theta(4^n n^{-3/2})$. Because Conjecture~00000004768 asserts the
+  conjunction of the explicit hook-length/block-size product formula and polynomial-time
+  computability, Theorems~\ref{thm:blocksize} and~\ref{thm:universal} refute the conjecture
+  \emph{unconditionally}, without invoking any complexity assumption.
+\end{enumerate}
+\end{remark}
+
+\section{Formalization in Core Lean 4.19.0}
+
+All definitions and theorems are formalized from first principles in
+\texttt{lean/Main.lean} (namespace \texttt{Conjecture4768}) using Core Lean~4.19.0 with
+\texttt{-DwarningAsError=true}, zero external dependencies, zero \texttt{sorry}, zero
+\texttt{native\_decide}, and zero custom axioms. Table~\ref{tab:lean} summarizes the
+correspondence between this paper and \texttt{Main.lean}.
+
+\begin{table}[ht]
+\centering
+\caption{Correspondence between mathematical objects/theorems and Lean~4 declarations.}
+\label{tab:lean}
+\vspace{4pt}
+{\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.42\textwidth}>{\raggedright\arraybackslash}p{0.54\textwidth}@{}}
+\toprule
+Mathematical Result & Lean 4 Declaration(s) in \texttt{Main.lean} \\
+\midrule
+Exact finite cardinality \& uniqueness &
+  \texttt{HasCardinality}, \texttt{hasCardinality\_unique} \\
+Primality of $53$ \& Gauss--Euclid descent &
+  \texttt{IsPrime}, \texttt{isPrime\_53}, \texttt{IsPrime.dvd\_mul},
+  \texttt{IsPrime.not\_dvd\_factorial}, \texttt{IsPrime.not\_dvd\_listProd\_bounded} \\
+Posets, lattices, list \& bijection linear extensions &
+  \texttt{Poset}, \texttt{Lattice}, \texttt{IsLinearExtension},
+  \texttt{LinearExtensionBij}, \texttt{linearExtensionToBij},
+  \texttt{bijToLinearExtension} \\
+Certified order-ideal DP engine~\eqref{eq:dp} &
+  \texttt{verifyPosetLinExtCount}, \texttt{verifyPosetLinExtCount\_sound} \\
+Set partitions, noncrossing condition~\eqref{eq:nc}, \& refinement lattices (Proposition~\ref{prop:lattice}) &
+  \texttt{SetPartition}, \texttt{IsNoncrossing}, \texttt{NCPartition},
+  \texttt{Refines}, \texttt{setPartitionLattice}, \texttt{ncPartitionLattice} \\
+Exact Catalan/Bell counts \& $e(\NC_1),\dots,e(\NC_4), e(\Pi_4)$ (Theorem~\ref{thm:nc4}) &
+  \texttt{nc1\_card}..\texttt{nc5\_card}, \texttt{pi4\_card},
+  \texttt{nc1\_linExt}..\texttt{nc4\_linExt}, \texttt{pi4\_linExt} \\
+Positive non-vacuity witnesses ($n = 1, 2$) &
+  \texttt{nc1\_positive\_witness}, \texttt{nc2\_positive\_witness} \\
+Disproof of block-size formula at $n = 3, 4$ (Theorem~\ref{thm:blocksize}) &
+  \texttt{disproof\_blockSize\_hook\_n3}, \texttt{disproof\_blockSize\_hook\_n4} \\
+Universal hook-length \& bounded-factor impossibility (Theorem~\ref{thm:universal}) &
+  \texttt{nc4\_linExt\_not\_dvd\_factorial\_lt53},
+  \texttt{nc4\_no\_integer\_hook\_formula},
+  \texttt{nc4\_no\_bounded\_product\_over\_blockSizes} \\
+Full conjecture disproofs ($\NC_n$ \& $\Pi_n$) &
+  \texttt{disproof\_conjecture4768\_standard},
+  \texttt{disproof\_conjecture4768\_generalized},
+  \texttt{disproof\_conjecture4768\_fullPartitionLattice} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{thebibliography}{9}
+
+\bibitem{BrightwellWinkler1991}
+G.~Brightwell and P.~Winkler,
+Counting linear extensions,
+\emph{Order} \textbf{8} (1991), no.~3, 225--242.
+
+\bibitem{Edelman1980}
+P.~H.~Edelman,
+Chain enumeration and non-crossing partitions,
+\emph{Discrete Math.} \textbf{31} (1980), no.~2, 171--180.
+
+\bibitem{FRT1954}
+J.~S.~Frame, G.~de~B.~Robinson, and R.~M.~Thrall,
+The hook graphs of the symmetric group,
+\emph{Canad.\ J.\ Math.} \textbf{6} (1954), 316--324.
+
+\bibitem{Kreweras1972}
+G.~Kreweras,
+Sur les partitions non crois\'ees d'un cycle,
+\emph{Discrete Math.} \textbf{1} (1972), no.~4, 333--350.
+
+\bibitem{Simion2000}
+R.~Simion,
+Noncrossing partitions,
+\emph{Discrete Math.} \textbf{217} (2000), no.~1--3, 367--409.
+
+\bibitem{StanleyEC1}
+R.~P.~Stanley,
+\emph{Enumerative Combinatorics, Volume~1}, 2nd~ed.,
+Cambridge Studies in Advanced Mathematics, vol.~49,
+Cambridge University Press, Cambridge, 2012.
+
+\end{thebibliography}
+
+\end{document}
