@@ -1,0 +1,373 @@
+\documentclass[11pt]{amsart}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array,booktabs}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\raggedbottom
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\FF}{\mathbb{F}}
+\newcommand{\mm}{\mathfrak{m}}
+\newcommand{\Ap}{\mathrm{Ap}}
+\newcommand{\gr}{\mathrm{gr}}
+\newcommand{\depth}{\mathrm{depth}}
+\newcommand{\ceil}[1]{\left\lceil #1 \right\rceil}
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+
+\title[Resolution of Conjecture 00000000546]{Disproof and Complete Structural Resolution of Conjecture 00000000546:\\
+Depth Invariants and Symmetric-Gap Thresholds for $\langle a, a+1, \dots, a+k \rangle$}
+
+\date{November 2026}
+
+\begin{document}
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000000546}, which asserts under the heading \emph{``The depth of monomial subrings''} that \emph{``the depth-drop threshold of the numerical semigroup $\langle a, a+1, \dots, a+k \rangle$ equals $\lceil a/k \rceil$ (a depth jump for symmetric gaps).''}
+We show that the literal conjecture conflates homological depth of monomial subrings with Shalom Eliahou's combinatorial depth of numerical semigroups and is \textbf{false} under every standard commutative-algebraic and combinatorial interpretation, while admitting exact closed-form theorems that explain both the intended symmetric-gap jump phenomenon and the off-by-one discrepancy between $\lceil (a-1)/k \rceil$ and $\lceil a/k \rceil$.
+
+Specifically, for all integers $a \ge 2$, $1 \le k \le a-1$, and every field $K$:
+(1)~the affine monomial subring $K[S_{a,k}] = K[t^a, \dots, t^{a+k}] \subseteq K[t]$ has constant homological depth $1$, its projective closure $R_{a,k} \subseteq K[u,v]$ has constant homological depth $2$, and the tangent cone $\gr_{\mm}(K[[S_{a,k}]])$ has constant homological depth $1$---none of these rings ever undergoes a depth drop;
+(2)~Eliahou's combinatorial depth $q(S_{a,k}) = \lceil C(S_{a,k})/m(S_{a,k}) \rceil$, the ordinary power-truncation threshold of $S_{a,k}^{(m)}$, the tangent-cone reduction number, and the Cohen--Macaulay Veronese threshold of the symmetric-gap pinched Veronese ring $B_{a,k}^{(m)}$ all equal $\lceil (a-1)/k \rceil$, which strictly disagrees with $\lceil a/k \rceil$ if and only if $a \equiv 1 \pmod{k}$ (including every $a \ge 2$ when $k = 1$); and
+(3)~for $k \ge 2$ and $a \ge k+2$, $S_{a,k}$ has symmetric gaps if and only if $a \equiv 2 \pmod{k}$, which holds if and only if the true Eliahou depth jumps ($q(S_{a,k}) = q(S_{a-1,k}) + 1$), whereas the conjectured formula $\lceil a/k \rceil$ exhibits zero jump at every symmetric-gap semigroup for $k \ge 2$.
+All core algebraic and combinatorial theorems are formally verified from first principles in Core Lean~4.19.0 with zero external dependencies and zero axioms beyond Lean's kernel, and independently checked in Python.
+\end{abstract}
+
+\maketitle
+\enlargethispage{6pt}
+
+\section{Introduction and Problem Analysis}
+
+\subsection{Problem statement}
+Conjecture \texttt{00000000546} from \emph{The Last Math Competition} reads verbatim in English:
+\begin{quote}
+\textbf{Definition:} The depth of monomial subrings. \textbf{Conjecture:} The depth-drop threshold of the numerical semigroup $\langle a, a+1, \dots, a+k \rangle$ equals $\lceil a/k \rceil$ (a depth jump for symmetric gaps).
+\end{quote}
+The accompanying Chinese formulation translates word-for-word identically, pairing the definition of the homological $\depth$ of a monomial subring with a claimed ``depth-drop threshold'' (\emph{sh\=end\`u d\`iji\`ang y\`uzh\'i}) equal to $\lceil a/k \rceil$ and a parenthetical ``depth jump for symmetric gaps'' (\emph{du\`ich\`en ji\`anx\`i de sh\=end\`u yu\`ebi\`an}) for the interval numerical semigroup
+\[
+  S_{a,k} = \langle a, a+1, \dots, a+k \rangle \subseteq \NN \qquad (a \ge 2,\; 1 \le k \le a - 1).
+\]
+Notice the parameter range $a \ge 2$ and $1 \le k \le a-1$: if $a = 1$ then $S_{1,k} = \NN$ has no gaps, while if $k \ge a$ then $a+a = 2a$ makes the generators beyond $2a-1$ redundant (and in fact $S_{a,a-1} = \{0\} \cup [a, \infty)$ is already ordinary). Throughout, $\{a, a+1, \dots, a+k\}$ is the minimal generating set of $S_{a,k}$ of embedding dimension $k + 1$ and multiplicity $m(S_{a,k}) = a$.
+
+\subsection{Diagnostic anatomy of the conjecture and summary of results}
+In standard commutative algebra \cite{BrunsHerzog1998,Villarreal2015}, a \emph{monomial subring} is a $K$-subalgebra $R = K[M_1, \dots, M_s]$ of a polynomial ring generated by monomials, and its \emph{graded depth} $\depth_{\mm}(R)$ is the maximum length of a homogeneous $R$-regular sequence inside its graded maximal ideal $\mm = (M_1, \dots, M_s)$. On the other hand, in numerical semigroup theory (notably in connection with Wilf's conjecture \cite{Eliahou2018}), the \emph{depth of a numerical semigroup} $S$ with multiplicity $m(S) = \min(S \setminus \{0\})$ and conductor $C(S) = F(S) + 1$ is defined combinatorially as
+\[
+  q(S) = \ceil{\frac{C(S)}{m(S)}} = \ceil{\frac{F(S) + 1}{m(S)}}.
+\]
+Crucially, ``depth-drop threshold'' is not a pre-existing term with a single canonical definition; rather, depending on whether one interprets ``depth'' homologically (via monomial subrings, projective closures, tangent cones, powers of defining toric ideals, or symmetric-gap Veronese subrings) or combinatorially (via Eliahou's semigroup depth $q(S_{a,k})$ and its power truncations), six natural invariants arise. Table~\ref{tab:summary} summarizes the exact behavior of all six invariants and demonstrates that the conjectured value $\lceil a/k \rceil$ fails under \emph{every} homological and combinatorial depth reading.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Complete resolution across all six algebraic and combinatorial interpretations associated with $S_{a,k} = \langle a, a+1, \dots, a+k \rangle$ ($a \ge 2$, $1 \le k \le a-1$).}
+\label{tab:summary}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{3.7cm}>{\raggedright\arraybackslash}p{2.9cm}>{\raggedright\arraybackslash}p{3.9cm}@{}}
+\toprule
+\textbf{Construction / Reading} & \textbf{Exact Invariant} & \textbf{True Value} & \textbf{Status of $\lceil a/k \rceil$} \\
+\midrule
+1. Affine semigroup subring $K[S_{a,k}] \subseteq K[t]$ & Homological $\depth_{\mm}(K[S_{a,k}])$ & Constant $1$ for all $(a,k)$ & \textbf{False}: never drops depth \\[4pt]
+2. Projective monomial curve $R_{a,k} \subseteq K[u,v]$ & Homological $\depth_{\mm}(R_{a,k})$ & Constant $2$ for all $(a,k)$ & \textbf{False}: always Cohen--Macaulay \\[4pt]
+3. Tangent cone $\gr_{\mm}(K[[S_{a,k}]])$ & $\depth(\gr_{\mm})$; reduction no.; $\overline{t^{a+k}}$ nilpotency & $\depth = 1$; red.\ no.\ $= \lceil (a-1)/k \rceil$; nilp.\ $= \lceil a/k \rceil$ & \textbf{False} for depth/reduction; $\lceil a/k \rceil$ is nilpotency index, not depth \\[4pt]
+4. Toric ideal powers $P / I_{a,k}^t$ & First $t$ with $\depth(P/I_{a,k}^t)=0$ & $\infty$ for CI; $t=2$ at $(5,2)$; $t=3$ at $(5,3)$ & \textbf{False}: $2 \ne 3 = \lceil 5/2 \rceil$, $3 \ne 2 = \lceil 5/3 \rceil$, $\infty$ on $S_{a,1}$ \\[4pt]
+5. Eliahou semigroup depth $q(S_{a,k})$ \& $S_{a,k}^{(m)}$ & $\lceil C(S_{a,k})/a \rceil$ and ordinary threshold of $S_{a,k}^{(m)}$ & $\ceil{\dfrac{a-1}{k}}$ & \textbf{False} iff $a \equiv 1 \pmod{k}$ (all $a \ge 2$ at $k=1$); breaks symmetric jump \\[4pt]
+6. Symmetric-gap pinched Veronese $B_{a,k}^{(m)}$ & Minimal $m$ with $\depth_{\mm}(B_{a,k}^{(m)}) = 2$ & $\ceil{\dfrac{a-1}{k}}$ & \textbf{False} iff $a \equiv 1 \pmod{k}$ (e.g.\ $m=2 \ne 3$ at $a=5, k=2$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Beyond refuting the literal formula $\lceil a/k \rceil$, our analysis uncovers the exact mathematical source of both features of the conjecture:
+\begin{enumerate}
+  \item \textbf{Origin of ``(a depth jump for symmetric gaps)'':} For fixed $k \ge 2$ and $a \ge k+2$, we prove (Theorems~\ref{thm:symmetric-iff} and~\ref{thm:sym-jump}) that $S_{a,k}$ has symmetric gaps if and only if $k \mid (a - 2)$, which holds if and only if the true Eliahou depth $q(S_{a,k}) = \lceil (a-1)/k \rceil$ jumps by $+1$ over $q(S_{a-1,k}) = \lceil (a-2)/k \rceil$ (dually, fixing $a$ and incrementing $k \mapsto k+1$, every symmetric semigroup $S_{a,k}$ with $1 \le k \le a-2$ experiences a strict Eliahou depth drop $q(S_{a,k+1}) < q(S_{a,k})$). Remarkably, replacing $\lceil (a-1)/k \rceil$ by $\lceil a/k \rceil$ shifts every jump one step earlier to the non-symmetric locus $a \equiv 1 \pmod{k}$, leaving \emph{zero} jump at every symmetric-gap semigroup for $k \ge 2$.
+  \item \textbf{Origin of $\lceil a/k \rceil$ vs.\ $\lceil (a-1)/k \rceil$:} For $G_{a,k} = \{a, a+1, \dots, a+k\}$, consecutive sumsets $r G_{a,k} = [ra, r(a+k)]$ and $(r+1) G_{a,k} = [(r+1)a, (r+1)(a+k)]$ become \emph{adjacent in $\ZZ$} (eliminating all integer gaps between them, which governs the conductor, Eliahou depth, reduction number, and Veronese normality) when $r(a+k) + 1 \ge (r+1)a$, i.e., $r \ge \lceil (a-1)/k \rceil$. By contrast, $r \ge \lceil a/k \rceil$ is the strictly stronger threshold $r(a+k) \ge (r+1)a$ where $r G_{a,k}$ and $(r+1) G_{a,k}$ \emph{overlap}, which governs the nilpotency index of $\overline{t^{a+k}}$ in $\gr_{\mm}(K[[S_{a,k}]])$ rather than any depth drop.
+\end{enumerate}
+
+\section{Interval Numerical Semigroups, Eliahou Depth, and Symmetric Gaps}
+\label{sec:semigroup}
+
+Throughout this section, fix integers $a \ge 2$ and $1 \le k \le a-1$, and write $G_{a,k} = \{a, a+1, \dots, a+k\}$. Let $r G_{a,k}$ denote the $r$-fold sumset of $G_{a,k}$ (with $0 \cdot G_{a,k} = \{0\}$), so $S_{a,k} = \bigcup_{r \ge 0} r G_{a,k}$.
+
+\begin{lemma}[Sumset intervals]
+\label{lem:sumset}
+For every integer $r \ge 0$ and every $s \in \NN$, one has $s \in r G_{a,k}$ if and only if $r a \le s \le r(a+k)$. Consequently, $s \in S_{a,k}$ if and only if there exists $r \ge 0$ such that $ra \le s \le r(a+k)$, and $m(S_{a,k}) = \min(S_{a,k} \setminus \{0\}) = a$.
+\end{lemma}
+
+\begin{proof}
+We induct on $r$. For $r = 0$, both sides are equivalent to $s = 0$. Suppose the equivalence holds for $r$, and consider $r + 1$. If $s = s' + g$ with $s' \in r G_{a,k}$ and $a \le g \le a+k$, then $ra \le s' \le r(a+k)$ implies $(r+1)a \le s \le (r+1)(a+k)$. Conversely, if $(r+1)a \le s \le (r+1)(a+k)$, set $g = \min(s - ra,\, a+k)$ and $s' = s - g$. Since $s - ra \ge a$, we have $a \le g \le a+k$. Moreover, if $g = s - ra$ then $s' = ra \in [ra, r(a+k)]$, while if $g = a+k$ then $s - ra \ge a+k$ gives $s' = s - (a+k) \ge ra + k \ge ra$ and $s' \le (r+1)(a+k) - (a+k) = r(a+k)$. By the induction hypothesis, $s' \in r G_{a,k}$, so $s = s' + g \in (r+1)G_{a,k}$. Finally, $a \in 1 \cdot G_{a,k} \subseteq S_{a,k}$, and any $s \in S_{a,k} \setminus \{0\}$ lies in $r G_{a,k}$ for some $r \ge 1$, giving $s \ge ra \ge a$.
+\end{proof}
+
+\begin{theorem}[Conductor, Frobenius number, and Eliahou depth]
+\label{thm:eliahou}
+Let $a \ge 2$, $1 \le k \le a-1$, and $q_0 = \lceil (a-1)/k \rceil$. Then:
+\begin{enumerate}
+  \item[(i)] The conductor of $S_{a,k}$ is $C(S_{a,k}) = q_0 a$, and its Frobenius number is $F(S_{a,k}) = q_0 a - 1$.
+  \item[(ii)] Eliahou's combinatorial depth of $S_{a,k}$ equals
+  \[
+    q(S_{a,k}) = \ceil{\frac{C(S_{a,k})}{m(S_{a,k})}} = q_0 = \ceil{\frac{a-1}{k}}.
+  \]
+  \item[(iii)] Furthermore, $q(S_{a,k}) \ne \lceil a/k \rceil$ if and only if $a \equiv 1 \pmod{k}$, in which case $\lceil a/k \rceil = q(S_{a,k}) + 1$. In particular, for $k = 1$ and \emph{every} $a \ge 2$, $q(S_{a,1}) = a - 1 \ne a = \lceil a/1 \rceil$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Since $a \ge 2$ and $k \ge 1$, we have $q_0 \ge 1$ and $(q_0 - 1)k < a - 1 \le q_0 k$.
+
+First, suppose for contradiction that $q_0 a - 1 \in S_{a,k}$, so $ra \le q_0 a - 1 \le r(a+k)$ for some $r \ge 0$. Clearly $ra \le q_0 a - 1$ forces $r \le q_0 - 1$. Then
+\[
+  r(a+k) \le (q_0 - 1)(a+k) = (q_0 - 1)a + (q_0 - 1)k \le (q_0 - 1)a + (a - 2) = q_0 a - 2 < q_0 a - 1,
+\]
+a contradiction. Thus $q_0 a - 1 \notin S_{a,k}$.
+
+Next, let $n \ge q_0 a$ and write $n = ra + m$ by Euclidean division with $0 \le m \le a - 1$. Since $n \ge q_0 a$, we have $r = \lfloor n/a \rfloor \ge q_0$, whence $rk \ge q_0 k \ge a - 1 \ge m$. Therefore $ra \le n = ra + m \le ra + rk = r(a+k)$, so $n \in r G_{a,k} \subseteq S_{a,k}$ by Lemma~\ref{lem:sumset}. This proves $F(S_{a,k}) = q_0 a - 1$ and $C(S_{a,k}) = q_0 a$, whence $q(S_{a,k}) = \lceil (q_0 a)/a \rceil = q_0$.
+
+For~(iii), write $a - 1 = m$. For any integer $m \ge 1$, $\lceil (m+1)/k \rceil > \lceil m/k \rceil$ holds if and only if $m \le \lceil m/k \rceil k < m + 1$, i.e., $k \mid m$. Since $m = a - 1$, $\lceil (a-1)/k \rceil \ne \lceil a/k \rceil$ holds if and only if $k \mid (a - 1)$.
+\end{proof}
+
+A closely related semigroup construction considers the $m$-th power subsemigroup
+\[
+  S_{a,k}^{(m)} = \{0\} \cup \bigcup_{r \ge m} r G_{a,k} \qquad (m \ge 1),
+\]
+whose multiplicity is $m(S_{a,k}^{(m)}) = ma$, and asks for the minimal threshold $m$ at which $S_{a,k}^{(m)}$ becomes \emph{ordinary} (meaning $[ma, \infty) \cap \ZZ \subseteq S_{a,k}^{(m)}$, so its Eliahou depth drops to $q(S_{a,k}^{(m)}) = \lceil ma/(ma) \rceil = 1$).
+
+\begin{proposition}[Ordinary power-truncation threshold]
+\label{prop:power-semigroup}
+For $a \ge 2$, $1 \le k \le a-1$, and $m \ge 1$, every integer $n \ge ma$ belongs to $S_{a,k}^{(m)}$ (equivalently, $q(S_{a,k}^{(m)}) = 1$) if and only if $m \ge \lceil (a-1)/k \rceil$.
+\end{proposition}
+
+\begin{proof}
+If $m \ge \lceil (a-1)/k \rceil$, then $mk \ge a - 1$; for any $n \ge ma$, setting $r = \lfloor n/a \rfloor \ge m$ gives $ra \le n \le ra + (a-1) \le ra + rk = r(a+k)$, so $n \in r G_{a,k} \subseteq S_{a,k}^{(m)}$. Conversely, if $1 \le m < \lceil (a-1)/k \rceil$, then $mk < a - 1$, so $n_* = m(a+k) + 1$ satisfies $ma < n_* < (m+1)a$. Thus $n_*$ exceeds the upper endpoint of $m G_{a,k}$ and lies strictly below $r a$ for every $r \ge m + 1$, whence $n_* \notin S_{a,k}^{(m)}$.
+\end{proof}
+
+We now characterize when $S_{a,k}$ is symmetric (has \emph{symmetric gaps} in the sense of Kunz \cite{Kunz1970}: for every $0 \le x \le F(S_{a,k})$, $x \in S_{a,k} \iff F(S_{a,k}) - x \notin S_{a,k}$) and establish the exact symmetric-gap depth jump.
+
+\begin{lemma}[Membership below the conductor]
+\label{lem:below-cond}
+Let $q_0 = \lceil (a-1)/k \rceil$. For every integer $0 \le s < q_0 a$, write $s = ra + m$ with $r = \lfloor s/a \rfloor \in \{0, \dots, q_0 - 1\}$ and $m = s \bmod a \in \{0, \dots, a-1\}$. Then $s \in S_{a,k}$ if and only if $m \le rk$.
+\end{lemma}
+
+\begin{proof}
+If $m \le rk$, then $ra \le s = ra + m \le r(a+k)$, so $s \in S_{a,k}$. Conversely, suppose $s \in j G_{a,k} = [ja, j(a+k)]$. Since $s < q_0 a$, we have $j \le q_0 - 1$, so $jk \le (q_0 - 1)k < a - 1 < a$. Hence $ja \le s \le ja + jk < (j+1)a$, which forces $j = \lfloor s/a \rfloor = r$ and $m = s - ra \le rk$.
+\end{proof}
+
+\begin{theorem}[Classification of symmetric gaps]
+\label{thm:symmetric-iff}
+For $a \ge 2$ and $1 \le k \le a-1$, the numerical semigroup $S_{a,k}$ has symmetric gaps if and only if either $k = 1$ or $k \mid (a - 2)$ (i.e., $a \equiv 2 \pmod{k}$).
+\end{theorem}
+
+\begin{proof}
+Set $q_0 = \lceil (a-1)/k \rceil$ and $F = q_0 a - 1$. Suppose first that $S_{a,k}$ has symmetric gaps and $k \ge 2$. Since $a \ge k + 1 \ge 3$, $1 \notin S_{a,k}$ is a gap, so symmetry forces $F - 1 = q_0 a - 2 = (q_0 - 1)a + (a - 2) \in S_{a,k}$. Applying Lemma~\ref{lem:below-cond} to $F - 1 < q_0 a$ yields $a - 2 \le (q_0 - 1)k$. Combined with $(q_0 - 1)k < a - 1$, this forces $(q_0 - 1)k = a - 2$, so $k \mid (a - 2)$.
+
+Conversely, suppose $k = 1$ or $k \mid (a - 2)$. In both cases $(q_0 - 1)k = a - 2$: for $k = 1$ we have $q_0 = a - 1$, while for $k \mid (a - 2)$ writing $a - 2 = tk$ gives $a - 1 = tk + 1$, so $q_0 = \lceil (tk+1)/k \rceil = t + 1$ and $(q_0 - 1)k = tk = a - 2$. Now take any $0 \le x \le F$ and write $x = ra + m$ with $0 \le r \le q_0 - 1$ and $0 \le m \le a - 1$. Then
+\[
+  F - x = (q_0 a - 1) - (ra + m) = (q_0 - 1 - r)a + (a - 1 - m),
+\]
+with $0 \le q_0 - 1 - r \le q_0 - 1$ and $0 \le a - 1 - m \le a - 1$. By Lemma~\ref{lem:below-cond} and $(q_0 - 1 - r)k = (q_0 - 1)k - rk = a - 2 - rk$, we obtain
+\[
+  F - x \in S_{a,k} \iff a - 1 - m \le a - 2 - rk \iff m \ge rk + 1 \iff \neg(m \le rk) \iff x \notin S_{a,k}. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Exact symmetric-gap depth jump vs.\ failure of $\lceil a/k \rceil$]
+\label{thm:sym-jump}
+Let $k \ge 2$ and $a \ge k + 2$.
+\begin{enumerate}
+  \item[(i)] $S_{a,k}$ has symmetric gaps if and only if the true Eliahou depth $q(S_{a,k}) = \lceil (a-1)/k \rceil$ jumps by $+1$ relative to $S_{a-1,k}$:
+  \[
+    S_{a,k}\text{ is symmetric} \iff q(S_{a,k}) = q(S_{a-1,k}) + 1.
+  \]
+  \item[(ii)] Dually, for fixed $a$ and any $1 \le k \le a - 2$, if $S_{a,k}$ has symmetric gaps, then incrementing $k \mapsto k+1$ causes a strict Eliahou depth drop $q(S_{a,k+1}) < q(S_{a,k})$.
+  \item[(iii)] By contrast, at \emph{every} symmetric-gap semigroup $S_{a,k}$ with $k \ge 2$ and $a \ge k + 2$, the conjectured formula $f(a,k) = \lceil a/k \rceil$ satisfies $f(a,k) = f(a-1,k)$---it exhibits \textbf{zero jump} at symmetric gaps and instead jumps one step earlier at the non-symmetric parameters $a \equiv 1 \pmod{k}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For~(i), $q(S_{a,k}) > q(S_{a-1,k})$ reads $\lceil (a-1)/k \rceil > \lceil (a-2)/k \rceil$, which holds if and only if $k \mid (a - 2)$; since $k \ge 2$, Theorem~\ref{thm:symmetric-iff} equates this to symmetry of $S_{a,k}$ (and consecutive ceiling quotients differ by at most $1$).
+
+For~(ii), if $S_{a,k}$ ($1 \le k \le a - 2$) is symmetric, then $q_0 = \lceil (a-1)/k \rceil \ge 2$ and $(q_0 - 1)k = a - 2$, whence $(q_0 - 1)(k + 1) = (a - 2) + (q_0 - 1) \ge a - 1$, giving $q(S_{a,k+1}) = \lceil (a-1)/(k+1) \rceil \le q_0 - 1 < q(S_{a,k})$.
+
+For~(iii), when $k \ge 2$ and $S_{a,k}$ is symmetric, $a - 2 = tk$ ($t \ge 1$), so $a - 1 = tk + 1$ and $a = tk + 2$. Because $k \ge 2$, we have $tk < tk + 1 < tk + 2 \le (t+1)k$, whence $f(a-1,k) = \lceil (tk+1)/k \rceil = t + 1 = \lceil (tk+2)/k \rceil = f(a,k)$.
+\end{proof}
+
+\begin{example}[Concrete counterexamples]
+\label{ex:comb}
+\begin{enumerate}
+  \item[(a)] At $(a,k) = (3,1)$, $S_{3,1} = \langle 3, 4 \rangle$ is symmetric with gap set $\{1, 2, 5\}$, $F = 5$, $C = 6$, and true Eliahou depth $q(S_{3,1}) = 6/3 = 2$, whereas $\lceil 3/1 \rceil = 3 \ne 2$.
+  \item[(b)] At $(a,k) = (5,2)$, $S_{5,2} = \langle 5, 6, 7 \rangle$ has gap set $\{1, 2, 3, 4, 8, 9\}$, $F = 9$, $C = 10$, true Eliahou depth $q(S_{5,2}) = 10/5 = 2$, and ordinary truncation threshold $m = 2$ ($S_{5,2}^{(2)} = \{0\} \cup [10, \infty)$), whereas $\lceil 5/2 \rceil = 3 \ne 2$.
+  \item[(c)] At $(a,k) = (5,3)$, $S_{5,3} = \langle 5, 6, 7, 8 \rangle$ is symmetric with gap set $\{1, 2, 3, 4, 9\}$ and $F = 9$; its true Eliahou depth jumps from $q(S_{4,3}) = 1$ to $q(S_{5,3}) = 2$, whereas $\lceil 4/3 \rceil = 2 = \lceil 5/3 \rceil$ fails to jump.
+\end{enumerate}
+\end{example}
+
+\section{Homological Depth of Monomial Subrings and Tangent Cones}
+\label{sec:homological}
+
+Let $K$ be an arbitrary field, $a \ge 2$, and $1 \le k \le a-1$. We now analyze the homological depth of every standard commutative-algebraic ring attached to $S_{a,k}$.
+
+\subsection{The affine numerical semigroup ring \texorpdfstring{$K[S_{a,k}]$}{K[S\_\{a,k\}]}}
+Let $K[S_{a,k}] = K[t^a, t^{a+1}, \dots, t^{a+k}] = \bigoplus_{s \in S_{a,k}} K t^s \subseteq K[t]$, with graded maximal ideal $\mm = \bigoplus_{s \in S_{a,k} \setminus \{0\}} K t^s$.
+
+\begin{theorem}[{Constant homological depth $1$ of $K[S_{a,k}]$}]
+\label{thm:affine-depth}
+For every field $K$, every $a \ge 2$, and every $1 \le k \le a-1$:
+\begin{enumerate}
+  \item[(i)] $t^a \in \mm$ is a nonzerodivisor on $K[S_{a,k}]$ with $1 \notin t^a K[S_{a,k}]$.
+  \item[(ii)] Every polynomial $g \in \mm$ (homogeneous or inhomogeneous) satisfies $g^{\lceil (a-1)/k \rceil + 1} \in t^a K[S_{a,k}]$. Consequently, $(t^a)$ cannot be extended to a $K[S_{a,k}]$-regular sequence $(t^a, g)$ of length $2$ by any $g \in \mm$, so $\depth_{\mm}(K[S_{a,k}]) = 1$ identically.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Since $K[S_{a,k}] \subseteq K[t]$ is a subring of an integral domain, multiplication by $t^a$ shifts every exponent by $+a$ and is injective; moreover, every nonzero multiple $t^a h$ has zero constant term, so $1 \notin t^a K[S_{a,k}]$.
+
+For~(ii), let $q_0 = \lceil (a-1)/k \rceil$ and take any $g = \sum_{s \in S_{a,k} \setminus \{0\}} c_s t^s \in \mm$. Every nonzero term of $g$ has exponent $s \ge a$. Expanding $g^{q_0 + 1}$, every nonzero term has exponent $n \in S_{a,k}$ satisfying $n \ge (q_0 + 1)a = a + q_0 a$. Then $n - a \ge q_0 a = C(S_{a,k})$, so $n - a \in S_{a,k}$ by Theorem~\ref{thm:eliahou}(i), whence $t^n = t^a \cdot t^{n-a} \in t^a K[S_{a,k}]$. Thus $g^{q_0 + 1} \in t^a K[S_{a,k}]$. If $(t^a, g)$ were regular, descending along $g^{q_0+1}, g^{q_0}, \dots, g^0$ modulo $t^a K[S_{a,k}]$ would force $1 = g^0 \in t^a K[S_{a,k}]$, contradicting~(i).
+\end{proof}
+
+\subsection{The projective monomial curve coordinate ring \texorpdfstring{$R_{a,k}$}{R\_\{a,k\}}}
+Because $1$-dimensional domains are automatically Cohen--Macaulay, homological depth drops associated with numerical semigroups classically appear in the $2$-dimensional homogeneous coordinate ring of the projective closure \cite{Bresinsky1975,GotoWatanabe1978,PatilSingh1990}:
+\[
+  R_{a,k} = K\bigl[u^{a+k},\; u^k v^a,\; u^{k-1} v^{a+1},\; \dots,\; u v^{a+k-1},\; v^{a+k}\bigr] \subseteq K[u,v].
+\]
+Put $d = a + k$ and $A^{\mathrm{proj}}_{a,k} = \{0\} \cup [a, d]$. Giving each generator standard degree $1$, $R_{a,k} = \bigoplus_{r \ge 0} (R_{a,k})_r$ has $(R_{a,k})_r = \mathrm{span}_K\{u^{rd - s} v^s : s \in r A^{\mathrm{proj}}_{a,k}\}$, with maximal ideal $\mm_{R_{a,k}} = \bigoplus_{r \ge 1} (R_{a,k})_r$.
+
+\begin{theorem}[{Constant homological depth $2$ of $R_{a,k}$}]
+\label{thm:proj-depth}
+For every field $K$, every $a \ge 2$, and every $1 \le k \le a-1$:
+\begin{enumerate}
+  \item[(i)] $(u^d, v^d)$ is an $R_{a,k}$-regular sequence of length $2$ in $\mm_{R_{a,k}}$.
+  \item[(ii)] Every polynomial $G \in \mm_{R_{a,k}}$ satisfies $G^{\lceil (a-1)/k \rceil + 2} \in u^d R_{a,k} + v^d R_{a,k}$. Hence $(u^d, v^d)$ cannot be extended to any regular sequence of length $3$, and $\depth_{\mm}(R_{a,k}) = 2$ identically ($R_{a,k}$ is Cohen--Macaulay for all $a,k$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By induction on $r$ using Lemma~\ref{lem:sumset}, $r A^{\mathrm{proj}}_{a,k} = \bigcup_{j=0}^r [ja, jd]$. Clearly $u^d$ is a nonzerodivisor on the domain $R_{a,k}$, and a polynomial $H = \sum_{r,s} c_{r,s} u^{rd-s} v^s \in R_{a,k}$ belongs to $u^d R_{a,k}$ if and only if every $(r,s)$ with $c_{r,s} \ne 0$ satisfies $r \ge 1$ and $s \in (r-1) A^{\mathrm{proj}}_{a,k}$.
+
+Suppose $v^d H \in u^d R_{a,k}$ for some $H \in R_{a,k}$, and let $(r,s)$ be any index with $c_{r,s} \ne 0$. Then $s \in r A^{\mathrm{proj}}_{a,k}$, so $j_1 a \le s \le j_1 d$ for some $0 \le j_1 \le r$. Because the coefficient of $u^{(r+1)d - (d+s)} v^{d+s}$ in $v^d H$ is $c_{r,s} \ne 0$ and $v^d H \in u^d R_{a,k}$, we also have $d + s \in r A^{\mathrm{proj}}_{a,k}$, so $d + s \le j_2 d \le rd$ for some $0 \le j_2 \le r$. Since $d \ge 3$, $d + s \le rd$ forces $r \ge 1$ and $s \le (r - 1)d$. If $j_1 \le r - 1$, then $s \in [j_1 a, j_1 d] \subseteq (r-1) A^{\mathrm{proj}}_{a,k}$ immediately; if $j_1 = r$, then $(r-1)a \le ra \le s \le (r-1)d$, so $s \in [(r-1)a, (r-1)d] \subseteq (r-1) A^{\mathrm{proj}}_{a,k}$ as well. Hence $H \in u^d R_{a,k}$, proving~(i).
+
+For~(ii), set $N = q_0 + 2$ with $q_0 = \lceil (a-1)/k \rceil$. Every nonzero monomial $u^{rd-s} v^s$ appearing in $G^N$ has graded degree $r \ge N \ge 3$ and $s \in [ja, jd]$ for some $0 \le j \le r$. If $j \le r - 1$, then $s \in (r-1) A^{\mathrm{proj}}_{a,k}$ and $u^{rd-s} v^s \in u^d R_{a,k}$. Suppose $j = r$, so $ra \le s \le rd$. Since $r \ge 2$ and $k \le a - 1$, we have $s \ge 2a > a + k = d$. Consider $s - d \le (r-1)d$:
+\begin{itemize}
+  \item If $s - d \ge (r-1)a$, then $s - d \in [(r-1)a, (r-1)d] \subseteq (r-1) A^{\mathrm{proj}}_{a,k}$.
+  \item If $s - d < (r-1)a$, then on one hand $s - d \ge ra - (a+k) = (r-2)a + (a-k) > (r-2)a$, and on the other hand $r - 2 \ge q_0$ gives $(r-2)k \ge a - 1$, so $s - d \le (r-1)a - 1 = (r-2)a + (a - 1) \le (r-2)a + (r-2)k = (r-2)d$, whence $s - d \in [(r-2)a, (r-2)d] \subseteq (r-1) A^{\mathrm{proj}}_{a,k}$.
+\end{itemize}
+In all cases $u^{rd-s} v^s \in u^d R_{a,k} + v^d R_{a,k}$, so $G^N \in u^d R_{a,k} + v^d R_{a,k}$. Since $1 \notin \mm_{R_{a,k}}$, no regular sequence $(u^d, v^d, G)$ can exist.
+\end{proof}
+
+\subsection{The tangent cone \texorpdfstring{$\gr_{\mm}(K[[S_{a,k}]])$}{gr\_m(K[[S\_\{a,k\}]])} and powers of the toric ideal}
+For general numerical semigroups (including symmetric ones), the associated graded ring $\gr_{\mm}(K[[S]]) = \bigoplus_{r \ge 0} \mm^r / \mm^{r+1}$ frequently fails to be Cohen--Macaulay, dropping from depth $1$ to depth $0$ \cite{GarciaSanchezOjeda2010}. For $S_{a,k}$, however, $\gr_{\mm}(K[[S_{a,k}]])$ is \emph{always} Cohen--Macaulay, while its internal filtration invariants separate $\lceil (a-1)/k \rceil$ from $\lceil a/k \rceil$.
+
+\begin{theorem}[Tangent-cone valuation, constant depth $1$, and dual thresholds]
+\label{thm:tangent}
+Let $a \ge 2$, $1 \le k \le a-1$, and $\mm = (t^a, \dots, t^{a+k}) \subset K[[S_{a,k}]]$.
+\begin{enumerate}
+  \item[(i)] \textbf{Exact $\mm$-adic order:} For every $s \in S_{a,k}$ and $r \ge 0$, $t^s \in \mm^r$ if and only if $r \le \lfloor s/a \rfloor$; hence $\nu_{\mm}(t^s) = \lfloor s/a \rfloor$.
+  \item[(ii)] \textbf{Constant depth $1$:} For every $s \in S_{a,k}$, $\nu_{\mm}(t^{s+a}) = \lfloor (s+a)/a \rfloor = \nu_{\mm}(t^s) + 1$. Consequently, $\overline{t^a} = t^a + \mm^2$ is a nonzerodivisor on $\gr_{\mm}(K[[S_{a,k}]])$, and $\depth(\gr_{\mm}(K[[S_{a,k}]])) = 1$ for all $(a,k)$.
+  \item[(iii)] \textbf{Reduction-number and Hilbert-stabilization threshold:} One has $\dim_K(\mm^r / \mm^{r+1}) = \min(rk + 1, a)$, and $\mm^{r+1} = t^a \mm^r$ ($r \ge 1$) holds if and only if $r \ge \lceil (a-1)/k \rceil$.
+  \item[(iv)] \textbf{Sumset-overlap and nilpotency threshold:} Consecutive generator sumsets overlap ($r G_{a,k} \cap (r+1) G_{a,k} \ne \emptyset$), equivalently $(\overline{t^{a+k}})^r = 0$ in $\gr_{\mm}(K[[S_{a,k}]])$ (i.e., $t^{r(a+k)} \in \mm^{r+1}$), if and only if $r \ge \lceil a/k \rceil$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For~(i), $t^s \in \mm^r$ holds iff $s \in j G_{a,k} = [ja, j(a+k)]$ for some $j \ge r$. If so, $ra \le ja \le s$ gives $r \le \lfloor s/a \rfloor$. Conversely, suppose $s \in S_{a,k}$ and $r \le j := \lfloor s/a \rfloor$. Pick $m \ge 0$ with $ma \le s \le m(a+k)$; then $ma \le s$ implies $m \le j$. Clearly $ja \le s$. If $m = j$ then $s \le j(a+k)$ holds directly; if $m + 1 \le j$, then $(m+1)a \le ja \le s \le ma + mk$ gives $a \le mk$, so $jk \ge (m+1)k = mk + k \ge a + k$, whence $j(a+k) = ja + jk \ge ja + a + k > (j+1)a > s$. Thus $s \in j G_{a,k}$ with $j \ge r$, proving~(i), and~(ii) follows immediately from $\lfloor (s+a)/a \rfloor = \lfloor s/a \rfloor + 1$.
+
+For~(iii), by~(i), $\mm^r \setminus \mm^{r+1}$ has monomial basis $\{t^s : s \in S_{a,k},\; ra \le s < (r+1)a\} = \{t^s : ra \le s \le \min(r(a+k),\, (r+1)a - 1)\}$, of cardinality $\min(rk + 1, a)$. Moreover, $t^a \mm^r \subseteq \mm^{r+1}$ always holds. If $r \ge \lceil (a-1)/k \rceil$ and $t^s \in \mm^{r+1}$, then $s \ge (r+1)a$ gives $s - a \ge ra \ge C(S_{a,k})$, so $s - a \in S_{a,k}$ with $\lfloor (s-a)/a \rfloor = \lfloor s/a \rfloor - 1 \ge r$, whence $t^s \in t^a \mm^r$. Conversely, if $1 \le r < \lceil (a-1)/k \rceil$, then $rk < a - 1$, and $s = (r+1)a + rk + 1 \in [(r+1)a, (r+1)(a+k)]$ yields $t^s \in \mm^{r+1}$, while $s - a = r(a+k) + 1 < (r+1)a$ is a gap of $S_{a,k}$, so $t^s \notin t^a \mm^r$.
+
+For~(iv), $[ra, r(a+k)] \cap [(r+1)a, (r+1)(a+k)] \ne \emptyset \iff r(a+k) \ge (r+1)a \iff rk \ge a \iff r \ge \lceil a/k \rceil$, which by~(i) is also equivalent to $\lfloor r(a+k)/a \rfloor = r + \lfloor rk/a \rfloor \ge r + 1$, i.e., $t^{r(a+k)} \in \mm^{r+1}$.
+\end{proof}
+
+\begin{remark}[Brodmann depth of powers of the defining toric ideal]
+\label{rem:toric-powers}
+Let $P = K[x_0, \dots, x_k]$ ($\deg x_i = a + i$) and $I_{a,k} = \ker(P \twoheadrightarrow K[S_{a,k}])$. Could ``the depth-drop threshold of $S_{a,k}$'' mean the minimal $t \ge 1$ where $\depth(P / I_{a,k}^t)$ drops from $1$ to $0$? Again the answer is \textbf{no}:
+\begin{itemize}
+  \item For $k = 1$ and \emph{every} $a \ge 2$, $I_{a,1} = (x_1^a - x_0^{a+1}) \subset K[x_0,x_1]$ is a principal prime ideal, so $I_{a,1}^t = (x_1^a - x_0^{a+1})^t$ is principal and $\depth(P / I_{a,1}^t) = 1$ for \emph{all} $t \ge 1$ (no drop, whereas $\lceil a/1 \rceil = a$). Likewise, for $k = 2$ and every even $a = 2m \ge 4$, $I_{2m,2} = (x_1^2 - x_0 x_2,\, x_0^{m+1} - x_2^m) \subset K[x_0,x_1,x_2]$ is a height-$2$ complete intersection, so $\depth(P / I_{2m,2}^t) = 1$ for \emph{all} $t \ge 1$ (e.g., at $a=6, k=2$, $\lceil 6/2 \rceil = 3$ but depth never drops).
+  \item Conversely, at $(a,k) = (5,2)$, $\lceil 5/2 \rceil = 3$, yet exact rational Gaussian elimination (verified in \texttt{verify.py}) shows $\depth(\QQ[x_0,x_1,x_2] / I_{5,2}^2) = 0$ already at $t = 2$ (witnessed in weighted degree $35$); and at the symmetric semigroup $(a,k) = (5,3)$ (where $I_{5,3}$ is a codimension-$3$ Pfaffian Gorenstein ideal), $\lceil 5/3 \rceil = 2$, yet $\depth(P / I_{5,3}^2) = 1$ and the first drop occurs at $t = 3 \ne 2$.
+\end{itemize}
+\end{remark}
+
+\section{Symmetric-Gap Pinched Veronese Subrings}
+\label{sec:veronese}
+
+Finally, one may construct a $2$-variable monomial subring that directly embeds the generator interval $\{a, \dots, a+k\}$ together with its dual $\{0, \dots, k\}$ inside $[0, a+k]$ ($a \ge k+2$), creating the \emph{symmetric gap block} $\{k+1, \dots, a-1\}$:
+\[
+  B_{a,k} = K\bigl[u^{a+k-i} v^i : i \in A^{\mathrm{sym}}_{a,k}\bigr] \subseteq K[u,v], \qquad A^{\mathrm{sym}}_{a,k} = \{0, 1, \dots, k\} \cup \{a, a+1, \dots, a+k\}.
+\]
+For $m \ge 1$, its $m$-th Veronese subring is $B_{a,k}^{(m)} = K[u^{m(a+k)-s} v^s : s \in m A^{\mathrm{sym}}_{a,k}]$, where $m A^{\mathrm{sym}}_{a,k} = \bigcup_{j=0}^m [ja, ja + mk]$. Even for this genuine symmetric-gap monomial subring family, the Veronese Cohen--Macaulay threshold is $\lceil (a-1)/k \rceil$, \emph{not} $\lceil a/k \rceil$.
+
+\begin{theorem}[{Veronese depth threshold for $B_{a,k}^{(m)}$}]
+\label{thm:veronese}
+Let $K$ be any field, $a \ge 3$, $1 \le k \le a - 2$, $m \ge 1$, and $D = m(a+k)$. The homogeneous system of parameters $(u^D, v^D)$ forms a $B_{a,k}^{(m)}$-regular sequence of length $2$ (equivalently, $\depth_{\mm}(B_{a,k}^{(m)}) = 2$) if and only if
+\[
+  m \ge \ceil{\frac{a-1}{k}}.
+\]
+In particular, whenever $a \equiv 1 \pmod{k}$ (such as $a = 5, k = 2$, where $\lceil (a-1)/k \rceil = 2 < 3 = \lceil a/k \rceil$), $B_{a,k}^{(m)}$ already achieves full depth $2$ at $m = \lceil (a-1)/k \rceil < \lceil a/k \rceil$.
+\end{theorem}
+
+\begin{proof}
+Write $B = m A^{\mathrm{sym}}_{a,k} = \bigcup_{j=0}^m [ja, ja + mk]$; by induction on $r \ge 1$, $r B = \bigcup_{j=0}^{rm} [ja, ja + rmk]$. Whenever $rmk \ge a - 1$, consecutive intervals $[ja, ja + rmk]$ and $[(j+1)a, (j+1)a + rmk]$ cover $[0, rD]$ without gaps, so $r B = [0, rD]$.
+
+If $m \ge \lceil (a-1)/k \rceil$, then $mk \ge a - 1$, so already $1 \cdot B = [0, D]$ and $B_{a,k}^{(m)} = K[u,v]^{(D)}$ is the full $D$-th Veronese subring of $K[u,v]$. For any $r \ge 1$ and $s \in r B = [0, rD]$ with $D + s \in r B = [0, rD]$, we have $s \le (r-1)D$, so $s \in (r-1)B$; hence $(u^D, v^D)$ is $B_{a,k}^{(m)}$-regular.
+
+Conversely, suppose $1 \le m < \lceil (a-1)/k \rceil$, so $mk < a - 1$. Set $r = \lceil (a-1)/(mk) \rceil \ge 2$ and $s_* = (r - 1)mk + 1$. By definition of $r$, $(r - 1)mk < s_* \le a - 1 < a$ and $rmk \ge a - 1$. Therefore:
+\begin{enumerate}
+  \item[(1)] $r B = [0, rD]$, and since $s_* + D \le (a - 1) + D < 2D \le rD$, both $s_* \in r B$ and $D + s_* \in r B$;
+  \item[(2)] in $(r-1)B = \bigcup_{j=0}^{(r-1)m} [ja, ja + (r-1)mk]$, the $j=0$ interval ends at $(r-1)mk < s_*$ while every $j \ge 1$ interval starts at $ja \ge a > s_*$, so $s_* \notin (r-1)B$.
+\end{enumerate}
+Thus the monomial $F = u^{rD - s_*} v^{s_*} \in B_{a,k}^{(m)}$ satisfies $F \notin u^D B_{a,k}^{(m)}$, whereas
+\[
+  v^D F = u^D \cdot \bigl(u^{rD - (D+s_*)} v^{D+s_*}\bigr) \in u^D B_{a,k}^{(m)},
+\]
+proving that $(u^D, v^D)$ is not a regular sequence and $\depth_{\mm}(B_{a,k}^{(m)}) = 1$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Audit}
+\label{sec:lean}
+
+{\raggedright
+The entire algebraic and combinatorial resolution has been formalized from scratch in \textbf{Core Lean~4.19.0} (\texttt{package/lean/}, zero external dependencies, compiled with \texttt{-DwarningAsError=true}, zero \texttt{sorry}, zero \texttt{native\_\allowbreak decide}, and zero custom axioms):
+\begin{itemize}\raggedright
+  \item \texttt{Conjecture00000000546/\allowbreak Basic.lean}: Exact ceiling division \texttt{ceilDiv}, modular jump criteria (\texttt{ceilDiv\_\allowbreak succ\_\allowbreak gt\_\allowbreak iff}), constructive field typeclass \texttt{FieldCoeff} instantiated by $\FF_2$ (\texttt{instFieldCoeffF2}), and full univariate polynomial algebra \texttt{Poly1 K} with Cauchy-product support theorems.
+  \item \texttt{Conjecture00000000546/\allowbreak Semigroup.lean}: Inductive interval semigroup \texttt{InIntervalSemigroup a k}, multiplicity, conductor, Frobenius number, \texttt{eliahouDepth\_\allowbreak intervalSemigroup} (Theorem~\ref{thm:eliahou}), \texttt{eliahouDepth\_\allowbreak ne\_\allowbreak conjectured\_\allowbreak iff}, \texttt{powerSemigroup\_\allowbreak ordinary\_\allowbreak iff} (Proposition~\ref{prop:power-semigroup}), \texttt{hasSymmetricGaps\_\allowbreak iff} (Theorem~\ref{thm:symmetric-iff}), \texttt{symmetricGaps\_\allowbreak iff\_\allowbreak eliahouDepth\_\allowbreak jump}, and \texttt{conjectured\_\allowbreak formula\_\allowbreak no\_\allowbreak jump\_\allowbreak at\_\allowbreak symmetricGaps} (Theorem~\ref{thm:sym-jump}).
+  \item \texttt{Conjecture00000000546/\allowbreak TangentCone.lean}: Filtration \texttt{InMaxIdealPower}, exact $\mm$-adic order \texttt{inMaxIdealPower\_\allowbreak iff\_\allowbreak le\_\allowbreak div}, full-polynomial nonzerodivisor theorem \texttt{tangentCone\_\allowbreak ta\_\allowbreak nonzerodivisor\_\allowbreak poly}, \texttt{reductionNumber\_\allowbreak threshold\_\allowbreak iff}, and \texttt{topGenerator\_\allowbreak nilpotent\_\allowbreak in\_\allowbreak gr\_\allowbreak iff} (Theorem~\ref{thm:tangent}).
+  \item \texttt{Conjecture00000000546/\allowbreak MonomialSubrings.lean}: Full polynomial subrings \texttt{InAffineSemigroupRing} and bivariate graded subrings \texttt{InBivarSubring}, proving \texttt{affine\_\allowbreak ta\_\allowbreak is\_\allowbreak regSeq1} and \texttt{affine\_\allowbreak no\_\allowbreak regSeq2\_\allowbreak extending\_\allowbreak ta} (Theorem~\ref{thm:affine-depth}), \texttt{projectiveClosure\_\allowbreak isRegSeq2} and \texttt{projectiveClosure\_\allowbreak no\_\allowbreak regSeq3} (Theorem~\ref{thm:proj-depth}), and \texttt{pinchedVeronese\_\allowbreak isRegSeq2\_\allowbreak iff} (Theorem~\ref{thm:veronese}).
+  \item \texttt{Conjecture00000000546/\allowbreak Main.lean}: Master theorem \texttt{master\_\allowbreak resolution\_\allowbreak 00000000546} together with concrete counterexample and non-vacuity theorems \texttt{counterexample\_\allowbreak S3\_\allowbreak 1}, \texttt{counterexample\_\allowbreak S5\_\allowbreak 2\_\allowbreak all\_\allowbreak readings}, \texttt{counterexample\_\allowbreak symmetric\_\allowbreak jump\_\allowbreak S5\_\allowbreak 3}, and \texttt{nonvacuity\_\allowbreak witness\_\allowbreak F2\_\allowbreak 5\_\allowbreak 2}.
+\end{itemize}
+Independently, \texttt{package/verify.py} exhaustively checks all $435$ semigroup pairs for $2 \le a \le 30$, $1 \le k < a$, affine and tangent-cone filtrations for $2 \le a \le 17$, projective closures for $2 \le a \le 18$, $437$ pinched Veronese configurations, and exact rational Gaussian elimination on powers $P / I_{a,k}^t$ ($1 \le t \le 4$).
+\par}
+
+\begin{thebibliography}{9}
+
+\bibitem{Bresinsky1975}
+H.~Bresinsky, \emph{Symmetric semigroups of integers generated by $4$ elements}, Manuscripta Math.\ \textbf{17} (1975), 205--219.
+
+\bibitem{BrunsHerzog1998}
+W.~Bruns and J.~Herzog, \emph{Cohen--Macaulay Rings}, rev.\ ed., Cambridge Studies in Advanced Mathematics, vol.~39, Cambridge Univ.\ Press, 1998.
+
+\bibitem{Eliahou2018}
+S.~Eliahou, \emph{Wilf's conjecture and Frobenius' number}, J.\ Eur.\ Math.\ Soc.\ (JEMS) \textbf{20} (2018), no.~9, 2105--2143.
+
+\bibitem{GarciaSanchezOjeda2010}
+P.~A.~Garc\'ia-S\'anchez and I.~Ojeda, \emph{Uniquely presented finitely generated commutative monoids}, Pacific J.\ Math.\ \textbf{248} (2010), no.~1, 91--105.
+
+\bibitem{GotoWatanabe1978}
+S.~Goto and K.~Watanabe, \emph{On graded rings, I}, J.\ Math.\ Soc.\ Japan \textbf{30} (1978), no.~2, 179--213.
+
+\bibitem{Kunz1970}
+E.~Kunz, \emph{The value-semigroup of a one-dimensional Gorenstein ring}, Proc.\ Amer.\ Math.\ Soc.\ \textbf{25} (1970), 748--751.
+
+\bibitem{PatilSingh1990}
+D.~P.~Patil and B.~Singh, \emph{Generators for the derivation modules and the relation ideals of certain curves}, Manuscripta Math.\ \textbf{68} (1990), 327--335.
+
+\bibitem{Villarreal2015}
+R.~H.~Villarreal, \emph{Monomial Algebras}, 2nd ed., Monographs and Research Notes in Mathematics, CRC Press, Boca Raton, FL, 2015.
+
+\end{thebibliography}
+
+\end{document}

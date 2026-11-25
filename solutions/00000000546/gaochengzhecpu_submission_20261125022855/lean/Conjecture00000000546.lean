@@ -1,0 +1,5 @@
+import Conjecture00000000546.Basic
+import Conjecture00000000546.Semigroup
+import Conjecture00000000546.TangentCone
+import Conjecture00000000546.MonomialSubrings
+import Conjecture00000000546.Main
