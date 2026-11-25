@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage[margin=.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Conjecture 00000000457: Shi coefficient log-concavity}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+For the Shi arrangement in $\mathbb R^n$ with hyperplanes
+$x_i-x_j=0,1$ for $1\le i<j\le n$, Headley's formula gives
+$\chi(t)=t(t-n)^{n-1}$ \cite[Section~1]{athanasiadis}.
+Restricting to the sum-zero hyperplane removes the common diagonal
+line. This leaves the same intersection poset and lowers the
+dimension of every intersection by one, so the essential arrangement
+has characteristic polynomial $(t-n)^{n-1}$.
+Write $N=n-1$. In descending degree order, the absolute values of the
+nonzero coefficients in either convention are
+\[
+ a_k=\binom{N}{k}n^k,\qquad 0\le k\le N.
+\]
+
+Use the circular parking model with $n$ spots and available car
+labels $1,\ldots,N$. An element of $\mathcal P_k$ is a set of $k$
+labels with one preferred spot assigned to each. Cars arrive in
+increasing label order and advance cyclically from their preferred
+spot until finding an empty one. Each car parks because fewer than
+$n$ spots have already been occupied. Hence every choice of labels
+and preferences is a successful circular parking word, and
+$|\mathcal P_k|=a_k$.
+Any spot empty at the end was empty throughout the process. Cutting
+the circle immediately after such a spot gives a linear
+parking word on the remaining spots, since no car passed the chosen
+empty spot.
+
+Fix $1\le k<N$ and take a pair in
+$\mathcal P_{k-1}\times\mathcal P_{k+1}$ with label sets $A,B$.
+Read the labels of $A\mathbin{\triangle}B$ in increasing order.
+The running excess of $B$-only labels over $A$-only labels starts
+at zero, changes by $\pm1$ at each step, and ends at $2$. Stop at
+the first prefix where it equals $1$. Exchange the membership of
+every label in this prefix, moving each car with its preferred
+spot. Keep the two preferences of each common label in their
+original words. Exactly one more car moves from $B$ to $A$ than
+from $A$ to $B$, yielding a pair in
+$\mathcal P_k\times\mathcal P_k$.
+
+The exchange preserves the ordered symmetric difference. Within
+the exchanged prefix, the new excess of first-word labels over
+second-word labels equals the old excess of $B$-only labels over
+$A$-only labels. The same stopping prefix is therefore recovered
+as the first prefix reaching $1$ for this new excess. Exchanging
+it again recovers both input words, so the map is injective.
+A target pair with identical label sets has empty symmetric
+difference and cannot be in the image. Thus $a_k^2>a_{k-1}a_{k+1}$
+throughout the interior of the positive support.
+
+The positive ratios $a_k/a_{k-1}$ consequently decrease, so the
+sequence rises until those ratios fall below $1$ and falls after
+that, allowing a tie at its maximum. The full polynomial appends
+a zero constant coefficient, which preserves both log-concavity
+and unimodality. The cases with no interior positive index are
+immediate from the displayed sequence. This proves the coefficient
+inequality and the resulting unimodality by a parking-word injection.
+
+The Lean theorem \texttt{exchange\_certificate} checks that the
+prefix exchange balances the exclusive labels, carries their payloads,
+has the stated inverse, and leaves a nonempty symmetric difference.
+The theorem \texttt{exchange\_parking\_sizes} restores the common
+labels to give exactly $k$ cars in each output word. The characteristic
+polynomial formula and the parking-word enumeration are used above.
+
+\begin{thebibliography}{9}
+\bibitem{athanasiadis}
+C. A. Athanasiadis, \emph{Inductively Free Arrangements and a Result
+of Headley}, FPSAC, 1997.
+\href{https://fpsac-archive.github.io/FPSAC97/ARTICLES/Athanasiadis.pdf}{Proceedings paper}.
+\end{thebibliography}
+
+\end{document}
