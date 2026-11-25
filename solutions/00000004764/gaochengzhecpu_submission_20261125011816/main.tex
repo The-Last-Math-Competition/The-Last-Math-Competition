@@ -1,0 +1,309 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hypertexnames=false]{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\NC}{\mathrm{NC}}
+\newcommand{\NCirr}{\mathrm{NC}_{\mathrm{irr}}}
+\newcommand{\IntP}{\mathrm{Int}}
+\newcommand{\BP}{\mathbb{B}_1}
+\newcommand{\Bern}{\mu_{\mathrm{Bern}}}
+\newcommand{\Wig}{\mu_{\mathrm{sc}}}
+
+\title{\textbf{Disproof of the Power-of-Two Boolean--Free Convolution Conversion Conjecture (Conjecture 00000004764)}}
+\author{Formalized Resolution in Core Lean 4.19.0 and Exact Symbolic Arithmetic}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000004764} in the negative across all canonical mathematical interpretations. In noncommutative probability, Speicher--Woroudi Boolean additive convolution $\uplus$ arises from Voiculescu's free additive convolution $\boxplus$ by removing the functional composition $w = z M(z)$ from the moment--cumulant generating-function equation: free cumulants satisfy $M(z) - 1 = z M(z) R(z M(z))$ (equivalently $M(z) = C(z M(z))$), whereas Boolean cumulants satisfy $M(z) - 1 = z M(z) \tilde{B}(z)$ (equivalently $(1 - B(z)) M(z) = 1$). Conjecture \texttt{00000004764} asserts that the conversion between Boolean and free convolution is an explicit power of two whose exponent is controlled by the partition structure of the moment order and is exact at the generating-function level.
+
+We first explain why the conjecture appears plausible at low moment orders: because $4 + 1 = 5$ and $6 - 1 = 5$ are Fermat primes, Kreweras' partition-type ratios $N_{\NC}(\lambda)/N_{\IntP}(\lambda) = \frac{1}{n+1}\binom{n+1}{\ell(\lambda)}$ take values exclusively in $\{1, 2\} = \{2^0, 2^1\}$ at orders $n \in \{1, 2, 4\}$ (and centered $n \le 4$), while symmetric cumulant conversions $\beta_{2k}(\kappa)$ have exclusively power-of-two monomial coefficients up to order $2k = 6$. Nevertheless, deriving exact all-order Kreweras and Lagrange--B\"urmann conversion laws, we prove that odd prime factors ($3, 5, 7, \dots$), sign inversions, and algebraic square-root branch singularities obstruct any integer or rational power-of-two conversion under all four canonical readings: (I) Bercovici--Pata / moment--cumulant partition-type conversion, (II) same-measure cumulant conversion $\beta_n \leftrightarrow \kappa_n$, (III) direct two-measure convolution $\mu \uplus \nu$ versus $\mu \boxplus \nu$, and (IV) partition-lattice counts $|\IntP(n)|$ versus $|\NC(n)|$. All foundational identities and counterexamples are machine-checked from first principles in Core Lean 4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Problem Statement and Generating-Function Foundations}
+
+\subsection{Original Conjecture}
+We record the exact statement of Conjecture \texttt{00000004764} verbatim from \texttt{SOURCE.md}:
+\begin{quote}
+\textbf{English.} Definition: Boolean convolution is the simplified convolution without a composition condition. Conjecture: The conversion of Boolean to free convolution is an explicit power of two, the exponent is controlled by the partition structure of the moment order, and it is exact at the generating function level. (power-of-two conversion of Boolean-free convolution)
+\end{quote}
+(The accompanying Chinese formulation states identically that Boolean convolution is the simplified convolution without a composition condition, and conjectures that the conversion between Boolean and free convolution is an explicit power of two controlled by the partition structure of the moment order and exact at the generating-function level.)
+
+\medskip
+\noindent\textbf{Main Verdict.} \emph{Conjecture \texttt{00000004764} is \textbf{false}} under every mathematically faithful reading, even if arbitrary signed integer powers $2^e$ ($e \in \mathbb{Z}$) or rational powers $2^{p/q}$ ($p/q \in \mathbb{Q}$) are permitted.
+
+\subsection{Why Boolean Convolution Is the Simplified Non-Composition Convolution}
+Let $\mathcal{M}_1 \subset R[[z]]$ denote the space of normalized formal moment generating series
+\[
+  M_\mu(z) = 1 + \sum_{n=1}^{\infty} m_n(\mu) z^n, \qquad m_0(\mu) = 1,
+\]
+over a commutative ring $R$ (such as $\mathbb{Z}$, $\mathbb{Q}$, or $\mathbb{R}$; for compactly supported Borel probability measures $\mu$ on $\mathbb{R}$, $m_n(\mu) = \int_{\mathbb{R}} x^n \, d\mu(x)$ and $G_\mu(z) = z^{-1} M_\mu(z^{-1})$ is the Cauchy--Stieltjes transform).
+
+\begin{definition}[Free and Boolean Moment--Cumulant Generating Equations]
+Let $M(z) \in 1 + z R[[z]]$.
+\begin{enumerate}
+  \item[(a)] \textbf{Voiculescu--Speicher free cumulants \cite{Voiculescu1986,Speicher1994}:} Write $C(w) = 1 + \sum_{n=1}^{\infty} \kappa_n w^n = 1 + w R(w)$, where $R(w) = \sum_{n=1}^{\infty} \kappa_n w^{n-1}$ is Voiculescu's $R$-series. Since $z M(z)$ has zero constant term, the formal power series composition $C(z M(z))$ is well-defined without convergence hypotheses, and $(\kappa_n)_{n \ge 1}$ is uniquely determined by the \emph{composition equation}
+  \begin{equation}\label{eq:free-gen}
+    M(z) = C\bigl(z M(z)\bigr) \quad \Longleftrightarrow \quad M(z) - 1 = z M(z) \, R\bigl(z M(z)\bigr).
+  \end{equation}
+  The \emph{free additive convolution} $\mu \boxplus \nu$ is defined by $\kappa_n(\mu \boxplus \nu) = \kappa_n(\mu) + \kappa_n(\nu)$, i.e., $R_{\mu \boxplus \nu}(w) = R_\mu(w) + R_\nu(w)$.
+  \item[(b)] \textbf{Speicher--Woroudi Boolean cumulants \cite{SpeicherWoroudi1997}:} Write $B(z) = \sum_{n=1}^{\infty} \beta_n z^n = z \tilde{B}(z)$, where $\tilde{B}(z) = \sum_{n=1}^{\infty} \beta_n z^{n-1}$. Dropping the internal composition $z \mapsto z M(z)$ inside \eqref{eq:free-gen} yields the \emph{simplified non-composition equation}
+  \begin{equation}\label{eq:bool-gen}
+    M(z) - 1 = z M(z) \, \tilde{B}(z) \quad \Longleftrightarrow \quad \bigl(1 - B(z)\bigr) M(z) = 1 \quad \Longleftrightarrow \quad B(z) = 1 - \frac{1}{M(z)}.
+  \end{equation}
+  The \emph{Boolean additive convolution} $\mu \uplus \nu$ is defined by $\beta_n(\mu \uplus \nu) = \beta_n(\mu) + \beta_n(\nu)$, i.e., $B_{\mu \uplus \nu}(z) = B_\mu(z) + B_\nu(z)$.
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Exact Generating-Function Bijections]\label{prop:gen-bijections}
+Over any commutative ring $R$, equations \eqref{eq:free-gen} and \eqref{eq:bool-gen} define mutually inverse bijections between normalized moment series $M(z) \in 1 + z R[[z]]$ and cumulant series $K(w) = C(w) - 1 \in w R[[w]]$, respectively $B(z) \in z R[[z]]$:
+\begin{align}
+  m_n &= \sum_{j=1}^{n} \kappa_j [z^{n-j}] M(z)^j, & \kappa_n &= m_n - \sum_{j=1}^{n-1} \kappa_j [z^{n-j}] M(z)^j, \label{eq:rec-free}\\
+  m_n &= \sum_{j=1}^{n} \beta_j m_{n-j}, & \beta_n &= m_n - \sum_{j=1}^{n-1} \beta_j m_{n-j}. \label{eq:rec-bool}
+\end{align}
+Analytically on $\mathbb{C}^+$, free convolution linearizes via the compositional inverse $R_\mu(z) = G_\mu^{\langle -1 \rangle}(z) - z^{-1}$, whereas Boolean convolution linearizes via the algebraic self-energy $E_\mu(z) = z - G_\mu(z)^{-1}$ with no compositional inversion.
+\end{proposition}
+
+\begin{proof}
+Because $[z^n]\bigl((z M(z))^j\bigr) = [z^{n-j}] M(z)^j$ for $1 \le j \le n$ and vanishes for $j > n$, extracting $[z^n]$ in \eqref{eq:free-gen} gives the first identity in \eqref{eq:rec-free}. Since $M(0) = 1$ implies $[z^0] M(z)^n = 1$, isolating the $j = n$ summand $\kappa_n [z^0] M(z)^n = \kappa_n$ yields the triangular inverse formula in \eqref{eq:rec-free}. Similarly, $(1 - B(z)) M(z) = M(z) - (z \tilde{B}(z)) M(z) = 1$ is equivalent coefficient-by-coefficient to $M(0) = 1$ together with \eqref{eq:rec-bool}.
+\end{proof}
+
+\subsection{Combinatorial Partition Structures}
+For $n \ge 1$, let $\Pi(n)$ denote the set of set partitions of $[n] = \{1, \dots, n\}$.
+\begin{itemize}
+  \item $\NC(n) \subset \Pi(n)$ is the lattice of \emph{noncrossing partitions}: no two distinct blocks $V \ne W$ contain $a < b < c < d$ with $a, c \in V$ and $b, d \in W$.
+  \item $\IntP(n) \subset \NC(n)$ is the sublattice of \emph{interval partitions}: every block $V \in \pi$ is a contiguous discrete interval $\{a, a+1, \dots, b\}$.
+  \item $\NCirr(n) \subset \NC(n)$ is the subset of \emph{irreducible noncrossing partitions}: $1$ and $n$ belong to the same block of $\pi$.
+\end{itemize}
+Each $\pi \in \Pi(n)$ determines an integer partition (block-size type) $\lambda(\pi) = (1^{r_1} 2^{r_2} \cdots n^{r_n}) \vdash n$ with $\sum_{j=1}^n j r_j = n$ and block count $\ell(\lambda) = |\pi| = \sum_{j=1}^n r_j$. By Speicher \cite{Speicher1994}, Speicher--Woroudi \cite{SpeicherWoroudi1997}, and Lehner \cite{Lehner2002},
+\begin{equation}\label{eq:comb-expansions}
+  m_n(\mu) = \sum_{\pi \in \NC(n)} \prod_{V \in \pi} \kappa_{|V|}(\mu) = \sum_{\pi \in \IntP(n)} \prod_{V \in \pi} \beta_{|V|}(\mu), \qquad
+  \beta_n(\mu) = \sum_{\pi \in \NCirr(n)} \prod_{V \in \pi} \kappa_{|V|}(\mu).
+\end{equation}
+
+\section{Taxonomy of Canonical Readings and the Small-Order Mirage}
+
+\subsection{Four Exhaustive Mathematical Readings}
+To ensure complete coverage of every reasonable interpretation of ``the conversion of Boolean to free convolution is an explicit power of two, the exponent is controlled by the partition structure of the moment order, and it is exact at the generating function level,'' we analyze all four canonical conversion maps between Boolean and free probability:
+\begin{itemize}
+  \item \textbf{Reading I (Bercovici--Pata / Partition-Type Moment Conversion $\Lambda_{\mathrm{BF}} = \BP$):} The canonical semigroup isomorphism $\BP : (\mathcal{M}_1, \uplus) \xrightarrow{\sim} (\mathcal{M}_1, \boxplus)$ \cite{BercoviciPata1999,BelinschiNica2008} is defined by $\kappa_n(\BP(\mu)) = \beta_n(\mu) =: c_n$, satisfying $\BP(\mu \uplus \nu) = \BP(\mu) \boxplus \BP(\nu)$. Grouping \eqref{eq:comb-expansions} by integer partitions $\lambda \vdash n$ converts each Boolean term $N_{\IntP}(\lambda) c_\lambda$ in $m_n(\mu)$ to $N_{\NC}(\lambda) c_\lambda$ in $m_n(\BP(\mu))$ by the partition-dependent factor $R_{\mathrm{BP}}(\lambda) = N_{\NC}(\lambda)/N_{\IntP}(\lambda)$.
+  \item \textbf{Reading II (Same-Measure Cumulant Conversion $\beta_n(\mu) \leftrightarrow \kappa_n(\mu)$):} Converting between the Boolean linearizer $B_\mu(z)$ and the free linearizer $C_\mu(w) - 1$ of a single distribution $\mu$, either as a scalar ratio $\beta_n(\mu)/\kappa_n(\mu)$ or via partition-indexed monomial coefficients in $\beta_n(\kappa)$ and $\kappa_n(\beta)$.
+  \item \textbf{Reading III (Direct Two-Measure Convolution Conversion $\mu \uplus \nu$ vs.\ $\mu \boxplus \nu$):} Converting $m_n(\mu \uplus \nu)$ (or $M_{\mu \uplus \nu}(z)$) to $m_n(\mu \boxplus \nu)$ (or $M_{\mu \boxplus \nu}(z)$), either term-by-term across moment partitions $\lambda \vdash n$ or as a total moment ratio $m_n(\mu \boxplus \mu)/m_n(\mu \uplus \mu)$.
+  \item \textbf{Reading IV (Lattice Cardinality Conversion $|\IntP(n)|$ vs.\ $|\NC(n)|$):} Comparing the lattice sizes at moment order $n$, i.e., evaluating the generating series $M^{\mathrm{Bool}}(z)$ and $M^{\mathrm{Free}}(z)$ at unit cumulants $c_k \equiv 1$.
+\end{itemize}
+
+\subsection{Diagnostic Origin: Fermat-Prime Mirages and Belinschi--Nica Conflation}
+Before proving the disproofs, we record two genuine phenomena that make the conjecture deceptive at small orders:
+\begin{enumerate}
+  \item[(1)] \textbf{The $n+1 = 5$ and $n-1 = 5$ Fermat-prime mirages:} At moment orders $n \in \{1, 2, 4\}$, every integer partition $\lambda \vdash n$ has $N_{\NC}(\lambda)/N_{\IntP}(\lambda) = \frac{1}{n+1}\binom{n+1}{\ell(\lambda)} \in \{1, 2\} = \{2^0, 2^1\}$ because $n+1 = 5$ has $\frac{1}{5}\binom{5}{k} \in \{1, 2, 2, 1\}$. Likewise, for centered distributions ($m_1 = 0$), two-measure convolution satisfies $m_n(\mu \boxplus \nu) = m_n(\mu \uplus \nu)$ for $n \in \{2, 3\}$ and converts $a_4 + c_4 + 2 a_2 c_2$ to $a_4 + c_4 + 4 a_2 c_2$ at $n = 4$ (factors $2^0$ and $2^1$). For symmetric cumulants ($\kappa_{\text{odd}} = 0$), $\beta_2 = \kappa_2$, $\beta_4 = \kappa_4 + \kappa_2^2$, and $\beta_6 = \kappa_6 + 4\kappa_4\kappa_2 + 2\kappa_2^3$ have exclusively power-of-two coefficients up to $n = 6$ because $n - 1 = 5$.
+  \item[(2)] \textbf{Belinschi--Nica's $\BP(\mu) = (\mu^{\boxplus 2})^{\uplus 1/2}$ identity:} Belinschi and Nica \cite{BelinschiNica2008} proved that $\BP(\mu) = (\mu^{\boxplus 2})^{\uplus 1/2}$ has Boolean cumulants $\beta_n(\BP(\mu)) = \sum_{\pi \in \NCirr(n)} 2^{|\pi|-1} \prod_{V \in \pi} \kappa_{|V|}(\mu)$. Here the $2^{|\pi|-1}$ weight merely reflects the explicit two-fold free power $\kappa_j \mapsto 2\kappa_j$ followed by $\frac{1}{2}$ Boolean scaling: grouped by partition type $\lambda \vdash n$, the monomial coefficient is $2^{\ell(\lambda)-1} N_{\NCirr}(\lambda)$ (equal to $6$ at $\lambda = (3,2)$ and $40$ at $\lambda = (2^4)$, not a power of two), and $M_{\BP(\mu)}(z) = 1 + B_\mu(z M_{\BP(\mu)}(z))$ still requires functional composition.
+\end{enumerate}
+
+\section{Exact All-Order Conversion Laws and Complete Disproofs}
+
+\begin{lemma}[$p$-adic Non-Dyadic Obstruction]\label{lem:padic}
+Let $p \in \{3, 5\}$ and let $x, y \in \mathbb{Z} \setminus \{0\}$. If $p \mid y$ and $p \nmid x$, then there do not exist $k \in \mathbb{N}$ and $q \in \mathbb{N}_{\ge 1}$ such that $y^q = 2^k x^q$ or $2^k y^q = x^q$. In particular, $y/x \notin \{2^r : r \in \mathbb{Q}\}$ and $y/x \notin \{2^e : e \in \mathbb{Z}\}$. More generally, if $c \in \mathbb{Z} \setminus \{0\}$, the same holds for $(c x, c y)$.
+\end{lemma}
+
+\begin{proof}
+Since $2 \not\equiv 0 \pmod{p}$ and $x \not\equiv 0 \pmod{p}$ while $p$ is prime, $p \nmid 2^k x^q$ for all $k, q \ge 0$. For $q \ge 1$, $p \mid y$ implies $p \mid y^q$ and $p \mid 2^k y^q$, contradicting both $y^q = 2^k x^q$ and $2^k y^q = x^q$ modulo $p$. If $(c y)^q = 2^k (c x)^q$ or $2^k (c y)^q = (c x)^q$ with $c \ne 0$, cancelling $c^q \ne 0$ in $\mathbb{Z}$ reduces to $(x, y)$.
+\end{proof}
+
+\subsection{Disproof of Reading I: Kreweras Ratios and Bercovici--Pata Conversion}
+
+\begin{theorem}[Kreweras Ratio and Refutation of Reading I]\label{thm:reading1}
+Let $\lambda \vdash n$ have part multiplicities $(r_1, \dots, r_n)$ and $k = \ell(\lambda) = \sum_{j=1}^n r_j$ parts.
+\begin{enumerate}
+  \item[(a)] The numbers of interval and noncrossing partitions of $[n]$ of type $\lambda$ are
+  \begin{equation}\label{eq:kreweras}
+    N_{\IntP}(\lambda) = \frac{k!}{r_1! r_2! \cdots r_n!}, \qquad
+    N_{\NC}(\lambda) = \frac{n!}{(n - k + 1)! \, r_1! r_2! \cdots r_n!},
+  \end{equation}
+  so the exact Boolean-to-free conversion factor on partition $\lambda \vdash n$ is
+  \begin{equation}\label{eq:rbp}
+    R_{\mathrm{BP}}(\lambda) = \frac{N_{\NC}(\lambda)}{N_{\IntP}(\lambda)} = \frac{n!}{k! \, (n - k + 1)!} = \frac{1}{n+1}\binom{n+1}{k}.
+  \end{equation}
+  \item[(b)] While $R_{\mathrm{BP}}(\lambda) \in \{1, 2\}$ for all $\lambda \vdash n$ when $n \in \{1, 2, 4\}$, $R_{\mathrm{BP}}(\lambda) \notin \{2^r : r \in \mathbb{Q}\}$ at:
+  \begin{itemize}
+    \item $n = 3$, $\lambda = (2, 1)$ ($k = 2$): $R_{\mathrm{BP}}(2, 1) = \frac{6}{4} = \frac{3}{2}$;
+    \item $n = 5$, $\lambda = (3, 2)$ ($k = 2$, centered): $R_{\mathrm{BP}}(3, 2) = \frac{120}{48} = \frac{5}{2}$;
+    \item $n = 6$, $\lambda = (4, 2)$ ($k = 2$, symmetric) and $\lambda = (2, 2, 2)$ ($k = 3$, symmetric): $R_{\mathrm{BP}}(4, 2) = 3$ and $R_{\mathrm{BP}}(2, 2, 2) = 5$.
+  \end{itemize}
+  \item[(c)] Let $\Bern = \frac{1}{2}(\delta_{-1} + \delta_1)$ be the symmetric Bernoulli law. Then $B_{\Bern}(z) = z^2$, $M_{\Bern}(z) = (1 - z^2)^{-1} = \sum_{k=0}^\infty z^{2k}$, and $\BP(\Bern) = \Wig$ is the standard Wigner semicircle law on $[-2, 2]$ (with density $(2\pi)^{-1}\sqrt{4-x^2}$), whose moment series satisfies
+  \[
+    M_{\Wig}(z) = 1 + z^2 M_{\Wig}(z)^2 = \frac{1 - \sqrt{1 - 4z^2}}{2z^2} = \sum_{k=0}^{\infty} C_k z^{2k}, \qquad C_k = \frac{1}{k+1}\binom{2k}{k}.
+  \]
+  At $2k = 6$, $m_6(\Wig)/m_6(\Bern) = C_3 / 1 = 5 \notin \{2^r : r \in \mathbb{Q}\}$, and $M_{\Bern}(z)$ is rational whereas $M_{\Wig}(z)$ has quadratic branch singularities at $z = \pm \frac{1}{2}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+An interval partition of $[n]$ into $k$ blocks is uniquely determined by the ordered sequence of its $k$ positive block lengths summing to $n$; permuting a multiset of $k$ parts with multiplicities $(r_1, \dots, r_n)$ gives $N_{\IntP}(\lambda) = k! / (r_1! \cdots r_n!)$. Kreweras' theorem \cite[Th\'eor\`eme~4]{Kreweras1972} gives $N_{\NC}(\lambda)$ in \eqref{eq:kreweras}, and dividing cancels $r_1! \cdots r_n!$ to yield \eqref{eq:rbp}. Applying Lemma~\ref{lem:padic} with $p = 3$ to $(4, 6)$ and $240 \cdot (1, 3)$, and with $p = 5$ to $(48, 120)$ and $(144, 720)$, proves part (b).
+
+For $\Bern$, $m_{2k}(\Bern) = 1$ and $m_{2k+1}(\Bern) = 0$, so $M_{\Bern}(z) = (1 - z^2)^{-1}$ and $B_{\Bern}(z) = 1 - M_{\Bern}(z)^{-1} = z^2$. By definition of $\BP$, $C_{\BP(\Bern)}(w) = 1 + w^2$, so \eqref{eq:free-gen} gives $M_{\Wig}(z) = 1 + z^2 M_{\Wig}(z)^2$, whose unique formal power series solution with $M(0) = 1$ has $[z^{2k}] M_{\Wig}(z) = C_k$ ($1, 1, 2, 5, 14, \dots$). At $2k = 6$, $5/1 = 5 \notin \{2^r : r \in \mathbb{Q}\}$ by Lemma~\ref{lem:padic} ($p = 5$).
+\end{proof}
+
+\subsection{Disproof of Reading II: Lagrange--B\"urmann Cumulant Conversion}
+
+\begin{theorem}[Cumulant Conversion Laws and Refutation of Reading II]\label{thm:reading2}
+Let $M(z) \in 1 + z \mathbb{Q}[[z]]$ have free cumulant series $C(w) = 1 + \sum_{j=1}^\infty \kappa_j w^j$ and Boolean cumulant series $B(z) = \sum_{j=1}^\infty \beta_j z^j$.
+\begin{enumerate}
+  \item[(a)] We have $\beta_1 = \kappa_1$, $\beta_2 = \kappa_2$, and for every $n \ge 2$,
+  \begin{align}
+    \beta_n &= \frac{1}{n-1} [w^n] C(w)^{n-1} = \sum_{\lambda \vdash n} N_{\NCirr}(\lambda) \kappa_\lambda, \label{eq:lagrange-beta}\\
+    \kappa_n &= -\frac{1}{n-1} [z^n] \bigl(1 - B(z)\bigr)^{n-1} = \sum_{\lambda \vdash n} (-1)^{\ell(\lambda)-1} N_{\NCirr}(\lambda) \beta_\lambda, \label{eq:lagrange-kappa}
+  \end{align}
+  where $N_{\NCirr}(\lambda) = \frac{1}{n-1}\binom{n-1}{\ell(\lambda)} N_{\IntP}(\lambda) = \frac{(n-2)!}{(n - 1 - \ell(\lambda))! \, r_1! \cdots r_n!}$ for $1 \le \ell(\lambda) \le n-1$ and $N_{\NCirr}(1^n) = 0$.
+  \item[(b)] Reading II fails in every formulation:
+  \begin{itemize}
+    \item \textbf{Nonlinearity / zero-divisor failure at $n = 4$:} For $\Wig$, $\kappa_4(\Wig) = 0$ whereas $\beta_4(\Wig) = \kappa_4 + \kappa_2^2 = 1$, so $\beta_4(\Wig) \ne c \cdot \kappa_4(\Wig)$ for any scalar $c$.
+    \item \textbf{Sign obstruction at $n = 4$:} For $\Bern$, $\kappa_4(\Bern) = \beta_4 - \beta_2^2 = -1 < 0$, which cannot equal $2^r \beta_2(\Bern)^2$ for any real $r$.
+    \item \textbf{Centered monomial obstruction at $n = 5$:} When $\kappa_1 = 0$, $\beta_5 = \kappa_5 + 3 \kappa_2 \kappa_3$ and $\kappa_5 = \beta_5 - 3 \beta_2 \beta_3$, with non-dyadic coefficient $3 \notin \{2^r : r \in \mathbb{Q}\}$.
+    \item \textbf{Symmetric monomial and value collapse at $n = 8$:} When $\kappa_{\text{odd}} = 0$,
+    \[
+      \beta_8 = \kappa_8 + 6 \kappa_6 \kappa_2 + 3 \kappa_4^2 + 15 \kappa_4 \kappa_2^2 + 5 \kappa_2^4,
+    \]
+    where all four non-primitive coefficients $\{6, 3, 15, 5\}$ fail to be powers of two. Evaluating on $\Wig$ and $\Bern$ yields $\beta_{2k}(\Wig) = C_{k-1}$ and $\kappa_{2k}(\Bern) = (-1)^{k-1} C_{k-1}$, giving $\beta_8(\Wig) = 5 \notin \{2^r : r \in \mathbb{Q}\}$ and $\kappa_8(\Bern) = -5$.
+  \end{itemize}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Set $w = z M(z)$. By \eqref{eq:free-gen}, $M(z) = C(w)$, so $w = z C(w)$ and $B(z) = 1 - M(z)^{-1} = 1 - C(w)^{-1}$. Applying Lagrange--B\"urmann inversion to $f(w) = 1 - C(w)^{-1}$ with $w = z C(w)$ for $n \ge 2$ gives
+\[
+  \begin{aligned}
+    \beta_n = [z^n] f(w) &= \frac{1}{n} [w^{n-1}] f'(w) C(w)^n = \frac{1}{n} [w^{n-1}] C'(w) C(w)^{n-2}\\
+    &= \frac{1}{n(n-1)} [w^{n-1}] \frac{d}{dw}\bigl(C(w)^{n-1}\bigr) = \frac{1}{n-1}[w^n] C(w)^{n-1}.
+  \end{aligned}
+\]
+Expanding $C(w)^{n-1} = \bigl(1 + \sum_{j \ge 1} \kappa_j w^j\bigr)^{n-1}$ by the multinomial theorem gives the coefficient $\frac{1}{n-1}\binom{n-1}{\ell(\lambda)} \frac{\ell(\lambda)!}{r_1!\cdots r_n!}$ on $\kappa_\lambda$. Conversely, from $M(z) = (1 - B(z))^{-1}$ we have $w = z(1 - B(z))^{-1}$, hence $z = w \Phi(z)$ with $\Phi(z) = 1 - B(z)$ and $C(w) = M(z) = \Phi(z)^{-1}$. Lagrange--B\"urmann inversion in the variable $w$ for $n \ge 2$ yields
+\[
+  \kappa_n = [w^n] \Phi(z)^{-1} = \frac{1}{n}[z^{n-1}] \bigl(-\Phi'(z)\Phi(z)^{n-2}\bigr) = -\frac{1}{n-1}[z^n](1 - B(z))^{n-1}.
+\]
+Specializing \eqref{eq:lagrange-beta}--\eqref{eq:lagrange-kappa} to $n = 4, 5, 8$, to $C_{\Wig}(w) = 1 + w^2$ ($\beta_{2k}(\Wig) = \frac{1}{2k-1}\binom{2k-1}{k} = C_{k-1}$), and to $B_{\Bern}(z) = z^2$ ($\kappa_{2k}(\Bern) = -\frac{(-1)^k}{2k-1}\binom{2k-1}{k} = (-1)^{k-1} C_{k-1}$), together with Lemma~\ref{lem:padic}, proves all four obstructions in (b).
+\end{proof}
+
+\subsection{Disproof of Reading III: Direct Convolution \texorpdfstring{$\mu \uplus \nu$ vs.\ $\mu \boxplus \nu$}{Boolean vs. Free Convolution}}
+
+\begin{theorem}[Direct Convolution Expansion and Refutation of Reading III]\label{thm:reading3}
+Let $\mu, \nu$ be normalized distributions with moments $a_n = m_n(\mu)$ and $c_n = m_n(\nu)$.
+\begin{enumerate}
+  \item[(a)] If $a_1 = c_1 = 0$ (centered distributions), then $m_n(\mu \uplus \nu) = m_n(\mu \boxplus \nu) = a_n + c_n$ for $n \in \{2, 3\}$, while at orders $n = 4, 5$ and (when $a_3 = c_3 = 0$) $n = 6$:
+  \begin{align*}
+    m_4(\mu \uplus \nu) &= a_4 + c_4 + 2 a_2 c_2, \qquad
+    m_4(\mu \boxplus \nu) = a_4 + c_4 + 4 a_2 c_2,\\
+    m_5(\mu \uplus \nu) &= a_5 + c_5 + 2(a_2 c_3 + a_3 c_2),\\
+    m_5(\mu \boxplus \nu) &= a_5 + c_5 + 5(a_2 c_3 + a_3 c_2),\\
+    m_6(\mu \uplus \nu) &= a_6 + c_6 + 2(a_2 c_4 + a_4 c_2) + a_2 c_2(a_2 + c_2),\\
+    m_6(\mu \boxplus \nu) &= a_6 + c_6 + 6(a_2 c_4 + a_4 c_2) + 3 a_2 c_2(a_2 + c_2).
+  \end{align*}
+  Thus the mixed partition conversion ratios at $n = 5$ ($5/2$) and symmetric $n = 6$ ($6/2 = 3$ and $3/1 = 3$) fail to be powers of two.
+  \item[(b)] For $\Bern = \frac{1}{2}(\delta_{-1} + \delta_1)$, Boolean self-convolution has the rational generating series $M_{\Bern \uplus \Bern}(z) = (1 - 2z^2)^{-1} = \sum_{k=0}^\infty 2^k z^{2k}$, whereas free self-convolution $\Bern \boxplus \Bern$ is the arcsine law $\frac{dx}{\pi\sqrt{4 - x^2}}$ on $(-2, 2)$ with algebraic generating series
+  \[
+    M_{\Bern \boxplus \Bern}(z) = \frac{1}{\sqrt{1 - 4z^2}} = \sum_{k=0}^{\infty} \binom{2k}{k} z^{2k}.
+  \]
+  At $n = 4$, $m_4(\Bern \boxplus \Bern)/m_4(\Bern \uplus \Bern) = 6/4 = 3/2 \notin \{2^r : r \in \mathbb{Q}\}$; at $n = 6$, $m_6(\Bern \boxplus \Bern)/m_6(\Bern \uplus \Bern) = 20/8 = 5/2 \notin \{2^r : r \in \mathbb{Q}\}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part (a) follows directly by computing $\beta_n, \kappa_n$ from \eqref{eq:rec-bool}--\eqref{eq:rec-free} under $a_1 = c_1 = 0$, adding cumulants, and reconstructing moments. In part (b), since $B_{\Bern \uplus \Bern}(z) = 2 z^2$, equation \eqref{eq:bool-gen} yields $M_{\Bern \uplus \Bern}(z) = (1 - 2z^2)^{-1}$. For $\Bern$, $G_{\Bern}(z) = \frac{z}{z^2 - 1}$ has compositional inverse $G_{\Bern}^{\langle -1 \rangle}(w) = \frac{1 + \sqrt{1 + 4w^2}}{2w}$, so $R_{\Bern}(w) = \frac{\sqrt{1 + 4w^2} - 1}{2w}$ and $R_{\Bern \boxplus \Bern}(w) = \frac{\sqrt{1 + 4w^2} - 1}{w}$. Solving $R_{\Bern \boxplus \Bern}(w) + w^{-1} = z$ gives $G_{\Bern \boxplus \Bern}(z) = (z^2 - 4)^{-1/2}$, i.e., $M_{\Bern \boxplus \Bern}(z) = (1 - 4z^2)^{-1/2} = \sum_{k=0}^\infty \binom{2k}{k} z^{2k}$. Lemma~\ref{lem:padic} refutes $6/4$ ($p = 3$) and $20/8$ ($p = 5$).
+\end{proof}
+
+\subsection{Disproof of Reading IV: Partition-Lattice Cardinalities}
+
+\begin{theorem}[Combinatorial Lattice Cardinalities and Refutation of Reading IV]\label{thm:reading4}
+For all $n \ge 1$, $|\IntP(n)| = 2^{n-1}$, $|\NC(n)| = C_n = \frac{1}{n+1}\binom{2n}{n}$, and $|\NCirr(n)| = C_{n-1}$, corresponding at unit cumulants $\beta_k = \kappa_k = 1$ to
+\[
+  M_{\mathrm{unit}}^{\mathrm{Bool}}(z) = \frac{1 - z}{1 - 2z} = 1 + \sum_{n=1}^{\infty} 2^{n-1} z^n, \qquad
+  M_{\mathrm{unit}}^{\mathrm{Free}}(z) = \frac{1 - \sqrt{1 - 4z}}{2z} = 1 + \sum_{n=1}^{\infty} C_n z^n.
+\]
+Although $|\NC(n)|/|\IntP(n)| = 1 = 2^0$ for $n \in \{1, 2\}$, at $n = 3$ we have $|\NC(3)|/|\IntP(3)| = 5/4 \notin \{2^r : r \in \mathbb{Q}\}$, and at $n = 4$ we have $|\NCirr(4)| = 5 \notin \{2^r : r \in \mathbb{Q}\}$.
+\end{theorem}
+
+\begin{proof}
+An interval partition of $[n]$ is decided independently at each of the $n-1$ internal gaps $\{i, i+1\}$ ($1 \le i \le n-1$), giving $|\IntP(n)| = 2^{n-1}$; setting $B(z) = \sum_{k \ge 1} z^k = \frac{z}{1-z}$ in \eqref{eq:bool-gen} gives $M_{\mathrm{unit}}^{\mathrm{Bool}}(z) = (1 - \frac{z}{1-z})^{-1} = \frac{1-z}{1-2z}$. Setting $C(w) = \frac{1}{1-w}$ in \eqref{eq:free-gen} gives $M(z) = (1 - z M(z))^{-1}$, whose power series coefficients are $C_n$, with $C_3 = 5$. By Lemma~\ref{lem:padic} ($p = 5$), neither $5/4$ nor $5/1$ is a rational power of two.
+\end{proof}
+
+\section{Summary of Counterexamples and Formal Verification}
+
+Table~\ref{tab:summary} consolidates the small-order mirages, minimal counterexamples, and corresponding machine-checked Core Lean 4.19.0 theorems.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.28}
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llll@{}}
+\hline
+\textbf{Reading} & \textbf{Mirage} & \textbf{Minimal Failure} & \textbf{Lean 4.19.0 Theorem} \\
+\hline
+I. Kreweras ratio & $n=1,2,4$: $1, 2$ & $(2,1): 3/2$; $(4,2): 3$ & \texttt{kreweras\_order3\_k2\_not\_pow2} \\
+I. $\BP(\Bern) = \Wig$ & $n = 2, 4$: $1, 2$ & $m_6(\Wig)/m_6(\Bern) = 5$ & \texttt{reading1\_bercovici\_pata\_disproof} \\
+II. Scalar $\beta_n / \kappa_n$ & $n = 1, 2$: $\beta_n = \kappa_n$ & $n = 4$ ($\Wig$): $\kappa_4 = 0, \beta_4 = 1$ & \texttt{reading2\_same\_measure\_cumulant\_disproof} \\
+II. Symm.\ $\beta_{2k}(\kappa)$ & $2k \le 6$: $1, 4, 2$ & $n = 8$: $\{6,3,15,5\}, \beta_8=5$ & \texttt{reading2\_same\_measure\_cumulant\_disproof} \\
+III. $\mu \uplus \nu$ vs.\ $\mu \boxplus \nu$ & Cent.\ $n \le 4$: $1, 2$ & $\Bern$: $6/4$ ($n=4$), $20/8$ ($n=6$) & \texttt{reading3\_direct\_convolution\_disproof} \\
+IV. $|\NC(n)| / |\IntP(n)|$ & $n = 1, 2$: $1, 1$ & $n = 3$: $|\NC(3)|/|\IntP(3)| = 5/4$ & \texttt{reading4\_partition\_lattice\_disproof} \\
+\hline
+\end{tabular}
+\caption{Overview of all four canonical readings of Conjecture \texttt{00000004764}, explaining both the low-order power-of-two mirages and the formal counterexamples.}
+\label{tab:summary}
+\end{table}
+
+\paragraph{Machine-Checked Verification.}
+The Lean 4 library \texttt{BooleanFreeConv} (compiled under \texttt{leanprover/lean4:v4.19.0} with \texttt{-DwarningAsError=true}, zero external dependencies, zero \texttt{sorry}, zero \texttt{native\_decide}, and zero custom axioms) establishes:
+\begin{itemize}
+  \item \texttt{boolGenEq\_iff\_no\_comp}: exact non-composition generating-function equivalence;
+  \item \texttt{freeGenEq\_momentsFromFree}: formal composition equation $M(z) = C(z M(z))$;
+  \item \texttt{bercoviciPataBF\_hom}: exact homomorphism $\BP(m_1 \uplus m_2) = \BP(m_1) \boxplus \BP(m_2)$;
+  \item \texttt{intPartitions\_card\_pow2}: universal interval-partition count $|\IntP(n)| = 2^{n-1}$;
+  \item \texttt{centered\_cumulant\_conversions\_3\_to\_6}: universal centered cumulant expansions up to order $6$;
+  \item \texttt{conjecture\_00000004764\_false}: master theorem refuting all four canonical readings.
+\end{itemize}
+In parallel, the standalone Python 3.12 script \texttt{verify.py} symbolically verifies all generating-function, partition-lattice, Kreweras, and Lagrange--B\"urmann identities through degree $8$.
+
+\begin{thebibliography}{9}
+\bibitem{BelinschiNica2008}
+S.~T. Belinschi and A.~Nica, \emph{On a remarkable semigroup of homomorphisms with respect to free multiplicative convolution}, Indiana Univ.\ Math.\ J.\ \textbf{57} (2008), no.~4, 1679--1713.
+
+\bibitem{BercoviciPata1999}
+H.~Bercovici and V.~Pata, \emph{Stable laws and domains of attraction in free probability theory} (with an appendix by P.~Biane), Ann.\ of Math.\ (2) \textbf{149} (1999), no.~3, 1023--1060.
+
+\bibitem{Kreweras1972}
+G.~Kreweras, \emph{Sur les partitions non crois\'ees d'un cycle}, Discrete Math.\ \textbf{1} (1972), no.~4, 333--350.
+
+\bibitem{Lehner2002}
+F.~Lehner, \emph{Free cumulants and enumeration of connected graphs}, European J.\ Combin.\ \textbf{23} (2002), no.~8, 1025--1031.
+
+\bibitem{Speicher1994}
+R.~Speicher, \emph{Multiplicative functions on the lattice of non-crossing partitions and free convolution}, Math.\ Ann.\ \textbf{298} (1994), no.~4, 611--628.
+
+\bibitem{SpeicherWoroudi1997}
+R.~Speicher and R.~Woroudi, \emph{Boolean convolution}, Free Probability Theory (Waterloo, ON, 1995), Fields Inst.\ Commun., vol.~12, Amer.\ Math.\ Soc., Providence, RI, 1997, pp.~267--279.
+
+\bibitem{Voiculescu1986}
+D.~Voiculescu, \emph{Addition of certain non-commuting random variables}, J.\ Funct.\ Anal.\ \textbf{66} (1986), no.~3, 323--346.
+\end{thebibliography}
+
+\end{document}
