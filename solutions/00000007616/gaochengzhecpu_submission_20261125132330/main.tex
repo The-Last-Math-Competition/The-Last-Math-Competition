@@ -1,0 +1,309 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\vol}{\mathrm{vol}}
+\newcommand{\rk}{\mathrm{rank}}
+\newcommand{\invol}{\mathrm{invol}}
+\newcommand{\rev}{\mathrm{rev}}
+\newcommand{\conj}{\mathrm{conj}}
+
+\title{\textbf{Resolution of Conjecture 00000007616:\\
+Clifford Realizations, Conversion Laws, Orientation Ambiguity,\\
+and Norm Obstructions for the Hodge Star Operator}}
+\author{Autonomous Mathematical Research \& Lean 4 Formalization}
+\date{November 2026}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007616}, which asserts for the Hodge star operator equipped with a Clifford realization structure that: (i) the conversion constant is governed by the Clifford realization law and the star operator is realized by the geometric product; (ii) the realization coefficient is unique up to volume orientation; and (iii) the norm of the realization is unit. We prove that the conjecture is \textbf{false} in general across every standard interpretation of its three clauses, while isolating the exact positive Euclidean regime that motivates it. Specifically, under the canonical Chevalley--Riesz identification $\Lambda(V) \cong \Cl(V, Q)$ on an $n$-dimensional quadratic space $(V, Q)$ over a field $K$ with $\mathrm{char}(K) \neq 2$, the Hodge star $\star_\nu$ associated to any volume element $\nu \in \Lambda^n V \setminus \{0\}$ satisfies the universal reverted identity $\star_\nu(x) = \widetilde{x}\cdot\nu$, where $\widetilde{x}$ is Clifford reversion. Using a pure ring-theoretic automorphism-versus-anti-automorphism obstruction, we prove that for \emph{every} nondegenerate quadratic space of dimension $n \ge 2$, no two-sided geometric product $x \mapsto A\cdot x\cdot B$ or $x \mapsto A\cdot\hat{x}\cdot B$---and in particular no scalar conversion constant $c$ and element $\Omega$ with $\star_\nu(x) = c\,x\cdot\Omega$ or $\star_\nu(x) = c\,\Omega\cdot x$---can realize $\star_\nu$ across all grades; in fact $\star_\nu(x) = x\cdot\nu$ holds if and only if $\rk(Q) \le 1$. Even when reversion is incorporated ($\star_\nu(x) = \widetilde{x}\cdot\Omega$), the unique realization $\Omega = \nu$ has reversion norm $\widetilde{\Omega}\cdot\Omega = \langle\nu,\nu\rangle_B\cdot 1$, which equals $-1 \neq 1$ in Lorentzian signatures $(1,1)$ and $(3,1)$, vanishes identically ($0 \neq 1$) under every algebraic and metric norm in degenerate Projective Geometric Algebra $\Cl_{1,0,1}$, and never takes values in $\{\pm 1\}$ on positive-definite rational spaces of non-square discriminant such as $\mathrm{diag}(2,3)$ over $\mathbb{Q}$. Likewise, the realization coefficient varies over $K^\times$ rather than $\{\pm 1\}$ under positively oriented volume scaling and loses canonical metric normalization whenever $\det G = 0$. All main theorems and counterexamples are formally verified from first principles in Core Lean~4.19.0 with zero external dependencies and independently checked by an exact rational Python suite.
+\end{abstract}
+
+\section{Introduction and Problem Statement}
+
+Conjecture \texttt{00000007616} states verbatim:
+\begin{quote}
+\textbf{Definition:} The star operator with the Clifford realization structure. \textbf{Conjecture:} The conversion constant is the Clifford realization law and the star is realized by the geometric product; the realization coefficient is unique with deviation by volume orientation; and the norm of the realization is unit. (\emph{star-product realization conversion})
+\end{quote}
+The parallel Chinese formulation characterizes the same three assertions for the Hodge star operator (\emph{xing suanzi}, $\star$) endowed with a Clifford realization structure: (1) the conversion constant obeys the Clifford realization law and $\star$ is realized by the geometric product (\emph{jihe ji}); (2) the realization coefficient is unique with volume orientation (\emph{tiji dingxiang}) as its sole deviation; and (3) the norm of the realization is unit (\emph{danwei}).
+
+\subsection*{Summary of Verdict and Main Results}
+
+The conjecture is \textbf{refuted (FALSE)}. A complete mathematical audit requires distinguishing two canonical interpretations of ``realized by the geometric product'':
+\begin{itemize}
+  \item \textbf{Interpretation A (Direct / Unreverted or Two-Sided Geometric Product):} One seeks a grade-independent scalar conversion constant $c \in K$ and realization element $\Omega \in \Cl(V,Q)$ such that $\star_\nu(x) = c\,x\cdot\Omega$ or $\star_\nu(x) = c\,\Omega\cdot x$ for all $x \in \Lambda(V)$ (or more generally $\star_\nu(x) = A\cdot x\cdot B$ or $A\cdot\hat{x}\cdot B$ for $A,B \in \Cl(V,Q)$). \textbf{Theorem~\ref{thm:no-two-sided}} proves this is \emph{impossible} on every nondegenerate quadratic space of dimension $n \ge 2$, already failing on the Euclidean plane $\Cl_{2,0}$. Moreover, \textbf{Theorem~\ref{thm:rank-one}} establishes the exact characterization $\star_\nu(x) = x\cdot\nu \iff \rk(Q) \le 1$.
+  \item \textbf{Interpretation B (Reverted Clifford Realization Law):} One incorporates the Clifford reversion anti-involution $\widetilde{x}$ (which multiplies grade $k$ by the period-4 sign $(-1)^{k(k-1)/2}$) into the realization law: $\star_\nu(x) = \widetilde{x}\cdot\Omega$. \textbf{Theorem~\ref{thm:chevalley-hodge}} proves that $\star_\nu(x) = \widetilde{x}\cdot\nu$ holds universally for \emph{every} quadratic form $Q$ (including indefinite and degenerate forms) and \emph{every} volume element $\nu$. In the restricted setting of positive-definite Euclidean space $\mathbb{R}^{n,0}$ with metric-normalized volume forms $\nu = \pm\vol_Q$, all three clauses hold with unit reversion norm $\widetilde{\Omega}\cdot\Omega = +1$ and orientation sign $c \in \{+1,-1\}$ (\textbf{Theorem~\ref{thm:euclidean-pos}}). However, across general quadratic spaces, \emph{both} Clause~2 and Clause~3 fail:
+  \begin{enumerate}
+    \item[(a)] In Lorentzian signatures such as $\Cl_{1,1}$ and 4D Minkowski $\Cl_{3,1}$, the metric-canonical realization $\Omega = \pm\omega$ satisfies $\widetilde{\Omega}\cdot\Omega = \langle\Omega,\Omega\rangle_B = -1 \neq +1$, and no real or rational scalar multiple achieves $+1$ (\textbf{Theorem~\ref{thm:lorentz}}).
+    \item[(b)] In degenerate spaces such as $\Cl_{1,0,1}$ ($Q(x_1,x_2) = x_1^2$), $\star_\nu$ exists uniquely and forces $\Omega = \nu \neq 0$, yet $\widetilde{\Omega}\cdot\Omega = \overline{\Omega}\cdot\Omega = \Omega^2 = |\langle\Omega,\Omega\rangle_B| = 0 \neq 1$ (\textbf{Theorem~\ref{thm:degenerate}}).
+    \item[(c)] Over $\mathbb{Q}$ on the positive-definite space $Q(x_1,x_2) = 2x_1^2 + 3x_2^2$, $\widetilde{\Omega}\cdot\Omega = 6\lambda^2 \notin \{\pm 1\}$ for all $\lambda \in \mathbb{Q}$ (\textbf{Theorem~\ref{thm:rational}}).
+    \item[(d)] Under general positively oriented volume forms $\nu = \lambda\omega_0$ ($\lambda > 0$), the realization coefficient spans $\mathbb{R}_{>0}$ rather than $\{+1\}$; in degenerate spaces ($\det G = 0$), all $\lambda > 0$ share identical zero metric norm, so no canonical unit normalization exists (\textbf{Theorem~\ref{thm:uniqueness-fail}}).
+  \end{enumerate}
+\end{itemize}
+
+\section{Exterior Hodge Star and Chevalley--Riesz Realization}
+
+Let $R$ be a commutative ring (in classical geometry, a field $K$ with $\mathrm{char}(K) \neq 2$), and let $V = R^n$ be a free $R$-module of rank $n \ge 0$ with standard basis $(e_0, \dots, e_{n-1})$ and diagonal quadratic form $Q(\sum_i x_i e_i) = \sum_{i=0}^{n-1} q_i x_i^2$ ($q_i \in R$), with associated symmetric bilinear form $B(e_i, e_j) = q_i \delta_{ij}$. (Over any field $K$ with $\mathrm{char}(K) \neq 2$, every finite-dimensional quadratic space admits an orthogonal basis; Remark~\ref{rem:nonorth} treats non-orthogonal bases directly via Chevalley quantization.)
+
+\subsection{Constructive Clifford--Exterior Module}
+
+Following our Core Lean~4 formalization, we construct the $2^n$-rank $R$-module $\Cl(R^n, q)$ recursively by $\Cl(R^0, \emptyset) := R$ and $\Cl(R^{n+1}, q) := \Cl(R^n, q') \times \Cl(R^n, q')$, where $(a, b)$ represents $a + b\,e_n$, $q' = (q_0,\dots,q_{n-1})$, and $q_n$ is the last diagonal entry. Grade involution $x \mapsto \hat{x}$ and reversion $x \mapsto \widetilde{x}$ are defined recursively by
+\[
+  \widehat{(a,b)} := (\hat{a}, -\hat{b}), \qquad \widetilde{(a,b)} := (\widetilde{a}, \widehat{\widetilde{b}}), \qquad \overline{x} := \widehat{\widetilde{x}},
+\]
+acting on homogeneous $k$-vectors $\Lambda^k(R^n)$ by $(-1)^k$, $(-1)^{k(k-1)/2}$, and $(-1)^{k(k+1)/2}$ respectively. Because $e_n$ anticommutes with $e_0,\dots,e_{n-1}$ and satisfies $e_n^2 = q_n$, the geometric product on $\Cl(R^{n+1}, q)$ is given by
+\begin{equation}\label{eq:cl-mul}
+  (a, b)\cdot_q (c, d) := \bigl(a\cdot_{q'} c + q_n\, b\cdot_{q'} \hat{d},\;\; a\cdot_{q'} d + b\cdot_{q'} \hat{c}\bigr).
+\end{equation}
+Setting $q \equiv 0$ recovers the exterior algebra $\Lambda(R^n) := \Cl(R^n, 0)$ with wedge product
+\[
+  (a, b) \wedge (c, d) = \bigl(a \wedge c,\;\; a \wedge d + b \wedge \hat{c}\bigr).
+\]
+The canonical basis volume blade is $\omega_0 := 1$ and $\omega_{n+1} := (0, \omega_n) = e_0 \wedge \dots \wedge e_n$. The determinant bilinear form $\langle \cdot, \cdot \rangle_q : \Lambda(R^n) \times \Lambda(R^n) \to R$ is defined recursively by $\langle a, c \rangle_\emptyset := ac$ and
+\[
+  \bigl\langle (a,b), (c,d) \bigr\rangle_q := \langle a, c \rangle_{q'} + q_n \langle b, d \rangle_{q'},
+\]
+so that on basis blades $e_I, e_J$ ($I, J \subseteq \{0,\dots,n-1\}$), $\langle e_I, e_J \rangle_q = \delta_{I,J} \prod_{i \in I} q_i$, and in particular $\langle \omega_n, \omega_n \rangle_q = \prod_{i=0}^{n-1} q_i$.
+
+\begin{lemma}[Ring and Involution Structure]\label{lem:ring}
+For every $n \ge 0$, commutative ring $R$, and $q : \{0,\dots,n-1\} \to R$, $(\Cl(R^n, q), +, \cdot_q, 1)$ is an associative unital $R$-algebra, $x \mapsto \hat{x}$ is an involutive algebra automorphism, $x \mapsto \widetilde{x}$ and $x \mapsto \overline{x}$ are commuting involutive algebra anti-automorphisms ($\widetilde{x\cdot_q y} = \widetilde{y}\cdot_q \widetilde{x}$, $\widetilde{\widetilde{x}} = x$), and every additive map on $\Cl(R^n, q)$ is uniquely determined by its restriction to homogeneous components $\Lambda^k(R^n)$ ($0 \le k \le n$).
+\end{lemma}
+\begin{proof}
+By structural induction on $n$ directly from \eqref{eq:cl-mul}. At step $n+1$, expanding $\widehat{(a,b)\cdot_q(c,d)}$ and using $\hat{\hat{z}} = z$ yields $\widehat{(a,b)}\cdot_q\widehat{(c,d)}$; associativity reduces componentwise to associativity at $n$ after rearranging four summands; and expanding $\widetilde{(a,b)\cdot_q(c,d)}$ using $\widehat{\widetilde{z}} = \widetilde{\hat{z}}$ yields $\widetilde{(c,d)}\cdot_q\widetilde{(a,b)}$. Finally, writing $(a,b) = (a,0) + (0,b)$ reduces additive maps on $\Cl(R^{n+1},q)$ to $\Cl(R^n,q')$.
+\end{proof}
+
+\subsection{Exterior Hodge Star Specification and Universal Realization}
+
+\begin{definition}[Exterior Hodge Star Specification]\label{def:hodge}
+Given $q : \{0,\dots,n-1\} \to R$ and a top-degree element $\nu \in \Lambda^n(R^n)$, an operator $\star : \Lambda(R^n) \to \Lambda(R^n)$ satisfies the \emph{Hodge star specification} $\mathrm{IsHodgeStar}(q, \nu, \star)$ if:
+\begin{enumerate}
+  \item[(i)] $\star(x + y) = \star(x) + \star(y)$ for all $x, y \in \Lambda(R^n)$;
+  \item[(ii)] $\star(\Lambda^k(R^n)) \subseteq \Lambda^{n-k}(R^n)$ for every $0 \le k \le n$; and
+  \item[(iii)] $\alpha \wedge \star(\beta) = \langle \alpha, \beta \rangle_q \, \nu$ for every $0 \le k \le n$ and all $\alpha, \beta \in \Lambda^k(R^n)$.
+\end{enumerate}
+\end{definition}
+
+Note that Definition~\ref{def:hodge} is formulated purely in the exterior algebra $\Lambda(R^n)$ without mentioning Clifford multiplication.
+
+\begin{theorem}[Poincar\'e Duality, Universal Chevalley--Hodge Realization, and Norm Law]\label{thm:chevalley-hodge}
+Let $R$ be any commutative ring, $n \ge 0$, $q : \{0,\dots,n-1\} \to R$ any orthogonal quadratic form (possibly indefinite or degenerate), and $\nu = r\,\omega_n$ ($r \in R$).
+\begin{enumerate}
+  \item[(1)] \textbf{Poincar\'e Duality:} If $\delta \in \Lambda^{n-k}(R^n)$ ($0 \le k \le n$) satisfies $\alpha \wedge \delta = 0$ for all $\alpha \in \Lambda^k(R^n)$, then $\delta = 0$.
+  \item[(2)] \textbf{Existence and Uniqueness:} There exists a unique operator $\star_\nu$ satisfying Definition~\ref{def:hodge} for $(q, \nu)$, and it is given across all $x \in \Cl(R^n, q)$ by the reverted right Clifford product
+  \begin{equation}\label{eq:rev-star}
+    \star_\nu(x) = \widetilde{x}\cdot_q \nu.
+  \end{equation}
+  (Symmetrically, the left-wedge star $(\star_\nu^{\mathrm{L}}\beta)\wedge\alpha = \langle\beta,\alpha\rangle_q\,\nu$ is uniquely $\star_\nu^{\mathrm{L}}(x) = \nu\cdot_q\widetilde{x}$.)
+  \item[(3)] \textbf{Exact Realization Norm Law:} Any $\Omega \in \Cl(R^n, q)$ satisfying $\star_\nu(x) = \widetilde{x}\cdot_q \Omega$ for all $x$ equals $\Omega = \star_\nu(1) = \nu = r\,\omega_n$, and its Clifford reversion norm and exterior norm satisfy
+  \begin{equation}\label{eq:norm-law}
+    \widetilde{\Omega}\cdot_q \Omega = \Bigl(r^2 \prod_{i=0}^{n-1} q_i\Bigr)\cdot 1 = \langle \Omega, \Omega \rangle_q \cdot 1.
+  \end{equation}
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+(1) Proceed by induction on $n$. For $n=0$, $k=0$, testing $\alpha = 1$ gives $1 \wedge \delta = \delta = 0$. For $n+1$ with $\delta = (x,y)$: if $k=0$, $\delta \in \Lambda^{n+1}$ implies $x=0$ and $1 \wedge \delta = \delta = 0$; if $k=n+1$, $\delta \in \Lambda^0$ implies $y=0$, and testing $\alpha = (0,\alpha')$ ($\alpha' \in \Lambda^n$) gives $\alpha' \wedge \hat{x} = 0$, whence $\hat{x}=0$ and $x=0$ by the induction hypothesis; if $k = m+1$ with $m < n$, testing $\alpha = (a,0)$ ($a \in \Lambda^{m+1}$) gives $a \wedge y = 0 \implies y = 0$, and then testing $\alpha = (0,b)$ ($b \in \Lambda^m$) gives $b \wedge \hat{x} = 0 \implies \hat{x} = 0 \implies x = 0$.
+
+(2) By $R$-linearity in $r$, it suffices to prove $\mathrm{IsHodgeStar}(q, \omega_n, \Phi_n)$ for $\Phi_n(x) := \widetilde{x}\cdot_q \omega_n$. For $n=0$, $\Phi_0(\beta) = \beta$ and $\alpha\beta = \langle\alpha,\beta\rangle_\emptyset\cdot 1$. For $n+1$, expanding \eqref{eq:cl-mul} on $\widetilde{(c,d)}\cdot_q (0, \omega_n) = (\widetilde{c}, \widehat{\widetilde{d}})\cdot_q (0, \omega_n)$ yields the recursion
+\[
+  \Phi_{n+1}(c, d) = \bigl(q_n\,\widehat{\Phi_n(d)},\;\; \Phi_n(c)\bigr).
+\]
+If $(c,d) \in \Lambda^k(R^{n+1})$ ($0 \le k \le n+1$), induction on $n$ immediately verifies $\Phi_{n+1}(c,d) \in \Lambda^{n+1-k}(R^{n+1})$. Moreover, for $\alpha = (a,b)$ and $\beta = (c,d)$ in $\Lambda^k(R^{n+1})$,
+\[
+  (a,b) \wedge \Phi_{n+1}(c,d) = \Bigl(a \wedge q_n\widehat{\Phi_n(d)},\;\; a \wedge \Phi_n(c) + b \wedge \widehat{q_n\widehat{\Phi_n(d)}}\Bigr).
+\]
+When $k = 0$, $b = d = 0$ and the identity follows from the induction hypothesis on $(a,c)$. When $k = m+1$, $a \in \Lambda^{m+1}(R^n)$ and $\widehat{\Phi_n(d)} \in \Lambda^{n-m}(R^n)$, so $a \wedge q_n\widehat{\Phi_n(d)} \in \Lambda^{n+1}(R^n) = \{0\}$ vanishes identically! In the second component, $\hat{\hat{z}} = z$ cancels both involutions to give $a \wedge \Phi_n(c) + q_n(b \wedge \Phi_n(d)) = (\langle a,c\rangle_{q'} + q_n\langle b,d\rangle_{q'})\omega_n = \langle\alpha,\beta\rangle_q\omega_n$. Uniqueness on each $\Lambda^k$ follows from (1) applied to $\star_1(\beta) - \star_2(\beta)$, and extends to all of $\Cl(R^n,q)$ by Lemma~\ref{lem:ring}.
+
+(3) Evaluating $\star_\nu(1) = \widetilde{1}\cdot_q\Omega = \Omega$ yields $\Omega = \nu$. By induction on $n$, $\widetilde{\omega_{n+1}}\cdot_q\omega_{n+1} = (0, \widehat{\widetilde{\omega_n}})\cdot_q(0, \omega_n) = (q_n\,\widehat{\widetilde{\omega_n}\cdot_{q'}\omega_n}, 0) = (q_n\prod_{i=0}^{n-1} q_i\cdot 1, 0)$, giving \eqref{eq:norm-law}.
+\end{proof}
+
+\begin{remark}[Non-Orthogonal Bases and Chevalley Quantization]\label{rem:nonorth}
+On a general quadratic space $(V, Q)$ over a field $K$ ($\mathrm{char}(K) \neq 2$) with possibly non-diagonal Gram matrix $G_{ij} = B(e_i, e_j)$, Chevalley's basis-independent quantization identifies $\Lambda(V) \xrightarrow{\sim} \Cl(V,Q)$ via $v\cdot\alpha = v\wedge\alpha + \iota_v(\alpha)$. Because $B$, $\wedge$, $\widetilde{(\cdot)}$, and Chevalley multiplication are basis-independent, Theorem~\ref{thm:chevalley-hodge} holds verbatim on any basis. However, when $B(e_1, e_2) \neq 0$ (e.g., $G = \bigl(\begin{smallmatrix}2&1\\1&2\end{smallmatrix}\bigr)$), the naive Clifford product of basis vectors $e_1\cdot e_2 = e_1\wedge e_2 + B(e_1,e_2)\cdot 1$ acquires a non-zero scalar part and does \emph{not} equal the exterior volume blade $e_1\wedge e_2$.
+\end{remark}
+
+\section{Positive Euclidean Regime (Non-Vacuity)}
+
+Before refuting Conjecture \texttt{00000007616} in general, we establish the exact positive-definite Euclidean theorem showing why the conjecture is non-vacuous when restricted to reverted multiplication and metric-normalized volume forms in signature $(n, 0)$.
+
+\begin{theorem}[Positive Euclidean Characterization]\label{thm:euclidean-pos}
+On Euclidean space $(R^n, q_{\mathrm{Euc}})$ with $q_{\mathrm{Euc}} = (1, \dots, 1)$ over $\mathbb{Z}$ (or $\mathbb{R}$):
+\begin{enumerate}
+  \item[(1)] For either volume orientation $c \in \{+1, -1\}$, the volume form $\Omega = c\,\omega_n$ realizes $\star_\Omega$ via $x \mapsto \widetilde{x}\cdot\Omega$ (Definition~\ref{def:hodge}), with unit Clifford reversion norm $\widetilde{\Omega}\cdot\Omega = 1$ and unit exterior norm $\langle \Omega, \Omega \rangle_{q_{\mathrm{Euc}}} = 1$ (and over $\mathbb{R}$, $\star_\Omega$ is an orthogonal isometry with operator norm $\|\star_\Omega\|_{\mathrm{op}} = 1$).
+  \item[(2)] For any fixed $\star_\nu$, $\Omega$ in $\star_\nu(x) = \widetilde{x}\cdot\Omega$ is uniquely $\Omega = \nu$; among top-degree blades $\Omega = c\,\omega_n$ ($c \in \mathbb{Z}$ or $c \in \mathbb{R}$), the unit-norm condition $\langle \Omega, \Omega \rangle_{q_{\mathrm{Euc}}} = 1$ holds if and only if $c \in \{+1, -1\}$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Since $\prod_{i=0}^{n-1} 1 = 1$, Theorem~\ref{thm:chevalley-hodge} gives $\widetilde{(c\,\omega_n)}\cdot(c\,\omega_n) = c^2\cdot 1$ and $\langle c\,\omega_n, c\,\omega_n\rangle_{q_{\mathrm{Euc}}} = c^2$, which equals $1$ if and only if $c \in \{+1, -1\}$. On orthogonal basis blades $e_I$ over $\mathbb{R}$, $\star_\Omega(e_I) = \pm e_{I^c}$ permutes an orthonormal basis of $\Lambda(\mathbb{R}^n)$ up to signs, so $\langle\star_\Omega x, \star_\Omega y\rangle = \langle x, y\rangle$ and $\|\star_\Omega\|_{\mathrm{op}} = 1$.
+\end{proof}
+
+\section{Refutation of Clause 1: Direct and Two-Sided Geometric Products}
+
+We now prove that without Clifford reversion (or conjugation), the Hodge star \emph{cannot} be realized by left, right, or two-sided geometric multiplication across all grades in any dimension $n \ge 2$.
+
+\begin{lemma}[Automorphism vs.\ Anti-Automorphism Ring Obstruction]\label{lem:auto-anti}
+Let $\mathcal{A}$ be an associative unital ring equipped with an involutive anti-automorphism $\tau : \mathcal{A} \to \mathcal{A}$ satisfying $\tau(1) = 1$, $\tau(\tau(x)) = x$, and $\tau(xy) = \tau(y)\tau(x)$. If there exist $A, C \in \mathcal{A}$ such that $A x C = \tau(x)$ for all $x \in \mathcal{A}$, then $\mathcal{A}$ is commutative.
+\end{lemma}
+\begin{proof}
+Setting $x = 1$ gives $A C = \tau(1) = 1$. Evaluating at $x = C A$ gives
+\[
+  \tau(C A) = A (C A) C = (A C)(A C) = 1\cdot 1 = 1,
+\]
+and applying $\tau$ to both sides yields $C A = \tau(\tau(C A)) = \tau(1) = 1$. Consequently, for all $x, y \in \mathcal{A}$,
+\[
+  (A x C)(A y C) = A x (C A) y C = A (x y) C.
+\]
+Given any $u, v \in \mathcal{A}$, substituting $x = \tau(u)$ and $y = \tau(v)$ produces
+\[
+  u v = \tau(\tau(u))\tau(\tau(v)) = (A\tau(u)C)(A\tau(v)C) = A(\tau(u)\tau(v))C = \tau(\tau(u)\tau(v)) = \tau(\tau(v))\tau(\tau(u)) = v u. \qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Impossibility of Pure or Grade-Involuted Two-Sided Realization for $n \ge 2$]\label{thm:no-two-sided}
+Let $R$ be any commutative ring in which $1 + 1 \neq 0$, let $n \ge 2$, and let $q : \{0,\dots,n-1\} \to R$ and $r \in R$ be such that $r \prod_{i=0}^{n-1} q_i \in R^\times$ (in particular, any nondegenerate quadratic space of dimension $n \ge 2$ over a field $K$ with $\mathrm{char}(K) \neq 2$ and any $\nu = r\,\omega_n \neq 0$). Let $\star_\nu$ satisfy $\mathrm{IsHodgeStar}(q, \nu, \star_\nu)$. Then:
+\begin{enumerate}
+  \item[(1)] There do \textbf{not} exist $A, B \in \Cl(R^n, q)$ such that $\star_\nu(x) = A\cdot_q x\cdot_q B$ for all $x \in \Cl(R^n, q)$.
+  \item[(2)] There do \textbf{not} exist $A, B \in \Cl(R^n, q)$ such that $\star_\nu(x) = A\cdot_q \hat{x}\cdot_q B$ for all $x \in \Cl(R^n, q)$.
+  \item[(3)] In particular, there do \textbf{not} exist a scalar conversion constant $k_0 \in R$ and an element $\Omega \in \Cl(R^n, q)$ such that $\star_\nu(x) = k_0(x\cdot_q \Omega)$ for all $x$, nor such that $\star_\nu(x) = k_0(\Omega\cdot_q x)$ for all $x$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Let $s \in R$ satisfy $s r \prod_{i=0}^{n-1} q_i = 1$, and set $\nu^{-1} := s\,\widetilde{\omega_n}$. Because $\omega_n \cdot_q \widetilde{\omega_n} = (\prod_i q_i)\cdot 1$, we have $\nu \cdot_q \nu^{-1} = 1$. By Theorem~\ref{thm:chevalley-hodge}(2), $\star_\nu(x) = \widetilde{x}\cdot_q \nu$.
+If $\star_\nu(x) = A\cdot_q x\cdot_q B$ for all $x$, right-multiplying by $\nu^{-1}$ sets $C := B\cdot_q \nu^{-1}$ with $A\cdot_q x\cdot_q C = \widetilde{x}$ for all $x$. If instead $\star_\nu(x) = A\cdot_q \hat{x}\cdot_q B$, replacing $x$ by $\hat{x}$ gives $A\cdot_q x\cdot_q C = \widetilde{\hat{x}} = \overline{x}$ for all $x$. Since both $\widetilde{(\cdot)}$ and $\overline{(\cdot)}$ are involutive anti-automorphisms of $\Cl(R^n,q)$, Lemma~\ref{lem:auto-anti} implies $\Cl(R^n,q)$ is commutative. Yet for $n \ge 2$, the last two orthogonal generators $u = e_{n-2}$ and $v = e_{n-1}$ satisfy $u\cdot_q v = -v\cdot_q u$; commutativity forces $(1+1)e_{n-2}\wedge e_{n-1} = 0$, hence $1 + 1 = 0$ in $R$, a contradiction. Part~(3) follows by setting $(A,B) = (k_0\cdot 1, \Omega)$ and $(A,B) = (k_0\Omega, 1)$.
+\end{proof}
+
+\begin{example}[Minimal Counterexample in 2D Euclidean $\Cl_{2,0}$]\label{ex:cl20}
+On $(\mathbb{Q}^2, x_1^2 + x_2^2)$ with $\omega = e_1 e_2$, Definition~\ref{def:hodge} yields $\star_\omega(1) = e_1 e_2$, $\star_\omega(e_1) = e_2$, $\star_\omega(e_2) = -e_1$, and $\star_\omega(e_1 e_2) = +1$.
+\begin{itemize}
+  \item If $\star_\omega(x) = x\cdot(k_0\Omega)$, evaluating at $x=1$ forces $k_0\Omega = e_1 e_2$, which at grade $2$ gives $(e_1 e_2)(e_1 e_2) = -1 \neq +1 = \star_\omega(e_1 e_2)$.
+  \item If $\star_\omega(x) = (k_0\Omega)\cdot x$, evaluating at $x=1$ forces $k_0\Omega = e_1 e_2$, which at grade $1$ gives $(e_1 e_2)e_1 = -e_2 \neq +e_2 = \star_\omega(e_1)$ (and at grade $2$ gives $-1 \neq +1$).
+\end{itemize}
+More generally, on grade $k$ we have $\star_\nu|_{\Lambda^k}(x) = \varepsilon_k\,x\cdot_q\nu$ with $\varepsilon_k = (-1)^{k(k-1)/2}$ taking values $+1, +1, -1, -1, +1, \dots$ for $k = 0, 1, 2, 3, 4, \dots$, whose period-$4$ sign jump between $k=1$ and $k=2$ prevents any grade-independent conversion constant whenever $\rk(Q) \ge 2$.
+\end{example}
+
+\begin{theorem}[Exact Rank-1 Characterization of Unreverted Right Multiplication]\label{thm:rank-one}
+Over an integral domain $R$ with $\mathrm{char}(R) \neq 2$ and $r \in R \setminus \{0\}$, the unreverted right geometric product $x \mapsto x\cdot_q (r\,\omega_n)$ satisfies $\mathrm{IsHodgeStar}(q, r\,\omega_n, -)$ if and only if $q_i q_j = 0$ for all $i \neq j$ (i.e., at most one $q_i$ is non-zero, $\rk(Q) \le 1$).
+\end{theorem}
+\begin{proof}
+By Theorem~\ref{thm:chevalley-hodge}(2), $x\cdot_q(r\,\omega_n) = \star_{r\omega_n}(x)$ holds for all $x$ iff $(\widetilde{x} - x)\cdot_q(r\,\omega_n) = 0$ for all basis blades $x = e_I$. For $|I| \in \{0,1\}$, $\widetilde{e_I} = e_I$ always holds. If $q_i q_j = 0$ for all $i \neq j$, then for every $|I| \ge 2$, $\prod_{i \in I} q_i = 0$, whence $e_I\cdot_q \omega_n = \pm(\prod_{i\in I} q_i)e_{I^c} = 0$ and $\widetilde{e_I}\cdot_q\omega_n = 0$. Conversely, if $q_i \neq 0$ and $q_j \neq 0$ for some $i < j$, then for $x = e_i e_j \in \Lambda^2$, $\widetilde{x} = -x$ gives $(\widetilde{x}-x)\cdot_q(r\,\omega_n) = \pm 2 r q_i q_j e_{\{i,j\}^c} \neq 0$.
+\end{proof}
+
+\section{Refutation of Clause 3: Failure of Unit Norm}
+
+Even when we grant Interpretation~B ($\star_\nu(x) = \widetilde{x}\cdot_q \Omega$, so $\Omega = \nu$ by Theorem~\ref{thm:chevalley-hodge}(3)), the assertion that ``the norm of the realization is unit'' fails across indefinite signatures, degenerate metrics, non-quadratically-closed base fields, and alternative Clifford norms.
+
+\begin{theorem}[Lorentzian $\Cl_{1,1}$ and 4D Minkowski $\Cl_{3,1}$ Refute Unit Norm]\label{thm:lorentz}
+On 2D Lorentzian space $(\mathbb{Z}^2, x_1^2 - x_2^2)$ ($q = (1,-1)$) and 4D Minkowski space $(\mathbb{Z}^4, x_1^2 + x_2^2 + x_3^2 - x_4^2)$ ($q = (1,1,1,-1)$), both having unimodular metric determinant $|\det G| = 1$:
+\begin{enumerate}
+  \item[(1)] For either metric-canonical volume orientation $\Omega = \pm\omega_n$, $\mathrm{IsHodgeStar}(q, \Omega, x \mapsto \widetilde{x}\cdot_q\Omega)$ holds, yet
+  \[
+    \widetilde{\Omega}\cdot_q \Omega = -1 \neq +1, \qquad \langle \Omega, \Omega \rangle_q = -1 \neq +1.
+  \]
+  Moreover, $\star_\Omega$ is an anti-isometry rather than an isometry: $\langle \star_\Omega(1), \star_\Omega(1) \rangle_q = -1 \neq +1 = \langle 1, 1 \rangle_q$.
+  \item[(2)] Over $\mathbb{Q}$ and $\mathbb{R}$, \emph{no} scalar multiple $\Omega = \lambda\,\omega_n$ satisfies $\widetilde{\Omega}\cdot_q \Omega = +1$, because $\widetilde{\Omega}\cdot_q \Omega = -\lambda^2\cdot 1$ and $-\lambda^2 \le 0 < 1$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Here $\prod_i q_i = -1$, so \eqref{eq:norm-law} yields $\widetilde{(c\,\omega_n)}\cdot_q(c\,\omega_n) = -c^2\cdot 1 = -1$ for $c = \pm 1$, and $-\lambda^2 = 1$ has no solution in any ordered ring or field.
+\end{proof}
+
+\begin{theorem}[Degenerate $\Cl_{1,0,1}$ Refutes Unit Norm Under All Norm Conventions]\label{thm:degenerate}
+On the 2D degenerate Projective Geometric Algebra space $q = (1, 0)$ ($Q(x_1,x_2) = x_1^2$), for every non-zero scalar $c \neq 0$ and $\nu = c\,\omega_2$:
+\begin{enumerate}
+  \item[(1)] $\star_\nu$ exists uniquely ($\star_\nu(1) = c\,e_0\wedge e_1$, $\star_\nu(e_0) = c\,e_1$, $\star_\nu(e_1) = 0$, $\star_\nu(e_0\wedge e_1) = 0$), and $\star_\nu(x) = \widetilde{x}\cdot_q\Omega$ uniquely forces $\Omega = c\,\omega_2 \neq 0$;
+  \item[(2)] Every Clifford and exterior norm of $\Omega$ vanishes identically:
+  \[
+    \widetilde{\Omega}\cdot_q\Omega = 0, \qquad \overline{\Omega}\cdot_q\Omega = 0, \qquad \Omega\cdot_q\Omega = 0, \qquad \langle\Omega,\Omega\rangle_q = 0, \qquad \bigl|\langle\Omega,\Omega\rangle_q\bigr| = 0 \neq 1.
+  \]
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Existence and uniqueness of $\star_\nu$ and $\Omega = c\,\omega_2$ follow from Theorem~\ref{thm:chevalley-hodge}. Since $\prod_i q_i = 1\cdot 0 = 0$, \eqref{eq:norm-law} gives $\widetilde{\Omega}\cdot_q\Omega = 0$ and $\langle\Omega,\Omega\rangle_q = 0$; since $\Omega \in \Lambda^2$ has $\overline{\Omega} = \widetilde{\Omega} = -\Omega$, both $\overline{\Omega}\cdot_q\Omega$ and $\Omega\cdot_q\Omega$ also equal $0 \neq 1$.
+\end{proof}
+
+\begin{theorem}[Positive-Definite Rational Obstruction on $Q = \mathrm{diag}(2,3)$]\label{thm:rational}
+On the positive-definite rational quadratic space $(\mathbb{Q}^2, 2x_1^2 + 3x_2^2)$, for every rational volume blade $\Omega = (a/b)\,\omega_2$ ($a, b \in \mathbb{Z}$, $b \neq 0$), $\langle \Omega, \Omega \rangle_q = 6(a/b)^2 \notin \{+1, -1\}$.
+\end{theorem}
+\begin{proof}
+Clearly $6a^2 \ge 0 > -b^2$. Suppose $6a^2 = b^2$ with $b \neq 0$. Reducing modulo $3$ gives $b^2 \equiv 0 \pmod 3$, hence $3 \mid b$; writing $b = 3b'$ gives $2a^2 = 3b'^2$, hence $3 \mid a$; writing $a = 3a'$ gives $6a'^2 = b'^2$ with $|a'|+|b'| < |a|+|b|$, contradicting infinite descent on $\mathbb{N}$.
+\end{proof}
+
+\begin{remark}[Square and Conjugation Norms in Euclidean Space]\label{rem:euc-other-norms}
+Even in positive-definite Euclidean space $\mathbb{R}^{n,0}$, if ``norm'' is interpreted as the algebraic square $\Omega^2$ or the Clifford conjugation norm $\overline{\Omega}\cdot\Omega$, unit norm still fails: in $\Cl_{2,0}$, $\omega_2^2 = (e_0 e_1)^2 = -1 \neq +1$; in $\Cl_{3,0}$, $\overline{\omega_3}\cdot\omega_3 = -1 \neq +1$ and $\omega_3^2 = -1 \neq +1$.
+\end{remark}
+
+\section{Refutation of Clause 2: Orientation vs.\ Scale Deviation}
+
+\begin{theorem}[Failure of Uniqueness Up to Volume Orientation]\label{thm:uniqueness-fail}
+The realization coefficient fails to be unique up to volume orientation $\{\pm 1\}$ in three distinct ways:
+\begin{enumerate}
+  \item[(1)] \textbf{Positively Oriented Volume-Density Scaling:} On an oriented real vector space $(V, [\omega_0])$ with orientation class $[\omega_0] = \{\lambda\,\omega_0 : \lambda > 0\}$, varying $\nu = \lambda\,\omega_0$ within the \emph{same} orientation yields unique reverted realizations $\Omega_\lambda = \lambda\,\omega_0$ whose ratio $\lambda \in \mathbb{R}_{>0}$ is not restricted to $\{+1, -1\}$ (e.g., $\Omega_2 = 2\omega_2 \notin \{\pm\omega_2\}$).
+  \item[(2)] \textbf{Absence of Canonical Metric Normalization in Degenerate Spaces:} On $\Cl_{1,0,1}$ ($q = (1,0)$), $\langle \lambda\,\omega_2, \lambda\,\omega_2 \rangle_q = 0$ for \emph{all} $\lambda \in \mathbb{R}^\times$. Because the metric induces zero volume density ($\det G = 0$), all positively oriented volume forms $\lambda\,\omega_2$ ($\lambda > 0$) are metrically indistinguishable, leaving an intrinsic $\mathbb{R}_{>0}$ scale gauge beyond orientation $\{\pm 1\}$.
+  \item[(3)] \textbf{Non-Uniqueness on Positive Grades:} While $\star_\nu(1) = \Omega$ pins down $\Omega = \nu$ when grade $k = 0$ is included, on positive grades $k \in \{1, \dots, n\}$ in degenerate spaces such as $q = (0,0)$ on $R^2$, every scalar multiple $\Omega_c = c\,\omega_2$ ($c \in R$) satisfies $\widetilde{x}\cdot_q \Omega_c = 0 = \star_{\omega_2}(x)$ for all $x \in \Lambda^1(R^2) \oplus \Lambda^2(R^2)$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Part~(1) follows from $\Omega_\lambda = \star_{\lambda\omega_0}(1) = \lambda\,\omega_0$ (Theorem~\ref{thm:chevalley-hodge}(3)), so $\Omega_2$ has top coefficient $2 \notin \{1,-1\}$. Part~(2) follows from \eqref{eq:norm-law} with $\prod_i q_i = 0$. For Part~(3), when $q=(0,0)$ on $R^2$, any $x \in \Lambda^k(R^2)$ ($k \ge 1$) has scalar part $0$, so $\widetilde{x}\cdot_0 (c\,\omega_2) = \widetilde{x}\wedge(c\,\omega_2) \in \Lambda^{k+2}(R^2) = \{0\} = \star_{\omega_2}(x)$ for every $c \in R$.
+\end{proof}
+
+\section{Summary of Formalization and Verification}
+
+Every theorem and counterexample in this paper has been formalized from first principles in Core Lean~4 (\texttt{leanprover/lean4:v4.19.0}) inside \texttt{package/lean/} with \texttt{-DwarningAsError=true}, zero external dependencies (no \texttt{mathlib}), zero \texttt{sorry}, zero custom axioms, and verified independently by the standalone exact rational suite \texttt{package/verify.py}. Table~\ref{tab:xref} summarizes the correspondence.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Mathematical Result} & \textbf{Core Lean 4 Theorem (\texttt{Cl.*})} & \textbf{Status / Verdict} \\
+\midrule
+Poincar\'e duality (Thm.~\ref{thm:chevalley-hodge}(1)) & \texttt{poincare\_wedge\_nondeg} & Constructive ($\forall n, R$) \\
+Universal $\star_\nu(x) = \widetilde{x}\cdot\nu$ (Thm.~\ref{thm:chevalley-hodge}(2)) & \texttt{rev\_mul\_isHodgeStar} & Proven ($\forall n, R, q$) \\
+Canonical uniqueness (Thm.~\ref{thm:chevalley-hodge}(2)) & \texttt{hodgeStar\_eq\_cliffordRightStar} & Proven ($\forall n, R, q$) \\
+Norm law $\widetilde{\Omega}\Omega = r^2\prod q_i$ (Thm.~\ref{thm:chevalley-hodge}(3)) & \texttt{rev\_smul\_omega\_mul\_self} & Proven ($\forall n, R, q$) \\
+Euclidean $(n,0)$ positive regime (Thm.~\ref{thm:euclidean-pos}) & \texttt{euclidean\_reverted\_realization\_holds} & Non-vacuous ($\forall n$) \\
+No $A\cdot x\cdot B$ or $A\cdot\hat{x}\cdot B$ (Thm.~\ref{thm:no-two-sided}) & \texttt{no\_two\_sided\_clifford\_realization} & \textbf{Refutes Cl.~1} ($\forall n \ge 2$) \\
+Master direct refutation (Thm.~\ref{thm:no-two-sided}) & \texttt{conjecture\_00000007616\_direct\_false} & \textbf{Refutes Clause 1} \\
+Rank-1 iff $\star_\nu(x) = x\cdot\nu$ (Thm.~\ref{thm:rank-one}) & \texttt{cl2\_unreverted\_right\_iff\_rank\_le\_one} & Exact iff ($n = 2$) \\
+Lorentzian $\Cl_{1,1}$ norm $-1$ (Thm.~\ref{thm:lorentz}) & \texttt{lorentzian\_cl11\_refutes\_unit\_norm} & \textbf{Refutes Clause 3} \\
+Minkowski $\Cl_{3,1}$ norm $-1$ (Thm.~\ref{thm:lorentz}) & \texttt{minkowski\_cl31\_refutes\_unit\_norm} & \textbf{Refutes Clause 3} \\
+Master reverted refutation (Thm.~\ref{thm:lorentz}) & \texttt{conjecture\_00000007616\_reverted\_false} & \textbf{Refutes Clause 3} \\
+Degenerate $\Cl_{1,0,1}$ zero norm (Thm.~\ref{thm:degenerate}) & \texttt{degenerate\_cl101\_refutes\_unit\_norm} & \textbf{Refutes Clause 3} \\
+Rational $\mathrm{diag}(2,3)$ norm $\neq \pm 1$ (Thm.~\ref{thm:rational}) & \texttt{rational\_diag23\_refutes\_unit\_norm} & \textbf{Refutes Clause 3} \\
+Scale gauge beyond $\{\pm 1\}$ (Thm.~\ref{thm:uniqueness-fail}) & \texttt{scale\_deviation\_exceeds\_orientation} & \textbf{Refutes Clause 2} \\
+Pos.-grade non-uniqueness (Thm.~\ref{thm:uniqueness-fail}) & \texttt{degenerate\_positive\_grade\_nonunique} & \textbf{Refutes Clause 2} \\
+\bottomrule
+\end{tabular}
+\caption{Cross-reference between paper theorems and Core Lean~4.19.0 formalization.}
+\label{tab:xref}
+\end{table}
+
+\begin{thebibliography}{9}
+\bibitem{Chevalley1954}
+C.~Chevalley, \emph{The Algebraic Theory of Spinors}, Columbia University Press, New York, 1954.
+
+\bibitem{LawsonMichelsohn1989}
+H.~B.~Lawson and M.-L.~Michelsohn, \emph{Spin Geometry}, Princeton Mathematical Series, vol.~38, Princeton University Press, 1989.
+
+\bibitem{Lounesto2001}
+P.~Lounesto, \emph{Clifford Algebras and Spinors}, 2nd ed., London Mathematical Society Lecture Note Series, vol.~286, Cambridge University Press, 2001.
+
+\bibitem{Riesz1958}
+M.~Riesz, \emph{Clifford Numbers and Spinors}, Institute for Fluid Dynamics and Applied Mathematics, Lecture Series No.~38, University of Maryland, 1958 (reprinted Springer, 1993).
+\end{thebibliography}
+
+\end{document}
