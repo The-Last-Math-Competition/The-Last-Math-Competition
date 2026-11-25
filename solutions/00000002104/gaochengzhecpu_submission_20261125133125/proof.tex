@@ -1,0 +1,108 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{The Galois group of the \(c_1\)-spectrum of \(\mathrm{Gr}(3,8)\)}
+\author{The Last Math Competition, conjecture 00000002104}
+\date{}
+\begin{document}
+\maketitle
+
+Let \(P_q\) be the characteristic polynomial of multiplication by
+\(c_1(T\mathrm{Gr}(3,8))\) in small quantum cohomology.
+We compute its Galois group both over \(\mathbb Q\) at \(q=1\)
+and over \(\mathbb Q(q)\) with \(q\) indeterminate.
+
+\paragraph{Spectrum.}
+Let \(S\) be the rank-three tautological bundle and \(Q\) the
+rank-five quotient bundle. The tangent bundle is \(S^*\otimes Q\),
+and \(c_1(Q)=c_1(S^*)=\sigma_1\). Therefore \(c_1(T\mathrm{Gr}(3,8))=8\sigma_1\).
+Under the standard presentation of quantum cohomology, \(\sigma_1\)
+is the first elementary symmetric function \(e_1\).
+The geometric points of the nonzero \(q\)-fiber are indexed by the
+three-element subsets of the roots of \(z^8=q\), and \(e_1\) evaluates
+there as the sum of the three elements
+\cite[Lemma 3.7 and Theorem 3.4]{rietsch}.
+For completeness, the presentation over \(\mathbb Q[q]\) is
+\[
+ \mathbb Q[q,e_1,e_2,e_3]/(h_6,h_7,h_8-q),
+ \qquad
+ \sum_{m\geq0}h_m t^m=(1-e_1t+e_2t^2-e_3t^3)^{-1},
+\]
+by the Siebert--Tian theorem \cite[Theorem 1]{galkin}.
+For a three-element subset of roots of \(z^8=q\), the generating
+function is the product of \(1-zt\) over the five complementary
+roots divided by \(1-qt^8\). Thus these evaluations satisfy the
+relations. They give distinct maximal ideals after extending the
+ground field to contain all the roots of \(z^8=q\), since the three
+elementary symmetric coordinates determine the subset. The
+Chinese remainder theorem gives a surjection onto the product of
+the resulting \(\binom83=56\) fields, and the quantum ring has
+dimension \(56\) by its Schubert basis. This proves that the
+evaluations account for the entire characteristic polynomial.
+
+Fix \(\alpha^8=q\) and a primitive eighth root of unity \(\zeta\).
+Writing \(r_{ijk}\) for the eigenvalue indexed by
+\(\{i,j,k\}\subset\{0,\ldots,7\}\), we have
+\[
+ r_{ijk}=8\alpha(\zeta^i+\zeta^j+\zeta^k).
+\]
+The 56 subset labels give the eigenvalues with multiplicity.
+
+\paragraph{At \(q=1\).}
+Choose \(\alpha=1\). All eigenvalues lie in \(\mathbb Q(\zeta)\), and
+\[
+ \zeta=1+\frac{r_{123}-r_{023}}{8}
+\]
+lies in their splitting field. Thus the splitting field is exactly
+\(\mathbb Q(\zeta)\). The polynomial \(x^4+1\) is irreducible over
+\(\mathbb Q\), since replacing \(x\) by \(x+1\) gives a polynomial
+Eisenstein at \(2\). Its roots are the odd powers of \(\zeta\).
+The Galois group is therefore
+\((\mathbb Z/8\mathbb Z)^\times\cong C_2\times C_2\), of order \(4\).
+
+\paragraph{Over \(\mathbb Q(q)\).}
+Every eigenvalue lies in \(\mathbb Q(q,\zeta,\alpha)\). Since
+\(\zeta^4=-1\), the reverse inclusion follows from
+\[
+ \alpha=\frac{r_{023}-r_{234}}{16},
+ \qquad
+ \zeta=1+\frac{r_{123}-r_{023}}{8\alpha}.
+\]
+Here \(q\ne0\), so \(\alpha\ne0\). The cyclotomic constant field
+extension \(\mathbb Q(\zeta)(q)/\mathbb Q(q)\) has degree \(4\),
+because adjoining an indeterminate preserves the degree of a finite
+constant extension. The polynomial \(x^8-q\) is Eisenstein at \(q\)
+in \(\mathbb Q(\zeta)[q][x]\), so the further extension adjoining
+\(\alpha\) has degree \(8\). The characteristic polynomial is
+separable after removing repeated factors, so its splitting field
+is Galois and its group has order \(32\).
+More explicitly, the 32 substitutions
+\(\alpha\mapsto\zeta^r\alpha\), \(\zeta\mapsto\zeta^u\) are determined
+by \(r\bmod8\) and \(u\in(\mathbb Z/8\mathbb Z)^\times\).
+All are automorphisms since there are 32 possibilities and the
+Galois group has order 32. Composition sends
+\((r,u),(s,v)\) to \((r+us,uv)\), with entries taken modulo eight.
+
+The group at \(q=1\) has order \(4\) and the generic group has order
+\(32\), whereas \(\lvert S_5\rvert=120\). This refutes the asserted
+Galois group in both interpretations.
+
+\paragraph{Lean verification.}
+The accompanying Lean project models \(\zeta^i\) in the basis
+\(1,\zeta,\zeta^2,\zeta^3\), verifies the subset indexing and the two
+splitting-field extraction identities, and checks the finite Galois
+action, composition law, and group orders. The quantum cohomology
+presentation and the field-theoretic identifications are justified
+above.
+
+\begin{thebibliography}{2}
+\bibitem{rietsch}
+K. Rietsch, \emph{Quantum cohomology rings of Grassmannians and total
+positivity}, Duke Math. J. \textbf{110} (2001), 523--553.
+arXiv:math/0112022.
+\bibitem{galkin}
+S. Galkin and V. Golyshev, \emph{Quantum cohomology of Grassmannians
+and cyclotomic fields}, Russian Math. Surveys \textbf{61} (2006),
+171--173. DOI: \texttt{10.1070/RM2006v061n01ABEH004304}.
+\end{thebibliography}
+\end{document}
