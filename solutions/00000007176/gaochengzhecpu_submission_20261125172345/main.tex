@@ -1,0 +1,545 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\sloppy
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Sym}{\mathrm{Sym}}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cB}{\mathcal{B}}
+\newcommand{\cJ}{\mathcal{J}}
+
+\title{\textbf{Refutation and Sharp Spectral Rigidity Classification\\
+for Higher-Order Symmetric Tensor Eigenvalues\\
+(Conjecture 00000007176)}}
+\author{Formalized in Core Lean 4.19.0 with Independent Computational Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007176}, which asserts that the modulus upper bound of
+the spectra of symmetric tensors is a power of the degree and that equality in the bound
+is realized by tensors of binomial type. Analyzing Qi's and Lim's higher-order tensor
+eigenvalue frameworks ($H$-eigenvalues, $Z$-eigenvalues, and complex $E$-eigenvalues) for
+order-$m$ ($m \ge 3$), dimension-$n$ ($n \ge 2$) real and complex symmetric tensors across
+all standard normalizations, we prove that the conjecture is \textbf{false in general} in
+both its bound formula and its extremal realization claim, while establishing the sharp
+positive spectral bounds and complete rigidity theorems that explain the origin of the
+misconception.
+
+Specifically: (1) without norm or entry normalization, scaling $\cA \mapsto c\cA$ renders
+all tensor spectra unbounded; (2) under the entrywise bound $|a_{i_1 \dots i_m}| \le 1$,
+the sharp modulus upper bound is $n^{m-1}$ for $H$-eigenvalues and $n^{m/2}$ for
+$Z$-eigenvalues---powers of the \emph{dimension} $n$ rather than the \emph{degree} $m$,
+diverging to $+\infty$ as $n \to \infty$ for every fixed degree $m$ (e.g., $\lambda_H(\cJ_{3,4}) = 16 > 3^2$,
+$\lambda_H(\cJ_{3,6}) = 36 > 3^3$, $\lambda_Z(\cJ_{3,16}) = 64 > 3^3$, while for $n = 2, m = 3$
+the sharp bound $2^{3-1} = 4$ equals $3^k$ for no $k \in \N$); (3) equality $|\lambda_H| = n^{m-1}$
+is realized on the tensor level by the \emph{constant} all-ones tensor $\cJ_{m,n}$
+($a_{i_1 \dots i_m} \equiv 1$, whose homogeneous form $(x_1 + \dots + x_n)^m$ reduces to a
+binomial expansion only when $n = 2$ via symmetric index multiplicities), up to root-of-unity
+rank-$1$ scalings $\zeta (\overline{\omega})^{\otimes m}$ ($\omega_j^m = 1$) over $\C$ and
+$\pm s^{\otimes m}$ ($s \in \{\pm 1\}^n$) for even $m$ over $\R$, whereas the literal
+binomial-entry tensor $\cB_{m,2}$ ($a_{i_1 \dots i_m} = \binom{m}{\#\{r : i_r = 2\}}$) has
+unnormalized spectral radius $\binom{2m-1}{m-1}$ and strictly suboptimal rescaled radius
+$< 2^{m-1}$ for every $m \ge 2$; (4) under Frobenius normalization $\|\cA\|_F \le 1$,
+Banach's theorem gives the sharp $Z$-eigenvalue bound $1 < m^k$ (realized by rank-$1$
+monomials $\pm u^{\otimes m}$), while we prove via a polynomial Muirhead--Cauchy--Schwarz
+inequality that the sharp $H$-eigenvalue bound is $n^{(m-2)/2}$, again diverging with $n$;
+and (5) for complex $E$-eigenvalues ($x^\top x = 1$ in $\C^n$), even $2 \times 2 \times 2$
+real symmetric tensors satisfying both $\|\cA\|_\infty \le 1/2$ and $\|\cA\|_F < 1$ have
+unbounded spectra. All main positive bounds, rigidity theorems, and counterexamples are
+formalized from first principles in Core Lean 4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Introduction and Bilingual Statement Analysis}
+
+Conjecture \texttt{00000007176} reads verbatim in English:
+\begin{quote}
+\emph{Definition: The extrema of tensor eigenvalues with higher-order spectra. Conjecture:
+The modulus upper bound of the spectra of symmetric tensors is the degree power, and the
+realization of the bound is the binomial type. (binomial-realized tensor spectral bound)}
+\end{quote}
+The accompanying Chinese statement expresses the exact same two-part assertion under the
+header of spectral rigidity (\emph{zh\=angli\`ang p\v{u} de g\=angx\`\i ng}): the modulus
+upper bound of the spectrum of a symmetric tensor (\emph{du\`\i ch\`en zh\=angli\`ang de
+p\v{u} de m\'o de sh\`angji\`e}) is a power of the degree (\emph{d\`ush\`u de m\`\i}), and
+the realization of the bound is of binomial type (\emph{ji\`e de sh\'\i xi\`an w\'ei
+\`erxi\`ang x\'\i ng}).
+
+\subsection{Definitions of Higher-Order Tensor Eigenvalues}
+
+Let $\mathbb{F} \in \{\R, \C\}$, let $m \ge 2$ be the order (algebraic degree), and let
+$n \ge 1$ be the underlying vector space dimension. An order-$m$, dimension-$n$ tensor
+$\cA = (a_{i_1 \dots i_m}) \in (\mathbb{F}^n)^{\otimes m}$ is \emph{symmetric}
+(called \emph{supersymmetric} in Qi~\cite{Qi2005}) if
+\[
+  a_{i_{\sigma(1)} \dots i_{\sigma(m)}} = a_{i_1 \dots i_m}
+  \qquad \text{for all } \sigma \in S_m \text{ and all } (i_1, \dots, i_m) \in \{1, \dots, n\}^m.
+\]
+Each symmetric tensor $\cA$ determines a homogeneous polynomial of degree $m$,
+\[
+  F_{\cA}(x) = \cA x^m = \sum_{i_1, \dots, i_m = 1}^n a_{i_1 \dots i_m} x_{i_1} \cdots x_{i_m},
+\]
+and an order-$(m-1)$ contraction map $\cA x^{m-1} \in \mathbb{F}^n$ with coordinates
+\[
+  (\cA x^{m-1})_i = \sum_{i_2, \dots, i_m = 1}^n a_{i, i_2, \dots, i_m} x_{i_2} \cdots x_{i_m}
+  = \frac{1}{m} \frac{\partial F_{\cA}}{\partial x_i}(x)
+  \qquad (1 \le i \le n),
+\]
+satisfying Euler's identity $\cA x^m = \sum_{i=1}^n x_i (\cA x^{m-1})_i$. Following
+Qi~\cite{Qi2005} and Lim~\cite{Lim2005}, the standard higher-order spectral notions are:
+\begin{enumerate}
+  \item \textbf{Eigenvalues and $H$-eigenvalues:} $(\lambda, x) \in \C \times (\C^n \setminus \{0\})$
+  is an \emph{eigenpair} of $\cA$ if
+  \begin{equation}\label{eq:H-eig}
+    (\cA x^{m-1})_i = \lambda x_i^{m-1} \qquad \text{for all } i = 1, \dots, n.
+  \end{equation}
+  When $\cA$ is real and $(\lambda, x) \in \R \times (\R^n \setminus \{0\})$, $\lambda$ is
+  called an \emph{$H$-eigenvalue}. Notice that~\eqref{eq:H-eig} is scale-invariant in $x$
+  because both sides are homogeneous of degree $d = m - 1$.
+  \item \textbf{$Z$-eigenvalues and complex $E$-eigenvalues:} $(\lambda, x)$ is an
+  \emph{$E$-eigenpair} of $\cA$ if
+  \begin{equation}\label{eq:ZE-eig}
+    \cA x^{m-1} = \lambda x \qquad \text{and} \qquad \sum_{i=1}^n x_i^2 = 1.
+  \end{equation}
+  When $\cA$ is real and $x \in \R^n$ (so $\sum_{i=1}^n x_i^2 = \|x\|_2^2 = 1$), $\lambda$
+  is called a \emph{$Z$-eigenvalue}; Euler's identity immediately yields $\lambda = \cA x^m$.
+\end{enumerate}
+
+\subsection{Overview of Results across All Normalizations and Interpretations}
+
+Because $(\cA) \mapsto (c \cA)$ scales every $H$-, $Z$-, and $E$-eigenvalue by $c$, a finite
+spectral upper bound requires a normalization constraint on $\cA$. Table~\ref{tab:summary}
+summarizes the exact extremal modulus bounds and realizing tensors across every standard
+normalization in tensor and hypergraph spectral theory. In \emph{none} of these settings is
+the sharp upper bound a universal power $m^k$ of the degree $m$, nor is equality uniquely
+realized by binomial-type tensors in general dimension $n \ge 2$.
+
+\begin{table}[ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Normalization on $\cA$} & \textbf{Spectrum} & \textbf{Sharp $\max |\lambda|$} & \textbf{Extremal Realizer(s)} \\
+\midrule
+Unnormalized & $H$, $Z$, $E$ & $+\infty$ & Unbounded under $\cA \mapsto c\cA$ \\
+Entrywise $|a_\alpha| \le 1$ & $H$ ($\R$ / $\C$) & $n^{m-1}$ & $\zeta (\overline{\omega})^{\otimes m}$ ($\omega_j^m = 1$); $\cJ_{m,n}$ on $[0,1]$ \\
+Entrywise $|a_\alpha| \le 1$ & $Z$ ($\|x\|_2 = 1$) & $n^{m/2}$ & $\pm s^{\otimes m}$, e.g.\ $\cJ_{m,n}$ at $\frac{1}{\sqrt{n}}\mathbf{1}$ \\
+Entrywise $|a_\alpha| \le 1$ & Complex $E$ & $+\infty$ & Unbounded even at $m=3, n=2$ \\
+Frobenius $\|\cA\|_F \le 1$ & $Z$ ($\|x\|_2 = 1$) & $1$ & Rank-$1$ $\pm u^{\otimes m}$ ($\|u\|_2 = 1$, e.g.\ $x_1^m$) \\
+Frobenius $\|\cA\|_F \le 1$ & $H$ ($\R$ / $\C$) & $n^{(m-2)/2}$ & $n^{-m/2}\cJ_{m,n}$ (and root-of-unity twists) \\
+Entrywise $\ell_1$: $\|\cA\|_1 \le 1$ & $H$, $Z$ & $1$ & Coordinate monomials $\pm e_k^{\otimes m}$ \\
+Poly.\ coeff.\ $|c_\alpha| \le 1$ & $H$ & $\frac{1}{n}\binom{n+m-1}{m}$ & Complete sym.\ poly.\ $h_m(x) = \sum_{|\alpha|=m} x^\alpha$ \\
+$k$-graph max degree $\Delta$ & $H$ (Cooper--Dutle) & $\Delta^1 = \Delta$ & Every $\Delta$-regular $k$-uniform hypergraph \\
+\bottomrule
+\end{tabular}
+\caption{Exact spectral modulus extrema across all standard symmetric tensor normalizations.}
+\label{tab:summary}
+\end{table}
+
+\paragraph{Diagnostic origin of the conjecture's misconception.}
+Consider the binary ($n = 2$) all-ones symmetric tensor $\cJ_{m,2}$ ($a_{i_1 \dots i_m} = 1$).
+Grouping the $2^m$ index tuples by the number $k \in \{0, \dots, m\}$ of coordinates equal to $2$
+writes its homogeneous polynomial as the \emph{binomial power}
+\[
+  F_{\cJ_{m,2}}(x_1, x_2) = (x_1 + x_2)^m = \sum_{k=0}^m \binom{m}{k} x_1^{m-k} x_2^k,
+\]
+with sharp $H$-spectral radius $2^{m-1}$. Two distinct conflations produce the conjectured
+statement from this special case:
+\begin{enumerate}
+  \item \textbf{Base--exponent / dimension--degree conflation:} Reading $n^{m-1}$ in the
+  equidimensional slice $n = m$ (where $n^{m-1} = m^{m-1}$) or misreading the exponential
+  $2^{m-1}$ as a ``power of the degree'' $m^k$ misses the fact that the base is the
+  \emph{dimension} $n$, so $n^{m-1} \to \infty$ as $n \to \infty$ at every fixed degree $m \ge 2$.
+  \item \textbf{Orbit-multiplicity vs.\ tensor-entry conflation:} In $(x_1 + \dots + x_n)^m =
+  \sum_{|\alpha|=m} \binom{m}{\alpha} x^\alpha$, the multinomial coefficients $\binom{m}{\alpha}$
+  count index permutations in each $S_m$-orbit, whereas the symmetric \emph{tensor entries}
+  themselves are uniformly $a_{i_1 \dots i_m} = 1$. In dimension $n \ge 3$ the polynomial is
+  multinomial rather than binomial (a $2$-variable binomial $(x_1 + x_2)^m$ achieves only
+  $2^{m-1} < n^{m-1}$), while placing binomial coefficients directly into the tensor entries
+  ($\cB_{m,2}$) destroys entrywise saturation and strictly lowers the normalized spectral radius.
+\end{enumerate}
+
+\section{Sharp Positive Bounds and Complete Spectral Rigidity}
+
+To formulate proofs that apply simultaneously over $\Z$, $\Q$, real algebraic fields, and $\R$
+without irrational square roots or non-constructive real axioms, our Lean 4.19.0 formalization
+works polymorphically over any linearly ordered integral domain $R$ and its algebraic
+complexification $R[i] = \{u + i v : u, v \in R\}$ with squared modulus $|z|^2 = u^2 + v^2 \in R$.
+
+\begin{lemma}[Lagrange Identities over $R$ and {$R[i]$}]\label{lem:lagrange}
+Let $R$ be a linearly ordered integral domain and let $l$ be a finite list of length $N$.
+\begin{enumerate}
+  \item For any $f, g : l \to R$,
+  \[
+    2 \biggl(\sum_{a \in l} f(a)^2\biggr)\biggl(\sum_{b \in l} g(b)^2\biggr)
+    - 2 \biggl(\sum_{a \in l} f(a) g(a)\biggr)^2
+    = \sum_{a \in l} \sum_{b \in l} \bigl(f(a) g(b) - f(b) g(a)\bigr)^2 \ge 0.
+  \]
+  Hence $\bigl(\sum f g\bigr)^2 \le \bigl(\sum f^2\bigr)\bigl(\sum g^2\bigr)$, with equality
+  if and only if $f(a) g(b) = f(b) g(a)$ for all $a, b \in l$, which implies
+  $\bigl(\sum_b g(b)^2\bigr) f(a) = \bigl(\sum_b f(b) g(b)\bigr) g(a)$.
+  \item For any $w : l \to R[i]$,
+  \[
+    2 N \sum_{a \in l} |w(a)|^2 - 2 \biggl|\sum_{a \in l} w(a)\biggr|^2
+    = \sum_{a \in l} \sum_{b \in l} |w(a) - w(b)|^2 \ge 0.
+  \]
+  Hence $\bigl|\sum_{a \in l} w(a)\bigr|^2 \le N \sum_{a \in l} |w(a)|^2$, with equality if
+  and only if $w(a) = w(b)$ for all $a, b \in l$, in which case $N w(a) = \sum_{b \in l} w(b)$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Expanding $(f(a)g(b) - f(b)g(a))^2 = f(a)^2 g(b)^2 + f(b)^2 g(a)^2 - 2 f(a)g(a)f(b)g(b)$ and
+summing over $a, b \in l$ yields~(1). Expanding $|w(a) - w(b)|^2 = |w(a)|^2 + |w(b)|^2 -
+2\,\mathrm{Re}(w(a)\overline{w(b)})$ and using $\sum_{a,b} \mathrm{Re}(w(a)\overline{w(b)}) =
+\mathrm{Re}\bigl((\sum_a w(a))\overline{(\sum_b w(b))}\bigr) = \bigl|\sum_a w(a)\bigr|^2$
+yields~(2). Since $R$ is an ordered integral domain, a finite sum of nonnegative squares
+vanishes if and only if every summand vanishes.
+\end{proof}
+
+\begin{theorem}[Qi's Entrywise Bound and Complete Complex/Real Rigidity]\label{thm:entry-rigidity}
+Let $R$ be a linearly ordered integral domain, $n \ge 1$, $m = d + 1 \ge 2$, and $B \in R$
+with $B \ge 0$.
+\begin{enumerate}
+  \item \textbf{Upper bound:} For every tensor $\cA \in (R[i]^n)^{\otimes m}$ satisfying
+  $|a_{i_1 \dots i_m}|^2 \le B^2$ and every eigenpair $(\lambda, z) \in R[i] \times (R[i]^n \setminus \{0\})$,
+  \[
+    |\lambda|^2 \le \bigl(n^{m-1} B\bigr)^2
+    \qquad \bigl(\text{and over } R,\; |\lambda| \le n^{m-1} B\bigr),
+  \]
+  with equality attained at $\cA = B \cJ_{m,n}$ and $z = (1, \dots, 1)$ where $\lambda = n^{m-1} B$.
+  \item \textbf{Complex root-of-unity rigidity:} Suppose $B > 0$, $\cA$ is symmetric, and
+  $|\lambda|^2 = (n^{m-1} B)^2$. Let $i_0 \in \{1, \dots, n\}$ maximize $M_2 := |z_{i_0}|^2 > 0$.
+  Then:
+  \begin{enumerate}
+    \item $|z_j|^2 = M_2$ for all $1 \le j \le n$, and $|a_{i_1 \dots i_m}|^2 = B^2$ for all
+    $(i_1, \dots, i_m)$;
+    \item $z_i^m = z_j^m$ for all $1 \le i, j \le n$; and
+    \item $\cA$ admits the exact rank-$1$ factorization
+    \[
+      n^{m-1} M_2^m \, a_{i_1 \dots i_m}
+      = \bigl(\lambda z_{i_0}^m\bigr)\, \overline{z_{i_1}} \cdots \overline{z_{i_m}}.
+    \]
+  \end{enumerate}
+  \item \textbf{Real and nonnegative specializations:}
+  \begin{itemize}
+    \item If $\cA$ has nonnegative entries $0 \le a_\alpha \le B$ ($B > 0$) and attains
+    $|\lambda|^2 = (n^{m-1} B)^2$ at any complex eigenpair, then $\cA = B \cJ_{m,n}$ uniquely.
+    \item If $\cA$ is real ($|a_\alpha| \le B$, $B > 0$) and attains $|\lambda| = n^{m-1} B$
+    at a real $H$-eigenpair $(\lambda, x)$: for \textbf{odd} $m \ge 3$, $\cA = \pm B \cJ_{m,n}$
+    uniquely; for \textbf{even} $m \ge 2$, $\cA = \pm B s^{\otimes m}$ for some sign vector
+    $s \in \{-1, +1\}^n$.
+  \end{itemize}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Choose $i_0 \in \{1, \dots, n\}$ maximizing $M_2 := |z_{i_0}|^2$. Because $z \ne 0$, $M_2 > 0$.
+Applying Lemma~\ref{lem:lagrange}(2) to the $N = n^{m-1}$ terms
+$w_{i_2 \dots i_m} := a_{i_0, i_2, \dots, i_m} z_{i_2} \cdots z_{i_m}$ in row $i_0$ gives
+\begin{align*}
+  |\lambda|^2 M_2^{m-1}
+  &= \bigl|(\cA z^{m-1})_{i_0}\bigr|^2
+   \le n^{m-1} \sum_{i_2, \dots, i_m = 1}^n |a_{i_0, i_2, \dots, i_m}|^2 |z_{i_2}|^2 \cdots |z_{i_m}|^2 \\
+  &\le n^{m-1} \cdot n^{m-1} B^2 M_2^{m-1} = \bigl(n^{m-1} B\bigr)^2 M_2^{m-1}.
+\end{align*}
+Cancelling $M_2^{m-1} > 0$ proves~(1).
+
+Now assume $B > 0$, $\cA$ is symmetric, and $|\lambda|^2 = (n^{m-1} B)^2$. Both inequalities
+above must be equalities. Termwise saturation at the constant tail $(j, \dots, j)$ of length
+$m - 1 \ge 1$ yields $|a_{i_0, j, \dots, j}|^2 (|z_j|^2)^{m-1} = B^2 M_2^{m-1}$, which forces
+$|z_j|^2 = M_2$ for every $j = 1, \dots, n$ (otherwise $|z_j|^2 < M_2$ gives strict inequality
+since $B^2 > 0$ and $m - 1 \ge 1$). Repeating the same row saturation for arbitrary $i_1$ now
+yields $|a_{i_1 \dots i_m}|^2 = B^2$ everywhere and, by Lemma~\ref{lem:lagrange}(2),
+\[
+  n^{m-1} a_{i_1 i_2 \dots i_m} z_{i_2} \cdots z_{i_m} = \lambda z_{i_1}^{m-1}
+  \qquad \text{for all } i_1, i_2, \dots, i_m \in \{1, \dots, n\}.
+\]
+Multiplying by $z_{i_1}$ and comparing $(i, j, t_0)$ with $(j, i, t_0)$ via symmetry
+$a_{i, j, t_0} = a_{j, i, t_0}$ yields $\lambda z_i^m = \lambda z_j^m$; cancelling $\lambda \ne 0$
+gives $z_i^m = z_j^m$. Finally, multiplying $n^{m-1} a_{i_1 \dots i_m} z_{i_1} \cdots z_{i_m} =
+\lambda z_{i_0}^m$ by $\overline{z_{i_1}} \cdots \overline{z_{i_m}}$ and using
+$z_k \overline{z_k} = M_2$ gives~(2c).
+
+For~(3): if $0 \le a_\alpha \le B$, then $a_\alpha^2 = B^2$ implies $a_\alpha = B$. For real
+$(\lambda, x)$, $x_j^2 = x_{i_0}^2 > 0$ implies $x_j = \pm x_{i_0}$. When $m$ is odd,
+$x_j = -x_{i_0}$ would give $x_j^m = -x_{i_0}^m \ne x_{i_0}^m$, so $x_j = x_{i_0}$ for all $j$,
+forcing $n^{m-1} a_\alpha = \lambda = \pm n^{m-1} B$, hence $a_\alpha = \pm B$. When $m$ is even,
+setting $s_j = x_j / x_{i_0} \in \{\pm 1\}$ gives $n^{m-1} a_\alpha = \lambda \prod_{r=1}^m s_{\alpha_r}$,
+hence $\cA = \pm B s^{\otimes m}$.
+\end{proof}
+
+\begin{theorem}[Sharp Entrywise and Frobenius $Z$-Eigenvalue Bounds]\label{thm:Z-bounds}
+Let $R$ be a linearly ordered integral domain, $n \ge 1$, and $m = d + 1 \ge 2$.
+\begin{enumerate}
+  \item \textbf{Entrywise $Z$-bound:} If $|a_\alpha| \le B$ ($B \ge 0$) and $(\lambda, x)$ is a
+  $Z$-eigenpair ($\sum_{i=1}^n x_i^2 = 1$, $\cA x^{m-1} = \lambda x$), then
+  \[
+    \lambda^2 \le B^2 n^m \qquad \bigl(|\lambda_Z| \le B n^{m/2}\bigr),
+  \]
+  sharply attained over $\Q$ whenever $n = k^2$ ($k \ge 1$) by $\cJ_{m, k^2}$ at
+  $x = (1/k, \dots, 1/k)$ with $\lambda_Z = k^m = n^{m/2}$.
+  \item \textbf{Banach's Frobenius $Z$-bound and rank-$1$ rigidity:} For every $Z$-eigenpair
+  $(\lambda, x)$ of $\cA$,
+  \[
+    \lambda^2 \le \|\cA\|_F^2 = \sum_{\alpha} a_\alpha^2,
+  \]
+  with equality $\lambda^2 = \|\cA\|_F^2$ if and only if $\cA = \lambda x^{\otimes m}$. In
+  particular, for $\|\cA\|_F \le 1$, $|\lambda_Z| \le 1$, attained by $e_1^{\otimes m}$ at $x = e_1$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By Euler's identity, $\lambda = \sum_{i=1}^n x_i (\cA x^{m-1})_i = \cA x^m$. For~(1),
+$|\lambda| \le B \bigl(\sum_{i=1}^n |x_i|\bigr)^m$, and Cauchy--Schwarz gives
+$\bigl(\sum_{i=1}^n |x_i|\bigr)^2 \le n \sum_{i=1}^n x_i^2 = n$, so $\lambda^2 \le B^2 n^m$.
+For~(2), applying Lemma~\ref{lem:lagrange}(1) to $\lambda = \sum_\alpha a_\alpha \prod_{r=1}^m x_{\alpha_r}$
+yields $\lambda^2 \le \|\cA\|_F^2 \sum_\alpha \prod_{r=1}^m x_{\alpha_r}^2 =
+\|\cA\|_F^2 \bigl(\sum_{i=1}^n x_i^2\bigr)^m = \|\cA\|_F^2$, with equality forcing
+$a_\alpha = \lambda \prod_{r=1}^m x_{\alpha_r}$.
+\end{proof}
+
+\begin{theorem}[Sharp Frobenius $H$-Eigenvalue Bound via Polynomial Muirhead Inequality]\label{thm:frob-H}
+Let $R$ be a linearly ordered integral domain, $n \ge 1$, and $m \ge 2$.
+\begin{enumerate}
+  \item \textbf{Polynomial $\ell_2$--$\ell_m$ inequality:} For any $r_1, \dots, r_n \in R$ with
+  $r_i \ge 0$, let $P_k = \sum_{i=1}^n r_i^k$. Then
+  \[
+    P_2^m \le n^{m-2} P_m^2.
+  \]
+  \item \textbf{Frobenius $H$-bound:} Every real $H$-eigenpair $(\lambda, x)$ of an order-$m$
+  tensor $\cA \in (R^n)^{\otimes m}$ satisfies
+  \[
+    \lambda^2 \le n^{m-2} \|\cA\|_F^2 \qquad \bigl(|\lambda_H| \le n^{(m-2)/2} \|\cA\|_F\bigr),
+  \]
+  sharply attained by $\cJ_{m,n}$ at $x = (1, \dots, 1)$ (where $\lambda = n^{m-1}$ and
+  $\|\cJ_{m,n}\|_F^2 = n^m$, so $\lambda^2 = n^{2m-2} = n^{m-2} \|\cJ_{m,n}\|_F^2$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For~(1), whenever $q \ge 0$ and $\delta \ge 0$, every pair $r_i, r_j \ge 0$ satisfies
+\[
+  r_i^q r_j^q (r_i - r_j)(r_i^{\delta + 1} - r_j^{\delta + 1}) \ge 0,
+\]
+since $r_i - r_j$ and $r_i^{\delta+1} - r_j^{\delta+1}$ have the same sign. Summing over
+$1 \le i, j \le n$ gives $2(P_{q+\delta+2} P_q - P_{q+\delta+1} P_{q+1}) \ge 0$, so
+$P_{q+\delta+1} P_{q+1} \le P_{q+\delta+2} P_q$. Applying this at $(q, \delta) = (1, k-2)$ and
+$(0, k-1)$ for $k \ge 2$ yields $P_k P_2 \le P_{k+1} P_1$ and $P_k P_1 \le P_{k+1} P_0 = n P_{k+1}$,
+whence $P_k^2 P_2 \le P_{k+1} (P_k P_1) \le n P_{k+1}^2$. Induction from $m = 2$ ($P_2^2 \le n^0 P_2^2$)
+gives $P_2^m \le n^{m-2} P_m^2$.
+
+For~(2), define $y_i = x_i$ if $m$ is even and $y_i = |x_i|$ if $m$ is odd. In both cases,
+$y_i^2 = x_i^2$ and $y_i x_i^{m-1} = |x_i|^m$. Multiplying $(\cA x^{m-1})_i = \lambda x_i^{m-1}$
+by $y_i$, summing over $i$, and applying Lemma~\ref{lem:lagrange}(1) and part~(1) with $r_i = |x_i|$ gives
+\[
+  \lambda^2 \biggl(\sum_{i=1}^n |x_i|^m\biggr)^2
+  = \biggl(\sum_{i_1, \dots, i_m} a_{i_1 \dots i_m} y_{i_1} x_{i_2} \cdots x_{i_m}\biggr)^2
+  \le \|\cA\|_F^2 \biggl(\sum_{i=1}^n x_i^2\biggr)^m
+  \le n^{m-2} \|\cA\|_F^2 \biggl(\sum_{i=1}^n |x_i|^m\biggr)^2.
+\]
+Since $x \ne 0$, $\sum_{i=1}^n |x_i|^m > 0$; cancelling its square yields $\lambda^2 \le n^{m-2}\|\cA\|_F^2$.
+\end{proof}
+
+\begin{theorem}[Vandermonde Exact Spectrum of the Binomial-Entry Tensor]\label{thm:vandermonde}
+For $m \ge 2$, define the binary symmetric tensor $\cB_{m,2}$ on $R^2$ by
+$a_{i_1 \dots i_m} = \binom{m}{k}$ where $k = \#\{r : i_r = 2\}$. Then $x = (1, 1)$ is an
+$H$-eigenvector of $\cB_{m,2}$ with eigenvalue $\binom{2m-1}{m-1}$, and every real
+$H$-eigenvalue (and complex eigenvalue) satisfies $|\lambda| \le \binom{2m-1}{m-1}$.
+\end{theorem}
+
+\begin{proof}
+Grouping the $2^{m-1}$ tails in $\{1, 2\}^{m-1}$ by the count $k \in \{0, \dots, m-1\}$ of twos
+and applying Vandermonde's convolution identity gives
+\begin{align*}
+  (\cB_{m,2} \mathbf{1}^{m-1})_1 &= \sum_{k=0}^{m-1} \binom{m-1}{k}\binom{m}{k}
+    = \sum_{k=0}^{m-1} \binom{m-1}{k}\binom{m}{m-k} = \binom{2m-1}{m} = \binom{2m-1}{m-1}, \\
+  (\cB_{m,2} \mathbf{1}^{m-1})_2 &= \sum_{k=0}^{m-1} \binom{m-1}{k}\binom{m}{k+1}
+    = \sum_{k=0}^{m-1} \binom{m-1}{k}\binom{m}{m-1-k} = \binom{2m-1}{m-1}.
+\end{align*}
+Since $\cB_{m,2}$ has nonnegative entries and constant row sums $\binom{2m-1}{m-1}$, Qi's
+row-sum Gershgorin bound implies $|\lambda| \le \binom{2m-1}{m-1}$ for every eigenpair.
+\end{proof}
+
+\section{Decisive Counterexamples Refuting Conjecture 00000007176}
+
+\begin{theorem}[Refutation of Degree-Power Bounds]\label{thm:refute-deg}
+Conjecture \texttt{00000007176}'s degree-power upper-bound claim fails across every
+normalization:
+\begin{enumerate}
+  \item \textbf{Unboundedness without normalization:} For any $m \ge 2, n \ge 1$, and $M \in R$,
+  $(|M| + 1) e_1^{\otimes m}$ is symmetric with $H$- and $Z$-eigenvalue $|M| + 1 > M$.
+  \item \textbf{Divergence beyond every function of degree $m$ under $|a_\alpha| \le 1$:} For
+  every fixed order $m \ge 2$ and \emph{every} function $F : \N \to \N$ of $m$ alone (including
+  $m^m$, $m^{m-1}$, $(m-1)^m$, or $m^k$), taking $n = F(m) + 2$ yields $\lambda_H(\cJ_{m,n}) =
+  n^{m-1} > F(m)$, and taking $n = (F(m) + 2)^2$ yields $\lambda_Z(\cJ_{m,n}) = n^{m/2} > F(m)$.
+  Explicitly for $m = 3$: $\lambda_H(\cJ_{3,4}) = 16 > 9 = 3^2$, $\lambda_H(\cJ_{3,6}) = 36 > 27 = 3^3$,
+  and $\lambda_Z(\cJ_{3,16}) = 64 > 27 = 3^3$.
+  \item \textbf{Failure even in binary dimension $n = 2$:} For $m = 3, n = 2$, the sharp bound
+  over $|a_{ijk}| \le 1$ is $2^{3-1} = 4$, which satisfies $4 \ne 3^k$ for all $k \in \N$ and
+  $4 \ne (3-1)^3 = 8$.
+  \item \textbf{Frobenius and $\ell_1$ norms:} Under $\|\cA\|_F \le 1$ ($m \ge 3$), the sharp
+  $Z$-bound is $1 < m^k$ ($\forall k \ge 1$), while the sharp $H$-bound $n^{(m-2)/2}$ exceeds
+  any $F(m)$ on $n = (F(m)+2)^2$.
+\end{enumerate}
+\end{theorem}
+
+\begin{theorem}[Refutation of Binomial-Type Realization]\label{thm:refute-binom}
+Conjecture \texttt{00000007176}'s binomial-realization claim fails under every reading of
+``binomial type'':
+\begin{enumerate}
+  \item \textbf{Support-$2$ binomial forms in dimension $n \ge 3$:} For every $n \ge 3$ and
+  $m \ge 2$, the $2$-variable binomial symmetric tensor $(x_1 + x_2)^m$ has entries in $\{0, 1\}$
+  and satisfies $|\lambda_H| \le 2^{m-1} < n^{m-1} = \lambda_H(\cJ_{m,n})$.
+  \item \textbf{Unnormalized and rescaled binomial-entry tensors $\cB_{m,2}$:} For $m = 3$,
+  $\cB_{3,2}$ violates $|a| \le 1$ ($\max a = 3$) and has spectral radius $10 \notin \{3^k, 2^k\}$.
+  More generally, for \emph{every} order $m \ge 2$ and \emph{every} scaling factor $c \ge 0$ in
+  $R$ such that $c \cB_{m,2}$ satisfies $|c\, a_\alpha| \le 1$, every real $H$-eigenvalue of
+  $c \cB_{m,2}$ satisfies the strict inequality
+  \[
+    |\lambda_H(c \cB_{m,2})| < 2^{m-1}.
+  \]
+  \item \textbf{Even-order non-uniqueness:} At $m = 4, n = 2$, the alternating tensor
+  $s^{\otimes 4}$ with $s = (1, -1)$ ($F(x_1, x_2) = (x_1 - x_2)^4$) satisfies $|a_\alpha| = 1$,
+  attains $\lambda_H = 8 = 2^{4-1}$ at $x = (1, -1)$, and satisfies $s^{\otimes 4} \ne \pm \cJ_{4,2}$.
+  \item \textbf{$\ell_1$-norm suboptimality:} Under $\|\cA\|_1 = 1$, $2^{-m}\cJ_{m,2}$ has
+  $|\lambda_H| \le 1/2 < 1 = \lambda_H(e_1^{\otimes m})$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Only~(2) requires proof beyond Theorem~\ref{thm:vandermonde}. Suppose $c \ge 0$ and
+$c \binom{m}{k} \le 1$ for all $0 \le k \le m$. At $k = 1$, $m c = \binom{m}{1} c \le 1$; since
+$m \ge 2$, this forces $c < 1$ (if $c \ge 1$, then $2 \le m \le m c \le 1$, impossible).
+Splitting off the $k = 0$ term in Vandermonde's identity gives
+\begin{align*}
+  c \binom{2m-1}{m-1}
+  &= c \binom{m-1}{0}\binom{m}{0} + \sum_{k=1}^{m-1} \binom{m-1}{k}\Bigl(c \binom{m}{k}\Bigr) \\
+  &< 1 + \sum_{k=1}^{m-1} \binom{m-1}{k} \cdot 1
+   = \sum_{k=0}^{m-1} \binom{m-1}{k} = 2^{m-1}.
+\end{align*}
+Applying Qi's nonnegative row-sum bound yields $|\lambda_H(c \cB_{m,2})| \le c \binom{2m-1}{m-1} < 2^{m-1}$.
+\end{proof}
+
+\begin{theorem}[Unboundedness of Complex $E$-Eigenvalues under Simultaneous $\ell_\infty$ and Frobenius Bounds]\label{thm:complex-E}
+Even at fixed order $m = 3$ and fixed dimension $n = 2$, complex $E$-eigenvalues
+($z_1^2 + z_2^2 = 1$ in $\Q[i] \subset \C$) of real symmetric tensors satisfying \emph{both}
+$\|\cA\|_\infty \le 1$ and $\|\cA\|_F \le 1$ are unbounded. Explicitly, for every integer
+$t \ge 2$, set
+\[
+  P = t^2 + 1, \quad Q = t^2 - 1, \quad D = 2t, \quad W = 2 P^2 + Q^2 = 3 P^2 - D^2,
+\]
+and let $\cA^{(t)}$ be the $2 \times 2 \times 2$ rational symmetric tensor with orbit values
+$(a_0, a_1, a_2, a_3) = \bigl(\frac{1}{2},\, 0,\, \frac{P^2}{2W},\, 0\bigr)$. Then:
+\begin{enumerate}
+  \item $\|\cA^{(t)}\|_\infty = \frac{1}{2} \le 1$ and
+  $\|\cA^{(t)}\|_F^2 = a_0^2 + 3 a_2^2 \le \frac{1}{4} + \frac{3}{16} = \frac{7}{16} < 1$;
+  \item $z^{(t)} = \bigl(\frac{P}{D},\, i \frac{Q}{D}\bigr) \in \Q[i]^2$ satisfies
+  $(z_1^{(t)})^2 + (z_2^{(t)})^2 = \frac{P^2 - Q^2}{D^2} = 1$; and
+  \item $\cA^{(t)} (z^{(t)})^2 = \lambda_E^{(t)} z^{(t)}$ with
+  $\lambda_E^{(t)} = \frac{P^3}{D W} > \frac{t}{6} \to +\infty$ as $t \to \infty$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Since $P^2 - Q^2 = (t^2+1)^2 - (t^2-1)^2 = 4 t^2 = D^2$, we have $(z_1^{(t)})^2 + (z_2^{(t)})^2 = 1$.
+Because $2W = 4 P^2 + 2 Q^2 > 4 P^2$, $0 < a_2 < 1/4$, giving both norm bounds. Direct contraction
+gives
+\begin{align*}
+  \bigl(\cA^{(t)} (z^{(t)})^2\bigr)_1
+    &= a_0 \frac{P^2}{D^2} - a_2 \frac{Q^2}{D^2}
+     = \frac{P^2 (W - Q^2)}{2 W D^2}
+     = \frac{P^2 (2 P^2)}{2 W D^2}
+     = \frac{P^3}{D W} \cdot \frac{P}{D} = \lambda_E^{(t)} z_1^{(t)}, \\
+  \bigl(\cA^{(t)} (z^{(t)})^2\bigr)_2
+    &= 2 a_2 \frac{P}{D} \Bigl(i \frac{Q}{D}\Bigr)
+     = i \frac{P^3 Q}{W D^2} = \lambda_E^{(t)} z_2^{(t)}.
+\end{align*}
+Finally, $6 P^3 - t D W = 6(t^2+1)^3 - 2t^2(3(t^2+1)^2 - 4t^2) = 6(t^2+1)^2 + 8 t^4 > 0$, so
+$\lambda_E^{(t)} > t/6$.
+\end{proof}
+
+\section{Core Lean 4.19.0 Formalization Cross-Reference}
+
+Every definition, positive theorem, rigidity classification, and counterexample in this paper is
+mechanized in Core Lean 4.19.0 with warnings treated as errors, zero external dependencies,
+zero \texttt{sorry}, \texttt{admit}, or \texttt{native\_decide} tactics, and zero custom axioms.
+Table~\ref{tab:lean-xref} maps the mathematical results to their Lean declarations.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.18}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Mathematical Result} & \textbf{Module} & \textbf{Primary Lean Declaration(s)} \\
+\midrule
+Vandermonde identities & \texttt{Algebra.lean} & \texttt{vandermonde}, \texttt{vandermonde\_binom\_row1} \\
+Ordered field $\Q$ (\texttt{RatField}) & \texttt{Algebra.lean} & \texttt{instOrderedDomainRatField} \\
+Real \& complex Lagrange / CS & \texttt{SumsInequalities.lean} & \texttt{cauchy\_schwarz\_list}, \texttt{complex\_normSq\_sum\_le} \\
+Polynomial $\ell_2$--$\ell_m$ Muirhead & \texttt{SumsInequalities.lean} & \texttt{powSum\_shift\_le}, \texttt{powSum\_two\_m\_le} \\
+Symmetric tensors \& spectra & \texttt{SymmetricTensor.lean} & \texttt{IsSymmetric}, \texttt{IsHEigenpair}, \texttt{IsZEigenpair} \\
+Theorem~\ref{thm:entry-rigidity}(1) & \texttt{PositiveBounds.lean} & \texttt{entrywise\_H\_bound\_complex}, \texttt{entrywise\_H\_bound\_real} \\
+Theorem~\ref{thm:entry-rigidity}(2) & \texttt{PositiveBounds.lean} & \texttt{entrywise\_H\_rigidity\_complex} \\
+Theorem~\ref{thm:entry-rigidity}(3) & \texttt{PositiveBounds.lean} & \texttt{entrywise\_H\_rigidity\_nonneg}, \texttt{...\_odd\_real} \\
+Theorem~\ref{thm:Z-bounds}(1) & \texttt{PositiveBounds.lean} & \texttt{entrywise\_Z\_bound}, \texttt{allOnes\_attains\_Z\_bound\_rat} \\
+Theorem~\ref{thm:Z-bounds}(2) & \texttt{PositiveBounds.lean} & \texttt{frob\_Z\_bound}, \texttt{frob\_Z\_rigidity} \\
+Theorem~\ref{thm:frob-H} & \texttt{PositiveBounds.lean} & \texttt{frob\_H\_bound}, \texttt{allOnes\_attains\_frob\_H\_bound} \\
+Theorem~\ref{thm:vandermonde} & \texttt{PositiveBounds.lean} & \texttt{binomialEntry\_exact\_H\_radius} \\
+Theorem~\ref{thm:refute-deg}(1)--(3) & \texttt{Counterexamples.lean} & \texttt{refutation\_entrywise\_H\_exceeds\_any\_degree\_bound} \\
+Concrete $\cJ_{3,4}, \cJ_{3,6}, \cJ_{3,2}, \cJ_{3,16}$ & \texttt{Counterexamples.lean} & \texttt{refutation\_J34\_H\_exceeds\_deg\_sq} (et al.) \\
+Theorem~\ref{thm:refute-binom}(1)--(4) & \texttt{Counterexamples.lean} & \texttt{refutation\_binomial\_entry\_rescaled\_suboptimal} \\
+Theorem~\ref{thm:complex-E} & \texttt{Counterexamples.lean} & \texttt{refutation\_complex\_E\_eigenvalue\_unbounded} \\
+Concrete $\Z$ \& $\Q$ non-vacuity & \texttt{Counterexamples.lean} & \texttt{nonvacuous\_int\_entrywise\_and\_odd\_rigidity} \\
+\bottomrule
+\end{tabular}
+\caption{Cross-reference between mathematical theorems and Core Lean 4.19.0 declarations.}
+\label{tab:lean-xref}
+\end{table}
+
+\begin{thebibliography}{9}
+\bibitem{Banach1938}
+S.~Banach,
+\emph{\"Uber homogene Polynome in $(L^2)$},
+Studia Math.\ \textbf{7} (1938), 36--44.
+
+\bibitem{CooperDutle2012}
+J.~Cooper and A.~Dutle,
+\emph{Spectra of uniform hypergraphs},
+Linear Algebra Appl.\ \textbf{436} (2012), no.~9, 3268--3292.
+
+\bibitem{Lim2005}
+L.-H.~Lim,
+\emph{Singular values and eigenvalues of tensors: a variational approach},
+in \emph{Proc.\ IEEE Int.\ Workshop on Computational Advances in Multi-Sensor Adaptive Processing (CAMSAP)},
+2005, pp.~129--132.
+
+\bibitem{Qi2005}
+L.~Qi,
+\emph{Eigenvalues of a real supersymmetric tensor},
+J.~Symbolic Comput.\ \textbf{40} (2005), no.~6, 1302--1324.
+\end{thebibliography}
+
+\end{document}
