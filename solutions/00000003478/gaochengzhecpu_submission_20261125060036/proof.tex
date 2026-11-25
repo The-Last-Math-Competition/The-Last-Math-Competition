@@ -1,0 +1,92 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\begin{document}
+\begin{center}
+  {\Large\bfseries A quadratic vertex bound for exact DP-coloring gaps\par}
+  \smallskip
+  Disproof of Conjecture 00000003478
+\end{center}
+
+For every integer \(g\ge 0\), there is a bipartite graph on at most
+\(4(g+1)^2\) vertices with \(\chi_{\mathrm{DP}}-\chi=g\). This disproves
+the exponential growth assertion about the minimum vertex count.
+
+\paragraph{Cyclic correspondence covers.}
+In a \(k\)-fold DP cover, each vertex has \(k\) available colors, and each
+edge forbids a matching of pairs of colors at its endpoints. A coloring
+selects one color per vertex and avoids the forbidden pair on every edge.
+The DP chromatic number is the smallest \(k\) for which every such cover
+is colorable. This is the usual correspondence-coloring definition
+\cite{bernshteyn}. If every \(k\)-fold cover is colorable, the same holds
+for larger cover sizes by restricting every color set to \(k\) colors.
+
+Fix \(k\ge2\) and put \(m=2k^2\). On the complete bipartite graph
+\(K_{m,m}\), use the color set \(\mathbb Z/k\mathbb Z\) at every vertex.
+For each edge \(uv\), directed from the left side to the right side,
+choose a shift \(s_{uv}\in\mathbb Z/k\mathbb Z\). Forbid the pairs
+\((a,a+s_{uv})\). Each shift is a perfect matching and the shifts can
+be chosen independently, yielding \(k^{m^2}\) covers. For a fixed
+assignment of colors to the \(2m\) vertices, exactly one shift violates
+the assignment on each edge, so exactly \((k-1)^{m^2}\) covers admit that
+assignment. Thus at most \(k^{2m}(k-1)^{m^2}\) covers admit some assignment.
+
+The first two terms of the binomial expansion give
+\[
+ k^k=((k-1)+1)^k\ge (k-1)^k+k(k-1)^{k-1}>2(k-1)^k.
+\]
+Since \(k\le 2^k\) and \(m^2=k(2km)\), it follows that
+\[
+ k^{2m}(k-1)^{m^2}
+ \le 2^{2km}(k-1)^{m^2}
+ =\bigl(2(k-1)^k\bigr)^{2km}
+ <(k^k)^{2km}=k^{m^2}.
+\]
+Some \(k\)-fold cover therefore has no coloring, and
+\(\chi_{\mathrm{DP}}(K_{m,m})\ge k+1\).
+
+\paragraph{Attaining any exact gap.}
+For a vertex \(v\) of a graph \(G\), one has
+\[
+ \chi_{\mathrm{DP}}(G-v)\le \chi_{\mathrm{DP}}(G)
+ \le \chi_{\mathrm{DP}}(G-v)+1.
+\]
+The first inequality follows by extending a cover of \(G-v\) to \(G\)
+with arbitrary colors at \(v\) and empty matchings at edges incident
+with \(v\). For the second, take \(q=\chi_{\mathrm{DP}}(G-v)\) and an
+arbitrary \((q+1)\)-fold cover of \(G\). Choose a color at \(v\), then
+delete the color paired with it at each neighbor if such a pair exists.
+Every remaining vertex has at least \(q\) available colors. Restrict to
+\(q\) colors at each and color \(G-v\). The prescribed color at \(v\)
+extends this to a coloring of the original cover.
+
+Delete vertices of \(K_{m,m}\) one at a time, leaving at least one on each
+side, until only \(K_{1,1}\) remains. Every intermediate graph has
+ordinary chromatic number two. At the end the DP chromatic number is
+two as well. A forbidden pair can block a one-fold cover of the last edge.
+In any two-fold cover, a color at one endpoint forbids at most one of the
+two colors at the other. The DP chromatic numbers can only stay constant or decrease
+by one at each step. For \(g\ge1\), take \(k=g+1\), so the sequence starts
+at DP chromatic number at least \(g+2\) and ends at two. It therefore
+contains a value exactly \(g+2\). This yields a graph of gap exactly \(g\)
+on at most \(2m=4(g+1)^2\) vertices. For \(g=0\), take \(K_2\) itself.
+The resulting quadratic upper bound is incompatible with a lower bound
+exponential in \(g\).
+
+\paragraph{Lean verification.}
+The Lean model encodes a cover as a word of length \(m^2\) and an assignment
+as a word of length \(2m\). It certifies the row-major edge indices and
+checks the matching property and uniqueness of the forbidden shift
+modulo \(k\), counts the full cover list without repetition, and counts the
+concatenated lists of covers admitted by each assignment. The theorem
+\texttt{exists\_uncolorable\_cyclic\_cover} uses the strict counting inequality
+to produce a cover outside this concatenation. The theorem
+\texttt{exact\_gap\_of\_deletion} verifies the discrete hitting and vertex-bound
+argument from the graph deletion facts proved above.
+
+\begin{thebibliography}{1}
+\bibitem{bernshteyn} A. Bernshteyn, \emph{The asymptotic behavior of the
+correspondence chromatic number}, Discrete Math. \textbf{339} (2016),
+2680--2692.
+\end{thebibliography}
+\end{document}
