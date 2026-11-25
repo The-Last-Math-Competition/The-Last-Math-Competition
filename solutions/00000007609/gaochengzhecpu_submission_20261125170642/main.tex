@@ -1,0 +1,483 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{color}
+\usepackage[hypertexnames=false,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\emergencystretch=2em
+\renewcommand{\arraystretch}{1.24}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Orth}{\mathrm{O}}
+\newcommand{\SO}{\mathrm{SO}}
+\newcommand{\Refl}{\mathcal{R}}
+\newcommand{\lref}{\ell_{\mathrm{ref}}}
+\newcommand{\rk}{\mathrm{rank}}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\im}{\mathrm{im}}
+\newcommand{\spn}{\mathrm{span}}
+\newcommand{\Fix}{\mathrm{Fix}}
+
+\title{\textbf{Disproof and Complete Structural Analysis of Conjecture 00000007609:\\
+Reflection Decomposition of Rotations, Rank vs.\ Angle Invariants,\\
+Infinite Representation Counting, and Geodesic Obstructions}}
+\author{The Last Math Competition Formalization Project}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~00000007609 concerning the reflection decomposition and reflection-representation counting of orthogonal rotations. The conjecture proposes that for rotations decomposed into orthogonal reflections, (A)~the conversion constant is the reflection count of rotations, with the minimal reflection count being of \emph{angle-type}; (B)~the reflection-representation counting is \emph{finite} with parity governed by the determinant; and (C)~the minimization is realized by \emph{geodesic decomposition}. While we confirm and formalize the classical Cartan--Dieudonn\'e determinant parity law $\det(r_1 \cdots r_k) = (-1)^k$ (away from characteristic~$2$) and the subadditive rank bound $\rk(I - g) \le k$, we prove that all three structural assertions~(A),~(B$'$)~[finiteness], and~(C) are \textbf{false} across every standard algebraic and geometric reading. First, over any formally real field $F$ (including $\R$ and $\Q$), every non-identity planar rotation $R \in \SO_2(F) \setminus \{I_2\}$ admits \textbf{infinitely many} pairwise distinct minimal-length ($k = 2$) ordered and unordered reflection-operator factorizations $R = r_{(1,t)} r'_t$, as well as valid decompositions of unbounded even lengths $2 + 2m$; conversely, on $(\F_2^4, x_0 x_1 + x_2 x_3)$, Dieudonn\'e's reversal rotation $D \in \SO^+(4, \F_2)$ admits \textbf{zero} reflection decompositions of any length. Second, the minimal reflection count $\lref(R)$ is a discrete \emph{rank} invariant ($\rk(I - R) = 2s$ in Euclidean space, or $\rk(I - R) + 2$ for Scherk's unipotent null rotation $N \in \SO(2,2; F)$), never an angle-type invariant: in $\SO_4(\Z)$, $R_1 = \mathrm{diag}(-1,-1,1,1)$ and $R_2 = \mathrm{diag}(J, J)$ share identical trace $0$, identical squared Frobenius chordal distance $\|I_4 - R_i\|_F^2 = 8$, and identical $L^1$ total rotation angle $\pi$, yet $\lref(R_1) = 2 \neq 4 = \lref(R_2)$, while Pythagorean eigenangles $(\pi, 0)$ and $(\frac{3\pi}{5}, \frac{4\pi}{5})$ share identical Riemannian $L^2$ geodesic distance $\sqrt{2}\,\pi$ yet satisfy $\lref = 2 \neq 4$. Third, in Lorentzian $\SO(1,1; F)$, $-I_2$ has $\lref(-I_2) = 2$ yet lies outside the divisible/exponential identity component $\SO^+(1,1)$, so no Lie-group geodesic reaches $-I_2$; even in compact Euclidean $\SO(4)$, the $B_4$-Coxeter rotation $R_{\mathrm{Cox}} = P_1 P_2$ ($R_{\mathrm{Cox}}^4 = -I_4$) has $\lref(R_{\mathrm{Cox}}) = 4$ with non-commuting planar factors $P_1 P_2 \neq P_2 P_1$ and preserves \textbf{no} $2$-dimensional subspace of $\Q^4$. All positive theorems and counterexamples are machine-checked without external dependencies or custom axioms in Core Lean~4.19.0 and verified symbolically in Python~3.12.
+\end{abstract}
+
+\section{Introduction and Clause-by-Clause Analysis}
+
+\subsection{Verbatim Bilingual Statement}
+Conjecture~00000007609 appears in \texttt{SOURCE.md} in parallel English and Chinese formulations. The verbatim English statement is:
+\begin{quote}
+\textbf{Definition:} Reflection decomposition with the reflection-representation counting of rotations.\\
+\textbf{Conjecture:} The conversion constant is the reflection count of rotations, the minimal reflection count being angle-type; the counting is finite with parity given by the determinant; and the minimization is realized by geodesic decomposition. \emph{(reflection-counting conversion)}
+\end{quote}
+The parallel Chinese text reads:
+\begin{quote}
+\textbf{Definition (\emph{Dingyi}):} \emph{Fanshe fenjie: xuanzhuan de fanshe biaoshi jishu.} [Reflection decomposition: reflection-representation counting of rotations.]\\
+\textbf{Conjecture (\emph{Caixiang}):} \emph{Huansuan changshu wei xuanzhuan de fanshe jishu qie zuishao fansheshu wei jiaoduxing; jishu youxian qie jishu de ji'ou you hanglieshi; zuishao de shixian wei cedi fenjie. (fanshe jishu huansuan changshu jiegou)}
+\end{quote}
+Decomposing both texts term-for-term yields one valid parity law coupled with three substantive structural claims on orthogonal transformations $g \in \Orth(V, Q)$ and rotations $R \in \SO(V, Q)$:
+\begin{itemize}
+\item[\textbf{(Claim A)}] \textbf{Angle-Type Minimal Reflection Count:} The conversion invariant is the reflection count of rotations, and the minimal reflection count $\lref(R)$ is of \emph{angle-type} (\emph{zuishao fansheshu wei jiaoduxing}), i.e., determined by the continuous rotation angle(s), total angle, trace, or Riemannian geodesic distance from the identity.
+\item[\textbf{(Claim B)}] \textbf{Finite Counting with Determinant Parity:}
+  \begin{itemize}
+  \item[\textbf{(B1)}] The reflection-representation counting of a rotation is \emph{finite} (\emph{jishu youxian}).
+  \item[\textbf{(B2)}] The parity of the reflection count in any reflection decomposition is determined by the determinant (\emph{jishu de ji'ou you hanglieshi}): $\det(g) = (-1)^k$.
+  \end{itemize}
+\item[\textbf{(Claim C)}] \textbf{Geodesic Realization of Minimization:} Minimal-length reflection decompositions are realized by \emph{geodesic decomposition} (\emph{zuishao de shixian wei cedi fenjie}).
+\end{itemize}
+
+\subsection{Conceptual Diagnosis and Verdict Across All Readings}
+In the classical theory of orthogonal groups initiated by Cartan~\cite{Car38}, Dieudonn\'e~\cite{Die48}, and Scherk~\cite{Sch50}, and later studied in Coxeter and Artin group geometry by Carter~\cite{Car72} and Brady--Watt~\cite{BW02}, every reflection $r_u \in \Refl(V, Q)$ satisfies $\det(r_u) = -1$ (when $\mathrm{char}(K) \neq 2$) and $\rk(I - r_u) = 1$. On an $n$-dimensional Euclidean space, $\lref(g) = \rk(I - g) = \mathrm{codim}\,\Fix(g)$. Thus for a rotation $R \in \SO(n)$ with $s$ active orthogonal rotation $2$-planes of angles $\theta_1, \dots, \theta_s \in (0, \pi]$, we have $\lref(R) = 2s$: twice the $L^0$ support size of the eigenangle vector, completely insensitive to the magnitudes $\theta_j$.
+
+Conjecture~00000007609 conflates two fundamentally distinct geometries:
+\begin{enumerate}
+\item \emph{Discrete word-metric geodesics in the reflection Cayley graph $\mathrm{Cay}(\Orth(V, Q), \Refl)$}~\cite{BW02}, where minimal words $g = r_1 \cdots r_k$ have discrete rank length $k = \rk(I - g)$ (or $\rk(I - g) + 2$ in Scherk's isotropic indefinite case), step outside $\SO(V, Q)$ at every odd prefix, and exist in \emph{infinite} continuous/rational families already for a single planar rotation; versus
+\item \emph{Continuous Lie-group / Riemannian geodesics $t \mapsto \exp(t X)$ in $\SO(V, Q)$}, whose Riemannian length $\sqrt{2\sum \theta_j^2}$ is a continuous Euclidean norm of rotation angles, whose commuting plane factors $\exp(X_1)\cdots\exp(X_s)$ commute pairwise, and which fail to exist altogether for rotations in non-identity connected components such as $-I_2 \in \SO^-(1,1)$.
+\end{enumerate}
+
+Table~\ref{tab:verdict} summarizes our evaluation across every mathematical regime. Because Claims~A, B1, and~C fail simultaneously, the conjecture as a whole is \textbf{false}.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.8cm}}
+\hline
+\textbf{Geometric / Field Regime} & \textbf{Claim A (Angle-Type $\lref$)} & \textbf{Claim B1 \& B2 (Finite Count \& Parity)} & \textbf{Claim C (Geodesic Realization)} \\
+\hline
+Compact Euclidean $\SO(n; \R)$ and rational $\SO_n(\Q)$ &
+\textbf{False:} $\lref(R) = \rk(I - R) = 2s$ is discrete rank; $R_1, R_2 \in \SO_4(\Z)$ share trace, chord, and $L^1$ angle $\pi$ yet $\lref = 2 \neq 4$; same $L^2$ geodesic length $\sqrt{2}\,\pi$ gives $2 \neq 4$ &
+\textbf{B1 False / B2 True:} $\infty$ minimal reflection-operator pairs $R = r_{(1,t)} r'_t$ in $\SO_2(F)$ and $\infty$ lengths $2+2m$; $\det(g) = (-1)^k$ holds &
+\textbf{False:} $r_u \notin \SO(n)$; $R_{\mathrm{Cox}} = P_1 P_2$ has $P_1 P_2 \neq P_2 P_1$ and \textbf{no} $2$D invariant plane over $\Q^4$ \\
+\hline
+Lorentzian \& Indefinite $\SO(p,q; F)$ ($\mathrm{char}(F) \neq 2$) &
+\textbf{False:} Scherk's unipotent $N \in \SO(2,2; F)$ has $(I-N)^2 = 0$, zero angle, $\rk(I-N) = 2$, yet $\lref(N) = 4$ &
+\textbf{B1 False / B2 True:} $\infty$ minimal pairs for boosts and unbounded lengths $k_0 + 2m$; $\det(g) = (-1)^k$ holds &
+\textbf{False:} $-I_2 \in \SO(1,1; F)$ has $\lref(-I_2) = 2$ yet lies outside $\SO^+(1,1)$ (zero Lie-group geodesics) \\
+\hline
+Characteristic $2$: Split $\SO^+(4, \F_2)$ (Dieudonn\'e~\cite{Die48}) &
+\textbf{False:} Reversal $D \in \SO^+(4, \F_2)$ has $\rk(I+D)=2$ yet $\lref(D) = +\infty$ &
+\textbf{B1 \& B2 False:} $D$ has $0$ decompositions; if $k_0 < \infty$, lengths $k_0 + 2m$ are infinite; $\det \equiv 1$ gives no parity &
+\textbf{False:} Discrete finite group over $\F_2$; $18$ of $36$ rotations in $\SO^+(4, \F_2)$ are unreachable by reflections \\
+\hline
+\end{tabular}
+\caption{Complete clause-by-clause evaluation of Conjecture~00000007609 across orthogonal geometries.}
+\label{tab:verdict}
+\end{table}
+
+\section{Positive Foundations: Reflections, Determinant Parity, and Subadditive Rank Bound}
+
+Let $K$ be a commutative field and $V$ a finite-dimensional $K$-vector space equipped with a quadratic form $Q : V \to K$ and its polar symmetric bilinear form
+\begin{equation}\label{eq:polar}
+  B_Q(u, v) = Q(u + v) - Q(u) - Q(v), \qquad u, v \in V.
+\end{equation}
+Notice that $B_Q(u, u) = 2 Q(u)$ and $Q(v - t u) = Q(v) - t B_Q(u, v) + t^2 Q(u)$ hold identically in every characteristic. The orthogonal group is $\Orth(V, Q) = \{g \in \mathrm{GL}(V) : Q(g x) = Q(x) \;\forall x \in V\}$, and when $\mathrm{char}(K) \neq 2$, the special orthogonal (rotation) subgroup is $\SO(V, Q) = \{g \in \Orth(V, Q) : \det(g) = +1\}$.
+
+\begin{definition}[Orthogonal Reflections, Reflection Decompositions, and Minimal Count]
+\label{def:refl}
+A vector $u \in V$ is \emph{anisotropic} if $Q(u) \neq 0$. The \emph{orthogonal reflection} along $u$ is the linear map
+\begin{equation}\label{eq:refl}
+  r_u(x) = x - Q(u)^{-1} B_Q(u, x)\, u, \qquad x \in V.
+\end{equation}
+Let $\Refl(V, Q) = \{r_u : u \in V,\; Q(u) \neq 0\} \subseteq \mathrm{End}_K(V)$ denote the set of reflection operators (note that $r_{\lambda u} = r_u$ for all $\lambda \in K^\times$, so elements of $\Refl(V, Q)$ are intrinsic operators rather than unnormalized vectors). A \emph{reflection decomposition} of $g \in \Orth(V, Q)$ of length $k \in \N$ is an ordered tuple $(r_1, \dots, r_k) \in \Refl(V, Q)^k$ such that $g = r_1 \circ \dots \circ r_k$ (with the empty product equal to $\mathrm{id}_V$). When at least one decomposition exists, the \emph{minimal reflection count} is
+\[
+  \lref(g) = \min\bigl\{k \in \N : \exists\, r_1, \dots, r_k \in \Refl(V, Q),\; g = r_1 \cdots r_k\bigr\}.
+\]
+\end{definition}
+
+\begin{theorem}[Universal Reflection Properties, Determinant Parity, and Span Bound]
+\label{thm:positive}
+Let $(V, Q)$ be an $n$-dimensional quadratic space over a field $K$.
+\begin{enumerate}
+\item \textbf{Involutive Isometry:} For every anisotropic vector $u \in V$ ($Q(u) \neq 0$), $r_u \in \Orth(V, Q)$ and $r_u^2 = \mathrm{id}_V$.
+\item \textbf{Sylvester Rank-$1$ Determinant Sign Flip \& Parity Law ($\mathrm{char}(K) \neq 2$):} For every anisotropic $u \in V$ and every $M \in \mathrm{End}_K(V)$, $\det(r_u \circ M) = -\det(M)$, so $\det(r_u) = -1$. Consequently, every reflection decomposition $g = r_1 \cdots r_k$ satisfies
+\begin{equation}\label{eq:parity}
+  \det(g) = (-1)^k,
+\end{equation}
+so $\det(g) = +1$ if and only if $k$ is even, and $\det(g) = -1$ if and only if $k$ is odd.
+\item \textbf{Subadditive Span and Rank Lower Bound:} If $g = r_{u_1} \cdots r_{u_k}$, then
+\begin{equation}\label{eq:span-bound}
+  \im(I - g) \subseteq \spn_K(u_1, \dots, u_k), \qquad \text{hence} \qquad \rk(I - g) \le k.
+\end{equation}
+In particular, whenever $g$ admits a reflection decomposition, $\lref(g) \ge \rk(I - g)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1)~Setting $t = Q(u)^{-1} B_Q(u, x)$ in the universal identity $Q(x - t u) = Q(x) - t B_Q(u, x) + t^2 Q(u)$ gives
+\[
+  Q(r_u(x)) = Q(x) - Q(u)^{-1} B_Q(u, x)^2 + Q(u)^{-2} B_Q(u, x)^2 Q(u) = Q(x).
+\]
+Moreover, since $B_Q(u, u) = 2 Q(u)$, linearity of $B_Q(u, \cdot)$ yields
+\[
+  B_Q(u, r_u(x)) = B_Q(u, x) - Q(u)^{-1} B_Q(u, x) B_Q(u, u) = B_Q(u, x)(1 - 2) = -B_Q(u, x),
+\]
+whence $r_u(r_u(x)) = r_u(x) - Q(u)^{-1}(-B_Q(u, x)) u = x$.
+
+(2)~Let $\phi(x) = B_Q(u, x) \in V^*$ and $w = Q(u)^{-1} u \in V$, so $r_u(x) = x - \phi(x) w$ with $\phi(w) = Q(u)^{-1} B_Q(u, u) = 2$. For any columns $c_1, \dots, c_n$ of $M$, expanding $\det(c_1 - \phi(c_1) w, \dots, c_n - \phi(c_n) w)$ by multilinearity kills every term in which $w$ appears in two or more columns because $\det$ is alternating. By Cramer's cofactor expansion,
+\[
+  \sum_{j=1}^n \phi(c_j) \det(c_1, \dots, \underbrace{w}_{j}, \dots, c_n) = \phi(w) \det(c_1, \dots, c_n),
+\]
+giving $\det(r_u M) = (1 - \phi(w)) \det(M) = (1 - 2)\det(M) = -\det(M)$. Induction on $k$ from $M = I$ yields $\det(r_1 \cdots r_k) = (-1)^k$. Since $+1 \neq -1$ when $\mathrm{char}(K) \neq 2$, $\det(g) = +1 \iff k \equiv 0 \pmod 2$ and $\det(g) = -1 \iff k \equiv 1 \pmod 2$.
+
+(3)~We induct on $k$. For $k = 0$, $I - I = 0 \subseteq \{0\}$. For $g = r_{u_1} g'$ with $g' = r_{u_2}\cdots r_{u_k}$ satisfying $\im(I - g') \subseteq \spn_K(u_2, \dots, u_k)$, every $x \in V$ satisfies
+\[
+  (I - r_{u_1} g')(x) = (x - g' x) + \bigl(g' x - r_{u_1}(g' x)\bigr)
+  = (I - g')(x) + Q(u_1)^{-1} B_Q(u_1, g' x)\, u_1,
+\]
+which lies in $\spn_K(u_2, \dots, u_k) + K u_1 = \spn_K(u_1, u_2, \dots, u_k)$. Taking dimensions yields $\rk(I - g) \le \dim \spn_K(u_1, \dots, u_k) \le k$.
+\end{proof}
+
+From here onward, let $F$ denote any \emph{formally real field}: a commutative field of characteristic zero in which $a^2 + b^2 + c^2 + d^2 = 0 \implies a = b = c = d = 0$ (in particular $F = \R$ and $F = \Q$). On $F^2$ with $Q_{2,0}(x, y) = x^2 + y^2$, every nonzero vector is anisotropic, without requiring square roots in $F$.
+
+\begin{theorem}[Complete Planar Euclidean Classification Over Formally Real Fields]
+\label{thm:planar-class}
+Let $F$ be a formally real field and equip $F^2$ with $Q_{2,0}(x, y) = x^2 + y^2$.
+\begin{enumerate}
+\item Every $M \in \Orth_2(F)$ satisfies $\det(M) \in \{+1, -1\}$.
+\item Every improper orthogonal matrix $S \in \Orth_2^-(F)$ ($\det(S) = -1$) is a single reflection $S \in \Refl(F^2, Q_{2,0})$ and has $\lref(S) = 1$.
+\item Every non-identity rotation $R \in \SO_2(F) \setminus \{I_2\}$ has exact minimal reflection count $\lref(R) = 2$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Evaluating $Q_{2,0}(M v) = Q_{2,0}(v)$ on $(1, 0)^\top$, $(0, 1)^\top$, and $(1, 1)^\top$ gives $a_{00}^2 + a_{10}^2 = 1$, $a_{01}^2 + a_{11}^2 = 1$, and $a_{00} a_{01} + a_{10} a_{11} = 0$ (using $2 \neq 0$). By Lagrange's identity,
+\[
+  \det(M)^2 = (a_{00} a_{11} - a_{01} a_{10})^2 = (a_{00}^2 + a_{10}^2)(a_{01}^2 + a_{11}^2) - (a_{00} a_{01} + a_{10} a_{11})^2 = 1,
+\]
+so $\det(M) = \pm 1$. When $\det(S) = -1$, we compute the sum of two squares
+\[
+  (s_{00} + s_{11})^2 + (s_{01} - s_{10})^2 = (s_{00}^2 + s_{10}^2) + (s_{01}^2 + s_{11}^2) + 2\det(S) = 1 + 1 - 2 = 0.
+\]
+Because $F$ is formally real, $s_{11} = -s_{00}$ and $s_{10} = s_{01}$, so $S = \begin{pmatrix}a & b\\ b & -a\end{pmatrix}$ with $a^2 + b^2 = 1$. If $a = 1$, then $b^2 = 0 \implies b = 0$, giving $S = \mathrm{diag}(1, -1) = r_{(0, 1)^\top}$. If $a \neq 1$, set $w = (1 - a, -b)^\top \in F^2$; then $Q_{2,0}(w) = (1 - a)^2 + b^2 = 2(1 - a) \neq 0$, and direct substitution using $b^2 = (1 - a)(1 + a)$ gives $r_w = S$, so $\lref(S) = 1$.
+
+Finally, let $R \in \SO_2(F) \setminus \{I_2\}$ and choose $u_0 = (1, 0)^\top$ ($Q_{2,0}(u_0) = 1$). Then $S_0 = r_{u_0} R \in \Orth_2(F)$ has $\det(S_0) = (-1)(+1) = -1$, so $S_0 \in \Refl(F^2, Q_{2,0})$ by~(2), and $r_{u_0} S_0 = r_{u_0}^2 R = R$ exhibits length~$2$. Length~$0$ fails since $R \neq I_2$, and length~$1$ fails by~\eqref{eq:parity} since $\det(R) = +1 \neq -1$. Hence $\lref(R) = 2$.
+\end{proof}
+
+\section{Refutation of Claim B1: Infinite Reflection Counting and Characteristic-2 Failure}
+
+We now show that Claim~B1 (\emph{``the counting is finite''}) fails under every reading: minimal-length reflection-operator factorizations of a single rotation, non-minimal reflection decompositions and word lengths, cross-dimensional bounds, and even existence over $\F_2$.
+
+\begin{theorem}[Infinitely Many Minimal Reflection-Operator Decompositions in $\SO_2(F)$]
+\label{thm:inf-counting}
+Let $F$ be a formally real field and let $R \in \SO_2(F) \setminus \{I_2\}$ be any non-identity planar rotation. For each parameter $t \in F$, let $u_t = (1, t)^\top \in F^2$.
+\begin{enumerate}
+\item $Q_{2,0}(u_t) = 1 + t^2 \neq 0$, and the reflection operators $r_{u_t} \in \Refl(F^2, Q_{2,0})$ are pairwise distinct:
+\begin{equation}\label{eq:op-inj}
+  r_{u_t} = r_{u_s} \iff t = s \qquad (t, s \in F).
+\end{equation}
+\item For every $t \in F$, $r'_t := r_{u_t} R$ belongs to $\Refl(F^2, Q_{2,0})$, satisfies $r_{u_t} \neq r'_t$, and yields a minimal-length ($k = 2$) reflection decomposition $R = r_{u_t} \circ r'_t$.
+\item Consequently, the sequence $\{(r_{u_n}, r'_n)\}_{n \in \N}$ ($u_n = (1, n)^\top$) consists of \textbf{infinitely many} pairwise distinct minimal-length ordered reflection-operator decompositions of $R$, and the family of unordered reflection sets $\{\{r_{u_n}, r'_n\} : n \in \N\}$ is likewise \textbf{infinite}.
+\item Moreover, for every $m \in \N$, padding by $r_{u_0}^{2m} = I_2$ yields valid reflection decompositions of $R$ of length $2 + 2m$, so the set of achievable reflection counts $\{k \in \N : R = r_1 \cdots r_k\} = \{2 + 2m : m \in \N\}$ is also \textbf{infinite}. Across even dimensions $2m$, $\lref(-I_{2m}) = \rk(2 I_{2m}) = 2m \to \infty$ has no finite upper bound.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1)~Since $F$ is formally real, $1 + t^2 = 0$ is impossible. Suppose $r_{u_t} = r_{u_s}$ as operators on $F^2$, and evaluate both on $v = (-s, 1)^\top$. Because $B_{Q_{2,0}}(u_s, v) = 2(-s + s) = 0$, we have $r_{u_s}(v) = v = (-s, 1)^\top$. Meanwhile $B_{Q_{2,0}}(u_t, v) = 2(t - s)$, so comparing first coordinates of $r_{u_t}(v) = r_{u_s}(v)$ gives
+\[
+  -s - \frac{2(t - s)}{1 + t^2} \cdot 1 = -s \implies \frac{2(t - s)}{1 + t^2} = 0 \implies t = s.
+\]
+
+(2)~Since $r_{u_t} \in \Orth_2(F)$ has $\det(r_{u_t}) = -1$ and $R \in \SO_2(F)$, the product $r'_t = r_{u_t} R$ lies in $\Orth_2^-(F)$, hence $r'_t \in \Refl(F^2, Q_{2,0})$ by Theorem~\ref{thm:planar-class}(2). Since $r_{u_t}^2 = I_2$, we have $r_{u_t} r'_t = r_{u_t}^2 R = R$, which is minimal of length~$2$ by Theorem~\ref{thm:planar-class}(3). If $r_{u_t} = r'_t$, then $R = r_{u_t}^2 = I_2$, contradicting $R \neq I_2$.
+
+(3)~In characteristic zero, $n \mapsto n \cdot 1_F$ is injective on $\N$, so $\{r_{u_n}\}_{n \in \N}$ are pairwise distinct reflection operators by~\eqref{eq:op-inj}. No finite pool $\mathcal{P} \subset \Refl(F^2, Q_{2,0})$ can contain $\{r_{u_n} : n \in \N\}$ by the finite pigeonhole principle. Furthermore, each unordered pair $\{r_a, r_b\}$ contains only two elements, so at most two indices $n$ can yield the same unordered pair $\{r_{u_n}, r'_n\}$ (specifically when $r_{u_m} = r'_n = r_{u_n} R$); hence $\{\{r_{u_n}, r'_n\} : n \in \N\}$ is infinite as well.
+
+(4)~By Theorem~\ref{thm:positive}(1), $r_{u_0}^2 = I_2$, so $R = r_{u_0} r'_0 \underbrace{r_{u_0} \cdots r_{u_0}}_{2m}$ has length $2 + 2m$. On $(F^{2m}, Q_{2m,0})$, $-I_{2m} = r_{e_1}\cdots r_{e_{2m}}$ has $\rk(I_{2m} - (-I_{2m})) = \rk(2 I_{2m}) = 2m$, so $\lref(-I_{2m}) = 2m$ by Theorem~\ref{thm:positive}(3).
+\end{proof}
+
+\begin{remark}[Even Over Finite Fields, Both Non-Minimal Counts and Existence Fail]
+One might ask whether restricting to a finite field $\F_q$ rescues finiteness of reflection counting. First, for non-minimal words, $r_u^2 = I$ still produces infinitely many words of unbounded lengths $k_0 + 2m$. Second, at $(n, q) = (4, 2)$, Dieudonn\'e~\cite{Die48} discovered that even \emph{existence} of a reflection decomposition fails for proper rotations! We give a self-contained four-line triangle-invariant proof below (also formalized in Core Lean~4).
+\end{remark}
+
+\begin{theorem}[Dieudonn\'e's 1948 Exception in $\SO^+(4, \F_2)$ and Its Characteristic-$0$ Lift]
+\label{thm:dieudonne}
+Equip $\F_2^4$ with the split hyperbolic quadratic form $Q_{\F_2}(x_0, x_1, x_2, x_3) = x_0 x_1 + x_2 x_3$ and polar form $B_{\F_2}(u, v) = u_0 v_1 + u_1 v_0 + u_2 v_3 + u_3 v_2$. Let $D : \F_2^4 \to \F_2^4$ be the coordinate-reversal map $D(x_0, x_1, x_2, x_3) = (x_3, x_2, x_1, x_0)$.
+\begin{enumerate}
+\item $D$ is a non-identity orthogonal transformation in Dickson's special orthogonal group $\SO^+(4, \F_2)$. Moreover, over any formally real field $F$, its integral lift $\widetilde{D}(x_0, x_1, x_2, x_3) = (x_3, x_2, x_1, x_0)$ on $(F^4, x_0 x_1 + x_2 x_3)$ lies in $\SO(2, 2; F)$ and has minimal reflection count $\lref(\widetilde{D}) = 2$:
+\[
+  \widetilde{D} = r_{(1, 1, -1, -1)^\top} \circ r_{(1, -1, 1, -1)^\top}, \qquad Q_{2,2}(1, \pm 1, \mp 1, -1) = \pm 2.
+\]
+\item Over $\F_2$, the norms $\pm 2 \equiv 0 \pmod{2}$ degenerate, leaving exactly $6$ anisotropic vectors partitioned into two reflection-invariant $3$-element triangles
+\[
+  T_1 = \bigl\{(0,0,1,1),\; (1,1,0,1),\; (1,1,1,0)\bigr\}, \qquad
+  T_2 = \bigl\{(0,1,1,1),\; (1,0,1,1),\; (1,1,0,0)\bigr\}.
+\]
+Every reflection $r_u$ ($Q_{\F_2}(u) = 1$) stabilizes $T_1$ and $T_2$ setwise, generating an index-$2$ subgroup $\langle \Refl \rangle \cong S_3 \times S_3$ of order~$36$ inside $|\Orth^+(4, \F_2)| = 72$ (with word-length distribution $1, 6, 13, 12, 4$ at lengths $0, 1, 2, 3, 4$). Because $D(1,1,0,1) = (1,0,1,1)$ swaps $T_1 \leftrightarrow T_2$, $D$ admits \textbf{zero} reflection decompositions of any length over $\F_2$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1)~Clearly $Q_{\F_2}(D x) = x_3 x_2 + x_1 x_0 = Q_{\F_2}(x)$. Over $F$, let $u_1 = (1, 1, -1, -1)^\top$ ($Q_{2,2}(u_1) = 2$) and $u_2 = (1, -1, 1, -1)^\top$ ($Q_{2,2}(u_2) = -2$); notice $B_{2,2}(u_1, u_2) = 0$. Evaluating $r_{u_1} r_{u_2}$ on the standard basis $e_0, e_1, e_2, e_3$ yields $(e_3, e_2, e_1, e_0) = \widetilde{D}$, so $\widetilde{D} \in \SO(2, 2; F)$ with $\lref(\widetilde{D}) = 2$. Reducing $\widetilde{D}$ modulo~$2$ places $D$ in the kernel $\SO^+(4, \F_2)$ of Dickson's invariant (equivalently, $\im(I + D) = \spn_{\F_2}((1,0,0,1), (0,1,1,0))$ is $2$-dimensional and totally singular, so Dickson's invariant is $0$).
+
+(2)~Direct check over $\F_2$ shows $\{u \in \F_2^4 : Q_{\F_2}(u) = 1\} = T_1 \sqcup T_2$. Notice that the three vectors in $T_1$ sum to $0$, satisfy $B_{\F_2}(u, u') = 1$ for distinct $u, u' \in T_1$, and satisfy $B_{\F_2}(u, v) = 0$ whenever $u \in T_1$ and $v \in T_2$ (and symmetrically for $T_2$). Hence for $u \in T_1$, $r_u(v) = v + B_{\F_2}(u, v) u$ fixes $u$, transposes the other two vectors of $T_1$, and fixes $T_2$ pointwise; symmetrically, $u \in T_2$ acts as a transposition on $T_2$ and fixes $T_1$. By induction on word length, every $g \in \langle \Refl \rangle$ satisfies $g(T_1) = T_1$, giving $\langle \Refl \rangle \cong S_3 \times S_3$ of order $6 \times 6 = 36$ with exact reflection-length generating polynomial $(1 + 3t + 2t^2)^2 = 1 + 6t + 13t^2 + 12t^3 + 4t^4$. Since $(1,1,0,1) \in T_1$ while $D(1,1,0,1) = (1,0,1,1) \in T_2 \setminus T_1$, we conclude $D \notin \langle \Refl \rangle$.
+\end{proof}
+
+\section{Refutation of Claim A: Minimal Reflection Count Is Rank-Type, Not Angle-Type}
+
+We next refute Claim~A under every possible mathematical meaning of ``angle-type'' (\emph{jiaoduxing}): individual planar angle, trace, chordal Frobenius distance, $L^1$ eigenangle sum, Riemannian $L^2$ geodesic distance, and unipotent zero-angle transformations.
+
+\begin{proposition}[Angle-Insensitivity Across Infinite Planar Rotation Family]
+\label{prop:cayley-so2}
+Over any formally real field $F$, the rational Cayley rotations
+\[
+  R_t = \frac{1}{1 + t^2} \begin{pmatrix} 1 - t^2 & -2t \\ 2t & 1 - t^2 \end{pmatrix} \in \SO_2(F) \setminus \{I_2\}, \qquad t_n = n + 1 \;\; (n \in \N),
+\]
+have pairwise distinct rotation traces $\tr(R_{t_m}) \neq \tr(R_{t_n})$ for all $m \neq n$ (since $(1+t_m^2)(1+t_n^2)\bigl(\tr(R_{t_m}) - \tr(R_{t_n})\bigr) = 4(t_n - t_m)(t_n + t_m) \neq 0$), yet satisfy $\lref(R_{t_n}) = 2$ identically for all $n \in \N$.
+\end{proposition}
+
+\begin{proof}
+Each $R_{t_n}$ satisfies $Q_{2,0}(R_{t_n} v) = Q_{2,0}(v)$, $\det(R_{t_n}) = 1$, and $(R_{t_n})_{1,0} = \frac{2 t_n}{1 + t_n^2} \neq 0$, so $R_{t_n} \neq I_2$. By Theorem~\ref{thm:planar-class}(3), $\lref(R_{t_n}) = 2$ for every $n \in \N$.
+\end{proof}
+
+\begin{theorem}[Simultaneous Metric and Angle Collisions in $\SO_4$ with Distinct $\lref$]
+\label{thm:so4-collision}
+Let $F$ be any formally real field and equip $F^4$ with $Q_{4,0}(x) = x_0^2 + x_1^2 + x_2^2 + x_3^2$.
+\begin{enumerate}
+\item \textbf{Equal Trace, Equal Chordal Distance, and Equal $L^1$ Total Angle ($\lref = 2$ vs.\ $4$):} Consider the integer matrices in $\SO_4(\Z) \subseteq \SO_4(F)$:
+\begin{equation}\label{eq:R1-R2}
+  R_1 = \begin{pmatrix} -1 & 0 & 0 & 0 \\ 0 & -1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & 0 & 1 \end{pmatrix}, \qquad
+  R_2 = \begin{pmatrix} 0 & -1 & 0 & 0 \\ 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & -1 \\ 0 & 0 & 1 & 0 \end{pmatrix}.
+\end{equation}
+Over $\R$, $R_1$ has eigenangles $(\pi, 0)$ and $R_2$ has eigenangles $(\frac{\pi}{2}, \frac{\pi}{2})$. Both rotations satisfy
+\begin{align*}
+  \tr(R_1) = \tr(R_2) = 0, \qquad &\|I_4 - R_1\|_F^2 = \|I_4 - R_2\|_F^2 = 8,\\
+  \theta_1(R_1) + \theta_2(R_1) = \pi &= \theta_1(R_2) + \theta_2(R_2),
+\end{align*}
+yet their minimal reflection counts over $F$ are strictly distinct:
+\[
+  \lref(R_1) = 2 \neq 4 = \lref(R_2).
+\]
+\item \textbf{Equal Riemannian $L^2$ Geodesic Distance ($\lref = 2$ vs.\ $4$):} In $\SO(4; \R)$ equipped with the canonical bi-invariant metric $\langle X, Y \rangle = \tr(X^\top Y)$ (under which $d_{\SO(4)}(I_4, R) = \sqrt{2(\theta_1^2 + \theta_2^2)}$ for $\theta_1, \theta_2 \in [0, \pi]$), $R_1$ (eigenangles $(\pi, 0)$) and the two-plane rotation $\widetilde{R}_2 = \mathrm{diag}\bigl(R(3\pi/5),\, R(4\pi/5)\bigr)$ satisfy
+\[
+  d_{\SO(4)}(I_4, R_1) = \sqrt{2(\pi^2 + 0^2)} = \sqrt{2}\,\pi = \sqrt{2\bigl((3\pi/5)^2 + (4\pi/5)^2\bigr)} = d_{\SO(4)}(I_4, \widetilde{R}_2),
+\]
+yet $\lref(R_1) = \rk(I_4 - R_1) = 2 \neq 4 = \rk(I_4 - \widetilde{R}_2) = \lref(\widetilde{R}_2)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1)~Explicitly, $R_1 = r_{e_0} r_{e_1}$ has length~$2$, $R_1 \neq I_4$ rules out~$0$, and $\det(R_1) = +1$ rules out~$1$ by Theorem~\ref{thm:positive}(2), so $\lref(R_1) = 2$. For $R_2$, since $Q_{4,0}(e_0 + e_1) = Q_{4,0}(e_2 + e_3) = 2 \neq 0$, we check directly that
+\[
+  R_2 = r_{e_0 + e_1} \, r_{e_0} \, r_{e_2 + e_3} \, r_{e_2},
+\]
+so $R_2 \in \SO_4(F)$ has a reflection decomposition of length~$4$. Moreover, $R_2^2 = -I_4$, whence $(I_4 - R_2) \cdot \frac{1}{2}(I_4 + R_2) = I_4$; in particular, $e_0, e_1, e_2 \in \im(I_4 - R_2)$, so $\rk(I_4 - R_2) \ge 3$ (indeed $= 4$). By Theorem~\ref{thm:positive}(3), $\lref(R_2) \ge 3$, and by parity~\eqref{eq:parity} ($\det(R_2) = +1$), $\lref(R_2) \neq 3$, forcing $\lref(R_2) = 4$. Meanwhile $\tr(R_1) = -1 - 1 + 1 + 1 = 0 = \tr(R_2)$, $\|I_4 - R_1\|_F^2 = 2^2 + 2^2 = 8$, and $\|I_4 - R_2\|_F^2 = 8 \cdot 1^2 = 8$.
+
+(2)~Since $\frac{3\pi}{5}, \frac{4\pi}{5} \in (0, \pi)$, both $I_2 - R(3\pi/5)$ and $I_2 - R(4\pi/5)$ are invertible of rank~$2$, giving $\rk(I_4 - \widetilde{R}_2) = 4$, so $\lref(\widetilde{R}_2) = 4$ whereas $\lref(R_1) = 2$, while $(3/5)^2 + (4/5)^2 = 25/25 = 1$.
+\end{proof}
+
+Even more strikingly, in indefinite signature $(2, 2)$, $\lref(R)$ can strictly exceed $\rk(I - R)$ even when $R$ is unipotent (zero rotation angle!):
+
+\begin{theorem}[Scherk's Unipotent Null-Rotation Rank Jump in $\SO(2, 2; F)$]
+\label{thm:scherk}
+Equip $F^4$ ($F$ any formally real field) with the split quadratic form $Q_{2,2}(x_0, x_1, x_2, x_3) = x_0 x_1 + x_2 x_3$ of signature $(2, 2)$, and define the unipotent matrix
+\begin{equation}\label{eq:scherkN}
+  N = \begin{pmatrix}
+    1 & 0 & 0 & -1 \\
+    0 & 1 & 0 & 0 \\
+    0 & 1 & 1 & 0 \\
+    0 & 0 & 0 & 1
+  \end{pmatrix}.
+\end{equation}
+Then $N \in \SO(2, 2; F)$ satisfies $(I_4 - N)^2 = 0$, $\tr(N) = 4$, and $\im(I_4 - N) = \spn_F(e_0, e_2)$ of exact rank~$2$, yet its minimal reflection count in $\Orth(2, 2; F)$ is strictly
+\[
+  \lref(N) = 4 = \rk(I_4 - N) + 2 > 2.
+\]
+\end{theorem}
+
+\begin{proof}
+For every $x \in F^4$, $Q_{2,2}(N x) = (x_0 - x_3) x_1 + (x_2 + x_1) x_3 = x_0 x_1 + x_2 x_3 = Q_{2,2}(x)$, and $\det(N) = +1$, so $N \in \SO(2, 2; F)$. Directly, $(I_4 - N)(x) = (x_3, 0, -x_1, 0)^\top = x_3 e_0 - x_1 e_2$, which has exact rank~$2$ (achieving $e_0$ at $x = e_3$ and $e_2$ at $x = -e_1$) and satisfies $(I_4 - N)^2 = 0$.
+
+For the upper bound $\lref(N) \le 4$, let
+\[
+  v_1 = (-1, 1, 0, 1)^\top,\quad v_2 = (-1, 1, -1, 1)^\top,\quad v_3 = (-1, -1, -1, -1)^\top,\quad v_4 = (-1, -1, 0, -1)^\top,
+\]
+which have anisotropic norms $Q_{2,2}(v_1) = -1$, $Q_{2,2}(v_2) = -2$, $Q_{2,2}(v_3) = +2$, and $Q_{2,2}(v_4) = +1$ in $F^\times$. Direct matrix multiplication yields $r_{v_1} r_{v_2} r_{v_3} r_{v_4} = N$.
+
+To prove $\lref(N) \ge 4$, note that $N \neq I_4$ rules out $k = 0$, and $\det(N) = +1$ rules out $k = 1, 3$ by~\eqref{eq:parity}. Suppose for contradiction that $N = r_a r_b$ with $Q_{2,2}(a) \neq 0$ and $Q_{2,2}(b) \neq 0$. By Theorem~\ref{thm:positive}(3), $e_0, e_2 \in \im(I_4 - N) \subseteq \spn_F(a, b)$, so $e_0 = \alpha_0 a + \beta_0 b$ and $e_2 = \alpha_2 a + \beta_2 b$ for some $\alpha_i, \beta_i \in F$. Projecting onto coordinates $(x_0, x_2)$ gives
+\[
+  (\alpha_0 \beta_2 - \alpha_2 \beta_0)(a_0 b_2 - a_2 b_0) = 1 \cdot 1 - 0 \cdot 0 = 1,
+\]
+so $\Delta := \alpha_0 \beta_2 - \alpha_2 \beta_0 \neq 0$. By Cramer's rule, $\Delta a = \beta_2 e_0 - \beta_0 e_2 = (\beta_2, 0, -\beta_0, 0)^\top$, which forces $a_1 = a_3 = 0$ since $\Delta \neq 0$. Hence $Q_{2,2}(a) = a_0 a_1 + a_2 a_3 = 0$, contradicting $Q_{2,2}(a) \neq 0$. Thus $\lref(N) = 4$.
+\end{proof}
+
+\section{Refutation of Claim C: Obstructions to Geodesic Realization}
+
+Finally, we refute Claim~C (\emph{``the minimization is realized by geodesic decomposition''}) both in indefinite orthogonal groups (where Lie-group geodesics fail to exist for rotations that nevertheless possess minimal reflection decompositions) and in compact connected Euclidean $\SO(4)$ (where minimal reflection decompositions violate plane commutativity and fail to respect rational/real geodesic eigenplanes).
+
+\begin{theorem}[Lorentzian Disconnectedness Obstruction in $\SO(1, 1; F)$]
+\label{thm:lorentz}
+Let $F$ be a formally real field and equip $F^2$ with the Lorentzian form $Q_{1,1}(x, y) = x^2 - y^2$.
+\begin{enumerate}
+\item Every $M \in \SO(1, 1; F)$ has the symmetric hyperbolic form $M = \begin{pmatrix}a & b\\ b & a\end{pmatrix}$ with $a^2 - b^2 = 1$; in particular, $\SO(1, 1; F)$ is \emph{abelian}.
+\item The rotation $-I_2 \in \SO(1, 1; F)$ has exact minimal reflection count $\lref(-I_2) = 2$, realized by $-I_2 = r_{e_0} \circ r_{e_1}$ ($Q_{1,1}(e_0) = +1$, $Q_{1,1}(e_1) = -1$).
+\item Let $\SO^+(1, 1; F) = \langle M^2 : M \in \SO(1, 1; F) \rangle$ denote the subgroup generated by squares (which over $F = \R$ coincides with the connected identity component $\{\exp(t X) : X \in \mathfrak{so}(1,1),\; t \in \R\}$ of all Lie-group geodesics from $I_2$). Then $-I_2 \notin \SO^+(1, 1; F)$; in particular, over $\R$, \textbf{zero} continuous curves and \textbf{zero} Lie-group geodesics in $\SO(1, 1; \R)$ connect $I_2$ to $-I_2$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1)~For $M \in \SO(1, 1; F)$, evaluating $Q_{1,1}(M v) = Q_{1,1}(v)$ on $(1, 0)^\top$, $(0, 1)^\top$, and $(1, 1)^\top$ gives $m_{00}^2 - m_{10}^2 = 1$, $m_{01}^2 - m_{11}^2 = -1$, and $m_{00} m_{01} - m_{10} m_{11} = 0$, together with $\det(M) = m_{00} m_{11} - m_{01} m_{10} = 1$. Using the polynomial identities
+\begin{align*}
+  m_{00} - m_{11} &= m_{00}(\det M - 1) - m_{11}(m_{00}^2 - m_{10}^2 - 1) + m_{10}(m_{00} m_{01} - m_{10} m_{11}) = 0,\\
+  m_{10} - m_{01} &= m_{10}(\det M - 1) - m_{01}(m_{00}^2 - m_{10}^2 - 1) + m_{00}(m_{00} m_{01} - m_{10} m_{11}) = 0,
+\end{align*}
+we obtain $m_{00} = m_{11}$ and $m_{10} = m_{01}$, whence $A B = B A$ for all $A, B \in \SO(1, 1; F)$.
+
+(2)~Directly, $r_{e_0} = \mathrm{diag}(-1, 1)$ and $r_{e_1} = \mathrm{diag}(1, -1)$ satisfy $r_{e_0} r_{e_1} = -I_2$, while $-I_2 \neq I_2$ and $\det(-I_2) = +1$ exclude lengths $0$ and $1$.
+
+(3)~Because $\SO(1, 1; F)$ is abelian, $(M_1^2)(M_2^2) = (M_1 M_2)^2$, so every element $G \in \SO^+(1, 1; F)$ is a single square $G = M^2$ for some $M = \begin{pmatrix}a & b\\ b & a\end{pmatrix} \in \SO(1, 1; F)$. If $M^2 = -I_2$, comparing top-left entries yields $a^2 + b^2 = -1$, i.e., $a^2 + b^2 + 1^2 + 0^2 = 0$, impossible in any formally real field $F$. Over $\R$, every continuous path $\gamma : [0, 1] \to \SO(1, 1; \R)$ with $\gamma(0) = I_2$ satisfies $\gamma_{00}(t)^2 = 1 + \gamma_{01}(t)^2 \ge 1$ and $\gamma_{00}(0) = 1$, so $\gamma_{00}(t) \ge 1$ for all $t \in [0, 1]$ by the Intermediate Value Theorem; hence $\gamma(1) \neq -I_2$.
+\end{proof}
+
+\begin{theorem}[Non-Commuting Minimal Reflection Pairs and $\Q^4$-Irreducibility in Compact $\SO_4$]
+\label{thm:coxeter}
+Let $F$ be a formally real field, equip $F^4$ with $Q_{4,0}$, and define the $B_4$-Coxeter rotation
+\begin{equation}\label{eq:rcox}
+  R_{\mathrm{Cox}} = \underbrace{\bigl(r_{e_0} r_{e_0 + e_1}\bigr)}_{P_1} \underbrace{\bigl(r_{e_1 + e_2} r_{e_2 + e_3}\bigr)}_{P_2}
+  = \begin{pmatrix}
+    0 & 0 & 0 & 1 \\
+    -1 & 0 & 0 & 0 \\
+    0 & -1 & 0 & 0 \\
+    0 & 0 & -1 & 0
+  \end{pmatrix} \in \SO_4(\Z) \subseteq \SO_4(F).
+\end{equation}
+\begin{enumerate}
+\item $R_{\mathrm{Cox}}$ satisfies $R_{\mathrm{Cox}}^4 = -I_4$ (characteristic polynomial $\lambda^4 + 1$, eigenangles $\frac{\pi}{4}$ and $\frac{3\pi}{4}$ in $(0, \pi)$, so $R_{\mathrm{Cox}}$ lies outside the cut locus of $\SO(4; \R)$ and possesses a \emph{unique} minimal Riemannian geodesic $\gamma(t) = \exp(t X)$ in $\SO(4; \R)$) and has exact minimal reflection count $\lref(R_{\mathrm{Cox}}) = 4$.
+\item Whereas the two orthogonal eigenplane rotations $\exp(X_1), \exp(X_2)$ of the minimal Lie-group geodesic $X = X_1 + X_2$ ($[X_1, X_2] = 0$) commute and have angle sum $\frac{\pi}{4} + \frac{3\pi}{4} = \pi$, the planar rotation factors $P_1, P_2 \in \SO_4(F)$ of the minimal reflection decomposition~\eqref{eq:rcox} \textbf{fail to commute} ($P_1 P_2 \neq P_2 P_1$, since $(P_1 P_2 e_0)_1 = -1 \neq 0 = (P_2 P_1 e_0)_1$) and over $\R$ have strictly larger angle sum $\frac{\pi}{2} + \frac{2\pi}{3} = \frac{7\pi}{6} > \pi$.
+\item Over $F = \Q$, although $\lref(R_{\mathrm{Cox}}) = 4$ is realized over $\Z$, $R_{\mathrm{Cox}}$ preserves \textbf{no} $2$-dimensional subspace of $\Q^4$ whatsoever; consequently, $R_{\mathrm{Cox}}$ admits no decomposition into commuting invariant $2$-plane rotations in $\SO_4(\Q)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1)--(2)~Each root $e_0$, $e_0 + e_1$, $e_1 + e_2$, $e_2 + e_3$ has $Q_{4,0} \in \{1, 2\} \subseteq F^\times$, and direct evaluation gives~\eqref{eq:rcox} together with $R_{\mathrm{Cox}}^4 = -I_4$. Since $(I_4 - R_{\mathrm{Cox}}) \cdot \frac{1}{2}(I_4 + R_{\mathrm{Cox}} + R_{\mathrm{Cox}}^2 + R_{\mathrm{Cox}}^3) = I_4$, we have $\im(I_4 - R_{\mathrm{Cox}}) = F^4$, so $\lref(R_{\mathrm{Cox}}) = 4$ by Theorem~\ref{thm:positive}(2)--(3). Moreover, $P_1(x_0, x_1, x_2, x_3) = (x_1, -x_0, x_2, x_3)$ (angle $\pi/2$) and $P_2(x_0, x_1, x_2, x_3) = (x_0, x_3, -x_1, -x_2)$ (fixing $e_0$ and cycling $e_1 \mapsto -e_2 \mapsto e_3 \mapsto e_1$, angle $2\pi/3$), giving $(P_1 P_2 e_0)_1 = -1$ whereas $(P_2 P_1 e_0)_1 = (P_2(-e_1))_1 = 0 \neq -1$.
+
+(3)~Suppose $W = \spn_\Q(w_1, w_2) \subset \Q^4$ ($w_1, w_2$ linearly independent) satisfies $R_{\mathrm{Cox}}(W) \subseteq W$. Representing $R_{\mathrm{Cox}}|_W$ in the basis $(w_1, w_2)$ gives a matrix $A \in M_2(\Q)$ satisfying $A^4 = -I_2$ because $R_{\mathrm{Cox}}^4 = -I_4$. Let $t = \tr(A)$ and $\delta = \det(A)$. From $\det(A^4) = \delta^4 = \det(-I_2) = 1$, factoring $(\delta - 1)(\delta + 1)(\delta^2 + 1) = 0$ over $\Q$ forces $\delta = \pm 1$. By the $2 \times 2$ fourth-power trace identity
+\[
+  \tr(A^4) = t^4 - 4 \delta t^2 + 2 \delta^2,
+\]
+comparing with $\tr(-I_2) = -2$ gives $t^4 - 4\delta t^2 + 2\delta^2 + 2 = 0$:
+\begin{itemize}
+\item If $\delta = -1$, then $(t^2 + 2)^2 = t^4 + 4 t^2 + 4 = 0 \implies t^2 + 2 = 0$, impossible in $\Q$.
+\item If $\delta = +1$, then $(t^2 - 2)^2 = t^4 - 4 t^2 + 4 = 0 \implies t^2 = 2$, impossible in $\Q$ by $2$-adic infinite descent ($a^2 \neq 2 b^2$ for all $a, b \in \N$ with $b > 0$).
+\end{itemize}
+Thus no $2$-dimensional $R_{\mathrm{Cox}}$-invariant subspace exists in $\Q^4$.
+\end{proof}
+
+\begin{remark}[Cut-Locus Non-Uniqueness vs.\ Reflection Continuum]
+Even for planar and cut-locus involutions where orthogonal $2$-planes exist over $\Q$, minimal Riemannian geodesics fail to match minimal reflection decompositions: $-I_2 \in \SO(2; \R)$ has exactly \emph{two} minimal Riemannian geodesics $t \mapsto \exp(\pm \pi t J)$ ($t \in [0, 1]$) in $\SO(2; \R)$, whereas Theorem~\ref{thm:inf-counting} exhibits a continuum (over $\R$) and countably infinite family (over $\Q$) of minimal reflection decompositions $-I_2 = r_{u_t} r_{(-t, 1)^\top}$ whose factors $r_u \in \Orth^-(2)$ lie outside $\SO(2)$.
+\end{remark}
+
+\section{Formal Verification in Core Lean 4.19.0 and Exact Symbolic Audit}
+
+The entire positive theory and all counterexamples are formalized in \textbf{Core Lean \texttt{v4.19.0}} (\texttt{package/lean/}, compiled with \texttt{moreLeanArgs = ["-DwarningAsError=true"]}, zero external dependencies, zero \texttt{sorry}/\texttt{admit}/\texttt{native\_decide}, and zero custom \texttt{axiom} declarations) and cross-checked in \texttt{package/verify.py}:
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{5.7cm}>{\raggedright\arraybackslash}p{5.0cm}}
+\hline
+\textbf{Paper Result} & \textbf{Lean 4 Module \& Declaration} & \textbf{Scope / Constructive Witness} \\
+\hline
+Formally real fields, polynomial normalizer, \& $\sqrt{2} \notin \Q$ &
+\texttt{FieldFoundation.lean}: \texttt{FormallyRealField}, \texttt{RExpr.eq\_\allowbreak of\_\allowbreak norm\_\allowbreak eq}, \texttt{QField.no\_\allowbreak sqrt\_\allowbreak two} &
+Universal \texttt{FormallyRealField F} + constructive quotient \texttt{QField} \\
+\hline
+Theorem~\ref{thm:positive} (Parity \& Span Lower Bound, $2$D \& $4$D) &
+\texttt{PlanarAndLorentz.lean}: \texttt{reflCount2\_\allowbreak parity\_\allowbreak iff}; \texttt{FourDimCounterexamples.lean}: \texttt{reflCount4\_\allowbreak parity\_\allowbreak iff}, \texttt{reflDecomp4\_\allowbreak sub\_\allowbreak in\_\allowbreak span} &
+Universal over \texttt{F} for diagonal $2$D forms and Euclidean / split $4$D forms \\
+\hline
+Theorem~\ref{thm:planar-class} \& Theorem~\ref{thm:inf-counting} (R1: Infinite Minimal Counting) &
+\texttt{PlanarAndLorentz.lean}: \texttt{orth2\_\allowbreak det\_\allowbreak neg\_\allowbreak one\_\allowbreak isReflection}, \texttt{so2\_\allowbreak infinite\_\allowbreak reflection\_\allowbreak counting} &
+Every $R \in \SO_2(F) \setminus \{I_2\}$ + finite-pool pigeonhole refutation \\
+\hline
+Theorem~\ref{thm:dieudonne} (R3c: Dieudonn\'e $\SO^+(4, \F_2)$ \& Lift) &
+\texttt{FourDimCounterexamples.lean}: \texttt{dieudonne\_\allowbreak f2\_\allowbreak counterexample} &
+Exact $\F_2^4$ triangle-invariant induction + \texttt{Q22 F} lift of count $2$ \\
+\hline
+Proposition~\ref{prop:cayley-so2}, Theorem~\ref{thm:so4-collision}, \& Theorem~\ref{thm:scherk} (R2: Rank vs.\ Angle) &
+\texttt{so2\_\allowbreak infinite\_\allowbreak distinct\_\allowbreak angles\_\allowbreak same\_\allowbreak minReflCount}, \texttt{so4\_\allowbreak same\_\allowbreak trace\_\allowbreak and\_\allowbreak chord\_\allowbreak diff\_\allowbreak minReflCount}, \texttt{scherk\_\allowbreak null\_\allowbreak rotation\_\allowbreak rank\_\allowbreak two\_\allowbreak minRefl\_\allowbreak four} &
+Cayley family in $\SO_2(F)$; $R_1, R_2 \in \SO_4(F)$ ($2 \neq 4$); Scherk $N \in \SO(2,2; F)$ \\
+\hline
+Theorem~\ref{thm:lorentz} \& Theorem~\ref{thm:coxeter} (R3: Geodesic Obstructions) &
+\texttt{lorentz\_\allowbreak negOne\_\allowbreak minRefl\_\allowbreak two\_\allowbreak yet\_\allowbreak not\_\allowbreak geodesic}, \texttt{coxeter\_\allowbreak so4\_\allowbreak noncomm\_\allowbreak and\_\allowbreak minRefl\_\allowbreak four}, \texttt{rcox\_\allowbreak no\_\allowbreak 2d\_\allowbreak invariant\_\allowbreak subspace\_\allowbreak QField} &
+$-I_2$ outside \texttt{InSqGenSO11 F}; $P_1 P_2 \neq P_2 P_1$; $\Q^4$-irreducibility on \texttt{QField} \\
+\hline
+Master Verdict \& Ground Witness &
+\texttt{Conjecture00000007609.lean}: \texttt{cartan\_\allowbreak dieudonne\_\allowbreak positive\_\allowbreak theorems}, \texttt{conjecture\_\allowbreak 00000007609\_\allowbreak refuted}, \texttt{conjecture\_\allowbreak 00000007609\_\allowbreak ground\_\allowbreak witness} &
+End-to-end \texttt{\#print axioms}: only \texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound} \\
+\hline
+\end{tabular}
+\caption{Correspondence between mathematical theorems and verified Core Lean~4.19.0 declarations.}
+\label{tab:lean-map}
+\end{table}
+
+\clearpage
+\begin{thebibliography}{9}
+
+\bibitem{Art57}
+E.~Artin, \emph{Geometric Algebra}, Interscience Publishers, New York, 1957.
+
+\bibitem{BW02}
+T.~Brady and C.~Watt, \emph{$K(\pi, 1)$'s for Artin groups of finite type}, Geom.\ Dedicata \textbf{94} (2002), 225--250.
+
+\bibitem{Car38}
+\'E.~Cartan, \emph{Le\c{c}ons sur la th\'eorie des spineurs}, Actualit\'es Sci.\ Ind.\ \textbf{643}, Hermann, Paris, 1938.
+
+\bibitem{Car72}
+R.~W.~Carter, \emph{Conjugacy classes in the Weyl group}, Compositio Math.\ \textbf{25} (1972), 1--59.
+
+\bibitem{Die48}
+J.~Dieudonn\'e, \emph{Sur les groupes classiques}, Actualit\'es Sci.\ Ind.\ \textbf{1040}, Hermann, Paris, 1948.
+
+\bibitem{Sch50}
+P.~Scherk, \emph{On the decomposition of orthogonalities into symmetries}, Proc.\ Amer.\ Math.\ Soc.\ \textbf{1} (1950), 481--491.
+
+\end{thebibliography}
+
+\end{document}
