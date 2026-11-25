@@ -1,0 +1,352 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\emergencystretch=1.5em
+\newcommand{\smmat}[1]{\bigl(\begin{smallmatrix}#1\end{smallmatrix}\bigr)}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\FF}{\mathbb{F}}
+\newcommand{\RP}{\mathbb{RP}}
+\newcommand{\CP}{\mathbb{CP}}
+\newcommand{\cD}{\mathcal{D}}
+\newcommand{\Herm}{\mathrm{Herm}}
+\newcommand{\Sym}{\mathrm{Sym}}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\conv}{\mathrm{conv}}
+\newcommand{\im}{\mathrm{Im}}
+\newcommand{\re}{\mathrm{Re}}
+
+\title{\textbf{Disproof of the Index-Multiplicity Dimension Conjecture\\
+for Extremal Rayleigh Contact Manifolds}\\[0.5em]
+\large Resolution of Conjecture \texttt{00000007165}}
+\author{Autonomous Mathematical Research \& Formalization Solver}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007165}, which proposes that the extremal faces of the Rayleigh quotient determine contact manifolds whose dimension equals the multiplicity of the corresponding spectral index. We first isolate the true linear-algebraic core underlying the statement: for any Hermitian (or real symmetric) matrix $A \in M_n(\FF)$ whose extreme eigenvalue $\lambda_{\max}$ has multiplicity $m \ge 1$, a nonzero vector $x \in \FF^n \setminus \{0\}$ satisfies $R_A(x) = \lambda_{\max}$ if and only if $A x = \lambda_{\max} x$, so adjoining the origin $0 \notin \mathrm{dom}(R_A)$ yields the unnormalized eigenspace $\ker(A - \lambda_{\max} I_n)$ of $\FF$-dimension $m$ (though of real dimension $2m \neq m$ when $\FF = \CC$). However, because $R_A(t x) = R_A(x)$ is scale-invariant and undefined at $0$, its variational and convex-geometric contact loci live on normalized state spaces, where the dimension identity fails systematically. Across all five canonical normalized state spaces---the real unit sphere $S^{n-1}$ ($\dim_{\RR} = m - 1$), real projective space $\RP^{n-1}$ ($\dim_{\RR} = m - 1$), the complex unit sphere $S^{2n-1}$ ($\dim_{\RR} = 2m - 1$, which is a genuine strict Sasakian contact submanifold), complex projective space $\CP^{n-1}$ ($\dim_{\CC} = m - 1$, $\dim_{\RR} = 2m - 2$), and density-matrix state spaces $\cD_n(\CC)$ ($\dim_{\RR} = m^2 - 1$) and $\cD_n(\RR)$ ($\dim_{\RR} = \frac{1}{2}m(m+1) - 1$)---the conjecture is \textbf{false}. Furthermore, the conjecture fails for non-normal matrices, for multidimensional extremal faces of joint numerical ranges, for interior spectral indices (where spherical level sets develop conical singularities), and under Morse or inertia index readings. All positive and negative results are verified by exact rational arithmetic (\texttt{verify.py}) and formalized from first principles in Core Lean~4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Introduction and Summary of Results}
+
+\subsection{Statement of the Conjecture}
+Conjecture \texttt{00000007165} reads verbatim in English:
+\begin{quote}
+\emph{Definition: The spectrum of the Rayleigh quotient with the extremal faces of the quotient. Conjecture: The contact manifolds of extremal faces hold, and the dimension of the manifolds is the multiplicity of the index. (index-multiplicity Rayleigh contact manifolds)}
+\end{quote}
+The accompanying Chinese formulation (\emph{``Rayleigh shang de pu: shang de jizhi mian. Caixiang: shang mian de qiechu: jizhi mian de qiechu liuxing qie xing de weishu wei zhibiao de chongshu''}) expresses the same two assertions: (i)~for each extremal face of the image of the Rayleigh quotient, the locus where the quotient contacts (is tangent to a supporting hyperplane at) that extremal face forms a contact manifold, and (ii)~the dimension of this manifold equals the multiplicity $m$ of the corresponding index.
+
+\subsection{Verdict and Structural Overview}
+We prove that Conjecture \texttt{00000007165} is \textbf{false}. Its plausibility stems from two conflations:
+\begin{enumerate}
+  \item \textbf{Unnormalized eigenspaces vs.\ normalized quotient domains.} For a real symmetric matrix $A \in \Sym_n(\RR)$ with maximum eigenvalue $\lambda_{\max}$ of multiplicity $m \ge 1$, the set $\{x \in \RR^n \setminus \{0\} : R_A(x) = \lambda_{\max}\}$ coincides with the punctured eigenspace $\ker(A - \lambda_{\max} I_n) \setminus \{0\}$, which has real dimension $m$. Yet $R_A(x) = \langle x, A x \rangle / \|x\|^2$ is undefined at $0$ and invariant under $x \mapsto t x$ ($t \neq 0$). On every compact normalized manifold where variational extrema, Morse--Bott theory, and numerical-range supporting hyperplanes are defined, quotienting out radial scaling (or phase/convexity) changes the dimension away from $m$.
+  \item \textbf{Isolated low-multiplicity coincidences.} On the complex unit sphere $S^{2n-1} \subset \CC^n$, the contact locus $S^{2m-1}$ has real dimension $2m - 1$, which accidentally equals $m$ at $m = 1$ ($\dim_{\RR} S^1 = 1$) before failing for every $m \ge 2$ ($\dim_{\RR} S^3 = 3 \neq 2$). Similarly, $\dim_{\RR} \CP^{m-1} = 2m - 2$ and $\dim_{\RR} \cD_m(\RR) = \frac{1}{2}m(m+1) - 1$ accidentally equal $m$ only at $m = 2$, while failing at $m = 1$ ($0 \neq 1$) and for all $m \ge 3$. On $S^{n-1}$, $\RP^{n-1}$, and $\cD_n(\CC)$, the equations $m - 1 = m$ and $m^2 - 1 = m$ have \emph{no} integer solutions whatsoever.
+\end{enumerate}
+
+Table~\ref{tab:summary} summarizes the exact topology, strict contact geometry, dimension formulas, and minimal counterexamples across all canonical domains for a Hermitian/symmetric matrix with maximum-eigenvalue multiplicity $m \ge 1$.
+
+\begin{table}[ht!]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.28}
+\begin{tabular}{@{}llllll@{}}
+\hline
+\textbf{Domain} & \textbf{Contact locus} & \textbf{Dimension} & \textbf{Strict contact?} & \textbf{Equals $m$?} & \textbf{Counterexample} \\
+\hline
+Real sphere $S^{n-1}$ & $S^{m-1}$ & $m - 1$ ($\RR$) & Even $m$ only & Never ($m \ge 1$) & $m=1$: $S^0$, $0 \neq 1$ \\
+Real proj.\ $\RP^{n-1}$ & $\RP^{m-1}$ & $m - 1$ ($\RR$) & Even $m \ge 2$ & Never ($m \ge 1$) & $m=1$: pt, $0 \neq 1$ \\
+Complex sphere $S^{2n-1}$ & $S^{2m-1}$ & $2m - 1$ ($\RR$) & Yes ($\forall m \ge 1$) & Only $m = 1$ & $m=2$: $S^3$, $3 \neq 2$ \\
+Complex proj.\ $\CP^{n-1}$ & $\CP^{m-1}$ & $m - 1$ ($\CC$) & Never ($\dim_{\RR}$ even) & Never ($m \ge 1$) & $m=1$: pt, $0 \neq 1$ \\
+Complex proj.\ $\CP^{n-1}$ & $\CP^{m-1}$ & $2m - 2$ ($\RR$) & Never ($\dim_{\RR}$ even) & Only $m = 2$ & $m=1$: $0$; $m=3$: $4$ \\
+Density states $\cD_n(\CC)$ & $\cD_m(\CC)$ & $m^2 - 1$ ($\RR$) & Boundary ($m \ge 2$) & Never ($m \in \ZZ$) & $m=1$: $0$; $m=2$: $3$ \\
+Real states $\cD_n(\RR)$ & $\cD_m(\RR)$ & $\frac{m(m+1)}{2} - 1$ & Boundary ($m \ge 2$) & Only $m = 2$ & $m=1$: $0$; $m=3$: $5$ \\
+\hline
+\end{tabular}
+\caption{Exact contact loci and dimensions for a Hermitian/symmetric matrix $A$ whose maximum eigenvalue $\lambda_{\max}$ has multiplicity $m \ge 1$. Every normalized domain refutes $\dim = m$.}
+\label{tab:summary}
+\end{table}
+
+Beyond single Hermitian extremal eigenvalues, Section~\ref{sec:obstructions} establishes three further structural obstructions: (a)~non-normal matrices (where algebraic/geometric eigenvalue multiplicities decouple completely from extremal Rayleigh loci), (b)~multidimensional flat extremal faces of complex and joint numerical ranges $W(A_1, \dots, A_k)$, and (c)~interior spectral indices and Morse/inertia indices (where spherical level sets need not even be smooth manifolds).
+
+\section{Preliminaries and Geometric Formulations}
+\label{sec:prelim}
+
+Let $\FF \in \{\RR, \CC\}$ and equip $\FF^n$ ($n \ge 1$) with the standard inner product $\langle x, y \rangle = \sum_{j=1}^n \overline{x_j} y_j$ and norm $\|x\| = \sqrt{\langle x, x \rangle}$.
+
+\begin{definition}[Rayleigh quotient, numerical range, and joint numerical range]
+For $A \in M_n(\FF)$ and $x \in \FF^n \setminus \{0\}$, the \emph{Rayleigh quotient} is
+\[
+  R_A(x) = \frac{\langle x, A x \rangle}{\|x\|^2}.
+\]
+Over $\FF = \CC$, the image $W(A) = \{R_A(z) : z \in \CC^n \setminus \{0\}\} \subset \CC$ is the \emph{numerical range} (field of values) of $A$, which is compact and convex by the Hausdorff--Toeplitz theorem. More generally, for a tuple $\mathbf{A} = (A_1, \dots, A_k)$ of Hermitian matrices $A_r \in \Herm_n(\CC)$, the \emph{joint Rayleigh map} is
+\[
+  R_{\mathbf{A}}(z) = \bigl(R_{A_1}(z), \dots, R_{A_k}(z)\bigr) \in \RR^k,
+\]
+with \emph{joint numerical range} $W(\mathbf{A}) = R_{\mathbf{A}}(\CC^n \setminus \{0\}) \subset \RR^k$ (identifying $W(A_1 + i A_2) \cong W(A_1, A_2)$).
+\end{definition}
+
+\begin{definition}[Extremal faces and normalized contact loci]
+Let $K \subset \RR^k$ be a nonempty compact convex set (such as $W(A)$ for $k \in \{1, 2\}$ or the convex hull $\conv W(\mathbf{A})$). A nonempty convex subset $F \subseteq K$ is an \emph{extremal face} of $K$ if $t y_1 + (1 - t) y_2 \in F$ with $y_1, y_2 \in K$ and $t \in (0, 1)$ implies $y_1, y_2 \in F$. An extremal face $F$ is \emph{exposed} if there exists a nonzero supporting covector $c \in \RR^k \setminus \{0\}$ such that
+\[
+  F = F_c(K) = \Bigl\{y \in K : \langle c, y \rangle = \max_{w \in K} \langle c, w \rangle\Bigr\}.
+\]
+Because $R_A(t x) = R_A(x)$ for all $t \in \FF^\times$, $R_A$ descends canonically to normalized state spaces:
+\begin{enumerate}
+  \item \textbf{Real unit sphere} $S^{n-1} = \{x \in \RR^n : \|x\| = 1\}$, with $M_{\RR, S}(A; F) = \{x \in S^{n-1} : R_A(x) \in F\}$;
+  \item \textbf{Real projective space} $\RP^{n-1} = (\RR^n \setminus \{0\}) / \RR^\times$, with $M_{\RP}(A; F) = \{[x] \in \RP^{n-1} : R_A(x) \in F\}$;
+  \item \textbf{Complex unit sphere} $S^{2n-1} = \{z \in \CC^n : \|z\| = 1\}$, with $M_{\CC, S}(A; F) = \{z \in S^{2n-1} : R_A(z) \in F\}$;
+  \item \textbf{Complex projective space} $\CP^{n-1} = (\CC^n \setminus \{0\}) / \CC^\times$, with $M_{\CP}(A; F) = \{[z] \in \CP^{n-1} : R_A(z) \in F\}$;
+  \item \textbf{Density-matrix state spaces} $\cD_n(\FF) = \{\rho \in \Herm_n(\FF) : \rho \succeq 0,\; \tr(\rho) = 1\}$, onto which $R_{\mathbf{A}}$ lifts linearly as $\rho \mapsto \bigl(\tr(A_1 \rho), \dots, \tr(A_k \rho)\bigr)$ with extremal face $F_{\max}(A) = \{\rho \in \cD_n(\FF) : \tr(A \rho) = \lambda_{\max}\}$.
+\end{enumerate}
+For a single Hermitian matrix $A$ ($k = 1$), $W(A) = [\lambda_{\min}(A), \lambda_{\max}(A)] \subset \RR$ has proper extremal faces $\{\lambda_{\max}(A)\}$ and $\{\lambda_{\min}(A)\}$ (coinciding when $A = \lambda I_n$). Since $R_{-A}(x) = -R_A(x)$ exchanges $\lambda_{\min}(A)$ and $\lambda_{\max}(-A)$, every statement at $\lambda_{\min}$ reduces by negation to $\lambda_{\max}$; we write $M_{\bullet}(A)$ for $M_{\bullet}(A; \{\lambda_{\max}\})$.
+\end{definition}
+
+\begin{remark}[Two meanings of ``contact manifold'']
+\label{rem:contact_meanings}
+In convex and variational geometry, the preimage $M_{\bullet}(A; F)$ where $R_{\mathbf{A}}$ meets a supporting hyperplane of $W(\mathbf{A})$ along an extremal face $F$ is the \emph{tangency} or \emph{contact locus} of $F$. In differential topology, a \emph{strict contact manifold} is a smooth manifold $M$ of odd real dimension $2d + 1$ ($d \ge 0$) carrying a $1$-form $\alpha \in \Omega^1(M)$ such that $\alpha \wedge (d\alpha)^d$ is nowhere vanishing. Both interpretations are analyzed below: the dimension claim $\dim M = m$ fails under the first interpretation on every normalized domain, and fails even more starkly under the second because no strict contact manifold can ever have even real dimension $m = 2k$.
+\end{remark}
+
+\section{Positive Core: Linear-Cone Characterization}
+\label{sec:positive}
+
+We first prove the exact linear-algebraic characterization that motivates the conjecture and confirms non-vacuity of our formal definitions.
+
+\begin{theorem}[Linear-cone characterization for Hermitian matrices]
+\label{thm:linear_cone}
+Let $\FF \in \{\RR, \CC\}$ and let $A \in \Herm_n(\FF)$ have ordered eigenvalues $\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_n$, where $\lambda_{\max} = \lambda_1$ has multiplicity $m \in \{1, \dots, n\}$ (so $\lambda_1 = \dots = \lambda_m > \lambda_{m+1} \ge \dots \ge \lambda_n$).
+\begin{enumerate}
+  \item[(a)] For every $x \in \FF^n \setminus \{0\}$, $R_A(x) \le \lambda_{\max}$, and equality $R_A(x) = \lambda_{\max}$ holds if and only if $A x = \lambda_{\max} x$.
+  \item[(b)] Adjoining the origin yields the linear eigenspace
+  \[
+    \{0\} \cup \{x \in \FF^n \setminus \{0\} : R_A(x) = \lambda_{\max}\} = \ker(A - \lambda_{\max} I_n),
+  \]
+  which is an $\FF$-linear subspace of $\FF$-dimension $m$ (hence of real dimension $m$ when $\FF = \RR$, and of real dimension $2m \neq m$ when $\FF = \CC$).
+  \item[(c)] More generally, if $\mathbf{A} = (A_1, \dots, A_k) \in \Herm_n(\FF)^k$ and $F_c = \{y \in \conv W(\mathbf{A}) : \langle c, y \rangle = \mu_c\}$ is the exposed face cut out by $c \in \RR^k \setminus \{0\}$ with directional operator $A_c = \sum_{r=1}^k c_r A_r$ and $\mu_c = \lambda_{\max}(A_c)$, then for $x \neq 0$,
+  \[
+    R_{\mathbf{A}}(x) \in F_c \iff R_{A_c}(x) = \lambda_{\max}(A_c) \iff A_c x = \lambda_{\max}(A_c) x.
+  \]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By the spectral theorem, choose an orthonormal eigenbasis $\{u_1, \dots, u_n\}$ of $\FF^n$ with $A u_j = \lambda_j u_j$. Expanding $x = \sum_{j=1}^n \xi_j u_j$ ($\xi_j = \langle u_j, x \rangle \in \FF$) gives $\|x\|^2 = \sum_{j=1}^n |\xi_j|^2$ and $\langle x, A x \rangle = \sum_{j=1}^n \lambda_j |\xi_j|^2$ (which is real since $A^* = A$). Subtracting yields the exact spectral-gap identity
+\begin{equation}
+\label{eq:spectral_gap}
+  \lambda_{\max} \|x\|^2 - \langle x, A x \rangle = \sum_{j=1}^n (\lambda_{\max} - \lambda_j) |\xi_j|^2 = \sum_{j=m+1}^n (\lambda_{\max} - \lambda_j) |\xi_j|^2 \ge 0,
+\end{equation}
+because $\lambda_{\max} - \lambda_j = 0$ for $1 \le j \le m$ and $\lambda_{\max} - \lambda_j > 0$ for $j > m$. Dividing by $\|x\|^2 > 0$ gives $R_A(x) \le \lambda_{\max}$. Moreover, the sum in \eqref{eq:spectral_gap} vanishes if and only if $\xi_{m+1} = \dots = \xi_n = 0$, which holds if and only if $x \in \mathrm{span}_{\FF}\{u_1, \dots, u_m\} = \ker(A - \lambda_{\max} I_n)$, proving~(a) and~(b) (with real basis $\{u_1, i u_1, \dots, u_m, i u_m\}$ of size $2m$ when $\FF = \CC$). Part~(c) follows immediately by applying~(a) to the Hermitian operator $A_c$, since $\langle c, R_{\mathbf{A}}(x) \rangle = R_{A_c}(x)$ and $\max_{y \in \conv W(\mathbf{A})} \langle c, y \rangle = \max_{\|x\|=1} R_{A_c}(x) = \lambda_{\max}(A_c)$.
+\end{proof}
+
+\section{Universal Refutation Across All Normalized State Domains}
+\label{sec:refutation}
+
+We now determine the exact smooth and convex structure of the extremal contact loci on all five normalized state domains and prove that $\dim = m$ fails on each of them.
+
+\begin{theorem}[Exact dimension formulas and refutation across Domains 1--5]
+\label{thm:five_domains}
+Let $A \in \Herm_n(\FF)$ ($n \ge 1$) have maximum eigenvalue $\lambda_{\max}$ of multiplicity $m \in \{1, \dots, n\}$.
+\begin{enumerate}
+  \item[(1)] \textbf{Real unit sphere ($\FF = \RR$):} $M_{\RR, S}(A)$ is diffeomorphic to $S^{m-1}$ and has real dimension
+  \[
+    \dim_{\RR} M_{\RR, S}(A) = m - 1 \neq m \qquad \text{for every } m \ge 1.
+  \]
+  \item[(2)] \textbf{Real projective space ($\FF = \RR$):} $M_{\RP}(A)$ is diffeomorphic to $\RP^{m-1}$ and has real dimension
+  \[
+    \dim_{\RR} M_{\RP}(A) = m - 1 \neq m \qquad \text{for every } m \ge 1.
+  \]
+  \item[(3)] \textbf{Complex unit sphere ($\FF = \CC$):} $M_{\CC, S}(A)$ is diffeomorphic to $S^{2m-1}$, inherits a strict Sasakian contact structure from $\alpha = \im\langle z, dz \rangle$, and has real dimension
+  \[
+    \dim_{\RR} M_{\CC, S}(A) = 2m - 1, \qquad \text{which satisfies } 2m - 1 \neq m \text{ for every } m \ge 2.
+  \]
+  \item[(4)] \textbf{Complex projective space ($\FF = \CC$):} $M_{\CP}(A)$ is biholomorphic to $\CP^{m-1}$ and has dimensions
+  \[
+    \dim_{\CC} M_{\CP}(A) = m - 1 \neq m \;\; (\forall m \ge 1), \qquad
+    \dim_{\RR} M_{\CP}(A) = 2m - 2 \neq m \;\; (\forall m \neq 2).
+  \]
+  \item[(5)] \textbf{Density-matrix state spaces:} $F_{\max}(A) = \{\rho \in \cD_n(\FF) : \tr(A \rho) = \lambda_{\max}\}$ is affinely isomorphic to $\cD_m(\FF)$, a compact convex body (with nonempty boundary for $m \ge 2$) of real affine dimension
+  \[
+    \dim_{\RR} F_{\max}^{\CC}(A) = m^2 - 1 \neq m \;\; (\forall m \ge 1), \quad
+    \dim_{\RR} F_{\max}^{\RR}(A) = \frac{m(m+1)}{2} - 1 \neq m \;\; (\forall m \neq 2).
+  \]
+\end{enumerate}
+\end{theorem}
+
+We establish Theorem~\ref{thm:five_domains} through four propositions that exhibit explicit coordinate charts, tangent spaces, contact forms, and minimal counterexamples. Throughout, let $U \in O_n(\RR)$ (resp.\ $U \in U_n(\CC)$) be an orthogonal (resp.\ unitary) matrix diagonalizing $A$, so $U^* A U = \diag(\lambda_1, \dots, \lambda_n)$ with $\lambda_1 = \dots = \lambda_m = \lambda_{\max} > \lambda_{m+1} \ge \dots \ge \lambda_n$. Since $x \mapsto U x$ is an isometry preserving inner products and traces, we may pass via $U$ to the model diagonal form while retaining full generality.
+
+\begin{proposition}[Domains 1 and 2: $S^{n-1}$ and $\RP^{n-1}$]
+\label{prop:real_sphere_proj}
+For $A \in \Sym_n(\RR)$ with $\lambda_{\max}$ of multiplicity $m \ge 1$, $M_{\RR, S}(A) = U(S^{m-1} \times \{0\}^{n-m})$ and $M_{\RP}(A) = \{[U(y, 0)] : y \in \RR^m \setminus \{0\}\} \cong \RP^{m-1}$, both of smooth real dimension $m - 1 \neq m$. At $m = 1$, $M_{\RR, S}(A) = \{+u_1, -u_1\} \cong S^0$ is a $2$-point discrete set and $M_{\RP}(A) = \{[u_1]\}$ is a singleton, both of dimension $0 \neq 1$.
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:linear_cone}(a), for $x \in S^{n-1}$, $R_A(x) = \lambda_{\max}$ holds if and only if $x \in S^{n-1} \cap \ker(A - \lambda_{\max} I_n)$. Writing $x = U(\xi_1, \dots, \xi_n)^\top$, this is equivalent to $\xi_{m+1} = \dots = \xi_n = 0$ and $\sum_{j=1}^m \xi_j^2 = 1$, identifying $M_{\RR, S}(A)$ with $S^{m-1}$. At the basepoint $u_1 = U e_1 \in M_{\RR, S}(A)$, differentiating $\|x\|^2 = 1$ and $(A - \lambda_{\max} I_n) x = 0$ gives the tangent space
+\[
+  T_{u_1} M_{\RR, S}(A) = \{v \in \RR^n : \langle u_1, v \rangle = 0 \text{ and } A v = \lambda_{\max} v\} = \mathrm{span}_{\RR}\{u_2, \dots, u_m\},
+\]
+which has exact dimension $m - 1$. Explicitly, rational stereographic projection from $-u_1$,
+\[
+  \sigma : \RR^{m-1} \longrightarrow M_{\RR, S}(A) \setminus \{-u_1\}, \qquad
+  \sigma(y) = \frac{1 - \|y\|^2}{1 + \|y\|^2}\, u_1 + \sum_{k=1}^{m-1} \frac{2 y_k}{1 + \|y\|^2}\, u_{k+1},
+\]
+is a global smooth chart on $M_{\RR, S}(A) \setminus \{-u_1\}$ because $(1 - \|y\|^2)^2 + \sum_{k=1}^{m-1} (2 y_k)^2 = (1 + \|y\|^2)^2$, with smooth inverse $y_k = \langle u_{k+1}, x \rangle / (1 + \langle u_1, x \rangle)$. For $\RP^{n-1}$, the inhomogeneous affine chart $\RR^{m-1} \to M_{\RP}(A)$ sending $y \mapsto [u_1 + \sum_{k=1}^{m-1} y_k u_{k+1}]$ is a diffeomorphism onto the open dense neighborhood $\{[x] \in M_{\RP}(A) : \langle u_1, x \rangle \neq 0\}$, so $\dim_{\RR} M_{\RP}(A) = m - 1$. Since $m - 1 = m$ is impossible for every $m \in \ZZ$, both dimensions never equal $m$. In particular, for $n = 2$, $m = 1$, and $A = \diag(2, 1)$, solving $x_1^2 + x_2^2 = 1$ and $2 x_1^2 + x_2^2 = 2$ gives $x_2 = 0$ and $x_1 = \pm 1$, so $M_{\RR, S}(A) = \{(\pm 1, 0)^\top\}$ and $M_{\RP}(A) = \{[(1, 0)^\top]\}$, both $0$-dimensional rather than $1$-dimensional.
+\end{proof}
+
+\begin{proposition}[Domain 3: $S^{2n-1}$ and strict Sasakian contact geometry]
+\label{prop:complex_sphere}
+Let $A \in \Herm_n(\CC)$ have $\lambda_{\max}$ of multiplicity $m \ge 1$. Then:
+\begin{enumerate}
+  \item[(a)] $M_{\CC, S}(A) = S^{2n-1} \cap \ker_{\CC}(A - \lambda_{\max} I_n) = U(S^{2m-1} \times \{0\}^{n-m})$ is a compact smooth submanifold of real dimension $2m - 1$.
+  \item[(b)] Restricting the standard contact $1$-form $\alpha_z(v) = \im\langle z, v \rangle$ on $S^{2n-1}$ equips $M_{\CC, S}(A)$ with a genuine \emph{strict contact structure}: the Reeb vector field $R(z) = i z$ is tangent to $M_{\CC, S}(A)$ with $\alpha_z(R(z)) = 1$, and on the $(2m - 2)$-dimensional contact distribution $\xi_z = \ker(\alpha_z|_{T_z M_{\CC, S}(A)})$, the exterior derivative $d\alpha(v, w) = 2\,\im\langle v, w \rangle$ is a nondegenerate symplectic $2$-form.
+  \item[(c)] $\dim_{\RR} M_{\CC, S}(A) = 2m - 1$ equals $m$ \emph{if and only if} $m = 1$, and fails $2m - 1 = m$ for every $m \ge 2$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:linear_cone}(a), $z \in S^{2n-1}$ satisfies $R_A(z) = \lambda_{\max}$ if and only if $z = \sum_{j=1}^m \zeta_j u_j$ with $\sum_{j=1}^m ((\re\,\zeta_j)^2 + (\im\,\zeta_j)^2) = 1$, giving $U(S^{2m-1} \times \{0\}^{n-m})$. At $u_1 \in M_{\CC, S}(A)$, differentiating $\langle z, z \rangle = 1$ gives $\re\langle u_1, v \rangle = 0$, so
+\[
+  T_{u_1} M_{\CC, S}(A) = \{v \in \ker_{\CC}(A - \lambda_{\max} I_n) : \re\langle u_1, v \rangle = 0\}
+  = \RR (i u_1) \oplus \bigoplus_{j=2}^m \bigl(\RR u_j \oplus \RR(i u_j)\bigr),
+\]
+which has real dimension $1 + 2(m - 1) = 2m - 1$.
+
+For~(b), at any $z \in M_{\CC, S}(A)$, $A(i z) = i (A z) = \lambda_{\max}(i z)$ and $\re\langle z, i z \rangle = \re(i \|z\|^2) = 0$, so $R(z) = i z \in T_z M_{\CC, S}(A)$ and $\alpha_z(i z) = \im(i \|z\|^2) = 1$. Writing $z_j = x_j + i y_j$, we have $\alpha = \sum_{j=1}^n (x_j dy_j - y_j dx_j)$ and $d\alpha = 2 \sum_{j=1}^n dx_j \wedge dy_j$, i.e., $d\alpha(v, w) = 2\,\im\langle v, w \rangle$. The contact hyperplane $\xi_z = \{v \in \ker_{\CC}(A - \lambda_{\max} I_n) : \langle z, v \rangle = 0\}$ is a $\CC$-linear subspace (invariant under $v \mapsto i v$) of real dimension $2m - 2$. If $v \in \xi_z$ satisfies $d\alpha(v, w) = 0$ for all $w \in \xi_z$, then testing $w = i v \in \xi_z$ yields $0 = 2\,\im\langle v, i v \rangle = 2\|v\|^2$, whence $v = 0$. Thus $d\alpha|_{\xi_z}$ is nondegenerate and $\alpha \wedge (d\alpha)^{m-1} \neq 0$ everywhere on $M_{\CC, S}(A)$.
+
+For~(c), $2m - 1 = m \iff m = 1$. For every $m \ge 2$, $2m - 1 > m$; explicitly, at $n = 3, m = 2$ with $A = \diag(2, 2, 1)$, $M_{\CC, S}(A) = S^3 \times \{0\}$ has real dimension $3 \neq 2$. Moreover, as noted in Remark~\ref{rem:contact_meanings}, any strict contact manifold has odd dimension $2d + 1$, providing a topological parity obstruction against $\dim M = m$ for every even multiplicity $m = 2k$.
+\end{proof}
+
+\begin{proposition}[Domain 4: Complex projective space $\CP^{n-1}$]
+\label{prop:complex_proj}
+For $A \in \Herm_n(\CC)$ with $\lambda_{\max}$ of multiplicity $m \ge 1$, $M_{\CP}(A) = \{[z] \in \CP^{n-1} : z \in \ker_{\CC}(A - \lambda_{\max} I_n) \setminus \{0\}\} \cong \CP^{m-1}$ has complex dimension $m - 1 \neq m$ for all $m \ge 1$ and real dimension $2m - 2$, which disagrees with $m$ for every $m \neq 2$.
+\end{proposition}
+
+\begin{proof}
+Passing to the quotient $S^{2m-1} / U(1) = \CP^{m-1}$ via the inhomogeneous holomorphic chart $\CC^{m-1} \to M_{\CP}(A)$, $w \mapsto [u_1 + \sum_{k=1}^{m-1} w_k u_{k+1}]$, identifies $T_{[u_1]} M_{\CP}(A) \cong \{v \in \ker_{\CC}(A - \lambda_{\max} I_n) : \langle u_1, v \rangle = 0\} = \mathrm{span}_{\CC}\{u_2, \dots, u_m\}$, which has complex dimension $m - 1$ and real dimension $2(m - 1) = 2m - 2$. Clearly $m - 1 \neq m$ for all $m \ge 1$, while $2m - 2 = m \iff m = 2$: at $m = 1$ ($A = \diag(2, 1)$), $M_{\CP}(A) = \{[e_1]\}$ has real dimension $0 \neq 1$; at $m = 3$ ($A = \diag(2, 2, 2, 1)$), $M_{\CP}(A) \cong \CP^2$ has real dimension $4 \neq 3$ (and as a compact K\"ahler manifold of even real dimension $2m - 2$, $\CP^{m-1}$ never carries a strict contact structure).
+\end{proof}
+
+\begin{proposition}[Domain 5: Density-matrix extremal faces $\cD_n(\CC)$ and $\cD_n(\RR)$]
+\label{prop:density_faces}
+Let $A \in \Herm_n(\FF)$ ($\FF \in \{\RR, \CC\}$) have $\lambda_{\max}$ of multiplicity $m \in \{1, \dots, n\}$. Then the extremal face $F_{\max}^{\FF}(A) = \{\rho \in \cD_n(\FF) : \tr(A \rho) = \lambda_{\max}\}$ consists precisely of all $U \smmat{\sigma & 0 \\ 0 & 0} U^*$ with $\sigma \in \cD_m(\FF)$, contains the relative-interior point $\rho_0 = \frac{1}{m} \sum_{j=1}^m u_j u_j^*$, and has bilateral tangent space at $\rho_0$ isomorphic to $\{H_0 \in \Herm_m(\FF) : \tr(H_0) = 0\}$, of exact real affine dimension:
+\begin{enumerate}
+  \item[(a)] $\dim_{\RR} F_{\max}^{\CC}(A) = m^2 - 1 \neq m$ for \emph{every} $m \ge 1$;
+  \item[(b)] $\dim_{\RR} F_{\max}^{\RR}(A) = \frac{1}{2}m(m+1) - 1$, which fails to equal $m$ at $m = 1$ and for \emph{every} $m \ge 3$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Write $\tilde{\rho} = U^* \rho U \in \cD_n(\FF)$, so $\tilde{\rho}^* = \tilde{\rho}$, $\tilde{\rho} \succeq 0$, $\sum_{j=1}^n \tilde{\rho}_{j,j} = 1$, and $\tr(A \rho) = \sum_{j=1}^n \lambda_j \tilde{\rho}_{j,j}$. Since $\tilde{\rho}_{j,j} = \langle e_j, \tilde{\rho} e_j \rangle \ge 0$, we have
+\[
+  \lambda_{\max} - \tr(A \rho) = \sum_{j=m+1}^n (\lambda_{\max} - \lambda_j) \tilde{\rho}_{j,j} \ge 0,
+\]
+with equality if and only if $\tilde{\rho}_{j,j} = 0$ for every $j > m$. Now if $\tilde{\rho} \succeq 0$ and $\tilde{\rho}_{j,j} = 0$, then for every $1 \le i \le n$ and $t \in \RR$:
+\[
+  0 \le \langle e_i + t e_j, \tilde{\rho}(e_i + t e_j) \rangle = \tilde{\rho}_{i,i} + 2 t\,\re(\tilde{\rho}_{i,j}), \qquad
+  0 \le \langle e_i + i t e_j, \tilde{\rho}(e_i + i t e_j) \rangle = \tilde{\rho}_{i,i} + 2 t\,\im(\tilde{\rho}_{i,j}),
+\]
+which forces $\re(\tilde{\rho}_{i,j}) = \im(\tilde{\rho}_{i,j}) = 0$ (otherwise choosing $t = -(\tilde{\rho}_{i,i} + 1)/\re(\tilde{\rho}_{i,j})$ yields $-1 \ge 0$). Thus $\tilde{\rho} = \smmat{\sigma & 0 \\ 0 & 0}$ with $\sigma \in \cD_m(\FF)$, and conversely every such $\sigma$ satisfies $\tr(A \rho) = \lambda_{\max} \tr(\sigma) = \lambda_{\max}$.
+
+At $\sigma_0 = \frac{1}{m} I_m \in \cD_m(\FF)$, every Hermitian matrix $H_0 \in \Herm_m(\FF)$ with $\tr(H_0) = 0$ satisfies $\sigma_0 \pm \varepsilon H_0 \in \cD_m(\FF)$ whenever $0 < \varepsilon \le (m \|H_0\|_{\mathrm{op}})^{-1}$ (and conversely any bilateral perturbation $\sigma_0 \pm \varepsilon H_0 \in \cD_m(\FF)$ satisfies $H_0^* = H_0$ and $\tr(H_0) = 0$). Over $\CC$, $\Herm_m(\CC)$ has real basis $\{E_{k,k}\}_{1 \le k \le m} \cup \{E_{i,j} + E_{j,i}, i(E_{i,j} - E_{j,i})\}_{1 \le i < j \le m}$ of dimension $m + 2\binom{m}{2} = m^2$, so imposing $\tr(H_0) = 0$ leaves dimension $m^2 - 1$ (basis $\{E_{k,k} - E_{1,1}\}_{2 \le k \le m}$ plus the $m(m-1)$ off-diagonal pairs). Since $m^2 - m - 1 = 0$ has discriminant $\Delta = 5 \notin \QQ^2$, $m^2 - 1 \neq m$ for every integer $m$ ($0, 3, 8, \dots \neq 1, 2, 3, \dots$). Over $\RR$, $\Sym_m(\RR)$ has dimension $\frac{1}{2}m(m+1)$, so $\tr(H_0) = 0$ leaves dimension $\frac{1}{2}m(m+1) - 1$; solving $\frac{1}{2}m(m+1) - 1 = m \iff m^2 - m - 2 = (m - 2)(m + 1) = 0$ shows failure at $m = 1$ ($0 \neq 1$) and for all $m \ge 3$ ($5 \neq 3$ at $m = 3$). Finally, for $m \ge 2$, $\cD_m(\FF)$ is a compact convex body with boundary (e.g.\ the closed $3$-ball $B^3$ for $\cD_2(\CC)$ and closed disk $D^2$ for $\cD_2(\RR)$), not a boundaryless smooth manifold.
+\end{proof}
+
+\section{Obstructions Beyond Extremal Hermitian Eigenvalues}
+\label{sec:obstructions}
+
+Even if one relaxes Hermiticity, considers genuinely multidimensional extremal faces of $W(\mathbf{A})$, or reinterprets ``index'', the conjecture fails on structural grounds.
+
+\begin{proposition}[Non-normal matrices]
+\label{prop:nonnormal}
+For the non-normal matrix $A = \smmat{0 & 2 \\ 0 & 0} \in M_2(\RR)$, the characteristic polynomial is $\chi_A(\mu) = \mu^2$, so $\lambda = 0$ is the unique eigenvalue with algebraic multiplicity $m_{\mathrm{alg}} = 2$ (and geometric multiplicity $m_{\mathrm{geom}} = 1$). Nevertheless:
+\begin{enumerate}
+  \item[(a)] Over $\RR$, $R_A(x) = \frac{2 x_1 x_2}{x_1^2 + x_2^2} = R_{H(A)}(x)$ where $H(A) = \frac{1}{2}(A + A^\top) = \smmat{0 & 1 \\ 1 & 0}$, so $W_{\RR}(A) = [-1, 1]$ has maximum $+1 \neq 0$, attained on $\RP^1$ at the unique ray $[(1, 1)^\top]$ of dimension $0 \notin \{1, 2\}$ (and on $S^1$ at $\{\pm \frac{1}{\sqrt{2}}(1, 1)^\top\}$ of dimension $0 \notin \{1, 2\}$).
+  \item[(b)] Over $\CC$, $W(A) = \{w \in \CC : |w| \le 1\}$ is the closed unit disk; every boundary point $e^{i\theta} \in \partial W(A)$ is a $0$-dimensional exposed face attained at the unique ray $[(1, e^{i\theta})^\top] \in \CP^1$ ($\dim_{\RR} = 0 \notin \{1, 2\}$) and phase circle $S^1 \subset S^3$ ($\dim_{\RR} = 1 \neq 2 = m_{\mathrm{alg}}$).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Clearly $\det(\mu I_2 - A) = \mu^2$ and $\ker A = \RR e_1$. For $x = (x_1, x_2)^\top \in \RR^2 \setminus \{0\}$, $1 - R_A(x) = \frac{(x_1 - x_2)^2}{x_1^2 + x_2^2} \ge 0$, with equality if and only if $x_1 = x_2 \neq 0$, i.e., $[x] = [(1, 1)^\top] \in \RP^1$. Over $\CC$, for $\|z\|^2 = |z_1|^2 + |z_2|^2 = 1$, $|R_A(z)| = 2|\overline{z_1} z_2| \le |z_1|^2 + |z_2|^2 = 1$, with $\re(e^{-i\theta} 2 \overline{z_1} z_2) = 1 \iff z_2 = e^{i\theta} z_1$ and $|z_1| = |z_2| = 1/\sqrt{2}$.
+\end{proof}
+
+\begin{proposition}[Joint Rayleigh quotients and $1$-dimensional extremal faces of $W(A)$]
+\label{prop:joint_face}
+Let $A_1 = \diag(1, 1, 0, 0)$ and $A_2 = \diag(0, 0, 1, 0)$ on $\FF^4$ (equivalently $A = A_1 + i A_2 = \diag(1, 1, i, 0) \in M_4(\CC)$). Then $W(A_1, A_2) = \{(u, v) \in \RR^2 : u \ge 0,\; v \ge 0,\; u + v \le 1\}$ is a right triangle with a $1$-dimensional exposed hypotenuse face
+\[
+  F = \{(u, v) \in W(A_1, A_2) : u + v = 1\} = \conv\{(1, 0), (0, 1)\}.
+\]
+The supporting operator $A_1 + A_2 = \diag(1, 1, 1, 0)$ has maximum eigenvalue $1$ of multiplicity $m_F = 3$ (while $A$ has individual eigenvalue multiplicities $2, 1, 1$), yet the contact locus $R_{(A_1, A_2)}^{-1}(F) = \{z_4 = 0\}$ has real dimension $2$ on $S^3$ and $\RP^3$, $5$ on $S^7$, $4$ (and complex dimension $2$) on $\CP^3$, $8$ on $\cD_4(\CC)$, and $5$ on $\cD_4(\RR)$---none of which equals $m_F = 3$.
+\end{proposition}
+
+\begin{proof}
+For $\|z\|^2 = 1$, $R_{A_1}(z) = |z_1|^2 + |z_2|^2 \ge 0$ and $R_{A_2}(z) = |z_3|^2 \ge 0$, with $R_{A_1}(z) + R_{A_2}(z) = 1 - |z_4|^2 \le 1$; evaluating at $e_1$, $e_3$, and $(e_1 + e_3)/\sqrt{2}$ gives $(1, 0)$, $(0, 1)$, and $(\frac{1}{2}, \frac{1}{2})$, sweeping out the triangle by convexity. By Theorem~\ref{thm:linear_cone}(c), $R_{(A_1, A_2)}(z) \in F \iff R_{A_1 + A_2}(z) = 1 \iff z_4 = 0$, so Theorem~\ref{thm:five_domains} applied to $A_1 + A_2$ with $m_F = 3$ yields the stated dimensions $3 - 1 = 2$, $2(3) - 1 = 5$, $2(3) - 2 = 4$, $3^2 - 1 = 8$, and $\frac{3 \cdot 4}{2} - 1 = 5$.
+\end{proof}
+
+\begin{proposition}[Interior spectral indices, singular level sets, and Morse/inertia indices]
+\label{prop:interior_morse}\leavevmode
+\begin{enumerate}
+  \item[(a)] \textbf{Singular level sets at interior eigenvalues:} For $A = \diag(1, 0, -1)$ on $\RR^3$, the interior eigenvalue $\lambda_2 = 0$ has multiplicity $m = 1$, yet the spherical level set $L_0 = \{x \in S^2 : R_A(x) = 0\}$, given explicitly by $\{x \in S^2 : x_1^2 - x_3^2 = 0\}$, is \emph{not a topological manifold}: it is the union of two great circles $\{x_1 = x_3\} \cap S^2$ and $\{x_1 = -x_3\} \cap S^2$ meeting transversely at $(0, \pm 1, 0)^\top$. Algebraically, its Zariski tangent space
+  \[
+    T_x^{\mathrm{Zar}} L_0 = \{v \in \RR^3 : \langle x, v \rangle = 0 \text{ and } x_1 v_1 - x_3 v_3 = 0\}
+  \]
+  has dimension $1$ at $q = (\frac{2}{3}, \frac{1}{3}, \frac{2}{3})^\top \in L_0$ (spanned by $(1, -4, 1)^\top$) and jumps to dimension $2$ at $p = (0, 1, 0)^\top \in L_0$. Moreover, for $\diag(1, 0, -1, -1)$ on $S^3$ ($m = 1$), the smooth locus of $R_A^{-1}(0) \cap S^3$ has dimension $n - 2 = 2 \neq 1 = m$, while the critical locus $\{x \in S^{n-1} : \nabla_{S^{n-1}} R_A(x) = 0,\; R_A(x) = \lambda_k\} \cong S^{m-1}$ still has dimension $m - 1 \neq m$.
+  \item[(b)] \textbf{Morse index and Sylvester inertia index:} As a Morse--Bott function on $S^{n-1}$ or $\RP^{n-1}$, the transverse Hessian of $R_A$ along $M_{\max}(A)$ has eigenvalues $2(\lambda_j - \lambda_{\max}) < 0$ ($m < j \le n$), so its Morse index is $n - m$ (which depends on $n$, e.g.\ $2 \neq 0 = \dim S^0$ for $\diag(2, 1, 1)$), while the Morse index at $M_{\min}(A)$ is identically $0$ (which differs from $\dim M_{\min} = m_{\min} - 1$ whenever $m_{\min} \ge 2$). Finally, translating $A \mapsto A + c I_n$ leaves all contact loci $M_{\bullet}(A)$ unchanged while shifting Sylvester's positive inertia index $i_+(A + c I_n)$ arbitrarily between $0$ and $n$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+In~(a), $\|q\|^2 = \frac{4 + 1 + 4}{9} = 1$ and $R_A(q) = \frac{4}{9} - \frac{4}{9} = 0$; at $q$, the equations $2 v_1 + v_2 + 2 v_3 = 0$ and $v_1 - v_3 = 0$ reduce to $v_3 = v_1$ and $v_2 = -4 v_1$, giving a $1$-dimensional Zariski tangent space, whereas at $p = (0, 1, 0)^\top$, $x_1 v_1 - x_3 v_3 = 0$ vanishes identically and $\langle p, v \rangle = v_2 = 0$ defines a $2$-dimensional plane $\RR e_1 \oplus \RR e_3$. Removing $p$ from any small neighborhood in $L_0$ leaves four arcs rather than two, so $L_0$ is not locally Euclidean at $p$. For~(b), along a unit curve $c(t) = \cos(t) u_1 + \sin(t) u_j$ ($j > m$), $R_A(c(t)) = \lambda_{\max} \cos^2 t + \lambda_j \sin^2 t = \lambda_{\max} + (\lambda_j - \lambda_{\max}) t^2 + O(t^4)$, so the second derivative at $t = 0$ is $2(\lambda_j - \lambda_{\max}) < 0$ for each of the $n - m$ transverse directions $u_{m+1}, \dots, u_n$.
+\end{proof}
+
+\section{Formalization in Core Lean 4.19.0 and Computational Verification}
+\label{sec:formalization}
+
+To guarantee absolute mathematical rigor, all main results are accompanied by two independent machine-checked artifacts in the resolution package:
+
+\subsection{First-Principles Core Lean 4.19.0 Formalization (\texttt{package/lean/})}
+The Lean library \texttt{Conjecture00000007165} compiles under \texttt{leanprover/lean4:v4.19.0} with \texttt{-DwarningAsError=true} and zero external dependencies (no Mathlib), zero \texttt{sorry}/\texttt{admit}, zero \texttt{native\_decide}, and zero custom axioms:
+{\raggedright
+\begin{itemize}
+  \item \texttt{ModuleDim.lean}: Builds finite summation, exact Gaussian integers \texttt{GaussInt} ($\ZZ[i]$), $\ZZ$-modules \texttt{ZMod}, and $\ZZ[i]$-modules \texttt{CMod}; defines genuine linear independence, spanning sets, and basis dimension \texttt{HasDim}/\texttt{HasCDim}; proves dimension uniqueness (\texttt{hasDim\_\allowbreak unique}, \texttt{hasCDim\_\allowbreak unique}) from first principles via the matrix-trace identity $\tr(P Q) = \tr(Q P)$; and proves direct-sum dimension additivity (\texttt{hasDim\_\allowbreak directSum}).
+  \item \texttt{RayleighSpectrum.lean}: Constructs inner-product spaces, exact rational quotients \texttt{RatVal}, real and complex Rayleigh quotients (\texttt{rayleigh}, \texttt{cRayleigh}), projective equivalence invariance (\texttt{rayleigh\_\allowbreak projInvar}, \texttt{cRayleigh\_\allowbreak cProjInvar}), reality of Hermitian quadratic forms (\texttt{hermInner\_\allowbreak cMatVec\_\allowbreak im\_\allowbreak zero}), and Theorem~\ref{thm:linear_cone} (\texttt{rayleigh\_\allowbreak eq\_\allowbreak max\_\allowbreak iff\_\allowbreak eigvec}, \texttt{realEigenspace\_\allowbreak hasDim\_m}, \texttt{complexEigenspace\_\allowbreak hasCDim\_m}, \texttt{complexEigenspace\_\allowbreak hasRDim\_\allowbreak two\_m}).
+  \item \texttt{ContactDomains.lean}: Formalizes Domains 1--4, proving the exact $S^0$ pair characterization at $m = 1$ (\texttt{realSphereContact\_\allowbreak m1\_\allowbreak iff\_\allowbreak pair}), projective singleton ray theorems (\texttt{realProjContact\_\allowbreak m1\_\allowbreak unique\_\allowbreak ray}, \texttt{complexProjContact\_\allowbreak m1\_\allowbreak unique\_\allowbreak ray}), the stereographic norm identity (\texttt{stereographic\_\allowbreak norm\_\allowbreak identity}), the strict Sasakian contact structure and symplectic nondegeneracy on $S^{2n-1}$ (\texttt{complexSphere\_\allowbreak strict\_\allowbreak contact\_\allowbreak structure}), and universal dimension refutations (\texttt{tangentRealSphere\_\allowbreak not\_\allowbreak hasDim\_m}, \texttt{tangentRealProj\_\allowbreak not\_\allowbreak hasDim\_m}, \texttt{tangentComplexSphere\_\allowbreak not\_\allowbreak hasDim\_m}, \texttt{tangentComplexProj\_\allowbreak not\_\allowbreak hasCDim\_m}, \texttt{tangentComplexProj\_\allowbreak not\_\allowbreak hasRDim\_m}).
+  \item \texttt{DensityAndObstructions.lean}: Formalizes PSD density matrices, proves the off-diagonal PSD vanishing theorem (\texttt{psd\_\allowbreak offdiag\_\allowbreak zero\_\allowbreak of\_\allowbreak diag\_\allowbreak zero}) and the exact equivalence between bilateral face perturbations at $\rho_0 = \frac{1}{m} P_m$ and traceless symmetric blocks (\texttt{isRealFaceTangent\_\allowbreak iff\_\allowbreak tracelessSymBlock}), proves the general $m \times m$ border-splitting dimension theorems $\frac{1}{2}m(m+1) - 1$ and $m^2 - 1$ (\texttt{tracelessSymBlock\_\allowbreak hasDim}, \texttt{tracelessHermBlock\_\allowbreak hasDim}) and their refutations (\texttt{tracelessSymBlock\_\allowbreak not\_\allowbreak hasDim\_m}, \texttt{tracelessHermBlock\_\allowbreak not\_\allowbreak hasDim\_m}), and proves the non-normal (\texttt{nonNormal\_\allowbreak counterexample}), joint extremal face (\texttt{joint\_\allowbreak extremal\_\allowbreak face\_\allowbreak obstruction}), and interior singularity (\texttt{interior\_\allowbreak eigenvalue\_\allowbreak level\_\allowbreak set\_\allowbreak singular}) theorems.
+  \item \texttt{Conjecture00000007165.lean}: Bundles the positive non-vacuity theorem \texttt{positive\_\allowbreak linear\_\allowbreak cone\_\allowbreak characterization} and the master disproof theorem \texttt{conjecture\_\allowbreak 00000007165\_\allowbreak disproved}.
+\end{itemize}
+\par}
+
+\subsection{Standalone Exact Python Verification (\texttt{package/verify.py})}
+Using only \texttt{fractions.Fraction} and an exact $\QQ[i]$ arithmetic class, \texttt{verify.py} constructs non-diagonal symmetric and Hermitian test matrices $B = U A U^*$ via Cayley-transform orthogonal matrices $U \in O_n(\QQ)$ and unitary matrices $U \in U_n(\QQ[i])$ for $1 \le m \le n \le 6$, computes exact reduced-row-echelon kernels for all Zariski/smooth tangent spaces and bilateral density-matrix face tangents, checks symplectic determinants $\det(d\alpha|_{\xi}) \neq 0$, and confirms every case of Theorems~\ref{thm:linear_cone}--\ref{thm:five_domains} and Propositions~\ref{prop:nonnormal}--\ref{prop:interior_morse}.
+
+\begin{thebibliography}{9}
+\bibitem{Geiges2008}
+H.~Geiges, \emph{An Introduction to Contact Topology}, Cambridge Studies in Advanced Mathematics, vol.~109, Cambridge University Press, 2008.
+
+\bibitem{GutkinJonckheereKarow2004}
+E.~Gutkin, E.~A.~Jonckheere, and M.~Karow, Convexity of the joint numerical range: topological and differential geometric viewpoints, \emph{Linear Algebra Appl.} \textbf{376} (2004), 143--171.
+
+\bibitem{HornJohnson2013}
+R.~A.~Horn and C.~R.~Johnson, \emph{Matrix Analysis}, 2nd ed., Cambridge University Press, 2013.
+
+\bibitem{WeisStephan2018}
+S.~Weis, Exposed faces of the lifted numerical range and density matrices, \emph{Linear Multilinear Algebra} \textbf{66} (2018), 751--770.
+\end{thebibliography}
+
+\end{document}
