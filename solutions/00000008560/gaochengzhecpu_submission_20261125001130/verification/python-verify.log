@@ -1,0 +1,54 @@
+$ python --version
+Python 3.12.9
+$ python verify.py
+========================================================================
+Computational Verification for Conjecture 00000008560
+========================================================================
+
+[1] Exhaustive classification of finite lattices for 1 <= |L| <= 6
+  n = 1:  1 lattices (self-dual:  1, non-self-dual:  0) [OEIS A006966 OK]
+  n = 2:  1 lattices (self-dual:  1, non-self-dual:  0) [OEIS A006966 OK]
+  n = 3:  1 lattices (self-dual:  1, non-self-dual:  0) [OEIS A006966 OK]
+  n = 4:  2 lattices (self-dual:  2, non-self-dual:  0) [OEIS A006966 OK]
+  n = 5:  5 lattices (self-dual:  3, non-self-dual:  2) [OEIS A006966 OK]
+  n = 6: 15 lattices (self-dual:  7, non-self-dual:  8) [OEIS A006966 OK]
+
+  Detailed table for 1 <= |L| <= 5:
+    L(1,0): height=0, |Aut|=1, |Iso(L,L^op)|=1, self_dual=True , modular=True , dist=True , covers=[]
+    L(2,0): height=1, |Aut|=1, |Iso(L,L^op)|=1, self_dual=True , modular=True , dist=True , covers=[(0, 1)]
+    L(3,0): height=2, |Aut|=1, |Iso(L,L^op)|=1, self_dual=True , modular=True , dist=True , covers=[(0, 1), (1, 2)]
+    L(4,0): height=2, |Aut|=2, |Iso(L,L^op)|=2, self_dual=True , modular=True , dist=True , covers=[(0, 1), (0, 2), (1, 3), (2, 3)]
+    L(4,1): height=3, |Aut|=1, |Iso(L,L^op)|=1, self_dual=True , modular=True , dist=True , covers=[(0, 1), (1, 2), (2, 3)]
+    L(5,0): height=2, |Aut|=6, |Iso(L,L^op)|=6, self_dual=True , modular=True , dist=False, covers=[(0, 1), (0, 2), (0, 3), (1, 4), (2, 4), (3, 4)]
+    L(5,1): height=3, |Aut|=1, |Iso(L,L^op)|=1, self_dual=True , modular=False, dist=False, covers=[(0, 1), (0, 2), (1, 4), (2, 3), (3, 4)]
+    L(5,2): height=3, |Aut|=2, |Iso(L,L^op)|=0, self_dual=False, modular=True , dist=True , covers=[(0, 1), (1, 2), (1, 3), (2, 4), (3, 4)]
+    L(5,3): height=3, |Aut|=2, |Iso(L,L^op)|=0, self_dual=False, modular=True , dist=True , covers=[(0, 1), (0, 2), (1, 3), (2, 3), (3, 4)]
+    L(5,4): height=4, |Aut|=1, |Iso(L,L^op)|=1, self_dual=True , modular=True , dist=True , covers=[(0, 1), (1, 2), (2, 3), (3, 4)]
+
+[2] Checking Clause 1 (C(L1) ~ C(L2) iff L1 ~= L2 as lattices) for |L| <= 5
+  Verified 100 ordered pairs (L1, L2): C(L1) ~ C(L2) <=> L1 ~= L2 holds 100%.
+
+[3] Checking global category Lat_ord duality autoequivalence (-)^op
+  Unique iso C_1 -> C_1^op is (0,); unique iso C_2 -> C_2^op is (1, 0).
+  On constant monotone map c_0: C_1 -> C_2 (0 |-> 0), D(c_0)(eta_C1(0)) = 0 != 1 = eta_C2(c_0(0)).
+  => (-)^op is NOT naturally isomorphic to Id_Lat_ord (already obstructed at |L| <= 2).
+
+[4] Refuting Clause 2 ('smallest example is the pentagon lattice at n = 3')
+  [4a] At |L| = 3: unique lattice is C_3 (chain 0 < 1 < 2), distributive, modular, self-dual.
+       NO pentagon lattice exists of cardinality 3.
+  [4b] Pentagon lattice N_5 is the unique non-modular lattice with |L| <= 5:
+       |N_5| = 5, height = 3, covers = [(0, 1), (0, 2), (1, 4), (2, 3), (3, 4)],
+       |Aut(N_5)| = 1 (rigid), |Iso(N_5, N_5^op)| = 1 via perm = (4, 1, 3, 2, 0) (SELF-DUAL!).
+  [4c] All lattices with |L| <= 4 (and all with height <= 2) are self-dual.
+       At |L| = 5 (height 3, 3 proper elements), there are EXACTLY 2 non-self-dual lattices:
+         - 1 (+) B_2: covers = [(0, 1), (1, 2), (1, 3), (2, 4), (3, 4)], distributive = True
+         - B_2 (+) 1: covers = [(0, 1), (0, 2), (1, 3), (2, 3), (3, 4)], distributive = True
+       Both are modular & distributive; NEITHER is the pentagon lattice N_5 (which is self-dual!).
+       (Even among non-modular lattices, non-self-duality first occurs at |L| = 6: 4 examples.)
+  [4d] Individual poset category C(L):
+       - Smallest nontrivial covariant autoequivalence (Aut(L) != {id}): B_2 at |L| = 4, height = 2 (whereas |Aut(N_5)| = 1).
+       - Smallest nontrivial contravariant self-duality (delta != id): C_2 at |L| = 2, height = 1 (and C_3 at |L| = 3, C_4 at height = 3).
+
+========================================================================
+ALL ASSERTIONS PASSED: Conjecture 00000008560 is REFUTED (FALSE).
+========================================================================
