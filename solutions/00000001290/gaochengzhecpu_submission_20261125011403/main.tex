@@ -1,0 +1,300 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\G}{\mathcal{G}}
+\newcommand{\Ppos}{\mathcal{P}}
+\newcommand{\mex}{\mathrm{mex}}
+\newcommand{\Opts}{\mathrm{Opts}}
+\newcommand{\Sub}{\mathrm{Sub}}
+
+\title{\textbf{Disproof of Conjecture 00000001290:\\
+Rationality of Sprague--Grundy Generating Functions\\
+vs.\ Shortness and Locality}}
+\author{Formalized in Core Lean 4.19.0 with Exact Computational Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000001290}, which asserts that \emph{``the generating function of Sprague--Grundy values is rational if and only if the game is short and local (a rationality criterion).''}
+We prove that the conjecture is \textbf{false} across all standard combinatorial-game-theory definitions of \emph{short}, \emph{local} (bounded move distance, bounded out-degree, and translation-invariant finite subtraction rules), and \emph{the generating function of Sprague--Grundy values} (the ordinary value generating function $\sum_{n \ge 0} \G(n) x^n$, the Grundy-fiber indicator generating functions $\sum_{\G(n)=v} x^n$, the $\Ppos$-position generating function $\sum_{\G(n)=0} x^n$, and the bivariate generating function $\sum_{n \ge 0} x^n t^{\G(n)}$).
+
+Specifically, we establish a complete four-way separation:
+(1)~\emph{Necessity of locality fails unconditionally}: single-pile Nim has $\G(n)=n$ with rational generating function $x/(1-x)^2$ and polynomial fiber generating functions $x^v$, yet is not even Grundy-equivalent to any bounded-outdegree game; moreover, the translation-invariant odd-subtraction game $\Sub(\mathrm{Odd})$ is short and has bounded $2$-periodic Grundy values $\G(n) = n \bmod 2$ with rational generating function $x/(1-x^2)$, while failing every locality condition.
+(2)~\emph{Necessity of shortness also fails}: both a step-$1$ bounded-degree stopper-sided loopy game (via Smith's theory) and a well-founded infinitely-branching game possess unique finite Sprague--Grundy sequences with polynomial generating functions ($x + x^3$ and $1$).
+(3)~\emph{Sufficiency fails under bounded-step and bounded-degree locality}: the short step-$1$ game $G_{\mathrm{pow2}}$ with $\Opts(n)=\{n-1\}$ for $n=2^k$ ($k \ge 2$) and $\emptyset$ otherwise has irrational value and $\Ppos$-position generating functions.
+(4)~\emph{Sufficiency holds for $1$D finite subtraction games}: for every finite $S \subset \N_{>0}$, $\Sub(S)$ is short and local, and its Sprague--Grundy sequence is eventually periodic, hence all of its generating functions lie in $\Q(x)$.
+All main theorems and counterexamples are formalized from first principles in Core Lean~4.19.0 without \texttt{sorry} or external axioms.
+\end{abstract}
+
+\section{Problem Statement and Overview}
+
+Conjecture \texttt{00000001290} states (in English and in parallel Chinese phrasing):
+\begin{quote}
+\emph{Conjecture: The generating function of Sprague--Grundy values is rational if and only if the game is short and local (a rationality criterion).}
+\end{quote}
+
+The statement proposes a crisp structural characterization of when an impartial combinatorial game under normal play has a rational Sprague--Grundy generating function. Motivationally, the conjecture conflates two distinct phenomena:
+\begin{itemize}
+  \item A $1$-dimensional \emph{translation-invariant} finite subtraction game $\Sub(S)$ ($S \subset \N_{>0}$ finite) behaves as a deterministic finite-state automaton of window width $1 + \max S$ over a finite Grundy alphabet $\{0,\dots,|S|\}$, forcing eventual periodicity of $(\G(n))_{n \ge 0}$ and hence rationality of its generating functions (Theorem~\ref{thm:positive-sub}).
+  \item However, rationality of $\sum_{n \ge 0} \G(n) x^n$ does \emph{not} require locality or shortness (for instance, $\sum_{n \ge 0} n x^n = x/(1-x)^2$ arises from unbounded non-local Nim, and $2$-periodic Grundy values arise from infinite-range parity subtraction), while metric/combinatorial locality without translation invariance allows arbitrary sparse non-periodic patterns such as $\sum_{k \ge 2} x^{2^k} \notin \Q(x)$.
+\end{itemize}
+
+To ensure that our disproof leaves no ambiguity regarding terminology, Section~\ref{sec:defs} formalizes all standard variants of shortness, locality, and Sprague--Grundy generating functions. Sections~\ref{sec:necessity}--\ref{sec:positive} then establish the complete truth table summarized in Table~\ref{tab:summary}.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+Game & Short? & Step / Deg.\ Local? & Finite $\Sub(S)$? & $\G(n)$ & Value / Fiber GFs \\
+\midrule
+1-Pile Nim & Yes & No (unbounded) & No & $n$ & Rational: $x/(1-x)^2,\, x^v$ \\[3pt]
+$\Sub(\mathrm{Odd})$ & Yes & No (unbounded) & No ($|S|=\infty$) & $n \bmod 2$ & Rational: $\frac{x}{1-x^2},\, \frac{1}{1-x^2}$ \\[3pt]
+$G_{\mathrm{loopy}}$ & No (cycle) & Yes ($K=1, B=2$) & No & $\mathbf{1}_{\{1,3\}}(n)$ & Polynomial: $x + x^3$ \\[3pt]
+$G_{\infty}$ & No ($\infty$-deg) & Out-deg $\infty$ at $0$ & No & $\mathbf{1}_{\{0\}}(n)$ & Polynomial: $1$ \\[3pt]
+$G_{\mathrm{pow2}}$ & Yes & Yes ($K=1, B=1$) & No (inhom.) & $\mathbf{1}_{\{2^k:k\ge 2\}}(n)$ & \textbf{Irrational} ($\notin \Q(x)$) \\[3pt]
+$\Sub(S)$, $|S|<\infty$ & Yes & Yes ($K=\max S$) & Yes & Periodic tail & Rational: $P(x)/(1-x^p)$ \\
+\bottomrule
+\end{tabular}
+\caption{Complete separation of shortness, locality notions, and generating-function rationality.}
+\label{tab:summary}
+\end{table}
+
+\section{Formal Definitions Across Standard CGT Conventions}
+\label{sec:defs}
+
+To speak of the univariate generating function of Sprague--Grundy values, positions of an impartial game under normal play are indexed by $\N = \{0,1,2,\dots\}$ (any counterexample on $\N$ immediately embeds into $\N^d$ for $d \ge 1$ by ignoring extra coordinates; we also treat genuine $2$D games in Remark~\ref{rem:2d}).
+
+\begin{definition}[Impartial Games and Shortness]
+An \emph{impartial game on $\N$} is a pair $G = (\N, \to_G)$, where $n \to_G m$ means that moving from position $n$ to position $m$ is legal; we write $\Opts_G(n) = \{m \in \N : n \to_G m\}$.
+\begin{itemize}
+  \item[(i)] $G$ is \emph{finitely branching} if $\Opts_G(n)$ is finite for every $n \in \N$.
+  \item[(ii)] $G$ has \emph{no infinite plays} if the reverse move relation $\{(m,n) : n \to_G m\}$ is well-founded (in particular, there is no infinite sequence $n_0 \to_G n_1 \to_G n_2 \to_G \cdots$).
+  \item[(iii)] Following Conway and Siegel~\cite{BCG,Siegel}, $G$ is \emph{short} if it is finitely branching and has no infinite plays.
+\end{itemize}
+\end{definition}
+
+\begin{definition}[Sprague--Grundy Sequence]
+For a subset $A \subsetneq \N$, its \emph{minimum excludant} is $\mex(A) = \min(\N \setminus A)$. A function $g : \N \to \N$ is a \emph{Sprague--Grundy sequence} for $G$ if for every $n \in \N$:
+\begin{itemize}
+  \item[(a)] \emph{Excludant}: for all $m \in \Opts_G(n)$, $g(m) \neq g(n)$; and
+  \item[(b)] \emph{Minimality}: for all $v \in \N$ with $v < g(n)$, there exists $m \in \Opts_G(n)$ such that $g(m) = v$.
+\end{itemize}
+\end{definition}
+
+\begin{proposition}[Existence, Uniqueness, and Degree Bound]
+\label{prop:sg-basic}
+Let $G = (\N, \to_G)$ be an impartial game on $\N$.
+\begin{itemize}
+  \item[\textup{(i)}] If $G$ has no infinite plays, then $G$ admits at most one Sprague--Grundy sequence.
+  \item[\textup{(ii)}] If $G$ is short, then $G$ admits a unique Sprague--Grundy sequence $\G_G : \N \to \N$.
+  \item[\textup{(iii)}] If $|\Opts_G(n)| \le B$ for all $n \in \N$ and $g$ is any Sprague--Grundy sequence for $G$, then $g(n) \le B$ for all $n \in \N$.
+\end{itemize}
+\end{proposition}
+\begin{proof}
+(i)~Suppose $g_1, g_2$ both satisfy the Sprague--Grundy conditions. By well-founded induction on $\to_G$, assume $g_1(m) = g_2(m)$ for all $m \in \Opts_G(n)$. If $g_1(n) < g_2(n)$, minimality for $g_2$ yields $m \in \Opts_G(n)$ with $g_2(m) = g_1(n)$, whence $g_1(m) = g_2(m) = g_1(n)$, contradicting the excludant property for $g_1$. Symmetrically $g_2(n) \not< g_1(n)$, so $g_1(n) = g_2(n)$.
+
+(ii)~When $\Opts_G(n)$ is finite, the finite set $A_n = \{g(m) : m \in \Opts_G(n)\}$ is strictly bounded above by $1 + \sum_{m \in \Opts_G(n)} g(m)$, so $\N \setminus A_n \neq \emptyset$ and well-founded recursion defines $\G_G(n) = \mex(A_n)$.
+
+(iii)~If $g(n) > |\Opts_G(n)|$, minimality maps $\{0,1,\dots,|\Opts_G(n)|\}$ (of cardinality $|\Opts_G(n)|+1$) into $\{g(m) : m \in \Opts_G(n)\}$ (of cardinality at most $|\Opts_G(n)|$), contradicting the pigeonhole principle.
+\end{proof}
+
+\begin{definition}[Three Standard Locality Notions]
+\label{def:locality}
+Let $G = (\N, \to_G)$ be an impartial game on $\N$.
+\begin{itemize}
+  \item[\textup{(L1)}] \emph{Bounded-step (metric) locality}: there exists $K \in \N$ such that $|n - m| \le K$ whenever $n \to_G m$.
+  \item[\textup{(L2)}] \emph{Bounded out-degree locality}: there exists $B \in \N$ such that $|\Opts_G(n)| \le B$ for all $n \in \N$.
+  \item[\textup{(L3)}] \emph{Finite subtraction locality}: there exists a finite set $S \subset \N_{>0}$ such that $\Opts_G(n) = \{n - s : s \in S,\, s \le n\}$ for all $n \in \N$; we denote this game by $\Sub(S)$.
+\end{itemize}
+Observe that $\text{(L3)} \implies \text{(L1)} \land \text{(L2)} \land \text{Short}$.
+\end{definition}
+
+\begin{definition}[Sprague--Grundy Generating Functions and Rationality]
+\label{def:gf}
+A sequence $(a_n)_{n \ge 0}$ in $\Z$ has a \emph{rational ordinary generating function} over $\Q$, written $\sum_{n=0}^{\infty} a_n x^n \in \Q(x)$, if there exist polynomials $P(x), Q(x) \in \Q[x]$ with $Q(x) \neq 0$ such that $Q(x) \sum_{n=0}^{\infty} a_n x^n = P(x)$ in $\Q[[x]]$. Scaling $P$ and $Q$ by the positive product of denominators of their coefficients shows that this is equivalent to the existence of $P(x), Q(x) \in \Z[x]$ with $Q(x) \neq 0$ satisfying
+\[
+  \sum_{j=0}^{n} [x^j]Q(x) \cdot a_{n-j} = [x^n]P(x) \qquad \text{for all } n \in \N.
+\]
+For an impartial game $G$ with Sprague--Grundy sequence $g : \N \to \N$, we analyze all standard generating functions used in combinatorial game theory:
+\begin{itemize}
+  \item[\textup{(GF1)}] \emph{Value OGF}: $F_g(x) = \sum_{n=0}^{\infty} g(n) x^n \in \Q[[x]]$.
+  \item[\textup{(GF2)}] \emph{Grundy-fiber indicator OGFs}: $F_{g,v}(x) = \sum_{n : g(n)=v} x^n \in \Q[[x]]$ for each $v \in \N$ (along with the bivariate series $\Phi_g(x,t) = \sum_{n=0}^{\infty} x^n t^{g(n)} \in \Q[[x,t]]$).
+  \item[\textup{(GF3)}] \emph{$\Ppos$-position indicator OGF}: $F_{\Ppos}(x) = F_{g,0}(x) = \sum_{n : g(n)=0} x^n \in \Q[[x]]$.
+\end{itemize}
+\end{definition}
+
+\section{Refutation of Necessity (\texorpdfstring{$\Rightarrow$}{=>})}
+\label{sec:necessity}
+
+We show that rationality of the Sprague--Grundy generating function (under every convention GF1--GF3 simultaneously) implies \emph{neither} locality (under any of L1--L3) \emph{nor} shortness.
+
+\begin{theorem}[Short Non-Local Counterexamples: Nim and $\Sub(\mathrm{Odd})$]
+\label{thm:necessity-local}
+\leavevmode
+\begin{itemize}
+  \item[\textup{(i)}] \textbf{Single-pile Nim} ($\Opts(n) = \{0,1,\dots,n-1\}$) is short and has Sprague--Grundy sequence $\G(n) = n$. Its value OGF, bivariate GF, and fiber indicator GFs are all rational:
+  \[
+    F_{\G}(x) = \sum_{n=0}^{\infty} n x^n = \frac{x}{(1-x)^2}, \qquad
+    \Phi_{\G}(x,t) = \frac{1}{1-xt}, \qquad
+    F_{\G,v}(x) = x^v \quad (\forall v \in \N),
+  \]
+  including $F_{\Ppos}(x) = 1$. Yet single-pile Nim fails \textup{(L1)}, \textup{(L2)}, and \textup{(L3)}, and is not even Grundy-equivalent to any game satisfying \textup{(L2)}.
+  \item[\textup{(ii)}] \textbf{Odd-subtraction game $\Sub(\mathrm{Odd})$} ($\Opts(n) = \{n - s : s \le n,\, s \equiv 1 \pmod{2}\}$) is a short, translation-invariant subtraction game with bounded $2$-periodic Sprague--Grundy sequence $\G(n) = n \bmod 2 \in \{0,1\}$. All of its generating functions are rational:
+  \[
+    F_{\G}(x) = \frac{x}{1-x^2}, \quad
+    F_{\Ppos}(x) = F_{\G,0}(x) = \frac{1}{1-x^2}, \quad
+    F_{\G,1}(x) = \frac{x}{1-x^2}, \quad
+    \Phi_{\G}(x,t) = \frac{1+xt}{1-x^2},
+  \]
+  and $F_{\G,v}(x) = 0$ for $v \ge 2$. Yet $\Sub(\mathrm{Odd})$ fails \textup{(L1)}, \textup{(L2)}, and \textup{(L3)}.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+(i)~For Nim, $\Opts(n) = \{0,\dots,n-1\}$ is finite of size $n$ and every move decreases $n$, so Nim is short. Strong induction gives $\G(n) = \mex\{0,\dots,n-1\} = n$. In $\Z[[x]]$, $(1 - 2x + x^2)\sum_{n \ge 0} n x^n$ has constant term $0$, linear term $1$, and $[x^n] = n - 2(n-1) + (n-2) = 0$ for all $n \ge 2$, proving $F_{\G}(x) = x/(1-x)^2 \in \Q(x)$; similarly $(1-xt)\sum_{n \ge 0} x^n t^n = 1$ and $F_{\G,v}(x) = x^v \in \Q[x]$. However, for any $K \in \N$, the legal move $K+1 \to 0$ has $|(K+1)-0| = K+1 > K$, refuting (L1) and hence (L3). Moreover, for any $B \in \N$ and any game $H$ with out-degree bounded by $B$, Proposition~\ref{prop:sg-basic}(iii) forces $\G_H(B+1) \le B < B+1 = \G_{\mathrm{Nim}}(B+1)$, refuting (L2) even up to Grundy equivalence.
+
+(ii)~In $\Sub(\mathrm{Odd})$, every legal move subtracts an odd $s \ge 1$, so $0 \le n - s < n$; hence $\Sub(\mathrm{Odd})$ is finitely branching and progressive, thus short. If $n$ is even and $n \to m = n - s$ with $s$ odd, then $m$ is odd, so $m \bmod 2 = 1 \neq 0 = n \bmod 2$, and no $v < 0$ exists. If $n$ is odd, every option $n - s$ ($s$ odd) is even, so $(n-s)\bmod 2 = 0 \neq 1 = n \bmod 2$, while taking $s = n$ yields the option $0 \in \Opts(n)$ with $0 \bmod 2 = 0$. By Proposition~\ref{prop:sg-basic}(i), $\G(n) = n \bmod 2$. Since $(1 - x^2)\sum_{n \ge 0} (n \bmod 2)x^n = x$ and $(1-x^2)\sum_{k \ge 0} x^{2k} = 1$, all generating functions (GF1)--(GF3) are rational. Yet for any $K \in \N$, $2K+1 \to 0$ is legal with step $2K+1 > K$ (refuting L1 and L3), and for any $B \in \N$, $\Opts(2B+1) = \{0,2,4,\dots,2B\}$ has cardinality $B+1 > B$ (refuting L2).
+\end{proof}
+
+\begin{theorem}[Non-Short Counterexamples with Polynomial Generating Functions]
+\label{thm:necessity-short}
+\leavevmode
+\begin{itemize}
+  \item[\textup{(i)}] \textbf{Step-$1$ loopy game $G_{\mathrm{loopy}}$}: Define $\Opts(1)=\{0,2\}$, $\Opts(2)=\{1,3\}$, $\Opts(3)=\{4\}$, and $\Opts(n)=\emptyset$ for $n=0$ and all $n \ge 4$. Then $G_{\mathrm{loopy}}$ satisfies \textup{(L1)} with $K=1$ and \textup{(L2)} with $B=2$, is \emph{not short} due to the infinite play $1 \to 2 \to 1 \to 2 \to \cdots$, yet admits a unique Sprague--Grundy sequence (coinciding with Smith's loopy Grundy valuation~\cite{Smith1966})
+  \[
+    \G(n) = \begin{cases} 1 & \text{if } n \in \{1,3\}, \\ 0 & \text{otherwise,} \end{cases}
+  \]
+  whose value OGF $F_{\G}(x) = x + x^3 \in \Z[x]$ and fiber GFs ($F_{\Ppos}(x) = \frac{1}{1-x} - x - x^3$, $F_{\G,1}(x) = x + x^3$) are all rational.
+  \item[\textup{(ii)}] \textbf{Infinitely-branching game $G_{\infty}$}: Define $\Opts(0) = \N_{>0}$ and $\Opts(n) = \emptyset$ for all $n \ge 1$. Then $G_{\infty}$ has no infinite plays (every play has length $\le 1$), is \emph{not short} ($|\Opts(0)| = \infty$), and has unique Sprague--Grundy sequence $\G(0)=1$, $\G(n)=0$ ($n \ge 1$) with constant OGF $F_{\G}(x) = 1$.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+(i)~Every legal edge in $G_{\mathrm{loopy}}$ belongs to $\{(1,0),(1,2),(2,1),(2,3),(3,4)\}$, so $|n-m|=1$ and $|\Opts(n)| \le 2$; the alternating sequence $f(2k)=1, f(2k+1)=2$ witnesses failure of shortness. Suppose $g : \N \to \N$ satisfies the Sprague--Grundy conditions. Terminal positions force $g(0)=0$ and $g(n)=0$ for $n \ge 4$. From $\Opts(3)=\{4\}$ we get $g(3)=\mex\{0\}=1$. Since $0 \in \Opts(1)$ and $g(0)=0$, the excludant condition gives $g(1) \neq 0$. Thus both options in $\Opts(2)=\{1,3\}$ have nonzero $g$-values ($g(1) \neq 0$ and $g(3)=1 \neq 0$), so $0$ is absent from $\{g(1),g(3)\}$ and minimality forces $g(2)=0$. Finally $\Opts(1)=\{0,2\}$ has $\{g(0),g(2)\}=\{0\}$, forcing $g(1)=1$. Conversely, this $g$ satisfies both Sprague--Grundy conditions everywhere (and in normal play, $2$ is a genuine $\Ppos$-position because moving $2 \to 1$ or $2 \to 3$ allows the second player to win in one move via $1 \to 0$ or $3 \to 4$). Rationality of $F_g(x) = x + x^3$ and all fibers is immediate.
+
+(ii)~In $G_{\infty}$, every move from $0$ enters a terminal state $m \ge 1$, so no play exceeds length $1$, while $\Opts(0)=\N_{>0}$ is infinite. Uniqueness (Proposition~\ref{prop:sg-basic}(i)) and direct check give $\G(n)=0$ for $n \ge 1$ and $\G(0)=\mex\{0\}=1$, so $F_{\G}(x)=1$.
+\end{proof}
+
+\section{Refutation of Sufficiency (\texorpdfstring{$\Leftarrow$}{<=}) Under Bounded-Step Locality}
+\label{sec:sufficiency}
+
+We next prove that the converse direction (``short and local $\Rightarrow$ rational generating function'') also fails whenever ``local'' means bounded move distance (L1) and bounded out-degree (L2) without translation invariance.
+
+\begin{theorem}[Lacunary Step-$1$ Short Game $G_{\mathrm{pow2}}$]
+\label{thm:lacunary}
+Define $G_{\mathrm{pow2}}$ on $\N$ by
+\[
+  \Opts(n) = \begin{cases} \{n - 1\} & \text{if } n = 2^k \text{ for some integer } k \ge 2, \\ \emptyset & \text{otherwise.} \end{cases}
+\]
+Then:
+\begin{itemize}
+  \item[\textup{(i)}] $G_{\mathrm{pow2}}$ is short (every play has length $\le 1$) and satisfies both \textup{(L1)} with step radius $K = 1$ and \textup{(L2)} with out-degree bound $B = 1$ (and in-degree bound $1$).
+  \item[\textup{(ii)}] Its unique Sprague--Grundy sequence is $\G(n) = 1$ if $n = 2^k$ ($k \ge 2$) and $\G(n) = 0$ otherwise.
+  \item[\textup{(iii)}] Both the value OGF $F_{\G}(x) = F_{\G,1}(x) = \sum_{k=2}^{\infty} x^{2^k}$ and the $\Ppos$-position indicator OGF $F_{\Ppos}(x) = F_{\G,0}(x) = \frac{1}{1-x} - \sum_{k=2}^{\infty} x^{2^k}$ (as well as $\Phi_{\G}(x,t)$) are \textbf{irrational} over $\Q$.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+(i)--(ii)~Every legal move decreases $n$ by $1$, so $|n-m|=1$ and $|\Opts(n)| \le 1$. If $n \neq 2^k$ ($k \ge 2$), $\Opts(n)=\emptyset$ gives $\G(n)=0$. If $n = 2^k$ with $k \ge 2$, then $n - 1 \ge 3$ is odd, whereas every $2^r$ ($r \ge 2$) is divisible by $4$ and hence even; thus $n - 1$ is terminal with $\G(n-1)=0$, giving $\G(2^k) = \mex\{0\} = 1$.
+
+(iii)~Let $a_n = \G(n) \in \{0,1\}$. Suppose for contradiction that $Q(x) \sum_{n \ge 0} a_n x^n = P(x)$ in $\Z[[x]]$ for polynomials $P(x) = \sum_{i=0}^{d_P} p_i x^i$ and $Q(x) = \sum_{j=0}^{d_Q} q_j x^j \neq 0$ in $\Z[x]$. Let $i_0 = \min\{j : q_j \neq 0\}$, so $0 \le i_0 \le d_Q$, $q_{i_0} \neq 0$, and $q_j = 0$ for all $0 \le j < i_0$.
+
+Choose $k = d_P + d_Q + 3 \ge 3$. Using $m < 2^m$ for all $m \in \N$, we have $d_Q < k - 1 < 2^{k-1}$ and $d_P < k < 2^k$. Evaluate the coefficient of $x^N$ at $N = 2^k + i_0 > d_P$:
+\[
+  0 = [x^N]P(x) = \sum_{j=0}^{d_Q} q_j a_{N - j}.
+\]
+For $0 \le j < i_0$, $q_j = 0$. For $j = i_0$, $N - i_0 = 2^k$ with $k \ge 2$, so $a_{N-i_0} = 1$. For $i_0 < j \le d_Q$, write $\delta = j - i_0$; then $1 \le \delta \le d_Q < 2^{k-1}$, so
+\[
+  2^{k-1} = 2^k - 2^{k-1} < 2^k - \delta = N - j < 2^k.
+\]
+Since $2^r \le 2^{k-1}$ for $r \le k-1$ and $2^r \ge 2^k$ for $r \ge k$, no integer in the open interval $(2^{k-1}, 2^k)$ is a power of $2$; hence $a_{N-j} = 0$ for all $i_0 < j \le d_Q$. Consequently $0 = q_{i_0} \cdot 1 = q_{i_0}$, contradicting $q_{i_0} \neq 0$. Thus $F_{\G}(x) = F_{\G,1}(x) \notin \Q(x)$ (and $\Phi_{\G}(x,0) = F_{\Ppos}(x)$, $\frac{\partial}{\partial t}\Phi_{\G}(x,0) = F_{\G,1}(x)$ shows $\Phi_{\G} \notin \Q(x,t)$).
+
+Finally, suppose $Q(x) F_{\Ppos}(x) = P(x)$ with $Q \neq 0$, where $F_{\Ppos}(x) = \sum_{n \ge 0} (1 - a_n) x^n$. With the same $k = d_P + d_Q + 3$ and $i_0$, for every $n > \max(d_P, d_Q)$ the relation $\sum_{j=0}^{d_Q} q_j (1 - a_{n-j}) = 0$ rearranges to $\sum_{j=0}^{d_Q} q_j a_{n-j} = \sum_{j=0}^{d_Q} q_j$. At $N_1 = 2^k + d_Q + 1$, every index $N_1 - j$ ($0 \le j \le d_Q$) satisfies $2^k < N_1 - j \le 2^k + d_Q + 1 < 2^{k+1}$, so $a_{N_1 - j} = 0$ and therefore $\sum_{j=0}^{d_Q} q_j = 0$. Evaluating next at $N_0 = 2^k + i_0$ yields $q_{i_0} = \sum_{j=0}^{d_Q} q_j a_{N_0 - j} = \sum_{j=0}^{d_Q} q_j = 0$, again contradicting $q_{i_0} \neq 0$. Thus $F_{\Ppos}(x) \notin \Q(x)$.
+\end{proof}
+
+\section{Positive Theorem: Sufficiency for 1D Finite Subtraction Games}
+\label{sec:positive}
+
+To confirm non-vacuity of our formal definitions and pinpoint the exact scope in which sufficiency holds, we prove the classical rationality theorem for $1$D finite subtraction games.
+
+\begin{theorem}[Rationality for Finite Subtraction Games]
+\label{thm:positive-sub}
+Let $S \subset \N_{>0}$ be any finite set. Then $\Sub(S)$ is short and satisfies \textup{(L1)}, \textup{(L2)}, and \textup{(L3)}, and its Sprague--Grundy sequence $\G : \N \to \N$ is eventually periodic: there exist $N_0 \ge 0$ and $p \ge 1$ such that $\G(n+p) = \G(n)$ for all $n \ge N_0$. Consequently, $F_{\G}(x)$, $F_{\Ppos}(x)$, and every fiber series $F_{\G,v}(x)$ belong to $\Q(x)$.
+\end{theorem}
+\begin{proof}
+If $S = \emptyset$, then $\G(n)=0$ for all $n$ ($N_0=0, p=1$). Otherwise let $K = 1 + \max S$ and $M = |S| + 1$. Since $|\Opts(n)| \le |S|$, Proposition~\ref{prop:sg-basic}(iii) gives $\G(n) < M$ for all $n \in \N$. For each $n \in \N$, define the state window
+\[
+  W(n) = \bigl(\G(n),\, \G(n+1),\, \dots,\, \G(n+K-1)\bigr) \in \{0,1,\dots,M-1\}^K.
+\]
+Because $\{0,\dots,M-1\}^K$ is finite (of size $M^K$), the pigeonhole principle yields $0 \le n_1 < n_2$ such that $W(n_1) = W(n_2)$. Whenever $W(a) = W(b)$, every $s \in S$ satisfies $1 \le s < K$, so $a + K - s = a + (K - s)$ with $0 \le K - s < K$, giving $\G(a + K - s) = \G(b + K - s)$. Hence
+\[
+  \G(a+K) = \mex\{\G(a+K-s) : s \in S\} = \mex\{\G(b+K-s) : s \in S\} = \G(b+K),
+\]
+which implies $W(a+1) = W(b+1)$. Induction on $t \ge 0$ gives $W(n_1+t) = W(n_2+t)$, and reading the first coordinate yields $\G(n + p) = \G(n)$ for all $n \ge N_0 := n_1$ with $p := n_2 - n_1 \ge 1$.
+
+Finally, for any integer sequence $(a_n)_{n \ge 0}$ satisfying $a_{n+p} = a_n$ for all $n \ge N_0$, set $Q(x) = 1 - x^p \neq 0$. For every $n \ge N_0 + p$, $[x^n](Q(x)\sum_{k \ge 0} a_k x^k) = a_n - a_{n-p} = 0$, so $P(x) := \sum_{n=0}^{N_0+p-1} ([x^n](Q(x)A(x))) x^n \in \Z[x]$ satisfies $Q(x)A(x) = P(x)$. Applying this to $a_n = \G(n)$ and $a_n = \mathbf{1}_{\{\G(n)=v\}}$ completes the proof.
+\end{proof}
+
+\begin{remark}[Multivariate Games and Take-and-Break Context]
+\label{rem:2d}
+In $d \ge 2$ heap dimensions, necessity fails just as sharply: $2$-pile Nim on $\N^2$ is short and non-local with $\G(m,n) = m \oplus n$, yet its $\Ppos$-position generating function $\sum_{m=n} x^m y^n = \frac{1}{1-xy} \in \Q(x,y)$ is rational (whereas Wythoff's Queen game is short and non-local with irrational Beatty $\Ppos$-positions $(\lfloor k\varphi \rfloor, \lfloor k\varphi^2 \rfloor)$). For $1$D \emph{take-and-break} games with finite octal code $.d_1 d_2 \dots d_k$~\cite{GuySmith} (where a move removes at most $k$ tokens and may split a heap into two heaps, so $\G(n)$ depends on Nim-sums $\G(a) \oplus \G(b)$ across all $a+b = n-j$ rather than a bounded-width window), whether every finite octal game is eventually periodic remains Guy and Smith's open problem. Conjecture~\texttt{00000001290} fails long before that frontier because necessity ($\Rightarrow$) is false even for $1$-pile Nim and $\Sub(\mathrm{Odd})$, and sufficiency ($\Leftarrow$) is false for general bounded-step short games.
+\end{remark}
+
+\section{Formalization and Computational Verification Summary}
+
+All results in Sections~\ref{sec:defs}--\ref{sec:positive} are mechanically verified in Core Lean~4.19.0 (\texttt{lean/}, compiled with \texttt{-DwarningAsError=true} and zero external dependencies) and independently checked via exact rational arithmetic in \texttt{verify.py}:
+\begin{itemize}
+\raggedright
+  \item \texttt{Basic.lean}: \texttt{ImpartialGame}, \texttt{IsShort}, \texttt{IsBoundedStepLocal}, \texttt{IsBoundedOutDegree}, \texttt{IsFiniteSubtractionGame}, constructive \texttt{listMex}, \texttt{grundy\_unique}, \texttt{short\_has\_grundy}, and \texttt{grundy\_le\_outdegree} (Proposition~\ref{prop:sg-basic}).
+  \item \texttt{GeneratingFunction.lean}: \texttt{IsRationalOGF} over $\Z[x]$, \texttt{IsRationalOGF\_Q} over $\Q[x]$, denominator-clearing equivalence \texttt{isRationalOGF\_iff\_Q}, and eventual-periodicity rationality theorems \texttt{eventuallyPeriodic\_rational\_ogf} and \texttt{eventuallyPeriodic\_rational\_fibers}.
+  \item \texttt{PositiveSubtraction.lean}: Infinite-to-finite pigeonhole \texttt{pigeonhole\_seq}, sliding window periodicity \texttt{finiteSubtraction\_eventuallyPeriodic}, and \texttt{finiteSubtraction\_rational\_ogf} (Theorem~\ref{thm:positive-sub}).
+  \item \texttt{Counterexamples.lean} \& \texttt{Main.lean}: Complete formalization of \texttt{nimGame}, \texttt{oddSubGame}, \texttt{loopyStep1Game}, \texttt{infBranchGame}, and \texttt{lacunaryLocalGame} (Theorems~\ref{thm:necessity-local}--\ref{thm:lacunary}), culminating in the master disproof theorem \texttt{conjecture\_00000001290\_false}.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{BCG}
+E.~R. Berlekamp, J.~H. Conway, and R.~K. Guy,
+\emph{Winning Ways for Your Mathematical Plays}, Vol.~1, 2nd ed., A~K Peters, 2001.
+
+\bibitem{GuySmith}
+R.~K. Guy and C.~A.~B. Smith,
+The $G$-values of various games,
+\emph{Proc.\ Cambridge Philos.\ Soc.} \textbf{52} (1956), 514--526.
+
+\bibitem{Siegel}
+A.~N. Siegel,
+\emph{Combinatorial Game Theory},
+Graduate Studies in Mathematics, Vol.~146, American Mathematical Society, 2013.
+
+\bibitem{Smith1966}
+C.~A.~B. Smith,
+Graphs and composite games,
+\emph{J.~Combinatorial Theory} \textbf{1} (1966), 51--81.
+\end{thebibliography}
+
+\end{document}
