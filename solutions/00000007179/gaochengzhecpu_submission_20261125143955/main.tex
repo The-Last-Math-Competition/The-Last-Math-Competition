@@ -1,0 +1,665 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\im}{\mathrm{im}}
+\newcommand{\Res}{\mathrm{Res}}
+
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{1.2em}
+\setlength{\emergencystretch}{1.5em}
+\renewcommand{\arraystretch}{1.28}
+
+\title{\textbf{Resolution of Conjecture 00000007179:\\
+Analytic Perturbability of Simple Eigenvalues in Kato Theory\\
+and Refutation of the Residual-Projection Coefficient Claim}}
+\author{Formal Mathematical Resolution \& Lean 4.19.0 Verification}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007179}, concerning Kato's analytic perturbation
+theory for perturbed linear operators $A(\varepsilon) = A_0 + \varepsilon A_1$ around
+an algebraically simple eigenvalue $\lambda_0$ of $A_0$. Analyzing both the English
+and Chinese statements, the conjecture asserts the logical conjunction $P_1 \land P_2$
+of two claims: (1)~simple eigenvalues are analytically perturbable, and (2)~the
+coefficient of the perturbation is the residual projection. We prove from first
+principles that \textbf{Clause~1 ($P_1$) holds}: around every algebraically simple
+root $\lambda_0$ of $\chi_{A_0}(x) = (x - \lambda_0)q(x)$ ($q(\lambda_0) \neq 0$),
+the rank-one Riesz spectral eigenprojection $P = q(\lambda_0)^{-1} q(A_0) =
+(w_0^\top v_0)^{-1} v_0 w_0^\top$, complementary (residual) projection $Q = I - P$,
+and Kato reduced resolvent $S$ satisfying $(A_0 - \lambda_0 I)S = S(A_0 - \lambda_0 I)
+= Q$ and $PS = SP = 0$ uniquely determine an all-orders normalized formal power series
+$(\lambda(\varepsilon), v(\varepsilon))$ with an explicit positive Cauchy--Kato
+analytic convergence radius $R_0 = \rho^{-1} > 0$, whose exact leading coefficients are
+\begin{align*}
+  \lambda_1 &= \tr(P A_1) = \tr(P A_1 P) = \frac{w_0^\top A_1 v_0}{w_0^\top v_0},
+  \qquad v_1 = - S A_1 v_0, \\
+  \lambda_2 &= -\tr(P A_1 S A_1) = -\frac{w_0^\top A_1 S A_1 v_0}{w_0^\top v_0}.
+\end{align*}
+Conversely, we prove that \textbf{Clause~2 ($P_2$) fails under every standard
+mathematical reading}: (A)~the first-order eigenvalue coefficient $\lambda_1$ is
+governed uniquely by the eigenprojection $P$ rather than the residual projection
+$Q = I - P$ ($\lambda_1 \neq \pm\tr(Q A_1)$, $w_0^\top Q A_1 v_0 / w_0^\top v_0 \equiv 0$,
+and $|\lambda_1| \neq \|Q A_1 v_0\|$); (B)~the first-order eigenvector slope $v_1 =
+- S A_1 v_0$ is governed by the inverse-gap-weighted reduced resolvent $S$, not
+$\pm Q A_1 v_0$; (C)~the second-order eigenvalue coefficient $\lambda_2 =
+-\tr(P A_1 S A_1)$ is governed by $S$, not $\pm\tr(P A_1 Q A_1)$; and (D)~the
+first-order eigenprojection derivative $P_1 = - P A_1 S - S A_1 P$ likewise differs
+from $\pm Q$ and $\pm(P A_1 Q + Q A_1 P)$. We also prove sharpness of simplicity via
+the defective Jordan perturbation $A(\varepsilon) = \bigl(\begin{smallmatrix} 0 & 1 \\
+\varepsilon & 0 \end{smallmatrix}\bigr)$ ($\lambda_\pm(\varepsilon) = \pm\sqrt{\varepsilon}$).
+Thus the compound conjecture \texttt{00000007179} is \textbf{false}. All positive
+theorems, convergence bounds, and refutations are formalized without external
+dependencies or \texttt{sorry} in Core Lean~4.19.0 and independently checked in exact
+rational arithmetic.
+\end{abstract}
+
+\section{Problem Statement and Main Verdict}
+
+Conjecture \texttt{00000007179} is stated bilingually in \texttt{SOURCE.md} as follows:
+\begin{quote}
+\textbf{English.} \emph{Definition: The stability of perturbed spectra with Kato theory.
+Conjecture: Simple eigenvalues are analytically perturbable, and the coefficient of the
+perturbation is the residual projection. (residual-projection Kato analytic perturbation)}
+\end{quote}
+The parallel Chinese formulation reads: \emph{Definition:} stability of perturbed
+spectra via Kato theory (\emph{shedong pu de wendingxing: Kato lilun});
+\emph{Conjecture:} Kato perturbation---analytic perturbation of simple eigenvalues
+(\emph{danzhong tezhengzhi de jiexi shedong}), \textbf{and} the coefficient of the
+perturbation is the residual projection (\emph{qie [she]dong de xishu wei canyu
+touying; Kato canyu touying jiexi shedong danzhong tezhengzhi}, with the minor
+orthographic omission of \emph{she} before \emph{dong de xishu} unambiguously resolved
+by both the English text and the parenthetical tag).
+
+The conjecture is therefore the logical conjunction $P_1 \land P_2$ of two claims
+concerning a linear pencil $A(\varepsilon) = A_0 + \varepsilon A_1$ (or general
+analytic family $A(\varepsilon) = \sum_{m=0}^\infty \varepsilon^m A_m$) near an
+algebraically simple eigenvalue $\lambda_0$ of $A_0$:
+\begin{enumerate}
+  \item \textbf{Clause~1 ($P_1$):} $\lambda_0$ (together with a normalized eigenvector
+  branch) admits a unique analytic perturbation expansion $\lambda(\varepsilon) =
+  \sum_{k=0}^\infty \lambda_k \varepsilon^k$, $v(\varepsilon) = \sum_{k=0}^\infty v_k
+  \varepsilon^k$ for $|\varepsilon| < R_0$ ($R_0 > 0$).
+  \item \textbf{Clause~2 ($P_2$):} The perturbation coefficient is given by the
+  residual projection $Q = I - P$ onto the complementary invariant subspace
+  $\im(A_0 - \lambda_0 I)$.
+\end{enumerate}
+
+\begin{theorem}[Main Verdict for Conjecture \texttt{00000007179}]\label{thm:verdict}
+\textbf{Clause~1 ($P_1$) is true}, whereas \textbf{Clause~2 ($P_2$) is false} under
+every standard mathematical interpretation (Readings~A, B, C, and D in
+Table~\ref{tab:summary}). Consequently, Conjecture \texttt{00000007179} is
+\textbf{false}.
+\end{theorem}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.8pt}
+\begin{tabular}{llll}
+\hline
+\textbf{Quantity} & \textbf{True Kato Formula} &
+\textbf{Residual-Proj.\ Reading} & \textbf{Counterexample Witness} \\
+\hline
+$\lambda_1$ (A1) & $\tr(P A_1)$ & $\pm\tr(Q A_1)$ &
+$A_0=\diag(2,0),\; A_1=\diag(1,0)$: $1 \neq 0$ \\
+$\lambda_1$ (A1$'$) & $\tr(P A_1)$ & $\pm\tr(Q A_1)$ &
+$A_0=\diag(2,0),\; A_1=\diag(0,5)$: $0 \neq \pm 5$ \\
+$\lambda_1$ (A2) & $\dfrac{w_0^\top A_1 v_0}{w_0^\top v_0}$ &
+$\dfrac{w_0^\top Q A_1 v_0}{w_0^\top v_0} \equiv 0$ &
+$A_0=\diag(2,0),\; A_1=\diag(1,0)$: $1 \neq 0$ \\
+$|\lambda_1|$ (A3) & $|\tr(P A_1)|$ & $\|Q A_1 v_0\|$ &
+$A_0=\diag(2,0),\; A_1=X$: $0 \neq 1$ \\
+$D\lambda(A_0)$ (A4) & $P$ & $Q = I - P$ &
+All simple $\lambda_0$ ($P v_0 = v_0 \neq 0 = Q v_0$) \\
+$v_1$ (B) & $- S A_1 v_0$ & $\pm Q A_1 v_0$ &
+$A_0=\diag(5,1),\; A_1=X$: $\frac{1}{4}e_2 \neq \pm e_2$ \\
+$\lambda_2$ (C) & $-\tr(P A_1 S A_1)$ & $\pm\tr(P A_1 Q A_1)$ &
+$A_0=\diag(5,1),\; A_1=X$: $\frac{1}{4} \neq \pm 1$ \\
+$P_1$ (D) & $- P A_1 S - S A_1 P$ & $\pm Q,\; \pm(P A_1 Q + Q A_1 P)$ &
+$A_0=\diag(5,1),\; A_1=X$: $\frac{1}{4}X \neq \pm Q, \pm X$ \\
+\hline
+\end{tabular}
+\caption{Comparison between exact Kato perturbation formulas and all candidate
+residual-projection readings around a simple eigenvalue $\lambda_0$ ($P =
+\frac{v_0 w_0^\top}{w_0^\top v_0}$, $Q = I - P$, $(A_0 - \lambda_0 I)S = Q$, $PS = 0$,
+and $X = \bigl(\begin{smallmatrix} 0 & 1 \\ 1 & 0 \end{smallmatrix}\bigr)$).}
+\label{tab:summary}
+\end{table}
+
+\section{Riesz--Kato Spectral Decomposition of a Simple Eigenvalue}
+
+Let $\mathbb{F}$ be an arbitrary field and let $A_0 \in M_n(\mathbb{F})$ ($n \ge 1$).
+An element $\lambda_0 \in \mathbb{F}$ is an \emph{algebraically simple eigenvalue} of
+$A_0$ if the characteristic polynomial $\chi_{A_0}(x) = \det(x I - A_0)$ factors in
+$\mathbb{F}[x]$ as
+\begin{equation}\label{eq:simple-charpoly}
+  \chi_{A_0}(x) = (x - \lambda_0)\, q(x), \qquad q(\lambda_0) \neq 0.
+\end{equation}
+Notice that \eqref{eq:simple-charpoly} imposes no diagonalizability assumption on the
+complementary spectrum: eigenvalues $\mu \neq \lambda_0$ of $A_0$ may carry arbitrary
+Jordan blocks.
+
+\begin{theorem}[Lagrange--Sylvester--Riesz Polynomial Decomposition]\label{thm:riesz-poly}
+Suppose $A_0 \in M_n(\mathbb{F})$ and $\lambda_0 \in \mathbb{F}$ satisfy
+$(A_0 - \lambda_0 I)\, q(A_0) = 0$ for a polynomial $q(x) \in \mathbb{F}[x]$ with
+$\mu_0 := q(\lambda_0) \neq 0$ (in particular, by the Cayley--Hamilton theorem,
+whenever \eqref{eq:simple-charpoly} holds). Let $r(x) \in \mathbb{F}[x]$ be the exact
+quotient polynomial satisfying $q(x) - q(\lambda_0) = (x - \lambda_0)\, r(x)$, and
+define the polynomials in $A_0$:
+\begin{equation}\label{eq:PQS-poly}
+  P := \mu_0^{-1} q(A_0), \qquad
+  Q := I - P, \qquad
+  S := -\mu_0^{-1} r(A_0)\, Q.
+\end{equation}
+Then:
+\begin{enumerate}
+  \item $P^2 = P$, $Q^2 = Q$, $P + Q = I$, and $PQ = QP = 0$;
+  \item $A_0 P = P A_0 = \lambda_0 P$ and $A_0 Q = Q A_0$;
+  \item $(A_0 - \lambda_0 I) S = S (A_0 - \lambda_0 I) = Q$ and $P S = S P = 0$.
+\end{enumerate}
+Furthermore, if $\lambda_0$ has algebraic multiplicity~$1$, then $\mathrm{rank}(P) = 1$,
+so there exist right and left eigenvectors $v_0, w_0 \in \mathbb{F}^n$ ($A_0 v_0 =
+\lambda_0 v_0$, $A_0^\top w_0 = \lambda_0 w_0$) with $w_0^\top v_0 \neq 0$ such that
+$P = \frac{v_0 w_0^\top}{w_0^\top v_0}$ and $\tr(P) = 1$, and $S$ is the unique matrix
+satisfying $(A_0 - \lambda_0 I) S = Q$ and $P S = 0$.
+\end{theorem}
+
+\begin{proof}
+Let $B := A_0 - \lambda_0 I$. Since $P, Q, S, B, q(A_0), r(A_0)$ are all polynomials in
+$A_0$, they pairwise commute. By hypothesis, $B P = \mu_0^{-1} B q(A_0) = 0$, whence
+$A_0 P = P A_0 = \lambda_0 P$. Substituting $x = A_0$ into $q(x) = \mu_0 +
+(x - \lambda_0) r(x)$ yields
+\begin{equation}\label{eq:bezout-mat}
+  q(A_0) = \mu_0 I + B\, r(A_0),
+  \qquad\text{so}\qquad
+  Q = I - \mu_0^{-1} q(A_0) = -\mu_0^{-1} B\, r(A_0).
+\end{equation}
+Multiplying the first relation in \eqref{eq:bezout-mat} on the right by $P$ and using
+$B P = 0$ gives $q(A_0) P = \mu_0 P$, so $P^2 = \mu_0^{-1} q(A_0) P = P$. It follows
+immediately that $PQ = P(I - P) = P - P^2 = 0 = QP$ and $Q^2 = Q(I - P) = Q - QP = Q$.
+Next, by definition of $S$ and the second relation in \eqref{eq:bezout-mat},
+\[
+  B S = B\bigl(-\mu_0^{-1} r(A_0) Q\bigr) = \bigl(-\mu_0^{-1} B\, r(A_0)\bigr) Q
+  = Q^2 = Q,
+\]
+and $S B = B S = Q$ by commutativity, while $P S = -\mu_0^{-1} r(A_0)(PQ) = 0 = S P$.
+
+Consequently, $\mathbb{F}^n = \im(P) \oplus \im(Q)$ is an $A_0$-invariant direct sum
+on which $B|_{\im(P)} = 0$ and $B|_{\im(Q)}$ is invertible with inverse $S|_{\im(Q)}$.
+Computing $\chi_{A_0}(x)$ in a basis adapted to $\im(P) \oplus \im(Q)$ gives
+$\chi_{A_0}(x) = (x - \lambda_0)^{\dim\im(P)} \chi_{A_0|_{\im(Q)}}(x)$ with
+$\chi_{A_0|_{\im(Q)}}(\lambda_0) = \det(-B|_{\im(Q)}) \neq 0$. Under
+\eqref{eq:simple-charpoly}, unique factorization forces $\dim\im(P) = 1$. Picking any
+nonzero $v_0 \in \im(P)$ and nonzero linear functional $w_0^\top$ spanning $\im(P^\top)$
+gives $P v_0 = v_0$, $w_0^\top P = w_0^\top$, $w_0^\top v_0 \neq 0$ (since $P^2 = P
+\neq 0$), and $P = \frac{v_0 w_0^\top}{w_0^\top v_0}$ with $\tr(P) =
+\frac{w_0^\top v_0}{w_0^\top v_0} = 1$. Finally, if $S'$ satisfies $B S' = Q$ and
+$P S' = 0$, then $Q S' = (I - P) S' = S'$, whence
+\[
+  S' = Q S' = (S B) S' = S (B S') = S Q = S(I - P) = S. \qedhere
+\]
+\end{proof}
+
+\begin{remark}[Kato's Riesz Contour Representation over $\mathbb{C}$]\label{rem:contour}
+When $\mathbb{F} = \mathbb{C}$ and $\Gamma \subset \mathbb{C}$ is a positively oriented
+circle isolating $\lambda_0$ from $\sigma(A_0) \setminus \{\lambda_0\}$, Cauchy's
+integral formula applied to the Laurent expansion of $(A_0 - \zeta I)^{-1}$ around
+$\zeta = \lambda_0$ recovers the identical operators $(P, Q, S)$ of
+Theorem~\ref{thm:riesz-poly} as contour integrals (Kato~\cite[Ch.~II, \S1.4--\S1.5]{Kato1995}):
+\[
+  P = -\frac{1}{2\pi i} \oint_\Gamma (A_0 - \zeta I)^{-1}\, d\zeta
+    = \Res_{\zeta = \lambda_0}(\zeta I - A_0)^{-1}, \qquad
+  S = \frac{1}{2\pi i} \oint_\Gamma \frac{(A_0 - \zeta I)^{-1}}{\zeta - \lambda_0}\, d\zeta.
+\]
+\end{remark}
+
+\section{Proof of Clause 1: Analytic Perturbability and Exact Kato Formulas}
+
+Throughout this section, let $(v_0, w_0, P, Q, S)$ be the Kato spectral data of an
+algebraically simple eigenvalue $\lambda_0$ of $A_0 \in M_n(\mathbb{F})$:
+$A_0 v_0 = \lambda_0 v_0$, $A_0^\top w_0 = \lambda_0 w_0$, $w_0^\top v_0 \neq 0$,
+$P = \frac{v_0 w_0^\top}{w_0^\top v_0}$, $Q = I - P$, $(A_0 - \lambda_0 I)S =
+S(A_0 - \lambda_0 I) = Q$, and $PS = SP = 0$.
+
+\subsection{All-Orders Recursion, Existence, Uniqueness, and Closed-Form Coefficients}
+
+\begin{theorem}[All-Orders Kato Perturbation Series]\label{thm:all-orders}
+For any perturbation matrix $A_1 \in M_n(\mathbb{F})$, define $(\lambda_k, v_k)_{k \ge 0}$
+recursively by $(\lambda_0, v_0)$ at $k = 0$ and, for every $k \ge 1$,
+\begin{equation}\label{eq:kato-recursion}
+  \lambda_k := \frac{w_0^\top A_1 v_{k-1}}{w_0^\top v_0}, \qquad
+  v_k := - S A_1 v_{k-1} + \sum_{j=1}^{k-1} \lambda_j S v_{k-j}.
+\end{equation}
+Then:
+\begin{enumerate}
+  \item \textbf{(Normalization)} For every $k \ge 1$, $w_0^\top v_k = 0$, $P v_k = 0$,
+  and $Q v_k = v_k$.
+  \item \textbf{(All-Orders Eigenvalue Identity)} In $\mathbb{F}[[\varepsilon]]$, the
+  formal series $\lambda(\varepsilon) = \sum_{k=0}^\infty \lambda_k \varepsilon^k$ and
+  $v(\varepsilon) = \sum_{k=0}^\infty v_k \varepsilon^k$ satisfy
+  $(A_0 + \varepsilon A_1) v(\varepsilon) = \lambda(\varepsilon) v(\varepsilon)$; that
+  is, $A_0 v_0 = \lambda_0 v_0$ and for every $k \ge 1$,
+  \begin{equation}\label{eq:power-series-deg-k}
+    A_0 v_k + A_1 v_{k-1} = \sum_{j=0}^k \lambda_j v_{k-j}.
+  \end{equation}
+  \item \textbf{(Uniqueness)} Any sequence $(\tilde{\lambda}_k, \tilde{v}_k)_{k \ge 0}$
+  with $(\tilde{\lambda}_0, \tilde{v}_0) = (\lambda_0, v_0)$, $w_0^\top \tilde{v}_k = 0$
+  for all $k \ge 1$, and satisfying \eqref{eq:power-series-deg-k} for all $k \ge 1$
+  coincides identically with $(\lambda_k, v_k)$ for all $k \ge 0$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1) Since $P S = 0$, for every $u \in \mathbb{F}^n$ we have
+$0 = P(S u) = \frac{w_0^\top (S u)}{w_0^\top v_0} v_0$; because $v_0 \neq 0$ (as
+$w_0^\top v_0 \neq 0$), $w_0^\top (S u) = 0$. Applying $w_0^\top$ to
+\eqref{eq:kato-recursion} gives $w_0^\top v_k = 0$ for every $k \ge 1$, whence
+$P v_k = 0$ and $Q v_k = (I - P) v_k = v_k$.
+
+(2) Let $B = A_0 - \lambda_0 I$. Using $B S = Q$ and $Q v_{k-j} = v_{k-j}$ for
+$1 \le j \le k - 1$ (since $k - j \ge 1$), applying $B$ to $v_k$ in
+\eqref{eq:kato-recursion} yields
+\begin{align*}
+  (A_0 - \lambda_0 I) v_k
+  &= - Q A_1 v_{k-1} + \sum_{j=1}^{k-1} \lambda_j Q v_{k-j}
+   = (P - I) A_1 v_{k-1} + \sum_{j=1}^{k-1} \lambda_j v_{k-j} \\
+  &= \lambda_k v_0 - A_1 v_{k-1} + \sum_{j=1}^{k-1} \lambda_j v_{k-j},
+\end{align*}
+because $P A_1 v_{k-1} = \frac{w_0^\top A_1 v_{k-1}}{w_0^\top v_0} v_0 = \lambda_k v_0$.
+Rearranging terms gives \eqref{eq:power-series-deg-k}.
+
+(3) Suppose $(\tilde{\lambda}_k, \tilde{v}_k)_{k \ge 0}$ satisfies the stated
+conditions, and assume inductively that $(\tilde{\lambda}_m, \tilde{v}_m) =
+(\lambda_m, v_m)$ for all $0 \le m < k$ ($k \ge 1$). Then \eqref{eq:power-series-deg-k}
+for $(\tilde{\lambda}, \tilde{v})$ reads
+\begin{equation}\label{eq:unique-step}
+  (A_0 - \lambda_0 I) \tilde{v}_k
+  = \tilde{\lambda}_k v_0 - A_1 v_{k-1} + \sum_{j=1}^{k-1} \lambda_j v_{k-j}.
+\end{equation}
+Multiplying \eqref{eq:unique-step} on the left by $w_0^\top$ annihilates the left-hand
+side (since $w_0^\top(A_0 - \lambda_0 I) = 0$) and the sum (since $w_0^\top v_{k-j} = 0$
+for $1 \le j \le k - 1$), leaving $0 = \tilde{\lambda}_k (w_0^\top v_0) -
+w_0^\top A_1 v_{k-1}$, so $\tilde{\lambda}_k = \lambda_k$. Multiplying
+\eqref{eq:unique-step} on the left by $S$ and using $S(A_0 - \lambda_0 I) = Q$,
+$Q \tilde{v}_k = \tilde{v}_k$, and $S v_0 = S(P v_0) = (SP) v_0 = 0$ gives
+$\tilde{v}_k = - S A_1 v_{k-1} + \sum_{j=1}^{k-1} \lambda_j S v_{k-j} = v_k$.
+\end{proof}
+
+\begin{corollary}[Exact First- and Second-Order Kato Formulas]\label{cor:kato-formulas}
+Under the hypotheses of Theorem~\ref{thm:all-orders}, the first- and second-order
+perturbation coefficients are given explicitly by
+\begin{align}
+  \lambda_1 &= \frac{w_0^\top A_1 v_0}{w_0^\top v_0}
+             = \tr(P A_1) = \tr(P A_1 P), \label{eq:lam1}\\
+  v_1 &= - S A_1 v_0, \label{eq:v1}\\
+  \lambda_2 &= -\frac{w_0^\top A_1 S A_1 v_0}{w_0^\top v_0}
+             = -\tr(P A_1 S A_1). \label{eq:lam2}
+\end{align}
+Moreover, the first-order Riesz eigenprojection derivative
+$P_1 := - P A_1 S - S A_1 P$ satisfies the linearized idempotence and commutation
+relations $P P_1 + P_1 P = P_1$ and $A_0 P_1 + A_1 P = P A_1 + P_1 A_0$.
+\end{corollary}
+
+\begin{proof}
+Setting $k = 1$ in \eqref{eq:kato-recursion} yields $\lambda_1 =
+\frac{w_0^\top A_1 v_0}{w_0^\top v_0}$ and $v_1 = - S A_1 v_0$. For any matrix $X$,
+$\tr(P X) = (w_0^\top v_0)^{-1} \sum_{i,j} (v_0)_i (w_0)_j X_{ji} =
+\frac{w_0^\top X v_0}{w_0^\top v_0}$, and by cyclicity of trace with $P^2 = P$,
+$\tr(P A_1 P) = \tr(P^2 A_1) = \tr(P A_1)$, proving \eqref{eq:lam1}. Setting $k = 2$ in
+\eqref{eq:kato-recursion} and substituting $v_1 = - S A_1 v_0$ gives
+$\lambda_2 = \frac{w_0^\top A_1 (- S A_1 v_0)}{w_0^\top v_0} =
+-\frac{w_0^\top (A_1 S A_1) v_0}{w_0^\top v_0} = -\tr(P A_1 S A_1)$, proving
+\eqref{eq:lam2}. Finally, for $P_1 = - P A_1 S - S A_1 P$, using $P^2 = P$ and
+$P S = S P = 0$ gives $P P_1 = - P A_1 S$ and $P_1 P = - S A_1 P$, so $P P_1 + P_1 P =
+P_1$; similarly, with $B = A_0 - \lambda_0 I$, $B P = P B = 0$, and $B S = S B = Q =
+I - P$, we have
+\begin{align*}
+  A_0 P_1 - P_1 A_0 &= B P_1 - P_1 B = - Q A_1 P + P A_1 Q \\
+  &= -(A_1 P - P A_1 P) + (P A_1 - P A_1 P) = P A_1 - A_1 P,
+\end{align*}
+whence $A_0 P_1 + A_1 P = P A_1 + P_1 A_0$.
+\end{proof}
+
+\subsection{Explicit Positive Radius of Analytic Convergence}
+
+To establish genuine \emph{analytic} perturbability (not merely formal power series), we
+prove an explicit Cauchy--Kato majorant bound valid over every linearly ordered field
+$\mathbb{F}$ (including $\mathbb{Q}$ and $\mathbb{R}$, and extending verbatim to
+$\mathbb{C}$ under $|\cdot|$). Equip $\mathbb{F}^n$ with $\|u\|_1 = \sum_{i=1}^n |u_i|$
+and $M_n(\mathbb{F})$ with $\|M\|_{\mathrm{sum}} = \sum_{i,j=1}^n |M_{ij}|$, which
+satisfy $|w^\top u| \le \|w\|_1 \|u\|_1$ and $\|M u\|_1 \le \|M\|_{\mathrm{sum}} \|u\|_1$.
+
+\begin{lemma}[Discrete Inverse-Square Convolution Inequality]\label{lem:inv-sq}
+For every integer $k \ge 1$:
+\[
+  \sum_{j=1}^k \frac{1}{j^2} \le 2 - \frac{1}{k} \le 2,
+  \qquad
+  \frac{1}{k^2} \le \frac{4}{(k + 1)^2},
+  \qquad\text{and}\qquad
+  \sum_{j=1}^k \frac{1}{j^2 (k + 1 - j)^2} \le \frac{8}{(k + 1)^2}.
+\]
+\end{lemma}
+
+\begin{proof}
+For $m \ge 1$, $(m + 1)^{-2} \le (m(m + 1))^{-1} = m^{-1} - (m + 1)^{-1}$, so
+telescoping gives $\sum_{j=1}^k j^{-2} \le 1 + \sum_{m=1}^{k-1}(m^{-1} - (m+1)^{-1}) =
+2 - k^{-1} \le 2$. Next, $k \ge 1 \implies k + 1 \le 2k \implies (k + 1)^2 \le 4k^2$.
+Finally, for $1 \le j \le k$, partial fractions and $(a + b)^2 \le 2(a^2 + b^2)$ give
+\[
+  \frac{1}{j^2 (k + 1 - j)^2}
+  = \frac{1}{(k + 1)^2}\left(\frac{1}{j} + \frac{1}{k + 1 - j}\right)^2
+  \le \frac{2}{(k + 1)^2}\left(\frac{1}{j^2} + \frac{1}{(k + 1 - j)^2}\right).
+\]
+Summing from $j = 1$ to $k$ and reindexing $j \mapsto k + 1 - j$ on the second sum
+yields $\frac{4}{(k + 1)^2} \sum_{j=1}^k j^{-2} \le \frac{8}{(k + 1)^2}$.
+\end{proof}
+
+\begin{theorem}[Explicit Cauchy--Kato Analytic Convergence Radius]\label{thm:majorant}
+Set $\alpha := \frac{\|w_0\|_1}{|w_0^\top v_0|}\|A_1\|_{\mathrm{sum}}$,
+$\beta := \|S A_1\|_{\mathrm{sum}}$, $\sigma := \|S\|_{\mathrm{sum}}$, and define
+\[
+  \rho := 4\beta + 8\alpha\sigma\|v_0\|_1 + 1 > 0, \qquad
+  R_0 := \rho^{-1} > 0.
+\]
+Then the Kato coefficients \eqref{eq:kato-recursion} satisfy, for all $k \ge 0$ and all
+$m \ge 1$,
+\begin{equation}\label{eq:majorant}
+  \|v_k\|_1 \le \frac{\|v_0\|_1}{(k + 1)^2}\,\rho^k, \qquad
+  |\lambda_m| \le \frac{\alpha\|v_0\|_1}{m^2}\,\rho^{m-1}.
+\end{equation}
+Consequently, for every $\varepsilon$ in the closed disk $|\varepsilon| \le R_0$ and all
+integers $1 \le N \le M$, the partial sums satisfy the uniform $O(1/N)$ Cauchy tail bound
+\begin{equation}\label{eq:cauchy-tail}
+  \left|\sum_{k=N+1}^M \lambda_k \varepsilon^k\right|
+  \le \frac{\alpha \|v_0\|_1 R_0}{N}.
+\end{equation}
+In particular, over $\mathbb{R}$ or $\mathbb{C}$, $\lambda(\varepsilon) =
+\sum_{k=0}^\infty \lambda_k \varepsilon^k$ and $v(\varepsilon) = \sum_{k=0}^\infty v_k
+\varepsilon^k$ converge absolutely and uniformly on $|\varepsilon| \le R_0$ to real- or
+complex-analytic functions satisfying $(A_0 + \varepsilon A_1)v(\varepsilon) =
+\lambda(\varepsilon)v(\varepsilon)$.
+\end{theorem}
+
+\begin{proof}
+At $k = 0$, \eqref{eq:majorant} for $v_0$ is an equality. For $k \ge 1$, assume the first
+bound in \eqref{eq:majorant} holds for all $0 \le j < k$. Then for $1 \le j \le k$,
+$|\lambda_j| \le \alpha \|v_{j-1}\|_1 \le \alpha \|v_0\|_1 j^{-2} \rho^{j-1}$. Taking
+$\|\cdot\|_1$ in \eqref{eq:kato-recursion} and applying Lemma~\ref{lem:inv-sq} gives
+\begin{align*}
+  \|v_k\|_1
+  &\le \beta \|v_{k-1}\|_1 + \sigma \sum_{j=1}^{k-1} |\lambda_j|\, \|v_{k-j}\|_1 \\
+  &\le \beta \frac{\|v_0\|_1}{k^2}\rho^{k-1}
+     + \alpha\sigma\|v_0\|_1^2 \rho^{k-1}
+       \sum_{j=1}^{k-1} \frac{1}{j^2 (k + 1 - j)^2} \\
+  &\le \frac{4\beta + 8\alpha\sigma\|v_0\|_1}{(k + 1)^2}\,\|v_0\|_1 \rho^{k-1}
+   \le \frac{\|v_0\|_1}{(k + 1)^2}\,\rho^k.
+\end{align*}
+This completes the induction and also proves the $\lambda_m$ bound. When
+$|\varepsilon| \le R_0 = \rho^{-1}$, each term satisfies $|\lambda_k \varepsilon^k| \le
+\alpha \|v_0\|_1 R_0 k^{-2} \le \alpha \|v_0\|_1 R_0 \bigl((k-1)^{-1} - k^{-1}\bigr)$
+for $k \ge 2$, which telescopes over $N + 1 \le k \le M$ to
+$\alpha \|v_0\|_1 R_0 (N^{-1} - M^{-1}) \le \alpha \|v_0\|_1 R_0 / N$. Over $\mathbb{R}$
+or $\mathbb{C}$, completeness and Cauchy multiplication of absolutely convergent power
+series transfer the formal identities \eqref{eq:power-series-deg-k} directly to the
+pointwise analytic identity $(A_0 + \varepsilon A_1)v(\varepsilon) =
+\lambda(\varepsilon)v(\varepsilon)$ on $|\varepsilon| \le R_0$.
+\end{proof}
+
+\section{Exhaustive Refutation of Clause 2 Across All Readings}
+
+We now show that every candidate mathematical interpretation of Clause~2 (\emph{``and
+the coefficient of the perturbation is the residual projection''}, referring to
+$Q = I - P$) is false over every linearly ordered field $\mathbb{F}$ (and over
+$\mathbb{C}$).
+
+\subsection{Reading A: First-Order Eigenvalue Coefficient \texorpdfstring{$\lambda_1$}{lambda\_1} via \texorpdfstring{$Q = I - P$}{Q = I - P}}
+
+By Corollary~\ref{cor:kato-formulas}, the true first-order eigenvalue shift is
+$\lambda_1(A_1) = \tr(P A_1) = \frac{w_0^\top A_1 v_0}{w_0^\top v_0}$. We first prove a
+universal impossibility theorem in arbitrary dimension $n \ge 1$, followed by explicit
+$2 \times 2$ counterexamples refuting all scalar variants.
+
+\begin{theorem}[Universal $n \times n$ Impossibility and Reading A Counterexamples]\label{thm:readingA}
+Let $\mathbb{F}$ be any linearly ordered field.
+\begin{enumerate}
+  \item \textbf{(Universal Operator Impossibility)} For \emph{every} dimension $n \ge 1$
+  and \emph{every} simple eigenvalue $\lambda_0$ of $A_0 \in M_n(\mathbb{F})$, if a
+  matrix $M \in M_n(\mathbb{F})$ satisfies $\lambda_1(A_1) = \tr(M A_1)$ for all
+  $A_1 \in M_n(\mathbb{F})$, then $M = P$. Moreover, $P \neq Q$ always holds, so
+  $\lambda_1(A_1) = \tr(Q A_1)$ fails for every simple eigenvalue in every dimension.
+  \item \textbf{(Universal Rayleigh Vanishing)} For every $(A_0, \lambda_0)$ and every
+  $A_1$, $\frac{w_0^\top Q A_1 v_0}{w_0^\top v_0} = 0$.
+  \item \textbf{(Explicit Counterexamples on $A_0 = \diag(2, 0)$ at $\lambda_0 = 2$)}
+  Here $v_0 = w_0 = e_1$, $P = \diag(1, 0)$, and $Q = I - P = \diag(0, 1)$:
+  \begin{itemize}
+    \item[(i)] For $A_1 = \diag(1, 0)$, $\lambda(\varepsilon) = 2 + \varepsilon$ has
+    $\lambda_1 = 1$, whereas $\tr(Q A_1) = 0$, $\frac{w_0^\top Q A_1 v_0}{w_0^\top v_0}
+    = 0$, and $\|Q A_1 v_0\|_1 = \|Q A_1 v_0\|_2 = 0$.
+    \item[(ii)] For $A_1 = \diag(0, 5)$, $\lambda(\varepsilon) = 2$ (for
+    $|\varepsilon| < 2/5$) has $\lambda_1 = 0$, whereas $\tr(Q A_1) = 5 \neq 0$
+    ($\lambda_1 \neq \pm\tr(Q A_1)$).
+    \item[(iii)] For $A_1 = \bigl(\begin{smallmatrix} 0 & 1 \\ 1 & 0 \end{smallmatrix}\bigr)$,
+    $\lambda(\varepsilon) = 1 + \sqrt{1 + \varepsilon^2} = 2 + \frac{1}{2}\varepsilon^2
+    - \cdots$ has $\lambda_1 = 0$, whereas $Q A_1 v_0 = e_2$ satisfies
+    $\|Q A_1 v_0\|_1 = \|Q A_1 v_0\|_2^2 = 1 \neq 0$.
+  \end{itemize}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1) Testing $\tr(M A_1) = \tr(P A_1)$ on matrix units $A_1 = E_{c,r}$ gives
+$M_{r,c} = \tr(M E_{c,r}) = \tr(P E_{c,r}) = P_{r,c}$ for all $r, c$, so $M = P$. If
+$P = Q$, then $v_0 = P v_0 = Q v_0 = (I - P)v_0 = 0$, contradicting $w_0^\top v_0 \neq 0$.
+
+(2) Since $w_0^\top P = w_0^\top$, $w_0^\top Q = w_0^\top (I - P) = 0$, so
+$w_0^\top Q A_1 v_0 = 0$.
+
+(3) Direct matrix multiplication on $A_0 = \diag(2, 0)$ yields $P = E_{11}$,
+$Q = E_{22}$, and the stated exact values in (i)--(iii).
+\end{proof}
+
+\subsection{Readings B, C, and D: Eigenvector, Quadratic Eigenvalue, and Projection Coefficients}
+
+\begin{theorem}[Refutation of Readings B, C, and D]\label{thm:readingBCD}
+Consider $A_0 = \diag(5, 1)$ over any linearly ordered field $\mathbb{F}$ around the
+simple eigenvalue $\lambda_0 = 5$, with $v_0 = w_0 = e_1$, $P = \diag(1, 0)$,
+$Q = \diag(0, 1)$, reduced resolvent $S = \diag(0, -1/4)$, and off-diagonal perturbation
+$A_1 = \bigl(\begin{smallmatrix} 0 & 1 \\ 1 & 0 \end{smallmatrix}\bigr)$. Over
+$\mathbb{R}$, $A(\varepsilon) = \bigl(\begin{smallmatrix} 5 & \varepsilon \\ \varepsilon & 1
+\end{smallmatrix}\bigr)$ has exact eigenvalue and normalized eigenvector branches
+\[
+  \lambda(\varepsilon) = 3 + \sqrt{4 + \varepsilon^2}
+  = 5 + \frac{1}{4}\varepsilon^2 - \frac{1}{64}\varepsilon^4 + \cdots,
+  \qquad
+  v(\varepsilon) = \begin{pmatrix} 1 \\ \dfrac{\varepsilon}{\lambda(\varepsilon) - 1} \end{pmatrix}
+  = \begin{pmatrix} 1 \\ \frac{1}{4}\varepsilon - \frac{1}{64}\varepsilon^3 + \cdots \end{pmatrix}.
+\]
+Over every linearly ordered field $\mathbb{F}$:
+\begin{enumerate}
+  \item \textbf{(Reading B --- First-Order Eigenvector Slope)} The exact Kato vector
+  coefficient is $v_1 = - S A_1 e_1 = \bigl(0, \frac{1}{4}\bigr)^\top$, whereas
+  $\pm Q A_1 e_1 = (0, \pm 1)^\top$; since $\frac{1}{4} \notin \{1, -1\}$,
+  $v_1 \neq \pm Q A_1 v_0$.
+  \item \textbf{(Reading C --- Second-Order Eigenvalue Coefficient)} The exact Kato
+  quadratic coefficient is $\lambda_2 = -\tr(P A_1 S A_1) = \frac{1}{4}$, whereas
+  $\pm\tr(P A_1 Q A_1) = \pm 1$; since $\frac{1}{4} \notin \{1, -1\}$,
+  $\lambda_2 \neq \pm\tr(P A_1 Q A_1)$.
+  \item \textbf{(Reading D --- First-Order Eigenprojection Derivative)} The exact
+  eigenprojection derivative is $P_1 = - P A_1 S - S A_1 P =
+  \frac{1}{4}\bigl(\begin{smallmatrix} 0 & 1 \\ 1 & 0 \end{smallmatrix}\bigr)$, which
+  disagrees with both $\pm Q = \pm\diag(0, 1)$ and the unweighted residual expression
+  $\pm(P A_1 Q + Q A_1 P) = \pm\bigl(\begin{smallmatrix} 0 & 1 \\ 1 & 0 \end{smallmatrix}\bigr)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Since $A_0 - 5I = \diag(0, -4)$, we have $(A_0 - 5I)\,\diag(0, -1/4) = \diag(0, 1) = Q$
+and $P\,\diag(0, -1/4) = 0$, confirming $S = \diag(0, -1/4)$. Applying
+Corollary~\ref{cor:kato-formulas} gives
+\[
+  v_1 = -\begin{pmatrix} 0 & 0 \\ 0 & -1/4 \end{pmatrix}\begin{pmatrix} 0 \\ 1 \end{pmatrix}
+  = \begin{pmatrix} 0 \\ 1/4 \end{pmatrix}, \quad
+  \lambda_2 = -\tr\!\left[
+    \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}
+    \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}
+    \begin{pmatrix} 0 & 0 \\ 0 & -1/4 \end{pmatrix}
+    \begin{pmatrix} 0 & 1 \\ 1 & 0 \end{pmatrix}
+  \right] = \frac{1}{4},
+\]
+and $P_1 = \frac{1}{4} A_1$, whereas $Q A_1 e_1 = e_2$, $\tr(P A_1 Q A_1) = 1$, and
+$P A_1 Q + Q A_1 P = A_1$. Because $0 < 1 < 4$ in every linearly ordered field,
+$\frac{1}{4} \neq 1$, $\frac{1}{4} \neq -1$, and $0 \neq \pm 1$, establishing (1)--(3).
+\end{proof}
+
+\begin{remark}[Scaling / Homogeneity Obstruction]\label{rem:scaling}
+Under positive rescaling $A_0 \mapsto c A_0$ ($c > 0$, $c \neq 1$) with $A_1$ fixed,
+both projections $P$ and $Q = I - P$ are homogeneous of degree~$0$
+($Q(c A_0) = Q(A_0)$), whereas the reduced resolvent scales inversely as
+$S(c A_0) = c^{-1} S(A_0)$. Consequently, $v_1$, $\lambda_2$, and $P_1$ all scale as
+$c^{-1}$ with the inverse spectral gap $(\lambda_0 - \mu_j)^{-1}$ and can \emph{never}
+be expressed purely through the scale-invariant projections $P$ and $Q$.
+\end{remark}
+
+\section{Sharpness of Simplicity and Origin of the Misconception}
+
+\begin{proposition}[Defective Jordan Puiseux Obstruction]\label{prop:defective}
+Let $\mathbb{F}$ be any field, and consider the perturbed $2 \times 2$ Jordan block
+\[
+  A(\varepsilon) = A_0 + \varepsilon A_1
+  = \begin{pmatrix} 0 & 1 \\ 0 & 0 \end{pmatrix}
+  + \varepsilon \begin{pmatrix} 0 & 0 \\ 1 & 0 \end{pmatrix}
+  = \begin{pmatrix} 0 & 1 \\ \varepsilon & 0 \end{pmatrix}
+\]
+around the algebraically double (defective) eigenvalue $\lambda_0 = 0$
+($\chi_{A_0}(x) = x^2$). Then:
+\begin{enumerate}
+  \item There exists no formal power series $\lambda(\varepsilon) = \sum_{k=0}^\infty
+  \lambda_k \varepsilon^k \in \mathbb{F}[[\varepsilon]]$ satisfying
+  $\det(\lambda(\varepsilon) I - A(\varepsilon)) = \lambda(\varepsilon)^2 - \varepsilon = 0$.
+  \item There exists no formal power series eigenpair $(\lambda(\varepsilon), v(\varepsilon))$
+  with $v_0 \neq 0$ satisfying $A(\varepsilon) v(\varepsilon) = \lambda(\varepsilon)
+  v(\varepsilon)$ even modulo $\varepsilon^2$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(1) Comparing coefficients of $\varepsilon^0$ and $\varepsilon^1$ in
+$(\lambda_0 + \lambda_1 \varepsilon + \cdots)^2 - \varepsilon = 0$ yields
+$\lambda_0^2 = 0 \implies \lambda_0 = 0$, and then $2 \lambda_0 \lambda_1 - 1 = -1 = 0$,
+contradicting $1 \neq 0$ in $\mathbb{F}$.
+
+(2) Write $v_0 = (x_0, y_0)^\top \neq (0, 0)$ and $v_1 = (x_1, y_1)^\top$. At order
+$\varepsilon^0$, $A_0 v_0 = \lambda_0 v_0$ gives $y_0 = \lambda_0 x_0$ and
+$0 = \lambda_0 y_0 = \lambda_0^2 x_0$. If $x_0 = 0$, then $y_0 = 0$, contradicting
+$v_0 \neq 0$; hence $x_0 \neq 0$, $\lambda_0 = 0$, and $y_0 = 0$. At order
+$\varepsilon^1$, $A_0 v_1 + A_1 v_0 = \lambda_0 v_1 + \lambda_1 v_0$ has second
+component $0 + x_0 = 0 + \lambda_1 y_0 = 0$, contradicting $x_0 \neq 0$. Over
+$\mathbb{C}$, the true eigenvalue branches $\lambda_\pm(\varepsilon) =
+\pm\sqrt{\varepsilon}$ form a fractional Puiseux series with an algebraic branch point
+at $\varepsilon = 0$.
+\end{proof}
+
+\paragraph{Diagnostic Origin of the Misconception.}
+Two structural features of Kato's perturbation theory account for the false second
+clause:
+\begin{enumerate}
+  \item \emph{Residue projection vs.\ residual projection:} By Remark~\ref{rem:contour},
+  the eigenprojection $P = \Res_{\zeta = \lambda_0}(\zeta I - A_0)^{-1}$ is the
+  \textbf{Cauchy residue} (\emph{liushu} / \emph{canshu}) of the resolvent at
+  $\zeta = \lambda_0$, and $\lambda_1 = \tr(P A_1)$ has $P$ as its exact matrix
+  coefficient. Conflating \emph{residue projection} ($P$) with \emph{residual
+  projection} (\emph{canyu touying}, $Q = I - P$, the projection onto the complementary
+  residual subspace $\im(A_0 - \lambda_0 I)$) interchanges $P$ with $I - P$.
+  \item \emph{First-order residual vector vs.\ reduced resolvent:} In the order-$\varepsilon^1$
+  inhomogeneous equation $(A_0 - \lambda_0 I) v_1 = -(A_1 - \lambda_1 I) v_0 =
+  - Q A_1 v_0$, the right-hand side is indeed the negative residual projection of
+  $A_1 v_0$, but solving for $v_1$ (and hence $\lambda_2$) requires applying
+  $(A_0 - \lambda_0 I)|_{\im(Q)}^{-1}$, replacing $Q$ by the reduced resolvent
+  $S = (A_0 - \lambda_0 I)|_{\im(Q)}^{-1} Q$.
+\end{enumerate}
+
+\section{Core Lean 4.19.0 Formalization and Computational Verification}
+
+\begin{sloppypar}
+The entire mathematical development is formalized in \textbf{Core Lean~4.19.0}
+(\texttt{leanprover/\allowbreak lean4:\allowbreak v4.19.0}) inside \texttt{package/lean/}
+with zero external dependencies, compiled with \texttt{-DwarningAsError=true}, and
+verified free of \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, and custom
+axioms:
+\begin{itemize}
+  \item \texttt{OrderedField.lean}: Self-contained \texttt{LinearOrderedField F}
+  axiomatization, $\ell_1$ and entry-sum matrix norms, finite sums, and constructive
+  exact rational model \texttt{Q} (\texttt{instance : LinearOrderedField Q}).
+  \item \texttt{KatoPerturbation.lean}: Theorem~\ref{thm:riesz-poly}
+  (\texttt{rieszPoly\_\allowbreak kato\_\allowbreak identities}), reduced-resolvent
+  uniqueness (\texttt{reducedResolvent\_\allowbreak unique}),
+  Theorem~\ref{thm:all-orders} (\texttt{kato\_\allowbreak power\_\allowbreak series\_eq}
+  and \texttt{kato\_\allowbreak power\_\allowbreak series\_\allowbreak unique}),
+  Corollary~\ref{cor:kato-formulas} (\texttt{kato\_\allowbreak first\_\allowbreak order\_\allowbreak eigenvalue},
+  \texttt{kato\_\allowbreak first\_\allowbreak order\_\allowbreak eigenvector},
+  \texttt{kato\_\allowbreak second\_\allowbreak order\_\allowbreak eigenvalue}, and
+  \texttt{katoProjFirstOrder\_\allowbreak properties}), and Theorem~\ref{thm:majorant}
+  (\texttt{kato\_\allowbreak analytic\_\allowbreak majorant\_\allowbreak bound} and
+  \texttt{kato\_\allowbreak partial\_\allowbreak sum\_\allowbreak cauchy}).
+  \item \texttt{Refutation.lean}: Theorem~\ref{thm:readingA}
+  (\texttt{universal\_\allowbreak readingA\_\allowbreak trace\_\allowbreak impossible}
+  and \texttt{readingA\_\allowbreak refuted}), Theorem~\ref{thm:readingBCD}
+  (\texttt{readingB\_\allowbreak refuted}, \texttt{readingC\_\allowbreak refuted}, and
+  \texttt{readingD\_\allowbreak refuted}), and Proposition~\ref{prop:defective}
+  (\texttt{defective\_\allowbreak jordan\_\allowbreak not\_\allowbreak analytically\_\allowbreak perturbable}).
+  \item \texttt{Conjecture00000007179.lean}: Top-level summary theorems
+  \texttt{conjecture\_\allowbreak 00000007179\_\allowbreak clause1\_true},
+  \texttt{conjecture\_\allowbreak 00000007179\_\allowbreak clause2\_false}, and the
+  unconditional rational instantiation
+  \texttt{conjecture\_\allowbreak 00000007179\_\allowbreak resolved\_\allowbreak over\_Q}.
+\end{itemize}
+\end{sloppypar}
+Independently, \texttt{package/verify.py} checks 150 non-symmetric and
+Jordan-complement Riesz--Kato decompositions ($2 \le n \le 6$), 120 all-orders Kato
+series trials up to $k = 8$ including characteristic-polynomial congruences modulo
+$\varepsilon^9$ and the explicit Cauchy--Kato majorant \eqref{eq:majorant}, all
+refutation witnesses in Readings~A--D (cross-checked against numerical Riesz contour
+quadrature), and the defective Puiseux obstruction.
+
+\begin{thebibliography}{9}
+
+\bibitem{Kato1995}
+T.~Kato,
+\emph{Perturbation Theory for Linear Operators},
+Reprint of the 1980 edition, Classics in Mathematics, Springer-Verlag, Berlin, 1995
+(esp.\ Chapter~II, \S\S1--2).
+
+\bibitem{Rellich1969}
+F.~Rellich,
+\emph{Perturbation Theory of Eigenvalue Problems},
+Gordon and Breach, New York, 1969.
+
+\bibitem{Baumgartel1985}
+H.~Baumg\"artel,
+\emph{Analytic Perturbation Theory for Matrices and Operators},
+Operator Theory: Advances and Applications, Vol.~15, Birkh\"auser, Basel, 1985.
+
+\bibitem{StewartSun1990}
+G.~W.~Stewart and J.-G.~Sun,
+\emph{Matrix Perturbation Theory},
+Academic Press, Boston, 1990.
+
+\end{thebibliography}
+
+\end{document}
