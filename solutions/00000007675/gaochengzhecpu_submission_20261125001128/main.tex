@@ -1,0 +1,639 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\qbinom}[3]{\begin{bmatrix} #1 \\ #2 \end{bmatrix}_{#3}}
+\newcommand{\lcm}{\operatorname{lcm}}
+\newcommand{\carry}{\operatorname{carry}}
+
+\title{\textbf{Disproof of Conjecture 00000007675:\\
+Vanishing Valuation of Gaussian Binomials at Prime Powers\\
+and Failure of the Conjectured LCM Criterion}}
+\author{Formal Mathematical Resolution \& Core Lean 4.19.0 Verification}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve \textbf{Conjecture 00000007675} in the negative (\textbf{DISPROVED}).
+First, we prove from the canonical $q$-Pascal, $q$-factorial, and multiplicative
+definitions of the Gaussian binomial coefficient $\qbinom{n}{k}{q}$ that
+$\qbinom{n}{k}{q} \equiv 1 \pmod{q}$ for every integer $q \ge 2$ and all
+$0 \le k \le n$. Consequently, for every prime $p$, every integer $r \ge 1$, and
+every $0 \le k \le n$, the $p$-adic valuation satisfies
+$v_p\!\left(\qbinom{n}{k}{p^r}\right) = 0$, and in particular
+$v_p\!\left(\qbinom{n}{k}{p}\right) = 0$ identically.
+Second, we analyze the first clause of the conjecture by proving equivalence between
+schoolbook base-$p$ ripple carries and modulo-$p^j$ residue carries, together with
+Kummer's exact termwise identity
+$\lfloor (a+b)/p^j \rfloor - \lfloor a/p^j \rfloor - \lfloor b/p^j \rfloor = \carry_j(a,b)$;
+under standard $1$-indexed carries this reduces the first clause to a tautological
+$0 = 0$ cancellation, whereas under $0$-indexed carries it fails already at
+$(p,n,k) = (2,2,1)$.
+Third, we decisively refute the second clause---asserting that the alternative
+LCM-expression $\lfloor \log_p(\lcm(k+1,\dots,n)/(k!(n-k)!))\rfloor$ equals
+$v_p\!\left(\qbinom{n}{k}{p}\right)$ \emph{only when} $p \le n - k$---across all eight
+natural syntactic and arithmetic parsings of the LCM-expression and under all logical
+readings (\emph{only when}, \emph{when}, and \emph{if and only if}), even when
+restricted to strictly interior parameters $0 < k < n$ and even for every individual
+prime $p$. All definitions, canonical specifications, infinite counterexample
+families, and master disproof theorems are formalized from first principles in Core
+Lean~4.19.0 without external libraries or non-standard axioms.
+\end{abstract}
+
+\section{Official Statement and Executive Summary}
+
+Conjecture~00000007675 reads verbatim in English as follows:
+
+\begin{quote}
+\textbf{Definition:} The valuation $v_p([n\text{ choose }k]_q)$ at a prime power is
+defined by substituting $q=p$ and then taking the $p$-adic valuation.
+\textbf{Conjecture:}
+\[
+  v_p\!\left(\qbinom{n}{k}{p}\right)
+  = \sum_{j \ge 1} \left(
+      \left\lfloor \frac{n}{p^j} \right\rfloor
+      - \left\lfloor \frac{k}{p^j} \right\rfloor
+      - \left\lfloor \frac{n-k}{p^j} \right\rfloor
+      - \carry_j(k,n-k)
+    \right),
+\]
+where $\carry_j$ counts the $j$-th carry; and the alternative LCM-expression holds
+only when $p \le n - k$. (\emph{carry formula for Gaussian binomial valuations})
+\end{quote}
+
+\noindent
+The accompanying official Chinese statement supplies the explicit form of the
+``alternative LCM-expression'', stating that the valuation equals a
+\[
+  \left\lfloor \log_p \frac{\lcm(k+1,\dots,n)}{k!(n-k)!} \right\rfloor
+\]
+type expression \emph{only when} (\emph{jin dang}) $p \le n - k$.
+
+\paragraph{Verdict: DISPROVED.}
+Conjecture~00000007675 is \textbf{false}. Specifically:
+\begin{enumerate}
+  \item \textbf{Identically vanishing valuation.} For every prime $p$, every integer
+    $r \ge 1$, and all integers $0 \le k \le n$, we have
+    $\qbinom{n}{k}{p^r} \equiv 1 \pmod{p^r}$ and therefore
+    $v_p\!\left(\qbinom{n}{k}{p^r}\right) = 0$ (Theorem~\ref{thm:vanishing}).
+  \item \textbf{Clause~1 (carry-difference sum).} Under the standard $1$-indexed
+    base-$p$ carry convention ($\carry_j(k,n-k)$ being the carry into $p^j$),
+    Kummer's termwise identity implies that every summand in Clause~1 is
+    identically $0$, so Clause~1 reduces to the trivial identity $0 = 0$
+    (Corollary~\ref{cor:clause1-1idx}). Under $0$-indexed carries ($\carry_j$ out of
+    $p^j$ into $p^{j+1}$, summed over $j \ge 1$), Clause~1 already fails at
+    $(p,n,k) = (2,2,1)$ (Proposition~\ref{prop:clause1-0idx}).
+  \item \textbf{Clause~2 (alternative LCM-expression ``holds only when $p \le n - k$'').}
+    Clause~2 is false under every conceivable parsing and quantifier scope:
+    \begin{itemize}
+      \item \emph{Refutation of necessity (``only when $p \le n - k$''):} For
+        \textbf{every odd prime $p \ge 3$}, at the strictly interior pair
+        $(n,k) = (2,1)$ we have $n - k = 1 < p$ (so $p \le n - k$ is \emph{false}),
+        yet $\lcm(2)/ (1!\,1!) = 2 \in [1,p)$ gives
+        $\lfloor \log_p(2/1)\rfloor = 0 = v_p\!\left(\qbinom{2}{1}{p}\right)$, and
+        in fact all eight natural parsings $\mathrm{LCM}_1,\dots,\mathrm{LCM}_8$
+        evaluate to $0$ (Theorem~\ref{thm:odd-family}). At $p = 2$, the strictly
+        interior pair $(n,k) = (3,2)$ likewise satisfies $n - k = 1 < 2 = p$ while
+        $\lfloor \log_2(\lcm(3)/(2!\,1!))\rfloor = \lfloor \log_2(3/2)\rfloor = 0
+        = v_2\!\left(\qbinom{3}{2}{2}\right)$ (Theorem~\ref{thm:per-prime}).
+      \item \emph{Refutation of sufficiency (``when $p \le n - k$'') and biconditional:}
+        Conversely, when $p \le n - k$ \emph{does} hold with $0 < k < n$, the
+        LCM-expression fails to equal $0$: for instance, at $(p,n,k) = (2,4,1)$
+        ($p = 2 \le 3 = n - k$) we have $\lcm(2,3,4)/(1!\,3!) = 12/6 = 2$ and
+        $\lfloor \log_2 2 \rfloor = 1 \neq 0$; moreover, for \textbf{every prime
+        $p \ge 2$}, at $(n,k) = (2p+6,1)$ we have $p \le 2p+5 = n-k$ yet
+        $\lcm(2,\dots,2p+6) \le (2p+5)!/2 < 1!\,(2p+5)!$, forcing
+        $\lfloor \log_p(\lcm(2,\dots,2p+6)/(1!\,(2p+5)!))\rfloor \le -1 < 0$
+        (Theorem~\ref{thm:per-prime} and Theorem~\ref{thm:all-eight}).
+    \end{itemize}
+\end{enumerate}
+
+\section{Gaussian Binomial Coefficients and Vanishing Valuation}
+
+\begin{definition}[Gaussian binomial coefficients and $q$-factorials]
+\label{def:qbinom}
+For $q \in \mathbb{N}$ and $m \in \mathbb{N}$, define the $q$-integer and
+$q$-factorial by
+\[
+  [0]_q := 0, \qquad [m+1]_q := [m]_q + q^m = \sum_{i=0}^{m} q^i,
+  \qquad
+  [0]_q! := 1, \qquad [m+1]_q! := [m]_q! \cdot [m+1]_q.
+\]
+Define the Gaussian binomial coefficient $\qbinom{n}{k}{q} \in \mathbb{N}$ for
+$n, k \in \mathbb{N}$ via the $q$-Pascal recurrence:
+\[
+  \qbinom{n}{0}{q} := 1, \qquad
+  \qbinom{0}{k+1}{q} := 0, \qquad
+  \qbinom{n+1}{k+1}{q} := \qbinom{n}{k+1}{q} + q^{n-k} \qbinom{n}{k}{q}.
+\]
+\end{definition}
+
+By immediate induction on $n$, $\qbinom{n}{k}{q} = 0$ whenever $n < k$, and
+$\qbinom{n}{n}{q} = 1$ for all $n \ge 0$. At $q = 1$, the recurrence reduces to
+Pascal's identity, so $\qbinom{n}{k}{1} = \binom{n}{k}$. We first record both
+standard closed-form characterizations to confirm that Definition~\ref{def:qbinom}
+coincides with the canonical Gaussian binomial coefficient for all parameters.
+
+\begin{proposition}[Canonical $q$-factorial and multiplicative identities]
+\label{prop:qbinom-canon}
+Let $0 \le k \le n$ be integers.
+\begin{enumerate}
+  \item For every $q \in \mathbb{N}$,
+    $[k]_q! \, [n-k]_q! \, \qbinom{n}{k}{q} = [n]_q!$, where $[m]_q! > 0$ whenever
+    $q \ge 1$.
+  \item For every integer $q \ge 2$, both sides below are positive and satisfy
+    \[
+      \left(\prod_{i=1}^{k} (q^i - 1)\right) \qbinom{n}{k}{q}
+      = \prod_{i=1}^{k} (q^{n-k+i} - 1).
+    \]
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+First note that $[a]_q + q^a [b]_q = [a+b]_q$ for all $a,b \in \mathbb{N}$ by
+induction on $b$: the base case $b=0$ is immediate, and for $b+1$,
+$[a]_q + q^a([b]_q + q^b) = ([a]_q + q^a[b]_q) + q^{a+b} = [a+b]_q + q^{a+b}
+= [a+b+1]_q$.
+
+We prove (1) by induction on $n$. For $k = 0$ or $k = n$, we have
+$\qbinom{n}{k}{q} = 1$ and $[0]_q! = 1$, so equality is immediate. For an inductive
+step at $(n+1, k+1)$ with $0 \le k < n$, write $n - k = m + 1 \ge 1$, where
+$m = n - (k+1)$. Using Definition~\ref{def:qbinom} and the induction hypotheses at
+$(n, k+1)$ and $(n, k)$,
+\begin{align*}
+  [k+1]_q!\,[n-k]_q!\,\qbinom{n+1}{k+1}{q}
+  &= [m+1]_q \bigl([k+1]_q!\,[m]_q!\,\qbinom{n}{k+1}{q}\bigr) \\
+  &\quad + q^{n-k}[k+1]_q \bigl([k]_q!\,[n-k]_q!\,\qbinom{n}{k}{q}\bigr) \\
+  &= \bigl([n-k]_q + q^{n-k}[k+1]_q\bigr)[n]_q!
+   = [n+1]_q\,[n]_q! = [n+1]_q!.
+\end{align*}
+
+For (2), let $q \ge 2$. Since $(q-1)[m]_q = q^m - 1$ for all $m \ge 0$, induction
+on $m$ gives $(q-1)^m [m]_q! = \prod_{i=1}^{m} (q^i - 1)$. Multiplying the identity
+in (1) by $(q-1)^n = (q-1)^k (q-1)^{n-k}$ yields
+\[
+  \left(\prod_{i=1}^{n-k} (q^i - 1)\right)
+  \left(\prod_{i=1}^{k} (q^i - 1)\right) \qbinom{n}{k}{q}
+  = \prod_{i=1}^{n} (q^i - 1)
+  = \left(\prod_{i=1}^{n-k} (q^i - 1)\right)
+    \left(\prod_{i=1}^{k} (q^{n-k+i} - 1)\right).
+\]
+Since $q \ge 2$, the factor $\prod_{i=1}^{n-k}(q^i - 1)$ is strictly positive and
+cancels.
+\end{proof}
+
+\begin{definition}[$p$-adic valuation]
+For an integer $p \ge 2$ and a positive integer $x \ge 1$, the $p$-adic valuation
+$v_p(x) \in \mathbb{N}$ is the unique non-negative integer $v$ such that
+$p^v \mid x$ and $p^{v+1} \nmid x$.
+\end{definition}
+
+\begin{theorem}[Congruence modulo $q$ and identically zero prime-power valuation]
+\label{thm:vanishing}
+\leavevmode
+\begin{enumerate}
+  \item For every $q \in \mathbb{N}$ and all integers $0 \le k \le n$, there exists
+    $m \in \mathbb{N}$ such that $\qbinom{n}{k}{q} = 1 + q m$.
+  \item For every integer $p \ge 2$, every multiple $q$ of $p$, and all
+    $0 \le k \le n$, we have $p \nmid \qbinom{n}{k}{q}$ and hence
+    $v_p\!\left(\qbinom{n}{k}{q}\right) = 0$.
+  \item In particular, for every prime $p$, every integer $r \ge 1$, and all
+    $0 \le k \le n$,
+    \[
+      v_p\!\left(\qbinom{n}{k}{p^r}\right) = 0
+      \qquad\text{and}\qquad
+      v_p\!\left(\qbinom{n}{k}{p}\right) = 0.
+    \]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+We prove (1) by induction on $n$. If $k = 0$ or $k = n$, then
+$\qbinom{n}{k}{q} = 1 = 1 + q \cdot 0$. For $(n+1, k+1)$ with $0 \le k < n$, write
+$n - k = d + 1$ with $d \ge 0$. By the induction hypothesis on $(n, k+1)$, there
+exists $m_1 \in \mathbb{N}$ such that $\qbinom{n}{k+1}{q} = 1 + q m_1$. Then
+\[
+  \qbinom{n+1}{k+1}{q}
+  = (1 + q m_1) + q^{d+1}\qbinom{n}{k}{q}
+  = 1 + q\left(m_1 + q^d \qbinom{n}{k}{q}\right),
+\]
+completing the induction.
+
+For (2), write $q = p t$ with $t \in \mathbb{N}$. By (1),
+$\qbinom{n}{k}{q} = 1 + p(t m) \ge 1$. Since $p \ge 2$, no multiple of $p$ can equal
+$1 + p(t m)$ (as $p s \le p(t m) < 1 + p(t m) < p(t m + 1) \le p s'$ whenever
+$s \le t m < t m + 1 \le s'$). Thus $p^0 = 1 \mid \qbinom{n}{k}{q}$ and
+$p^1 \nmid \qbinom{n}{k}{q}$, so $v_p\!\left(\qbinom{n}{k}{q}\right) = 0$.
+Part~(3) follows immediately from $p \mid p^r$ for all $r \ge 1$ and the case $r = 1$.
+\end{proof}
+
+\begin{remark}[Origin of the mathematical conflation]
+\label{rem:knuth-wilf}
+In the literature on $q$-binomial divisibility (Fray, 1967; Knuth and Wilf, 1989),
+one studies $v_p\!\left(\qbinom{n}{k}{q}\right)$ when $\gcd(q,p) = 1$, where the
+cyclotomic factorization $\qbinom{n}{k}{q} = \prod_{d \ge 2}
+\Phi_d(q)^{\lfloor n/d\rfloor - \lfloor k/d\rfloor - \lfloor (n-k)/d\rfloor}$ yields
+a carry-counting formula governed by the multiplicative order $\operatorname{ord}_p(q)$.
+When instead $q = p$ (or $q = p^r$ with $r \ge 1$), $\gcd(q,p) = p \neq 1$; every
+cyclotomic polynomial $\Phi_d(X)$ with $d \ge 2$ has constant term $\Phi_d(0) = 1$,
+so $\Phi_d(p^r) \equiv 1 \pmod{p}$ and the $p$-adic valuation collapses identically
+to $0$.
+\end{remark}
+
+\section{Analysis of Clause 1: Base-\texorpdfstring{$p$}{p} Carries and Kummer's Identity}
+
+Let $p \ge 2$ and $a, b \in \mathbb{N}$. For $i \ge 0$, write
+$d_i(x) := \lfloor x / p^i \rfloor \bmod p \in \{0,\dots,p-1\}$ for the $i$-th
+base-$p$ digit of $x$. The schoolbook ripple-carry sequence is defined by
+\[
+  c_0(a,b) := 0, \qquad
+  c_{j+1}(a,b) := \left\lfloor \frac{d_j(a) + d_j(b) + c_j(a,b)}{p} \right\rfloor
+  \quad (j \ge 0),
+\]
+so for $j \ge 1$, $c_j(a,b)$ is the $j$-th carry (out of the $p^{j-1}$ digit into
+the $p^j$ place). Define also the modulo-$p^j$ residue indicator
+\[
+  r_j(a,b) :=
+  \begin{cases}
+    1 & \text{if } (a \bmod p^j) + (b \bmod p^j) \ge p^j, \\
+    0 & \text{otherwise.}
+  \end{cases}
+\]
+
+\begin{lemma}[Equivalence of ripple and residue carries]
+\label{lem:carry-equiv}
+For every integer $p \ge 2$, all $a, b \in \mathbb{N}$, and all $j \ge 0$,
+$c_j(a,b) = r_j(a,b) \in \{0,1\}$.
+\end{lemma}
+
+\begin{proof}
+For $j = 0$, $c_0(a,b) = 0 = r_0(a,b)$ since $(a \bmod 1) + (b \bmod 1) = 0 < 1$.
+Suppose $c_j(a,b) = r_j(a,b)$ holds at $j$. By Euclidean division, any $x \in \mathbb{N}$
+satisfies $x \bmod p^{j+1} = p^j d_j(x) + (x \bmod p^j)$ because the right-hand side
+is congruent to $x$ modulo $p^{j+1}$ and strictly less than
+$p^j(d_j(x) + 1) \le p^{j+1}$. Adding this decomposition for $a$ and $b$ and writing
+$(a \bmod p^j) + (b \bmod p^j) = p^j r_j(a,b) + s_j$ with $0 \le s_j < p^j$, we obtain
+\[
+  (a \bmod p^{j+1}) + (b \bmod p^{j+1})
+  = p^j \bigl(d_j(a) + d_j(b) + r_j(a,b)\bigr) + s_j.
+\]
+Since $0 \le s_j < p^j$, the left-hand side is at least $p^{j+1} = p^j \cdot p$ if
+and only if $d_j(a) + d_j(b) + r_j(a,b) \ge p$. As
+$d_j(a) + d_j(b) + r_j(a,b) \le (p-1) + (p-1) + 1 = 2p - 1 < 2p$, the quotient
+$c_{j+1}(a,b) = \lfloor(d_j(a) + d_j(b) + c_j(a,b))/p\rfloor$ equals $1$ in that case
+and $0$ otherwise, matching $r_{j+1}(a,b)$.
+\end{proof}
+
+\begin{theorem}[Kummer's termwise floor--carry identity]
+\label{thm:kummer-term}
+For every integer $p \ge 2$, all $a, b \in \mathbb{N}$, and every $j \ge 0$,
+\[
+  \left\lfloor \frac{a+b}{p^j} \right\rfloor
+  = \left\lfloor \frac{a}{p^j} \right\rfloor
+  + \left\lfloor \frac{b}{p^j} \right\rfloor
+  + c_j(a,b).
+\]
+\end{theorem}
+
+\begin{proof}
+Let $m = p^j \ge 1$, and write $a = m q_a + u_a$ and $b = m q_b + u_b$ with
+$0 \le u_a, u_b < m$. By Lemma~\ref{lem:carry-equiv}, $c_j(a,b) = r_j(a,b)$.
+If $u_a + u_b < m$, then $a + b = m(q_a + q_b) + (u_a + u_b)$ has remainder
+$u_a + u_b \in [0, m)$, so $\lfloor (a+b)/m \rfloor = q_a + q_b + 0$.
+If $u_a + u_b \ge m$, then $0 \le u_a + u_b - m < m$ and
+$a + b = m(q_a + q_b + 1) + (u_a + u_b - m)$, so
+$\lfloor (a+b)/m \rfloor = q_a + q_b + 1$.
+\end{proof}
+
+\begin{corollary}[Clause~1 under $1$-indexed carries]
+\label{cor:clause1-1idx}
+Let $p$ be a prime and $0 \le k \le n$. Setting $\carry_j(k,n-k) := c_j(k,n-k)$ for
+$j \ge 1$, every term of the series in Clause~1 satisfies
+\[
+  \left\lfloor \frac{n}{p^j} \right\rfloor
+  - \left\lfloor \frac{k}{p^j} \right\rfloor
+  - \left\lfloor \frac{n-k}{p^j} \right\rfloor
+  - \carry_j(k,n-k) = 0,
+\]
+with all four components individually equal to $0$ whenever $p^j > n$. Hence the
+series is finitely supported and equals $0 = v_p\!\left(\qbinom{n}{k}{p}\right)$
+tautologically.
+\end{corollary}
+
+\begin{proof}
+Apply Theorem~\ref{thm:kummer-term} with $a = k$ and $b = n - k$ ($a + b = n$) and
+compare with Theorem~\ref{thm:vanishing}(3).
+\end{proof}
+
+\begin{proposition}[Failure of Clause~1 under $0$-indexed carries]
+\label{prop:clause1-0idx}
+If instead $\carry_j(k,n-k)$ is interpreted $0$-index-wise as the carry out of the
+$p^j$ place into $p^{j+1}$, i.e., $\carry_j^{(0)}(k,n-k) := c_{j+1}(k,n-k)$, then at
+$(p,n,k) = (2,2,1)$ the Clause~1 series equals $1 \neq 0
+= v_2\!\left(\qbinom{2}{1}{2}\right)$.
+\end{proposition}
+
+\begin{proof}
+At $(p,n,k) = (2,2,1)$, $\qbinom{2}{1}{2} = 1 + 2 = 3$, so
+$v_2\!\left(\qbinom{2}{1}{2}\right) = 0$. Meanwhile, for $j = 1$,
+$\lfloor 2/2 \rfloor - \lfloor 1/2 \rfloor - \lfloor 1/2 \rfloor - c_2(1,1)
+= 1 - 0 - 0 - 0 = 1$, while for every $j \ge 2$ we have $2^j \ge 4 > 2$ and
+$2^{j+1} \ge 8 > 2$, so every component for $j \ge 2$ vanishes. Thus the sum equals
+$1 \neq 0$.
+\end{proof}
+
+\section{Disproof of Clause 2 and of the Full Conjecture}
+
+We now examine Clause~2, which asserts that $v_p\!\left(\qbinom{n}{k}{p}\right)$
+equals the alternative LCM-expression \emph{only when} $p \le n - k$.
+
+\subsection{Exact Specifications and All Eight Candidate Parsings}
+
+For integers $1 \le a \le b$, write $L(a,b) := \lcm(a, a+1, \dots, b) \ge 1$ (with
+the standard empty convention $L(a,b) = 1$ if $a > b$; all counterexamples below satisfy
+$0 < k < n$, so $k + 1 \le n$ and the interval $\{k+1,\dots,n\}$ is non-empty).
+For an integer $p \ge 2$ and positive integers $u, v \ge 1$, the exact floor
+base-$p$ logarithm $e = \lfloor \log_p(u/v) \rfloor \in \mathbb{Z}$ is uniquely
+determined by $p^e \le u/v < p^{e+1}$, i.e.,
+\[
+  \begin{cases}
+    v p^m \le u < v p^{m+1} & \text{if } e = m \ge 0,\\[2pt]
+    v \le u p^{m+1} \text{ and } u p^m < v & \text{if } e = -(m+1) < 0.
+  \end{cases}
+\]
+Likewise, for any integer $L \ge 1$ and $d \ge 1$, letting
+$q = \lfloor \lfloor \log_p L \rfloor / d \rfloor$, Euclidean division
+$d q \le \lfloor \log_p L \rfloor < d(q+1)$ yields $p^{d q} \le L < p^{d(q+1)}$, so
+$\lfloor (\log_p L) / d \rfloor = \lfloor \lfloor \log_p L \rfloor / d \rfloor$ over
+$\mathbb{R}$.
+
+To ensure that no syntactic or semantic reading of the phrase
+``$\lfloor \log_p \lcm(k+1,\dots,n)/(k!(n-k)!)\rfloor$ type expression'' escapes our
+disproof, Table~\ref{tab:parsings} lists all eight natural candidate expressions
+$\mathrm{LCM}_1,\dots,\mathrm{LCM}_8$.
+
+\begin{table}[ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{6.2cm}@{}}
+\hline
+\textbf{Label} & \textbf{Mathematical Formula} & \textbf{Interpretation} \\
+\hline
+$\mathrm{LCM}_1$ & $\displaystyle\left\lfloor \log_p \frac{\lcm(k+1,\dots,n)}{k!\,(n-k)!} \right\rfloor$
+  & Primary literal parsing ($\mathbb{Q}_{>0}$ quotient inside $\log_p$) \\
+$\mathrm{LCM}_2$ & $\displaystyle\left\lfloor \frac{\log_p \lcm(k+1,\dots,n)}{k!\,(n-k)!} \right\rfloor$
+  & Outer-quotient parsing ($\log_p \lcm$ divided by $k!(n-k)!$) \\
+$\mathrm{LCM}_3$ & $\displaystyle\left\lfloor \log_p \frac{\lcm(k+1,\dots,n)}{(n-k)!} \right\rfloor$
+  & Reduced denominator $(n-k)!$ inside $\log_p$ \\
+$\mathrm{LCM}_4$ & $v_p(\lcm(k+1,\dots,n)) - v_p(k!\,(n-k)!)$
+  & Exact $p$-adic valuation of $\lcm(k+1,\dots,n)/(k!(n-k)!)$ \\
+$\mathrm{LCM}_5$ & $v_p(\lcm(k+1,\dots,n)) - v_p((n-k)!)$
+  & Exact $p$-adic valuation of $\lcm(k+1,\dots,n)/(n-k)!$ \\
+$\mathrm{LCM}_6$ & $\lfloor \log_p \lcm(k+1,\dots,n)\rfloor - v_p(k!\,(n-k)!)$
+  & Hybrid $\lfloor \log_p \lcm \rfloor$ minus full factorial valuation \\
+$\mathrm{LCM}_7$ & $\lfloor \log_p \lcm(k+1,\dots,n)\rfloor - v_p((n-k)!)$
+  & Hybrid $\lfloor \log_p \lcm \rfloor$ minus $(n-k)!$ valuation \\
+$\mathrm{LCM}_8$ & $v_p\!\left(\binom{n}{k}\right)$
+  & Classical binomial $p$-adic valuation \\
+\hline
+\end{tabular}
+\caption{All eight candidate parsings of the Clause~2 LCM-expression.}
+\label{tab:parsings}
+\end{table}
+
+\subsection{Universal Infinite-Family and Per-Prime Refutations}
+
+\begin{theorem}[Infinite-family refutation of ``only when $p \le n - k$'' across all eight parsings]
+\label{thm:odd-family}
+Let $p \ge 3$ be any odd prime, and consider the strictly interior pair
+$(n,k) = (2,1)$ ($0 < k < n$). Then:
+\begin{enumerate}
+  \item $n - k = 1 < 3 \le p$, so $p \le n - k$ is \textbf{false};
+  \item $v_p\!\left(\qbinom{2}{1}{p}\right) = v_p(1 + p) = 0$; and
+  \item $\mathrm{LCM}_m(p,2,1) = 0 = v_p\!\left(\qbinom{2}{1}{p}\right)$
+    simultaneously for \textbf{all eight} parsings $m \in \{1,\dots,8\}$.
+\end{enumerate}
+Consequently, the literal assertion that the LCM-expression holds \emph{only when}
+$p \le n - k$ fails across an infinite family of primes under every parsing
+$\mathrm{LCM}_1,\dots,\mathrm{LCM}_8$.
+\end{theorem}
+
+\begin{proof}
+At $(n,k) = (2,1)$, the interval $\{k+1,\dots,n\} = \{2\}$ is a singleton, so
+$\lcm(2,\dots,2) = 2$, while $k! = 1! = 1$, $(n-k)! = 1! = 1$, $k!(n-k)! = 1$, and
+$\binom{2}{1} = 2$. Since $p \ge 3$, we have $p^0 = 1 \le 2 < 3 \le p^1$, giving
+$\lfloor \log_p(2/1)\rfloor = 0$ and $\lfloor \log_p 2\rfloor = 0$. Likewise $p > 2$
+implies $p \nmid 2$ and $p \nmid 1$, so $v_p(2) = 0$ and $v_p(1) = 0$. Direct
+substitution into Table~\ref{tab:parsings} gives $\mathrm{LCM}_m(p,2,1) = 0$ for all
+$1 \le m \le 8$, matching $v_p\!\left(\qbinom{2}{1}{p}\right) = 0$ from
+Theorem~\ref{thm:vanishing}(3), whereas $p \le 2 - 1 = 1$ is false.
+\end{proof}
+
+Next we show that even if $p$ is treated as a \emph{fixed} prime parameter (including
+$p = 2$), the primary literal expression $\mathrm{LCM}_1$ fails \emph{both} directions
+of $p \le n - k$ on strictly interior parameters $0 < k < n$ at that same prime~$p$.
+
+\begin{theorem}[Per-prime two-sided refutation for every prime $p$]
+\label{thm:per-prime}
+Let $p$ be \textbf{any} prime ($p = 2$ or $p \ge 3$).
+\begin{enumerate}
+  \item \emph{(Failure of ``only when $p \le n - k$'')} There exist integers
+    $0 < k < n$ with $p > n - k$ such that
+    $\mathrm{LCM}_1(p,n,k) = \mathrm{LCM}_2(p,n,k) = 0
+    = v_p\!\left(\qbinom{n}{k}{p}\right)$.
+  \item \emph{(Failure of ``when $p \le n - k$'')} At $(n,k) = (2p+6, 1)$, we have
+    $0 < k < n$ and $p \le 2p + 5 = n - k$, yet
+    \[
+      \mathrm{LCM}_1(p, 2p+6, 1) \le -1 < 0 = v_p\!\left(\qbinom{2p+6}{1}{p}\right).
+    \]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For (1), if $p \ge 3$, take $(n,k) = (2,1)$ and apply Theorem~\ref{thm:odd-family}.
+If $p = 2$, take $(n,k) = (3,2)$: then $0 < 2 < 3$ and $n - k = 1 < 2 = p$, while
+$\lcm(3) = 3$ and $2!\,1! = 2$. Since $2 \cdot 2^0 = 2 \le 3 < 4 = 2 \cdot 2^1$, we
+have $\mathrm{LCM}_1(2,3,2) = \lfloor \log_2(3/2)\rfloor = 0$, and since
+$\lfloor \log_2 3 \rfloor = 1$, we also have
+$\mathrm{LCM}_2(2,3,2) = \lfloor 1/2 \rfloor = 0$, both matching
+$v_2\!\left(\qbinom{3}{2}{2}\right) = 0$.
+
+For (2), let $p \ge 2$ be arbitrary and set $n = 2p + 6$, $k = 1$, so $0 < 1 < n$
+and $n - k = 2p + 5 \ge p$. Define the positive integer
+\[
+  M := \prod_{j=3}^{2p+5} j = \frac{(2p+5)!}{2}.
+\]
+Because $p \ge 2$, we have the strict chain of inequalities
+$3 \le 4 < 5 \le p + 3 \le 2p + 5$. Hence $4$ and $p + 3$ are two \emph{distinct}
+factors occurring in the product $M$, which implies $4(p+3) \mid M$. Every integer
+$m \in \{2, 3, \dots, 2p+6\}$ divides $M$:
+\begin{itemize}
+  \item if $m = 2$, then $2 \mid 4 \mid 4(p+3) \mid M$;
+  \item if $3 \le m \le 2p+5$, then $m$ is one of the factors defining $M$;
+  \item if $m = 2p + 6 = 2(p+3)$, then $2(p+3) \mid 4(p+3) \mid M$.
+\end{itemize}
+By the universal property of the least common multiple,
+$\lcm(2,3,\dots,2p+6) \mid M$. Since $M > 0$, this gives
+\[
+  \lcm(2,3,\dots,2p+6) \le M < 2M = (2p+5)! = 1!\,(n-k)!.
+\]
+Therefore $\frac{\lcm(2,\dots,2p+6)}{1!\,(2p+5)!} < 1 = p^0$, so
+$\mathrm{LCM}_1(p,2p+6,1) \le -1 < 0 = v_p\!\left(\qbinom{2p+6}{1}{p}\right)$.
+\end{proof}
+
+\begin{theorem}[Complete refutation of all eight parsings in both directions]
+\label{thm:all-eight}
+For every $m \in \{1,\dots,8\}$, on strictly interior parameters $0 < k < n$:
+\begin{enumerate}
+  \item \emph{Necessity fails:} There exist a prime $p$ and $0 < k < n$ with
+    $\mathrm{LCM}_m(p,n,k) = v_p\!\left(\qbinom{n}{k}{p}\right)$ and $p > n - k$.
+  \item \emph{Sufficiency fails:} There exist a prime $p$ and $0 < k < n$ with
+    $p \le n - k$ and $\mathrm{LCM}_m(p,n,k) \neq v_p\!\left(\qbinom{n}{k}{p}\right)$.
+  \item \emph{Biconditional fails:} In particular,
+    $\mathrm{LCM}_m(p,n,k) = v_p\!\left(\qbinom{n}{k}{p}\right) \iff p \le n - k$
+    is false in both directions for every $m \in \{1,\dots,8\}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(1) is established simultaneously for all $1 \le m \le 8$ at $(p,n,k) = (3,2,1)$
+by Theorem~\ref{thm:odd-family}. Part~(2) is established by direct arithmetic on the
+two interior triples $(p,n,k) = (2,3,1)$ ($n - k = 2 \ge 2 = p$, $\lcm(2,3) = 6$,
+$1!\,2! = 2$) and $(p,n,k) = (2,4,1)$ ($n - k = 3 \ge 2 = p$, $\lcm(2,3,4) = 12$,
+$1!\,3! = 6$, $\binom{4}{1} = 4$), summarized in Table~\ref{tab:witnesses}:
+at $(2,3,1)$, $\mathrm{LCM}_2(2,3,1) = \lfloor \log_2 6 \rfloor / 2 = 2/2 = 1 \neq 0$;
+at $(2,4,1)$, $\mathrm{LCM}_1 = \mathrm{LCM}_3 = \lfloor \log_2(12/6)\rfloor = 1$,
+$\mathrm{LCM}_4 = \mathrm{LCM}_5 = v_2(12) - v_2(6) = 2 - 1 = 1$,
+$\mathrm{LCM}_6 = \mathrm{LCM}_7 = \lfloor \log_2 12\rfloor - v_2(6) = 3 - 1 = 2$,
+and $\mathrm{LCM}_8 = v_2(4) = 2$, all non-zero whereas
+$v_2\!\left(\qbinom{n}{k}{2}\right) = 0$. Part~(3) follows immediately from (1)
+and~(2).
+\end{proof}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}cccccccccccc@{}}
+\hline
+$(p,n,k)$ & $n-k$ & $p \le n-k$ & $v_p\!\left(\qbinom{n}{k}{p}\right)$
+  & $\mathrm{LCM}_1$ & $\mathrm{LCM}_2$ & $\mathrm{LCM}_3$ & $\mathrm{LCM}_4$
+  & $\mathrm{LCM}_5$ & $\mathrm{LCM}_6$ & $\mathrm{LCM}_7$ & $\mathrm{LCM}_8$ \\
+\hline
+$(3,2,1)$ & $1$ & False & $0$ & $0$ & $0$ & $0$ & $0$ & $0$ & $0$ & $0$ & $0$ \\
+$(2,3,2)$ & $1$ & False & $0$ & $0$ & $0$ & $1$ & $-1$ & $0$ & $0$ & $1$ & $0$ \\
+$(2,3,1)$ & $2$ & True  & $0$ & $1$ & $1$ & $1$ & $0$ & $0$ & $1$ & $1$ & $0$ \\
+$(2,4,1)$ & $3$ & True  & $0$ & $1$ & $0$ & $1$ & $1$ & $1$ & $2$ & $2$ & $2$ \\
+$(3,6,1)$ & $5$ & True  & $0$ & $-1$ & $0$ & $-1$ & $0$ & $0$ & $2$ & $2$ & $1$ \\
+\hline
+\end{tabular}
+\caption{Exact values at representative strictly interior counterexamples ($0 < k < n$).}
+\label{tab:witnesses}
+\end{table}
+
+\begin{corollary}[Disproof of Conjecture 00000007675]
+\label{cor:main-disproof}
+Conjecture~00000007675 is false.
+\end{corollary}
+
+\begin{remark}[What if $q = 1$ had been substituted instead of $q = p$?]
+Even if one disregarded the explicit definition ``substituting $q = p$'' and replaced
+$\qbinom{n}{k}{p}$ by the classical binomial coefficient
+$\qbinom{n}{k}{1} = \binom{n}{k}$, \emph{both} clauses of Conjecture~00000007675
+would still fail: Clause~1 evaluates to $0$ (by Corollary~\ref{cor:clause1-1idx})
+whereas $v_2\!\binom{2}{1} = 1 \neq 0$, and Clause~2 still fails at $(p,n,k) = (3,2,1)$
+because $v_3\!\binom{2}{1} = v_3(2) = 0 = \mathrm{LCM}_m(3,2,1)$ despite
+$p = 3 > 1 = n - k$.
+\end{remark}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Audit}
+
+All definitions and proofs in Sections~2--4 are formalized from first principles in
+\texttt{lean/Main.lean} in Core Lean~4.19.0 (\texttt{leanprover/lean4:v4.19.0}),
+compiled with strict warning-as-error checking and zero external library
+dependencies. Every computable primitive (\texttt{padicVal}, \texttt{qBinom},
+\texttt{carryRipple}, \texttt{lcmInterval}, and \texttt{floorLogQ}) is paired with
+proved existence and uniqueness theorems guaranteeing exact semantic fidelity.
+Table~\ref{tab:lean-map} maps our mathematical results to their verified
+declarations in \texttt{Main.lean}.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}ll@{}}
+\hline
+\textbf{Paper Result} & \textbf{Core Lean 4.19.0 Declaration (\texttt{Main.lean})} \\
+\hline
+Spec \& uniqueness of $v_p(x)$ & \texttt{padicVal\_spec}, \texttt{isPadicVal\_unique} \\
+Proposition~\ref{prop:qbinom-canon}(1)--(2) & \texttt{qBinom\_mul\_qFact}, \texttt{qFallProd\_mul\_qBinom} \\
+Theorem~\ref{thm:vanishing}(1)--(3) & \texttt{qBinom\_eq\_one\_add\_mul}, \texttt{padicVal\_qBinom\_prime\_pow\_eq\_zero} \\
+Lemma~\ref{lem:carry-equiv} & \texttt{carryRipple\_eq\_carryResidue} \\
+Theorem~\ref{thm:kummer-term} \& Corollary~\ref{cor:clause1-1idx} & \texttt{kummer\_div\_add\_carry}, \texttt{clause1\_holds\_under\_one\_indexed\_carry} \\
+Proposition~\ref{prop:clause1-0idx} & \texttt{clause1\_fails\_under\_zero\_indexed\_carry} \\
+Universal spec of $\lcm(a,\dots,b)$ & \texttt{lcmInterval\_spec}, \texttt{isIntervalLCM\_unique} \\
+Spec \& uniqueness of $\lfloor \log_p(u/v)\rfloor$ & \texttt{floorLogQ\_spec}, \texttt{isFloorLogQ\_unique}, \texttt{floorLogNat\_div\_exact\_spec} \\
+Theorem~\ref{thm:odd-family} & \texttt{odd\_prime\_refutes\_only\_when\_all\_eight} \\
+Theorem~\ref{thm:per-prime} & \texttt{every\_prime\_refutes\_both\_directions\_lcmExpr1} \\
+Theorem~\ref{thm:all-eight} & \texttt{all\_eight\_parsings\_refuted\_both\_directions} \\
+Corollary~\ref{cor:main-disproof} & \texttt{conjecture\_00000007675\_disproved} \\
+Non-vacuity \& concrete checks & \texttt{concrete\_witness\_checks} \\
+\hline
+\end{tabular}
+\caption{Correspondence between mathematical theorems and verified Lean~4 declarations.}
+\label{tab:lean-map}
+\end{table}
+
+\noindent
+Running \texttt{\#print axioms} on every theorem listed in Table~\ref{tab:lean-map}
+confirms that they depend solely on Lean's standard foundational axioms
+(\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}). In addition, the
+standalone script \texttt{verify.py} independently cross-checks all three Gaussian
+binomial definitions, prime-power valuations, carry conventions, and all eight LCM
+parsings across finite parameter grids and infinite prime families.
+
+\begin{thebibliography}{9}
+
+\bibitem{Fray1967}
+R.~D.~Fray,
+\emph{Congruence properties of ordinary and $q$-binomial coefficients},
+Duke Mathematical Journal \textbf{34} (1967), 467--480.
+
+\bibitem{KnuthWilf1989}
+D.~E.~Knuth and H.~S.~Wilf,
+\emph{The power of a prime that divides a generalized binomial coefficient},
+Journal f\"ur die reine und angewandte Mathematik \textbf{396} (1989), 212--219.
+
+\bibitem{Kummer1852}
+E.~E.~Kummer,
+\emph{\"Uber die Erg\"anzungss\"atze zu den allgemeinen Reciprocit\"atsgesetzen},
+Journal f\"ur die reine und angewandte Mathematik \textbf{44} (1852), 93--146.
+
+\end{thebibliography}
+
+\end{document}

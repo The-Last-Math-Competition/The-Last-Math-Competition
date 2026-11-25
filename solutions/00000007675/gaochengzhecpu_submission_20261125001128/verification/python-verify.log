@@ -1,0 +1,26 @@
+=== Verification for Conjecture 00000007675 ===
+
+[Check 1] Gaussian binomial definitions & congruence mod q...
+  PASS: [n choose k]_q matches all 3 definitions; [n choose k]_{p^r} == 1 (mod p^r),
+        so v_p([n choose k]_{p^r}) = 0 identically for all p, r >= 1, 0 <= k <= n.
+
+[Check 2] Clause 1 carry conventions & Kummer's termwise identity...
+  PASS: Under 1-indexed carries, each summand floor(n/p^j) - floor(k/p^j)
+        - floor((n-k)/p^j) - carry_j(k, n-k) == 0 identically.
+        Under 0-indexed carries, at (p,n,k)=(2,2,1) the sum is 1 != 0.
+
+[Check 3] Refuting 'LCM-expression holds ONLY WHEN p <= n - k' (p > n - k cases)...
+  (p, n, k) = (2, 3, 2) [n-k = 1 < p = 2]: v_2([3 choose 2]_2) = 0,
+    LCM_1 = 0, LCM_2 = 0 (both equal 0 despite p > n - k!).
+  Infinite family (p, 2, 1) tested for odd primes [3, 5, 7, 11, 13, 17, 19, 23, 29, 31]:
+    0 < k < n, n - k = 1 < p (so p <= n - k is FALSE), yet ALL 8 parsings
+    LCM_1 .. LCM_8 equal 0 == v_p([2 choose 1]_p)!
+
+[Check 4] Refuting converse 'LCM-expression holds WHEN p <= n - k' (p <= n - k cases)...
+  (p, n, k) = (2, 3, 1) [p=2 <= n-k=2]: {'LCM_1_floor_log_Q': 1, 'LCM_2_floor_logL_over_denom': 1, 'LCM_3_floor_log_over_nkfact': 1, 'LCM_4_vp_L_minus_vp_denom': 0, 'LCM_5_vp_L_minus_vp_nkfact': 0, 'LCM_6_fllogL_minus_vp_denom': 1, 'LCM_7_fllogL_minus_vp_nkfact': 1, 'LCM_8_vp_classic_binom': 0}
+  (p, n, k) = (2, 4, 1) [p=2 <= n-k=3]: {'LCM_1_floor_log_Q': 1, 'LCM_2_floor_logL_over_denom': 0, 'LCM_3_floor_log_over_nkfact': 1, 'LCM_4_vp_L_minus_vp_denom': 1, 'LCM_5_vp_L_minus_vp_nkfact': 1, 'LCM_6_fllogL_minus_vp_denom': 2, 'LCM_7_fllogL_minus_vp_nkfact': 2, 'LCM_8_vp_classic_binom': 2}
+  Infinite family (p, 2p, 1) tested for odd primes [3, 5, 7, 11, 13, 17, 19]:
+    p <= 2p - 1 = n - k holds, yet LCM(2..2p) <= (2p-1)!/2 < 1!(2p-1)!,
+    so LCM_1(p, 2p, 1) <= -1 != 0 == v_p([2p choose 1]_p).
+
+ALL VERIFICATION CHECKS PASSED.
