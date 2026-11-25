@@ -1,0 +1,419 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array,booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\sloppy
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{\textbf{Resolution of Conjecture 00000000593:\\
+Explicit Cyclotomic Denominator Chains and Modular Periodic Structure of Molien--Hilbert Series}}
+\author{Formal Mathematical Resolution and Lean 4 Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We establish an unconditional affirmative resolution of Conjecture~00000000593 for rings of polynomial invariants $k[x_1,\dots,x_n]^G$ of arbitrary finite linear groups $G \le \mathrm{GL}_n(k)$ over arbitrary fields $k$, encompassing both the non-modular regime ($\mathrm{char}(k) \nmid |G|$) and the modular regime ($\mathrm{char}(k) = p \mid |G|$). Specifically, let $a_m = \dim_k(k[x_1,\dots,x_n]_m^G)$ ($m \ge 0$) and let $H(k[x_1,\dots,x_n]^G, t) = \sum_{m=0}^{\infty} a_m t^m$ denote the Molien / Hilbert--Poincar\'e series. We prove that $H(k[x_1,\dots,x_n]^G, t) \in \mathbb{Q}(t)$ is a rational function whose reduced denominator $Q(t) \in \mathbb{Z}[t]$ ($Q(0)=1$) divides $(1 - t^{|G|})^n$ and hence divides the explicit length-$n$ strictly increasing divisibility chain $\prod_{i=1}^{n} (1 - t^{2^{i-1}|G|})$ ($|G| \mid 2|G| \mid \dots \mid 2^{n-1}|G|$), with $|G|$ sharpenable to $\exp(G)$ whenever $\mathrm{char}(k) \nmid |G|$. Equivalently, $(a_m)_{m \ge 0}$ exhibits a modular periodic (quasi-polynomial) structure on residue classes modulo $|G|$. We further prove sharp boundary theorems demonstrating that (i) the word ``dividing'' cannot be strengthened to equality (witnessed by Klein's binary icosahedral group $\mathrm{SL}_2(5)$), (ii) $\exp(G)$ fails in modular characteristic (witnessed by $(\mathbb{F}_4,+) \cong C_2 \times C_2$ on $\mathbb{F}_4[x,y]$), (iii) any chain length must satisfy $r \ge n$, and (iv) a hyper-literal reading of $m \mapsto a_m$ as a rational function of the index $m$ fails already for $k[x]^{\{\pm 1\}}$. All core algebraic, combinatorial, and sharpness theorems are formally verified from first principles in core Lean~4.19.0 without external dependencies.
+\end{abstract}
+
+\section{Problem Statement and Overview of Results}
+
+Conjecture~00000000593 is stated as follows:
+\begin{quote}
+\textbf{Definition:} Rings of invariants $k[x_1,\dots,x_n]^G$ ($G$ finite).\\
+\textbf{Conjecture:} The coefficient sequence of the Molien series is rational with denominator dividing an explicit chain of factors $(1 - t^d)$ (modular periodic structure).
+\end{quote}
+The accompanying Chinese formulation (\emph{Molien jishu de xishu xulie wei youli hanshu qie fenmu zhengchu $(1 - t^d)$ de xianshi lian (mo zhouqi jiegou)}) expresses the identical structural statement: in the terminology of rational (C-finite) sequences and enumerative combinatorics \cite{StanleyEC1}, saying that a coefficient sequence $(a_m)_{m \ge 0}$ is rational with denominator in $t$ dividing a chain of factors $(1 - t^d)$ means that its generating series $\sum_{m=0}^{\infty} a_m t^m \in \mathbb{Q}(t)$ is a rational function of $t$ whose reduced denominator divides an explicit product $\prod_{i=1}^r (1 - t^{d_i})$ with $d_1 \mid d_2 \mid \dots \mid d_r$, manifesting on coefficients as quasi-polynomiality on residue classes modulo $d_r$ (\emph{modular periodic structure}).
+
+\subsection{Precise Mathematical Setup}
+
+Let $k$ be an arbitrary field, $n \ge 1$ an integer, and $V = k^n$. Let $G$ be a finite group acting $k$-linearly on $x_1,\dots,x_n$ via a representation $\rho : G \to \mathrm{GL}_n(k)$, extending uniquely to degree-preserving $k$-algebra automorphisms of the standard graded polynomial ring
+\[
+R = k[x_1,\dots,x_n] = \bigoplus_{m=0}^{\infty} R_m, \qquad \dim_k(R_m) = \binom{m+n-1}{n-1}.
+\]
+The ring of invariants is the graded $k$-subalgebra
+\[
+R^G = k[x_1,\dots,x_n]^G = \{ f \in R : g \cdot f = f \text{ for all } g \in G \} = \bigoplus_{m=0}^{\infty} R_m^G,
+\]
+where $R_m^G = R_m \cap R^G = \bigcap_{g \in G} \ker\bigl((g - \mathrm{id})|_{R_m}\bigr)$. Its Hilbert--Poincar\'e series (classically termed the \emph{Molien series} of $G$, after Molien's 1897 character formula when $\mathrm{char}(k) = 0$) is the formal power series
+\[
+H(R^G, t) = \sum_{m=0}^{\infty} a_m t^m \in \mathbb{Z}[[t]], \qquad a_m = \dim_k\bigl(R_m^G\bigr) \in \mathbb{Z}_{\ge 0}.
+\]
+
+\begin{definition}[Divisibility Chains and Rational Denominators]
+\label{def:chain}
+Let $ds = (d_1,\dots,d_r)$ be a finite sequence of positive integers.
+\begin{enumerate}
+\item[(a)] We say $ds$ is a \emph{divisibility chain} if $d_1 \mid d_2 \mid \dots \mid d_r$, and a \emph{strict divisibility chain} if in addition $0 < d_1 < d_2 < \dots < d_r$ (so that the factors $1 - t^{d_1}, \dots, 1 - t^{d_r} \in \mathbb{Z}[t]$ are pairwise distinct).
+\item[(b)] We say a sequence $a = (a_m)_{m \ge 0} \in \mathbb{Z}^{\mathbb{N}}$ is \emph{rational with denominator dividing} $C(t) \in \mathbb{Z}[t]$ (normalized by $C(0) = 1$) if $C(t) \cdot \sum_{m=0}^{\infty} a_m t^m = N(t)$ is a polynomial in $\mathbb{Z}[t]$. Equivalently, $\sum_{m=0}^{\infty} a_m t^m = P(t)/Q(t)$ in $\mathbb{Q}[[t]]$ for coprime polynomials $P, Q \in \mathbb{Z}[t]$ with $Q(0) = 1$ and $Q(t) \mid C(t)$ in $\mathbb{Z}[t]$ (by Gauss's Lemma, since $C(0) = 1$ makes $C$ primitive).
+\end{enumerate}
+\end{definition}
+
+\subsection{Summary of Main Theorems and Sharpness Classification}
+
+Conjecture~00000000593 is \textbf{true} in full generality across all fields $k$. Table~\ref{tab:summary} summarizes our main theorems together with our complete boundary analysis of all stricter or hyper-literal variants.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.2cm}>{\raggedright\arraybackslash}p{1.9cm}>{\raggedright\arraybackslash}p{4.9cm}>{\raggedright\arraybackslash}p{4.2cm}@{}}
+\toprule
+\textbf{Mathematical Reading / Claim} & \textbf{Verdict} & \textbf{Explicit Chain / Witness} & \textbf{Lean~4 Theorem} \\
+\midrule
+Arbitrary field $k$ (including modular $\mathrm{char}(k) = p \mid |G|$) & \textbf{True} & $Q(t) \mid (1 - t^{|G|})^n \mid \prod_{i=1}^{n} (1 - t^{2^{i-1}|G|})$ (strict chain of length $n$) & \texttt{invariant\_ring\_}\allowbreak\texttt{strict\_chain\_of\_uniform} \\
+\addlinespace[3pt]
+Constructive Noether--Hilbert--Serre tower over $k$ & \textbf{True} & $Q(t) \mid \prod_{d=1}^{|G|}(1-t^d)^n \mid \prod_{i=1}^{n|G|}(1-t^{d_i})$ ($d_1 \mid \dots \mid d_{n|G|}$) & \texttt{hilbert\_serre\_}\allowbreak\texttt{strict\_chain} \\
+\addlinespace[3pt]
+Non-modular ($\mathrm{char}(k) \nmid |G|$) via $n \times n$ matrices & \textbf{True} & $Q(t) \mid (1 - t^{\exp(G)})^n$, $\deg P_G \le n(\exp(G)-1)$ (proved unconditionally from $\rho(g)^e = I_n$) & \texttt{conjecture\_00000000593\_}\allowbreak\texttt{master} / \texttt{matrix\_group\_}\allowbreak\texttt{molien\_theorem} \\
+\addlinespace[3pt]
+Modular periodic structure (quasi-polynomiality) & \textbf{True} ($\Leftrightarrow$) & $\Delta_D^n a_m = 0 \iff a_{qD+c} = \sum_{j=0}^{n-1} (\Delta_D^j a)_c \binom{q}{j}$ & \texttt{modular\_periodic\_iff} \\
+\addlinespace[3pt]
+Strengthening ``dividing'' to $Q(t) = \prod_i (1 - t^{d_i})$ & \textbf{False} & Klein $\mathrm{SL}_2(5) \le \mathrm{GL}_2(\mathbb{C})$ ($\deg Q_{\mathrm{ico}} = 18$, $81 < 120$) & \texttt{klein\_not\_equal\_}\allowbreak\texttt{any\_chain} \\
+\addlinespace[3pt]
+Replacing $|G|$ by $\exp(G)$ when $\mathrm{char}(k) \mid |G|$ & \textbf{False} & $(\mathbb{F}_4,+) \cong C_2 \times C_2$ on $\mathbb{F}_4[x,y]$ ($\exp = 2$, $Q = (1-t)(1-t^4)$) & \texttt{modular\_F4\_witness} \\
+\addlinespace[3pt]
+Chain of length $r < n$ (e.g.\ single factor for $n \ge 2$) & \textbf{False} & $(1-t)^n \nmid \prod_{i=1}^r (1-t^{d_i})$ for all $r < n$ & \texttt{chain\_length\_ge\_vars} \\
+\addlinespace[3pt]
+Hyper-literal $m \mapsto a_m \in \mathbb{Q}(m)$ in the index $m$ & \textbf{False} & $G = \{\pm 1\}$ on $k[x]$: $a_m = 1,0,1,0,\dots$ & \texttt{paritySeq\_not\_}\allowbreak\texttt{rational\_in\_index} \\
+\bottomrule
+\end{tabular}
+\caption{Complete resolution and boundary classification for Conjecture~00000000593.}
+\label{tab:summary}
+\end{table}
+
+\section{Non-Modular Characteristic via Matrix Geometric Series}
+
+We first treat the classical non-modular setting ($\mathrm{char}(k) = 0$ or $\mathrm{char}(k) \nmid |G|$) by an elementary determinant identity that requires neither eigenvalues nor algebraic closure.
+
+\begin{lemma}[Matrix Geometric-Series Determinant Identity]
+\label{lem:mat-geom}
+Let $A \in M_n(K)$ be an $n \times n$ matrix over a commutative ring $K$, and let $e \ge 1$ be an integer such that $A^e = I_n$. Define the matrix polynomial $S_A(t) = \sum_{s=0}^{e-1} t^s A^s \in M_n(K[t])$. Then in $K[t]$:
+\[
+\det(I_n - tA) \cdot \det\bigl(S_A(t)\bigr) = (1 - t^e)^n,
+\]
+and $B_A(t) = \det(S_A(t)) \in K[t]$ has degree at most $n(e - 1)$.
+\end{lemma}
+
+\begin{proof}
+In the polynomial matrix ring $M_n(K[t])$, telescoping the geometric sum yields
+\[
+(I_n - tA)\, S_A(t) = \sum_{s=0}^{e-1} t^s A^s - \sum_{s=0}^{e-1} t^{s+1} A^{s+1} = I_n - t^e A^e = (1 - t^e) I_n.
+\]
+Applying the multiplicative determinant $\det : M_n(K[t]) \to K[t]$ gives
+\[
+\det(I_n - tA) \cdot \det\bigl(S_A(t)\bigr) = \det\bigl((1 - t^e) I_n\bigr) = (1 - t^e)^n.
+\]
+Every entry of $S_A(t)$ is a polynomial in $t$ of degree at most $e - 1$. In the Leibniz expansion $\det(S_A(t)) = \sum_{\sigma \in S_n} \mathrm{sgn}(\sigma) \prod_{i=1}^n (S_A(t))_{i,\sigma(i)}$, each summand is a product of $n$ polynomials of degree at most $e - 1$, hence $\deg B_A(t) \le n(e - 1)$.
+\end{proof}
+
+\begin{theorem}[Sharp Non-Modular Molien Denominator Theorem]
+\label{thm:nonmod}
+Suppose $\mathrm{char}(k) \nmid |G|$, and let $e = \exp(G)$ be the exponent of $G$ (so $e \mid |G|$ and $\rho(g)^e = I_n$ for all $g \in G$). Then
+\[
+H(R^G, t) = \frac{P_G(t)}{(1 - t^e)^n} \quad \text{in } \mathbb{Z}[[t]],
+\]
+where $P_G(t) \in \mathbb{Z}[t]$ satisfies the strict degree bound $\deg P_G \le n(e - 1) < ne$. Consequently, the reduced denominator $Q(t)$ of $H(R^G, t)$ divides $(1 - t^e)^n$, $(1 - t^{|G|})^n$, and the strict divisibility chain $\prod_{i=1}^n (1 - t^{2^{i-1} e})$.
+\end{theorem}
+
+\begin{proof}
+First assume $\mathrm{char}(k) = 0$. Since $R_m^G$ is defined by $k$-linear homogeneous equations $\rho(g)(f) - f = 0$ ($g \in G$), $\dim_k(R_m^G)$ is unchanged upon replacing $k$ by its subfield generated by the entries of $\{\rho(g) : g \in G\}$ and embedding into $\mathbb{C}$. Over $\mathbb{C}$, the Reynolds projector $\pi_G = \frac{1}{|G|} \sum_{g \in G} \rho_m(g)$ onto $R_m^G$ is idempotent, so $a_m = \mathrm{tr}(\pi_G) = \frac{1}{|G|} \sum_{g \in G} \mathrm{tr}(\rho_m(g))$. By Molien's theorem \cite[Theorem~2.2.1]{Benson}, $\sum_{m=0}^{\infty} \mathrm{tr}(\rho_m(g)) t^m = \det(I_n - t\rho(g))^{-1}$ in $\mathbb{C}[[t]]$. Applying Lemma~\ref{lem:mat-geom} to each $g \in G$ gives
+\[
+H(R^G, t) = \frac{1}{|G|} \sum_{g \in G} \frac{B_{\rho(g)}(t)}{(1 - t^e)^n} = \frac{P_G(t)}{(1 - t^e)^n}, \qquad P_G(t) = \frac{1}{|G|} \sum_{g \in G} B_{\rho(g)}(t),
+\]
+with $\deg P_G \le n(e - 1) < ne$. Since $H(R^G, t) \in \mathbb{Z}[[t]]$ and $(1 - t^e)^n \in \mathbb{Z}[t]$, their formal product $P_G(t) = (1 - t^e)^n H(R^G, t)$ automatically has integer coefficients, so $P_G(t) \in \mathbb{Z}[t]$.
+
+When $\mathrm{char}(k) = p > 0$ with $p \nmid |G|$, pass to $\overline{k}$; by Maschke's theorem and Brauer lifting \cite[Section~2.2]{Benson}, lifting eigenvalues from $\overline{k}^{\times}$ (roots of unity of order dividing $e$, where $p \nmid e$) to $W(\overline{\mathbb{F}_p}) \hookrightarrow \mathbb{C}$ preserves $\dim_{\overline{k}}(R_m^G) = \mathrm{tr}_{\mathbb{C}}(\pi_G)$, reducing directly to the characteristic-$0$ formula. Finally, $(1 - t^e) \mid (1 - t^{2^{i-1}e})$ for $1 \le i \le n$ yields $(1 - t^e)^n \mid \prod_{i=1}^n (1 - t^{2^{i-1}e})$.
+\end{proof}
+
+\section{Arbitrary and Modular Characteristic}
+
+In modular characteristic $\mathrm{char}(k) = p \mid |G|$, $|G| = 0$ in $k$, Maschke's theorem fails, Molien's averaging formula does not exist, and $R^G$ can fail to be Cohen--Macaulay \cite{Bertin1967} or fail Noether's degree bound $\beta(R^G) \le |G|$ \cite{Richman1990}. Nevertheless, we prove two unconditional theorems valid over \emph{every} field $k$.
+
+\subsection{Base-Change Invariance and Chain-Upgrading Lemmas}
+
+\begin{lemma}[Field-Extension Invariance of Invariant Dimensions]
+\label{lem:basechange}
+For any field extension $K / k$, any finite group $G \le \mathrm{GL}_n(k)$, and every degree $m \ge 0$,
+\[
+\dim_K\bigl(K[x_1,\dots,x_n]_m^G\bigr) = \dim_k\bigl(k[x_1,\dots,x_n]_m^G\bigr).
+\]
+\end{lemma}
+
+\begin{proof}
+Let $W = k[x_1,\dots,x_n]_m$, a finite-dimensional $k$-vector space, and consider the $k$-linear map $\Psi : W \to \bigoplus_{g \in G} W$ given by $\Psi(w) = (g \cdot w - w)_{g \in G}$. By definition, $W^G = \ker(\Psi)$. Since $K$ is flat over $k$ and $G$ is finite, $K \otimes_k \bigoplus_{g \in G} W \cong \bigoplus_{g \in G} (K \otimes_k W)$, and tensoring the exact sequence $0 \to W^G \to W \xrightarrow{\Psi} \bigoplus_{g \in G} W$ with $K$ preserves exactness:
+\[
+(K \otimes_k W)^G = \ker(\mathrm{id}_K \otimes_k \Psi) = K \otimes_k \ker(\Psi) = K \otimes_k W^G.
+\]
+Identifying $K \otimes_k k[x_1,\dots,x_n]_m = K[x_1,\dots,x_n]_m$ gives $\dim_K(K[x_1,\dots,x_n]_m^G) = \dim_k(W^G)$.
+\end{proof}
+
+\begin{lemma}[Universal Strict Chain Upgrading]
+\label{lem:upgrade}
+Let $es = (e_1,\dots,e_r)$ be any finite list of positive integers. Define $ds = (d_1,\dots,d_r)$ recursively by $d_1 = e_1$ and $d_i = 2 \cdot \mathrm{lcm}(d_{i-1}, e_i)$ (or $d_i = 2 d_{i-1} e_i$) for $2 \le i \le r$. Then $ds$ is a strict divisibility chain ($d_1 \mid d_2 \mid \dots \mid d_r$ and $0 < d_1 < d_2 < \dots < d_r$) of length $r$, and
+\[
+\prod_{i=1}^{r} \bigl(1 - t^{e_i}\bigr) \;\Bigg|\; \prod_{i=1}^{r} \bigl(1 - t^{d_i}\bigr) \quad \text{in } \mathbb{Z}[t].
+\]
+In particular, if $e_1 = \dots = e_n = M \ge 1$, then $(1 - t^M)^n \mid \prod_{i=1}^{n} (1 - t^{2^{i-1} M})$.
+\end{lemma}
+
+\begin{proof}
+By construction, $d_{i-1} \mid d_i$, $e_i \mid d_i$, and $d_i \ge 2 d_{i-1} > d_{i-1} \ge 1$ for each $i \ge 2$. Writing $d_i = k_i e_i$ with $k_i \ge 1$, the telescoping identity $1 - t^{k_i e_i} = (1 - t^{e_i})(1 + t^{e_i} + \dots + t^{(k_i-1)e_i})$ shows $(1 - t^{e_i}) \mid (1 - t^{d_i})$ in $\mathbb{Z}[t]$. Multiplying over $1 \le i \le r$ completes the proof.
+\end{proof}
+
+\subsection{Sharp Length-\texorpdfstring{$n$}{n} Chain Theorem via Dade's Construction}
+
+\begin{theorem}[Universal Length-$n$ Denominator-Chain Theorem]
+\label{thm:modular-main}
+Let $k$ be any field, $n \ge 1$, and $G \le \mathrm{GL}_n(k)$ any finite group of order $|G|$. Then there exists a polynomial $P(t) \in \mathbb{Z}[t]$ such that
+\[
+H\bigl(k[x_1,\dots,x_n]^G, t\bigr) = \frac{P(t)}{\bigl(1 - t^{|G|}\bigr)^n} \quad \text{in } \mathbb{Z}[[t]].
+\]
+Consequently, the reduced denominator $Q(t)$ of $H(k[x_1,\dots,x_n]^G, t)$ divides $(1 - t^{|G|})^n$ and divides the explicit strict divisibility chain $\prod_{i=1}^{n} (1 - t^{2^{i-1}|G|})$ of length $n$.
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:basechange}, passing from $k$ to its algebraic closure $K = \overline{k}$ leaves $H(k[x_1,\dots,x_n]^G, t)$ unchanged. We may therefore work over the algebraically closed (hence infinite) field $K = \overline{k}$, viewing $K[x_1,\dots,x_n] = \mathrm{Sym}(V^*)$ for $V = K^n$.
+
+Following Dade's subspace-avoidance construction \cite[Proposition~3.3.1]{DerksenKemper}, we inductively choose linear forms $\ell_1,\dots,\ell_n \in V^*$ and set
+\[
+f_j = \prod_{g \in G} (g \cdot \ell_j) \in K[V]_{|G|}^G \qquad (1 \le j \le n).
+\]
+Notice that for every $h \in G$, left multiplication by $h$ permutes $G$, so $h \cdot f_j = \prod_{g \in G} (hg \cdot \ell_j) = f_j$ in the commutative domain $K[V]$ without any assumption on $\mathrm{char}(K)$; moreover, if $\ell_j \ne 0$, every $g \cdot \ell_j$ has degree $1$, so $f_j$ is homogeneous of exact degree $|G|$.
+
+At step $j$ ($1 \le j \le n$), suppose $f_1,\dots,f_{j-1}$ have been chosen so that the common zero locus
+\[
+Z_{j-1} = V(f_1,\dots,f_{j-1}) = \bigcup_{(g_1,\dots,g_{j-1}) \in G^{j-1}} \bigcap_{r=1}^{j-1} \ker(g_r \cdot \ell_r) \subseteq K^n
+\]
+has dimension $n - (j - 1)$ (with $Z_0 = K^n$). Notice $Z_{j-1}$ is a finite union of linear subspaces; let $W_1,\dots,W_s$ be the nonzero linear subspaces of maximal dimension $n - j + 1 \ge 1$ in this union (its top-dimensional irreducible components, together with any lower-dimensional nonzero intersections). For each $W_u \ne \{0\}$ and each $g \in G$, $g^{-1}(W_u)$ is a nonzero subspace of $V$, so its annihilator $(g^{-1}(W_u))^{\perp} = \{\ell \in V^* : \ell|_{g^{-1}(W_u)} \equiv 0\}$ is a \emph{proper} linear subspace of $V^*$. Since $K = \overline{k}$ is infinite, $V^*$ is not a finite union of proper linear subspaces. Hence there exists $\ell_j \in V^*$ outside $\bigcup_{u,g} (g^{-1}(W_u))^{\perp}$. For this $\ell_j$, $(g \cdot \ell_j)|_{W_u} \not\equiv 0$ for all $u, g$; because each $W_u$ is a linear subspace (hence an irreducible affine variety), $f_j|_{W_u} = \prod_{g \in G} (g \cdot \ell_j)|_{W_u} \not\equiv 0$, so $\dim(W_u \cap V(f_j)) = \dim(W_u) - 1$ for every $u$, giving $\dim Z_j = n - j$.
+
+At $j = n$, $\dim Z_n = 0$; since $f_1,\dots,f_n$ are homogeneous of positive degree $|G| \ge 1$, $0 \in Z_n$, and scaling invariance of homogeneous zero loci forces $Z_n = \{0\} \subseteq \overline{k}^n$. By Hilbert's Nullstellensatz, $\sqrt{(f_1,\dots,f_n)} = (x_1,\dots,x_n)$ in $K[x_1,\dots,x_n]$. Thus $(x_1,\dots,x_n)^N \subseteq (f_1,\dots,f_n)$ for some $N \ge 1$, making $K[x_1,\dots,x_n]$ a finitely generated graded module over the subalgebra $B = K[f_1,\dots,f_n] \subseteq K[x_1,\dots,x_n]^G$. Because $\dim_{\mathrm{Krull}} K[x_1,\dots,x_n] = n$ and $B$ is generated by $n$ elements over $K$ with $K[x_1,\dots,x_n]$ integral over $B$, $\dim_{\mathrm{Krull}} B = n$, so $f_1,\dots,f_n$ are algebraically independent over $K$ and $B = K[f_1,\dots,f_n]$ is a graded polynomial ring in $n$ variables of degree $|G|$.
+
+Since $B$ is Noetherian and $K[V]$ is a finitely generated graded $B$-module, the graded $B$-submodule $M = K[V]^G$ is also finitely generated over $B$. By Hilbert's Syzygy Theorem \cite[Theorem~19.2]{Eisenbud}, the polynomial ring $B$ has graded global dimension $n$, so $M$ admits a finite graded free resolution over $B$:
+\[
+0 \longrightarrow F_s \longrightarrow \cdots \longrightarrow F_1 \longrightarrow F_0 \longrightarrow M \longrightarrow 0 \qquad (s \le n),
+\]
+with $F_r = \bigoplus_{u=1}^{\beta_r} B(-a_{r,u})$ ($a_{r,u} \in \mathbb{Z}_{\ge 0}$). Since $H(B(-a), t) = t^a / (1 - t^{|G|})^n$, exactness in each homogeneous degree yields
+\[
+H(K[V]^G, t) = \sum_{r=0}^{s} (-1)^r H(F_r, t) = \frac{\sum_{r=0}^{s} (-1)^r \sum_{u=1}^{\beta_r} t^{a_{r,u}}}{\bigl(1 - t^{|G|}\bigr)^n}.
+\]
+Setting $P(t) = \sum_{r=0}^{s} (-1)^r \sum_{u=1}^{\beta_r} t^{a_{r,u}} \in \mathbb{Z}[t]$ and applying Lemma~\ref{lem:upgrade} gives the result.
+\end{proof}
+
+\subsection{Elementary Constructive Proof over \texorpdfstring{$k$}{k} via Noether's Orbit Polynomials}
+
+We also record an entirely elementary constructive proof directly over $k$ itself (avoiding $\overline{k}$, the Nullstellensatz, and the Syzygy Theorem), corresponding directly to our Lean~4 theorem \texttt{hilbert\_serre\_strict\_chain}.
+
+\begin{theorem}[Constructive Noether--Hilbert--Serre Chain Theorem]
+\label{thm:noether-hs}
+Over any field $k$ and for any finite group $G$ acting by graded $k$-algebra automorphisms on $R = k[x_1,\dots,x_n]$, $H(R^G, t) = N(t) / \prod_{d=1}^{|G|} (1 - t^d)^n$ for some $N(t) \in \mathbb{Z}[t]$, and its reduced denominator divides an explicit strict divisibility chain of length $n|G|$.
+\end{theorem}
+
+\begin{proof}
+For each $i \in \{1,\dots,n\}$, form Emmy Noether's orbit polynomial \cite{Noether1926}:
+\[
+\Phi_i(X) = \prod_{g \in G} (X - g \cdot x_i) = X^{|G|} + \sum_{d=1}^{|G|} (-1)^d e_{i,d}\, X^{|G|-d} \in R^G[X].
+\]
+Each $e_{i,d} \in R_d^G$ is a homogeneous invariant of degree $d \in \{1,\dots,|G|\}$. Let $A = k[e_{i,d} : 1 \le i \le n,\, 1 \le d \le |G|] \subseteq R^G$. Since $\Phi_i(x_i) = 0$, every $x_i^{|G|}$ lies in $\sum_{r=0}^{|G|-1} A x_i^r$, so $R$ is spanned as a graded $A$-module by the $|G|^n$ monomials $\{x_1^{r_1}\cdots x_n^{r_n} : 0 \le r_i < |G|\}$. By Hilbert's Basis Theorem, $A$ is Noetherian, so the graded $A$-submodule $M = R^G \subseteq R$ is finitely generated over $A$.
+
+Order the $N_0 = n|G|$ homogeneous generators of $A$ as $y_1,\dots,y_{N_0}$ of degrees $e_1,\dots,e_{N_0} \in \{1,\dots,|G|\}$. We prove by induction on $r \in \{0,\dots,N_0\}$ that any finitely generated graded $k[y_1,\dots,y_r]$-module $M$ satisfies $\bigl(\prod_{j=1}^r (1 - t^{e_j})\bigr) H(M, t) \in \mathbb{Z}[t]$. For $r = 0$, $M$ is finite-dimensional over $k$, so $H(M, t) \in \mathbb{Z}[t]$. For $r \ge 1$, multiplication by $y_r$ gives a graded exact sequence of $k[y_1,\dots,y_r]$-modules
+\[
+0 \longrightarrow K(-e_r) \longrightarrow M(-e_r) \xrightarrow{\;\cdot y_r\;} M \longrightarrow C \longrightarrow 0,
+\]
+where $y_r$ annihilates both $K = \ker(\cdot y_r)$ and $C = \mathrm{coker}(\cdot y_r)$, making $K$ and $C$ finitely generated graded $k[y_1,\dots,y_{r-1}]$-modules. Reading off dimensions in degree $m$ gives $(1 - t^{e_r}) H(M, t) = H(C, t) - t^{e_r} H(K, t)$; multiplying by $\prod_{j=1}^{r-1} (1 - t^{e_j})$ and applying the induction hypothesis to $K$ and $C$ yields $\bigl(\prod_{j=1}^r (1 - t^{e_j})\bigr) H(M, t) \in \mathbb{Z}[t]$. Lemma~\ref{lem:upgrade} upgrades $(e_1,\dots,e_{N_0})$ to an explicit strict divisibility chain.
+\end{proof}
+
+\section{Modular Periodic Structure (Quasi-Polynomiality)}
+
+We now establish the exact coefficient-level equivalence underlying the parenthetical annotation \emph{(modular periodic structure)} in Conjecture~00000000593. For an integer sequence $a = (a_m)_{m \ge 0}$ and a period $D \ge 1$, define the $D$-step modular difference operator $(\Delta_D a)_m = a_{m+D} - a_m$ and its $n$-fold iterate $\Delta_D^n a$, alongside the ordinary forward difference $(\Delta u)_q = u_{q+1} - u_q$.
+
+\begin{theorem}[Modular Periodic Equivalence]
+\label{thm:mod-periodic}
+Let $D \ge 1$, $n \ge 1$, and $a = (a_m)_{m \ge 0} \in \mathbb{Z}^{\mathbb{N}}$. For any threshold $m_0 \ge 0$,
+\[
+\deg\Bigl((1 - t^D)^n \sum_{m=0}^{\infty} a_m t^m\Bigr) < m_0 + nD \quad \Longleftrightarrow \quad \forall m \ge m_0,\; (\Delta_D^n a)_m = 0.
+\]
+In particular, when $m_0 = 0$ (i.e.\ $\sum_{m=0}^{\infty} a_m t^m = P(t)/(1 - t^D)^n$ is a strictly proper rational function with $\deg P < nD$), the following three conditions are equivalent:
+\begin{enumerate}
+\item[(i)] $(1 - t^D)^n \sum_{m=0}^{\infty} a_m t^m \in \mathbb{Z}[t]$ has degree strictly less than $nD$.
+\item[(ii)] $(\Delta_D^n a)_m = 0$ for all $m \ge 0$.
+\item[(iii)] For every residue class $c \in \{0,1,\dots,D-1\}$ and every $q \ge 0$,
+\[
+a_{qD + c} = \sum_{j=0}^{n-1} (\Delta_D^j a)_c \binom{q}{j}.
+\]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Let $\sigma_D$ be the shift-subtract operator $(\sigma_D a)_m = a_m$ for $m < D$ and $(\sigma_D a)_m = a_m - a_{m-D}$ for $m \ge D$, so that $(1 - t^D) \sum_{m \ge 0} a_m t^m = \sum_{m \ge 0} (\sigma_D a)_m t^m$. Observe that $(\sigma_D a)_{m+D} = a_{m+D} - a_m = (\Delta_D a)_m$ for every $m \ge 0$. By induction on $n$,
+\[
+\bigl(\sigma_D^n a\bigr)_{m + nD} = (\Delta_D^n a)_m \qquad \text{for all } m \ge 0.
+\]
+Indeed, for $n = 0$ both sides equal $a_m$; assuming the identity for $n$, applying it to $b = \sigma_D a$ at index $m + D$ gives $(\sigma_D^{n+1} a)_{m + (n+1)D} = (\sigma_D^n b)_{(m+D)+nD} = (\Delta_D^n b)_{m+D} = (\Delta_D^n (\Delta_D a))_m = (\Delta_D^{n+1} a)_m$. Consequently, $(\sigma_D^n a)_M = 0$ for all $M \ge m_0 + nD$ if and only if $(\Delta_D^n a)_m = 0$ for all $m \ge m_0$, proving the first equivalence and $(i) \Leftrightarrow (ii)$ at $m_0 = 0$.
+
+For $(ii) \Leftrightarrow (iii)$, fix $c \in \{0,\dots,D-1\}$ and set $u^{(c)}_q = a_{qD+c}$. By induction on $k$, $(\Delta_D^k a)_{qD+c} = (\Delta^k u^{(c)})_q$. Since every $m \ge 0$ decomposes uniquely as $m = qD + c$ with $0 \le c < D$, $(ii)$ holds if and only if $\Delta^n u^{(c)} = 0$ for each $0 \le c < D$. By Pascal's identity $\Delta_q \binom{q}{j+1} = \binom{q}{j}$ and $\Delta_q \binom{q}{0} = 0$, the Newton polynomial $N_n(u)(q) = \sum_{j=0}^{n-1} (\Delta^j u)_0 \binom{q}{j}$ satisfies $N_n(u)(0) = u_0$ (for $n \ge 1$) and $\Delta(N_{n}(u)) = N_{n-1}(\Delta u)$. Induction on $n$ immediately yields $\Delta^n u = 0 \iff u = N_n(u)$, proving $(ii) \Leftrightarrow (iii)$.
+\end{proof}
+
+\begin{remark}[Universal Validity of $m_0 = 0$]
+In the non-modular case ($\mathrm{char}(k) \nmid |G|$), Theorem~\ref{thm:nonmod} gives $\deg P_G \le n(e - 1) < ne$, so $m_0 = 0$ holds with $D = \exp(G)$ (and hence $D = |G|$). Remarkably, by Symonds' Castelnuovo--Mumford regularity theorem \cite[Corollary~0.3]{Symonds2011}, $\deg H(k[V]^G, t) \le -1 < 0$ holds in modular characteristic as well whenever $n \ge 1$, so $(a_m)_{m \ge 0}$ is a strict quasi-polynomial of period $|G|$ from $m = 0$ onward in all characteristics. Even without invoking Symonds' theorem, Theorem~\ref{thm:mod-periodic} guarantees exact quasi-polynomiality for all $m \ge m_0 = \max(0, \deg P - n|G| + 1)$.
+\end{remark}
+
+\section{Sharpness, Boundary Examples, and Alternative Readings}
+
+We prove four sharp boundary theorems showing that every qualifier in Conjecture~00000000593 is mathematically essential, together with concrete non-vacuity witnesses.
+
+\subsection{Minimum Chain Length \texorpdfstring{$r \ge n$}{r >= n}}
+
+\begin{theorem}[Pole-Order Lower Bound on Chain Length]
+\label{thm:min-len}
+For every $n \ge 1$ and every tuple $(d_1,\dots,d_r)$ of positive integers, if $(1 - t)^n \mid \prod_{i=1}^r (1 - t^{d_i})$ in $\mathbb{Z}[t]$, then $r \ge n$. In particular, for $n \ge 2$ and $G = \{I_n\}$ ($H(R^G,t) = (1 - t)^{-n}$), the denominator never divides a single factor $(1 - t^d)$.
+\end{theorem}
+
+\begin{proof}
+Write $1 - t^{d_i} = (1 - t) g_{d_i}(t)$ where $g_d(t) = 1 + t + \dots + t^{d-1} \in \mathbb{Z}[t]$ satisfies $g_d(1) = d \ge 1$. Then $\prod_{i=1}^r (1 - t^{d_i}) = (1 - t)^r G(t)$ where $G(t) = \prod_{i=1}^r g_{d_i}(t)$ satisfies $G(1) = \prod_{i=1}^r d_i \ge 1$. If $(1 - t)^n \mid (1 - t)^r G(t)$ and $r < n$, canceling $(1 - t)^r$ in the integral domain $\mathbb{Z}[t]$ gives $(1 - t)^{n-r} \mid G(t)$ with $n - r \ge 1$. Evaluating at $t = 1$ yields $G(1) = 0$, contradicting $G(1) \ge 1$.
+\end{proof}
+
+\subsection{Necessity of ``Dividing'' vs.\ ``Equal To'': Klein's \texorpdfstring{$\mathrm{SL}_2(5)$}{SL2(5)} Witness}
+
+\begin{theorem}[Irreducibility of ``Dividing'' to Equality]
+\label{thm:klein}
+Let $G = \mathrm{SL}_2(5)$ ($|G| = 120$) act faithfully on $\mathbb{C}[x,y]$ via the binary icosahedral representation ($n = 2$). Its Molien series is $H(\mathbb{C}[x,y]^G, t) = P_{\mathrm{ico}}(t) / Q_{\mathrm{ico}}(t)$, where
+\begin{align*}
+P_{\mathrm{ico}}(t) &= 1 + t^2 - t^6 - t^8 - t^{10} + t^{14} + t^{16},\\
+Q_{\mathrm{ico}}(t) &= 1 + t^2 - t^6 - t^8 - t^{10} - t^{12} + t^{16} + t^{18}.
+\end{align*}
+Then:
+\begin{enumerate}
+\item[(a)] $\gcd_{\mathbb{Q}[t]}(P_{\mathrm{ico}}, Q_{\mathrm{ico}}) = 1$; in fact $(1 + t^4 - t^{12}) P_{\mathrm{ico}}(t) + (-t^2 + t^{10}) Q_{\mathrm{ico}}(t) = 1$ in $\mathbb{Z}[t]$.
+\item[(b)] $Q_{\mathrm{ico}}(t) \mid (1 - t^{12})(1 - t^{20}) \mid (1 - t^{12})(1 - t^{60}) \mid (1 - t^{120})(1 - t^{240})$ in $\mathbb{Z}[t]$.
+\item[(c)] $Q_{\mathrm{ico}}(t)$ is \textbf{not} equal to $\prod_{i=1}^r (1 - t^{d_i})$ for any finite sequence of positive integers $(d_1,\dots,d_r)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By Felix Klein's classical theorem \cite[Section~4.5]{Sturmfels}, $\mathbb{C}[x,y]^{\mathrm{SL}_2(5)}$ is generated by fundamental invariants of degrees $12, 20, 30$ subject to a single syzygy of degree $60$, so
+\[
+H(\mathbb{C}[x,y]^{\mathrm{SL}_2(5)}, t) = \frac{1 - t^{60}}{(1 - t^{12})(1 - t^{20})(1 - t^{30})} = \frac{1 + t^{30}}{(1 - t^{12})(1 - t^{20})}.
+\]
+Direct polynomial multiplication verifies $(1 + t^{30}) Q_{\mathrm{ico}}(t) = P_{\mathrm{ico}}(t) (1 - t^{12})(1 - t^{20})$ with cofactor $C_{\mathrm{ico}}(t) = (1 - t^{12})(1 - t^{20}) / Q_{\mathrm{ico}}(t) = 1 - t^2 + t^4 + t^{10} - t^{12} + t^{14} = \Phi_4(t)\Phi_{12}(t)\Phi_{20}(t) \in \mathbb{Z}[t]$, as well as the B\'ezout identity in~(a), proving $P_{\mathrm{ico}}/Q_{\mathrm{ico}}$ is reduced and establishing~(b).
+
+For~(c), direct division gives $Q_{\mathrm{ico}}(t) = (1 - t)^2 G_{\mathrm{ico}}(t)$ where
+\[
+\begin{aligned}
+G_{\mathrm{ico}}(t) &= 1 + 2t + 4t^2 + 6t^3 + 8t^4 + 10t^5 + 11t^6 + 12t^7 + 12t^8\\
+&\quad + 12t^9 + 11t^{10} + 10t^{11} + 8t^{12} + 6t^{13} + 4t^{14} + 2t^{15} + t^{16},
+\end{aligned}
+\]
+so $G_{\mathrm{ico}}(1) = 120$. Suppose $Q_{\mathrm{ico}}(t) = \prod_{i=1}^r (1 - t^{d_i}) = (1 - t)^r \prod_{i=1}^r g_{d_i}(t)$ with $d_i \ge 1$. Since $G_{\mathrm{ico}}(1) = 120 \ne 0$ and $\prod_{i=1}^r g_{d_i}(1) = \prod_{i=1}^r d_i \ge 1$, comparing multiplicity of $(1 - t)$ forces $r = 2$ and $d_1 d_2 = G_{\mathrm{ico}}(1) = 120$. On the other hand, comparing degrees gives $d_1 + d_2 = \deg Q_{\mathrm{ico}} = 18$. By the AM--GM inequality,
+\[
+4 d_1 d_2 = (d_1 + d_2)^2 - (d_1 - d_2)^2 \le 18^2 = 324 < 480 = 4 \cdot 120,
+\]
+a contradiction.
+\end{proof}
+
+\subsection{Necessity of \texorpdfstring{$|G|$}{|G|} over \texorpdfstring{$\exp(G)$}{exp(G)} in Modular Characteristic}
+
+\begin{theorem}[Modular Exponent Counterexample]
+\label{thm:f4}
+Let $k = \mathbb{F}_4$ ($\mathrm{char}(k) = 2$) and let $G = \bigl\{ \bigl(\begin{smallmatrix} 1 & 0 \\ c & 1 \end{smallmatrix}\bigr) : c \in \mathbb{F}_4 \bigr\} \cong C_2 \times C_2$ ($|G| = 4$, $\exp(G) = 2$) act on $\mathbb{F}_4[x,y]$ by $g_c(x) = x$, $g_c(y) = y + cx$. Then $\mathbb{F}_4[x,y]^G = \mathbb{F}_4[x, y^4 + x^3 y]$ has Hilbert--Poincar\'e series
+\[
+H\bigl(\mathbb{F}_4[x,y]^G, t\bigr) = \frac{1}{(1 - t)(1 - t^4)},
+\]
+whose reduced denominator $Q_{\mathrm{mod}}(t) = (1 - t)(1 - t^4)$ does \textbf{not} divide $(1 - t^{\exp(G)})^2 = (1 - t^2)^2$, while it divides $(1 - t^{|G|})^2 = (1 - t^4)^2 \mid (1 - t^4)(1 - t^8)$.
+\end{theorem}
+
+\begin{proof}
+Clearly $x \in \mathbb{F}_4[x,y]_1^G$ and the orbit product $N(y) = \prod_{c \in \mathbb{F}_4} (y + cx) = y^4 + x^3 y \in \mathbb{F}_4[x,y]_4^G$ (using $\prod_{c \in \mathbb{F}_4^{\times}} (T - c) = T^3 - 1$ over $\mathbb{F}_4$). Since $N(y)$ is monic in $y$, $x$ and $N(y)$ are algebraically independent over $\mathbb{F}_4$, and $\deg(x)\deg(N(y)) = 1 \cdot 4 = |G|$. By Kemper's degree-product criterion \cite[Theorem~3.7.5]{DerksenKemper}, $\mathbb{F}_4[x,y]^G = \mathbb{F}_4[x, y^4 + x^3 y]$, giving $H(t) = ((1 - t)(1 - t^4))^{-1}$. Since $\deg Q_{\mathrm{mod}} = 5 > 4 = \deg((1 - t^2)^2)$ and $(1 - t^2)^2 \ne 0$, $Q_{\mathrm{mod}} \nmid (1 - t^2)^2$, whereas $(1 - t) \mid (1 - t^4)$ yields $Q_{\mathrm{mod}} \mid (1 - t^4)^2 \mid (1 - t^4)(1 - t^8)$.
+\end{proof}
+
+\subsection{Non-Modular and Modular Non-Cohen--Macaulay Positive Witnesses}
+
+\begin{example}[Symmetric Group $S_3$ and Non-Divisible Fundamental Degrees]
+\label{ex:s3}
+For $S_3$ permuting $x_1,x_2,x_3$, $k[x_1,x_2,x_3]^{S_3} = k[e_1,e_2,e_3]$ has $H(t) = ((1 - t)(1 - t^2)(1 - t^3))^{-1}$. Although the fundamental degrees $(1,2,3)$ do not form a divisibility chain ($2 \nmid 3$), $(1 - t)(1 - t^2)(1 - t^3)$ divides the explicit strict divisibility chain $(1 - t)(1 - t^2)(1 - t^6)$ ($1 \mid 2 \mid 6$) with quotient $1 + t^3$.
+\end{example}
+
+\begin{example}[{Bertin's Modular Non-Cohen--Macaulay Ring $\mathbb{F}_2[x_1,x_2,x_3,x_4]^{C_4}$}]
+\label{ex:bertin}
+Let $C_4 = \langle g \rangle$ ($|C_4| = 4$) act on $\mathbb{F}_2[x_1,x_2,x_3,x_4]$ via the indecomposable Jordan block $g(x_1) = x_1$, $g(x_2) = x_2 + x_1$, $g(x_3) = x_3 + x_2$, $g(x_4) = x_4 + x_3$ (isomorphic over $\mathbb{F}_2$ to the cyclic permutation representation of $C_4$, famously shown by Bertin \cite{Bertin1967} to have non-Cohen--Macaulay invariant ring). Its reduced Hilbert--Poincar\'e series is
+\[
+\begin{aligned}
+H\bigl(\mathbb{F}_2[x_1,x_2,x_3,x_4]^{C_4}, t\bigr)
+&= \frac{1 - t + t^2 + t^3}{(1 - t)^2 (1 - t^2)(1 - t^4)}\\
+&= \frac{1 + t + 3t^2 + 5t^3 + 6t^4 + 10t^5 + 10t^6 + 10t^7 + 9t^8 + 5t^9 + 3t^{10} + t^{11}}{(1 - t^4)^4},
+\end{aligned}
+\]
+whose denominator divides $(1 - t^4)^4 \mid (1 - t^4)(1 - t^8)(1 - t^{16})(1 - t^{32})$, and whose coefficients $a_{4q+c}$ ($q \ge 0$) are given on the four residue classes modulo $4$ by:
+\begin{align*}
+a_{4q}   &= 1 + 9\binom{q}{1} + 24\binom{q}{2} + 16\binom{q}{3}, &
+a_{4q+1} &= 1 + 13\binom{q}{1} + 28\binom{q}{2} + 16\binom{q}{3},\\
+a_{4q+2} &= 3 + 19\binom{q}{1} + 32\binom{q}{2} + 16\binom{q}{3}, &
+a_{4q+3} &= 5 + 25\binom{q}{1} + 36\binom{q}{2} + 16\binom{q}{3}.
+\end{align*}
+\end{example}
+
+\subsection{Refutation of Hyper-Literal Index-Rationality}
+
+\begin{proposition}[Non-Rationality in the Degree Index $m$]
+\label{prop:index}
+Let $n = 1$, $\mathrm{char}(k) \ne 2$, and $G = \{\pm 1\}$ acting on $k[x]$ by $x \mapsto -x$, so $k[x]^G = k[x^2]$, $H(k[x]^G, t) = (1 - t^2)^{-1}$, and $a_m = 1$ ($m$ even), $a_m = 0$ ($m$ odd). There do not exist polynomials $U(X), V(X) \in \mathbb{Z}[X]$ with $V(0) \ne 0$ such that $a_m V(m) = U(m)$ for all $m \in \mathbb{Z}_{\ge 0}$.
+\end{proposition}
+
+\begin{proof}
+If $a_m V(m) = U(m)$ for all $m \ge 0$, evaluating at $m = 2q + 1$ ($q \ge 0$) gives $U(2q + 1) = 0$ for infinitely many distinct integers. Since $\mathbb{Z}$ is an integral domain, a nonzero polynomial $U \in \mathbb{Z}[X]$ has at most $\deg U$ roots in $\mathbb{Z}$; hence $U = 0$ identically. Evaluating at $m = 0$ then gives $V(0) = a_0 V(0) = U(0) = 0$, contradicting $V(0) \ne 0$.
+\end{proof}
+
+\section{Formal Verification in Lean~4 and Computational Verification}
+
+All core matrix-determinant theorems, algebraic chain-upgrading theorems, graded Hilbert--Serre exact-sequence induction, the bidirectional modular periodic quasi-polynomial equivalence, and all boundary/sharpness theorems are formalized from first principles in core Lean~4.19.0 (\texttt{lean/Conjecture00000000593/}) with \texttt{-DwarningAsError=true}, zero external dependencies, zero \texttt{sorry}, zero \texttt{native\_decide}, and zero custom axioms:
+\begin{itemize}\raggedright
+\item \texttt{PolySeries.lean}: univariate integer polynomials \texttt{ZPoly}, formal power series \texttt{Series}, Cauchy action \texttt{mulPolySeries}, evaluation homomorphisms, \texttt{chainProd}, and denominator monotonicity \texttt{hasDenominatorDividing\_mono}.
+\item \texttt{ChainDivisibility.lean}: geometric telescoping \texttt{mul\_oneMinusTPow\_geomSum}, universal chain upgrading \texttt{strictDivChain\_upgrade}, length-$n$ uniform chains \texttt{uniformPower\_dvd\_uniformStrictChain}, and graded Hilbert--Serre induction \texttt{hilbert\_serre\_strict\_chain}.
+\item \texttt{ModularPeriodic.lean}: iterated modular differences, exact coefficient identity \texttt{chainProd\_replicate\_coeff\_eq\_iterModDiff}, discrete Newton theorem \texttt{iterFwdDiff\_eq\_zero\_iff\_newtonEval}, and \texttt{modular\_periodic\_iff}.
+\item \texttt{Determinant.lean} and \texttt{MatrixMolien.lean}: commutative rings \texttt{CRing}, $n \times n$ matrices \texttt{Mat}, Laplace determinant and full multiplicativity \texttt{det\_mul} ($\det(AB) = \det(A)\det(B)$), matrix geometric-series identity \texttt{charPolyMat\_mul\_geomPolyMat}, determinant cofactor theorem \texttt{charDet\_mul\_geomDet\_eq\_chainProd} ($\det(I_n - tA) B_A(t) = (1 - t^e)^n$ with $\deg B_A < ne$), formal power-series inversion \texttt{invUnitPoly}, and unconditional Molien theorems \texttt{matrix\_molien\_unconditional} and \texttt{matrix\_group\_molien\_theorem}.
+\item \texttt{Sharpness.lean} and \texttt{Conjecture00000000593.lean}: \texttt{chain\_length\_ge\_vars}, \texttt{klein\_not\_equal\_any\_chain}, \texttt{modular\_F4\_witness}, \texttt{paritySeq\_not\_rational\_in\_index}, \texttt{sym3\_nonvacuity\_witness}, \texttt{bertin\_modular\_witness}, \texttt{groupNegId2\_molien\_verified}, and unconditional master theorem \texttt{conjecture\_00000000593\_master}.
+\end{itemize}
+In parallel, the standalone Python~3.12 script \texttt{verify.py} independently checks the matrix geometric-series identity over $\mathbb{Q}$ (on $A_4 \le \mathrm{SO}_3(\mathbb{Q})$), exact modular invariant dimensions via Gaussian elimination over $\mathbb{F}_2$, $\mathbb{F}_3$, and $\mathbb{F}_4$ (Bertin's $C_4$ on $J_4$, $C_3$ on $2J_2$, $(\mathbb{F}_4,+)$ on $\mathbb{F}_4[x,y]$, and Dickson's $\mathrm{GL}_2(\mathbb{F}_2)$), and all sharpness certificates.
+
+\begin{thebibliography}{9}
+\bibitem{Benson}
+D.~J.~Benson, \emph{Polynomial Invariants of Finite Groups}, London Math.\ Soc.\ Lecture Note Ser.\ \textbf{190}, Cambridge Univ.\ Press, 1993.
+
+\bibitem{Bertin1967}
+M.-J.~Bertin, Anneaux d'invariants d'anneaux de polyn\^omes, en caract\'eristique $p$, \emph{C.\ R.\ Acad.\ Sci.\ Paris S\'er.\ A-B} \textbf{264} (1967), A653--A656.
+
+\bibitem{DerksenKemper}
+H.~Derksen and G.~Kemper, \emph{Computational Invariant Theory}, enlarged ed., Encyclopaedia Math.\ Sci.\ \textbf{130}, Springer, 2015.
+
+\bibitem{Eisenbud}
+D.~Eisenbud, \emph{Commutative Algebra with a View Toward Algebraic Geometry}, Grad.\ Texts in Math.\ \textbf{150}, Springer, 1995.
+
+\bibitem{Noether1926}
+E.~Noether, Der Endlichkeitssatz der Invarianten endlicher linearer Gruppen der Charakteristik $p$, \emph{Nachr.\ Ges.\ Wiss.\ G\"ottingen} (1926), 28--35.
+
+\bibitem{Richman1990}
+D.~R.~Richman, On vector invariants over finite fields, \emph{Adv.\ Math.} \textbf{81} (1990), 30--65.
+
+\bibitem{StanleyEC1}
+R.~P.~Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge Univ.\ Press, 2012.
+
+\bibitem{Sturmfels}
+B.~Sturmfels, \emph{Algorithms in Invariant Theory}, 2nd ed., Texts Monogr.\ Symbolic Comput., Springer, 2008.
+
+\bibitem{Symonds2011}
+P.~Symonds, On the Castelnuovo--Mumford regularity of the ring of invariants, \emph{Ann.\ of Math.\ (2)} \textbf{174} (2011), 499--517.
+\end{thebibliography}
+
+\end{document}
