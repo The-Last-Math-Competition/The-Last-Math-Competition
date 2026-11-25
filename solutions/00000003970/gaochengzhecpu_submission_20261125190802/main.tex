@@ -1,0 +1,361 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\cind}{c^{\mathrm{ind}}}
+\newcommand{\csub}{c^{\mathrm{sub}}}
+\newcommand{\ssub}{s^{\mathrm{sub}}}
+\newcommand{\Nind}{N_{\mathrm{ind}}}
+\newcommand{\Nsub}{N_{\mathrm{sub}}}
+\newcommand{\Aut}{\mathrm{Aut}}
+\newcommand{\Hom}{\mathrm{Hom}}
+\newcommand{\InjHom}{\mathrm{InjHom}}
+\newcommand{\IndEmb}{\mathrm{IndEmb}}
+\newcommand{\CHom}{\mathrm{CHom}}
+
+\title{\textbf{Complete Resolution of Conjecture 00000003970:\\
+Minimal Subgraph-Count vs.\ Adjacency-Spectrum Separation}}
+\author{Formal Mathematical Analysis \& Core Lean 4.19.0 Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We completely resolve Conjecture~00000003970 from \emph{The Last Math Competition} concerning the minimal vertex order at which two finite simple graphs agree on the counts of all connected subgraphs while having distinct adjacency spectra. Because the problem statement pairs a first-sentence definition of the \emph{subgraph count vector} (sequence of subgraph counts of each vertex order) with a second-sentence hypothesis that ``counts of all connected subgraphs coincide,'' we establish a sharp \textbf{Grand Trichotomy} across all three standard mathematical interpretations, proving that the conjectured minimal vertex number ``$6$ or $7$'' is \textbf{false} under every reading:
+\begin{enumerate}
+  \item \textbf{Connected induced order-vector $\cind(G)$:} For $\cind(G) = (\cind_1(G), \dots, \cind_n(G))$, separation exists, and the exact minimal vertex number is $\mathbf{n_{\min} = 5}$ (both over all simple graphs and over connected simple graphs), strictly below $6$. At $n = 5$ there are \textbf{exactly $4$} non-isomorphic separating pairs ($1$ disconnected pair and $3$ connected pairs), which we enumerate completely.
+  \item \textbf{Connected edge-subset order-vector $\csub(G)$:} For $\csub(G) = (\csub_1(G), \dots, \csub_n(G))$, separation exists, and the exact minimal vertex number is $\mathbf{n_{\min} = 8}$ (both over all simple graphs and over connected simple graphs), strictly above $7$. Across all $1{,}252$ non-isomorphic simple graphs of order $1 \le n \le 7$, $\csub(G)$ is a complete isomorphism invariant; at $n = 8$ there are \textbf{exactly $11$} separating pairs ($2$ disconnected pairs and $9$ connected pairs).
+  \item \textbf{Isomorphism-class counts of all connected subgraphs ($\Nind(H,G)$ or $\Nsub(H,G)$ for all connected $H$):} Separation is \textbf{impossible at every vertex order $n \in \mathbb{N}$}. By the Whitney--Lov\'asz connected subgraph algebra, equality of connected subgraph counts reconstructs $G$ up to isomorphism and hence forces identical adjacency characteristic polynomials $\det(xI - A_G)$.
+\end{enumerate}
+Finally, we identify the exact mathematical origin of the heuristic ``$6$ or $7$'': requiring identical degree sequences alongside $\cind(G)$ shifts the threshold from $5$ to $\mathbf{n = 6}$ ($7$ pairs), whereas dropping connectedness and using the unrestricted subgraph count vector $\ssub(G)$ yields $\mathbf{n = 7}$ ($20$ pairs). Every definition and main theorem across all readings is formalized from first principles in Core Lean~4.19.0 with zero external dependencies and zero custom axioms.
+\end{abstract}
+
+\section{Problem Statement and Interpretation Landscape}
+
+Conjecture~00000003970 is stated in \texttt{SOURCE.md} in parallel English and Chinese formulations:
+\begin{quote}
+\textbf{English.} \emph{Definition: The subgraph count vector is the sequence of the numbers of subgraphs of each order. Conjecture: There exist two graphs whose counts of all connected subgraphs coincide while their adjacency spectra differ; the minimal vertex number for such a separation is 6 or 7, and all cases can be completely enumerated. (minimal subgraph-count spectrum separation)}
+\end{quote}
+In the Chinese formulation, \emph{subgraph count vector} is ``\emph{z\u{\i}t\'u j\`{\i}sh\`u xi\`angli\`ang}'' (sequence of numbers of subgraphs of each order $k$), ``counts of all connected subgraphs coincide'' is ``\emph{q\'{\i} qu\'anb\`u li\'ant\=ong z\u{\i}t\'u j\`{\i}sh\`u xi\=angt\'ong},'' and ``adjacency spectra differ'' is ``\emph{l\'{\i}nji\=e p\u{u} xi\=angy\`{\i}}.''
+
+Throughout, all graphs $G = (V, E)$ are finite, simple (undirected and loopless) graphs. For $|V| = n$, the adjacency matrix $A_G \in \{0,1\}^{n \times n}$ is real symmetric, so $A_G$ is orthogonally diagonalizable over $\mathbb{R}$ and its adjacency spectrum (multiset of eigenvalues with algebraic = geometric multiplicities) is uniquely determined by its monic characteristic polynomial
+\[
+  \chi_G(x) = \det(xI_n - A_G) \in \mathbb{Z}[x].
+\]
+Two graphs $G_1, G_2$ of order $n$ therefore have identical adjacency spectra if and only if $\chi_{G_1}(x) = \chi_{G_2}(x)$.
+
+\subsection{Three Natural Mathematical Readings}
+
+Combining the first-sentence definition of an order-indexed count vector with the second-sentence connectedness condition yields three standard mathematical interpretations:
+
+\begin{definition}[Connected subgraph invariants]
+Let $G = (V, E)$ be a simple graph on $n = |V|$ vertices.
+\begin{itemize}
+  \item[(I)] \textbf{Connected induced subgraph order-vector:} For $1 \le k \le n$, let
+  \[
+    \cind_k(G) = \#\bigl\{S \subseteq V : |S| = k \text{ and } G[S] \text{ is connected}\bigr\},
+    \qquad \cind(G) = \bigl(\cind_1(G), \dots, \cind_n(G)\bigr).
+  \]
+  \item[(II)] \textbf{Connected edge-subset (non-induced) subgraph order-vector:} For $1 \le k \le n$, let
+  \[
+    \csub_k(G) = \#\bigl\{(S, F) : S \subseteq V,\; |S| = k,\; F \subseteq E(G[S]),\; (S, F) \text{ is connected}\bigr\},
+  \]
+  with vector $\csub(G) = \bigl(\csub_1(G), \dots, \csub_n(G)\bigr)$. (Note that any connected graph $(S, F)$ with $|S| \ge 2$ has no isolated vertices, so $\csub_k(G)$ for $k \ge 2$ equivalently counts non-empty connected edge subsets $F \subseteq E$ with $|V(F)| = k$, while $\csub_1(G) = n$.) We also denote the unrestricted subgraph count vector of Sentence~1 by
+  \[
+    \ssub_k(G) = \#\bigl\{(S, F) : S \subseteq V,\; |S| = k,\; F \subseteq E(G[S])\bigr\}
+    = \sum_{S \subseteq V,\, |S| = k} 2^{|E(G[S])|}.
+  \]
+  \item[(III)] \textbf{Isomorphism-class connected subgraph counts:} For every finite connected simple graph $H$, let $\Nind(H, G)$ be the number of vertex subsets $S \subseteq V$ with $G[S] \cong H$, and let $\Nsub(H, G)$ be the number of subgraphs $(S, F)$ of $G$ with $(S, F) \cong H$.
+\end{itemize}
+\end{definition}
+
+Note that in all three readings, matching counts immediately force $|V(G_1)| = |V(G_2)|$: $\cind_1(G) = \csub_1(G) = \Nind(K_1, G) = \Nsub(K_1, G) = |V(G)|$. Table~\ref{tab:grand-summary} summarizes our complete resolution across all readings and diagnostic variants.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.8pt}
+\caption{Complete summary of minimal subgraph-count vs.\ adjacency-spectrum separation.}
+\label{tab:grand-summary}
+\begin{tabular}{@{}llccc@{}}
+\toprule
+\textbf{Reading / Invariant} & \textbf{Sep.?} & $\mathbf{n_{\min}}$ \textbf{(all $G$)} & $\mathbf{n_{\min}}$ \textbf{(conn.\ $G$)} & \textbf{Pairs at $n = n_{\min}$} \\
+\midrule
+I.\ Connected induced vector $\cind(G)$ & True & $\mathbf{5}$ & $\mathbf{5}$ & $4$ total ($1$ disc., $3$ conn.) \\
+II.\ Connected edge-subset vector $\csub(G)$ & True & $\mathbf{8}$ & $\mathbf{8}$ & $11$ total ($2$ disc., $9$ conn.) \\
+IIIa.\ Connected iso-counts $\{\Nind(H,G)\}_{H\text{ conn.}}$ & \textbf{False} & $\infty$ & $\infty$ & $0$ ($\forall n \in \mathbb{N}:\; G_1 \cong G_2$) \\
+IIIb.\ Connected iso-counts $\{\Nsub(H,G)\}_{H\text{ conn.}}$ & \textbf{False} & $\infty$ & $\infty$ & $0$ ($\forall n \in \mathbb{N}:\; G_1 \cong G_2$) \\
+\midrule
+Diagnostic A: $(\cind(G),\, \mathrm{deg}(G))$ & True & $6$ & $6$ & $7$ pairs (all conn.) \\
+Diagnostic B: Unrestricted vector $\ssub(G)$ & True & $7$ & $7$ & $20$ pairs (all conn.) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Reading I: Connected Induced Order-Vector (\texorpdfstring{$n_{\min} = 5$}{n\_min = 5})}
+
+\begin{theorem}[Complete resolution for $\cind(G)$]
+\label{thm:reading-I}
+\leavevmode
+\begin{itemize}
+  \item[(a)] For every $0 \le n \le 4$ and all simple graphs $G_1, G_2$ on $n$ vertices, $\cind(G_1) = \cind(G_2)$ implies $G_1 \cong G_2$ and hence $\chi_{G_1}(x) = \chi_{G_2}(x)$.
+  \item[(b)] At $n = 5$, there exist pairs of simple graphs (both disconnected and connected) with $\cind(G_1) = \cind(G_2)$ and $\chi_{G_1}(x) \ne \chi_{G_2}(x)$. Thus the exact minimal vertex number is $n_{\min}(\cind) = 5 \notin \{6, 7\}$.
+  \item[(c)] Up to graph isomorphism and swapping $(G_1, G_2)$, there are \textbf{exactly four} separating pairs on $n = 5$ vertices: one disconnected pair and three connected pairs, listed in Table~\ref{tab:n5-pairs}.
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+\emph{Part (a).} For $n = 0$ and $n = 1$ there is a unique simple graph. For $n = 2$, $\overline{K}_2$ and $K_2$ have $\cind = (2,0)$ and $(2,1)$. For $n = 3$, the four non-isomorphic graphs $\overline{K}_3$, $K_2 \sqcup K_1$, $P_3$, $K_3$ have $\cind = (3,0,0)$, $(3,1,0)$, $(3,2,1)$, $(3,3,1)$, which are pairwise distinct. For $n = 4$, there are $11$ non-isomorphic simple graphs; Table~\ref{tab:n4-table} lists all $11$ graphs together with their $\cind(G)$ vectors, which are pairwise distinct by inspection. Thus $\cind(G)$ determines $G$ up to isomorphism for all $n \le 4$.
+
+\begin{table}[ht]
+\centering
+\small
+\caption{All $11$ non-isomorphic simple graphs of order $n = 4$ have distinct $\cind(G)$ vectors.}
+\label{tab:n4-table}
+\begin{tabular}{@{}llcllc@{}}
+\toprule
+\textbf{Graph $G$} & $|E|$ & $\cind(G)$ & \textbf{Graph $G$} & $|E|$ & $\cind(G)$ \\
+\midrule
+$\overline{K}_4$ & $0$ & $(4, 0, 0, 0)$ & $P_4$ & $3$ & $(4, 3, 2, 1)$ \\
+$K_2 \sqcup 2K_1$ & $1$ & $(4, 1, 0, 0)$ & $\mathrm{Paw}$ ($K_3 + \text{leaf}$) & $4$ & $(4, 4, 3, 1)$ \\
+$2K_2$ & $2$ & $(4, 2, 0, 0)$ & $C_4$ & $4$ & $(4, 4, 4, 1)$ \\
+$P_3 \sqcup K_1$ & $2$ & $(4, 2, 1, 0)$ & $\mathrm{Diamond}$ ($K_4 - e$) & $5$ & $(4, 5, 4, 1)$ \\
+$K_3 \sqcup K_1$ & $3$ & $(4, 3, 1, 0)$ & $K_4$ & $6$ & $(4, 6, 4, 1)$ \\
+$K_{1,3}$ (Claw) & $3$ & $(4, 3, 3, 1)$ & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\emph{Part (b).} We verify each of the four $5$-vertex pairs in Table~\ref{tab:n5-pairs} directly by hand:
+\begin{itemize}
+  \item \textbf{Pair 1 ($K_3 \sqcup 2K_1$ vs.\ $P_3 \sqcup K_2$, disconnected, $|E| = 3$):} Both have $5$ vertices and $3$ edges, so $\cind_1 = 5$ and $\cind_2 = 3$. A $3$-vertex induced subgraph is connected iff it lies inside a connected component of order $\ge 3$: $K_3 \sqcup 2K_1$ has only $K_3$ ($\cind_3 = 1$), and $P_3 \sqcup K_2$ has only $P_3$ ($\cind_3 = 1$). Since every component has order $\le 3$, $\cind_4 = \cind_5 = 0$ for both, giving $\cind = (5,3,1,0,0)$. However, $K_3 \sqcup 2K_1$ has one triangle whereas $P_3 \sqcup K_2$ is triangle-free; since the coefficient of $x^{n-3}$ in $\chi_G(x)$ equals $-2\,t(G)$ (where $t(G)$ is the number of triangles), $\chi_{K_3 \sqcup 2K_1}(x) = x^5 - 3x^3 - 2x^2 \ne x^5 - 3x^3 + 2x = \chi_{P_3 \sqcup K_2}(x)$.
+
+  \item \textbf{Pair 2 ($K_{1,4} + e$ vs.\ $\mathrm{Banner}$, connected, $|E| = 5$):} In $K_{1,4} + e$, the hub $0$ is universal: every subset containing $0$ is connected, giving $\binom{4}{2} = 6$ connected $3$-subsets and $\binom{4}{3} = 4$ connected $4$-subsets, while $V \setminus \{0\} \cong K_2 \sqcup 2K_1$ contributes $0$ connected $3$- or $4$-subsets; thus $\cind = (5,5,6,4,1)$. In $\mathrm{Banner}$ ($4$-cycle $0\text{--}1\text{--}3\text{--}2\text{--}0$ with pendant leaf $4$ attached to $0$), all $\binom{4}{3} = 4$ triples in the $4$-cycle induce $P_3$, and the triples containing leaf $4$ that are connected are $\{4,0,1\}$ and $\{4,0,2\}$ ($2$ triples, as $\{4,0,3\}$ isolates $3$), giving $\cind_3 = 4 + 2 = 6$. Deleting any vertex except $0$ leaves a connected $4$-subset ($\cind_4 = 4$), so $\cind = (5,5,6,4,1)$. Yet $K_{1,4} + e$ has $1$ triangle while $\mathrm{Banner}$ is bipartite ($0$ triangles), so $\chi_{K_{1,4}+e}(x) = x^5 - 5x^3 - 2x^2 + 2x \ne x^5 - 5x^3 + 2x = \chi_{\mathrm{Banner}}(x)$.
+
+  \item \textbf{Pair 3 ($\mathrm{Diamond}+\text{leaf}$ vs.\ $\mathrm{Butterfly}$, connected, $|E| = 6$):} In $\mathrm{Butterfly}$ ($2K_3$ sharing hub $0$), every subset containing $0$ is connected ($\binom{4}{2} = 6$ triples, $\binom{4}{3} = 4$ quadruples), and $V \setminus \{0\} \cong 2K_2$ has no connected $3$- or $4$-subset, so $\cind = (5,6,6,4,1)$. In $\mathrm{Diamond}+\text{leaf}$ ($K_4 - e$ on $\{0,1,2,3\}$ missing $\{2,3\}$, with leaf $4$ attached to degree-$2$ vertex $2$), all $4$ triples in $\{0,1,2,3\}$ are connected, and triples containing $4$ are connected iff they contain $2$ and one of $\{0,1\}$ ($2$ triples), giving $\cind_3 = 6$; deleting any vertex except $2$ leaves a connected $4$-subset ($\cind_4 = 4$), giving $\cind = (5,6,6,4,1)$. Their characteristic polynomials are $x^5 - 6x^3 - 4x^2 + 3x + 2$ vs.\ $x^5 - 6x^3 - 4x^2 + 5x + 4$.
+
+  \item \textbf{Pair 4 ($\mathrm{Book}\ B_3$ vs.\ $K_{2,3} + e$, connected, $|E| = 7$):} In $B_3 = K_2 \vee \overline{K}_3$ (spine $\{0,1\}$ joined to $\{2,3,4\}$), only $\{2,3,4\}$ is disconnected among triples ($\cind_3 = 10 - 1 = 9$) and every $4$-subset intersects $\{0,1\}$ ($\cind_4 = 5$), so $\cind = (5,7,9,5,1)$. In $K_{2,3} + e$ (complete bipartite graph between $\{2,3\}$ and $\{0,1,4\}$ plus edge $\{0,1\}$), every triple meeting $\{2,3\}$ is connected, while $\{0,1,4\} \cong K_2 \sqcup K_1$ is disconnected ($\cind_3 = 10 - 1 = 9$), and every $4$-subset meets $\{2,3\}$ and is connected ($\cind_4 = 5$). Since $B_3$ has $3$ triangles whereas $K_{2,3}+e$ has $2$ triangles ($\{0,1,2\}$ and $\{0,1,3\}$), $\chi_{B_3}(x) = x^5 - 7x^3 - 6x^2 \ne x^5 - 7x^3 - 4x^2 + 2x = \chi_{K_{2,3}+e}(x)$.
+\end{itemize}
+
+\emph{Part (c).} Every $5$-vertex simple graph is isomorphic to one of the $34$ canonical $5$-vertex graphs (verified in Core Lean~4.19.0 via an explicit minimum-degree certificate reduction from $n = 4$). Evaluating $\cind$ and $\chi_G$ across all $\binom{34}{2} = 561$ unordered pairs yields exclusively the $4$ pairs in Table~\ref{tab:n5-pairs} (note that there are zero cospectral non-isomorphic pairs on $n = 5$ sharing $\cind$, as the unique cospectral pair on $5$ vertices is $K_{1,4}$ vs.\ $C_4 \sqcup K_1$, which have $\cind = (5,4,6,4,1)$ vs.\ $(5,4,4,1,0)$). Pairwise non-isomorphism of the $8$ graphs in Table~\ref{tab:n5-pairs} is immediate because $\cind$ separates different rows while $\chi_G$ separates the two graphs in each row.
+\end{proof}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Complete enumeration of all minimal $\cind(G)$ spectrum-separating pairs ($n = 5$).}
+\label{tab:n5-pairs}
+\begin{tabular}{@{}clll@{}}
+\toprule
+\textbf{\#} & \textbf{Graph Pair $(G_1,\, G_2)$ \& Edges} & $\cind(G_1) = \cind(G_2)$ & \textbf{Characteristic Polynomials $\chi_G(x)$} \\
+\midrule
+1 & $K_3 \sqcup 2K_1$: $\{01,02,12\}$ (disc.) & $(5, 3, 1, 0, 0)$ & $x^5 - 3x^3 - 2x^2$ \\
+  & $P_3 \sqcup K_2$: $\{01,02,34\}$ (disc.) & & $x^5 - 3x^3 + 2x$ \\[3pt]
+2 & $K_{1,4}+e$: $\{01,02,03,04,12\}$ (conn.) & $(5, 5, 6, 4, 1)$ & $x^5 - 5x^3 - 2x^2 + 2x$ \\
+  & $\mathrm{Banner}$: $\{01,02,04,13,23\}$ (conn.) & & $x^5 - 5x^3 + 2x$ \\[3pt]
+3 & $\mathrm{Diamond}+\text{leaf}$: $\{01,02,03,12,13,24\}$ & $(5, 6, 6, 4, 1)$ & $x^5 - 6x^3 - 4x^2 + 3x + 2$ \\
+  & $\mathrm{Butterfly}$: $\{01,02,03,04,12,34\}$ & & $x^5 - 6x^3 - 4x^2 + 5x + 4$ \\[3pt]
+4 & $\mathrm{Book}\ B_3$: $\{01,02,03,04,12,13,14\}$ & $(5, 7, 9, 5, 1)$ & $x^5 - 7x^3 - 6x^2$ \\
+  & $K_{2,3}+e$: $\{01,02,03,12,13,24,34\}$ & & $x^5 - 7x^3 - 4x^2 + 2x$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+At $n = 6$ there are $45$ separating pairs ($38$ connected), and at $n = 7$ there are $873$ separating pairs ($799$ connected).
+
+\section{Reading II: Connected Edge-Subset Order-Vector (\texorpdfstring{$n_{\min} = 8$}{n\_min = 8})}
+
+When ``subgraphs of each order'' means general (not-necessarily-induced) subgraphs $(S, F)$ with $F \subseteq E(G[S])$, the invariant $\csub(G)$ is dramatically stronger than $\cind(G)$: for example, $\csub_3(G) = p_3(G) + 4\,t(G)$ where $p_3(G)$ is the number of induced $P_3$'s and $t(G)$ is the number of triangles (each induced $K_3$ contains $1$ copy of $K_3$ and $3$ spanning paths $P_3$). Notice that $\cind_3(G) = p_3(G) + t(G)$ cannot distinguish $P_3$ from $K_3$, whereas $\csub_3(G)$ weights $K_3$ four times as heavily as $P_3$, breaking all four $n = 5$ pairs of Theorem~\ref{thm:reading-I}!
+
+\subsection{Exact Subset-Convolution Recurrence}
+
+For any vertex subset $S \subseteq V$, let $c_{\mathrm{span}}(G; S)$ be the number of connected spanning subgraphs $(S, F)$ of $G[S]$. Fixing an anchor vertex $v \notin S$, partitioning all $2^{|E(G[S \cup \{v\}])|}$ spanning subgraphs of $G[S \cup \{v\}]$ by the connected component $T \cup \{v\}$ ($T \subseteq S$) containing $v$ yields the exact triangular identity:
+\begin{equation}
+\label{eq:subset-conv}
+  2^{|E(G[S \cup \{v\}])|} = \sum_{T \subseteq S} c_{\mathrm{span}}(G;\, T \cup \{v\}) \cdot 2^{|E(G[S \setminus T])|}.
+\end{equation}
+On a binary trie of depth $n$, solving~\eqref{eq:subset-conv} recursively requires exactly $3^n - 2^n$ additions/subtractions per graph, and summing $c_{\mathrm{span}}(G; S)$ by $|S| = k$ yields $\csub_k(G)$.
+
+\begin{theorem}[Complete resolution for $\csub(G)$]
+\label{thm:reading-II}
+\leavevmode
+\begin{itemize}
+  \item[(a)] For every $0 \le n \le 7$ and all simple graphs $G_1, G_2$ on $n$ vertices, $\csub(G_1) = \csub(G_2)$ implies $G_1 \cong G_2$ and $\chi_{G_1}(x) = \chi_{G_2}(x)$. In particular, no separating pair exists at $n = 6$ or $n = 7$.
+  \item[(b)] At $n = 8$, separating pairs exist both among disconnected graphs and among connected graphs, so the exact minimal vertex number is $n_{\min}(\csub) = 8 \notin \{6, 7\}$. Across all $12{,}346$ non-isomorphic $8$-vertex simple graphs, there are \textbf{exactly $11$} unordered pairs sharing $\csub(G)$ ($2$ disconnected pairs and $9$ connected pairs), and all $11$ pairs have distinct adjacency spectra.
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+\emph{Part (a).} For $n = 0$ there is one graph. For $1 \le n \le 7$, every $n$-vertex simple graph reduces via an explicit minimum-degree vertex-swap + inductive canonical certificate to the set $\mathcal{C}_n$ of canonical representatives ($|\mathcal{C}_1| = 1$, $|\mathcal{C}_2| = 2$, $|\mathcal{C}_3| = 4$, $|\mathcal{C}_4| = 11$, $|\mathcal{C}_5| = 34$, $|\mathcal{C}_6| = 156$, $|\mathcal{C}_7| = 1{,}044$). Using the proved equivalence between $\csub(G)$ and the subset-convolution solver for~\eqref{eq:subset-conv}, inserting $(\csub(G), G)$ for all $G \in \mathcal{C}_n$ into a verified binary search tree detects zero key collisions for every $1 \le n \le 7$ inside the Lean~4.19.0 kernel. Hence $\csub(G_1) = \csub(G_2) \implies G_1 \cong G_2 \implies \chi_{G_1} = \chi_{G_2}$.
+
+\emph{Part (b).} We first give a three-line hand-verifiable proof for the simplest $n = 8$ witness pair---two $5$-edge forests:
+\[
+  G_1 = K_{1,3} \sqcup 2K_2, \qquad G_2 = P_4 \sqcup P_3 \sqcup K_1.
+\]
+Because $G_1$ and $G_2$ are forests, every connected subgraph of order $k$ is an induced subtree of a single connected component:
+\begin{itemize}
+  \item $k = 1$: $8$ vertices in each ($\csub_1 = 8$).
+  \item $k = 2$: $3 + 1 + 1 = 5$ edges in $G_1$, and $3 + 2 + 0 = 5$ edges in $G_2$ ($\csub_2 = 5$).
+  \item $k = 3$: $K_{1,3}$ has $\binom{3}{2} = 3$ subtrees $P_3$ (and $2K_2$ has none), while $P_4$ has $2$ subpaths $P_3$ and $P_3$ has $1$ ($\csub_3 = 3$).
+  \item $k = 4$: $K_{1,3}$ has $1$ tree of order $4$, and $P_4$ has $1$ tree of order $4$ ($\csub_4 = 1$).
+  \item $k \ge 5$: all components have order $\le 4$, so $\csub_5 = \csub_6 = \csub_7 = \csub_8 = 0$.
+\end{itemize}
+Thus $\csub(G_1) = \csub(G_2) = (8,5,3,1,0,0,0,0)$. Meanwhile,
+\begin{align*}
+  \chi_{G_1}(x) &= (x^4 - 3x^2)(x^2 - 1)^2 = x^8 - 5x^6 + 7x^4 - 3x^2,\\
+  \chi_{G_2}(x) &= (x^4 - 3x^2 + 1)(x^3 - 2x)\,x = x^8 - 5x^6 + 7x^4 - 2x^2,
+\end{align*}
+which differ in their $x^2$ coefficient ($-3 \ne -2$, and $\chi_{G_1}(1) = 0 \ne 1 = \chi_{G_2}(1)$).
+
+For \textbf{connected} $8$-vertex graphs, consider the $12$-edge pair $G_{8,A}$ and $G_{8,B}$ on $\{0,\dots,7\}$:
+\begin{align*}
+  E(G_{8,A}) &= \{01, 02, 03, 04, 12, 13, 24, 25, 26, 35, 56, 57\},\\
+  E(G_{8,B}) &= \{01, 02, 03, 04, 07, 12, 13, 24, 25, 35, 36, 56\}.
+\end{align*}
+Both $G_{8,A}$ and $G_{8,B}$ are connected with degree sequence $(1,2,2,3,3,4,4,5)$, and they simultaneously agree on \textbf{all three} order vectors:
+\begin{align*}
+  \csub(G_{8,A}) = \csub(G_{8,B}) &= (8, 12, 34, 102, 298, 716, 1086, 592),\\
+  \cind(G_{8,A}) = \cind(G_{8,B}) &= (8, 12, 22, 32, 32, 20, 7, 1),\\
+  \ssub(G_{8,A}) = \ssub(G_{8,B}) &= (8, 40, 162, 558, 1618, 3712, 5760, 4096),
+\end{align*}
+while their characteristic polynomials differ:
+\begin{align*}
+  \chi_{G_{8,A}}(x) &= x^8 - 12x^6 - 8x^5 + 28x^4 + 20x^3 - 16x^2 - 8x + 1,\\
+  \chi_{G_{8,B}}(x) &= x^8 - 12x^6 - 8x^5 + 28x^4 + 20x^3 - 12x^2 - 4x + 1.
+\end{align*}
+Exhaustive evaluation over all $12{,}346$ non-isomorphic $8$-vertex graphs in \texttt{verify.py} yields the complete list of $11$ pairs in Table~\ref{tab:n8-csub}.
+\end{proof}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\caption{Complete enumeration of all $11$ pairs of $8$-vertex graphs sharing $\csub(G)$ (all $11$ separate spectra).}
+\label{tab:n8-csub}
+\begin{tabular}{@{}cccll@{}}
+\toprule
+\textbf{\#} & $|E|$ & \textbf{Conn.} & $\csub(G_1) = \csub(G_2)$ & $\chi_{G_1}(x) - \chi_{G_2}(x)$ \\
+\midrule
+1 & $5$ & No & $(8, 5, 3, 1, 0, 0, 0, 0)$ & $-x^2$ \\
+2 & $7$ & No & $(8, 7, 8, 5, 0, 0, 0, 0)$ & $-2x^4 + 2x^3 + 7x^2 + 2x - 1$ \\
+3 & $12$ & Yes & $(8, 12, 34, 102, 298, 716, 1086, 592)$ & $-4x^2 - 4x$ \\
+4 & $13$ & Yes & $(8, 13, 37, 114, 354, 984, 2040, 2136)$ & $-2x + 4$ \\
+5 & $13$ & Yes & $(8, 13, 38, 124, 385, 961, 1830, 1992)$ & $-4x^2 - 4x$ \\
+6 & $14$ & Yes & $(8, 14, 44, 160, 594, 1939, 4554, 5144)$ & $-4x^2$ \\
+7 & $14$ & Yes & $(8, 14, 45, 167, 614, 1801, 4024, 5240)$ & $-4x^2 - 8x - 4$ \\
+8 & $14$ & Yes & $(8, 14, 46, 175, 671, 2091, 4470, 4896)$ & $-4x^2 - 4x$ \\
+9 & $14$ & Yes & $(8, 14, 46, 177, 665, 2098, 4514, 4976)$ & $+4$ \\
+10 & $15$ & Yes & $(8, 15, 51, 206, 870, 3199, 9178, 12964)$ & $-4x^2 - 4x$ \\
+11 & $15$ & Yes & $(8, 15, 52, 225, 948, 3406, 8330, 12648)$ & $+2x - 4$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Reading III: Isomorphism-Class Connected Subgraph Counts}
+
+What if ``whose counts of all connected subgraphs coincide'' means that for \emph{every} connected graph $H$, the isomorphism-class count $\Nind(H, G)$ (or $\Nsub(H, G)$) is the same in $G_1$ and $G_2$? We prove constructively for all $n \in \mathbb{N}$ that this forces $G_1 \cong G_2$ (even when $G_1, G_2$ themselves are disconnected!), so spectrum separation is \textbf{impossible}.
+
+\begin{theorem}[Connected subgraph reconstruction; Whitney--Lov\'asz]
+\label{thm:reading-III}
+Let $G_1, G_2$ be finite simple graphs of arbitrary vertex orders $n_1, n_2 \in \mathbb{N}$.
+\begin{itemize}
+  \item[(a)] If $\Nind(H, G_1) = \Nind(H, G_2)$ for every finite connected simple graph $H$, then $n_1 = n_2$, $G_1 \cong G_2$, and $\chi_{G_1}(x) = \chi_{G_2}(x)$.
+  \item[(b)] If $\Nsub(H, G_1) = \Nsub(H, G_2)$ for every finite connected simple graph $H$, then $n_1 = n_2$, $G_1 \cong G_2$, and $\chi_{G_1}(x) = \chi_{G_2}(x)$.
+\end{itemize}
+Consequently, under both Readings~IIIa and~IIIb, no spectrum-separating pair $(G_1, G_2)$ exists at any vertex order $n$.
+\end{theorem}
+
+\begin{proof}
+We present the five-step constructive proof formalized in \texttt{IsoCountReconstruction.lean}:
+
+\textbf{Step 1 (Automorphism scaling to labeled embeddings).} For $H$ on $[k]$ and $G$ on $[n]$, let $\Hom(H, G)$ be the set of graph homomorphisms $\varphi : [k] \to [n]$, $\InjHom(H, G) \subseteq \Hom(H, G)$ the injective homomorphisms, $\IndEmb(H, G) \subseteq \InjHom(H, G)$ the induced embeddings, and $\Aut(H) = \IndEmb(H, H)$. Since $\mathrm{id} \in \Aut(H)$, $|\Aut(H)| \ge 1$. Grouping $\varphi \in \IndEmb(H, G)$ by its vertex image $S = \varphi([k])$ and $\varphi \in \InjHom(H, G)$ by its subgraph image $(\varphi([k]),\, \varphi(E(H)))$ yields uniform fibers of size $|\Aut(H)|$:
+\[
+  |\IndEmb(H, G)| = |\Aut(H)| \cdot \Nind(H, G), \qquad
+  |\InjHom(H, G)| = |\Aut(H)| \cdot \Nsub(H, G).
+\]
+Hence equal values of $\Nind(H, \cdot)$ or $\Nsub(H, \cdot)$ on connected $H$ are equivalent to equal values of $|\IndEmb(H, \cdot)|$ or $|\InjHom(H, \cdot)|$ on connected $H$.
+
+\textbf{Step 2 (Connected $\IndEmb \implies$ connected $\InjHom$).} Partitioning $\varphi \in \InjHom(H, G)$ by its pullback simple graph $H_\varphi$ on $[k]$ ($u \sim_{H_\varphi} v \iff \varphi(u) \sim_G \varphi(v)$) gives
+\[
+  |\InjHom(H, G)| = \sum_{H' \supseteq H \text{ on } [k]} |\IndEmb(H', G)|.
+\]
+Whenever $H$ is connected and $H' \supseteq H$ on the same vertex set $[k]$, adding edges preserves every walk, so $H'$ is also connected. Thus part~(a) reduces immediately to part~(b).
+
+\textbf{Step 3 (One-edge inequality contraction recurrence).} For simple graphs $H, D$ on $[k]$, define the \emph{constrained homomorphism count}
+\[
+  \CHom(H, D, G) = \#\bigl\{\varphi \in \Hom(H, G) : \forall uv \in E(D),\; \varphi(u) \ne \varphi(v)\bigr\}.
+\]
+Notice $\CHom(H, \overline{K}_k, G) = |\Hom(H, G)|$ and $\CHom(H, K_k, G) = |\InjHom(H, G)|$. For any distinct vertices $a \ne b$ with $ab \notin E(D)$, partitioning by whether $\varphi(a) \ne \varphi(b)$ or $\varphi(a) = \varphi(b)$ gives
+\begin{equation}
+\label{eq:chom-split}
+  \CHom(H, D, G) = \CHom(H, D + ab, G) +
+  \begin{cases}
+    0 & \text{if } ab \in E(H),\\
+    \CHom(H/\{a=b\},\, D/\{a=b\},\, G) & \text{if } ab \notin E(H),
+  \end{cases}
+\end{equation}
+because $G$ is loopless (forcing $\varphi(a) \ne \varphi(b)$ if $ab \in E(H)$), and when $ab \notin E(H) \cup E(D)$ the merged graphs $H/\{a=b\}$ and $D/\{a=b\}$ on $k - 1$ vertices are simple (loopless) and $H/\{a=b\}$ remains \textbf{connected} whenever $H$ is connected! By strong induction on $k$ and downward induction on the number of non-edges of $D$ (starting from $D = K_k$),~\eqref{eq:chom-split} proves that equality of $|\InjHom(C, \cdot)|$ for all connected $C$ implies $|\Hom(C, G_1)| = |\Hom(C, G_2)|$ for all connected $C$.
+
+\textbf{Step 4 (Multiplicative component peeling and upward inversion).} For \emph{any} graph $F$ on $[k]$ ($k \ge 1$), let $S \subseteq [k]$ be the connected component of vertex $0$ in $F$, and $T = [k] \setminus S$. Since $F$ has no edges between $S$ and $T$, restricting $\varphi \mapsto (\varphi|_S, \varphi|_T)$ is a bijection $\Hom(F, G) \xrightarrow{\sim} \Hom(F[S], G) \times \Hom(F[T], G)$, so $|\Hom(F, G)| = |\Hom(F[S], G)| \cdot |\Hom(F[T], G)|$ with $F[S]$ connected and $|T| < k$. Strong induction on $k$ yields $|\Hom(F, G_1)| = |\Hom(F, G_2)|$ for \emph{all} graphs $F$. Then strong induction on $k$ and \emph{upward} induction on $|E(D)|$ via~\eqref{eq:chom-split} (starting from $D = \overline{K}_k$ up to $D = K_k$) yields $|\InjHom(F, G_1)| = |\InjHom(F, G_2)|$ for \emph{all} graphs $F$.
+
+\textbf{Step 5 (Lov\'asz's endgame).} At $F = K_1$ and $F = K_2$ we obtain $n_1 = |\InjHom(K_1, G_1)| = |\InjHom(K_1, G_2)| = n_2$ (denote this common order by $n$) and $2|E(G_1)| = |\InjHom(K_2, G_1)| = |\InjHom(K_2, G_2)| = 2|E(G_2)|$. At $F = G_1$ we obtain $|\InjHom(G_1, G_2)| = |\InjHom(G_1, G_1)| \ge 1$ (since $\mathrm{id}_{G_1} \in \InjHom(G_1, G_1)$). Any $\varphi \in \InjHom(G_1, G_2)$ is an injection $[n] \to [n]$, hence a bijection, mapping $E(G_1)$ injectively into $E(G_2)$; since $|E(G_1)| = |E(G_2)|$, $\varphi$ preserves both edges and non-edges, so $G_1 \cong G_2$ and $\chi_{G_1}(x) = \chi_{G_2}(x)$.
+\end{proof}
+
+\section{Diagnostic Origin of the Conjectured ``6 or 7''}
+
+Our exhaustive census also explains mathematically why a heuristic exploration might have arrived at ``$6$ or $7$'':
+\begin{proposition}[Thresholds $n = 6$ and $n = 7$ in adjacent variants]
+\label{prop:diagnostic}
+\leavevmode
+\begin{itemize}
+  \item[(a)] \textbf{Degree-matched connected induced vector ($n_{\min} = 6$):} In all four minimal $n = 5$ pairs of Table~\ref{tab:n5-pairs}, $G_1$ and $G_2$ have \emph{different} degree sequences (e.g.\ $(1,1,2,2,4)$ vs.\ $(1,2,2,2,3)$ in Pair~2). If one additionally requires $G_1$ and $G_2$ to share the same degree sequence alongside $\cind(G_1) = \cind(G_2)$, no separating pair exists for $n \le 5$, and separation begins at $\mathbf{n = 6}$ ($7$ pairs, all connected), witnessed by
+  \[
+    E_A = \{01,02,03,04,12,15,34\}, \qquad E_B = \{01,02,03,04,12,13,45\},
+  \]
+  which share degree sequence $(1,2,2,2,3,4)$ and $\cind = (6,7,8,7,4,1)$, whereas $\chi_A(x) = x^6 - 7x^4 - 4x^3 + 9x^2 + 6x - 1 \ne x^6 - 7x^4 - 4x^3 + 7x^2 + 4x = \chi_B(x)$.
+  \item[(b)] \textbf{Unrestricted subgraph count vector $\ssub(G)$ ($n_{\min} = 7$):} If one uses the literal Sentence~1 vector $\ssub_k(G) = \sum_{|S|=k} 2^{|E(G[S])|}$ \emph{without} restricting to connected subgraphs, $\ssub(G)$ is injective up to isomorphism for all $n \le 6$, and separation begins at $\mathbf{n = 7}$ ($20$ pairs, all connected), witnessed by $C_6$ with a triangle ear vs.\ $C_4$ bridged to $K_3$:
+  \[
+    E_1 = \{01,02,06,13,16,24,35,45\}, \qquad E_2 = \{01,02,04,13,23,45,46,56\},
+  \]
+  which share $\ssub = (7, 29, 87, 196, 328, 384, 256)$, whereas $\chi_1(x) = x^7 - 8x^5 - 2x^4 + 17x^3 + 6x^2 - 10x - 4 \ne x^7 - 8x^5 - 2x^4 + 15x^3 + 8x^2 - 2x = \chi_2(x)$.
+\end{itemize}
+\end{proposition}
+
+\section{Formal Verification in Core Lean 4.19.0}
+
+The entire proof development is formalized in Core Lean~4.19.0 (\texttt{leanprover/lean4:v4.19.0}) with \texttt{moreLeanArgs = ["-DwarningAsError=true"]}, zero external dependencies, zero \texttt{sorry}/\texttt{admit}, zero \texttt{native\_decide}, and zero custom \texttt{axiom} declarations. Every definition is stated from first principles:
+\begin{itemize}\raggedright
+  \item \texttt{Graph.lean}: \texttt{SimpleGraphN}, \texttt{GraphIso}, textbook inductive walk reachability \texttt{ReachableIn}, propositional connectedness \texttt{IsConnectedSubgraph} / \texttt{IsConnectedGraph}, and verified fixed-point decidability (\texttt{reachBool\_\allowbreak eq\_\allowbreak true\_\allowbreak iff}).
+  \item \texttt{CharPoly.lean}: Canonical integer polynomials \texttt{Poly}, textbook row-$0$ Laplace expansion \texttt{detPoly}, characteristic polynomial \texttt{charPoly G := detPoly (charMatrix G)}, and full permutation conjugation invariance (\texttt{GraphIso.\allowbreak charPoly\_\allowbreak eq}).
+  \item \texttt{SubgraphCounts.lean} \& \texttt{FastSubgraphEval.lean}: Definitions and isomorphism invariance of \texttt{connInducedVec}, \texttt{connEdgeSubgraphVec}, and \texttt{allEdgeSubgraphVec}, plus full equivalence proof (\texttt{connEdgeSubgraphVec\_\allowbreak eq\_\allowbreak fast}) with the $O(3^n - 2^n)$ binary-trie solver.
+  \item \texttt{CanonGraphs.lean}: Minimum-degree inductive certificate reduction (\texttt{canon\_\allowbreak reduction\_\allowbreak 1}--\texttt{7}) and verified $O(N \log N)$ tree-map injectivity checker (\texttt{checkInjOnMasks\_\allowbreak sound}).
+  \item \texttt{InducedOrderSeparation.lean}: Theorem~\ref{thm:reading-I} (\texttt{no\_\allowbreak connInduced\_\allowbreak sep\_\allowbreak le\_\allowbreak 4}, \texttt{exists\_\allowbreak connInduced\_\allowbreak sep\_\allowbreak 5}, \texttt{complete\_\allowbreak enum\_\allowbreak connInduced\_\allowbreak 5}) and Proposition~\ref{prop:diagnostic}(a) (\texttt{exists\_\allowbreak connInduced\_\allowbreak sameDeg\_\allowbreak sep\_\allowbreak 6}).
+  \item \texttt{EdgeSubgraphOrderSeparation.lean}: Theorem~\ref{thm:reading-II} (\texttt{no\_\allowbreak connEdgeSubgraph\_\allowbreak sep\_\allowbreak le\_\allowbreak 7}, \texttt{sep\_\allowbreak forest\_\allowbreak pair\_\allowbreak G8}, \texttt{exists\_\allowbreak connEdgeSubgraph\_\allowbreak sep\_\allowbreak 8}) and Proposition~\ref{prop:diagnostic}(b) (\texttt{no\_\allowbreak allEdgeSubgraph\_\allowbreak sep\_\allowbreak le\_\allowbreak 6}, \texttt{sep\_\allowbreak allEdge\_\allowbreak pair\_\allowbreak G7}).
+  \item \texttt{IsoCountReconstruction.lean}: Theorem~\ref{thm:reading-III} (\texttt{conn\_\allowbreak indIsoCount\_\allowbreak imp\_\allowbreak graphIso}, \texttt{conn\_\allowbreak subIsoCount\_\allowbreak imp\_\allowbreak graphIso}, \texttt{no\_\allowbreak conn\_\allowbreak indIsoCount\_\allowbreak spectrum\_\allowbreak separation}, and \texttt{no\_\allowbreak conn\_\allowbreak subIsoCount\_\allowbreak spectrum\_\allowbreak separation}).
+  \item \texttt{Conjecture00000003970.lean}: Unified master resolution theorems \texttt{resolution\_\allowbreak reading\_\allowbreak I\_\allowbreak induced\_\allowbreak order\_\allowbreak vector}, \texttt{resolution\_\allowbreak reading\_\allowbreak II\_\allowbreak edge\_\allowbreak subgraph\_\allowbreak order\_\allowbreak vector}, and \texttt{resolution\_\allowbreak reading\_\allowbreak III\_\allowbreak isomorphism\_\allowbreak class\_\allowbreak counts}.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{Lovasz1967}
+L.~Lov\'asz, Operations with structures, \emph{Acta Math.\ Acad.\ Sci.\ Hungar.} \textbf{18} (1967), 321--328.
+
+\bibitem{Whitney1932}
+H.~Whitney, The coloring of graphs, \emph{Ann.\ of Math.} (2) \textbf{33} (1932), no.~4, 688--718.
+
+\bibitem{CDS1980}
+D.~M.~Cvetkovi\'c, M.~Doob, and H.~Sachs, \emph{Spectra of Graphs: Theory and Application}, Academic Press, New York, 1980.
+\end{thebibliography}
+
+\end{document}
