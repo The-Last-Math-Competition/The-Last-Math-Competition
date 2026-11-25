@@ -18,18 +18,18 @@ We formalize and analyze **all 24 standard convention combinations** across:
 
 ### Key Counterexample Theorems
 
-1. **Connected Non-Bipartite Infinite Family (`K_n`, $n \ge 3$) — Refutes $(\implies)$ Across All 24 Conventions:**
+1. **Connected Non-Bipartite Infinite Family (`K_n`, $n \ge 3$) — Refutes $\bigl(\implies\bigr)$ Across All 24 Conventions:**
    For every $n \ge 3$, the complete graph $K_n$ is connected and non-bipartite (containing a triangle, hence possessing no bipartition at all), yet reaches at most $\lceil n/2 \rceil$ lit vertices in at most one move from every initial configuration under both $\sigma^-$ and $\sigma^+$. Smallest connected instance: **$K_3$ ($n = 3$, $\lceil 3/2 \rceil = 2$)**.
-2. **Connected Bipartite Infinite Family (`K_{2k,2k}`, $k \ge 1$) — Refutes $(\implies)$ Even on Connected Bipartite Graphs:**
-   For every $k \ge 1$, $K_{2k,2k}$ ($n = 4k$, including $C_4 = K_{2,2}$ at $k = 1$) is connected and bipartite, and its unique bipartition has even part sizes $(2k, 2k)$ (hence no odd bipartition under any mode), yet reaches at most $2k = \lceil 4k/2 \rceil$ lit vertices in at most one move from every initial configuration under both $\sigma^-$ and $\sigma^+$.
-3. **Tree Counterexample (`P_4`, $n = 4$) — Refutes $(\implies)$ Even on Trees:**
-   The 4-vertex path $P_4$ ($0 - 1 - 2 - 3$) is a tree whose unique bipartition $\{0,2\} \sqcup \{1,3\}$ has even part sizes $(2, 2)$, yet satisfies $\operatorname{min-lit}(P_4) \le 1 < 2 = \lceil 4/2 \rceil$ under all six game conventions.
-4. **Infinite Converse Counterexample Families (`Empty_{2m}` and `K_2 ⊔ Empty_{2m}`, $m \ge 1$) — Refutes $(\Longleftarrow)$ Under $\sigma^-$:**
-   Both $\overline{K_{2m}}$ ($n = 2m$) and $K_2 \sqcup \overline{K_{2m}}$ ($n = 2m + 2$, which has a non-empty edge set) possess odd-odd bipartitions of sizes $(1, 2m-1)$ and $(1, 2m+1)$, yet satisfy $\operatorname{min-lit}^-(\overline{K_{2m}}) = 2m > m$ and $\operatorname{min-lit}^-(K_2 \sqcup \overline{K_{2m}}) = 2m + 1 > m + 1$.
+2. **Connected Bipartite Infinite Family (`K_{2k,2k}`, $k \ge 1$) — Refutes $\bigl(\implies\bigr)$ Even on Connected Bipartite Graphs:**
+   For every $k \ge 1$, $K_{2k,2k}$ ($n = 4k$, including $C_4 = K_{2,2}$ at $k = 1$) is connected and bipartite, and its unique bipartition has even part sizes $\bigl(2k, 2k\bigr)$ (hence no odd bipartition under any mode), yet reaches at most $2k = \lceil 4k/2 \rceil$ lit vertices in at most one move from every initial configuration under both $\sigma^-$ and $\sigma^+$.
+3. **Tree Counterexample (`P_4`, $n = 4$) — Refutes $\bigl(\implies\bigr)$ Even on Trees:**
+   The 4-vertex path $P_4$ ($0 - 1 - 2 - 3$) is a tree whose unique bipartition $\{0,2\} \sqcup \{1,3\}$ has even part sizes $\bigl(2, 2\bigr)$, yet satisfies $\mathrm{min-lit}(P_4) \le 1 \lt 2 = \lceil 4/2 \rceil$ under all six game conventions.
+4. **Infinite Converse Counterexample Families (`Empty_{2m}` and `K_2 ⊔ Empty_{2m}`, $m \ge 1$) — Refutes $\bigl(\Longleftarrow\bigr)$ Under $\sigma^-$:**
+   Both $\overline{K_{2m}}$ ($n = 2m$) and $K_2 \sqcup \overline{K_{2m}}$ ($n = 2m + 2$, which has a non-empty edge set) possess odd-odd bipartitions of sizes $\bigl(1, 2m-1\bigr)$ and $\bigl(1, 2m+1\bigr)$, yet satisfy $\mathrm{min-lit}^-(\overline{K_{2m}}) = 2m \gt m$ and $\mathrm{min-lit}^-(K_2 \sqcup \overline{K_{2m}}) = 2m + 1 \gt m + 1$.
 5. **Positive Non-Vacuity & Non-Triviality Witnesses:**
-   - $K_2$ ($n = 2$) is connected, satisfies all four odd-bipartition modes with sizes $(1, 1)$, and satisfies $\operatorname{min-lit}(K_2) \le 1 = \lceil 2/2 \rceil$ under all six game conventions.
-   - $\overline{K_2}$ ($n = 2$) satisfies $\operatorname{min-lit}_{\mathbf{1}}^-(\overline{K_2}) = 2 > 1 = \lceil 2/2 \rceil$.
-   - The connected octahedron graph $K_{2,2,2}$ ($n = 6$) satisfies $\operatorname{min-lit}_{\max}^-(K_{2,2,2}) = 4 > 3 = \lceil 6/2 \rceil$.
+   - $K_2$ ($n = 2$) is connected, satisfies all four odd-bipartition modes with sizes $\bigl(1, 1\bigr)$, and satisfies $\mathrm{min-lit}(K_2) \le 1 = \lceil 2/2 \rceil$ under all six game conventions.
+   - $\overline{K_2}$ ($n = 2$) satisfies $\mathrm{min-lit}_{\mathbf{1}}^-(\overline{K_2}) = 2 \gt 1 = \lceil 2/2 \rceil$.
+   - The connected octahedron graph $K_{2,2,2}$ ($n = 6$) satisfies $\mathrm{min-lit}_{\max}^-(K_{2,2,2}) = 4 \gt 3 = \lceil 6/2 \rceil$.
 
 ---
 
