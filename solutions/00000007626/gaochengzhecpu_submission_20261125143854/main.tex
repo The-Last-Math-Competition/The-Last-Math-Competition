@@ -1,0 +1,627 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+
+\setlength{\emergencystretch}{1.5em}
+\renewcommand{\arraystretch}{1.22}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\HH}{\mathbb{H}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\rk}{\mathrm{rk}}
+\newcommand{\Prim}{\mathrm{Prim}}
+\newenvironment{psmallmatrix}{\left(\begin{smallmatrix}}{\end{smallmatrix}\right)}
+
+\title{\textbf{Disproof and Exact Multi-Rank Resolution of Conjecture 00000007626:\\
+Connected-Family Spectra of Idempotents, Matrix-Block Counts,\\
+and Isomorphism-Class Invariants}}
+\author{Formalized in Core Lean 4.19.0 with Independent Computational Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007626}, which proposes a three-part structural law for
+the connected-family spectrum of idempotents $E(A)=\{e\in A\mid e^2=e\}$ of an associative
+algebra $A$: (I) the connected-family spectrum $\pi_0(E(A))$ is finite; (II) its cardinality
+is bounded above by the Artin--Wedderburn matrix-block count $b(A)$; and (III) the
+matrix-block count $b(A)$ is bounded above by the isomorphism-class count $c_{\mathrm{iso}}(A)$.
+
+We prove that \textbf{Conjecture \texttt{00000007626} is false}. Specifically, for any
+finite-dimensional associative unital algebra $A$ over a field $K$ with Jacobson radical
+$J(A)$ and semisimple quotient $A/J(A)\cong\bigoplus_{i=1}^b M_{n_i}(D_i)$, the connected
+components of $E(A)$---whether defined topologically over $\R$ or $\C$, smoothly, via
+algebraic $\mathbb{A}^1$-polynomial homotopies in $A[t]$, via unit-conjugacy orbits, or via
+isomorphism classes of cyclic projective left ideals $Ae$---all coincide and have exact
+finite cardinality
+\[
+  \bigl|\pi_0(E(A))\bigr| \;=\; \prod_{i=1}^{b}(n_i + 1).
+\]
+From this exact formula we establish a complete resolution of all three clauses across every
+standard interpretation:
+\begin{enumerate}
+  \setlength{\itemsep}{2pt}
+  \item \textbf{Universal failure of Clause~II:} Since $n_i\ge 1$, every nonzero
+    finite-dimensional algebra ($b\ge 1$) satisfies $\prod_{i=1}^b(n_i+1)\ge 2^b > b$; for
+    instance, $\Cl_{1,1}(K)\cong M_2(K)$ has $b=1$ matrix block and $3>1$ connected
+    components. Even restricting to proper idempotents $E^\circ(A)=E(A)\setminus\{0,1\}$,
+    the bound $\prod_{i=1}^b(n_i+1)-2\le b$ holds \emph{if and only if} the block-size
+    profile is $(1)$, $(2)$, or $(1,1)$, failing for $\Cl_{2,2}(\R)\cong M_4(\R)$ ($b=1$,
+    $3>1$), $\Cl_{2,1}(\R)\cong M_2(\R)\oplus M_2(\R)$ ($b=2$, $7>2$), $K^3$ ($b=3$, $6>3$),
+    and diverging as $2^m-1\to\infty$ on $\Cl_{m,m}(K)\cong M_{2^m}(K)$ while $b=1$ remains
+    constant. Central idempotents likewise satisfy $2^b > b$ for all $b\ge 1$.
+  \item \textbf{Failure of Clause~III:} Counting algebra-isomorphism classes $c_{\mathrm{alg}}(A)$
+    of simple matrix blocks satisfies the \emph{reverse} universal inequality
+    $c_{\mathrm{alg}}(A)\le b(A)$, with strict failure $b(A)>c_{\mathrm{alg}}(A)=1$ whenever
+    isomorphic blocks repeat (e.g.\ $\Cl_{1,0}(K)\cong K\oplus K$ gives $|\pi_0(E)|=4>b=2>c_{\mathrm{alg}}=1$,
+    and $\Cl_{2,1}(K)\cong M_2(K)\oplus M_2(K)$ gives $|\pi_0(E^\circ)|=7>b=2>c_{\mathrm{alg}}=1$).
+    Under module-isomorphism readings ($c_{\mathrm{simp}}=b$ or $c_{\mathrm{proj}}=\prod(n_i+1)$),
+    the chained conjecture still fails at Clause~II.
+  \item \textbf{Conceptual origin and primitive salvage:} Restricting to \emph{primitive}
+    idempotents $\Prim(E(A))$ yields $|\pi_0(\Prim(E(A)))|=b(A)=c_{\mathrm{simp}}(A)$,
+    identifying the conflation of primitive idempotents with general idempotents as the root
+    source of the conjecture. Without finite-dimensionality, even Clause~I fails on $\Z^\N$.
+\end{enumerate}
+All core algebraic theorems, counterexamples, non-vacuity bijections, and nilpotent lifting
+identities are machine-checked from first principles in Core Lean~4.19.0 with zero external
+dependencies and zero \texttt{sorry} axioms.
+\end{abstract}
+
+\section{Introduction and Problem Formulation}
+
+Conjecture \texttt{00000007626} from \emph{The Last Math Competition} states verbatim:
+
+\begin{quote}
+\textbf{English.} Definition: The connected-family structure of idempotent formulas.
+Conjecture: The connected-family spectrum of idempotents is finite; the bound of finiteness
+is the matrix-block count; and the bound of the matrix-block count is the isomorphism-class
+counting. (matrix-block-finite idempotent families)
+
+\smallskip
+\textbf{Chinese translation (romanized summary).} The Chinese text makes the identical
+three-clause assertion: the connected-family spectrum of idempotents is finite, the upper
+bound of finiteness is the matrix-block count, and the upper bound of the matrix-block count
+is the isomorphism-class count.
+\end{quote}
+
+In the structure theory of associative rings, Clifford algebras, and operator algebras
+\cite{Lam,LawsonMichelsohn,Blackadar}, idempotent formulas parameterize projection elements
+\[
+  E(A) \;=\; \{e \in A \mid e^2 = e\}
+\]
+inside a unital associative algebra $A$ over a ground field $K$. When $A$ is
+finite-dimensional over $K$, its Jacobson radical $J = J(A)$ is nilpotent ($J^N = 0$), and
+by the Artin--Wedderburn theorem the semisimple quotient decomposes into a finite direct sum
+of full matrix algebras over division $K$-algebras $D_1,\dots,D_b$:
+\begin{equation}\label{eq:aw}
+  A / J(A) \;\cong\; \bigoplus_{i=1}^{b} M_{n_i}(D_i),
+  \qquad b \ge 1,\quad n_i \ge 1.
+\end{equation}
+Here $b = b(A)$ is the \emph{matrix-block count} of $A$: the number of simple matrix factors
+in~\eqref{eq:aw}, equivalently the number of minimal central idempotents of $A/J(A)$.
+
+To ensure that our resolution leaves no ambiguity, we analyze all standard mathematical
+formulations of every term in the statement:
+\begin{itemize}
+  \setlength{\itemsep}{2pt}
+  \item \textbf{Notions of connected families on $E(A)$:}
+    \begin{enumerate}
+      \item[(C1)] \emph{Topological and $C^\infty$ path-connectedness} over $K\in\{\R,\C\}$:
+        $e_0 \sim_{\mathrm{top}} e_1$ iff there exists a continuous (or smooth) path
+        $\gamma : [0,1]\to E(A)$ with $\gamma(0)=e_0$ and $\gamma(1)=e_1$.
+      \item[(C2)] \emph{Algebraic $\mathbb{A}^1$-polynomial homotopy connectedness} over an
+        arbitrary field or commutative ring $K$: $e_0 \sim_{\mathbb{A}^1} e_1$ iff $e_0$ and
+        $e_1$ are linked by a finite chain of polynomial idempotent families
+        $E(t)\in E(A[t])$ evaluated at $t=0$ and $t=1$.
+      \item[(C3)] \emph{Unit conjugacy and identity-component orbits}: $e_1 = u e_0 u^{-1}$
+        for $u \in A^\times$ (or $u\in (A^\times)_0$).
+      \item[(C4)] \emph{Murray--von Neumann / projective ideal equivalence}: isomorphism
+        $Ae_0 \cong_A Ae_1$ of generated cyclic projective left $A$-modules.
+    \end{enumerate}
+  \item \textbf{Choices of idempotent locus:}
+    (L1) all idempotents $E(A)$;
+    (L2) proper (nontrivial) idempotents $E^\circ(A) = E(A)\setminus\{0,1\}$;
+    (L3) central idempotents $E(Z(A))$; and
+    (L4) primitive idempotents $\Prim(E(A))$.
+  \item \textbf{Readings of ``isomorphism-class counting'' $c_{\mathrm{iso}}(A)$:}
+    (I1) $K$-algebra / ring isomorphism classes $c_{\mathrm{alg}}(A)$ among the matrix blocks
+    $\{M_{n_1}(D_1),\dots,M_{n_b}(D_b)\}$;
+    (I2) isomorphism classes $c_{\mathrm{simp}}(A)$ of simple (or indecomposable projective)
+    left $A$-modules; and
+    (I3) isomorphism classes $c_{\mathrm{proj}}(A)$ of idempotent-generated projective left
+    ideals $\{[Ae] : e\in E(A)\}$.
+\end{itemize}
+
+The conjecture asserts the chained finiteness and upper-bound hierarchy
+\begin{equation}\label{eq:chain}
+  \bigl|\pi_0(E(A))\bigr| \;\le\; b(A) \;\le\; c_{\mathrm{iso}}(A) \;<\; \infty.
+\end{equation}
+We show that~\eqref{eq:chain} fails decisively: Clause~II fails on every nonzero
+finite-dimensional algebra for $E(A)$ and $E(Z(A))$, and fails on every algebra outside three
+small sporadic profiles for $E^\circ(A)$; Clause~III fails in the opposite direction under
+(I1), while (I2) and (I3) cannot rescue Clause~II; and Clause~I itself fails if
+finite-dimensionality is omitted.
+
+\section{Exact Multi-Rank Theory and Nilpotent Invariance}
+
+We begin with the positive structural theorems that govern connected families of idempotents
+over arbitrary unital associative rings and finite-dimensional algebras.
+
+\subsection{Universal Nilpotent Lifting and Polynomial Intertwining}
+
+Let $A$ be any unital associative ring (not necessarily commutative, of arbitrary
+characteristic), and let $E(A)=\{e\in A\mid e^2=e\}$.
+
+\begin{lemma}[Murray--von Neumann Module Criterion]\label{lem:mvn}
+For any $e_0,e_1\in E(A)$, the cyclic projective left ideals $Ae_0$ and $Ae_1$ are
+isomorphic as left $A$-modules if and only if there exist $u,v\in A$ such that $uv=e_0$ and
+$vu=e_1$. In particular, if $e_1 = g e_0 g^{-1}$ for $g\in A^\times$, then $Ae_0\cong_A Ae_1$
+via $u=e_0 g^{-1}$ and $v=g e_0$.
+\end{lemma}
+
+\begin{proof}
+If $\varphi : Ae_0 \xrightarrow{\sim} Ae_1$ is a left $A$-module isomorphism with inverse
+$\psi$, set $u = \varphi(e_0)\in Ae_1$ and $v = \psi(e_1)\in Ae_0$, so $ue_1 = u$ and
+$ve_0 = v$. By left $A$-linearity, $e_0 = \psi(u) = \psi(u e_1) = u\psi(e_1) = uv$, and
+symmetrically $e_1 = \varphi(v) = \varphi(v e_0) = v\varphi(e_0) = vu$. Conversely, if
+$uv=e_0$ and $vu=e_1$, setting $u'=e_0 u e_1$ and $v'=e_1 v e_0$ satisfies
+$u'v' = e_0 u e_1 v e_0 = e_0 u(vu)v e_0 = e_0(uv)^2 e_0 = e_0$ and $v'u'=e_1$; right
+multiplication by $u'$ and $v'$ then defines mutually inverse left $A$-linear maps between
+$Ae_0$ and $Ae_1$.
+\end{proof}
+
+\begin{theorem}[Universal Nilpotent Polynomial Homotopy]\label{thm:nilpotent}
+Let $A$ be any unital associative ring.
+\begin{enumerate}
+  \setlength{\itemsep}{2pt}
+  \item \textbf{Newton's universal lift:} Define $f(x) = 3x^2 - 2x^3 \in A$. For every
+    $x\in A$ with defect $\delta = x^2 - x$, we have
+    \[
+      f(x) - x \;=\; \delta(1 - 2x),
+      \qquad
+      f(x)^2 - f(x) \;=\; \delta^2(4x^2 - 4x - 3).
+    \]
+    Hence if $J\triangleleft A$ is a nilpotent two-sided ideal ($J^N=0$), iterating $f$ lifts
+    every idempotent of $A/J$ to an idempotent of $A$ in the same residue class modulo $J$.
+  \item \textbf{Explicit polynomial conjugation:} Suppose $e_0,e_1\in E(A)$ satisfy
+    $w^N = 0$ for $w = (2e_1 - 1)(e_0 - e_1)$ (which holds whenever $e_0 - e_1\in J$ with
+    $J^N=0$). Then the element $u = e_1 e_0 + (1 - e_1)(1 - e_0)$ satisfies
+    \[
+      u \;=\; 1 + w, \qquad u e_0 \;=\; e_1 u,
+    \]
+    the linear polynomial $U(t) = 1 + tw \in A[t]$ is a two-sided unit with inverse
+    $V(t) = \sum_{m=0}^{N-1}(-1)^m t^m w^m \in A[t]$, and
+    $E(t) = U(t) e_0 V(t) \in E(A[t])$ is a single-step polynomial idempotent homotopy with
+    $E(0)=e_0$ and $E(1)=e_1$.
+\end{enumerate}
+Consequently, the quotient $\pi : A \twoheadrightarrow A/J$ induces a bijection
+$\pi_* : \pi_0^{\mathbb{A}^1}(E(A)) \xrightarrow{\sim} \pi_0^{\mathbb{A}^1}(E(A/J))$.
+\end{theorem}
+
+\begin{proof}
+In the subring $\Z[x]\subseteq A$, expanding $(x^2-x)(1-2x)=x^2-2x^3-x+2x^2=3x^2-2x^3-x$
+and $(x^2-x)^2(4x^2-4x-3) = (3x^2-2x^3)^2 - (3x^2-2x^3)$ uses only integer ring laws and holds
+in every characteristic. For part~2, right multiplication by $e_0$ gives
+$u e_0 = e_1 e_0^2 + (1-e_1)(1-e_0)e_0 = e_1 e_0$, while left multiplication by $e_1$ gives
+$e_1 u = e_1^2 e_0 + e_1(1-e_1)(1-e_0) = e_1 e_0$. Moreover, using $e_1^2 = e_1$ and
+$(1-e_1)e_1 = 0$,
+\[
+  e_1 e_0 = e_1 + e_1(e_0 - e_1), \qquad
+  (1-e_1)(1-e_0) = (1-e_1) - (1-e_1)(e_0 - e_1),
+\]
+whose sum is $(e_1 + 1 - e_1) + (e_1 - (1-e_1))(e_0 - e_1) = 1 + w$. Since $w^N = 0$,
+telescoping in $A[t]$ yields $U(t)V(t) = 1 - (-tw)^N = 1 = V(t)U(t)$. Thus
+$E(t)^2 = U(t)e_0(V(t)U(t))e_0 V(t) = U(t)e_0^2 V(t) = E(t)$, $E(0)=e_0$, and
+$E(1) = u e_0 V(1) = e_1 u V(1) = e_1\cdot 1 = e_1$.
+\end{proof}
+
+\subsection{Leibniz--Trace Invariance and Exact Artin--Wedderburn Spectrum}
+
+\begin{theorem}[Leibniz--Trace Polynomial Invariance]\label{thm:leibniz}
+Let $K$ be any commutative ring, let $n\ge 1$, and let $E(t)\in M_n(K[t])$ satisfy
+$E(t)^2 = E(t)$. Letting $D : K[t]\to K[t]$ denote formal differentiation in $t$ (extended
+entrywise to $M_n(K[t])$), we have
+\[
+  D\bigl(\tr(E(t))\bigr) \;=\; 0.
+\]
+In particular, whenever $K$ is $\Z$-torsion-free (for example $K\in\{\Z,\Q,\R,\C\}$),
+$\tr(E(t))\in K$ is a constant polynomial, so $\tr(E_0)=\tr(E_1)$ whenever
+$E_0 \sim_{\mathbb{A}^1} E_1$ in $E(M_n(K))$. Likewise, $Ae_0 \cong Ae_1$ or
+$e_1 = g e_0 g^{-1}$ implies $\tr(e_0)=\tr(e_1)$.
+\end{theorem}
+
+\begin{proof}
+Write $E = E(t)$ and $E' = D(E)$. Applying the Leibniz rule to $E = E^2$ gives
+$E' = E'E + EE'$. Multiplying on the left by $E$ and using $E^2=E$ yields
+$EE' = EE'E + E^2 E' = EE'E + EE'$, hence $EE'E = 0$. By cyclicity of the matrix trace over
+the commutative ring $K[t]$,
+\[
+  \tr(EE') = \tr(E^2 E') = \tr\bigl(E(EE')\bigr) = \tr\bigl((EE')E\bigr) = \tr(EE'E) = 0,
+\]
+and $\tr(E'E) = \tr(EE') = 0$. Therefore
+$D(\tr(E)) = \tr(E') = \tr(E'E + EE') = \tr(E'E) + \tr(EE') = 0$. When $K$ is
+$\Z$-torsion-free, $(k+1)c_{k+1}=0$ implies $c_{k+1}=0$ for all $k\ge 0$, so $\tr(E)$ is
+constant. For module isomorphism, Lemma~\ref{lem:mvn} gives $uv=e_0, vu=e_1$, whence
+$\tr(e_0)=\tr(uv)=\tr(vu)=\tr(e_1)$.
+\end{proof}
+
+\begin{theorem}[Exact Multi-Rank Spectrum of Finite-Dimensional Algebras]\label{thm:multirank}
+Let $A$ be a finite-dimensional unital algebra over $K$ with semisimple quotient
+$A/J(A)\cong\bigoplus_{i=1}^b M_{n_i}(D_i)$.
+\begin{enumerate}
+  \setlength{\itemsep}{2pt}
+  \item Over any field $K$ (for $\mathbb{A}^1$-homotopy, $A^\times$-conjugacy, and projective
+    left-ideal isomorphism) and over $K\in\{\R,\C\}$ (also for topological and smooth
+    path-connectedness, where $D_i\in\{\R,\C,\HH\}$), two idempotents $e,f\in E(A)$ belong to
+    the same connected family if and only if their projections $(\bar e_i),(\bar f_i)$ in
+    $\bigoplus_{i=1}^b M_{n_i}(D_i)$ have the same multi-rank
+    \[
+      \rk(e) \;=\; \bigl(\dim_{D_1}\mathrm{im}(\bar e_1),\dots,\dim_{D_b}\mathrm{im}(\bar e_b)\bigr)
+      \;\in\; \prod_{i=1}^{b}\{0,1,\dots,n_i\}.
+    \]
+  \item Consequently, the connected-family spectrum is finite and has exact cardinality
+    \begin{equation}\label{eq:exact}
+      \bigl|\pi_0(E(A))\bigr| \;=\; \prod_{i=1}^{b}(n_i + 1).
+    \end{equation}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:nilpotent}, passing from $A$ to $A/J(A)$ preserves connected components
+bijectively (and over $\R$ or $\C$, the polynomial path $E(t)=(1+tw)e_0(1+tw)^{-1}$ restricts
+on $t\in[0,1]$ to a smooth path). In a finite direct product $\bigoplus_{i=1}^b B_i$, paths
+and unit conjugations factor coordinatewise, so $\pi_0(E(\bigoplus_i B_i))\cong\prod_i\pi_0(E(B_i))$.
+
+It remains to show $|\pi_0(E(M_n(D)))|=n+1$ for a division $K$-algebra $D$. Every idempotent
+$\bar e\in M_n(D)$ induces a direct-sum decomposition $D^n = \mathrm{im}(\bar e)\oplus\mathrm{im}(1-\bar e)$;
+choosing $D$-bases of both summands conjugates $\bar e$ via $g\in GL_n(D)$ to the canonical
+diagonal projection $P_r = \mathrm{diag}(1_r,0_{n-r})$ where $r=\dim_D\mathrm{im}(\bar e)\in\{0,\dots,n\}$.
+If $r=0$ or $r=n$, the orbit is the singleton $\{0\}$ or $\{I_n\}$. If $1\le r\le n-1$, by
+Dieudonn\'e's elementary decomposition $GL_n(D) = E_n(D)\cdot\{\mathrm{diag}(u,1,\dots,1):u\in D^\times\}$
+and the fact that $\mathrm{diag}(u,1,\dots,1)$ commutes with $P_r$ whenever $r\ge 1$, we have
+$g P_r g^{-1} = h P_r h^{-1}$ for a product $h\in E_n(D)$ of elementary transvections
+$I_n + c E_{pq}$ ($p\ne q$). Each transvection yields an $\mathbb{A}^1_K$-polynomial (and
+smooth) homotopy $t\mapsto (I_n + tcE_{pq})X(I_n - tcE_{pq})$, proving $P_r$ is connected to
+every rank-$r$ idempotent. Conversely, distinct ranks $r\ne s$ cannot be connected:
+\begin{itemize}
+  \setlength{\itemsep}{1pt}
+  \item Over $K\in\{\R,\C\}$ with $D\in\{\R,\C,\HH\}$ ($d=\dim_\R D\in\{1,2,4\}$), embedding
+    $M_n(D)\hookrightarrow M_{dn}(\R)$ via left multiplication sends any rank-$r$ idempotent
+    to a real projection of trace $dr\in\{0,d,\dots,dn\}$, a continuous real functional with
+    discrete image that is constant on topological path components.
+  \item Over an arbitrary field $K$ and division $K$-algebra $D$ with $\dim_K D = d$, embedding
+    $M_n(D)\hookrightarrow M_{dn}(K)$ turns any polynomial family $E(t)\in E(M_n(D[t]))$ into
+    an idempotent in $M_{dn}(K(t))$ of $K(t)$-rank $dr$, whose characteristic polynomial
+    $\det(\lambda I_{dn}-E(t)) = (\lambda-1)^{dr}\lambda^{d(n-r)}\in K[\lambda]$ has
+    $t$-independent coefficients, forcing $dr(E(0))=dr(E(1))$ in all characteristics. \qedhere
+\end{itemize}
+\end{proof}
+
+\section{Complete Refutation of Clause~II (Matrix-Block Bound)}
+
+Clause~II asserts $|\pi_0(E(A))|\le b(A)$. We refute this bound across every locus choice,
+construct self-contained field-independent proofs in dimension $2$, and classify the exact
+small-parameter coincidences that explain why the conjecture appears plausible at low rank.
+
+\subsection{Universal Failure for All Idempotents and Exact $M_2(K)$ Classification}
+
+\begin{corollary}[Universal Failure on $E(A)$]\label{cor:all_fail}
+For every nonzero finite-dimensional algebra $A$ ($b\ge 1$, $n_i\ge 1$),
+\[
+  \bigl|\pi_0(E(A))\bigr| \;=\; \prod_{i=1}^{b}(n_i + 1) \;\ge\; 2^b \;>\; b(A).
+\]
+Hence Clause~II fails for \emph{every} nonzero finite-dimensional algebra when all
+idempotents are counted.
+\end{corollary}
+
+In $M_2(K)\cong \Cl_{1,1}(K)$ (a single simple matrix block, $b=1$), we establish the exact
+$3$-component $\mathbb{A}^1$-classification purely algebraically over \emph{every} field $K$
+(including characteristic $2$, where $\tr(I_2)=0$).
+
+\begin{theorem}[Universal $2\times 2$ Trichotomy and Exact $3$-Component Spectrum]\label{thm:m2}
+\leavevmode
+\begin{enumerate}
+  \setlength{\itemsep}{2pt}
+  \item Let $R$ be any integral domain and $M=\begin{psmallmatrix}a&b\\ c&d\end{psmallmatrix}\in E(M_2(R))$.
+    Then $M$ satisfies the specialized Cayley--Hamilton identity
+    $(1-\tr M)M + (\det M)I_2 = 0$, and \emph{exactly one} of the following holds:
+    \[
+      M = 0, \qquad M = I_2, \qquad \text{or} \qquad
+      \bigl(M\notin\{0,I_2\},\;\det M = 0,\;\text{and}\;\tr M = 1\bigr).
+    \]
+  \item For every field $K$ (of arbitrary characteristic), $\pi_0^{\mathbb{A}^1}(E(M_2(K)))$
+    consists of \textbf{exact cardinality $3 > 1 = b$}: the isolated singletons $\{0\}$ and
+    $\{I_2\}$, and the single $\mathbb{A}^1$-connected rank-$1$ component
+    $\{M\in E(M_2(K))\mid \det M=0,\;\tr M=1\}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Expanding $M^2 = M$ entrywise yields $(1-(a+d))M + (ad-bc)I_2 = 0$. Multiplying on the right
+by $M$ and using $M^2=M$ gives $((1-\tr M)+\det M)M = 0$. If $M\ne 0$, some entry of $M$ is
+nonzero in the integral domain $R$, forcing $1-\tr M = -\det M$. Substituting back yields
+$(\det M)(I_2 - M) = 0$. If $M\ne I_2$, then $I_2-M\ne 0$, forcing $\det M = 0$ and hence
+$\tr M = 1$. Notice $0$ has $\tr(0)=0\ne 1$ while $I_2$ has $\det(I_2)=1\ne 0$, so the three
+cases are disjoint in every characteristic.
+
+Applying part~1 to $R = K[t]$ shows that any polynomial idempotent $P(t)\in E(M_2(K[t]))$
+remains globally inside one of the three classes, separating $[0]$, $[E_{11}]$, and $[I_2]$
+in $\pi_0^{\mathbb{A}^1}(E(M_2(K)))$. Conversely, over a field $K$, let $E=\begin{psmallmatrix}a&b\\ c&d\end{psmallmatrix}$
+have $E^2=E$, $ad=bc$, and $a+d=1$.
+\begin{itemize}
+  \setlength{\itemsep}{1pt}
+  \item Note first that $E_{22}=\begin{psmallmatrix}0&0\\ 0&1\end{psmallmatrix}$ connects to
+    $E_{11}=\begin{psmallmatrix}1&0\\ 0&0\end{psmallmatrix}$ via the three-step polynomial chain
+    \[
+      \begin{pmatrix}0&0\\ 0&1\end{pmatrix}
+      \xrightarrow{\;\begin{psmallmatrix}0&t\\ 0&1\end{psmallmatrix}\;}
+      \begin{pmatrix}0&1\\ 0&1\end{pmatrix}
+      \xrightarrow{\;\begin{psmallmatrix}t&1\\ t(1-t)&1-t\end{psmallmatrix}\;}
+      \begin{pmatrix}1&1\\ 0&0\end{pmatrix}
+      \xrightarrow{\;\begin{psmallmatrix}1&1-t\\ 0&0\end{psmallmatrix}\;}
+      \begin{pmatrix}1&0\\ 0&0\end{pmatrix}.
+    \]
+    (Alternatively, the single degree-$5$ family
+    $g(t)E_{11}g(t)^{-1}$ with $g(t)=\begin{psmallmatrix}1&-t\\ 0&1\end{psmallmatrix}\begin{psmallmatrix}1&0\\ t&1\end{psmallmatrix}\begin{psmallmatrix}1&-t\\ 0&1\end{psmallmatrix}\in SL_2(\Z[t])$
+    connects $E_{11}$ directly to $E_{22}$.)
+  \item If $a=0$, then $d=1$ and $bc=0$, so $b=0$ or $c=0$; the linear family
+    $\begin{psmallmatrix}0&0\\ (1-t)c&1\end{psmallmatrix}$ or $\begin{psmallmatrix}0&(1-t)b\\ 0&1\end{psmallmatrix}$
+    connects $E$ to $E_{22}$ and hence to $E_{11}$.
+  \item If $a\ne 0$, set $q = ca^{-1}\in K$. Since $bq = bca^{-1} = ada^{-1} = d$, the
+    polynomial conjugation $\begin{psmallmatrix}1&0\\ -qt&1\end{psmallmatrix}E\begin{psmallmatrix}1&0\\ qt&1\end{psmallmatrix}\in E(M_2(K[t]))$
+    connects $E$ at $t=0$ to $\begin{psmallmatrix}1&b\\ 0&0\end{psmallmatrix}$ at $t=1$, which
+    connects to $E_{11}$ via $\begin{psmallmatrix}1&(1-t)b\\ 0&0\end{psmallmatrix}$. \qedhere
+\end{itemize}
+\end{proof}
+
+\subsection{Refutation for Proper Idempotents and Sporadic Classification}
+
+What if trivial idempotents $0$ and $1$ are excluded, restricting to proper idempotents
+$E^\circ(A)=E(A)\setminus\{0,1\}$? Theorem~\ref{thm:m2} shows $|\pi_0(E^\circ(M_2(K)))|=1=b$,
+and for $D_1\oplus D_2$ one also has $|\pi_0(E^\circ(D_1\oplus D_2))|=4-2=2=b$. These small
+coincidences explain why the bound $b$ could be guessed from low-dimensional Clifford
+examples, yet they are completely exceptional:
+
+\begin{theorem}[Sporadic Profile Classification and Single-Block Divergence]\label{thm:sporadic}
+Let $(n_1,\dots,n_b)$ be any sequence of integers $n_i\ge 1$ with $b\ge 1$.
+\begin{enumerate}
+  \setlength{\itemsep}{2pt}
+  \item \textbf{Exact sporadic characterization:} The proper-idempotent inequality
+    $\prod_{i=1}^b(n_i+1) - 2 \le b$ holds \emph{if and only if} $(n_1,\dots,n_b)$ is one of
+    the three sporadic profiles $(1)$, $(2)$, or $(1,1)$.
+  \item \textbf{Single-block refutation ($b=1$, $n\ge 3$):} For every $n\ge 3$ and every
+    $\Z$-torsion-free ring or field $K$, $M_n(K)$ has $b=1$ matrix block, while the proper
+    diagonal projections $P_1,P_2,\dots,P_{n-1}\in E^\circ(M_n(K))$ have distinct traces
+    $1,2,\dots,n-1$ and lie in at least $n-1\ge 2 > 1 = b$ disjoint connected components
+    (with equality $n-1$ over any field). In particular, $\Cl_{2,2}(\R)\cong M_4(\R)$ has
+    $b=1$ and $|\pi_0(E^\circ(M_4(\R)))| = 3 > 1$.
+  \item \textbf{Impossibility of any $F(b)$ bound:} Along the split Clifford sequence
+    $A_m = \Cl_{m,m}(K)\cong M_{2^m}(K)$, the matrix-block count is identically $b(A_m)=1$,
+    whereas $|\pi_0(E^\circ(A_m))| = 2^m - 1 \to \infty$ as $m\to\infty$. Thus \emph{no}
+    function $F(b)$ of the matrix-block count alone can bound $|\pi_0(E(A))|$ or
+    $|\pi_0(E^\circ(A))|$.
+  \item \textbf{Central and non-semisimple refutations:} For the central idempotents
+    $E(Z(A))$ we have $|E(Z(A))| = 2^b > b$ for all $b\ge 1$, and $|E^\circ(Z(A))| = 2^b - 2 > b$
+    for all $b\ge 3$. For the non-semisimple algebra $T_2(K)$ of $2\times 2$ upper-triangular
+    matrices ($b=2$), $E(T_2(K))$ decomposes into $4 > 2 = b$ connected components:
+    $\{(0,0,0)\}$, $\{(1,0,1)\}$, and the two affine lines $\{(1,x,0):x\in K\}$ and
+    $\{(0,x,1):x\in K\}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For $b=1$, $(n_1+1)-2\le 1 \iff n_1\le 2$. For $b=2$, $(n_1+1)(n_2+1)-2\le 2 \iff (n_1+1)(n_2+1)\le 4$;
+since $n_1,n_2\ge 1$, if either $n_i\ge 2$ then $(n_1+1)(n_2+1)\ge 6 > 4$, leaving only
+$(1,1)$. For $b\ge 3$, $\prod_{i=1}^b(n_i+1) \ge 2^b$, and induction from $2^3-2=6>3$ gives
+$2^b - 2 > b$ for all $b\ge 3$. Parts~2 and~3 follow directly from Theorem~\ref{thm:leibniz},
+and part~4 for $T_2(K)$ follows from Theorem~\ref{thm:nilpotent} applied to the square-zero
+radical $J(T_2(K))=\{\begin{psmallmatrix}0&x\\ 0&0\end{psmallmatrix}\}$, since
+$T_2(K)/J\cong K\times K$ has $|E(K\times K)|=4$.
+\end{proof}
+
+\section{Refutation of Clause~III and Real Clifford Algebra Census}
+
+Clause~III asserts $b(A)\le c_{\mathrm{iso}}(A)$. We examine all three standard meanings of
+$c_{\mathrm{iso}}(A)$ in~\eqref{eq:aw}:
+
+\begin{theorem}[Analysis and Refutation of Clause~III]\label{thm:clause3}
+Let $A/J(A)\cong\bigoplus_{i=1}^b M_{n_i}(D_i)$.
+\begin{enumerate}
+  \setlength{\itemsep}{2pt}
+  \item \textbf{Algebra-isomorphism classes of blocks ($c_{\mathrm{alg}}(A)$):} The number
+    $c_{\mathrm{alg}}(A)$ of pairwise non-isomorphic simple algebra summands $M_{n_i}(D_i)$
+    satisfies the \emph{universal reverse inequality} $c_{\mathrm{alg}}(A)\le b(A)$ (by
+    pigeonhole on the $b$ summands), and \textbf{strictly violates Clause~III}
+    ($b(A) > c_{\mathrm{alg}}(A)$) whenever two blocks are isomorphic as algebras. In
+    particular, for any homogeneous product $A = R^b$ with $b\ge 2$, $c_{\mathrm{alg}}(A)=1 < b$.
+  \item \textbf{Simultaneous double reverse inequalities:} Both inequalities in~\eqref{eq:chain}
+    reverse strictly at once on natural Clifford and product algebras:
+    \begin{align*}
+      \Cl_{1,0}(K)\cong K\oplus K\;(b=2): \quad
+        &\bigl|\pi_0(E)\bigr| = 4 \;>\; b = 2 \;>\; c_{\mathrm{alg}} = 1,\\
+      \Cl_{2,1}(K)\cong M_2(K)\oplus M_2(K)\;(b=2): \quad
+        &\bigl|\pi_0(E^\circ)\bigr| = 7 \;>\; b = 2 \;>\; c_{\mathrm{alg}} = 1,\\
+      K^3\;(b=3,\;\text{proper central idempotents}): \quad
+        &\bigl|\pi_0(E^\circ(Z))\bigr| = 6 \;>\; b = 3 \;>\; c_{\mathrm{alg}} = 1.
+    \end{align*}
+  \item \textbf{Module-isomorphism readings ($c_{\mathrm{simp}}$ and $c_{\mathrm{proj}}$):}
+    By Artin--Wedderburn and Morita theory, $c_{\mathrm{simp}}(A)=b(A)$, whereas by
+    Lemma~\ref{lem:mvn} and Theorem~\ref{thm:multirank},
+    $c_{\mathrm{proj}}(A) = \prod_{i=1}^b(n_i+1) = |\pi_0(E(A))|$. Under either reading, the
+    joint chain $|\pi_0(E(A))|\le b(A)\le c_{\mathrm{iso}}(A)$ remains false because
+    $|\pi_0(E(A))|>b(A)$ (and $|\pi_0(E^\circ(A))|>b(A)$ outside the three sporadic profiles).
+\end{enumerate}
+\end{theorem}
+
+Table~\ref{tab:clifford} displays representative real Clifford algebras $\Cl_{p,q}(\R)$ and
+product/non-semisimple benchmarks. Across all $45$ signatures $(p,q)$ with $0\le p+q\le 8$
+(verified computationally in \texttt{verify.py}), $45/45$ violate $|\pi_0(E)|\le b$, $33/45$
+violate $|\pi_0(E^\circ)|\le b$, and all $10/45$ split-center signatures
+($p-q\equiv 1,5\pmod 8$) violate $b\le c_{\mathrm{alg}}$.
+
+\begin{table}[!ht]
+\centering
+\small
+\begin{tabular}{|l|l|c|c|c|c|c|c|c|}
+\hline
+\textbf{Algebra $A$} & \textbf{$A/J(A)$} & $b$ & $c_{\mathrm{alg}}$ & $c_{\mathrm{simp}}$
+  & $|\pi_0(E)|$ & $|\pi_0(E^\circ)|$ & $|E(Z)|$ & $|\pi_0(\Prim)|$ \\
+\hline
+$\Cl_{0,0}(\R)$ & $M_1(\R)$ & $1$ & $1$ & $1$ & $2$ & $0$ & $2$ & $1$ \\
+$\Cl_{1,0}(\R)$ & $\R \oplus \R$ & $2$ & $1$ & $2$ & $4$ & $2$ & $4$ & $2$ \\
+$\Cl_{1,1}(\R)$ & $M_2(\R)$ & $1$ & $1$ & $1$ & $3$ & $1$ & $2$ & $1$ \\
+$\Cl_{3,0}(\R)$ & $M_2(\C)$ & $1$ & $1$ & $1$ & $3$ & $1$ & $2$ & $1$ \\
+$\Cl_{0,3}(\R)$ & $\HH \oplus \HH$ & $2$ & $1$ & $2$ & $4$ & $2$ & $4$ & $2$ \\
+$\Cl_{2,1}(\R)$ & $M_2(\R) \oplus M_2(\R)$ & $2$ & $1$ & $2$ & $9$ & $7$ & $4$ & $2$ \\
+$\Cl_{2,2}(\R)$ & $M_4(\R)$ & $1$ & $1$ & $1$ & $5$ & $3$ & $2$ & $1$ \\
+$\Cl_{3,2}(\R)$ & $M_4(\R) \oplus M_4(\R)$ & $2$ & $1$ & $2$ & $25$ & $23$ & $4$ & $2$ \\
+$\Cl_{m,m}(\R)$ ($m\ge 2$) & $M_{2^m}(\R)$ & $1$ & $1$ & $1$ & $2^m+1$ & $2^m-1$ & $2$ & $1$ \\
+$K^3$ (central) & $K \oplus K \oplus K$ & $3$ & $1$ & $3$ & $8$ & $6$ & $8$ & $3$ \\
+$T_2(K)$ ($J^2=0$) & $K \oplus K$ & $2$ & $1$ & $2$ & $4$ & $2$ & $2$ & $2$ \\
+\hline
+\end{tabular}
+\caption{Comparison of matrix-block count $b$, block algebra-isomorphism count
+$c_{\mathrm{alg}}$, simple module count $c_{\mathrm{simp}}$, connected-family counts
+$|\pi_0(E)|$ and $|\pi_0(E^\circ)|$, central idempotent count $|E(Z)|$, and primitive
+idempotent spectrum $|\pi_0(\Prim)|$.}
+\label{tab:clifford}
+\end{table}
+
+\section{Primitive Idempotent Salvage and Infinite Counterexample}
+
+Recall that an idempotent $e\in E(A)$ is \emph{primitive} ($e\in\Prim(E(A))$) if $e\ne 0$ and
+$e$ cannot be written as $e_1 + e_2$ for nonzero orthogonal idempotents $e_1,e_2\in E(A)$
+($e_1 e_2 = e_2 e_1 = 0$). In spinor construction via minimal left ideals $S = Ae$ of
+Clifford algebras \cite{LawsonMichelsohn}, spinor spaces are generated specifically by
+\emph{primitive} idempotents rather than arbitrary idempotents.
+
+\begin{theorem}[Primitive Idempotent Salvage]\label{thm:prim}
+Let $A$ be a finite-dimensional semisimple algebra $A\cong\bigoplus_{i=1}^b M_{n_i}(D_i)$. An
+idempotent $e=(e_1,\dots,e_b)\in E(A)$ is primitive if and only if there exists a unique
+block index $i_0\in\{1,\dots,b\}$ such that $\dim_{D_{i_0}}\mathrm{im}(e_{i_0})=1$ and
+$e_j = 0$ for all $j\ne i_0$. Consequently,
+\[
+  \bigl|\pi_0\bigl(\Prim(E(A))\bigr)\bigr| \;=\; b(A) \;=\; c_{\mathrm{simp}}(A).
+\]
+In particular, on $(M_2(K))^b$ over any field $K$ (including characteristic $2$),
+$\Prim(E(M_2(K)))=\{E\in E(M_2(K))\mid \det E=0,\;\tr E=1\}$ and
+$\pi_0^{\mathbb{A}^1}(\Prim(E((M_2(K))^b)))\cong\mathrm{Fin}\,b$ has exact size $b$, whereas
+$\pi_0^{\mathbb{A}^1}(E((M_2(K))^b))\cong(\mathrm{Fin}\,b\to\mathrm{Fin}\,3)$ has size $3^b$.
+\end{theorem}
+
+\begin{proof}
+If two coordinates $e_{i_1},e_{i_2}$ ($i_1\ne i_2$) are nonzero, isolating coordinate $i_1$
+splits $e$ into two nonzero orthogonal idempotents. Within a single block $M_{n_{i_0}}(D_{i_0})$,
+$P_r$ splits into $r$ orthogonal rank-$1$ projections whenever $r\ge 2$, whereas rank-$1$
+idempotents have $D_{i_0}$-dimension $1$ (or in $M_2(K)$ over any field $K$, if $E=e_1+e_2$
+with $e_1,e_2\ne 0$ orthogonal, neither $e_k$ can equal $I_2$, so Theorem~\ref{thm:m2} forces
+$1=\tr(E)=\tr(e_1)+\tr(e_2)=1+1$, implying $0=1$ in $K$, impossible in any characteristic!).
+Thus $\Prim(E(A))$ has multi-ranks equal to the $b$ unit basis vectors, giving $b$ connected
+components.
+\end{proof}
+
+Finally, if finite-dimensionality is omitted from Clause~I, finiteness of $\pi_0(E(A))$ also
+fails:
+
+\begin{proposition}[Infinite-Dimensional Counterexample to Unqualified Clause~I]\label{prop:inf}
+In the commutative unital ring $A_\infty = \Z^\N$, every $\mathbb{A}^1$-polynomial family
+$E(t)\in E(A_\infty[t])$ is constant ($E(0)=E(1)$). In particular, the Kronecker-delta
+idempotents $\delta^{(k)}\in E(\Z^\N)$ ($k\in\N$) represent pairwise distinct elements of
+$\pi_0^{\mathbb{A}^1}(E(\Z^\N))$, which admits no injection into any finite set
+$\mathrm{Fin}\,N$.
+\end{proposition}
+
+\begin{proof}
+Projecting $E(t)\in E((\Z^\N)[t])$ to coordinate $m\in\N$ yields an idempotent polynomial
+$E_m(t)\in\Z[t]$. Since $\Z[t]$ is an integral domain, $E_m(t)\in\{0,1\}$ is constant for all
+$m\in\N$, whence $E(0)=E(1)$. Thus $\delta^{(k_1)}\sim_{\mathbb{A}^1}\delta^{(k_2)}$ implies
+$\delta^{(k_1)}=\delta^{(k_2)}$ and $k_1=k_2$, embedding $\N$ injectively into
+$\pi_0^{\mathbb{A}^1}(E(\Z^\N))$.
+\end{proof}
+
+\section{Formalization in Core Lean 4.19.0 and Verification}
+
+The entire algebraic development is formalized from first principles in Core Lean~4.19.0
+(\texttt{lean/Main.lean}) with zero external dependencies, \texttt{-DwarningAsError=true},
+and zero \texttt{sorry} or custom axioms, including constructive field witnesses in both
+characteristic~$0$ (\texttt{QField}) and characteristic~$2$ (\texttt{F2}).
+Table~\ref{tab:lean} maps each mathematical result to its formal Lean declaration. An
+independent standard-library Python script (\texttt{verify.py}) cross-checks all five theorem
+suites computationally.
+
+\begin{table}[!ht]
+\centering
+\footnotesize
+\begin{tabular}{|>{\raggedright\arraybackslash}p{0.42\textwidth}|>{\raggedright\arraybackslash}p{0.51\textwidth}|}
+\hline
+\textbf{Mathematical Result} & \textbf{Core Lean 4.19.0 Identifier (\texttt{Main.lean})} \\
+\hline
+Murray--von Neumann left-ideal criterion (Lem.~\ref{lem:mvn}) &
+  \texttt{leftIdealIso\_iff\_murrayVonNeumann} \\
+Newton lift \& nilpotent homotopy (Thm.~\ref{thm:nilpotent}) &
+  \texttt{newtonLiftStep\_sub\_self}, \texttt{nilpotent\_diff\_polyStep} \\
+Exact $4$-component $T_2(K)$ spectrum ($4>2=b$) &
+  \texttt{UpperTri2.upperTri2\_spectrum\_left\_inv}, \texttt{...\_right\_inv} \\
+$2\times 2$ trichotomy \& exact $M_2(K)\simeq\mathrm{Fin}\,3$ (Thm.~\ref{thm:m2}) &
+  \texttt{Mat2.idempotent\_trichotomy}, \texttt{Mat2.mat2IdemSpectrumEquivFin3} \\
+Proper $M_2(K)$ coincidence ($1=b$) &
+  \texttt{Mat2.mat2ProperSpectrumEquivUnit} \\
+Leibniz--trace invariance $D(\tr\,E)=0$ (Thm.~\ref{thm:leibniz}) &
+  \texttt{Mat.deriv\_tr\_idem\_eq\_zero}, \texttt{Mat.polyConn\_tr\_eq} \\
+Single-block proper disproof \& $\Cl_{2,2}$ ($3>1$) &
+  \texttt{Mat.singleBlockProperMap\_injective}, \texttt{Mat.clifford22\_proper\_three\_gt\_one} \\
+Unbounded $\Cl_{m,m}$ divergence vs.\ $b=1$ (Thm.~\ref{thm:sporadic}) &
+  \texttt{Mat.split\_clifford\_unbounded\_proper\_spectrum} \\
+Multi-block $\prod(n_i+1)$, $K^b\simeq\mathrm{Bool}^b$, $(M_2(K))^b\simeq 3^b$ &
+  \texttt{multiBlockMap\_injective}, \texttt{commBlockSpectrumEquiv}, \texttt{mat2PowSpectrumEquiv} \\
+Universal failure \& sporadic classification (Thm.~\ref{thm:sporadic}) &
+  \texttt{all\_idempotents\_exceed\_block\_count}, \texttt{proper\_bound\_iff\_sporadic} \\
+Clause~III reverse bound \& double reverse inequalities (Thm.~\ref{thm:clause3}) &
+  \texttt{algIsoClasses\_le\_blockCount}, \texttt{clause3\_refuted\_homogeneous}, \texttt{double\_reverse\_inequality\_master} \\
+Primitive idempotent salvage $|\pi_0(\Prim)|=b$ (Thm.~\ref{thm:prim}) &
+  \texttt{Mat2.mat2\_isPrimitiveIdem\_iff}, \texttt{mat2PowPrimSpectrumEquiv} \\
+Infinite-dimensional counterexample $\Z^\N$ (Prop.~\ref{prop:inf}) &
+  \texttt{clause1\_infinite\_counterexample} \\
+\hline
+\end{tabular}
+\caption{Correspondence between mathematical theorems and Core Lean~4.19.0 declarations.}
+\label{tab:lean}
+\end{table}
+
+\clearpage
+\begin{thebibliography}{9}
+\bibitem{Blackadar}
+B.~Blackadar, \emph{$K$-Theory for Operator Algebras}, 2nd ed., MSRI Publications, Vol.~5,
+Cambridge University Press, 1998.
+
+\bibitem{Lam}
+T.~Y.~Lam, \emph{A First Course in Noncommutative Rings}, 2nd ed., Graduate Texts in
+Mathematics, Vol.~131, Springer, 2001.
+
+\bibitem{LawsonMichelsohn}
+H.~B.~Lawson and M.-L.~Michelsohn, \emph{Spin Geometry}, Princeton Mathematical Series,
+Vol.~38, Princeton University Press, 1989.
+\end{thebibliography}
+
+\end{document}
