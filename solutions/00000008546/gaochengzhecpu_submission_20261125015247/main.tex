@@ -1,0 +1,364 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=0.95in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Bn}{B_n}
+\newcommand{\Sn}{S_n}
+\newcommand{\Aut}{\mathrm{Aut}}
+\newcommand{\width}{\mathrm{width}}
+\newcommand{\worb}{w_{\mathrm{orb}}}
+\newcommand{\winv}{w_{\mathrm{inv}}}
+\newcommand{\Dorb}{\Delta_{\mathrm{orb}}}
+\newcommand{\Dinv}{\Delta_{\mathrm{inv}}}
+
+\title{\textbf{Disproof of Conjecture 00000008546:\\
+Orbit-Sperner Properties and the Absence of\\
+Logarithmic Deficit under Symmetric Group Actions}}
+\author{Formal Disproof and Verification Package}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We disprove Conjecture~00000008546, which asserts that under symmetric group actions the maximum of orbit antichains equals the symmetrized Sperner number and that its difference from the classical Sperner number (the \emph{orbit Sperner deficit}) is of logarithmic order $\Theta(\log n)$. Analyzing every standard mathematical formulation of group-equivariant Sperner theory---both the \emph{quotient-poset (orbit-count) model} studied by Pouzet, Harper, and Stanley and the \emph{invariant-antichain (element-count) model} governed by Dilworth's lattice of maximal antichains---we establish a sharp dichotomy that rules out logarithmic deficit universally:
+\begin{enumerate}
+  \item \textbf{Identically zero deficit for invariant antichains:} By the Freese--Dilworth Invariant Antichain Theorem, every finite poset $P$ and every automorphism group $G \le \Aut(P)$ admit a $G$-invariant antichain of cardinality $\width(P)$. Hence the deficit $\width(P) - \winv(P,G)$ is identically $0$ across all finite posets (and on $\Bn$ under every $H \le \Sn$), never $\Theta(\log n)$.
+  \item \textbf{Exponential deficit for quotient-poset orbit antichains:} On the Boolean lattice $\Bn$ under the canonical $\Sn$-action, the quotient poset is the $(n+1)$-chain $\Bn/\Sn \cong C_{n+1}$ of width~$1$, so the deficit $\binom{n}{\lfloor n/2 \rfloor} - 1 \sim \sqrt{2/(\pi n)}\,2^n$ grows exponentially rather than as $\Theta(\log n)$. More generally, we prove an elementary universal dichotomy: for \emph{any} subgroup $H \le \Sn$ acting on $\Bn$, either $H$ is trivial (deficit~$0$) or $H$ moves at least two points, forcing $2\,\width(\Bn/H) \le \binom{n}{\lfloor n/2 \rfloor} + \binom{n-1}{\lfloor (n-1)/2 \rfloor}$ and hence an exponential deficit $\Omega(2^n/\sqrt{n})$.
+  \item \textbf{Failure of the Orbit-Sperner identity outside unitary Peck posets:} While $\width(\Bn/H) = \max_k |L_k/H|$ holds on $\Bn$ by Stanley's theorem, even the first clause of the conjecture fails for general bounded graded Sperner posets: for every $n \ge 2$, we construct a $(4n+6)$-element bounded graded Sperner poset $P(n)$ with a faithful $\Sn$-action whose quotient $P(n)/\Sn$ has maximum orbit-rank size~$4$ yet orbit-antichain width~$5$.
+\end{enumerate}
+All main theorems, exact identities, bounds, and counterexamples are formalized from first principles in Core Lean~4.19.0 with zero external dependencies and verified computationally in Python.
+\end{abstract}
+
+\section{Introduction and Problem Statement}
+
+Conjecture~00000008546 from \emph{The Last Math Competition} states verbatim:
+\begin{quote}
+\textbf{Definition:} Orbit-Sperner refers to the Sperner property under group actions.\\
+\textbf{Conjecture:} The maximum of orbit antichains under symmetric group actions is the symmetrized Sperner number; and its difference from the classical Sperner number is of logarithmic order. (orbit Sperner deficit)
+\end{quote}
+(The Chinese statement translates identically: \emph{Orbit--Sperner denotes the Sperner property under group actions; the maximum of orbit antichains under symmetric group actions equals the symmetrized Sperner number, and its difference from the classical Sperner number is of logarithmic order.})
+
+The statement comprises two distinct mathematical assertions for an $n$-indexed family of Sperner posets $P_n$ (canonically the Boolean lattice $\Bn = (\mathcal{P}([n]), \subseteq)$ of classical Sperner number $S(n) = \binom{n}{\lfloor n/2 \rfloor}$) equipped with symmetric group actions:
+\begin{itemize}
+  \item \textbf{Clause~1 (Orbit-Sperner identity):} The maximum size of an orbit antichain equals the \emph{symmetrized Sperner number} (the largest symmetrized rank size).
+  \item \textbf{Clause~2 (Logarithmic orbit Sperner deficit):} The difference between the classical Sperner number $\width(P_n)$ and the maximum orbit antichain size has asymptotic growth $\Theta(\log n)$.
+\end{itemize}
+
+Because the phrase ``maximum of orbit antichains'' admits two canonical size measures in algebraic combinatorics~\cite{Engel1997,Freese1974,Harper1985,Pouzet1976,Stanley1984}, a complete resolution requires examining both models as well as all natural auxiliary variants. Let $(P,\le)$ be a finite poset and $G \le \Aut(P)$ a finite group of poset automorphisms:
+\begin{enumerate}
+  \item \textbf{Model~I (Quotient-poset / Orbit-count model):} Elements of the quotient poset $P/G$ are the $G$-orbits $\mathcal{O} = G \cdot x$, ordered by $\mathcal{O}_1 \le_{P/G} \mathcal{O}_2$ iff $\exists x \in \mathcal{O}_1,\, y \in \mathcal{O}_2$ with $x \le y$. An \emph{orbit antichain} is an antichain $\mathcal{F} \subseteq P/G$ of pairwise incomparable orbits, with size $|\mathcal{F}|$ and maximum $\worb(P,G) = \width(P/G)$. When $P = \bigsqcup_{k=0}^r P_k$ is graded and $G$ preserves ranks, the \emph{symmetrized Sperner number} is $S_G^{\mathrm{orb}}(P) = \max_k |P_k/G|$, and $P$ is \emph{Orbit-Sperner} iff $\width(P/G) = \max_k |P_k/G|$.
+  \item \textbf{Model~II (Invariant-antichain / Element-count model):} Equivalently (Proposition~\ref{prop:quotient}), unions of orbit antichains in $P/G$ are precisely the \emph{$G$-invariant antichains} $A \subseteq P$ ($G \cdot A = A$). Measuring $A$ by its element cardinality $|A|$ yields $\winv(P,G) = \max\{|A| : A \subseteq P \text{ is a } G\text{-invariant antichain}\}$ and deficit $\Dinv(P,G) = \width(P) - \winv(P,G)$.
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Summary of all interpretations of Conjecture~00000008546 under symmetric group actions.}
+\label{tab:summary}
+\begin{tabular}{@{}p{4.6cm}ccp{5.3cm}@{}}
+\toprule
+\textbf{Model \& Action Setting} & \textbf{Clause 1} & \textbf{Clause 2} & \textbf{Exact Deficit from Classical Sperner} \\
+\midrule
+Model~I ($\worb$) on $(\Bn, \Sn)$ & True & \textbf{False} & $\binom{n}{\lfloor n/2 \rfloor} - 1 = \Theta(2^n/\sqrt{n})$ (exponential) \\
+Model~I ($\worb$) on $(\Bn, H)$, $\{e\} \neq H \le \Sn$ & True & \textbf{False} & $\ge \frac{1}{2}\bigl(\binom{n}{\lfloor n/2 \rfloor} - \binom{n-1}{\lfloor (n-1)/2 \rfloor}\bigr) = \Omega(2^n/\sqrt{n})$ \\
+Model~I ($\worb$) on $(\Bn, \{e\})$ & True & \textbf{False} & $0$ identically \\
+Model~I ($\worb$) on bounded graded Sperner $P(n)$ ($n \ge 2$) & \textbf{False} & \textbf{False} & $\width(P(n)/\Sn) = 5 > 4 = \max_k |P(n)_k/\Sn|$; deficit $(2n+2)-5 = 2n-3 = \Theta(n)$ \\
+Model~II ($\winv$) on $(\Bn, H)$, any $H \le \Sn$ & True & \textbf{False} & $0$ identically ($L_{\lfloor n/2 \rfloor}$ is $H$-invariant) \\
+Model~II ($\winv$) on any finite poset $(P, G)$ & --- & \textbf{False} & $0$ identically (Freese--Dilworth Theorem~\ref{thm:freese-dilworth}) \\
+Single-orbit max / transversal / log-ratio on $(\Bn, \Sn)$ & --- & \textbf{False} & $0$, $\binom{n}{\lfloor n/2 \rfloor} - O(n)$, or $\log\binom{n}{\lfloor n/2 \rfloor} = \Theta(n)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:summary} summarizes our results: \textbf{Conjecture~00000008546 is false under every standard mathematical interpretation.} Clause~2 fails universally because the orbit Sperner deficit is either identically zero or exponentially large on Boolean lattices (and never universally $\Theta(\log n)$), while Clause~1 also fails once one moves from unitary Peck posets such as $\Bn$ to general bounded graded Sperner posets carrying faithful $\Sn$-actions.
+
+\section{Foundational Orbit-Poset Structure and Sperner's Theorem}
+
+We begin by establishing from first principles that orbits of finite-period order-preserving maps are always antichains and that the quotient $P/G$ is a well-defined poset.
+
+\begin{lemma}[Harper--Stanley Orbit-Antichain Lemma]\label{lem:orbit-antichain}
+Let $(P,\le)$ be a poset and $g : P \to P$ an order-preserving map ($u \le v \implies g(u) \le g(v)$). If $x \in P$ has a positive period $m \ge 1$ under $g$ ($g^m(x) = x$), then $x \le g(x)$ implies $x = g(x)$, and $g(x) \le x$ implies $x = g(x)$.
+\end{lemma}
+
+\begin{proof}
+Write $m = k + 1$ with $k \ge 0$. Suppose $x \le g(x)$. By induction on $j \ge 0$, monotonicity of $g$ yields $g^j(x) \le g^{j+1}(x)$, and transitivity gives $g(x) \le g^{k+1}(x) = g^m(x) = x$. Antisymmetry of $\le$ applied to $x \le g(x)$ and $g(x) \le x$ yields $x = g(x)$. Applying the same argument to the dual poset $(P, \ge)$ gives $g(x) \le x \implies x = g(x)$.
+\end{proof}
+
+\begin{proposition}[Quotient Poset and Invariant-Antichain Bijection]\label{prop:quotient}
+Let $(P,\le)$ be a poset and $G$ a group acting on $P$ by order-preserving bijections such that every $g \in G$ has finite positive period at every $x \in P$ (which holds automatically by the pigeonhole principle whenever $P$ is finite).
+\begin{enumerate}
+  \item[(a)] Every $G$-orbit $G \cdot x = \{g \cdot x : g \in G\}$ is an antichain in $P$.
+  \item[(b)] The relation $[x]_G \le_{P/G} [y]_G \iff \exists g \in G,\; x \le g \cdot y$ makes the orbit set $P/G$ a poset.
+  \item[(c)] A $G$-invariant subset $S \subseteq P$ is an antichain in $P$ if and only if $\{[x]_G : x \in S\}$ is an antichain in $P/G$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a) If $y \in G \cdot x$ and $x \le y$, then $y = g \cdot x$ for some $g \in G$, so $x = g \cdot x = y$ by Lemma~\ref{lem:orbit-antichain}.
+
+(b) Reflexivity holds via $g = 1_G$. For transitivity, if $x \le g_1 \cdot y$ and $y \le g_2 \cdot z$, then $g_1 \cdot y \le (g_1 g_2) \cdot z$, so $x \le (g_1 g_2) \cdot z$. For antisymmetry, if $x \le g_1 \cdot y$ and $y \le g_2 \cdot x$, then $x \le g_1 \cdot y \le (g_1 g_2) \cdot x$. By~(a), $x = (g_1 g_2) \cdot x$, so $g_1 \cdot y \le x$ as well; antisymmetry in $P$ gives $x = g_1 \cdot y$, hence $[x]_G = [y]_G$.
+
+(c) If $S$ is a $G$-invariant antichain and $[x]_G \le_{P/G} [y]_G$ for $x, y \in S$, then $x \le g \cdot y$ for some $g \in G$. Since $g \cdot y \in S$ by $G$-invariance, $x = g \cdot y$, so $[x]_G = [y]_G$. Conversely, if $\{[x]_G : x \in S\}$ is an antichain in $P/G$ and $x, y \in S$ satisfy $x \le y$, then $[x]_G \le_{P/G} [y]_G$, so $[x]_G = [y]_G$, and (a) forces $x = y$.
+\end{proof}
+
+Next we record Sperner's theorem~\cite{Sperner1928} via the inductive symmetric chain decomposition of De~Bruijn, Tengbergen, and Kruyswijk~\cite{DBTK1951}, matching our Core Lean~4.19.0 proof.
+
+\begin{theorem}[Symmetric Chain Decomposition and Sperner's Theorem]\label{thm:sperner}
+For every integer $n \ge 0$, the Boolean lattice $\Bn = (\mathcal{P}([n]), \subseteq)$ admits a partition into $\binom{n}{\lfloor n/2 \rfloor}$ pairwise disjoint saturated chains $C_1, \dots, C_M$, each satisfying $\min_{X \in C_j}|X| + \max_{X \in C_j}|X| = n$. Consequently:
+\begin{enumerate}
+  \item[(a)] Every antichain $A \subseteq \Bn$ satisfies $|A| \le \binom{n}{\lfloor n/2 \rfloor}$, with equality attained by $L_{\lfloor n/2 \rfloor} = \binom{[n]}{\lfloor n/2 \rfloor}$.
+  \item[(b)] For every $n \ge 0$, $(n+1)\binom{n}{\lfloor n/2 \rfloor} \ge 2^n$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For $n = 0$, $B_0 = \{\emptyset\}$ is a single symmetric chain. Given a symmetric chain $C = (X_0 \subset X_1 \subset \dots \subset X_r)$ in $\Bn$ with $|X_0| + |X_r| = n$, define in $B_{n+1}$:
+\begin{align*}
+  C_{\mathrm{top}} &= (X_0 \subset \dots \subset X_r \subset X_r \cup \{n+1\}), \\
+  C_{\mathrm{bot}} &= (X_0 \cup \{n+1\} \subset \dots \subset X_{r-1} \cup \{n+1\}) \quad (\text{for } r \ge 1).
+\end{align*}
+Then $C_{\mathrm{top}}$ (and $C_{\mathrm{bot}}$ when $r \ge 1$) are disjoint saturated chains covering $C \cup \{X \cup \{n+1\} : X \in C\}$ with endpoint-rank sums $|X_0| + (|X_r|+1) = n+1$ and $(|X_0|+1) + (|X_{r-1}|+1) = n+1$. By induction, $\Bn$ partitions into symmetric chains $C_1, \dots, C_M$. Since $|X_0| + |X_r| = n$ implies $|X_0| \le \lfloor n/2 \rfloor \le |X_r|$, each $C_j$ intersects $L_{\lfloor n/2 \rfloor}$ in a unique element, giving $M = |L_{\lfloor n/2 \rfloor}| = \binom{n}{\lfloor n/2 \rfloor}$. Any antichain $A \subseteq \Bn$ meets each chain $C_j$ in at most one element, proving $|A| \le M = \binom{n}{\lfloor n/2 \rfloor}$. Finally, every rank level $L_k$ ($0 \le k \le n$) is an antichain, so $\binom{n}{k} = |L_k| \le \binom{n}{\lfloor n/2 \rfloor}$ and $2^n = \sum_{k=0}^n \binom{n}{k} \le (n+1)\binom{n}{\lfloor n/2 \rfloor}$.
+\end{proof}
+
+\section{Refutation in Model II: Identically Zero Invariant-Antichain Deficit}
+
+On the Boolean lattice $\Bn$, any permutation $\sigma \in \Sn$ preserves cardinality ($|\sigma(X)| = |X|$). Hence for \emph{every} subgroup $H \le \Sn$ (including $\Sn$ itself, Young subgroups $S_{a_1} \times \dots \times S_{a_r}$, or $\Sn$ acting on graph edges $[N] = \binom{[m]}{2}$), the middle rank $L_{\lfloor n/2 \rfloor}$ is $H$-invariant. By Theorem~\ref{thm:sperner}, $\winv(\Bn, H) = \binom{n}{\lfloor n/2 \rfloor} = \width(\Bn)$, so $\Dinv(\Bn, H) = 0$ for all $n \ge 0$.
+
+In fact, a classical theorem of Freese~\cite{Freese1974} building on Dilworth~\cite{Dilworth1960} shows that $\Dinv(P, G) = 0$ holds on \emph{every} finite poset $P$ (even ungraded or non-Sperner posets) and for \emph{every} automorphism group $G \le \Aut(P)$. We give a self-contained pointwise proof that matches our Core Lean~4.19.0 formalization.
+
+\begin{theorem}[Freese--Dilworth Invariant Antichain Theorem]\label{thm:freese-dilworth}
+Let $(P,\le)$ be any finite poset and $G \le \Aut(P)$ any group of poset automorphisms. There exists an antichain $A^* \subseteq P$ such that $|A^*| = \width(P)$ and $\sigma(A^*) = A^*$ for all $\sigma \in \Aut(P)$. In particular, $\winv(P,G) = \width(P)$ and $\Dinv(P,G) = 0$ identically.
+\end{theorem}
+
+\begin{proof}
+For any two antichains $A, B \subseteq P$, set $U = A \cup B$ and define the minimal and maximal slices
+\[
+  M_-(A,B) = \{x \in U : \nexists y \in U,\; y < x\}, \qquad
+  M_+(A,B) = \{x \in U : \nexists z \in U,\; x < z\}.
+\]
+Both $M_-(A,B)$ and $M_+(A,B)$ are antichains in $P$. We claim the pointwise multiplicity inequality
+\begin{equation}\label{eq:pointwise-dilworth}
+  \mathbf{1}_A(x) + \mathbf{1}_B(x) \le \mathbf{1}_{M_-(A,B)}(x) + \mathbf{1}_{M_+(A,B)}(x) \qquad (\forall x \in P).
+\end{equation}
+Indeed: if $x \notin U$, the left-hand side is $0$. If $x \in A \cap B$, no $y \in A \cup B$ can satisfy $y < x$ or $x < y$ because both $A$ and $B$ are antichains, so $x \in M_-(A,B) \cap M_+(A,B)$ and both sides equal~$2$. If $x$ belongs to exactly one of $A, B$ (say $x \in A \setminus B$), suppose $x \notin M_-(A,B)$ and $x \notin M_+(A,B)$; then there exist $y, z \in U$ with $y < x < z$. Since $A$ is an antichain and $x \in A$, neither $y$ nor $z$ can lie in $A$, forcing $y, z \in B$ with $y < z$, contradicting that $B$ is an antichain. Hence $x \in M_-(A,B) \cup M_+(A,B)$, proving~\eqref{eq:pointwise-dilworth}.
+
+Let $w = \width(P)$ and let $\mathcal{M}(P) = \{A \subseteq P : A \text{ antichain},\; |A| = w\}$. Summing~\eqref{eq:pointwise-dilworth} over $x \in P$ for $A, B \in \mathcal{M}(P)$ gives $2w = |A| + |B| \le |M_-(A,B)| + |M_+(A,B)| \le 2w$. Thus $C := M_-(A,B) \in \mathcal{M}(P)$, and equality holds pointwise in~\eqref{eq:pointwise-dilworth}. For every $c \in C$: if $c \in M_+(A,B)$, pointwise equality gives $\mathbf{1}_A(c) + \mathbf{1}_B(c) = 2$, so $c \in A \cap B$; if $c \notin M_+(A,B)$, there exists $d \in A \cup B$ with $c < d$, and whichever of $A, B$ misses $c$ must contain $d$. In both cases $c \in {\downarrow}A \cap {\downarrow}B$, where ${\downarrow}S = \{u \in P : \exists s \in S,\; u \le s\}$. Therefore ${\downarrow}C \subseteq {\downarrow}A \cap {\downarrow}B$.
+
+Choose $A^* \in \mathcal{M}(P)$ minimizing $|{\downarrow}A^*|$. If $B \in \mathcal{M}(P)$ satisfies $|{\downarrow}B| \le |{\downarrow}A^*|$, then $C = M_-(A^*,B) \in \mathcal{M}(P)$ satisfies $|{\downarrow}A^*| \le |{\downarrow}C| \le |{\downarrow}A^*|$, forcing ${\downarrow}C = {\downarrow}A^*$ and ${\downarrow}C = {\downarrow}B$. Since every antichain $S$ is recovered from its downset as the maximal elements of ${\downarrow}S$, ${\downarrow}B = {\downarrow}A^*$ implies $B = A^*$. Finally, for any $\sigma \in \Aut(P)$, $\sigma(A^*) \in \mathcal{M}(P)$ and $|{\downarrow}\sigma(A^*)| = |\sigma({\downarrow}A^*)| = |{\downarrow}A^*|$, so uniqueness forces $\sigma(A^*) = A^*$.
+\end{proof}
+
+Since $\Dinv(P_n, G_n) = 0$ for all $n$, it violates the positive lower bound required by $\Theta(\log n)$ for every $n \ge 2$.
+
+\section{Refutation in Model I: Exponential Deficit on Boolean Lattices}
+
+We now analyze the standard quotient-poset model $\worb(P,G) = \width(P/G)$.
+
+\begin{theorem}[Canonical $\Sn$-Action on $\Bn$]\label{thm:bn-sn}
+Let $\Sn$ act on $\Bn = \mathcal{P}([n])$ by permuting ground elements.
+\begin{enumerate}
+  \item[(a)] Two subsets $X, Y \subseteq [n]$ lie in the same $\Sn$-orbit iff $|X| = |Y|$.
+  \item[(b)] In the quotient poset $\Bn/\Sn$, $[X]_{\Sn} \le [Y]_{\Sn}$ iff $|X| \le |Y|$; hence $\Bn/\Sn \cong C_{n+1}$ is an $(n+1)$-element chain.
+  \item[(c)] The maximum size of an orbit antichain is $\worb(\Bn, \Sn) = \width(\Bn/\Sn) = 1$ (agreeing with the symmetrized Sperner number $\max_{0 \le k \le n} |L_k/\Sn| = 1$), and the orbit Sperner deficit is
+  \[
+    \Dorb(\Bn, \Sn) = \binom{n}{\lfloor n/2 \rfloor} - 1 \sim \sqrt{\frac{2}{\pi n}}\,2^n \qquad (n \to \infty),
+  \]
+  which grows exponentially in $n$ and is not of logarithmic order $\Theta(\log n)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) Every $\sigma \in \Sn$ preserves cardinality; conversely, if $|X| = |Y|$, any bijection mapping $X \to Y$ and $[n]\setminus X \to [n]\setminus Y$ defines $\sigma \in \Sn$ with $\sigma(X) = Y$.
+
+(b) If $X \subseteq \sigma(Y)$, then $|X| \le |\sigma(Y)| = |Y|$. Conversely, if $|X| \le |Y| \le n$, adjoining $|Y|-|X|$ elements of $[n]\setminus X$ to $X$ yields $Z \supseteq X$ with $|Z| = |Y|$; by~(a), $Z = \sigma(Y)$ for some $\sigma \in \Sn$, so $[X]_{\Sn} \le [Y]_{\Sn}$.
+
+(c) Since $\Bn/\Sn \cong (\{0,1,\dots,n\},\le)$ is totally ordered, every antichain of orbits has size at most~$1$, achieved by $\{[\emptyset]_{\Sn}\}$. By Theorem~\ref{thm:sperner}(b), $\binom{n}{\lfloor n/2 \rfloor} \ge 2^n/(n+1)$, which dominates $c_2 \log_2 n + 1$ for every constant $c_2 > 0$ once $n$ is sufficiently large.
+\end{proof}
+
+One might ask whether restricting to a smaller symmetric group action---such as a Young subgroup $S_a \times S_b \le S_{a+b}$, a single transposition $S_2 \le \Sn$, or $\Sn$ acting on graph edges $\binom{[m]}{2}$---could yield a logarithmic deficit $\Theta(\log n)$. Our next theorem proves an unconditional \emph{exponential gap}: no permutation group action on $\Bn$ can ever produce a non-zero sub-exponential deficit.
+
+\begin{theorem}[Universal Dichotomy for Permutation Subgroups on $\Bn$]\label{thm:universal-dichotomy}
+Let $n \ge 0$ and let $H \le \Sn$ be any subgroup acting on $\Bn$.
+\begin{enumerate}
+  \item[(a)] If $H = \{\mathrm{id}\}$, then $\Bn/H \cong \Bn$, $\worb(\Bn, H) = \binom{n}{\lfloor n/2 \rfloor}$, and $\Dorb(\Bn, H) = 0$.
+  \item[(b)] If $H \neq \{\mathrm{id}\}$ (so $n \ge 2$ and there exist $\sigma \in H$ and $a \in [n]$ with $b := \sigma(a) \neq a$), then every orbit antichain $\mathcal{F} \subseteq \Bn/H$ satisfies
+  \begin{equation}\label{eq:universal-bound}
+    2|\mathcal{F}| \le \binom{n}{\lfloor n/2 \rfloor} + \binom{n-1}{\lfloor (n-1)/2 \rfloor}.
+  \end{equation}
+  Consequently, for all $n \ge 2$,
+  \[
+    \Dorb(\Bn, H) \ge \frac{1}{2}\left(\binom{n}{\lfloor n/2 \rfloor} - \binom{n-1}{\lfloor (n-1)/2 \rfloor}\right),
+  \]
+  which equals $\frac{1}{4}\binom{n}{n/2}$ for all even $n = 2k \ge 2$ and satisfies $\Dorb(\Bn, H) = \Omega(2^n/\sqrt{n})$ for all $n$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(a) is immediate. For~(b), let $R = \{r_1, \dots, r_M\} \subseteq \Bn$ be a transversal of representatives for an orbit antichain $\mathcal{F}$ of size $M = |\mathcal{F}|$, so $r_i$ and $r_j$ are $H$-orbit-incomparable for $i \neq j$. Partition $R = R_{\mathrm{fix}} \sqcup R_{\mathrm{mov}}$, where
+\[
+  R_{\mathrm{fix}} = \{r \in R : \sigma(r) = r\}, \qquad R_{\mathrm{mov}} = \{r \in R : \sigma(r) \neq r\}.
+\]
+\emph{Step~1 (Bounding $|R_{\mathrm{fix}}|$):} If $r \in R_{\mathrm{fix}}$, then $\sigma(r) = r$, so $b \in r \iff b \in \sigma(r) \iff a = \sigma^{-1}(b) \in r$. Thus $R_{\mathrm{fix}}$ lies in the subposet $\mathrm{Eq}_{a,b} = \{X \subseteq [n] : a \in X \iff b \in X\}$. Deleting coordinate $b$ gives a map $\pi_b : \mathrm{Eq}_{a,b} \to \mathcal{P}([n]\setminus\{b\}) \cong B_{n-1}$. Because $a \neq b$, coordinate $a$ is retained by $\pi_b$, so for all $X, Y \in \mathrm{Eq}_{a,b}$ we have $X \subseteq Y \iff \pi_b(X) \subseteq \pi_b(Y)$. Since $R_{\mathrm{fix}}$ is an antichain in $\Bn$, $\pi_b(R_{\mathrm{fix}})$ is an antichain of size $|R_{\mathrm{fix}}|$ in $B_{n-1}$. By Theorem~\ref{thm:sperner}(a) on $B_{n-1}$,
+\[
+  |R_{\mathrm{fix}}| \le \binom{n-1}{\lfloor (n-1)/2 \rfloor}.
+\]
+\emph{Step~2 (Bounding $|R_{\mathrm{fix}}| + 2|R_{\mathrm{mov}}|$):} Consider the subset $E = R_{\mathrm{fix}} \cup R_{\mathrm{mov}} \cup \sigma(R_{\mathrm{mov}}) \subseteq \Bn$. Elements originating from distinct $r_i \neq r_j$ in $R$ belong to incomparable $H$-orbits and are therefore incomparable (and distinct) in $\Bn$. For a single $r \in R_{\mathrm{mov}}$, $r \neq \sigma(r)$ by definition, and since $r$ and $\sigma(r)$ lie in the same $H$-orbit, Proposition~\ref{prop:quotient}(a) guarantees that $r$ and $\sigma(r)$ are incomparable in $\Bn$. Hence $E$ is an antichain in $\Bn$ of cardinality $|E| = |R_{\mathrm{fix}}| + 2|R_{\mathrm{mov}}|$. By Theorem~\ref{thm:sperner}(a) on $\Bn$,
+\[
+  |R_{\mathrm{fix}}| + 2|R_{\mathrm{mov}}| \le \binom{n}{\lfloor n/2 \rfloor}.
+\]
+Adding the two inequalities yields $2M = 2|R_{\mathrm{fix}}| + 2|R_{\mathrm{mov}}| \le \binom{n}{\lfloor n/2 \rfloor} + \binom{n-1}{\lfloor (n-1)/2 \rfloor}$, proving~\eqref{eq:universal-bound}. For $n = 2k$, $\binom{2k-1}{k-1} = \frac{1}{2}\binom{2k}{k}$ gives $\Dorb(B_{2k}, H) \ge \frac{1}{4}\binom{2k}{k}$; for $n = 2k+1$, $\binom{2k}{k} = \frac{k+1}{2k+1}\binom{2k+1}{k}$ gives $\Dorb(B_{2k+1}, H) \ge \frac{k}{4k+2}\binom{2k+1}{k} = \frac{k}{k+1}\binom{2k-1}{k-1} = \Omega(2^n/\sqrt{n})$.
+\end{proof}
+
+\begin{remark}[Sharpness and Other Structured $\Sn$-Actions]\label{rem:sharpness}
+When $H = \langle (1\;2) \rangle \cong S_2$, $\Bn/S_2 \cong C_3 \times B_{n-2}$ has exact width $\binom{n}{\lfloor n/2 \rfloor} - \binom{n-2}{\lfloor n/2 \rfloor - 1}$, so the exact minimum deficit over all nontrivial $H \le \Sn$ is $\binom{n-2}{\lfloor n/2 \rfloor - 1} \sim \frac{1}{4}\binom{n}{\lfloor n/2 \rfloor}$, matching the leading constant $\frac{1}{4}$ of Theorem~\ref{thm:universal-dichotomy}(b). Likewise:
+\begin{itemize}
+  \item \emph{Young subgroups $S_a \times S_b$ on $B_{a+b}$ ($a+b=n$):} $\Bn/(S_a \times S_b) \cong C_{a+1} \times C_{b+1}$ has width $\min(a+1, b+1) \le \lfloor n/2 \rfloor + 1$, giving exponential deficit $\binom{n}{\lfloor n/2 \rfloor} - \min(a+1, b+1)$.
+  \item \emph{Diagonal $\Sn$-action on $\Bn \times \Bn \cong B_{2n}$:} Orbits are indexed by $(|X \setminus Y|, |Y \setminus X|, |X \cap Y|)$, with middle-rank orbit count $\sum_{c=0}^{\lfloor n/2 \rfloor}(n + 1 - 2c) = \lfloor (n+2)^2/4 \rfloor = \Theta(n^2)$ vs.\ $\binom{2n}{n} = \Theta(4^n/\sqrt{n})$.
+  \item \emph{Unlabeled graph poset $B_{\binom{m}{2}} / S_m$:} By Stanley~\cite{Stanley1984}, $\width(B_{\binom{m}{2}}/S_m)$ equals the number of unlabeled graphs on $m$ vertices with $\lfloor \binom{m}{2}/2 \rfloor$ edges, $\sim \binom{\binom{m}{2}}{\lfloor \binom{m}{2}/2 \rfloor} / m!$, leaving an exponential deficit $(1 - o(1))\binom{\binom{m}{2}}{\lfloor \binom{m}{2}/2 \rfloor}$.
+  \item \emph{Auxiliary variants:} Even the logarithmic ratio $\log_2 \width(\Bn) - \log_2 \width(\Bn/\Sn)$ equals $\log_2 \binom{n}{\lfloor n/2 \rfloor} = n - \frac{1}{2}\log_2 n + O(1)$, which is linear $\Theta(n)$ rather than $\Theta(\log n)$; for orbit-transversal antichains ($|A \cap L_k| \le 1$), $|A| \le n-1$ ($n \ge 2$), giving exponential deficit $\binom{n}{\lfloor n/2 \rfloor} - O(n)$.
+\end{itemize}
+\end{remark}
+
+\section{Refutation of Clause 1 on General Bounded Graded Sperner Posets}
+
+By Stanley's theorem~\cite{Stanley1984} (see also Pouzet~\cite{Pouzet1976} and Harper~\cite{Harper1985}), if $P$ is a \emph{unitary Peck poset} (such as $\Bn$ or $C_m^n$), then $P/G$ is Peck and hence Sperner, so Clause~1 holds on $\Bn$. However, Conjecture~00000008546 states unqualifiedly that under symmetric group actions the maximum of orbit antichains equals the symmetrized Sperner number. We show that \emph{mere Spernerity} of a bounded graded poset $P$ does \emph{not} pass to $P/\Sn$, even for faithful $\Sn$-actions.
+
+\begin{theorem}[Faithful $\Sn$-Poset Counterexample Family $P(n)$]\label{thm:pn-counterexample}
+For every integer $n \ge 2$, there exists a finite bounded graded poset $P(n)$ of rank~$3$ and cardinality $4n+6$ equipped with a faithful poset automorphism action of $\Sn$ such that:
+\begin{enumerate}
+  \item[(a)] $P(n)$ has rank sizes $(1,\, 2n+2,\, 2n+2,\, 1)$ and exact width $\width(P(n)) = 2n+2$; hence $P(n)$ possesses the classical Sperner property.
+  \item[(b)] Under $\Sn$, the quotient poset $P(n)/\Sn$ has orbit-rank sizes $(1, 4, 4, 1)$, so its symmetrized Sperner number is $\max_{0 \le k \le 3} |P(n)_k/\Sn| = 4$.
+  \item[(c)] The quotient poset $P(n)/\Sn$ has exact width $\width(P(n)/\Sn) = 5 > 4$; hence $P(n)$ fails the Orbit-Sperner property (refuting Clause~1).
+\end{enumerate}
+\end{theorem}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Covering matrix between rank-1 orbits (rows) and rank-2 orbits (columns) in $P(n)/\Sn$ ($n \ge 2$, bounded by $\{\hat{0}\}$ below and $\{\hat{1}\}$ above). Bold entries mark the $5$-orbit antichain $\{\{a_0\},\{a_1\},\{b_0\},\{b_1\},D_1\}$, which contains no comparable pair.}
+\label{tab:pn-quotient}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Rank 1 $\backslash$ Rank 2} & $\mathbf{\{b_0\}}$ & $\mathbf{\{b_1\}}$ & $\mathbf{D_1}$ & $D_2$ \\
+\midrule
+$\mathbf{\{a_0\}}$ & $0$ & $0$ & $0$ & $<$ \\
+$\mathbf{\{a_1\}}$ & $0$ & $0$ & $0$ & $<$ \\
+$C_1$              & $<$ & $<$ & $<$ & $<$ \\
+$C_2$              & $<$ & $<$ & $<$ & $<$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{proof}
+Define the four rank levels of $P(n)$ by $P_0 = \{\hat{0}\}$, $P_3 = \{\hat{1}\}$, and
+\[
+  P_1 = \{a_0, a_1\} \sqcup C_1 \sqcup C_2, \qquad
+  P_2 = \{b_0, b_1\} \sqcup D_1 \sqcup D_2,
+\]
+where $C_1 = \{c_{1,i}\}_{i=0}^{n-1}$, $C_2 = \{c_{2,i}\}_{i=0}^{n-1}$, $D_1 = \{d_{1,j}\}_{j=0}^{n-1}$, and $D_2 = \{d_{2,j}\}_{j=0}^{n-1}$ are four disjoint $n$-element sets. Thus $|P_1| = |P_2| = 2n+2$ and $|P(n)| = 4n+6$. Put $\hat{0} < x$ for all $x \neq \hat{0}$, $y < \hat{1}$ for all $y \neq \hat{1}$, and between $P_1$ and $P_2$ set
+\[
+  a_s < d_{2,j} \quad (s \in \{0,1\},\; 0 \le j < n), \qquad
+  c_{r,i} < y \quad (r \in \{1,2\},\; 0 \le i < n,\; \forall y \in P_2),
+\]
+with no relations between $\{a_0, a_1\}$ and $\{b_0, b_1\} \cup D_1$ (Table~\ref{tab:pn-quotient}). Every element of $P_1$ lies below $d_{2,0} \in P_2$, and every element of $P_2$ lies above $c_{1,0} \in P_1$, so every maximal chain has length~$3$.
+
+(a) Since $n \ge 2$, we partition $P(n)$ into $2n+2$ chains by matching $P_1 \leftrightarrow P_2$ explicitly (attaching $\hat{0}, \hat{1}$ to the first chain):
+\begin{align*}
+  a_0 &\leftrightarrow d_{2,0}, & a_1 &\leftrightarrow d_{2,1}, &
+  c_{2,0} &\leftrightarrow b_0, & c_{2,1} &\leftrightarrow b_1, \\
+  c_{2,k} &\leftrightarrow d_{2,k} \;\; (2 \le k < n), &
+  c_{1,i} &\leftrightarrow d_{1,i} \;\; (0 \le i < n). & &
+\end{align*}
+Every matched pair satisfies $x < y$ in $P(n)$, so no antichain can exceed $2n+2$ elements; since $P_1$ is an antichain of size $2n+2$, $\width(P(n)) = 2n+2 = \max_k |P_k|$.
+
+(b) Let $\sigma \in \Sn$ fix $\hat{0}, \hat{1}, a_0, a_1, b_0, b_1$ and act on $C_1, C_2, D_1, D_2$ by permuting the index $i \in \{0,\dots,n-1\}$. This action is faithful (looking at $C_1$) and preserves the order. Its orbits on $P_1$ are $\{a_0\}, \{a_1\}, C_1, C_2$ ($4$~orbits) and on $P_2$ are $\{b_0\}, \{b_1\}, D_1, D_2$ ($4$~orbits), giving orbit-rank profile $(1,4,4,1)$.
+
+(c) In $P(n)/\Sn$ (Table~\ref{tab:pn-quotient}), neither $\{a_0\}$ nor $\{a_1\}$ lies below $\{b_0\}, \{b_1\}$, or $D_1$. Thus the five orbits $\{\{a_0\}, \{a_1\}, \{b_0\}, \{b_1\}, D_1\}$ are pairwise incomparable in $P(n)/\Sn$. Conversely, any antichain containing $\hat{0}$ or $\hat{1}$ has size~$1$, any antichain containing $C_1$ or $C_2$ misses all of $P_2/\Sn$ (size $\le 4$), and any antichain avoiding $C_1, C_2$ uses a subset of $\{\{a_0\},\{a_1\}\}$ and $\{\{b_0\},\{b_1\},D_1,D_2\}$ without pairing $\{a_s\}$ and $D_2$ (size $\le 5$). Hence $\width(P(n)/\Sn) = 5 > 4$.
+\end{proof}
+
+\section{Formalization in Core Lean 4.19.0 and Computational Verification}
+
+All results are formalized constructively in Core Lean~4.19.0 (\texttt{package/lean/}, zero external dependencies, compiled with \texttt{-DwarningAsError=true}, and zero \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, or custom axioms). Table~\ref{tab:lean-map} maps the mathematical results to their Lean~4 declarations.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\caption{Correspondence between paper results and Core Lean~4.19.0 declarations.}
+\label{tab:lean-map}
+\begin{tabular}{@{}ll>{\raggedright\arraybackslash}p{7.6cm}@{}}
+\toprule
+\textbf{Paper Result} & \textbf{Lean Module} & \textbf{Declaration Name(s)} \\
+\midrule
+Lemma~\ref{lem:orbit-antichain} & \texttt{Foundations.lean} & \texttt{eq\_of\_le\_of\_finite\_period} \\
+Pigeonhole on \texttt{Fin n} & \texttt{Foundations.lean} & \texttt{not\_injective\_fin\_succ}, \texttt{exists\_pos\_period\_fin} \\
+Proposition~\ref{prop:quotient} & \texttt{Foundations.lean} & \texttt{orbit\_isAntichain}, \texttt{orbitLe\_antisymm}, \texttt{invariant\_antichain\_iff\_orbit\_antichain} \\
+Theorem~\ref{thm:sperner}(a,b) & \texttt{BooleanSperner.lean} & \texttt{sperner\_theorem}, \texttt{sperner\_theorem\_list}, \texttt{spernerNum\_exp\_lower} \\
+Theorem~\ref{thm:freese-dilworth} & \texttt{Counterexamples.lean} & \texttt{DecPoset.freese\_dilworth\_invariant\_antichain} \\
+Theorem~\ref{thm:bn-sn} & \texttt{SymmetricActions.lean} & \texttt{sn\_orbitEq\_iff\_weight\_eq}, \texttt{bn\_quotient\_sn\_iff\_le}, \texttt{bn\_sn\_orbit\_antichain\_le\_one} \\
+Theorem~\ref{thm:universal-dichotomy} & \texttt{SymmetricActions.lean} & \texttt{nontrivial\_subgroup\_orbit\_antichain\_bound} \\
+Theorem~\ref{thm:pn-counterexample} & \texttt{Counterexamples.lean} & \texttt{pnPoset\_antichain\_le}, \texttt{actPn\_faithful}, \texttt{pnFiveOrbitAntichain\_valid} \\
+Asymptotic refutations & \texttt{Counterexamples.lean} & \texttt{zero\_deficit\_not\_logOrder}, \texttt{nontrivial\_subgroup\_deficit\_not\_logOrder}, \texttt{sn\_orbit\_deficit\_not\_logOrder} \\
+Master disproof & \texttt{Counterexamples.lean} & \texttt{conjecture\_00000008546\_disproved} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In addition, \texttt{package/verify.py} independently verifies the symmetric chain decomposition for $0 \le n \le 8$, exact widths and deficits on $(\Bn, \Sn)$ for $0 \le n \le 6$ plus asymptotic divergence up to $n = 64$, the universal subgroup bound~\eqref{eq:universal-bound} across all nontrivial conjugacy classes of $S_N$ ($2 \le N \le 6$), Young subgroups, diagonal $\Bn \times \Bn$, unlabeled graph posets $B_{\binom{m}{2}}/S_m$ ($3 \le m \le 5$), Freese--Dilworth invariance on ungraded and non-Sperner posets, and the faithful counterexample family $P(n)$ for $2 \le n \le 8$.
+
+\begin{thebibliography}{9}\setlength{\itemsep}{2pt}
+
+\bibitem{DBTK1951}
+N.~G. de~Bruijn, Ca.~van~Ebbenhorst~Tengbergen, and D.~Kruyswijk,
+\emph{On the set of divisors of a number},
+Nieuw Arch.\ Wiskd.\ (2) \textbf{23} (1951), 191--193.
+
+\bibitem{Dilworth1960}
+R.~P. Dilworth,
+\emph{Some combinatorial problems on partially ordered sets},
+in \emph{Combinatorial Analysis}, Proc.\ Symp.\ Appl.\ Math., vol.~10, Amer.\ Math.\ Soc., Providence, RI, 1960, pp.~85--90.
+
+\bibitem{Engel1997}
+K.~Engel,
+\emph{Sperner Theory},
+Encyclopedia of Mathematics and its Applications, vol.~65, Cambridge Univ.\ Press, Cambridge, 1997.
+
+\bibitem{Freese1974}
+R.~Freese,
+\emph{An application of Dilworth's lattice of maximal antichains},
+Discrete Math.\ \textbf{7} (1974), 107--109.
+
+\bibitem{Harper1985}
+L.~H. Harper,
+\emph{The morphism for stripped-down Peck posets},
+J.~Combin.\ Theory Ser.~A \textbf{38} (1985), 171--194.
+
+\bibitem{Pouzet1976}
+M.~Pouzet,
+\emph{Application d'une propri\'et\'e combinatoire des parties d'un ensemble aux groupes et aux relations},
+Math.~Z.\ \textbf{150} (1976), 117--134.
+
+\bibitem{Sperner1928}
+E.~Sperner,
+\emph{Ein Satz \"uber Untermengen einer endlichen Menge},
+Math.~Z.\ \textbf{27} (1928), 544--548.
+
+\bibitem{Stanley1984}
+R.~P. Stanley,
+\emph{Quotients of Peck posets},
+Order \textbf{1} (1984), 29--34.
+
+\end{thebibliography}
+
+\end{document}
