@@ -1,0 +1,642 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\AM}{\mathrm{AM}}
+\newcommand{\GM}{\mathrm{GM}}
+\newcommand{\HM}{\mathrm{HM}}
+\newcommand{\diag}{\mathrm{diag}}
+
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{1.2em}
+\setlength{\emergencystretch}{1.5em}
+\renewcommand{\arraystretch}{1.28}
+
+\title{\textbf{Resolution of Conjecture 00000007166:\\
+Exact Condition-Ratio Optimality in the Kantorovich Inequality\\
+and Refutation of the Harmonic-Mean Minimum Claim}}
+\author{Formal Mathematical Resolution \& Lean 4.19.0 Verification}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007166}, concerning the optimal multiplicative
+constant in the Kantorovich inequality as a function of the spectral condition
+ratio $\kappa = M/m \ge 1$ and the claim that the minimum of this function is the
+harmonic mean. Analyzing both the English and Chinese formulations, the
+conjecture is a logical conjunction $P_1 \land P_2$ of two mathematical
+assertions. We prove from first principles over any linearly ordered field
+$\mathbb{F}$ (in particular over $\mathbb{Q}$ and $\mathbb{R}$) that
+\textbf{Clause~1 ($P_1$) holds}: for every symmetric positive-definite (orthogonally
+diagonalizable) $n \times n$ matrix $A$ with eigenvalues bounded by
+$0 < m \le \lambda_i \le M$, condition ratio $\kappa = M/m \ge 1$, and every
+nonzero vector $x \in \mathbb{F}^n \setminus \{0\}$,
+\[
+  1 \;\le\; \frac{\langle Ax, x\rangle \langle A^{-1}x, x\rangle}{\|x\|^4}
+  \;\le\; \frac{(M + m)^2}{4Mm} \;=\; \frac{(\kappa + 1)^2}{4\kappa} \;=:\; K(\kappa),
+\]
+and for every dimension $n \ge 2$ and $\kappa \ge 1$, the upper bound
+$K(\kappa) = \AM(M,m)/\HM(M,m)$ is attained explicitly by a rational-coordinate
+superposition $x^* = q_{\min} + q_{\max}$ of extreme eigenvectors. Conversely, we
+prove that \textbf{Clause~2 ($P_2$) fails under every standard mathematical
+reading}: (A)~the global minimum of $K(\kappa)$ on $[1,\infty)$ (and on
+$(0,\infty)$) is the dimensionless constant $1$, not $\HM(M,m)$ and not
+$\HM(\kappa,1)$; (B)~the minimum of the Kantorovich quotient $x \mapsto Q_A(x)$
+for fixed $A$ is likewise $1$, not the harmonic mean; (C)~the reciprocal
+Wielandt--Kantorovich lower-bound function $R(\kappa) = 4\kappa/(\kappa+1)^2 =
+\HM(M,m)/\AM(M,m)$ has maximum $1$ at $\kappa=1$, is strictly decreasing on
+$[1,\infty)$, and has no minimum on $[1,\infty)$ ($\inf_{\kappa \ge 1} R(\kappa)=0$);
+and (D)~neither the minimum Rayleigh quotient $m$ nor the extremizer Rayleigh
+quotients $\AM(M,m)$ and $\HM(M,m)^{-1}$ equal $\HM(M,m)$ for $m < M$. Thus the
+compound conjecture \texttt{00000007166} is \textbf{false}. All positive theorems
+and refutations are formalized without external dependencies or \texttt{sorry} in
+Core Lean~4.19.0 and independently checked by exact rational arithmetic.
+\end{abstract}
+
+\section{Problem Statement and Main Verdict}
+
+Conjecture \texttt{00000007166} is stated bilingually in \texttt{SOURCE.md} as
+follows:
+\begin{quote}
+\textbf{English.} \emph{Definition: The Kantorovich inequality with the
+multiplicative bound of the quotient. Conjecture: The optimal constant is an
+explicit function of the condition ratio, and the minimum of the function is the
+harmonic mean. (harmonic-mean Kantorovich constant)}
+\end{quote}
+The parallel Chinese statement specifies the identical two-clause structure:
+\emph{Definition:} Kantorovich inequality as a multiplicative bound of the
+quotient (\emph{shang de chengxing jie}); \emph{Conjecture:} the optimal
+Kantorovich constant is an explicit function of the condition ratio
+(\emph{changshu wei tiaojianbi de xianshi hanshu}), \textbf{and} the minimum of
+the function is the harmonic mean (\emph{qie hanshu de jixiao wei tiaohe
+pingjun}).
+
+Accordingly, the conjecture asserts the conjunction $P_1 \land P_2$ of:
+\begin{itemize}
+  \item[(1)] \textbf{Clause~1 ($P_1$):} The optimal multiplicative upper-bound
+  constant in the Kantorovich inequality depends solely on the spectral condition
+  ratio $\kappa = M/m \ge 1$ through an explicit closed-form function $K(\kappa)$.
+  \item[(2)] \textbf{Clause~2 ($P_2$):} The minimum of the function is the harmonic
+  mean.
+\end{itemize}
+
+\textbf{Overall Verdict: FALSE} ($P_1$ is \textbf{TRUE}; $P_2$ is \textbf{FALSE}
+under all candidate interpretations). Specifically:
+\begin{itemize}
+  \item In Section~\ref{sec:clause1}, we prove from two exact single-sum
+  algebraic identities over any linearly ordered field $\mathbb{F}$ that
+  $K(\kappa) = \frac{(\kappa + 1)^2}{4\kappa}$ is the exact optimal constant for
+  every $n \ge 2$ and $\kappa \ge 1$, characterize all cases of equality, and
+  exhibit the exact mean-ratio representation $K(M/m) = \frac{\AM(M,m)}{\HM(M,m)}$.
+  \item In Section~\ref{sec:clause2}, we exhaustively analyze every standard
+  reading of ``the minimum of the function is the harmonic mean'' (Readings~A, B,
+  C, and D) and refute each one both by structural theorems and by explicit small
+  rational counterexamples such as $(m,M) = (1,3)$ ($\kappa = 3$) and
+  $(m,M) = (2,2)$ ($\kappa = 1$). We also identify the exact mathematical source
+  of the misconception in Remark~\ref{rem:origin}.
+\end{itemize}
+
+\section{Algebraic Setting and Spectral Reduction}
+\label{sec:prelim}
+
+To ensure exactness without real-analytic completeness assumptions or
+floating-point approximation, we work over an arbitrary linearly ordered field
+$\mathbb{F}$ (which encompasses $\mathbb{Q}$ and $\mathbb{R}$ simultaneously).
+For $x, y \in \mathbb{F}^n$, write $\langle x, y \rangle = \sum_{i=1}^n x_i y_i$
+and $\|x\|^2 = \langle x, x \rangle = \sum_{i=1}^n x_i^2$. Note that over any
+linearly ordered field, $\|x\|^2 \ge 0$ with $\|x\|^2 > 0$ if and only if
+$x \ne 0$.
+
+\begin{definition}[Orthogonally Diagonalizable SPD Matrix and Kantorovich Quotient]
+Let $n \ge 1$. An $n \times n$ matrix $A \in \mathbb{F}^{n \times n}$ is
+\emph{orthogonally diagonalizable symmetric positive-definite (SPD)} with
+spectrum $\lambda = (\lambda_1, \dots, \lambda_n) \in \mathbb{F}^n$ bounded by
+$0 < m \le M$ if there exists $Q \in \mathbb{F}^{n \times n}$ satisfying
+$Q^\top Q = Q Q^\top = I_n$ such that
+\begin{align*}
+  A &= Q\,\diag(\lambda_1, \dots, \lambda_n)\,Q^\top, &
+  A^{-1} &= Q\,\diag(\lambda_1^{-1}, \dots, \lambda_n^{-1})\,Q^\top,
+\end{align*}
+with $0 < m \le \lambda_i \le M$ for all $1 \le i \le n$.
+When $m = \lambda_{\min}(A)$ and $M = \lambda_{\max}(A)$, the dimensionless ratio
+$\kappa := M/m \ge 1$ is the \emph{spectral condition ratio} (condition number in
+the Euclidean operator norm). For any nonzero vector $x \in \mathbb{F}^n \setminus \{0\}$,
+the \emph{Kantorovich quotient} is
+\begin{equation}
+  \label{eq:QA}
+  Q_A(x) \;:=\; \frac{\langle Ax, x\rangle \langle A^{-1}x, x\rangle}{\|x\|^4}.
+\end{equation}
+\end{definition}
+
+Setting $y = Q^\top x \in \mathbb{F}^n$, orthogonality $Q Q^\top = I_n$ gives
+$\|y\|^2 = \langle Q^\top x, Q^\top x\rangle = \|x\|^2 > 0$, while
+$\langle Ax, x\rangle = \sum_{i=1}^n \lambda_i y_i^2$ and
+$\langle A^{-1}x, x\rangle = \sum_{i=1}^n \lambda_i^{-1} y_i^2$. Defining the
+normalized weights
+\[
+  w_i \;:=\; \frac{y_i^2}{\|x\|^2} \;\ge\; 0 \qquad (1 \le i \le n), \qquad
+  \sum_{i=1}^n w_i \;=\; \frac{\|y\|^2}{\|x\|^2} \;=\; 1,
+\]
+the Rayleigh quotients of $A$ and $A^{-1}$ and the Kantorovich quotient reduce to
+convex combinations on the probability simplex:
+\begin{align}
+  S(w,\lambda) &:= \frac{\langle Ax, x\rangle}{\|x\|^2} = \sum_{i=1}^n w_i \lambda_i,
+  \qquad
+  T(w,\lambda) := \frac{\langle A^{-1}x, x\rangle}{\|x\|^2} = \sum_{i=1}^n w_i \lambda_i^{-1},
+  \nonumber \\
+  Q_A(x) &= S(w,\lambda)\,T(w,\lambda).
+  \label{eq:ST}
+\end{align}
+
+\begin{definition}[Classical Means and Kantorovich Functions]
+For $m, M \in \mathbb{F}$ with $0 < m, M$ and for $\kappa \in \mathbb{F}$ with
+$\kappa > 0$, define the arithmetic mean, harmonic mean, Kantorovich upper-bound
+function, and reciprocal Wielandt--Kantorovich lower-bound function by
+\begin{align*}
+  \AM(M,m) &:= \frac{M + m}{2}, &
+  \HM(M,m) &:= \frac{2Mm}{M + m}, \\
+  K(\kappa) &:= \frac{(\kappa + 1)^2}{4\kappa}, &
+  R(\kappa) &:= \frac{4\kappa}{(\kappa + 1)^2} = K(\kappa)^{-1}.
+\end{align*}
+\end{definition}
+
+\begin{lemma}[Condition-Ratio and Mean-Ratio Representations]
+\label{lem:means}
+For all $m, M \in \mathbb{F}$ with $0 < m$ and $0 < M$, setting $\kappa = M/m > 0$
+yields
+\begin{equation}
+  \label{eq:K-identities}
+  K\!\left(\frac{M}{m}\right)
+  \;=\; \frac{(M + m)^2}{4Mm}
+  \;=\; \frac{\AM(M,m)}{\HM(M,m)}, \qquad
+  R\!\left(\frac{M}{m}\right)
+  \;=\; \frac{4Mm}{(M + m)^2}
+  \;=\; \frac{\HM(M,m)}{\AM(M,m)}.
+\end{equation}
+\end{lemma}
+\begin{proof}
+Since $m \ne 0$, $\frac{M}{m} + 1 = \frac{M+m}{m}$, so
+$K(M/m) = \frac{(M+m)^2/m^2}{4M/m} = \frac{(M+m)^2}{4Mm}$. Similarly, since
+$M + m > 0$,
+\[
+  \frac{\AM(M,m)}{\HM(M,m)}
+  = \frac{(M+m)/2}{2Mm/(M+m)}
+  = \frac{(M+m)^2}{4Mm}
+  = K\!\left(\frac{M}{m}\right),
+\]
+and taking reciprocals gives $R(M/m) = \HM(M,m)/\AM(M,m)$.
+\end{proof}
+
+\section{Proof of Clause 1: Exact Kantorovich Inequality and Sharpness}
+\label{sec:clause1}
+
+Rather than appealing to calculus or real square roots, we establish both bounds
+in the Kantorovich inequality---together with necessary and sufficient conditions
+for equality---from two exact rational identities valid over any linearly ordered
+field $\mathbb{F}$.
+
+\begin{theorem}[Lower-Bound Master Identity and Characterization]
+\label{thm:lower}
+Let $w_1, \dots, w_n \in \mathbb{F}$ satisfy $w_i \ge 0$ and $\sum_{i=1}^n w_i = 1$,
+and let $\lambda_1, \dots, \lambda_n \in \mathbb{F}$ satisfy $0 < m \le \lambda_i$
+for some $m > 0$. Set $S = \sum_{i=1}^n w_i \lambda_i$ and
+$T = \sum_{i=1}^n w_i \lambda_i^{-1}$. Then $S \ge m > 0$ and
+\begin{equation}
+  \label{eq:lower-master}
+  S\,(S T - 1) \;=\; \sum_{i=1}^n \frac{w_i\,(\lambda_i - S)^2}{\lambda_i}.
+\end{equation}
+Consequently, $S T \ge 1$, with equality $S T = 1$ if and only if $\lambda_i = S$
+for every index $i$ with $w_i > 0$.
+\end{theorem}
+\begin{proof}
+First, $S = \sum_{i=1}^n w_i \lambda_i \ge \sum_{i=1}^n w_i m = m > 0$. Since
+$\lambda_i \ge m > 0$ implies $\lambda_i \ne 0$, expanding the $i$-th summand gives
+\[
+  \frac{w_i(\lambda_i - S)^2}{\lambda_i}
+  = \frac{w_i(\lambda_i^2 - 2S\lambda_i + S^2)}{\lambda_i}
+  = w_i\lambda_i - 2S w_i + S^2 w_i \lambda_i^{-1}.
+\]
+Summing from $i = 1$ to $n$ and using $\sum_{i=1}^n w_i = 1$ yields
+\[
+  \sum_{i=1}^n \frac{w_i(\lambda_i - S)^2}{\lambda_i}
+  = S - 2S \cdot 1 + S^2 T
+  = S(S T - 1),
+\]
+which is~\eqref{eq:lower-master}. Because $w_i \ge 0$, $(\lambda_i - S)^2 \ge 0$,
+and $\lambda_i > 0$, each summand on the right-hand side of~\eqref{eq:lower-master}
+is nonnegative, so $S(S T - 1) \ge 0$. Dividing by $S > 0$ yields $S T \ge 1$.
+Moreover, since a sum of nonnegative elements in a linearly ordered field vanishes
+if and only if every summand vanishes, $S T = 1$ holds if and only if
+$w_i(\lambda_i - S)^2/\lambda_i = 0$ for all $i$, i.e., $\lambda_i = S$ whenever
+$w_i > 0$.
+\end{proof}
+
+\begin{theorem}[Upper-Bound Master Identity and Kantorovich Inequality]
+\label{thm:upper}
+Let $w_1, \dots, w_n \in \mathbb{F}$ satisfy $w_i \ge 0$ and $\sum_{i=1}^n w_i = 1$,
+and let $0 < m \le \lambda_i \le M$ for all $1 \le i \le n$. Set
+$S = \sum_{i=1}^n w_i \lambda_i$ and $T = \sum_{i=1}^n w_i \lambda_i^{-1}$. Then
+\begin{equation}
+  \label{eq:upper-master}
+  \frac{(M + m)^2}{4Mm} - S T
+  \;=\; \frac{(2S - (M + m))^2}{4Mm}
+  \;+\; S \sum_{i=1}^n \frac{w_i\,(M - \lambda_i)(\lambda_i - m)}{Mm\lambda_i}.
+\end{equation}
+Consequently,
+\[
+  S T \;\le\; \frac{(M + m)^2}{4Mm} \;=\; K\!\left(\frac{M}{m}\right),
+\]
+with equality if and only if $S = \AM(M,m)$ and $\lambda_i \in \{m, M\}$ for every
+index $i$ with $w_i > 0$. When $m < M$, equality forces the total weight on
+$\{i : \lambda_i = m\}$ and on $\{i : \lambda_i = M\}$ to equal $1/2$ each, and
+$T = \HM(M,m)^{-1}$.
+\end{theorem}
+\begin{proof}
+Since $M \ge m > 0$ and $\lambda_i \ge m > 0$, all denominators are strictly
+positive. For each $i$, direct expansion gives
+$(M - \lambda_i)(\lambda_i - m) = (M + m - \lambda_i)\lambda_i - Mm$, so dividing
+by $Mm\lambda_i$ and multiplying by $w_i$ yields
+\[
+  \frac{w_i(M - \lambda_i)(\lambda_i - m)}{Mm\lambda_i}
+  = \frac{w_i(M + m) - w_i\lambda_i}{Mm} - \frac{w_i}{\lambda_i}.
+\]
+Summing over $i = 1, \dots, n$ with $\sum_{i=1}^n w_i = 1$ gives the defect
+identity
+\[
+  D \;:=\; \sum_{i=1}^n \frac{w_i(M - \lambda_i)(\lambda_i - m)}{Mm\lambda_i}
+  \;=\; \frac{M + m - S}{Mm} - T.
+\]
+Substituting $D$ into the right-hand side of~\eqref{eq:upper-master}, we compute
+\begin{align*}
+  \frac{(2S - (M+m))^2}{4Mm} + S D
+  &= \frac{4S^2 - 4S(M+m) + (M+m)^2}{4Mm}
+     + \frac{4S(M+m) - 4S^2}{4Mm} - S T \\
+  &= \frac{(M + m)^2}{4Mm} - S T,
+\end{align*}
+establishing~\eqref{eq:upper-master}. Because $0 < m \le \lambda_i \le M$, we have
+$M - \lambda_i \ge 0$, $\lambda_i - m \ge 0$, $w_i \ge 0$, $Mm\lambda_i > 0$,
+$4Mm > 0$, and $S \ge m > 0$. Thus both terms on the right-hand side
+of~\eqref{eq:upper-master} are nonnegative, proving
+$S T \le (M+m)^2/(4Mm) = K(M/m)$.
+
+Equality holds if and only if both nonnegative terms vanish. Since $4Mm > 0$ and
+$S > 0$, the first term vanishes iff $2S = M + m$, i.e.\ $S = \AM(M,m)$, while
+the second vanishes iff $w_i(M - \lambda_i)(\lambda_i - m) = 0$ for every $i$,
+i.e.\ $\lambda_i \in \{m, M\}$ whenever $w_i > 0$. Finally, if $m < M$ and
+equality holds, let $W_m = \sum_{\lambda_i = m} w_i$ and
+$W_M = \sum_{\lambda_i = M} w_i$. Then $W_m + W_M = 1$ and
+$m W_m + M W_M = S = (M+m)/2$, whence $(M - m)(W_M - 1/2) = 0$ and therefore
+$W_M = W_m = 1/2$ and $T = \frac{1}{2}(m^{-1} + M^{-1}) = \frac{M+m}{2Mm} =
+\HM(M,m)^{-1}$.
+\end{proof}
+
+\begin{theorem}[Sharpness Over $\mathbb{Q}$ and Any Ordered Field for All $n \ge 2$]
+\label{thm:sharp}
+Let $n \ge 2$, let $A = Q\,\diag(\lambda_1,\dots,\lambda_n)\,Q^\top$ be an
+orthogonally diagonalizable SPD matrix over $\mathbb{F}$ with
+$0 < m \le \lambda_i \le M$, and suppose $\lambda_j = m$ and $\lambda_k = M$ for
+two distinct indices $j \ne k$ (in particular, whenever $m = \lambda_{\min}(A) <
+\lambda_{\max}(A) = M$, or when $m = M$ for any $j \ne k$). Let $q_j, q_k \in
+\mathbb{F}^n$ denote the $j$-th and $k$-th columns of $Q$, and define
+\[
+  x^* \;:=\; q_j + q_k \;\in\; \mathbb{F}^n.
+\]
+Then $\|x^*\|^2 = 2 > 0$, and
+\begin{equation}
+  \label{eq:extremizer}
+  \frac{\langle Ax^*, x^*\rangle}{\|x^*\|^2} = \AM(M,m), \quad
+  \frac{\langle A^{-1}x^*, x^*\rangle}{\|x^*\|^2} = \HM(M,m)^{-1}, \quad
+  Q_A(x^*) = \frac{\AM(M,m)}{\HM(M,m)} = K\!\left(\frac{M}{m}\right).
+\end{equation}
+Hence $K(\kappa) = \frac{(\kappa + 1)^2}{4\kappa}$ is the unique optimal
+multiplicative upper-bound constant in the Kantorovich inequality as a function
+of the condition ratio $\kappa = M/m \ge 1$, confirming \textbf{Clause~1}.
+\end{theorem}
+\begin{proof}
+By column orthonormality $Q^\top Q = I_n$, the transformed vector $y^* = Q^\top x^*$
+equals $e_j + e_k$. Since $j \ne k$, its coordinates are $1$ at $j$ and $k$ and
+$0$ elsewhere, without requiring $\sqrt{2} \in \mathbb{F}$. Therefore
+$\|x^*\|^2 = \|y^*\|^2 = 1^2 + 1^2 = 2 > 0$,
+\[
+  \frac{\langle Ax^*, x^*\rangle}{\|x^*\|^2}
+  = \frac{\lambda_j + \lambda_k}{2}
+  = \frac{m + M}{2}
+  = \AM(M,m),
+\]
+and
+\[
+  \frac{\langle A^{-1}x^*, x^*\rangle}{\|x^*\|^2}
+  = \frac{\lambda_j^{-1} + \lambda_k^{-1}}{2}
+  = \frac{m^{-1} + M^{-1}}{2}
+  = \frac{M + m}{2Mm}
+  = \HM(M,m)^{-1}.
+\]
+Multiplying these two identities and applying Lemma~\ref{lem:means} gives the
+exact identity $Q_A(x^*) = \AM(M,m)/\HM(M,m) = K(M/m)$. Combined with
+Theorems~\ref{thm:lower} and~\ref{thm:upper}, this proves that $K(\kappa)$ is
+the exact supremum (and attained maximum) of $Q_A(x)$ over $x \ne 0$.
+\end{proof}
+
+\section{Complete Refutation of Clause 2 Across All Candidate Readings}
+\label{sec:clause2}
+
+Clause~2 asserts: \emph{``and the minimum of the function is the harmonic mean''}
+(\emph{qie hanshu de jixiao wei tiaohe pingjun}). Because natural-language
+problem statements occasionally compress which ``function'' or which
+normalization of the harmonic mean is intended, rigorous disproof requires
+testing \textbf{every} standard mathematical reading. We examine all four
+possible readings below and prove that Clause~2 is false under each one.
+
+\subsection{Reading A: Minimum of the Optimal Constant Function \texorpdfstring{$K(\kappa)$}{K(kappa)}}
+
+In the syntax of the conjecture (\emph{``The optimal constant is an explicit
+function of the condition ratio, and the minimum of the function is the harmonic
+mean''}), ``the function'' refers grammatically to the optimal-constant function
+$K(\kappa) = \frac{(\kappa + 1)^2}{4\kappa}$ on its natural condition-ratio
+domain $\kappa \in [1, \infty)$ (or its maximal positive domain
+$\kappa \in (0, \infty)$).
+
+\begin{theorem}[Refutation of Reading A]
+\label{thm:readingA}
+Over any linearly ordered field $\mathbb{F}$:
+\begin{itemize}
+  \item[(i)] For every $\kappa \in \mathbb{F}$ with $\kappa \ne 0$,
+  \begin{equation}
+    \label{eq:K-min-one}
+    K(\kappa) - 1 \;=\; \frac{(\kappa - 1)^2}{4\kappa}.
+  \end{equation}
+  Hence for all $\kappa > 0$, $K(\kappa) \ge 1$, with $K(\kappa) = 1 \iff \kappa = 1$.
+  The unique global minimum of $K$ on $[1, \infty)$ and on $(0, \infty)$ is the
+  universal constant $1$.
+  \item[(ii)] \textbf{Unnormalized harmonic mean $\HM(M,m)$:} For $(m, M) = (2, 2)$
+  (where $\kappa = 1$), we have $\min_{\kappa \ge 1} K(\kappa) = K(1) = 1$, whereas
+  $\HM(2, 2) = 2 \ne 1$ (dimensional/homogeneity obstruction: $K(M/m)$ is
+  homogeneous of degree $0$ in $(M,m)$, whereas $\HM(M,m)$ is homogeneous of
+  degree $1$). At $(m, M) = (1, 3)$ ($\kappa = 3$), $\min_{\kappa \ge 1} K(\kappa) = 1$
+  and $K(3) = 4/3$, whereas $\HM(3, 1) = 3/2 \notin \{1, 4/3\}$.
+  \item[(iii)] \textbf{Normalized harmonic mean $\HM(\kappa, 1) = \frac{2\kappa}{\kappa + 1}$:}
+  For every $\kappa > 1$,
+  \[
+    \HM(\kappa, 1) - 1 \;=\; \frac{2\kappa}{\kappa + 1} - 1
+    \;=\; \frac{\kappa - 1}{\kappa + 1} \;>\; 0,
+  \]
+  so $\HM(\kappa, 1) > 1 = \min_{\kappa' \ge 1} K(\kappa')$ for every
+  non-scalar SPD matrix ($\kappa > 1$).
+\end{itemize}
+Therefore Clause~2 is \textbf{false} under Reading~A.
+\end{theorem}
+\begin{proof}
+Identity~\eqref{eq:K-min-one} follows immediately from
+$(\kappa + 1)^2 - 4\kappa = \kappa^2 - 2\kappa + 1 = (\kappa - 1)^2$. For
+$\kappa > 0$, $(\kappa - 1)^2 \ge 0$ and $4\kappa > 0$ yield $K(\kappa) \ge 1$,
+with equality iff $(\kappa - 1)^2 = 0 \iff \kappa = 1$. Evaluating at
+$(m, M) = (2, 2)$ gives $\HM(2,2) = \frac{2\cdot 2\cdot 2}{2+2} = 2 \ne 1$, and
+at $(m, M) = (1, 3)$ gives $K(3) = \frac{16}{12} = \frac{4}{3}$ and
+$\HM(3,1) = \frac{6}{4} = \frac{3}{2}$, with $\frac{3}{2} \ne 1$ and
+$\frac{3}{2} \ne \frac{4}{3}$ (since $3\cdot 3 = 9 > 8 = 4\cdot 2$). Finally,
+for $\kappa > 1$, $\kappa + 1 > 0$ and $2\kappa - (\kappa + 1) = \kappa - 1 > 0$,
+giving $\HM(\kappa, 1) > 1$.
+\end{proof}
+
+\subsection{Reading B: Minimum of the Kantorovich Quotient \texorpdfstring{$x \mapsto Q_A(x)$}{x |-> Q\_A(x)} for Fixed \texorpdfstring{$A$}{A}}
+
+A second possible reading takes ``the function'' to mean the Kantorovich
+quotient $x \mapsto Q_A(x)$ on $\mathbb{F}^n \setminus \{0\}$ for a fixed SPD
+matrix $A$.
+
+\begin{theorem}[Refutation of Reading B]
+\label{thm:readingB}
+For every $n \ge 1$ and every orthogonally diagonalizable SPD matrix $A$ with
+eigenvalues $0 < m \le \lambda_i \le M$,
+\[
+  \min_{x \in \mathbb{F}^n \setminus \{0\}} Q_A(x) \;=\; 1,
+\]
+attained at every eigenvector $q_k$ of $A$. In particular, for
+$A = \diag(1, 3)$ ($m = 1, M = 3, \kappa = 3$), $\min_{x \ne 0} Q_A(x) = 1$,
+whereas $\HM(3, 1) = \HM(\kappa, 1) = 3/2 \ne 1$. Thus Clause~2 is \textbf{false}
+under Reading~B.
+\end{theorem}
+\begin{proof}
+By Theorem~\ref{thm:lower}, $Q_A(x) \ge 1$ for all $x \ne 0$. For $x = q_k$ (the
+$k$-th column of $Q$), $Q^\top q_k = e_k$, so $\|q_k\|^2 = 1$,
+$\langle Aq_k, q_k\rangle = \lambda_k$, $\langle A^{-1}q_k, q_k\rangle = \lambda_k^{-1}$,
+and $Q_A(q_k) = \lambda_k \lambda_k^{-1} = 1$. Comparing with $\HM(3,1) = 3/2 \ne 1$
+from Theorem~\ref{thm:readingA} completes the proof.
+\end{proof}
+
+\subsection{Reading C: Reciprocal Wielandt--Kantorovich Lower-Bound Function \texorpdfstring{$R(\kappa)$}{R(kappa)}}
+
+In optimization and numerical linear algebra (e.g.\ steepest-descent convergence
+rates), the Kantorovich inequality is often written in reciprocal form as a
+multiplicative lower bound:
+\[
+  \frac{\|x\|^4}{\langle Ax, x\rangle \langle A^{-1}x, x\rangle}
+  \;\ge\; \frac{4Mm}{(M + m)^2}
+  \;=\; \frac{4\kappa}{(\kappa + 1)^2}
+  \;=\; R(\kappa).
+\]
+One might ask whether $R(\kappa)$ or its minimum equals the harmonic mean.
+
+\begin{theorem}[Refutation of Reading C]
+\label{thm:readingC}
+Over any linearly ordered field $\mathbb{F}$:
+\begin{itemize}
+  \item[(i)] \textbf{Value mismatch:} By Lemma~\ref{lem:means},
+  $R(M/m) = \frac{\HM(M,m)}{\AM(M,m)}$ is the \emph{ratio} of the harmonic mean
+  to the arithmetic mean, not $\HM(M,m)$ itself; at $(m, M) = (1, 3)$,
+  $R(3) = 3/4 \ne 3/2 = \HM(3, 1)$.
+  \item[(ii)] \textbf{Strict monotonicity and non-existence of a minimum on $[1, \infty)$:}
+  For all $1 \le \kappa_1 < \kappa_2$ in $\mathbb{F}$,
+  \begin{equation}
+    \label{eq:K-mono}
+    K(\kappa_2) - K(\kappa_1)
+    \;=\; \frac{(\kappa_2 - \kappa_1)(\kappa_1\kappa_2 - 1)}{4\kappa_1\kappa_2}
+    \;>\; 0,
+  \end{equation}
+  so $K$ is strictly increasing and $R = K^{-1}$ is strictly decreasing on
+  $[1, \infty)$. Consequently, $R(1) = 1$ is the \emph{maximum} of $R$ on
+  $[1, \infty)$, and $R$ attains \textbf{no minimum} on $[1, \infty)$ (for any
+  $\kappa_0 \ge 1$, $\kappa_1 = \kappa_0 + 1 > \kappa_0$ satisfies
+  $R(\kappa_1) < R(\kappa_0)$).
+  \item[(iii)] \textbf{Zero infimum:} For every $\kappa \ge 1$, $0 < R(\kappa) < 4/\kappa$.
+  Moreover, for every $\varepsilon \in \mathbb{F}$ with $\varepsilon > 0$,
+  setting $\kappa = 1 + 4/\varepsilon > 1$ yields $0 < R(\kappa) < \varepsilon$.
+  Thus $\inf_{\kappa \ge 1} R(\kappa) = 0 \ne \HM(M, m)$ (since $\HM(M, m) > 0$).
+\end{itemize}
+Therefore Clause~2 is \textbf{false} under Reading~C.
+\end{theorem}
+\begin{proof}
+Part~(i) is immediate at $(m,M) = (1,3)$: $R(3) = \frac{12}{16} = \frac{3}{4}$,
+while $\HM(3,1) = \frac{3}{2}$, and $3\cdot 2 = 6 < 12 = 3\cdot 4$. For part~(ii),
+expanding the numerator over $4\kappa_1\kappa_2 > 0$ gives
+\[
+  \kappa_1(\kappa_2 + 1)^2 - \kappa_2(\kappa_1 + 1)^2
+  = (\kappa_1\kappa_2^2 - \kappa_2\kappa_1^2) - (\kappa_2 - \kappa_1)
+  = (\kappa_2 - \kappa_1)(\kappa_1\kappa_2 - 1) > 0,
+\]
+since $\kappa_2 - \kappa_1 > 0$ and $\kappa_1\kappa_2 \ge 1 \cdot \kappa_2 > 1$.
+Since $0 < K(\kappa_1) < K(\kappa_2)$, taking reciprocals reverses the strict
+inequality: $R(\kappa_2) < R(\kappa_1)$. Hence no $\kappa_0 \ge 1$ can minimize
+$R$ on $[1, \infty)$. For part~(iii), when $\kappa > 0$,
+$(\kappa + 1)^2 > \kappa^2 > 0$, so
+$R(\kappa) = \frac{4\kappa}{(\kappa + 1)^2} < \frac{4\kappa}{\kappa^2} = \frac{4}{\kappa}$.
+Given $\varepsilon > 0$, $\kappa = 1 + 4/\varepsilon$ satisfies $\kappa > 1$ and
+$\kappa > 4/\varepsilon$, whence $0 < R(\kappa) < 4/\kappa < \varepsilon$.
+\end{proof}
+
+\subsection{Reading D: Rayleigh Quotients and Origin of the Misconception}
+
+Finally, one might check whether the global minimum of the Rayleigh quotient
+$x \mapsto \frac{\langle Ax, x\rangle}{\|x\|^2}$, or either of the individual
+Rayleigh factors evaluated at the Kantorovich extremizer $x^* = q_{\min} + q_{\max}$,
+equals $\HM(M, m)$.
+
+\begin{theorem}[Refutation of Reading D]
+\label{thm:readingD}
+Let $0 < m < M$ in $\mathbb{F}$, and let $A$ be an orthogonally diagonalizable
+SPD matrix with minimum eigenvalue $m$ and maximum eigenvalue $M$. Then:
+\begin{itemize}
+  \item[(i)] Strict classical mean separation holds:
+  \begin{equation}
+    \label{eq:m-HM-AM}
+    m \;<\; \HM(M, m) \;<\; \AM(M, m).
+  \end{equation}
+  \item[(ii)] The global minimum of the Rayleigh quotient over $x \ne 0$ is
+  $\min_{x \ne 0} \frac{\langle Ax, x\rangle}{\|x\|^2} = m \ne \HM(M, m)$.
+  \item[(iii)] At the Kantorovich extremizer $x^* = q_{\min} + q_{\max}$ ($n \ge 2$),
+  $\frac{\langle Ax^*, x^*\rangle}{\|x^*\|^2} = \AM(M,m) \ne \HM(M,m)$, while
+  $\frac{\langle A^{-1}x^*, x^*\rangle}{\|x^*\|^2} = \HM(M,m)^{-1}$ is the
+  \emph{reciprocal} of the harmonic mean (e.g.\ at $(m,M) = (1,3)$, it equals
+  $2/3 \ne 3/2 = \HM(3,1)$).
+\end{itemize}
+\end{theorem}
+\begin{proof}
+For $0 < m < M$, $M + m > 0$ and
+\begin{align*}
+  \HM(M,m) - m &= \frac{2Mm - m(M+m)}{M+m} = \frac{m(M - m)}{M + m} > 0, \\
+  \AM(M,m) - \HM(M,m) &= \frac{(M - m)^2}{2(M + m)} > 0,
+\end{align*}
+proving~\eqref{eq:m-HM-AM}. For any $x \ne 0$, the normalized weights satisfy
+$\frac{\langle Ax, x\rangle}{\|x\|^2} = \sum_{i=1}^n w_i\lambda_i \ge m$, with
+equality at $x = q_{\min}$. The extremizer values follow from
+Theorem~\ref{thm:sharp}, and at $(m,M) = (1,3)$,
+$\HM(3,1)^{-1} = 2/3 \ne 3/2 = \HM(3,1)$ since $2^2 = 4 < 9 = 3^2$.
+\end{proof}
+
+\begin{remark}[Diagnostic Origin of the Conjecture's Misconception]
+\label{rem:origin}
+Lemma~\ref{lem:means} and Theorem~\ref{thm:sharp} explain precisely how the
+phrase \emph{``harmonic-mean Kantorovich constant''} arose and why Clause~2 is a
+mathematical conflation. At the equal-weight extremizer $w_{\min} = w_{\max} = 1/2$,
+the Rayleigh quotient $\langle Ax^*, x^*\rangle / \|x^*\|^2$ equals $\AM(M,m)$,
+while the \emph{harmonic Rayleigh quotient}
+$\|x^*\|^2 / \langle A^{-1}x^*, x^*\rangle$ equals $\HM(M,m)$, yielding the
+classical ratio formula $K(M/m) = \AM(M,m)/\HM(M,m)$. Conflating the
+harmonic-mean denominator in $\AM(M,m)/\HM(M,m)$ with the \emph{minimum} of the
+constant function $K(\kappa)$ (or of $Q_A(x)$, both of which equal $1$) produces
+the false second clause.
+\end{remark}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{llll}
+\hline
+\textbf{Candidate Reading} & \textbf{True Extremum / Value} & \textbf{At $(m,M)=(1,3)$} & \textbf{Matches $\HM=3/2$?} \\
+\hline
+A: $\min_{\kappa \ge 1} K(\kappa)$ & $1$ (attained at $\kappa = 1$) & $\min K = 1,\; K(3)=4/3$ & No ($1, 4/3 \ne 3/2$) \\
+B: $\min_{x \ne 0} Q_A(x)$ & $1$ (attained on eigenspaces) & $\min Q_A = 1$ & No ($1 \ne 3/2$) \\
+C: $\min_{\kappa \ge 1} R(\kappa)$ & None ($\max = 1$, $\inf = 0$) & $R(3)=3/4$, $\inf R = 0$ & No ($3/4, 0 \ne 3/2$) \\
+D: Rayleigh quotients & $\min = m$; at $x^*$: $\AM, \HM^{-1}$ & $m=1,\; \AM=2,\; \HM^{-1}=2/3$ & No ($1, 2, 2/3 \ne 3/2$) \\
+\hline
+\end{tabular}
+\caption{Summary of all four candidate readings of Clause~2 against $\HM(3,1) = 3/2$
+(and at $(m,M) = (2,2)$, $\HM(2,2) = 2 \ne 1 = K(1)$).}
+\label{tab:summary}
+\end{table}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Audit}
+\label{sec:lean}
+
+Every definition, identity, positive theorem, and refutation in this paper has
+been machine-checked in \textbf{Core Lean~4.19.0}
+(\texttt{leanprover/lean4:v4.19.0}) inside \texttt{lean/}, compiled with
+\texttt{-DwarningAsError=true}, zero external dependencies (no Mathlib), zero
+\texttt{sorry}, \texttt{admit}, or \texttt{native\_decide} tactics, and zero
+custom axioms:
+{\raggedright
+\begin{itemize}
+  \item \texttt{Conjecture00000007166/OrderedField.lean}: Defines the
+  self-contained \texttt{LinearOrderedField F} typeclass, proves all required
+  algebraic and order-theoretic lemmas from first principles, and constructs an
+  explicit exact rational model \texttt{Q} (\texttt{instance : LinearOrderedField Q})
+  over \texttt{Int} so that all field hypotheses are constructively inhabited.
+  \item \texttt{Conjecture00000007166/Kantorovich.lean}: Proves
+  Lemma~\ref{lem:means} (\texttt{kantorovichConst\_ratio},
+  \texttt{kantorovichConst\_eq\_am\_div\_hm}), Theorem~\ref{thm:lower}
+  (\texttt{kantorovich\_lower\_master\_identity}, \texttt{weighted\_kantorovich\_lower},
+  \texttt{weighted\_kantorovich\_lower\_eq\_iff}), Theorem~\ref{thm:upper}
+  (\texttt{kantorovich\_upper\_master\_identity}, \texttt{weighted\_kantorovich\_upper},
+  \texttt{weighted\_kantorovich\_upper\_eq\_iff}), Theorem~\ref{thm:sharp}
+  (\texttt{kantorovich\_bounds\_diag}, \texttt{kantorovich\_tightness\_pairVec}),
+  and orthogonal invariance for $A = Q\,\diag(\lambda)\,Q^\top$
+  (\texttt{orthoSPDMat\_mul\_inv}, \texttt{kantorovich\_bounds\_orthoSPD}).
+  \item \texttt{Conjecture00000007166/Refutation.lean}: Proves
+  Theorem~\ref{thm:readingA} (\texttt{readingA\_min\_is\_one},
+  \texttt{counterexample\_m1\_M3}, \texttt{counterexample\_m2\_M2},
+  \texttt{readingA\_refuted}), Theorem~\ref{thm:readingB}
+  (\texttt{readingB\_min\_quotient\_is\_one}, \texttt{readingB\_refuted}),
+  Theorem~\ref{thm:readingC} (\texttt{kantorovichConst\_strictMono\_ge\_one},
+  \texttt{reciprocalKantorovich\_strictAnti\_ge\_one}, \texttt{readingC\_refuted}),
+  and Theorem~\ref{thm:readingD} (\texttt{m\_lt\_harmonicMean\_lt\_arithmeticMean},
+  \texttt{readingD\_refuted}).
+  \item \texttt{Conjecture00000007166.lean}: Combines all components into the
+  top-level summary theorems \texttt{conjecture\_00000007166\_clause1\_true},
+  \texttt{conjecture\_00000007166\_clause2\_false}, and the hypothesis-free
+  rational resolution \texttt{conjecture\_00000007166\_resolved\_over\_Q}.
+\end{itemize}
+}
+
+In addition, the standalone script \texttt{verify.py} performs an independent
+exact-arithmetic check using Python's \texttt{fractions.Fraction}: it verifies
+both master algebraic identities across $400$ randomized rational spectra and
+vectors ($1 \le n \le 8$), tests $125$ non-diagonal rational orthogonal SPD
+matrices $A = Q\Lambda Q^\top$ ($2 \le n \le 6$) constructed via exact rational
+Householder reflections, confirms all four refutation readings A--D, and checks
+equality uniqueness on a fine simplex grid.
+
+\begin{thebibliography}{9}
+\bibitem{Kantorovich1948}
+L.~V. Kantorovich, \emph{Functional analysis and applied mathematics}, Uspekhi
+Mat.\ Nauk \textbf{3} (1948), no.~6(28), 89--185 (Russian); English transl.,
+NBS Rep.\ 1509, U.S.\ Dept.\ of Commerce, 1952.
+
+\bibitem{Schweitzer1914}
+P.~Schweitzer, \emph{Egyenl\H{o}tlens\'egek a pozit\'{\i}v \'ert\'ekek
+sz\'amtani \'es harmonikus k\"ozepeire} (Inequalities concerning the arithmetic
+and harmonic means of positive quantities), Math.\ Phys.\ Lapok \textbf{23}
+(1914), 257--261.
+
+\bibitem{PolyaSzego1925}
+G.~P\'olya and G.~Szeg\H{o}, \emph{Aufgaben und Lehrs\"atze aus der Analysis},
+Band~I, Springer, Berlin, 1925 (Part~II, Problem~92).
+
+\bibitem{HornJohnson2013}
+R.~A. Horn and C.~R. Johnson, \emph{Matrix Analysis}, 2nd~ed., Cambridge
+University Press, Cambridge, 2013, Section~7.4.
+\end{thebibliography}
+
+\end{document}
