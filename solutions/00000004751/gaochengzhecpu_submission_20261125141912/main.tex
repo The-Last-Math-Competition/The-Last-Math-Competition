@@ -1,0 +1,342 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\NC}{\mathrm{NC}}
+\newcommand{\IntP}{\mathrm{Int}}
+\newcommand{\boxconv}{\mathbin{\star}}
+\newcommand{\btype}{\mathrm{type}}
+\newcommand{\Krew}{K}
+
+\title{\textbf{Structure Constants of $R$-Transform Composition, Noncrossing M\"obius Inversion, and Refutation of Conjecture 00000004751}}
+\author{Autonomous Mathematical Formalization Package (\texttt{00000004751})}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000004751} in the negative across every standard interpretation of the $R$-transform and its composition in free probability, while establishing the exact positive combinatorial structure constants behind each operation. First, we clarify the foundational premise: the literal logarithmic moment series $\log(1 + M_\mu(z))$ neither agrees with free cumulants (differing already at degree $2$ whenever $m_1 \neq 0$) nor linearizes additive free convolution $\boxplus$. Interpreting the $R$-transform in its standard free-probabilistic senses---Voiculescu's unshifted $R$-transform $R_\mu(z) = \sum_{n \ge 1} \kappa_n(\mu) z^{n-1}$, Nica--Speicher's centered cumulant ($R$-)series $\mathcal{C}_\mu(z) = z R_\mu(z) = \sum_{n \ge 1} \kappa_n(\mu) z^n$, and Nica--Speicher's boxed convolution $\mathcal{C}_f \boxconv \mathcal{C}_g$---we prove three independent obstructions:
+(1)~\emph{Failure of closedness}: unshifted composition $R_f \circ R_g$ fails finitary algebraic closedness whenever $\kappa_1(g) \neq 0$, and both $R_f \circ R_g$ and $\mathcal{C}_f \circ \mathcal{C}_g$ fail to preserve moment positivity even for compactly supported symmetric probability measures with $\kappa_1 = 0$ (such as the Rademacher and Wigner semicircle laws);
+(2)~\emph{Failure of block-structure invariance on $\NC(n)$}: unlike the classical partition lattice $\Pi(n)$, the M\"obius inversion coefficient $\mu_{\NC}(\pi, 1_n)$ is not a function of the block-size multiset $\btype(\pi)$ for any $n \ge 4$ (taking distinct values $2 \neq 1$ both at $n = 4$ on type $(2,1,1)$ and at $n = 6$ on singleton-free uniform type $(2,2,2)$), ruling out any block-structure correction table on $\NC(n)$ as well as block-structure indexing of $\mathcal{C}_f \boxconv \mathcal{C}_g$;
+(3)~\emph{Exact interval-partition formula and non-integrality}: power-series composition $\mathcal{C}_f \circ \mathcal{C}_g$ is governed by the Boolean lattice of interval partitions $\IntP(n)$ ($|\IntP(n)| = 2^{n-1}$), and even after aggregating over $\NC_\lambda(n)$, the ratio to the M\"obius-inversion coefficient $M_1(\lambda)$ is the non-integral reciprocal binomial fraction $(-1)^{k-1} k / \binom{n+k-2}{k-1}$, which merely cancels the noncrossing Lagrange factor. All core theorems and counterexamples are machine-checked from first principles in Core Lean~4.19.0 without external axioms.
+\end{abstract}
+
+\section{Introduction and Problem Analysis}
+
+\subsection{Conjecture Statement}
+Conjecture~\texttt{00000004751} reads as follows:
+\begin{quote}
+\emph{Definition: The R-transform is the logarithmic version of the generating function of free convolution. Conjecture: The structure constants of its composition are the binomial correction of the Mobius inversion of noncrossing partitions, and the correction table is given explicitly by block structure and is closed. (binomial correction table of R-composition)}
+\end{quote}
+
+A rigorous resolution requires examining both the definitional premise and all mathematically natural readings of ``$R$-transform,'' ``composition,'' ``M\"obius inversion of noncrossing partitions,'' ``block structure,'' and ``closed.'' We show that the conjecture is \textbf{false (disproved)} under every reading, and we derive the exact combinatorial formulas that actually govern formal composition and free multiplicative boxed convolution.
+
+\subsection{Free Generating Series and Clarification of the Premise}
+Let $\mu$ be a compactly supported probability measure on $\mathbb{R}$ (or, algebraically, a unital linear functional on $\mathbb{Q}[x]$) with moments $m_n(\mu) = \int x^n\,d\mu(x)$ ($m_0 = 1$) and ordinary moment series
+\[
+  M_\mu(z) = \sum_{n=1}^{\infty} m_n(\mu)\,z^n, \qquad
+  G_\mu(z) = \frac{1}{z} + \sum_{n=1}^{\infty} \frac{m_n(\mu)}{z^{n+1}} = \frac{1}{z}\bigl(1 + M_\mu(z^{-1})\bigr).
+\]
+In Voiculescu's free probability theory~\cite{Voiculescu1986,NicaSpeicher2006}, additive free convolution $\mu \boxplus \nu$ is linearized by \emph{Voiculescu's $R$-transform} $R_\mu(z) = \sum_{n=1}^{\infty} \kappa_n(\mu)\,z^{n-1}$, or equivalently by \emph{Nica--Speicher's cumulant ($R$-)series} $\mathcal{C}_\mu(z) = z R_\mu(z) = \sum_{n=1}^{\infty} \kappa_n(\mu)\,z^n$, characterized not by taking a logarithm, but by functional (Lagrange) inversion:
+\begin{equation}\label{eq:functional-inversion}
+  G_\mu\!\left(\frac{1}{z} + R_\mu(z)\right) = z
+  \quad\Longleftrightarrow\quad
+  M_\mu(z) = \mathcal{C}_\mu\bigl(z(1 + M_\mu(z))\bigr).
+\end{equation}
+
+\begin{proposition}[Discrepancy Between Ordinary Logarithm and Free Cumulants]\label{prop:premise}
+Let $L_\mu(z) = \log(1 + M_\mu(z)) = \sum_{n=1}^{\infty} \ell_n(\mu)\,z^n$ be the literal logarithmic moment generating series.
+\begin{enumerate}
+  \item[(a)] For every moment sequence with $m_1 \neq 0$, $\ell_2 = m_2 - \frac{1}{2}m_1^2 \neq m_2 - m_1^2 = \kappa_2$, so $L_\mu(z) \neq \mathcal{C}_\mu(z)$.
+  \item[(b)] $L_\mu(z)$ does not linearize additive free convolution: for the point masses $\delta_1 \boxplus \delta_1 = \delta_2$ ($m_n(\delta_a) = a^n$), $[z^2]L_{\delta_2}(z) = 2 \neq 1 = [z^2]\bigl(L_{\delta_1}(z) + L_{\delta_1}(z)\bigr)$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+Expanding $\log(1 + m_1 z + m_2 z^2 + O(z^3)) = m_1 z + (m_2 - \frac{1}{2}m_1^2)z^2 + O(z^3)$ while~\eqref{eq:functional-inversion} gives $m_1 z + m_2 z^2 = \kappa_1 z(1 + m_1 z) + \kappa_2 z^2 + O(z^3)$, we obtain $\kappa_1 = m_1$ and $\kappa_2 = m_2 - m_1^2$. Thus $\ell_2 - \kappa_2 = \frac{1}{2}m_1^2 \neq 0$ whenever $m_1 \neq 0$, proving~(a). For~(b), free independence of constants gives $\delta_1 \boxplus \delta_1 = \delta_2$, with $\ell_2(\delta_1) = 1 - \frac{1}{2} = \frac{1}{2}$ and $\ell_2(\delta_2) = 4 - \frac{1}{2}\cdot 4 = 2 \neq \frac{1}{2} + \frac{1}{2}$.
+\end{proof}
+
+Accordingly, the Definition clause in Conjecture~\texttt{00000004751} uses ``logarithmic version'' in the standard heuristic sense (viewing $R_\mu$ or $\mathcal{C}_\mu$ as the free analogue of the classical cumulant generating function $\log \mathbb{E}[e^{tX}]$). Under this standard identification, there are three canonical notions of ``composition'' on $R$-transforms:
+\begin{itemize}
+  \item \textbf{Operation (A)}: Power-series composition $(R_f \circ R_g)(z) = R_f(R_g(z))$ of Voiculescu's unshifted $R$-transforms;
+  \item \textbf{Operation (B)}: Power-series composition $(\mathcal{C}_f \circ \mathcal{C}_g)(z) = \mathcal{C}_f(\mathcal{C}_g(z))$ of centered cumulant ($R$-)series;
+  \item \textbf{Operation (C)}: Nica--Speicher boxed convolution $(\mathcal{C}_f \boxconv \mathcal{C}_g)(z)$, the combinatorial operation on $R$-series underlying multiplicative free convolution $\mu \boxtimes \nu$.
+\end{itemize}
+We examine each operation in turn and prove that the conjecture fails for all three.
+
+\section{Noncrossing Partitions and Block-Structure Non-Invariance}
+
+\subsection{Refinement Poset \texorpdfstring{$\NC(n)$}{NC(n)}, Kreweras Complements, and \texorpdfstring{M\"obius}{Mobius} Inversion}
+For $n \ge 1$, let $\Pi(n)$ denote the lattice of set partitions of $[n] = \{1,\dots,n\}$ ordered by refinement ($\pi \le \sigma$ iff every block of $\pi$ is contained in a block of $\sigma$), with minimum $0_n = \{\{1\},\dots,\{n\}\}$ and maximum $1_n = \{[n]\}$. A partition $\pi \in \Pi(n)$ is \emph{noncrossing} ($\pi \in \NC(n)$) if there exist no distinct blocks $B_1 \neq B_2$ of $\pi$ and elements $1 \le a < b < c < d \le n$ with $a,c \in B_1$ and $b,d \in B_2$. Let $\btype(\pi) = (\lambda_1 \ge \dots \ge \lambda_k) \vdash n$ denote the non-increasing multiset of block sizes of $\pi$ (its \emph{block structure}), and write $\NC_\lambda(n) = \{\pi \in \NC(n) : \btype(\pi) = \lambda\}$.
+
+By Speicher's moment--cumulant theorem~\cite[Lecture~11]{NicaSpeicher2006},~\eqref{eq:functional-inversion} is equivalent to
+\begin{equation}\label{eq:moment-cumulant}
+  m_n = \sum_{\pi \in \NC(n)} \kappa_\pi, \qquad
+  \kappa_n = \sum_{\pi \in \NC(n)} \mu_{\NC}(\pi, 1_n)\,m_\pi,
+\end{equation}
+where $\kappa_\pi = \prod_{V \in \pi} \kappa_{|V|}$, $m_\pi = \prod_{V \in \pi} m_{|V|}$, and $\mu_{\NC}$ is the incidence-algebra M\"obius function of $\NC(n)$. Recall that the \emph{Kreweras complement} $\Krew : \NC(n) \to \NC(n)$ is the order-reversing involution whose block cycles are given by $P_{\Krew(\pi)}(i) = P_\pi^{-1}(i + 1 \bmod n)$, where $P_\pi \in \mathfrak{S}_n$ maps each element to the next element of its block in cyclic increasing order. One has $|\pi| + |\Krew(\pi)| = n + 1$, $[\pi, 1_n] \cong [0_n, \Krew(\pi)]^{\mathrm{op}}$, and
+\begin{equation}\label{eq:mobius-formulas}
+  \mu_{\NC}(0_n, \pi) = \prod_{V \in \pi} (-1)^{|V|-1} C_{|V|-1}, \qquad
+  \mu_{\NC}(\pi, 1_n) = \mu_{\NC}\bigl(0_n, \Krew(\pi)\bigr) = \prod_{W \in \Krew(\pi)} (-1)^{|W|-1} C_{|W|-1},
+\end{equation}
+where $C_m = \frac{1}{m+1}\binom{2m}{m}$ is the $m$-th Catalan number.
+
+\subsection{Failure of Block-Structure Invariance on \texorpdfstring{$\NC(n)$}{NC(n)}}
+In the classical partition lattice $\Pi(n)$, the upper interval $[\pi, 1_n]$ is isomorphic to $\Pi(|\pi|)$, so the classical M\"obius inversion weight $\mu_\Pi(\pi, 1_n) = (-1)^{|\pi|-1}(|\pi|-1)!$ depends \emph{only} on the block count $|\pi|$. On $\NC(n)$, by contrast, the isomorphism type of $[\pi, 1_n] \cong [0_n, \Krew(\pi)]^{\mathrm{op}}$ depends on how the blocks of $\pi$ nest, not merely on their sizes.
+
+\begin{theorem}[Non-Invariance of $\NC(n)$ M\"obius Inversion Under Block Structure]\label{thm:non-invariance}
+For every integer $n \ge 4$, there exist noncrossing partitions $\pi_1, \pi_2 \in \NC(n)$ with the exact same block structure $\btype(\pi_1) = \btype(\pi_2)$ such that $\mu_{\NC}(\pi_1, 1_n) \neq \mu_{\NC}(\pi_2, 1_n)$ and $\btype(\Krew(\pi_1)) \neq \btype(\Krew(\pi_2))$. Moreover, at $n = 6$, this phenomenon already occurs on singleton-free uniform pair partitions of block structure $(2,2,2)$.
+\end{theorem}
+\begin{proof}
+For any $n \ge 4$, consider the two partitions in $\NC(n)$ of common block structure $\lambda = (2, 1^{n-2})$:
+\[
+  \pi_1 = \bigl\{\{1,2\},\,\{3\},\,\{4\},\,\dots,\,\{n\}\bigr\}, \qquad
+  \pi_2 = \bigl\{\{1,3\},\,\{2\},\,\{4\},\,\dots,\,\{n\}\bigr\}.
+\]
+Both clearly avoid alternating quadruples. For $\pi_1$, $P_{\pi_1}^{-1} = (1\;2)$, so $P_{\Krew(\pi_1)}(1) = P_{\pi_1}^{-1}(2) = 1$ and $P_{\Krew(\pi_1)}$ cycles $(2\;3\;\dots\;n)$, yielding $\Krew(\pi_1) = \{\{1\}, \{2,3,\dots,n\}\}$ of block structure $(n-1, 1)$. By~\eqref{eq:mobius-formulas},
+\[
+  \mu_{\NC}(\pi_1, 1_n) = (-1)^0 C_0 \cdot (-1)^{n-2} C_{n-2} = (-1)^{n-2} C_{n-2}.
+\]
+For $\pi_2$, we have $P_{\pi_2}^{-1} = (1\;3)$, so $P_{\Krew(\pi_2)}$ swaps $1 \leftrightarrow 2$ and cycles $(3\;4\;\dots\;n)$. This gives $\Krew(\pi_2) = \{\{1,2\},\,\{3,4,\dots,n\}\}$ of block structure $(n-2, 2)$, and hence
+\[
+  \mu_{\NC}(\pi_2, 1_n) = (-1)^1 C_1 \cdot (-1)^{n-3} C_{n-3} = (-1)^{n-2} C_{n-3}.
+\]
+Since $\frac{C_{n-2}}{C_{n-3}} = \frac{2(2n-5)}{n-1} > 1$ for every $n \ge 4$, we have $|\mu_{\NC}(\pi_1, 1_n)| = C_{n-2} > C_{n-3} = |\mu_{\NC}(\pi_2, 1_n)|$. In particular, at $n = 4$ ($\lambda = (2,1,1)$), $\mu_{\NC}(\pi_1, 1_4) = 2 \neq 1 = \mu_{\NC}(\pi_2, 1_4)$.
+
+For a singleton-free uniform witness at $n = 6$, take $\lambda = (2,2,2)$ and compare
+\[
+  \pi_{\mathrm{flat}} = \bigl\{\{1,2\},\,\{3,4\},\,\{5,6\}\bigr\}, \qquad
+  \pi_{\mathrm{rain}} = \bigl\{\{1,6\},\,\{2,5\},\,\{3,4\}\bigr\}.
+\]
+Direct cycle evaluation yields
+\[
+  \Krew(\pi_{\mathrm{flat}}) = \bigl\{\{1\},\,\{3\},\,\{5\},\,\{2,4,6\}\bigr\}, \qquad
+  \Krew(\pi_{\mathrm{rain}}) = \bigl\{\{1,5\},\,\{2,4\},\,\{3\},\,\{6\}\bigr\},
+\]
+of block structures $(3,1,1,1)$ and $(2,2,1,1)$, respectively, whence
+\[
+  \mu_{\NC}(\pi_{\mathrm{flat}}, 1_6) = (-1)^2 C_2 = 2
+  \;\neq\;
+  1 = (-1)^1 C_1 \cdot (-1)^1 C_1 = \mu_{\NC}(\pi_{\mathrm{rain}}, 1_6). \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Impossibility of Partition-Level Block-Structure Correction]\label{cor:no-block-table}
+Let $n \ge 4$, and let $W : \mathrm{Par}(n) \to \mathbb{Q}$ be any block-structure weight with $W(\lambda) \neq 0$ for $\lambda = (2, 1^{n-2})$ (or $\lambda = (2,2,2)$ when $n = 6$). There does not exist any function $B : \mathrm{Par}(n) \to \mathbb{Q}$ depending only on block structure such that
+\[
+  W\bigl(\btype(\pi)\bigr) = B\bigl(\btype(\pi)\bigr)\,\mu_{\NC}(\pi, 1_n) \qquad \text{for all } \pi \in \NC(n).
+\]
+\end{corollary}
+\begin{proof}
+Evaluating such an identity on $\pi_1, \pi_2 \in \NC_\lambda(n)$ from Theorem~\ref{thm:non-invariance} yields $B(\lambda)\,\mu_{\NC}(\pi_1, 1_n) = W(\lambda) = B(\lambda)\,\mu_{\NC}(\pi_2, 1_n)$. Since $\mu_{\NC}(\pi_1, 1_n) \neq \mu_{\NC}(\pi_2, 1_n)$, we obtain $B(\lambda) = 0$ and hence $W(\lambda) = 0$, a contradiction.
+\end{proof}
+
+\section{Refutation of Closedness Under Operations (A) and (B)}
+
+We next test the closedness claim of Conjecture~\texttt{00000004751}: whether composing two $R$-transforms yields a well-defined $R$-transform within either the formal cumulant algebra or the class of $R$-transforms of positive probability measures.
+
+\begin{theorem}[Non-Closedness of Unshifted Voiculescu Composition $R_f \circ R_g$]\label{thm:opA}
+Consider Operation~(A), $(R_f \circ R_g)(z) = R_f(R_g(z))$ for $R_f(z) = \sum_{k \ge 1} a_k z^{k-1}$ and $R_g(z) = \sum_{m \ge 1} b_m z^{m-1}$.
+\begin{enumerate}
+  \item[(a)] \emph{Algebraic and analytic failure for non-centered laws ($b_1 \neq 0$):} The constant term $[z^0](R_f \circ R_g) = \sum_{k=1}^{\infty} a_k b_1^{k-1}$ does not terminate as a finite polynomial in the cumulants $a_k$ and $b_m$. Analytically, for the Marchenko--Pastur (free Poisson) measure $\mu$ of rate~$1$ ($a_k = 1$ for all $k \ge 1$, $R_\mu(z) = (1-z)^{-1}$) and the Dirac point mass $\nu = \delta_1$ ($b_1 = 1$, $b_{m \ge 2} = 0$, $R_\nu(z) \equiv 1$), $(R_\mu \circ R_\nu)(z)$ hits the pole at $z = 1$ and fails to exist.
+  \item[(b)] \emph{Loss of measure positivity even for centered laws ($b_1 = 0$):} Let $\mu = \frac{1}{2}(\delta_{-1} + \delta_1)$ be the symmetric Rademacher probability measure. Then $R_\mu(0) = \kappa_1(\mu) = 0$, so formal power-series composition $R_h(z) := (R_\mu \circ R_\mu)(z)$ is well-defined, yet $R_h$ is \emph{not} the $R$-transform of any positive measure on $\mathbb{R}$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Part~(a) is immediate from $R_g(0) = b_1$ and $\sum_{k=1}^{N} 1 \cdot 1^{k-1} = N \to \infty$.
+
+For part~(b), $\mu = \frac{1}{2}(\delta_{-1} + \delta_1)$ is a compactly supported probability measure with moments $m_{2r}(\mu) = 1$, $m_{2r-1}(\mu) = 0$, satisfying $\langle m_\mu, P(x)^2\rangle = \frac{1}{2}\bigl(P(1)^2 + P(-1)^2\bigr) \ge 0$ for every $P \in \mathbb{R}[x]$. From~\eqref{eq:moment-cumulant} at $n = 1,2,3,4$:
+\[
+  \kappa_1(\mu) = 0, \quad
+  \kappa_2(\mu) = m_2(\mu) = 1, \quad
+  \kappa_3(\mu) = 0, \quad
+  \kappa_4(\mu) = m_4(\mu) - 2m_2(\mu)^2 = 1 - 2 = -1.
+\]
+Hence $R_\mu(z) = z - z^3 + O(z^5)$ has zero constant term. Composing $R_\mu$ with itself gives
+\[
+  R_h(z) = R_\mu\bigl(R_\mu(z)\bigr) = \bigl(z - z^3 + O(z^5)\bigr) - \bigl(z - z^3 + O(z^5)\bigr)^3 + O(z^5) = z - 2z^3 + O(z^5),
+\]
+so $\kappa_1(h) = 0$, $\kappa_2(h) = 1$, $\kappa_3(h) = 0$, and $\kappa_4(h) = -2$. By~\eqref{eq:moment-cumulant}, the induced moments of $h$ are
+\[
+  m_0(h) = 1, \quad m_1(h) = m_3(h) = 0, \quad m_2(h) = \kappa_2(h) = 1, \quad
+  m_4(h) = \kappa_4(h) + 2\kappa_2(h)^2 = -2 + 2 = 0.
+\]
+Evaluating on the nonnegative polynomial $P(x)^2 = (x^2 - 1)^2 = x^4 - 2x^2 + 1$ gives
+\[
+  \bigl\langle m_h, (x^2 - 1)^2 \bigr\rangle = m_4(h) - 2m_2(h) + m_0(h) = 0 - 2 + 1 = -1 < 0
+\]
+(equivalently, the $3 \times 3$ Hankel matrix $[m_{i+j}(h)]_{0 \le i,j \le 2}$ has determinant $-1 < 0$). Thus no positive measure has $R$-transform $R_\mu \circ R_\mu$.
+\end{proof}
+
+\begin{theorem}[Non-Closedness of Centered $R$-Series Composition $\mathcal{C}_f \circ \mathcal{C}_g$]\label{thm:opB-positivity}
+Operation~(B), $(\mathcal{C}_f \circ \mathcal{C}_g)(z) = \mathcal{C}_f(\mathcal{C}_g(z))$, is algebraically well-defined on formal series without constant term, but the space of $R$-series of compactly supported probability measures is \emph{not} closed under $\mathcal{C}_f \circ \mathcal{C}_g$:
+\begin{enumerate}
+  \item[(a)] For the symmetric Rademacher law $\mu = \frac{1}{2}(\delta_{-1} + \delta_1)$, $\mathcal{C}_h := \mathcal{C}_\mu \circ \mathcal{C}_\mu$ induces a strictly negative sixth moment $m_6(h) = \langle m_h, (x^3)^2\rangle = -2 < 0$.
+  \item[(b)] For the standard Wigner semicircle law $\mu_{\mathrm{sc}}$ ($\mathcal{C}_{\mathrm{sc}}(z) = z^2$), $\mathcal{C}_{h_{\mathrm{sc}}} := \mathcal{C}_{\mathrm{sc}} \circ \mathcal{C}_{\mathrm{sc}} = z^4$ induces moments satisfying $\langle m_{h_{\mathrm{sc}}}, (x^3 - x)^2\rangle = -2 < 0$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+For~(a), $\mathcal{C}_\mu(z) = z R_\mu(z) = z^2 - z^4 + O(z^6)$, so $\mathcal{C}_h(z) = (z^2 - z^4 + O(z^6))^2 - O(z^8) = z^4 - 2z^6 + O(z^8)$. Thus $\kappa_1(h) = \kappa_2(h) = \kappa_3(h) = 0$, $\kappa_4(h) = 1$, $\kappa_5(h) = 0$, and $\kappa_6(h) = -2$. Every partition $\pi \in \NC(6)$ other than $1_6 = \{[6]\}$ contains at least one block of size $1$, $2$, $3$, or $5$ (as $6$ is not a multiple of $4$), where $\kappa_{|V|}(h) = 0$; hence $m_6(h) = \kappa_6(h) = -2 < 0$.
+
+For~(b), $\mathcal{C}_{h_{\mathrm{sc}}}(z) = (z^2)^2 = z^4$ has $\kappa_4 = 1$ and $\kappa_{n \neq 4} = 0$. By~\eqref{eq:moment-cumulant}, $m_2 = 0$, $m_4 = \kappa_4 = 1$, and $m_6 = 0$, so $\langle m_{h_{\mathrm{sc}}}, (x^3 - x)^2\rangle = m_6 - 2m_4 + m_2 = -2 < 0$.
+\end{proof}
+
+\section{Exact Structure Constants, Interval Partitions, and Boxed Convolution}
+
+\subsection{Interval-Partition Formula and Aggregated Block-Structure Ratios}
+Let $\IntP(n) \subseteq \NC(n)$ denote the poset of \emph{interval partitions} of $[n]$, i.e., partitions whose blocks are contiguous intervals $[1, i_1], [i_1+1, i_1+i_2], \dots$. Bijecting interval partitions with subsets of the $n-1$ internal gaps yields $|\IntP(n)| = 2^{n-1}$; $\IntP(n)$ is the combinatorial lattice of \emph{Boolean} cumulants~\cite{SpeicherWoroudi1997}, not free cumulants.
+
+\begin{theorem}[Exact Positive Formula and Aggregated Ratios for $\mathcal{C}_f \circ \mathcal{C}_g$]\label{thm:exact-opB}
+Let $\mathcal{C}_f(z) = \sum_{k=1}^{\infty} a_k z^k$ and $\mathcal{C}_g(z) = \sum_{m=1}^{\infty} b_m z^m$. For every $n \ge 1$:
+\begin{enumerate}
+  \item[(a)] \emph{Interval-partition expansion:} With $S_{\mathrm{comp}}(\lambda) := \ell(\lambda)! / \prod_{r \ge 1} m_r(\lambda)!$,
+  \begin{equation}\label{eq:interval-expansion}
+    [z^n](\mathcal{C}_f \circ \mathcal{C}_g)(z)
+    = \sum_{\pi \in \IntP(n)} a_{|\pi|} \prod_{V \in \pi} b_{|V|}
+    = \sum_{\lambda \vdash n} S_{\mathrm{comp}}(\lambda)\,a_{\ell(\lambda)} \prod_{j=1}^{\ell(\lambda)} b_{\lambda_j},
+  \end{equation}
+  where $\ell(\lambda)$ is the number of parts of $\lambda$ and $m_r(\lambda)$ is the multiplicity of part size~$r$ in~$\lambda$.
+  \item[(b)] \emph{Comparison with aggregated $\NC(n)$ quantities:} Writing $k = \ell(\lambda)$, let
+  \begin{align*}
+    |\NC_\lambda(n)| &= \frac{n!}{(n - k + 1)!\prod_{r \ge 1} m_r(\lambda)!}, \\
+    M_1(\lambda) &:= \sum_{\pi \in \NC_\lambda(n)} \mu_{\NC}(\pi, 1_n)
+    = (-1)^{k-1} \frac{(n + k - 2)!}{(n - 1)!\prod_{r \ge 1} m_r(\lambda)!}.
+  \end{align*}
+  Then for every $\lambda \vdash n$,
+  \begin{equation}\label{eq:ratios}
+    \frac{S_{\mathrm{comp}}(\lambda)}{|\NC_\lambda(n)|} = \frac{k}{\binom{n}{k-1}}, \qquad
+    \frac{S_{\mathrm{comp}}(\lambda)}{M_1(\lambda)} = (-1)^{k-1}\frac{k}{\binom{n + k - 2}{k - 1}}.
+  \end{equation}
+  Both ratios are non-integral for every $n \ge 3$: for $\lambda = (2, 1^{n-2})$ ($k = n - 1$), $\frac{S_{\mathrm{comp}}(\lambda)}{|\NC_\lambda(n)|} = \frac{n-1}{n} \notin \mathbb{Z}$, and $\frac{S_{\mathrm{comp}}(\lambda)}{M_1(\lambda)} = (-1)^{n-2}\frac{n-1}{\binom{2n-3}{n-2}} \notin \mathbb{Z}$ (e.g., $-\frac{2}{3}$ at $n = 3$ and $\frac{3}{10}$ at $n = 4$).
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+For~(a), expanding $\mathcal{C}_f(\mathcal{C}_g(z))$ yields
+\[
+  [z^n]\mathcal{C}_f(\mathcal{C}_g(z)) = \sum_{k=1}^{n} a_k \sum_{\substack{i_1+\dots+i_k = n \\ i_1,\dots,i_k \ge 1}} b_{i_1}\cdots b_{i_k}.
+\]
+Ordered compositions $(i_1,\dots,i_k)$ of $n$ correspond bijectively to interval partitions $\pi \in \IntP(n)$ with $k$ blocks of sizes $i_1,\dots,i_k$, and permuting a partition $\lambda \vdash n$ of length~$k$ yields $\frac{k!}{\prod_r m_r(\lambda)!}$ distinct ordered compositions.
+
+For~(b), Kreweras's theorem~\cite{Kreweras1972,NicaSpeicher2006} gives $|\NC_\lambda(n)|$, while Lagrange inversion applied to $\mathcal{C}(z(1+M(z))) = M(z)$ gives $[m_\lambda]\kappa_n = M_1(\lambda) = (-1)^{k-1}\frac{(n+k-2)!}{(n-1)!\prod_r m_r(\lambda)!}$. Dividing $S_{\mathrm{comp}}(\lambda)$ by $|\NC_\lambda(n)|$ and $M_1(\lambda)$ cancels $\prod_r m_r(\lambda)!$ and yields
+\[
+  \frac{S_{\mathrm{comp}}(\lambda)}{|\NC_\lambda(n)|} = \frac{k!(n-k+1)!}{n!} = \frac{k}{\binom{n}{k-1}}, \qquad
+  \frac{S_{\mathrm{comp}}(\lambda)}{M_1(\lambda)} = (-1)^{k-1}\frac{k!(n-1)!}{(n+k-2)!} = (-1)^{k-1}\frac{k}{\binom{n+k-2}{k-1}}.
+\]
+For $n \ge 3$ and $k = n - 1$, $\gcd(n-1, n) = 1$ with $n \ge 3$ implies $\frac{n-1}{n} \notin \mathbb{Z}$. Likewise, for $n \ge 3$, $\binom{2n-3}{n-2} > n - 1 > 0$ (at $n = 3$, $\binom{3}{1} = 3 > 2$; for $n \ge 4$, $\binom{2n-3}{n-2} \ge \binom{2n-3}{2} = (2n-3)(n-2) > n - 1$), so $0 < \frac{n-1}{\binom{2n-3}{n-2}} < 1$ and the ratio cannot be an integer.
+\end{proof}
+
+\begin{remark}
+Equation~\eqref{eq:ratios} illuminates why no ``binomial correction of $\NC(n)$ M\"obius inversion'' underlies $\mathcal{C}_f \circ \mathcal{C}_g$: at the partition level on $\NC(n)$, no block-structure table exists by Corollary~\ref{cor:no-block-table}; at the aggregated $\lambda$-level, multiplying $M_1(\lambda)$ by $(-1)^{k-1} k / \binom{n+k-2}{k-1}$ simply divides out the entire noncrossing Lagrange factor $(-1)^{k-1}\frac{(n+k-2)!}{(n-1)!}$ and replaces it with $k!$, reducing to the Boolean interval-partition count $S_{\mathrm{comp}}(\lambda)$. Table~\ref{tab:comparison} displays these invariants for $1 \le n \le 6$.
+\end{remark}
+
+\begin{table}[ht]
+\centering
+\caption{Composition structure constants $S_{\mathrm{comp}}(\lambda)$, noncrossing counts $|\NC_\lambda(n)|$, aggregated M\"obius sums $M_1(\lambda)$, ratios $S_{\mathrm{comp}}(\lambda)/M_1(\lambda)$, and value sets $\{\mu_{\NC}(\pi, 1_n) : \pi \in \NC_\lambda(n)\}$ for $1 \le n \le 6$.}\label{tab:comparison}
+\small
+\begin{tabular}{@{}clrrrrc@{}}
+\toprule
+$n$ & Block structure $\lambda$ & $S_{\mathrm{comp}}(\lambda)$ & $|\NC_\lambda(n)|$ & $M_1(\lambda)$ & $S_{\mathrm{comp}}(\lambda)/M_1(\lambda)$ & $\{\mu_{\NC}(\pi, 1_n)\}$ \\
+\midrule
+$1$ & $(1)$             & $1$ & $1$  & $1$   & $1$       & $\{1\}$ \\
+$2$ & $(2)$             & $1$ & $1$  & $1$   & $1$       & $\{1\}$ \\
+$2$ & $(1,1)$           & $1$ & $1$  & $-1$  & $-1$      & $\{-1\}$ \\
+$3$ & $(3)$             & $1$ & $1$  & $1$   & $1$       & $\{1\}$ \\
+$3$ & $(2,1)$           & $2$ & $3$  & $-3$  & $-2/3$    & $\{-1\}$ \\
+$3$ & $(1,1,1)$         & $1$ & $1$  & $2$   & $1/2$     & $\{2\}$ \\
+$4$ & $(4)$             & $1$ & $1$  & $1$   & $1$       & $\{1\}$ \\
+$4$ & $(3,1)$           & $2$ & $4$  & $-4$  & $-1/2$    & $\{-1\}$ \\
+$4$ & $(2,2)$           & $1$ & $2$  & $-2$  & $-1/2$    & $\{-1\}$ \\
+$4$ & $(2,1,1)$         & $3$ & $6$  & $10$  & $3/10$    & $\{1, 2\}$ \\
+$4$ & $(1,1,1,1)$       & $1$ & $1$  & $-5$  & $-1/5$    & $\{-5\}$ \\
+$5$ & $(5)$             & $1$ & $1$  & $1$   & $1$       & $\{1\}$ \\
+$5$ & $(4,1)$ / $(3,2)$ & $2$ & $5$  & $-5$  & $-2/5$    & $\{-1\}$ \\
+$5$ & $(3,1,1)$ / $(2,2,1)$ & $3$ & $10$ & $15$ & $1/5$  & $\{1, 2\}$ \\
+$5$ & $(2,1,1,1)$       & $4$ & $10$ & $-35$ & $-4/35$   & $\{-5, -2\}$ \\
+$5$ & $(1,1,1,1,1)$     & $1$ & $1$  & $14$  & $1/14$    & $\{14\}$ \\
+$6$ & $(2,2,2)$         & $1$ & $5$  & $7$   & $1/7$     & $\{1, 2\}$ \\
+$6$ & $(2,2,1,1)$       & $6$ & $30$ & $-84$ & $-1/14$   & $\{-5, -2, -1\}$ \\
+$6$ & $(2,1,1,1,1)$     & $5$ & $15$ & $126$ & $5/126$   & $\{4, 5, 14\}$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Obstruction for Nica--Speicher Boxed Convolution (Operation C)}
+Finally, in free probability, the canonical associative ``multiplicative convolution'' on centered $R$-series is Nica and Speicher's \emph{boxed convolution}~\cite[Lecture~16]{NicaSpeicher2006}:
+\begin{equation}\label{eq:boxed-conv}
+  [z^n](\mathcal{C}_f \boxconv \mathcal{C}_g)(z)
+  = \sum_{\pi \in \NC(n)} a_\pi\,b_{\Krew(\pi)}
+  = \sum_{\pi \in \NC(n)} \Bigl(\prod_{V \in \pi} a_{|V|}\Bigr)\Bigl(\prod_{W \in \Krew(\pi)} b_{|W|}\Bigr).
+\end{equation}
+With the zeta series $\zeta(z) = \sum_{n \ge 1} z^n$ and M\"obius series $\mu(z) = \sum_{n \ge 1} (-1)^{n-1} C_{n-1} z^n$,~\eqref{eq:moment-cumulant} becomes $M_f = \mathcal{C}_f \boxconv \zeta$ and $\mathcal{C}_f = M_f \boxconv \mu$.
+
+\begin{proposition}[Failure of Conjecture 00000004751 for Boxed Convolution]\label{prop:opC}
+Under Operation~(C),~\eqref{eq:boxed-conv} assigns unit weight $+1$ (not a signed M\"obius or binomial-corrected weight) to every pair $(\pi, \Krew(\pi))$, and the target monomial $b_{\Krew(\pi)}$ is not determined by the block structure $\btype(\pi)$ alone:
+\begin{itemize}
+  \item At $n = 4$, $\NC_{(2,1,1)}(4)$ splits into $4$ partitions with $\btype(\Krew(\pi)) = (3,1)$ and $2$ partitions with $\btype(\Krew(\pi)) = (2,2)$, contributing $4 a_2 a_1^2 b_3 b_1 + 2 a_2 a_1^2 b_2^2$.
+  \item At $n = 6$, $\NC_{(2,2,2)}(6)$ splits into $2$ partitions with $\btype(\Krew(\pi)) = (3,1,1,1)$ and $3$ partitions with $\btype(\Krew(\pi)) = (2,2,1,1)$, contributing $2 a_2^3 b_3 b_1^3 + 3 a_2^3 b_2^2 b_1^2$.
+\end{itemize}
+\end{proposition}
+\begin{proof}
+Immediate from~\eqref{eq:boxed-conv} and the explicit Kreweras decompositions in Theorem~\ref{thm:non-invariance}, exhausted over the $6$ elements of $\NC_{(2,1,1)}(4)$ and the $5$ elements of $\NC_{(2,2,2)}(6)$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0}
+
+The entire proof architecture is formalized from first principles in Core Lean~4.19.0 inside \texttt{lean/} (compiled with \texttt{warningAsError = true}, zero \texttt{sorry}/\texttt{admit}/\texttt{native\_decide}, and zero custom axioms) and cross-checked symbolically in \texttt{verify.py}. Table~\ref{tab:lean-map} records the correspondence between our mathematical results and kernel-checked Lean declarations.
+
+\begin{table}[H]
+\centering
+\caption{Correspondence between mathematical statements and Lean~4.19.0 declarations.}\label{tab:lean-map}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Mathematical result & Lean~4 declaration (\texttt{Conjecture00000004751}) \\
+\midrule
+Proposition~\ref{prop:premise}(a) & \texttt{premise\_logarithm\_ne\_free\_cumulant} \\
+Proposition~\ref{prop:premise}(b) & \texttt{premise\_logarithm\_not\_boxplus\_additive} \\
+Poset M\"obius equations on $\NC(4)$ & \texttt{allNC4\_mobius\_equations\_hold} \\
+Kreweras--M\"obius identity on $\NC(4)$ & \texttt{kreweras\_and\_mobius\_NC4\_verified} \\
+Theorem~\ref{thm:non-invariance} ($n=4$ and $n=6$) & \texttt{pi4\_mobius\_disagree}; \texttt{pi6\_mobius\_and\_kreweras\_disagree} \\
+Corollary~\ref{cor:no-block-table} ($n=4$) & \texttt{no\_block\_structure\_mobius\_correction\_NC4} \\
+Corollary~\ref{cor:no-block-table} ($n=6$) & \texttt{no\_block\_structure\_mobius\_correction\_NC6} \\
+Universal Rademacher positivity & \texttt{rademacher\_universal\_positivity} \\
+Theorem~\ref{thm:opA}(a) & \texttt{voiculescu\_comp\_unbounded\_noncentered} \\
+Theorem~\ref{thm:opA}(b) & \texttt{voiculescu\_comp\_breaks\_positivity} \\
+Theorem~\ref{thm:opB-positivity}(a),(b) & \texttt{centered\_comp\_breaks\_positivity} \\
+Theorem~\ref{thm:exact-opB}(a),(b) & \texttt{intervalPartitions\_card}; \texttt{aggregated\_ratios\_not\_integral} \\
+Cleared binomial identity ($1 \le n \le 6$) & \texttt{exact\_cleared\_binomial\_identity\_1\_to\_6} \\
+Proposition~\ref{prop:opC} & \texttt{boxed\_conv\_kreweras\_not\_block\_invariant} \\
+Master refutation synthesis & \texttt{conjecture\_00000004751\_disproved} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{thebibliography}{9}
+\bibitem{Kreweras1972}
+G.~Kreweras, \emph{Sur les partitions non crois\'ees d'un cycle}, Discrete Math.\ \textbf{1} (1972), no.~4, 333--350.
+
+\bibitem{NicaSpeicher2006}
+A.~Nica and R.~Speicher, \emph{Lectures on the Combinatorics of Free Probability}, London Mathematical Society Lecture Note Series, vol.~335, Cambridge University Press, Cambridge, 2006.
+
+\bibitem{SpeicherWoroudi1997}
+R.~Speicher and R.~Woroudi, \emph{Boolean convolution}, in \emph{Free Probability Theory} (Waterloo, ON, 1995), Fields Inst.\ Commun., vol.~12, Amer.\ Math.\ Soc., Providence, RI, 1997, pp.~267--279.
+
+\bibitem{Voiculescu1986}
+D.~Voiculescu, \emph{Addition of certain non-commuting random variables}, J.~Funct.\ Anal.\ \textbf{66} (1986), no.~3, 323--346.
+\end{thebibliography}
+
+\end{document}
