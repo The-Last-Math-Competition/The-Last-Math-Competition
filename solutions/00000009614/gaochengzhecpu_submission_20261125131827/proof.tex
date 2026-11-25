@@ -1,0 +1,94 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Disproof of Conjecture 00000009614\\
+\large The same Perron eigenvalue does not determine the dimension group}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+Write \(J_n\) for the \(n\times n\) all-ones matrix. Take the two
+symmetric zero-one adjacency matrices
+\[
+ A=J_2,\qquad B=J_3-I_3.
+\]
+They define mixing shifts of finite type because \(A\) is positive
+and \(B^2=J_3+I_3\) is positive. Each has row sum two, so the
+all-ones vector is an eigenvector of eigenvalue two. Each eigenvalue
+has absolute value at most the maximum row sum, giving
+\(\lambda_A=\lambda_B=2\). Thus the generated real number fields
+are both \(\mathbb Q\), and the two eigenvalues have the same unit
+coset in that field, with ratio the unit \(1\).
+
+\section*{The underlying dimension groups}
+
+The underlying group \(G_T\) of the Krieger dimension group of an
+adjacency matrix \(T\) is the stationary direct limit of
+\(\mathbb Z^n\) under \(T^{\mathsf T}\)
+\cite[Section~3]{matsumoto}. Both matrices here are symmetric,
+so \(T^{\mathsf T}=T\). A vector at stage \(k\) represents a
+class \([v,k]\), and two representatives agree exactly when their
+images at some common later stage agree.
+
+For \(A\), the map
+\[
+  [(a,b),k]\longmapsto (a+b)/2^k
+\]
+is an isomorphism onto \(\mathbb Z[1/2]\). The numerator sum
+doubles under each transition, so the map is well-defined.
+It is onto, and a vector of sum zero is killed by the next
+transition, proving injectivity. For \(B\), the map
+\([v,k]\longmapsto B^{-k}v\) embeds \(G_B\) into \(\mathbb Q^3\),
+since \(B^{-1}=\frac12J_3-I_3\) over \(\mathbb Q\). Its image
+contains the stage-zero copy of \(\mathbb Z^3\). Thus \(G_A\)
+has rational rank one and \(G_B\) has rational rank three.
+They cannot be isomorphic as abelian groups or as ordered groups.
+
+\section*{Finite quotient verification}
+
+The distinction is also witnessed by the quotient modulo three.
+Reduction of each stage modulo three gives a surjection
+\[
+  G_T\longrightarrow
+  \varinjlim\bigl(\mathbb F_3^n\xrightarrow{\bar T}
+                 \mathbb F_3^n\xrightarrow{\bar T}\cdots\bigr).
+\]
+It is onto because each vector of residues has an integer lift.
+A representative \([v,k]\) maps to zero precisely when some
+\(\bar T^r\bar v=0\). Then \(T^r v=3w\) for an integer vector \(w\)
+and \([v,k]=3[w,k+r]\). Conversely every element of \(3G_T\)
+maps to zero. This identifies the finite-field limit with
+\(G_T/3G_T\).
+
+For \(\bar A\), one step moves each pair to the diagonal, and
+on the diagonal the map doubles the coordinate. Doubling is
+invertible in \(\mathbb F_3\), so the limit has three elements.
+For \(\bar B\), the formula \(2J_3-I_3\) gives an inverse in
+\(\mathbb F_3\). Every stage therefore identifies with the full
+space \(\mathbb F_3^3\), and the limit has \(27\) elements.
+An isomorphism of abelian groups induces an isomorphism on the
+quotients modulo three, giving the same contradiction.
+
+\section*{Lean verification}
+
+The Lean~4.19.0 project forms the stationary limits as quotients
+by eventual equality of stage-vector pairs. It proves the
+representative correspondence for both finite-field systems
+and verifies the complete enumerations of \(3\) and \(27\)
+representatives. Its final theorem excludes a surjection from
+the first limit to the second. The identification with the
+integer dimension groups modulo three is proved above. Run
+\verb|lake build| in \verb|lean/| to verify the formal results.
+
+\begin{thebibliography}{1}
+\bibitem{matsumoto}
+K.~Matsumoto, \emph{Flow equivalence of topological Markov shifts and
+Ruelle algebras}, New York J. Math. \textbf{27} (2021), 1375--1414.
+\href{https://nyjm.albany.edu/j/2021/27-53v.pdf}{Article}.
+\end{thebibliography}
+
+\end{document}
