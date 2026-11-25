@@ -1,0 +1,88 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Disproof of Conjecture 00000000905\\
+\large A non-cyclotomic second-adjacency polynomial}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+The principal graph \(D_4\) gives a counterexample. Both the
+adjacency square and the adjacency matrix for vertices at exact
+distance two have an eigenvalue that is not a root of unity.
+This also holds on their even parity blocks.
+
+\section*{A subfactor realizing \(D_4\)}
+
+Take an outer action of \(C_3\) on the hyperfinite
+\(\mathrm{II}_1\) factor \(R\), and set \(M=R\rtimes C_3\).
+The index-three inclusion \(R\subset M\) is the \(D_4\) case
+of the group subfactor construction \cite[Sections~1 and~2.3]{izumi}.
+In bimodule terms, the basic \(R\)-\(M\) sector
+\(\kappa={}_R L^2(M)_M\) is irreducible because the action is outer.
+The \(R\)-\(R\) bimodule \(\kappa\overline{\kappa}\) decomposes
+by the crossed-product Fourier expansion into the three
+automorphism bimodules, one for each element of \(C_3\).
+These are distinct irreducibles by outerness. Tensoring any of
+them with \(\kappa\) gives \(\kappa\), since the corresponding
+automorphism is implemented by its group unitary in \(M\).
+Thus there is one odd vertex, connected once to each of three
+even vertices. This is \(D_4\) with an even leaf as root,
+and the subfactor has finite depth.
+
+\section*{The second adjacency calculations}
+
+Order the center before the three leaves. Let \(J_3\) denote the
+\(3\times3\) all-ones matrix and \(\mathbf 1\) the column of three
+ones. The adjacency and its square are
+\[
+  A=\begin{pmatrix}0&\mathbf 1^{\mathsf T}\\
+                   \mathbf 1&0_{3\times3}\end{pmatrix},
+  \qquad A^2=[3]\oplus J_3 .
+\]
+In particular, the even block of \(A^2\) is the product of the
+incidence column with its transpose. On the other hand, distinct
+vertices at distance two are exactly pairs of leaves. Their
+adjacency is \(D_2=[0]\oplus(J_3-I_3)\). The off-diagonal
+two-step-walk counts give this same matrix.
+
+The matrix \(J_3\) has eigenvalue \(3\) on \(\mathbf 1\) and
+vanishes on the two-dimensional subspace of coordinate sum zero.
+On these subspaces \(J_3-I_3\) acts by \(2\) and \(-1\),
+respectively. Consequently the characteristic polynomials are
+\[
+\begin{array}{c|cc}
+ & \text{Full matrix} & \text{Even block}\\ \hline
+A^2 & t^2(t-3)^2 & t^2(t-3)\\
+D_2 & t(t-2)(t+1)^2 & (t-2)(t+1)^2 .
+\end{array}
+\]
+In the first row \(3\) is a root, and in the second row \(2\)
+is a root. A positive power of either integer is greater than
+one, while every root of a cyclotomic polynomial is a root
+of unity. Therefore none of the four characteristic polynomials
+is a product of cyclotomic polynomials. The odd blocks
+\([3]\) and \([0]\) also have roots that are not roots of unity.
+
+\section*{Lean verification}
+
+The Lean~4.19.0 project constructs \(A\) from the star adjacency
+relation. It checks the two block formulas, the displayed
+eigenvectors and the non-root-of-unity powers. It computes the
+four characteristic polynomials by Laplace expansion with
+integer coefficient lists and evaluates them at the indicated roots.
+Run \verb|lake build| in \verb|lean/|
+to verify the finite calculations.
+
+\begin{thebibliography}{1}
+\bibitem{izumi}
+M.~Izumi, \emph{Group-subgroup subfactors revisited},
+Quantum Topology \textbf{15} (2024), 721--778.
+\href{https://doi.org/10.4171/QT/211}{DOI}.
+\end{thebibliography}
+
+\end{document}
