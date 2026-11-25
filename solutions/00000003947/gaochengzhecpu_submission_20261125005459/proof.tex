@@ -1,0 +1,97 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+
+\title{A quadratic edge-query lower bound for min-cut\\[2pt]
+  \large Disproof of Conjecture 00000003947}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+In the edge-existence oracle model, computing the global minimum cut of
+an undirected graph can require quadratically many queries even when the
+graph is connected, has only linearly many edges, and its edge count is
+given in advance. It suffices to decide whether the minimum cut has size one.
+
+\section*{Two families of sparse graphs}
+
+Fix an integer $t\ge 1$. Take two disjoint blocks $L$ and $R$, each a copy
+of $K_{2,2t}$. Call the two vertices in the first part of each block its
+hubs and the $2t$ vertices in the other part its leaves. In each block,
+label the leaves as two groups $A$ and $B$ of size $t$. Write $L_{A,i}$,
+$L_{B,j}$, $R_{A,i}$, and $R_{B,j}$ for the indicated leaves. Join one hub
+of $L$ to one hub of $R$ by an edge $e_0$. Let $G_0$ be this connected base
+graph. It has $4t+4$ vertices and $8t+1$ edges.
+
+For each $1\le i,j\le t$ form two types of promised input. In the first
+type add the edge $L_{A,i}L_{B,j}$. In the second type add the edge
+$L_{A,i}R_{B,j}$. Each of the two types has $t^2$ distinct candidate edges,
+all absent in $G_0$. Every promised graph is connected and simple, and
+every one has $m=8t+2$ edges.
+
+For the first type the partition $L\mid R$ cuts only $e_0$, so the
+minimum cut size is one. To analyze the second type, consider any
+partition that splits a block. If its two hubs lie on the same side,
+a leaf on the opposite side contributes two crossing edges. If its
+hubs lie on opposite sides, each of its $2t\ge2$ leaves contributes an
+edge across the partition. Thus any cut that splits a block has size
+at least two. The only nontrivial partition that keeps both blocks whole
+is $L\mid R$, and for the second type it cuts two edges. The minimum cut
+size is therefore exactly two.
+
+\section*{The deterministic query lower bound}
+
+Each query asks if one unordered vertex pair is an edge. A deterministic
+algorithm corresponds to a decision tree whose internal nodes specify
+queries and whose outgoing branches correspond to the two answers.
+The promised edge count and the base graph may both be supplied to the
+algorithm, since those inputs are common to the two families.
+
+Suppose the algorithm always finishes in at most $q<t^2$ queries on the
+promised graphs. Truncate the decision tree at depth $q$, inserting an
+arbitrary answer at any truncated query node. This changes no output on
+the promised inputs. Run the truncated tree on the responses from
+$G_0$. This is an auxiliary transcript even though $G_0$ has one fewer
+edge. Its $q$ or fewer queries miss at least one candidate edge of each
+type, since each query tests at most one candidate within either type.
+Adding either missed edge leaves the answer to every query on the
+transcript unchanged. Both resulting promised graphs therefore reach the
+same leaf. Their minimum cut sizes differ, which is a contradiction.
+
+Consequently some promised input needs at least $t^2$ queries. Since
+$m=8t+2$, this contradicts a deterministic $O(m)$ bound and hence the
+conjecture's deterministic $\Theta(m)$ claim.
+
+\section*{If the output is a partition}
+
+The same argument also gives a lower bound for outputting a minimum-cut
+partition alone. For this variant take $t\ge2$ and add two edges per
+candidate. The within-block candidate $(i,j)$ adds
+$L_{A,i}L_{B,j}$ and $R_{A,i}R_{B,j}$. The across-block candidate $(i,j)$
+adds $L_{A,i}R_{A,j}$ and $L_{B,i}R_{B,j}$. The two-edge sets are pairwise
+disjoint within each type, so a query still tests at most one candidate
+within a type. The common edge count is now $8t+3$.
+
+For each within-block graph the unique minimum partition, up to exchanging
+its sides, is $L\mid R$. Its size is one and every partition splitting a
+block cuts at least two edges. For each across-block graph, $L\mid R$
+cuts three edges. A leaf unused by the two added edges has degree two,
+so its singleton cut is smaller. No single partition is valid for the
+two types. The same truncated transcript argument therefore applies.
+
+\section*{Lean verification}
+
+The Lean 4 project defines the one-edge promised graphs and checks that
+their edge oracles are symmetric and loopless and that their nontrivial
+cuts are nonempty. It verifies the difference in existence of a cut of
+size one. It then counts how many candidates a sequence of queries can
+test, proves that a decision tree follows the same branch when the
+answers agree, and verifies the truncation argument. The theorem
+\texttt{C3947.quadratic\_lower\_bound} shows that every correct decision
+tree makes at least $t^2$ queries on some promised input. Run
+\texttt{lake build} from the \texttt{lean} directory to check it.
+
+\end{document}
