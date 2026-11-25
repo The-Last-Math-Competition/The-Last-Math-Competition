@@ -1,0 +1,160 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath,amssymb}
+\usepackage[margin=0.85in]{geometry}
+\DeclareMathOperator{\tr}{tr}
+\newcommand{\Mat}{\operatorname{M}_3}
+\begin{document}
+\begin{center}
+  {\Large\bfseries A degree-eight central polynomial for \(3\times3\) matrices\par}
+  \smallskip
+  Disproof of Conjecture 00000009998
+\end{center}
+
+We exhibit a nonzero-valued homogeneous central polynomial of degree \(8\) on
+\(\Mat(\mathbb Q)\). Since \(8<3^2\), its existence disproves the conjectured
+minimum. Drensky and Kasparian previously established the existence of
+degree-eight central polynomials for \(3\times 3\) matrices
+\cite{drensky-kasparian}. The construction below includes a proof of centrality
+and a concrete nonzero evaluation.
+
+Let \(X,Y,C_1,C_2,C_3,C_4\) be matrix variables and put \(A=XY-YX\).
+Introduce odd generators \(\theta_1,\ldots,\theta_4\) of an exterior algebra
+over \(\mathbb Q\) and let \(U=\sum_{j=1}^4\theta_j C_j\). Define \(p\) as
+the coefficient of \(\theta_1\theta_2\theta_3\theta_4\) in
+\begin{equation}
+\label{eq:expression}
+ H=\sum_{a+b+c=4}U^a A U^b A U^c
+       -2\bigl(UA^2U^3+UAU^2AU+U^3A^2U\bigr),
+\end{equation}
+where \(a,b,c\) are nonnegative integers. Equivalently, each degree-four
+string of occurrences of \(U\) in \eqref{eq:expression} is replaced by the
+alternating sum of the \(4!\) assignments of \(C_1,\ldots,C_4\) to those
+positions. This makes \(p\) an ordinary noncommutative polynomial in its six
+matrix variables. Each term after substitution uses four occurrences of
+\(C_j\) and two commutators of degree two, for total degree eight.
+
+\section*{Centrality}
+
+For matrices with homogeneous exterior-algebra entries, the trace satisfies
+\(\tr(RS)=(-1)^{\lvert R\rvert\lvert S\rvert}\tr(SR)\).
+Put \(V=U^2\), \(T=UAU\), \(q=\tfrac12\tr(A^2)\),
+\(b=\tr(AV)\), \(c=\tr(A^2V)\), and \(e=\tr(AV^2)\).
+The matrices \(A,V,T\) have entries in the commutative even subalgebra. In
+particular, Cayley--Hamilton applies there. The ordinary trace of a
+commutator vanishes, so \(\tr(A)=0\). The signed trace identity gives
+\[
+ \begin{gathered}
+   \tr(V)=\tr(V^2)=0,\qquad \tr(T)=-b,\qquad \tr(AT)=0,\\
+   \tr(VT)=-e,\qquad \tr(AVT+ATV)=0.
+ \end{gathered}
+\]
+For example, \(\tr(AT)=\tr((AU)(AU))\) changes sign when the two odd
+factors are exchanged. For the final relation the two summands, up to an
+even cyclic reordering, are the traces of the products of \(AU\) and
+\(AU^3\) in opposite orders.
+
+Write \(D=A^2V+AVA+VA^2\). Extracting the \(t\)-coefficient in the
+Cayley--Hamilton identity for the traceless matrix \(A+tV\) gives
+\[
+    D=qV+bA+cI.
+\]
+To see the scalar term, use
+\(\det(A+tV)=\frac13\tr((A+tV)^3)\) for a traceless size-three matrix.
+Multiplying that Cayley--Hamilton identity by \(A+tV\) and extracting the
+\(t^2\)-coefficient gives
+\[
+    Q=qV^2+b(AV+VA)+cV+eA,
+\]
+where \(Q\) is the sum of the six words with two copies each of \(A\) and
+\(V\). Here the coefficient of \(t^2\) in \(\tfrac12\tr((A+tV)^2)\)
+vanishes by \(\tr(V^2)=0\).
+
+Let \(S\) be the sum of the six words that use \(A,V,T\) once each.
+For \(M=xA+yV+zT\), extract the \(xyz\)-coefficient from
+\[
+ M^3=(\tr M)M^2-\tfrac12\bigl((\tr M)^2-\tr(M^2)\bigr)M+\det(M)I.
+\]
+The determinant contributes \(-\tr(T)\tr(AV)+\tr(AVT+ATV)=b^2\), by the
+usual degree-three Newton identity. The other terms give
+\[
+    S=-b(AV+VA)+bT-eA+b^2I.
+\]
+In \eqref{eq:expression}, grouping the terms by which of \(a,b,c\) are
+odd yields \(H=Q+S-UDU\). The terms with three even exponents give \(Q\).
+The terms with two odd exponents adjacent around one occurrence of \(A\)
+give \(S\); those with odd outer exponents have sign minus and give
+\(-UDU\). Since \(UDU=qV^2+bT+cV\), it follows that \(H=b^2 I\).
+Taking the exterior coefficient proves that all evaluations of \(p\) are
+scalar matrices.
+
+\section*{Nonzero evaluation}
+
+With indices \(0,1,2\), write \(E_{ij}\) for the matrix unit at row
+\(i\), column \(j\). Choose
+\[
+ X=E_{01},\quad Y=E_{10},\qquad
+ (C_1,C_2,C_3,C_4)=(E_{01},E_{10},E_{02},E_{20}).
+\]
+Then \(A=\operatorname{diag}(1,-1,0)\). In \(\tr(AU^2)\), the coefficients
+of \(\theta_1\theta_2\) and \(\theta_3\theta_4\) are \(2\) and \(1\),
+respectively. All others vanish since their matrix commutators have zero
+diagonal. Consequently the \(\theta_1\theta_2\theta_3\theta_4\)-coefficient
+of \(b^2\) is \(4\), so this evaluation of \(p\) is \(4I\). Evaluating at
+all zero matrices gives zero. Thus \(p\) is a genuine central polynomial
+with nonconstant evaluation. Its degree is exactly eight, which suffices
+to disprove the conjecture.
+
+\section*{Exact coefficient verification}
+The Lean project independently verifies centrality on diagonal trace-zero
+matrices by calculating every matrix-unit coefficient. Here \(A\) is
+treated as a separate traceless input before the substitution
+\(A=XY-YX\). With \(A=\operatorname{diag}(a,b,-a-b)\), a nonzero ordered
+product of four matrix units is a path through five vertices
+\(i_0,\ldots,i_4\). Placing the two diagonal factors after \(r\) and
+\(s\) units multiplies the path's output \(E_{i_0 i_4}\) by
+\(A_{i_r i_r}A_{i_s i_s}\), where \(0\le r\le s\le4\).
+The sign of the placement is minus when both \(r\) and \(s\) are odd
+and plus otherwise, as in \eqref{eq:expression}.
+The sign of the edge order is determined by its inversion parity in
+row-major order. Repeated edges make no contribution by alternation.
+
+The computation enumerates the three intermediate vertices for each
+of the nine output entries and groups the contributions by ascending
+edge tuple. It records the coefficients of \(a^2,ab,b^2\) as
+integers. For every diagonal output it obtains the same table below.
+The off-diagonal tables are empty. An absent tuple has zero
+coefficient. The unit indices range from \(0\) to \(8\).
+\[
+\begin{array}{c|rrr}
+\text{ascending edge tuple} & a^2 & ab & b^2\\ \hline
+(1,2,3,6) & -4 & 2 & 2\\
+(1,3,5,7) & 2 & 2 & -4\\
+(2,5,6,7) & -4 & -10 & -4
+\end{array}
+\]
+The table equality includes every four-element subset of the matrix
+units. Alternation and multilinearity then extend it to all four matrix
+arguments. The coefficient identities have integer coefficients and
+therefore also hold over \(\overline{\mathbb Q}\). The verification
+includes the commutator and the value \(4I\) at the stated witness.
+
+For a general traceless input \(A\), let \(D_0=\operatorname{diag}(1,0,-1)\).
+The discriminant of the characteristic polynomial of \(D_0+tA\) is a
+polynomial in \(t\) and is nonzero at \(t=0\). For all but finitely many
+rational \(t\), the matrix \(D_0+tA\) thus has distinct eigenvalues and
+is conjugate over \(\overline{\mathbb Q}\) to a trace-zero diagonal
+matrix. Simultaneous conjugation commutes with the polynomial evaluation,
+so the off-diagonal entries and the differences of diagonal entries
+vanish at all those \(t\). They are polynomials in \(t\). Their coefficients
+of \(t^2\) are the corresponding entries and differences at \(A\), because
+the expression is homogeneous quadratic in the traceless input.
+These coefficients vanish, which extends the exact calculation to
+arbitrary traceless inputs.
+
+\begin{thebibliography}{1}
+\bibitem{drensky-kasparian}
+V. Drensky and A. Kasparian, \emph{A new central polynomial for
+\(3\times3\) matrices}, Communications in Algebra \textbf{13} (1985),
+745--752. DOI: \texttt{10.1080/00927878508823188}.
+\end{thebibliography}
+\end{document}
