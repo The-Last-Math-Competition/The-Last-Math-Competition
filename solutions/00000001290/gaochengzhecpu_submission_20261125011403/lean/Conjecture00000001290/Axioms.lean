@@ -1,0 +1,15 @@
+/-
+  Conjecture 00000001290 — Axiom Audit Entrypoint
+  Run via: `lake env lean Conjecture00000001290/Axioms.lean`
+-/
+import Conjecture00000001290
+
+#print axioms Conjecture00000001290.conjecture_00000001290_false
+#print axioms Conjecture00000001290.necessity_local_fails_bounded_periodic
+#print axioms Conjecture00000001290.necessity_short_fails_even_when_local
+#print axioms Conjecture00000001290.sufficiency_fails_for_boundedStep_and_boundedOutDegree
+#print axioms Conjecture00000001290.sufficiency_holds_for_finiteSubtraction
+#print axioms Conjecture00000001290.nimGame_not_grundyEquiv_boundedOutDegree
+#print axioms Conjecture00000001290.isRationalOGF_iff_Q
+#print axioms Conjecture00000001290.short_has_grundy
+#print axioms Conjecture00000001290.grundy_unique
