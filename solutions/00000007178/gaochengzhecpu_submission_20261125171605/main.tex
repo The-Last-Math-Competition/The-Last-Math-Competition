@@ -1,0 +1,418 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,urlcolor=blue!60!black]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\mr}{\mathrm{mr}}
+\newcommand{\smr}{\mathrm{smr}}
+\newcommand{\minrank}{\mathrm{minrank}}
+\newcommand{\rk}{\mathrm{rank}}
+\newcommand{\Sym}{\mathrm{Sym}}
+
+\title{\textbf{Refutation of Combinatorial and Cycle-Parity Characterizations\\for Minimum-Rank Matrix Completion}\\[6pt]
+\large Complete Resolution and Formalization of Conjecture 00000007178}
+\author{Autonomous Mathematical Research \& Formalization Agent}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007178} (\emph{cycle-parity minimum-rank completion obstruction}) in the negative across every standard mathematical formulation of minimum-rank matrix completion in linear algebra and spectral graph theory. The conjecture asserts (I) that minimum-rank completion admits a purely combinatorial characterization in terms of the specification pattern, and (II) that the obstruction to low-rank completability is governed by the parity of cycles. Both claims fail under all four canonical readings:
+(1) for rectangular/bipartite partial matrices $\mr_{\F}(E,a)$, every cycle in the bipartite specification graph $B(E)$ is already of even length, yet on the incomplete chordless $6$-cycle $E_{C_6}$ (where every fully specified submatrix has rank $1$), $\mr_{\F}(E_{C_6},A^+)=1 \neq 2=\mr_{\F}(E_{C_6},A^\alpha)$ over every field with $|\F|\ge 3$;
+(2) for unit-diagonal symmetric partial matrices on undirected graphs, odd $3$-cycles ($C_3$) and chordal graphs never obstruct local-to-global rank-$1$ completion, whereas both even cycles ($C_4, C_6$) and odd cycles ($C_5$) obstruct, with $S_{C_4}^-$ exhibiting a sharp three-way split $1 < \mr_{\F}(S_{C_4}^-)=2 < \smr_{\F}(S_{C_4}^-)=3$;
+(3) for free-diagonal symmetric partial matrices, although single odd cycles $C_{2k+1}$ are universally rank-$1$ completable, both even cycles ($C_4$) and purely odd-cycle graphs such as the $5$-vertex butterfly $B_2$ ($2C_3$ sharing a vertex, zero even cycles) obstruct; and
+(4) for pattern-level spectral graph minimum rank $\mr_{\F}(G)$, zero-nonzero minimum rank $\mr_{\F}^{\mathrm{znz}}(Z)$, and Haemers' $\minrank_{\F}(G)$, minimum rank is field-dependent already at the unique minimal $5$-vertex chordal graph $G_5 = K_5 \setminus P_3$ ($\mr_{\F_2}(G_5)=3 \neq 2=\mr_{\F}(G_5)$ for $|\F|\ge 3$), characteristic-dependent across algebraically closed fields on the $7\times 7$ Fano pattern $Z_{\mathrm{Fano}}$ ($3$ in $\mathrm{char}(\F)=2$ vs.\ $4$ in $\mathrm{char}(\F)\neq 2$), and parity-reversed on $C_6$ vs.\ $\overline{C_6}$ ($\minrank_{\F}(C_6)=3 > 2=\minrank_{\F}(\overline{C_6})$).
+All positive non-vacuity theorems and refutations are formalized from first principles in Core Lean 4.19.0 without external dependencies or custom axioms.
+\end{abstract}
+
+\section{Introduction and Problem Statement}
+
+Conjecture \texttt{00000007178} from \emph{The Last Math Competition} (\texttt{SOURCE.md}) states:
+
+\begin{quote}
+\textbf{English.} Definition: Minimum-rank completion with the rank side of spectra. Conjecture: The combinatorial characterization of minimum-rank completion holds, and the obstruction of the characterization is the parity of cycles. (\emph{cycle-parity minimum-rank completion obstruction})
+\end{quote}
+
+\noindent The parallel Chinese formulation frames the definition as projecting the eigenvalue spectrum onto its rank/nullity invariant ($\rk(B) = n - \mathrm{mult}_0(B)$, ``the rank side of spectra'') and posits a purely combinatorial low-rank completability criterion whose obstruction is cycle parity. Specifically, the conjecture makes two coupled assertions:
+\begin{itemize}
+\item \textbf{Claim I (Combinatorial Characterization):} Minimum-rank completion is determined purely by the combinatorial structure of the specification pattern/graph.
+\item \textbf{Claim II (Cycle-Parity Obstruction):} The graph-theoretic obstruction to low-rank completion is the parity (odd vs.\ even length) of cycles.
+\end{itemize}
+
+Because ``minimum-rank completion with the rank side of spectra'' encompasses both \emph{entry-prescribed partial matrix completion}~\cite{CJRW1989,GJSw1984,Laurent2001} and \emph{pattern-prescribed spectral graph minimum rank}~\cite{Haemers1979,Peeters1996,BF2004,FH2007}, a definitive mathematical resolution must examine every standard reading. Table~\ref{tab:summary} summarizes our complete resolution across all four canonical models: in every case, restricted positive theorems hold (confirming non-vacuity of the definitions), while both Claim~I and Claim~II are refuted.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}p{3.9cm}cc p{3.9cm} p{4.2cm}@{}}
+\toprule
+\textbf{Mathematical Model} & \textbf{Claim I} & \textbf{Claim II} & \textbf{True Obstruction} & \textbf{Minimal Separating Witness} \\
+\midrule
+1.\ Bipartite partial matrix $\mr_{\F}(E,a)$ & False & False & Alternating cocycle on even chordless cycles $C_{2k}$ ($k\ge 3$) & $3\times 3$ chordless $C_6$ ($|\F|\ge 3$): $\mr(A^+)=1 \neq 2=\mr(A^\alpha)$ \\
+\addlinespace[3pt]
+2A.\ Symmetric unit-diag.\ $\mr_{\F},\smr_{\F}(G_{\mathrm{diag}},a)$ & False & False & Clique $2$-complex homology $H_1(\Delta_2(G))\neq 0$ / chordality ($k\ge 4$) & Even $C_4$: $\mr=2$, $\smr=3$ vs.\ $1$; both odd $C_5$ \& even $C_6$ obstruct \\
+\addlinespace[3pt]
+2B.\ Symmetric free-diag.\ $\mr_{\F},\smr_{\F}(G_{\mathrm{free}},a)$ & False & False & Even closed walks / double-cover cycles ($\beta_1(G\times K_2)$) & Even $C_4$ ($\mr=\smr=2$) \emph{and} odd-only butterfly $B_2$ ($\mr=\smr=2$) \\
+\addlinespace[3pt]
+3.\ Spectral graph $\mr_{\F}(G)$ \& Fano $\mr_{\F}^{\mathrm{znz}}(Z)$ & False & False & Field size \& characteristic ($\mathrm{char}(\F)=2$ vs.\ $\neq 2$); acyclic $(P_3,2K_2)$ at $r=1$ & Chordal $G_5 = K_5\setminus P_3$: $\mr_{\F_2}=3 \neq 2$; Fano $Z_{\mathrm{Fano}}$: $3$ vs.\ $4$ \\
+\addlinespace[3pt]
+4.\ Haemers' $\minrank_{\F}(G)$ & False & False & Orthogonal representations \& field dependence at $r\ge 3$ & Bipartite $C_6$ ($\minrank=3$) vs.\ $\overline{C_6}$ with $C_3$'s ($\minrank=2$) \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the refutation of Conjecture \texttt{00000007178} across all four standard formulations.}
+\label{tab:summary}
+\end{table}
+
+\section{Preliminaries: Rank Factorization, Minors, and Partial Matrices}
+
+Let $\F$ be an arbitrary field (or commutative ring $R$ where noted), and let $\F^{m\times n}$ denote the space of $m\times n$ matrices over $\F$.
+
+\begin{definition}[Rank Factorization and Minimum Completion Rank]
+For $M \in \F^{m\times n}$ and $r \in \mathbb{N}$, $M$ has \emph{rank at most $r$} ($\rk_{\F}(M) \le r$) if there exist factor matrices $U \in \F^{m\times r}$ and $V \in \F^{r\times n}$ such that
+\[
+M_{ij} = \sum_{t=1}^{r} U_{it} V_{tj} \qquad \text{for all } 1 \le i \le m,\; 1 \le j \le n.
+\]
+A \emph{partial matrix} $P = (E, a)$ on $\{1,\dots,m\}\times\{1,\dots,n\}$ consists of a specification pattern $E \subseteq \{1,\dots,m\}\times\{1,\dots,n\}$ and prescribed entries $a : E \to \F$. A matrix $M \in \F^{m\times n}$ \emph{completes} $P$ if $M_{ij} = a_{ij}$ for all $(i,j) \in E$. The \emph{minimum completion rank} and (when $m=n$) \emph{symmetric minimum completion rank} are
+\begin{align*}
+\mr_{\F}(P) &= \min\{\rk_{\F}(M) : M \text{ completes } P\}, \\
+\smr_{\F}(P) &= \min\{\rk_{\F}(M) : M^\top = M \text{ completes } P\}.
+\end{align*}
+We say $P$ is \emph{everywhere nonzero} if $a_{ij} \neq 0$ for all $(i,j)\in E$, and \emph{locally of rank at most $r$} if every fully specified submatrix of $P$ (for arbitrary row and column index maps whose Cartesian product lies in $E$) has rank at most $r$.
+\end{definition}
+
+\begin{lemma}[Universal $2\times 2$ and $3\times 3$ Minor Obstructions]\label{lem:minors}
+Over any field $\F$ and for any $M \in \F^{m\times n}$:
+\begin{itemize}
+\item[(a)] If $\rk_{\F}(M) \le 1$, then $M_{ij} = u_i v_j$ for some $u \in \F^m, v \in \F^n$, and $M_{i_0 j_0} M_{i_1 j_1} = M_{i_0 j_1} M_{i_1 j_0}$ for all $i_0,i_1,j_0,j_1$.
+\item[(b)] If $\rk_{\F}(M) \le 2$, then for all row triples $(i_0,i_1,i_2)$ and column triples $(j_0,j_1,j_2)$, the $3\times 3$ submatrix determinant $\det M[\{i_0,i_1,i_2\},\{j_0,j_1,j_2\}]$ vanishes identically.
+\end{itemize}
+\end{lemma}
+\begin{proof}
+Part (a) is immediate from $(u_{i_0} v_{j_0})(u_{i_1} v_{j_1}) = (u_{i_0} v_{j_1})(u_{i_1} v_{j_0})$. For part (b), writing $M_{ij} = U_{i,1} V_{1,j} + U_{i,2} V_{2,j}$, each $2\times 2$ cofactor on rows $(i_1,i_2)$ and columns $(j_a,j_b)$ factors as $(U_{i_1,1} U_{i_2,2} - U_{i_1,2} U_{i_2,1})(V_{1,j_a} V_{2,j_b} - V_{1,j_b} V_{2,j_a})$, and cofactor expansion along row $i_0$ cancels identically by Laplace's identity on the repeated rows $V_1$ and $V_2$.
+\end{proof}
+
+\section{Pillar I: Rectangular and Bipartite Partial Matrix Completion}
+
+Associate to $E \subseteq \{1,\dots,m\}\times\{1,\dots,n\}$ its bipartite specification graph $B(E)$ on vertex bipartition $\{R_1,\dots,R_m\} \sqcup \{C_1,\dots,C_n\}$ with edge $(R_i,C_j)$ iff $(i,j)\in E$. Notice first that \emph{every cycle in $B(E)$ has even length} ($2k$ for $k\ge 2$); odd cycles do not exist in $B(E)$.
+
+\begin{lemma}[Universal Cycle-Product Identities]\label{lem:cycle-prod}
+Let $M \in \F^{m\times n}$ satisfy $\rk_{\F}(M) \le 1$.
+\begin{itemize}
+\item[(a)] For any $k \ge 1$ and sequences $r_0,\dots,r_{k-1} \in \{1,\dots,m\}$, $c_0,\dots,c_{k-1} \in \{1,\dots,n\}$ (with $r_k := r_0$),
+\[
+\prod_{t=0}^{k-1} M_{r_t, c_t} = \prod_{t=0}^{k-1} M_{r_{t+1}, c_t}.
+\]
+\item[(b)] When $m=n$, for any cycle $v_0,\dots,v_{k-1} \in \{1,\dots,n\}$ (of odd or even length $k \ge 1$, with $v_k := v_0$),
+\[
+\prod_{t=0}^{k-1} M_{v_t, v_{t+1}} = \prod_{t=0}^{k-1} M_{v_t, v_t}.
+\]
+\end{itemize}
+\end{lemma}
+\begin{proof}
+Write $M_{ij} = u_i v_j$. Both sides of (a) equal $(\prod_{t=0}^{k-1} u_{r_t})(\prod_{t=0}^{k-1} v_{c_t})$ by cyclic shift invariance of finite products, and both sides of (b) equal $(\prod_{t=0}^{k-1} u_{v_t})(\prod_{t=0}^{k-1} v_{v_t})$.
+\end{proof}
+
+\begin{theorem}[Positive Non-Vacuity Theorem: Acyclic Forest Patterns]\label{thm:forest}
+Let $\F$ be any field, and let $P = (E,a)$ be an everywhere-nonzero partial $m\times n$ matrix ($E \neq \emptyset$) whose bipartite specification graph $B(E)$ is a forest (equivalently, $E$ admits an inductive leaf-addition ordering from $\emptyset$). Then $\mr_{\F}(P) = 1$. In particular, on the $5$-edge spanning tree
+\[
+T_5 = \{(1,1),(1,2),(2,2),(2,3),(3,3)\} \subset \{1,2,3\}^2,
+\]
+every everywhere-nonzero partial matrix satisfies $\mr_{\F}(T_5,a) = 1$.
+\end{theorem}
+\begin{proof}
+We construct nowhere-zero potentials $u \in (\F^\times)^m$, $v \in (\F^\times)^n$ satisfying $u_i v_j = a_{ij}$ on $E$ by induction along the leaf-addition sequence. For $E = \emptyset$, set $u_i = 1$ and $v_j = 1$. When adding $(i_0,j_0)$ at a fresh row leaf $R_{i_0}$ (incident to no prior edge of $E'$), keep $v$ unchanged and redefine $u'_{i_0} := a_{i_0 j_0} v_{j_0}^{-1} \neq 0$; then $u'_{i_0} v_{j_0} = a_{i_0 j_0}$, while all prior edges have $i \neq i_0$ and remain unchanged. Adding a fresh column leaf $C_{j_0}$ is dual via $v'_{j_0} := u_{i_0}^{-1} a_{i_0 j_0}$. Thus $M_{ij} = u_i v_j$ completes $P$ with $\rk_{\F}(M) = 1$, and $E \neq \emptyset$ with $a_{i_0 j_0}\neq 0$ precludes rank $0$.
+\end{proof}
+
+Closing $T_5$ by the single edge $(3,1)$ produces the $6$-entry incomplete pattern $E_{C_6} = T_5 \cup \{(3,1)\}$, whose bipartite graph $B(E_{C_6})$ is an induced chordless $6$-cycle $R_1 - C_1 - R_3 - C_3 - R_2 - C_2 - R_1$.
+
+\begin{theorem}[Refutation on the Incomplete Even $6$-Cycle $E_{C_6}$]\label{thm:even-c6}
+Let $\F$ be any field with $|\F| \ge 3$, and pick $\alpha \in \F \setminus \{0,1\}$ (for instance, $\alpha = -1$ whenever $\mathrm{char}(\F)\neq 2$, or $\alpha = \omega$ in $\F_4 = \F_2[\omega]/(\omega^2+\omega+1)$ when $\mathrm{char}(\F)=2$). Consider the two everywhere-nonzero $3\times 3$ partial matrices on $E_{C_6}$:
+\[
+A^+ = \begin{pmatrix} 1 & 1 & ? \\ ? & 1 & 1 \\ 1 & ? & 1 \end{pmatrix}, \qquad
+A^\alpha = \begin{pmatrix} 1 & 1 & ? \\ ? & 1 & 1 \\ 1 & ? & \alpha \end{pmatrix}.
+\]
+Then:
+\begin{enumerate}
+\item $A^+$ and $A^\alpha$ have the exact same specification pattern $E_{C_6}$, whose bipartite graph $B(E_{C_6}) \cong C_6$ has even cycle length $6$ and zero odd cycles;
+\item both $A^+$ and $A^\alpha$ are locally of rank at most $1$ across \emph{all} fully specified submatrices of every size;
+\item yet $\mr_{\F}(E_{C_6}, A^+) = 1$ whereas $\mr_{\F}(E_{C_6}, A^\alpha) = 2$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+In $E_{C_6}$, any two distinct rows share at most one specified column, so any fully specified submatrix has either constant row index or constant column index, hence rank $\le 1$. The all-ones matrix $J_3$ completes $A^+$ with rank $1$, giving $\mr_{\F}(E_{C_6},A^+) = 1$. Suppose $M$ completes $A^\alpha$ with $\rk_{\F}(M)\le 1$. Applying Lemma~\ref{lem:cycle-prod}(a) with $(r_0,r_1,r_2) = (3,1,2)$ and $(c_0,c_1,c_2) = (1,2,3)$ yields
+\[
+1 = M_{31} M_{12} M_{23} = M_{11} M_{22} M_{33} = 1 \cdot 1 \cdot \alpha = \alpha,
+\]
+contradicting $\alpha \neq 1$. Conversely, the matrix
+\[
+M^\alpha = \begin{pmatrix} 1 & 1 & \alpha \\ 1 & 1 & 1 \\ 1 & 1 & \alpha \end{pmatrix}
+= \begin{pmatrix} 1 & 0 \\ 0 & 1 \\ 1 & 0 \end{pmatrix}
+\begin{pmatrix} 1 & 1 & \alpha \\ 1 & 1 & 1 \end{pmatrix}
+\]
+completes $A^\alpha$ and factors through $\F^2$, proving $\mr_{\F}(E_{C_6}, A^\alpha) = 2$.
+\end{proof}
+
+\begin{remark}[Chordal Bipartiteness vs.\ Cycle Parity]
+By Cohen, Johnson, Rodman, and Woerdeman~\cite{CJRW1989}, local rank $\le 1$ implies global $\mr_{\F}(E,a)\le 1$ (over $|\F|\ge 3$) if and only if $B(E)$ is \emph{chordal bipartite} (contains no induced cycle of length $\ge 6$). Exhaustive verification across all $2^9 = 512$ patterns on $3\times 3$ confirms that all $506$ chordal-bipartite patterns---including patterns containing the even $4$-cycle $C_4 = K_{2,2}$, where the $2\times 2$ block is itself fully specified---satisfy local-to-global rank-$1$ completability, while the $6$ induced even $6$-cycles $C_6$ fail. Thus neither cycle parity nor mere presence of even cycles characterizes the obstruction.
+\end{remark}
+
+\section{Pillar II: Symmetric Partial Matrices on Undirected Graphs}
+
+To test cycle parity where both odd and even cycles coexist, let $G = (V,E)$ be a simple undirected graph on $n$ vertices. We analyze both standard diagonal regimes.
+
+\subsection{Variant 2A: Fixed Nonzero Diagonal (Chordality and Clique-Complex Homology)}
+
+When all diagonal entries $a_{ii} \in \F^\times$ and symmetric edge entries $a_{ij} = a_{ji}$ ($ij \in E(G)$) are specified, local rank $\le 1$ on edges and triangles is governed by simplicial chordal structure rather than cycle parity.
+
+\begin{theorem}[Positive Chordal Simplicial Extension Theorem]\label{thm:chordal-step}
+Let $P$ be a partial $(n+1)\times(n+1)$ matrix over a field $\F$ whose last vertex $v = n+1$ has neighborhood $K \subseteq \{1,\dots,n\}$ with pivot $p \in K$. Suppose $P$ restricted to $\{1,\dots,n\}$ admits a symmetric rank-$1$ completion $M^0_{ij} = c x_i x_j$ ($c \neq 0$, $x_p \neq 0$), $(i,p)$ is specified for all $i \in K$, $(i,v)$ and $(v,i)$ are specified symmetrically iff $i \in K$, the $2\times 2$ clique relations $a_{ip} a_{pv} = a_{pp} a_{iv}$ hold for all $i\in K$, and (if $(v,v)$ is specified) $a_{pv}^2 = a_{pp} a_{vv}$. Setting $x_v := (c x_p)^{-1} a_{pv}$ extends $x$ to a global symmetric rank-$1$ completion $M_{ab} = c x_a x_b$ of $P$.
+\end{theorem}
+\begin{proof}
+Since $a_{pp} = c x_p^2 \neq 0$, for every $i \in K$ we compute
+\[
+a_{pp} (c x_i x_v) = (c x_p^2)\bigl(c x_i (c x_p)^{-1} a_{pv}\bigr) = (c x_i x_p) a_{pv} = a_{ip} a_{pv} = a_{pp} a_{iv},
+\]
+and cancelling $a_{pp}\neq 0$ gives $c x_i x_v = a_{iv} = a_{vi} = c x_v x_i$. Similarly, if $(v,v)$ is specified, $a_{pp}(c x_v^2) = (c x_p^2) c (c x_p)^{-2} a_{pv}^2 = a_{pv}^2 = a_{pp} a_{vv}$, giving $c x_v^2 = a_{vv}$.
+\end{proof}
+
+Consequently, odd $3$-cycles ($C_3 = K_3$) and chordal graphs never obstruct local-to-global rank-$1$ completion. By contrast, chordless cycles of length $\ge 4$---both \emph{even} and \emph{odd}---obstruct:
+
+\begin{theorem}[Three-Way Split on Even $C_4$ and Parity-Independent Obstructions on $C_5, C_6$]\label{thm:sym-unit}
+Let $\F$ be any field with $\mathrm{char}(\F)\neq 2$.
+\begin{itemize}
+\item[(a)] On $C_4 + \mathrm{diag}$, let $S_{C_4}^+$ have all specified entries $+1$, and let $S_{C_4}^-$ have unit diagonal, $a_{12}=a_{23}=a_{34}=+1$, and $a_{14}=a_{41}=-1$:
+\[
+S_{C_4}^- = \begin{pmatrix}
+1 & 1 & ? & -1 \\
+1 & 1 & 1 & ? \\
+? & 1 & 1 & 1 \\
+-1 & ? & 1 & 1
+\end{pmatrix}.
+\]
+Every $2\times 2$ principal clique submatrix of $S_{C_4}^-$ is symmetric of rank $1$, and $\mr_{\F}(S_{C_4}^+) = \smr_{\F}(S_{C_4}^+) = 1$, whereas
+\[
+\mr_{\F}(S_{C_4}^-) = 2 \qquad \text{and} \qquad \smr_{\F}(S_{C_4}^-) = 3.
+\]
+\item[(b)] On both the \emph{odd} $5$-cycle $C_5 + \mathrm{diag}$ and the \emph{even} $6$-cycle $C_6 + \mathrm{diag}$, the analogous signed partial matrices $S_{C_5}^-$ and $S_{C_6}^-$ are locally of rank at most $1$ across \emph{all} fully specified submatrices (both principal and non-principal), yet admit no rank-$1$ completion ($\mr_{\F} \ge 2$).
+\end{itemize}
+\end{theorem}
+\begin{proof}
+(a) Each maximal clique of $C_4$ is an edge $\{i,j\}$ with principal block $\bigl(\begin{smallmatrix}1 & \pm 1\\ \pm 1 & 1\end{smallmatrix}\bigr)$ of rank $1$. By Lemma~\ref{lem:cycle-prod}(b) on $(1,2,3,4)$, any rank-$1$ completion $M$ of $S_{C_4}^-$ would satisfy $-1 = M_{12}M_{23}M_{34}M_{41} = M_{11}M_{22}M_{33}M_{44} = +1$, impossible since $\mathrm{char}(\F)\neq 2$. The asymmetric completion with rows $R_1=(1,1,-1,-1)$, $R_2=R_3=(1,1,1,1)$, $R_4=-R_1$ has rank $2$, so $\mr_{\F}(S_{C_4}^-)=2$.
+
+Now let $M$ be any \emph{symmetric} completion of $S_{C_4}^-$ with $M_{13}=M_{31}=x$ and $M_{24}=M_{42}=y$, and suppose $\rk_{\F}(M)\le 2$. By Lemma~\ref{lem:minors}(b), the principal $3\times 3$ minors on $\{1,3,4\}$ and $\{1,2,4\}$ must vanish:
+\[
+\det M[\{1,3,4\},\{1,3,4\}] = -(x+1)^2 = 0, \qquad
+\det M[\{1,2,4\},\{1,2,4\}] = -(y+1)^2 = 0,
+\]
+forcing $x = -1$ and $y = -1$. Substituting $x=y=-1$ into the off-principal $3\times 3$ submatrix on rows $\{1,2,3\}$ and columns $\{2,3,4\}$ yields
+\[
+\det\begin{pmatrix} 1 & -1 & -1 \\ 1 & 1 & -1 \\ 1 & 1 & 1 \end{pmatrix}
+= 1\cdot(1+1) - (-1)\cdot(1+1) + (-1)\cdot(1-1) = (1+1)^2 \neq 0,
+\]
+since $1+1 \neq 0$ in the field $\F$. This contradicts Lemma~\ref{lem:minors}(b) and rules out rank $\le 2$. Meanwhile $M(-1,-1)$ itself has $R_4 = (-1,-1,1,1) = -R_1$, hence $\rk_{\F}(M(-1,-1)) = 3$, proving $\smr_{\F}(S_{C_4}^-) = 3$.
+
+(b) For $n \in \{5,6\}$, two distinct closed neighborhoods in $C_n$ intersect in $\{u,v\}$ when $uv\in E(C_n)$ and in at most one vertex otherwise. Thus every fully specified submatrix with $\ge 2$ distinct rows and $\ge 2$ distinct columns is supported on a single edge $\{u,v\}\times\{u,v\}$, where $\bigl(\begin{smallmatrix}1 & \pm 1\\ \pm 1 & 1\end{smallmatrix}\bigr)$ has rank $1$. Non-completability at rank $1$ follows immediately from Lemma~\ref{lem:cycle-prod}(b), which yields $-1 = +1$.
+\end{proof}
+
+\begin{remark}[Homological Role of Odd Triangles on $W_4 = C_4 \vee K_1$]
+Across all $52$ non-isomorphic simple graphs of order $1 \le n \le 5$, exhaustive computation shows that unit-diagonal clique-rank-$1$ $\pm 1$-partial matrices are always globally rank-$1$ completable on \emph{exactly $45$ graphs}: all $44$ chordal graphs together with the $5$-vertex wheel $W_4 = C_4 \vee K_1$, i.e., precisely when the clique $2$-complex satisfies $H_1(\Delta_2(G);\F_2) = 0$. On $W_4$, adding an apex vertex introduces four \emph{odd} $3$-cycles whose $\F_2$-boundaries sum to the rim $C_4$, \emph{eliminating} the rank-$1$ obstruction of the even $4$-cycle.
+\end{remark}
+
+\subsection{Variant 2B: Free Diagonal and the Single-Cycle Parity Trap}
+
+Why might one conjecture cycle parity as the obstruction? Consider symmetric partial matrices where \emph{only} off-diagonal edge entries $a_{ij}=a_{ji}\in \F^\times$ ($ij\in E(G)$) are prescribed while the diagonal is completely free.
+
+\begin{theorem}[Single Odd Cycle vs.\ Even $C_4$ and Purely-Odd Butterfly $B_2$]\label{thm:free-diag}
+Let $\F$ be a field.
+\begin{itemize}
+\item[(a)] \textbf{(Positive Single-Odd-Cycle Theorem)} On the odd $3$-cycle $C_3$ with free diagonal, \emph{every} symmetric assignment $(a_{12},a_{13},a_{23}) \in (\F^\times)^3$ satisfies $\mr_{\F}(P) = \smr_{\F}(P) = 1$, witnessed by $M_{ij} = \lambda w_i w_j$ with $\lambda = (a_{12}a_{13}a_{23})^{-1}$ and $w = (a_{12}a_{13},\, a_{12}a_{23},\, a_{13}a_{23})^\top$.
+\item[(b)] \textbf{(Even-$C_4$ Free-Diagonal Obstruction)} Assume $\mathrm{char}(\F)\neq 2$. On the even $4$-cycle $C_4$ with free diagonal, all-$1$ edge weights satisfy $\mr_{\F}=\smr_{\F}=1$, whereas signing a single edge by $-1$ yields $\mr_{\F} = \smr_{\F} = 2$.
+\item[(c)] \textbf{(Purely-Odd-Cycle Butterfly Obstruction)} Assume $\mathrm{char}(\F)\neq 2$, and let $B_2$ be the $5$-vertex butterfly graph consisting of two triangles $\{1,2,3\}$ and $\{1,4,5\}$ sharing vertex $1$ (so \emph{every} simple cycle in $B_2$ has odd length $3$, and $B_2$ contains zero even cycles). With free diagonal, all-$1$ edge weights satisfy $\mr_{\F}=\smr_{\F}=1$, whereas setting $a_{15}=a_{51}=-1$ and all other five edges to $+1$ yields $\mr_{\F} = \smr_{\F} = 2$.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+Part (a) follows by direct multiplication: $\lambda w_1 w_2 = a_{12}$, $\lambda w_1 w_3 = a_{13}$, and $\lambda w_2 w_3 = a_{23}$.
+In part (b), for any rank-$1$ completion $M$, Lemma~\ref{lem:minors}(a) on rows $\{1,3\}$ and columns $\{2,4\}$ gives $1 = M_{12}M_{34} = M_{14}M_{32} = -1$, a contradiction; conversely, $U U^\top$ with rows $(1,0),(1,1),(0,1),(-1,1)$ is symmetric of rank $2$ and completes $P_{C_4}^-$.
+In part (c), suppose $\rk_{\F}(M)\le 1$ completes $P_{B_2}^-$. Applying Lemma~\ref{lem:minors}(a) on triangle $\{1,2,3\}$ (rows $\{1,3\}$, columns $\{1,2\}$) gives $M_{11} = M_{11} M_{32} = M_{12} M_{31} = +1$, while applying Lemma~\ref{lem:minors}(a) on triangle $\{1,4,5\}$ (rows $\{1,5\}$, columns $\{1,4\}$) gives $M_{11} = M_{11} M_{54} = M_{14} M_{51} = -1$, contradicting $+1 \neq -1$. Conversely, $M = x y^\top + y x^\top$ with $x = (1,1,0,0,1)^\top$ and $y = (0,1,1,1,-1)^\top$ is symmetric of rank $2$ and matches all six edges of $B_2$.
+\end{proof}
+
+\begin{remark}[True Free-Diagonal Criterion]
+Over $\mathrm{char}(\F)\neq 2$, every nowhere-zero symmetric signing on $G$ with free diagonal admits a rank-$1$ completion iff the vertex-edge incidence matrix of each connected component $C$ of $G$ has full row rank $|E(C)|$, i.e., iff every component of $G$ is either a tree or unicyclic with a \emph{single} odd cycle ($32$ of the $52$ simple graphs on $n\le 5$). Both even cycles ($C_4$) and pairs of odd cycles ($B_2$) create even closed walks in the bipartite double cover $G \times K_2$ and obstruct rank-$1$ completion.
+\end{remark}
+
+\section{Pillars III \& IV: Spectral Graph Minimum Rank, Fano Characteristic Separation, and Haemers Minrank}
+
+Finally, consider purely pattern-prescribed minimum-rank invariants where no numerical entry values are pre-assigned. For a simple graph $G=(V,E)$ on $n$ vertices, let
+\begin{align*}
+\mathcal{S}_{\F}(G) &= \{M \in \F^{n\times n} : M^\top = M,\; \forall i\neq j,\; (M_{ij}\neq 0 \iff ij \in E(G))\}, \\
+\mr_{\F}(G) &= \min_{M\in\mathcal{S}_{\F}(G)} \rk_{\F}(M).
+\end{align*}
+
+\begin{theorem}[Universal $\mr_{\F}(G)=1$ Characterization]\label{thm:graph-mr1}
+Over every field $\F$, a simple graph $G$ with $E(G)\neq\emptyset$ satisfies $\mr_{\F}(G) = 1$ if and only if any two distinct non-isolated vertices of $G$ are adjacent (equivalently, $G \cong K_k \sqcup (n-k)K_1$ for some $k\ge 2$, i.e., $G$ is $(P_3, 2K_2)$-free). In particular, the minimal forbidden induced subgraphs $P_3$ and $2K_2$ are acyclic forests rather than cycle-parity obstructions.
+\end{theorem}
+\begin{proof}
+If $M_{ij} = u_i v_j$ lies in $\mathcal{S}_{\F}(G)$ and $ab, cd \in E(G)$ with $a\neq c$, then $a\neq b$ and $d\neq c$ by irreflexivity, so $u_a v_b = M_{ab} \neq 0$ and $u_d v_c = M_{dc} \neq 0$, whence $u_a \neq 0$ and $v_c \neq 0$; thus $M_{ac} = u_a v_c \neq 0$ and $ac \in E(G)$. Conversely, setting $u_i = 1$ on non-isolated vertices and $u_i = 0$ on isolated vertices yields $M = u u^\top \in \mathcal{S}_{\F}(G)$ of rank $1$.
+\end{proof}
+
+At rank $\ge 2$, $\mr_{\F}(G)$ ceases to be a purely combinatorial invariant altogether~\cite{BF2004,FH2007}:
+
+\begin{theorem}[Minimal $5$-Vertex Field Separation on Chordal $G_5 = K_5 \setminus P_3$]\label{thm:g5}
+Across all $18$ non-isomorphic simple graphs of order $1 \le n \le 4$, $\mr_{\F}(G)$ is independent of $\F$. At $n = 5$, let $G_5$ be the chordal simple graph on $\{1,2,3,4,5\}$ obtained from $K_5$ by deleting the two edges $\{3,5\}$ and $\{4,5\}$. Then:
+\[
+\mr_{\F_2}(G_5) = 3, \qquad \text{whereas} \qquad \mr_{\F}(G_5) = 2 \quad \text{for every field } \F \text{ with } |\F| \ge 3
+\]
+(including both $\F_3$ in characteristic $3$ and $\F_4$ in characteristic $2$, as well as $\Q,\R,\C$).
+\end{theorem}
+\begin{proof}
+Since $\{3,4\}, \{1,5\} \in E(G_5)$ while $\{3,5\}\notin E(G_5)$, Theorem~\ref{thm:graph-mr1} implies $\mr_{\F}(G_5) \ge 2$ over every field $\F$.
+Over $\F_2$, any $M \in \mathcal{S}_{\F_2}(G_5)$ must have $1$ on every edge and $0$ on non-edges $\{3,5\},\{4,5\}$. Its $3\times 3$ submatrix on rows $\{1,3,5\}$ and columns $\{2,4,5\}$ is
+\[
+M[\{1,3,5\},\{2,4,5\}] = \begin{pmatrix} 1 & 1 & 1 \\ 1 & 1 & 0 \\ 1 & 0 & M_{55} \end{pmatrix},
+\]
+whose determinant over $\F_2$ equals $1\cdot M_{55} - 1\cdot M_{55} + 1\cdot 1 = 1 \neq 0$ \emph{regardless} of the diagonal entry $M_{55} \in \F_2$. By Lemma~\ref{lem:minors}(b), $\mr_{\F_2}(G_5) \ge 3$, while $U U^\top$ with rows $(1,1,1)$, $(1,1,1)$, $(1,0,0)$, $(1,0,0)$, $(0,1,0) \in \F_2^3$ achieves rank $3$.
+
+Now let $|\F| \ge 3$ ($\exists \alpha \in \F \setminus \{0,1\}$). If $1+\alpha \neq 0$, set $\beta := \alpha$; if $1+\alpha = 0$, then $\alpha = -1 \neq 1$, so $1+1 \neq 0$ and we set $\beta := 1$. In either case $\beta \neq 0$ and $1+\beta \neq 0$. Taking $U \in \F^{5\times 2}$ with rows $(1,1), (1,\beta), (1,0), (1,0), (0,1)$, the symmetric matrix $M = U U^\top$ has off-diagonal inner products $1+\beta \neq 0$ on $\{1,2\}$, $\beta \neq 0$ on $\{2,5\}$, $0$ on $\{3,5\}$ and $\{4,5\}$, and $1\neq 0$ on all remaining edges, so $M \in \mathcal{S}_{\F}(G_5)$ with $\rk_{\F}(M) \le 2$, proving $\mr_{\F}(G_5) = 2$.
+\end{proof}
+
+Even over \emph{infinite algebraically closed fields} ($\overline{\F}_2$ vs.\ $\C$), pattern minimum rank depends on field characteristic~\cite{BFHRS2008}. Let $p_1,\dots,p_7 \in \{0,1\}^3$ be the seven nonzero vectors $(1,0,0)$, $(0,1,0)$, $(0,0,1)$, $(1,1,0)$, $(1,0,1)$, $(0,1,1)$, $(1,1,1)$, and define the $7\times 7$ Fano zero-nonzero pattern $Z_{\mathrm{Fano}}$ by $(Z_{\mathrm{Fano}})_{ij} = 1 \iff p_i \cdot p_j \equiv 1 \pmod 2$. Let $\mr_{\F}^{\mathrm{znz}}(Z) = \min\{\rk_{\F}(M) : M_{ij}\neq 0 \iff Z_{ij}=1\}$.
+
+\begin{theorem}[Characteristic Separation on the $7\times 7$ Fano Pattern]\label{thm:fano}
+For every field $\F$:
+\begin{itemize}
+\item[(a)] If $\mathrm{char}(\F) = 2$, then $\mr_{\F}^{\mathrm{znz}}(Z_{\mathrm{Fano}}) = 3$.
+\item[(b)] If $\mathrm{char}(\F) \neq 2$, then $\mr_{\F}^{\mathrm{znz}}(Z_{\mathrm{Fano}}) = 4$.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+For any $M$ fitting $Z_{\mathrm{Fano}}$, $M[\{1,2,3\},\{1,2,3\}] = \mathrm{diag}(M_{11},M_{22},M_{33})$ has determinant $M_{11}M_{22}M_{33}\neq 0$, so $\rk_{\F}(M) \ge 3$ by Lemma~\ref{lem:minors}(b). If $\mathrm{char}(\F)=2$, let $P \in \F^{7\times 3}$ have rows $p_1,\dots,p_7$; then $P P^\top$ fits $Z_{\mathrm{Fano}}$ with rank $\le 3$, proving (a).
+
+Now assume $\mathrm{char}(\F)\neq 2$. First, setting $w = (0,0,0,1,1,1,1)^\top$, the $\{0,1,-1\}$-valued matrix $M_Z = P P^\top - 2 w w^\top$ has rank $\le 4$ and exact support $Z_{\mathrm{Fano}}$ (entries where $p_i\cdot p_j = 2$ become $2-2=0$, entries where $p_i\cdot p_j = 1$ on $\{4,5,6\}^2$ become $1-2=-1\neq 0$, and $(M_Z)_{77} = 3-2=1\neq 0$). Next, suppose $M = U V$ ($U\in\F^{7\times 3}, V\in\F^{3\times 7}$) fits $Z_{\mathrm{Fano}}$. Because $M[\{1,2,3\},\{1,2,3\}]$ is invertible diagonal, no nonzero linear combination $\sum_{t=1}^3 w_t V_{t,\cdot}$ can vanish on columns $\{1,2,3\}$ (otherwise eliminating one row of $V[\cdot,\{1,2,3\}]$ would give $\rk_{\F}(M[\{1,2,3\},\{1,2,3\}])\le 2$). Defining $\alpha_k(r) := M_{rk} M_{kk}^{-1}$ for $k\in\{1,2,3\}$, the vector $w_t = U_{rt} - \sum_{k=1}^3 \alpha_k(r) U_{kt}$ vanishes against $V_{\cdot,\{1,2,3\}}$, hence $w = 0$ and
+\[
+M_{rj} = \alpha_1(r) M_{1j} + \alpha_2(r) M_{2j} + \alpha_3(r) M_{3j} \qquad \text{for all } 1 \le r,j \le 7.
+\]
+For row $r=4$, $\alpha_3(4)=0$ (since $M_{43}=0$) and $M_{34}=0$. Evaluating at columns $j=4,7$ (where $M_{44}=M_{47}=0$) and comparing with row $r=7$ at column $j=4$ ($M_{74}=0$) yields
+\[
+\alpha_1(4) M_{14} + \alpha_2(4) M_{24} = 0, \quad
+\alpha_1(7) M_{14} + \alpha_2(7) M_{24} = 0, \quad
+\alpha_1(4) M_{17} + \alpha_2(4) M_{27} = 0.
+\]
+Since $M_{24}\neq 0$ and $\alpha_2(4)\neq 0$, the first two equations give $\alpha_1(4)\alpha_2(7) = \alpha_1(7)\alpha_2(4)$, and substituting into the third gives $u_1 + u_2 = 0$, where $u_k := \alpha_k(7) M_{k7} \neq 0$. Symmetrically, rows $r=5$ and $r=6$ yield $u_1 + u_3 = 0$ and $u_2 + u_3 = 0$. Hence $2 u_1 = (u_1+u_2)+(u_1+u_3)-(u_2+u_3) = 0$; since $u_1\neq 0$, $2 = 0$ in $\F$, contradicting $\mathrm{char}(\F)\neq 2$.
+\end{proof}
+
+Finally, consider Haemers' orthogonal-representation / index-coding parameter~\cite{Haemers1979,Peeters1996}:
+\[
+\minrank_{\F}(G) = \min\{\rk_{\F}(M) : M_{ii} = 1\ (\forall i),\; M_{ij} = 0\ (\forall i\neq j,\; ij\notin E(G))\}.
+\]
+
+\begin{theorem}[Haemers Minrank Cycle-Parity Reversal]\label{thm:haemers}
+Over every field $\F$, the bipartite $6$-cycle $C_6$ (zero odd cycles) and its non-bipartite complement $\overline{C_6}$ (the $3$-prism, containing two odd $3$-cycles) satisfy
+\[
+\minrank_{\F}(C_6) = 3 > 2 = \minrank_{\F}(\overline{C_6}).
+\]
+\end{theorem}
+\begin{proof}
+In $C_6$, the independent set $\{1,3,5\}$ forces $M[\{1,3,5\},\{1,3,5\}] = I_3$ ($\det = 1 \neq 0$), so $\minrank_{\F}(C_6)\ge 3$ by Lemma~\ref{lem:minors}(b), while the clique cover $\{1,2\},\{3,4\},\{5,6\}$ gives $\mathrm{diag}(J_2,J_2,J_2)$ of rank $3$. In $\overline{C_6}$, the two odd triangles $\{1,3,5\}$ and $\{2,4,6\}$ partition $V(\overline{C_6})$ into two cliques, giving a block rank-$2$ fitting matrix, while non-edge $\{1,2\}$ forces $M[\{1,2\},\{1,2\}]=I_2$ of rank $2$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Audit}
+
+Table~\ref{tab:lean} records the exact correspondence between the results established in Sections~2--5 and their machine-checked formalizations in Core Lean 4.19.0 (\texttt{lean/}).
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Paper Result} & \textbf{Lean 4 Module} & \textbf{Formal Theorem Identifier(s)} \\
+\midrule
+Lemma~\ref{lem:minors}(a,b) & \texttt{MatrixRank.lean} &
+  \begin{tabular}[t]{@{}l@{}}\texttt{minor2\_eq\_of\_rank\_le\_one},\\\texttt{subDet3\_eq\_zero\_of\_rank\_le\_two}\end{tabular} \\[8pt]
+Lemma~\ref{lem:cycle-prod}(a,b) & \texttt{BipartiteCompletion.lean} &
+  \begin{tabular}[t]{@{}l@{}}\texttt{bipartite\_even\_cycle\_product\_eq},\\\texttt{directed\_cycle\_diag\_product\_eq}\end{tabular} \\[8pt]
+Theorem~\ref{thm:forest} & \texttt{BipartiteCompletion.lean} &
+  \begin{tabular}[t]{@{}l@{}}\texttt{forest\_partial\_matrix\_minRank\_one},\\\texttt{spec\_T5\_isForest}\end{tabular} \\[8pt]
+Theorem~\ref{thm:even-c6} & \texttt{BipartiteCompletion.lean} & \texttt{even\_C6\_refutes\_combinatorial\_and\_parity} \\[3pt]
+Theorem~\ref{thm:chordal-step} & \texttt{SymmetricCycles.lean} & \texttt{chordal\_simplicial\_sym\_rank\_one\_step} \\[3pt]
+Theorem~\ref{thm:sym-unit}(a,b) & \texttt{SymmetricCycles.lean} &
+  \begin{tabular}[t]{@{}l@{}}\texttt{S\_C4\_minus\_minRank\_two}, \texttt{S\_C4\_minus\_minSymRank\_three},\\\texttt{S\_C5\_minus\_locallyRankOne}, \texttt{S\_C6\_minus\_locallyRankOne}\end{tabular} \\[8pt]
+Theorem~\ref{thm:free-diag}(a--c) & \texttt{SymmetricCycles.lean} &
+  \begin{tabular}[t]{@{}l@{}}\texttt{freeDiag\_odd\_C3\_always\_rank\_one},\\\texttt{freeDiag\_even\_C4\_obstruction},\\\texttt{freeDiag\_butterfly\_odd\_cycles\_obstruct}\end{tabular} \\[14pt]
+Theorem~\ref{thm:graph-mr1} & \texttt{SpectralGraphMinRank.lean} & \texttt{graph\_minRank\_one\_iff\_activeClique} \\[3pt]
+Theorem~\ref{thm:g5} & \texttt{SpectralGraphMinRank.lean} &
+  \begin{tabular}[t]{@{}l@{}}\texttt{G5\_minRank\_F2\_eq\_three},\\\texttt{G5\_minRank\_card\_ge\_three\_eq\_two}\end{tabular} \\[8pt]
+Theorem~\ref{thm:fano} & \texttt{SpectralGraphMinRank.lean} &
+  \begin{tabular}[t]{@{}l@{}}\texttt{fano\_znz\_minRank\_char\_two},\\\texttt{fano\_znz\_minRank\_char\_ne\_two}\end{tabular} \\[8pt]
+Theorem~\ref{thm:haemers} & \texttt{SpectralGraphMinRank.lean} & \texttt{haemers\_C6\_vs\_complement} \\[3pt]
+Master Theorems & \texttt{Conjecture00000007178.lean} &
+  \begin{tabular}[t]{@{}l@{}}\texttt{conjecture\_00000007178\_positive\_nonvacuity},\\\texttt{conjecture\_00000007178\_complete\_refutation},\\\texttt{conjecture\_00000007178\_field\_separation}\end{tabular} \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical results and Core Lean 4.19.0 formalization.}
+\label{tab:lean}
+\end{table}
+
+All modules compile under \texttt{leanprover/lean4:v4.19.0} with \texttt{-DwarningAsError=true}, zero external dependencies, zero \texttt{sorry}/\texttt{admit}, zero \texttt{native\_decide}, and zero custom axioms. In parallel, \texttt{verify.py} exhaustively checks all $512$ bipartite $3\times 3$ patterns, all $52$ non-isomorphic simple graphs of order $1\le n\le 5$ under unit-diagonal, free-diagonal, and spectral minimum-rank regimes, the $7\times 7$ Fano pattern across $\F_2,\F_3,\F_4,\F_5,\Q$, and Haemers' minrank on $C_6$ and $\overline{C_6}$.
+
+\begin{thebibliography}{9}
+
+\bibitem{BF2004}
+F.~Barioli and S.~M.~Fallat,
+\emph{On two conjectures regarding an inverse eigenvalue problem for acyclic symmetric matrices},
+Electron.\ J.\ Linear Algebra \textbf{11} (2004), 41--50.
+
+\bibitem{BFHRS2008}
+A.~Berman, S.~Friedland, L.~Hogben, U.~G.~Rothblum, and B.~Shader,
+\emph{An upper bound for the minimum rank of a graph},
+Linear Algebra Appl.\ \textbf{429} (2008), 1629--1638.
+
+\bibitem{CJRW1989}
+J.~E.~Cohen, C.~R.~Johnson, L.~Rodman, and H.~J.~Woerdeman,
+\emph{Ranks of completions of partial matrices},
+Oper.\ Theory Adv.\ Appl.\ \textbf{40} (1989), 165--185.
+
+\bibitem{FH2007}
+S.~M.~Fallat and L.~Hogben,
+\emph{The minimum rank of symmetric matrices described by a graph: A survey},
+Linear Algebra Appl.\ \textbf{426} (2007), 558--582.
+
+\bibitem{GJSw1984}
+R.~Grone, C.~R.~Johnson, E.~M.~S\'a, and H.~Wolkowicz,
+\emph{Positive definite completions of partial Hermitian matrices},
+Linear Algebra Appl.\ \textbf{58} (1984), 109--124.
+
+\bibitem{Haemers1979}
+W.~H.~Haemers,
+\emph{On some problems of Lov\'asz concerning the Shannon capacity of a graph},
+IEEE Trans.\ Inform.\ Theory \textbf{25} (1979), 231--232.
+
+\bibitem{Laurent2001}
+M.~Laurent,
+\emph{Matrix completion problems},
+in \emph{The Encyclopedia of Optimization}, Vol.~3, Kluwer, 2001, 221--229.
+
+\bibitem{Peeters1996}
+R.~Peeters,
+\emph{Orthogonal representations over finite fields and the chromatic number of graphs},
+Combinatorica \textbf{16} (1996), 417--431.
+
+\end{thebibliography}
+
+\end{document}
