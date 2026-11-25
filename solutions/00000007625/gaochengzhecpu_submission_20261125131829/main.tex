@@ -1,0 +1,617 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\emergencystretch}{1.5em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\Mat}{M}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\HH}{\mathbb{H}}
+\newcommand{\tr}{\mathrm{tr}}
+
+\title{\textbf{Disproof and Exact Wedderburn--Artin Characterization of the\\
+Minimal-Ideal-Count Idempotent Decomposition Conjecture}\\
+\large (Resolution of Conjecture 00000007625)}
+\author{Formalized in Core Lean 4.19.0 with Computational Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~00000007625 in the negative across all standard
+ring-theoretic and Clifford-algebraic interpretations, while proving the exact
+Wedderburn--Artin central-block theorem that captures its valid core. The
+conjecture asserts three linked principles for idempotent projection structures:
+(I)~the count law of idempotent decompositions equals the minimal-ideal count;
+(II)~minimality is realized by matrix factors; and (III)~the minimal realization
+of matrix factors is the center decomposition. First, we prove a non-vacuous
+positive theorem: in any unital ring $R$ whose identity decomposes into $t$
+pairwise orthogonal simple central blocks $1 = c_1 + \dots + c_t$ (and in full
+generality for split commutative semisimple algebras $K^t$, such as
+$\Cl_{1,0}(K) \cong K \times K$ for $\mathrm{char}\,K \neq 2$), the unordered
+central-primitive decomposition is unique, its summand length $t$ equals the
+minimal two-sided ideal count, and on $K^t$ this also equals the minimal left
+ideal count. Second, we show that as stated for general idempotent projection
+structures, all three clauses fail:
+(1)~on the split Clifford matrix algebra $\Cl_{1,1}(\F_3) \cong \Mat_2(\F_3)$,
+the minimal two-sided ideal count ($1$), primitive decomposition length ($2$),
+minimal left ideal count ($4$), unordered primitive decomposition count ($6$),
+ordered primitive decomposition count ($12$), and total idempotent count ($14$)
+are pairwise distinct, with $\{2,6,7,12,13,14\} \cap \{1,4,8\} = \emptyset$,
+and over $\Z$ or $\Q$ there are infinitely many unordered primitive
+decompositions while $m_{\mathrm{two}}(\Mat_2(\Q)) = 1$;
+(2)~in division Clifford algebras $\Cl_{0,1}(\F_3) \cong \F_9$ and
+$\Cl_{0,2}(K) = \HH(K)$ ($K \in \{\Q, \R\}$), the unique minimal ideal is a
+division algebra non-isomorphic as a ring to $\Mat_n(K)$ for every $n \ge 1$;
+and (3)~in the exterior algebra $\Lambda(\F_3^1) = \F_3[\varepsilon]/(\varepsilon^2)$
+and the commutative local algebra $\F_3[x,y]/(x^2,xy,y^2)$, minimal ideals are
+square-zero nilpotent (containing no nonzero idempotents) and even in the
+commutative central setting satisfy $1 \neq 4$. All theorems are verified from
+first principles in Core Lean~4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Problem Statement and Taxonomic Analysis}
+
+\subsection{Statement of the Conjecture}
+
+Conjecture~00000007625 reads verbatim as follows:
+\begin{quote}
+\emph{Definition: Idempotents as projection structure. Conjecture: The count law
+of idempotent decompositions is the minimal-ideal count; the realization of
+minimality is the matrix factor; and the minimal realization of matrix factors
+is the center decomposition. (minimal-ideal-count idempotent decomposition)}
+\end{quote}
+The accompanying Chinese formulation (\emph{idempotents as projection structure;
+the number law of idempotent decompositions is the minimal-ideal count; the
+realization of minimality is the matrix factor; and the minimal realization of
+matrix factors is the center decomposition}) has the exact same three-clause
+logical structure.
+
+\subsection{Algebraic Definitions and Candidate Readings}
+
+Let $R$ be a nonzero unital associative ring ($1 \neq 0$) with center
+$Z(R) = \{z \in R : zx = xz \text{ for all } x \in R\}$.
+\begin{itemize}
+\item An element $e \in R$ is an \emph{idempotent} ($e \in E(R)$) if $e^2 = e$;
+left multiplication $x \mapsto ex$ defines a module projection on every left
+$R$-module and yields the Peirce decomposition $R = Re \oplus R(1-e)$.
+\item Two elements $e, f \in R$ are \emph{orthogonal} if $ef = fe = 0$. A
+nonzero idempotent $e \in R$ is \emph{primitive} if there do not exist nonzero
+orthogonal idempotents $f, g \in R$ with $e = f + g$. A nonzero central
+idempotent $c \in Z(R)$ is \emph{central-primitive} if there do not exist
+nonzero orthogonal central idempotents $f, g \in Z(R)$ with $c = f + g$.
+\item An \emph{orthogonal idempotent decomposition} of $1 \in R$ of
+\emph{length} $r \ge 1$ is a tuple $(e_1, \dots, e_r)$ of nonzero pairwise
+orthogonal idempotents satisfying $\sum_{i=1}^r e_i = 1$. It is \emph{primitive}
+(complete) if every $e_i$ is primitive, and \emph{central-primitive} (the
+\emph{center decomposition}) if every $e_i$ is central-primitive.
+\item A nonzero left ideal $L \leq {}_R R$ (respectively, nonzero two-sided
+ideal $I \trianglelefteq R$) is \emph{minimal} if every nonzero left ideal
+$M \subseteq L$ (respectively, nonzero two-sided ideal $J \subseteq I$) equals
+$L$ (respectively, $I$). We write $m_{\mathrm{left}}(R)$,
+$m_{\mathrm{right}}(R)$, and $m_{\mathrm{two}}(R)$ for the cardinalities of the
+sets of minimal nonzero left, right, and two-sided ideals of $R$.
+\end{itemize}
+
+Because both ``count law of idempotent decompositions'' and ``minimal-ideal
+count'' admit several standard meanings in noncommutative ring theory, a
+complete resolution must test all natural readings simultaneously:
+\begin{itemize}
+\item[(C1)] \textbf{Decomposition length $r(R)$:} the number $r$ of summands in a
+primitive orthogonal decomposition $1 = e_1 + \dots + e_r$.
+\item[(C2)] \textbf{Unordered decomposition count $N_{\mathrm{unord}}(R)$:} the number
+of distinct sets $\{e_1, \dots, e_r\}$ arising from primitive orthogonal
+decompositions of $1$ (or $N_{\mathrm{unord}}^{\mathrm{all}}(R)$ if
+non-primitive orthogonal decompositions are also counted).
+\item[(C3)] \textbf{Ordered decomposition count $N_{\mathrm{ord}}(R)$:} the number of
+distinct ordered tuples $(e_1, \dots, e_r)$ of primitive orthogonal
+decompositions of $1$ (or $N_{\mathrm{ord}}^{\mathrm{all}}(R)$ for all ordered
+orthogonal decompositions).
+\item[(C4)] \textbf{Idempotent element count $|E(R)|$:} the total number of
+idempotents in $R$ (or $|E(R) \setminus \{0\}|$ for nonzero idempotents).
+\end{itemize}
+Likewise, ``minimal-ideal count'' may refer to $m_{\mathrm{two}}(R)$,
+$m_{\mathrm{left}}(R)$ ($= m_{\mathrm{right}}(R)$ in self-opposite rings), or
+even the cardinality of the union of minimal left and minimal right ideals.
+Table~\ref{tab:invariants} summarizes all invariants across the benchmark
+algebras analyzed in Sections~2--4.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\caption{Exact invariants across semisimple, Clifford, division, and
+non-semisimple benchmark algebras.}
+\label{tab:invariants}
+\vspace{4pt}
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+Algebra $R$ & Center $t$ & $m_{\mathrm{two}}$ & $m_{\mathrm{left}}$ & Length $r$ & $N_{\mathrm{unord}}$ & $N_{\mathrm{ord}}$ & $|E(R)|$ \\
+\midrule
+$\F_3^t$ ($t \ge 1$) & $t$ & $t$ & $t$ & $t$ & $1$ & $t!$ & $2^t$ \\
+$\Cl_{1,0}(\F_3) \cong \F_3 \times \F_3$ & $2$ & $2$ & $2$ & $2$ & $1$ & $2$ & $4$ \\
+$\Mat_2(\F_2) \oplus \F_2$ & $2$ & $2$ & $4$ & $3$ & $3$ & $18$ & $16$ \\
+$\Mat_2(\F_2)$ & $1$ & $1$ & $3$ & $2$ & $3$ & $6$ & $8$ \\
+$\Cl_{1,1}(\F_3) \cong \Mat_2(\F_3)$ & $\mathbf{1}$ & $\mathbf{1}$ & $\mathbf{4}$ & $\mathbf{2}$ & $\mathbf{6}$ & $\mathbf{12}$ & $\mathbf{14}$ \\
+$\Mat_2(\F_q)$ ($q$ prime power) & $1$ & $1$ & $q+1$ & $2$ & $\tfrac{1}{2}q(q+1)$ & $q(q+1)$ & $q(q+1)+2$ \\
+$\Cl_{1,1}(\Q) \cong \Mat_2(\Q)$ & $1$ & $1$ & $\infty$ & $2$ & $\infty$ & $\infty$ & $\infty$ \\
+$\Cl_{0,1}(\F_3) \cong \F_9$ ($\not\cong \Mat_n(\F_3)$) & $1$ & $1$ & $1$ & $1$ & $1$ & $1$ & $2$ \\
+$\Cl_{0,2}(\Q) = \HH(\Q)$ ($\not\cong \Mat_n(\Q)$) & $1$ & $1$ & $1$ & $1$ & $1$ & $1$ & $2$ \\
+$\Lambda(\F_3^1) = \F_3[\varepsilon]/(\varepsilon^2)$ ($I^2 = 0$) & $1$ & $1$ & $1$ & $1$ & $1$ & $1$ & $2$ \\
+$\F_3[x,y]/(x^2,xy,y^2)$ (comm., $I^2 = 0$) & $1$ & $\mathbf{4}$ & $\mathbf{4}$ & $\mathbf{1}$ & $\mathbf{1}$ & $\mathbf{1}$ & $2$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Positive Regime: Central Block Uniqueness and \texorpdfstring{$K^t$}{K\^t}}
+
+We first establish the precise Wedderburn--Artin domain of validity behind
+Conjecture~00000007625: when ``idempotent decomposition'' is restricted to
+\emph{central-primitive} idempotents, ``count law'' means \emph{decomposition
+length}, ``minimal ideal'' means \emph{minimal two-sided ideal}, and the ring
+decomposes into simple central blocks $B_j \cong \Mat_{n_j}(D_j)$ over division
+rings $D_j$.
+
+\begin{definition}
+Let $R$ be a unital ring. A central idempotent $c \in Z(R)$ is a \emph{simple
+central block} if $c \neq 0$ and for every two-sided ideal $I \trianglelefteq R$,
+whenever there exists $x \in I$ with $xc \neq 0$, one has $c \in I$. We denote
+its associated block by $B(c) = \{x \in R : xc = x\} = Rc$.
+\end{definition}
+
+\begin{theorem}[Central Block Uniqueness and Minimal Two-Sided Ideal Count Law]
+\label{thm:central-block}
+Suppose $R$ admits a pairwise orthogonal decomposition $1 = c_1 + \dots + c_t$
+into simple central blocks $c_1, \dots, c_t \in Z(R)$. Then:
+\begin{enumerate}
+\item[(a)] Each $B(c_j)$ is a minimal nonzero two-sided ideal of $R$, the blocks
+$B(c_1), \dots, B(c_t)$ are pairwise distinct, and every minimal nonzero
+two-sided ideal of $R$ equals $B(c_j)$ for a unique $j \in \{1,\dots,t\}$.
+Consequently, $m_{\mathrm{two}}(R) = t$.
+\item[(b)] For every central idempotent $z \in Z(R)$ and every $j \in \{1,\dots,t\}$,
+either $zc_j = 0$ or $zc_j = c_j$. In particular, the set of central-primitive
+idempotents of $R$ is precisely $\{c_1, \dots, c_t\}$, of cardinality $t$.
+\item[(c)] Every central-primitive orthogonal decomposition $1 = d_1 + \dots + d_s$
+satisfies $s = t = m_{\mathrm{two}}(R)$ and $\{d_1, \dots, d_s\} =
+\{c_1, \dots, c_t\}$ (so the unordered center decomposition is unique).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a)~Because $c_j \in Z(R)$, $(xr)c_j = x(rc_j) = x(c_j r) = (xc_j)r = xr$ for
+all $x \in B(c_j)$ and $r \in R$, so $B(c_j)$ is a two-sided ideal containing
+$c_j \neq 0$. If $J \subseteq B(c_j)$ is a nonzero two-sided ideal containing
+$x \neq 0$, then $xc_j = x \neq 0$, so the simple-block property yields
+$c_j \in J$, hence $y = yc_j \in J$ for all $y \in B(c_j)$. Thus $B(c_j)$ is
+minimal. For $i \neq j$, $c_i \in B(c_i)$ while $c_i c_j = 0 \neq c_i$, so
+$B(c_i) \neq B(c_j)$. Conversely, if $I \trianglelefteq R$ is any minimal
+nonzero two-sided ideal and $0 \neq x \in I$, then
+$x = x \cdot 1 = \sum_{j=1}^t xc_j$ implies $xc_j \neq 0$ for some $j$, whence
+$c_j \in I$ and $B(c_j) \subseteq I$, forcing $I = B(c_j)$ by minimality of $I$.
+
+(b)~Let $z \in Z(R)$ satisfy $z^2 = z$ and put $w = zc_j$. Since $z$ and $c_j$
+are commuting idempotents, $w$ is a central idempotent with $wc_j = w$, and
+$B(w)$ is a two-sided ideal. If $w \neq 0$, then $w \in B(w)$ satisfies
+$wc_j = w \neq 0$, so $c_j \in B(w)$, i.e.\ $c_j w = c_j$; on the other hand,
+$c_j w = c_j z c_j = z c_j^2 = w$, giving $w = c_j$. Hence $zc_j \in \{0, c_j\}$.
+If $c_j = f + g$ with nonzero orthogonal central idempotents $f, g$, then
+$f = f(f+g) = fc_j \in \{0, c_j\}$ forces $f = c_j$ and $g = 0$, contradiction;
+thus each $c_j$ is central-primitive. Conversely, if $d$ is central-primitive,
+$d = \sum_{j=1}^t dc_j \neq 0$ yields $j$ with $dc_j \neq 0$, so $dc_j = c_j$.
+Setting $g = d - c_j \in Z(R)$, one verifies $c_j g = g c_j = 0$ and $g^2 = g$;
+since $d = c_j + g$ is central-primitive and $c_j \neq 0$, we have $g = 0$, so
+$d = c_j$.
+
+(c)~If $1 = d_1 + \dots + d_s$ is any central-primitive orthogonal decomposition,
+part~(b) shows $\{d_1, \dots, d_s\} \subseteq \{c_1, \dots, c_t\}$. Conversely,
+for each $j$, $c_j = \sum_{i=1}^s c_j d_i \neq 0$ gives some $i$ with
+$c_j d_i \neq 0$; writing $d_i = c_k$ forces $j = k$ by orthogonality, so
+$c_j = d_i$. Finally, pairwise orthogonality makes $i \mapsto d_i$ injective on
+$\{1, \dots, s\}$, hence $s = |\{c_1, \dots, c_t\}| = t$.
+\end{proof}
+
+\begin{corollary}[Split Commutative Semisimple Algebras $K^t$ and $\Cl_{1,0}(K)$]
+\label{cor:split-comm}
+Let $K$ be a field and $R = K^t$ ($t \ge 1$) under componentwise operations,
+with coordinate projections $e_j = (0,\dots,1,\dots,0)$. Then $R$ is
+commutative, every $e_j$ is a simple central block with $B(e_j) \cong K \cong
+\Mat_1(K)$, minimal left ideals coincide with minimal two-sided ideals, and
+\[
+  m_{\mathrm{two}}(K^t) = m_{\mathrm{left}}(K^t) = r(K^t) = t,
+  \qquad N_{\mathrm{unord}}(K^t) = 1, \qquad N_{\mathrm{ord}}(K^t) = t!.
+\]
+In particular, when $\mathrm{char}\,K \neq 2$ (for example $K = \F_3$),
+$\Cl_{1,0}(K) = K[e]/(e^2 - 1) \cong K \times K$ via $s + ve \mapsto (s+v, s-v)$
+satisfies $m_{\mathrm{two}} = m_{\mathrm{left}} = r = 2$.
+\end{corollary}
+
+\begin{remark}
+Even on $K^t$, Corollary~\ref{cor:split-comm} exposes an ambiguity in the phrase
+``count law of idempotent decompositions'': while the \emph{length} $r(K^t) = t$
+matches the minimal-ideal count $t$, the \emph{number of distinct decompositions}
+does not ($N_{\mathrm{unord}}(K^t) = 1 \neq t$ for all $t \ge 2$, and
+$N_{\mathrm{ord}}(K^3) = 3! = 6 \neq 3$). In Section~3 we show that once $R$ is
+noncommutative, \emph{every} reading fails simultaneously.
+\end{remark}
+
+\section{Noncommutative Matrix and Split Clifford Refutation}
+
+\subsection{Characteristic-Free Idempotent Theory on \texorpdfstring{$\Mat_2(D)$}{M\_2(D)}}
+
+We begin with an elementary, characteristic-free characterization of idempotents
+and primitive decompositions in $\Mat_2(D)$ valid over \emph{every} integral
+domain $D$ (including $\mathrm{char}\,D = 2$).
+
+\begin{proposition}[Idempotents and Primitive Decompositions in $\Mat_2(D)$]
+\label{prop:mat2-domain}
+Let $D$ be an integral domain and $M = \Mat_2(D)$.
+\begin{enumerate}
+\item[(a)] A matrix $m = \begin{pmatrix} a & b \\ c & d \end{pmatrix} \in M$ satisfies
+$m^2 = m$ and $m \notin \{0, I_2\}$ if and only if $a + d = 1$ and $ad = bc$.
+\item[(b)] If $f, g \in M$ are nonzero orthogonal idempotents ($f^2 = f \neq 0$,
+$g^2 = g \neq 0$, $fg = gf = 0$), then $f + g = I_2$.
+\item[(c)] An element $m \in M$ is a primitive idempotent if and only if
+$a + d = 1$ and $ad = bc$; in particular, $I_2 = E_{11} + E_{22}$ is not
+primitive.
+\item[(d)] Every primitive orthogonal idempotent decomposition $I_2 = e_1 + \dots + e_r$
+in $M$ has exact length $r = 2$, and $(e_1, e_2) \mapsto e_1$ is a bijection
+from ordered primitive orthogonal decompositions of $I_2$ onto primitive
+idempotents of $M$, with inverse $e \mapsto (e, I_2 - e)$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a)~Suppose $a + d = 1$ and $ad = bc$. Direct expansion gives
+$(m^2)_{11} = a^2 + bc = a(a+d) = a$, $(m^2)_{12} = b(a+d) = b$,
+$(m^2)_{21} = c(a+d) = c$, and $(m^2)_{22} = cb + d^2 = (a+d)d = d$, so
+$m^2 = m$. If $m = 0$ then $a + d = 0 \neq 1$, and if $m = I_2$ then
+$1 = ad = bc = 0$, impossible since $1 \neq 0$. Conversely, suppose $m^2 = m$
+and $m \notin \{0, I_2\}$. If $b \neq 0$, comparing $(1,2)$-entries gives
+$b(a+d-1) = 0$, so $a + d = 1$ because $D$ is a domain, and $(m^2)_{11} = a$
+then yields $a^2 + bc = a(a+d) = a^2 + ad$, hence $ad = bc$. The case $c \neq 0$
+is identical via $(m^2)_{21} = c$. If $b = c = 0$, then $a^2 = a$ and $d^2 = d$
+in the domain $D$ force $a, d \in \{0,1\}$; since $m \notin \{0, I_2\}$,
+$(a,d) \in \{(1,0),(0,1)\}$, both satisfying $a + d = 1$ and $ad = 0 = bc$.
+
+(b)~Neither $f$ nor $g$ can equal $I_2$ (for if $f = I_2$, then $g = I_2 g = fg = 0$).
+By~(a), $f_{11} + f_{22} = 1$ and $g_{11} + g_{22} = 1$. Set $h = f + g$. Since
+$fg = gf = 0$, we have $h^2 = f^2 + fg + gf + g^2 = h$. If $h = 0$, then
+$f = f^2 + fg = fh = 0$, contradiction. If $h \neq I_2$, then~(a) applied to $h$
+gives $h_{11} + h_{22} = 1$; yet $h_{11} + h_{22} = (f_{11} + f_{22}) +
+(g_{11} + g_{22}) = 1 + 1$, whence $1 + 1 = 1$ and $1 = 0$ in $D$, contradiction.
+Therefore $f + g = h = I_2$.
+
+(c)~Clearly $I_2 = E_{11} + E_{22}$ splits into nonzero orthogonal idempotents,
+so $I_2$ is not primitive; thus every primitive idempotent satisfies
+$m \notin \{0, I_2\}$ and hence $a + d = 1$, $ad = bc$ by~(a). Conversely, if
+$a + d = 1$ and $ad = bc$, then $m \neq I_2$, and any splitting $m = f + g$ into
+nonzero orthogonal idempotents would force $m = f + g = I_2$ by~(b), contradiction.
+
+(d)~Let $I_2 = e_1 + \dots + e_r$ be a primitive orthogonal decomposition. We
+cannot have $r = 0$ ($0 \neq I_2$) or $r = 1$ ($e_1 = I_2$ is not primitive by~(c)).
+If $r \ge 3$, then $e_1 + e_2 = I_2$ by~(b), and multiplying on the right by
+$e_3$ yields $e_3 = I_2 e_3 = (e_1 + e_2)e_3 = e_1 e_3 + e_2 e_3 = 0$,
+contradicting $e_3 \neq 0$. Hence $r = 2$, $e_2 = I_2 - e_1$, and conversely for
+every primitive idempotent $e$, $I_2 - e$ has trace $(1-a) + (1-d) = 1$ and
+determinant $(1-a)(1-d) - bc = 1 - (a+d) + (ad - bc) = 0$ with
+$e(I_2 - e) = (I_2 - e)e = 0$.
+\end{proof}
+
+\subsection{Master Six-Way Separation on \texorpdfstring{$\Cl_{1,1}(\F_3) \cong \Mat_2(\F_3)$}{Cl\_\{1,1\}(F\_3) = M\_2(F\_3)}}
+
+\begin{proposition}[Simplicity, Center, and Finite-Field Enumeration]
+\label{prop:mat2-field}
+Let $K$ be any field.
+\begin{enumerate}
+\item[(a)] $\Mat_2(K)$ is a simple ring ($m_{\mathrm{two}}(\Mat_2(K)) = 1$), its
+center is $Z(\Mat_2(K)) = K \cdot I_2$, and $I_2$ is its unique central-primitive
+idempotent ($t = 1 \neq 2 = r$).
+\item[(b)] When $K = \F_q$ is a finite field of order $q$, the invariants of
+$\Mat_2(\F_q)$ are:
+\[
+\begin{aligned}
+  m_{\mathrm{two}} &= 1, \qquad r = 2, \qquad m_{\mathrm{left}} = m_{\mathrm{right}} = q+1,\\
+  N_{\mathrm{unord}} &= \tfrac{1}{2}q(q+1), \qquad N_{\mathrm{ord}} = q(q+1), \qquad
+  |E| = q(q+1)+2.
+\end{aligned}
+\]
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(a)~Let $I \trianglelefteq \Mat_2(K)$ contain $m \neq 0$. If $m_{uv} \neq 0$ for
+$u, v \in \{1,2\}$, then $E_{1u} m E_{v1} + E_{2u} m E_{v2} = m_{uv} I_2 \in I$;
+multiplying by $m_{uv}^{-1} I_2$ gives $I_2 \in I$, hence $I = \Mat_2(K)$.
+Commuting with $E_{11}$ and $E_{12}$ forces any $z \in Z(\Mat_2(K))$ to satisfy
+$z_{12} = z_{21} = 0$ and $z_{11} = z_{22}$, so $Z(\Mat_2(K)) \cong K$ has only
+$0$ and $I_2$ as central idempotents.
+
+(b)~By Proposition~\ref{prop:mat2-domain}(c), primitive idempotents are matrices
+with $d = 1 - a$ and $bc = a(1-a)$:
+\begin{itemize}
+\item If $a \in \{0, 1\}$ ($2$ choices), $bc = 0$ has $2q - 1$ solutions
+$(b,c) \in \F_q^2$, contributing $4q - 2$ matrices.
+\item If $a \in \F_q \setminus \{0, 1\}$ ($q - 2$ choices), $a(1-a) \neq 0$, so
+$b \in \F_q^\times$ ($q - 1$ choices) uniquely determines $c = a(1-a)b^{-1}$,
+contributing $(q-2)(q-1)$ matrices.
+\end{itemize}
+Summing gives $(4q-2) + (q^2 - 3q + 2) = q(q+1)$ primitive idempotents (hence
+$N_{\mathrm{ord}} = q(q+1)$ and $|E| = q(q+1) + 2$ after adjoining $0$ and $I_2$).
+Since $e = I_2 - e$ would imply $0 = e(I_2 - e) = e^2 = e$, impossible, the
+involution $e \mapsto I_2 - e$ is fixed-point-free and partitions primitive
+idempotents into $\frac{1}{2}q(q+1)$ unordered decompositions $\{e, I_2 - e\}$.
+Finally, minimal left ideals of $\Mat_2(\F_q)$ correspond bijectively to the
+$q + 1$ points $[u : v] \in \mathbb{P}^1(\F_q)$ via
+$L_{[u:v]} = \{m \in \Mat_2(\F_q) : \text{each row of } m \text{ lies in } \F_q(u,v)\}$.
+\end{proof}
+
+Notice that at $q = 2$, $\frac{1}{2}q(q+1) = 3$ happens by sheer numerical
+coincidence to equal $q + 1 = 3$ (though $r = 2 \neq 3$ and $m_{\mathrm{two}} = 1$).
+Setting $q = 3$ eliminates even this accidental coincidence and embeds directly
+into Clifford algebras since $\mathrm{char}\,\F_3 = 3 \neq 2$.
+
+\begin{theorem}[Master Six-Way Separation on $\Cl_{1,1}(\F_3) \cong \Mat_2(\F_3)$]
+\label{thm:master-f3}
+Let $\Cl_{1,1}(\F_3)$ be the Clifford algebra over $\F_3^2$ generated by
+$\gamma_1, \gamma_2$ subject to $\gamma_1^2 = 1$, $\gamma_2^2 = -1$, and
+$\gamma_1 \gamma_2 + \gamma_2 \gamma_1 = 0$.
+\begin{enumerate}
+\item[(a)] The map $s + v_1 \gamma_1 + v_2 \gamma_2 + v_{12}\gamma_1\gamma_2 \mapsto
+\begin{pmatrix} s + v_1 & v_2 + v_{12} \\ -v_2 + v_{12} & s - v_1 \end{pmatrix}$
+is an explicit isomorphism of unital rings $\Cl_{1,1}(\F_3) \cong \Mat_2(\F_3)$.
+\item[(b)] On $R = \Mat_2(\F_3) \cong \Cl_{1,1}(\F_3)$, the algebraic invariants take
+the strictly increasing values
+\[
+  m_{\mathrm{two}}(R) = 1 < r(R) = 2 < m_{\mathrm{left}}(R) = 4
+  < N_{\mathrm{unord}}(R) = 6 < N_{\mathrm{ord}}(R) = 12 < |E(R)| = 14.
+\]
+Moreover, including non-primitive decompositions gives
+$N_{\mathrm{unord}}^{\mathrm{all}}(R) = 7$,
+$N_{\mathrm{ord}}^{\mathrm{all}}(R) = 13$, and $|E(R) \setminus \{0\}| = 13$,
+while $m_{\mathrm{right}}(R) = 4$ is disjoint from $m_{\mathrm{left}}(R)$ so
+$|\mathcal{I}_{\mathrm{left}}(R) \cup \mathcal{I}_{\mathrm{right}}(R)| = 8$.
+Because
+\[
+  \{2, 6, 7, 12, 13, 14\} \cap \{1, 4, 8\} = \emptyset,
+\]
+\textbf{Clause~I of Conjecture~00000007625 is false under every interpretation
+of both the decomposition count law and the minimal-ideal count.}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(a) follows by direct verification that $\gamma_1 \mapsto \mathrm{diag}(1,2)$
+and $\gamma_2 \mapsto \begin{pmatrix} 0 & 1 \\ 2 & 0 \end{pmatrix}$ satisfy the
+defining Clifford relations over $\F_3$ and have explicit two-sided inverse
+$\begin{pmatrix} a & b \\ c & d \end{pmatrix} \mapsto
+2(a+d) + 2(a-d)\gamma_1 + 2(b-c)\gamma_2 + 2(b+c)\gamma_1\gamma_2$ (using
+$2^{-1} = 2$ in $\F_3$). Part~(b) specializes Proposition~\ref{prop:mat2-field}
+to $q = 3$: the four minimal left ideals are explicitly $L_{[1:0]}$, $L_{[0:1]}$,
+$L_{[1:1]}$, and $L_{[1:2]}$, none of which is a right ideal (since right
+multiplication by $\Mat_2(\F_3)$ sweeps out all of $\Mat_2(\F_3)$), and the
+$12$ primitive idempotents pair into $6$ complementary sets $\{e, I_2 - e\}$.
+\end{proof}
+
+\begin{remark}[Structural Failure of Clauses~II and~III on $\Mat_2(K)$]
+Even on $\Mat_2(K)$, Clauses~II and~III suffer from a fundamental conflation
+between one-sided projections and two-sided blocks: a primitive idempotent
+$e_i$ generates a minimal \emph{left} ideal $\Mat_2(K)e_i$ (which contains
+nonzero nilpotent elements such as $E_{21} \in \Mat_2(K)E_{11}$ with
+$E_{21}^2 = 0$, hence is not even a semiprime ring, let alone a matrix ring),
+whereas the matrix factor $\Mat_2(K)$ itself is cut out by the central
+idempotent $I_2$ of length $1 \neq 2$. Similarly, in the two-block ring
+$R = \Mat_2(\F_2) \oplus \F_2$, the center decomposition has length
+$t = m_{\mathrm{two}}(R) = 2$, whereas primitive idempotent decompositions have
+length $r = 3$, $N_{\mathrm{unord}} = 3$, $N_{\mathrm{ord}} = 18$, and
+$m_{\mathrm{left}} = 4$.
+\end{remark}
+
+\begin{proposition}[Infinite Decompositions over $\Z$ and Characteristic-Zero Fields]
+\label{prop:mat2-inf}
+In $\Mat_2(\Z)$ (and in $\Mat_2(K) \cong \Cl_{1,1}(K)$ for any characteristic-zero
+field $K$, such as $\Q$ or $\R$), for every $t \in \Z$ the matrices
+\[
+  e_t = \begin{pmatrix} 1 & t \\ 0 & 0 \end{pmatrix}, \qquad
+  f_t = I_2 - e_t = \begin{pmatrix} 0 & -t \\ 0 & 1 \end{pmatrix}
+\]
+form a primitive orthogonal idempotent decomposition of $I_2$, and
+$\{e_t, f_t\} \neq \{e_s, f_s\}$ whenever $t \neq s$. Thus $\Mat_2(\Z)$ and
+$\Mat_2(\Q)$ admit infinitely many unordered primitive decompositions, whereas
+$m_{\mathrm{two}}(\Mat_2(\Q)) = 1$ and $r(\Mat_2(\Q)) = 2$.
+\end{proposition}
+
+\begin{proof}
+Both $e_t$ and $f_t$ have trace $1$ and determinant $0$ over the domain $\Z$
+(or $K$), so they are primitive idempotents by Proposition~\ref{prop:mat2-domain}(c),
+with $e_t + f_t = I_2$ and $e_t f_t = f_t e_t = 0$. If $\{e_t, f_t\} = \{e_s, f_s\}$,
+comparing $(1,1)$-entries ($1 \neq 0$) forces $e_t = e_s$, hence $t = s$.
+\end{proof}
+
+\section{Division-Algebra and Non-Semisimple Obstructions}
+
+We now show that Clause~II (``the realization of minimality is the matrix
+factor'') and Clause~III (``the minimal realization of matrix factors is the
+center decomposition'') also fail independently of noncommutativity of matrix
+units: first via non-split division Clifford algebras, and second via degenerate
+Clifford and commutative non-semisimple algebras.
+
+\begin{theorem}[Division-Algebra Obstructions: $\Cl_{0,1}(\F_3)$ and $\Cl_{0,2}(K)$]
+\label{thm:division-obstruction}
+\begin{enumerate}
+\item[(a)] The Clifford algebra $\Cl_{0,1}(\F_3) = \F_3[i]/(i^2 + 1) \cong \F_9$ is a
+simple ring with $m_{\mathrm{two}} = m_{\mathrm{left}} = 1$ and $|E| = 2$, yet
+for every integer $n \ge 1$ there is \textbf{no ring isomorphism}
+$\Cl_{0,1}(\F_3) \cong \Mat_n(\F_3)$.
+\item[(b)] Let $C$ be a commutative ring and $\HH(C) = \Cl_{0,2}(C)$ the quaternion
+algebra with basis $1, \mathbf{i}, \mathbf{j}, \mathbf{k}$ satisfying
+$\mathbf{i}^2 = \mathbf{j}^2 = -1$ and $\mathbf{i}\mathbf{j} = \mathbf{k} =
+-\mathbf{j}\mathbf{i}$. For $C = \Z$, there is \textbf{no ring isomorphism}
+$\HH(\Z) \cong \Mat_n(\Z)$ for any $n \ge 1$. Moreover, over any formally real
+field $K$ (meaning $1 + 1 \neq 0$ and $a^2 + b^2 + c^2 + d^2 = 0 \Rightarrow
+a = b = c = d = 0$, such as $K = \Q$ or $K = \R$), $\HH(K) = \Cl_{0,2}(K)$ is a
+simple division ring ($m_{\mathrm{two}} = m_{\mathrm{left}} = 1$, $|E| = 2$)
+that is \textbf{not ring-isomorphic to $\Mat_n(K)$ for any $n \ge 1$}.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a)~In $\F_3$, $a^2 + b^2 = 0$ implies $a = b = 0$, so every nonzero $a + bi \in
+\Cl_{0,1}(\F_3)$ has inverse $(a - bi)(a^2 + b^2)^{-1}$; hence $\Cl_{0,1}(\F_3)$
+is a field of order $9$. For $n = 1$, $|\Mat_1(\F_3)| = 3 \neq 9$, so no
+bijection exists. For $n \ge 2$, $\Mat_n(\F_3)$ contains the nonzero nilpotent
+matrix $E_{12}$ ($E_{12}^2 = 0$), whereas a field has no nonzero zero divisors.
+
+(b)~For any $q = a + b\mathbf{i} + c\mathbf{j} + d\mathbf{k} \in \HH(C)$ and
+$\bar{q} = a - b\mathbf{i} - c\mathbf{j} - d\mathbf{k}$, direct Cayley--Dickson
+computation gives $\bar{q}q = q\bar{q} = (a^2 + b^2 + c^2 + d^2) \cdot 1$.
+Over $\Z$ (respectively, a formally real field $K$), $q \neq 0$ implies
+$N(q) = a^2 + b^2 + c^2 + d^2 \neq 0$, so $\HH(\Z)$ has no nonzero zero divisors
+and $\HH(K)$ is a division ring (with $q^{-1} = N(q)^{-1}\bar{q}$, hence simple).
+For $n = 1$, $\Mat_1(\Z) \cong \Z$ and $\Mat_1(K) \cong K$ are commutative,
+whereas $\mathbf{i}\mathbf{j} = \mathbf{k} \neq -\mathbf{k} = \mathbf{j}\mathbf{i}$
+in $\HH(\Z)$ and $\HH(K)$ (since $1 + 1 \neq 0$). For $n \ge 2$, $\Mat_n(\Z)$
+and $\Mat_n(K)$ contain the nonzero nilpotent $E_{12}$ ($E_{12}^2 = 0$),
+precluding any ring isomorphism with a zero-divisor-free ring.
+\end{proof}
+
+Thus even for finite-dimensional semisimple $K$-algebras, minimal two-sided
+ideals are Wedderburn blocks $\Mat_n(D)$ over \emph{division $K$-algebras} $D$,
+not split matrix rings $\Mat_n(K)$ over the ground field $K$. Finally, when
+semisimplicity (or nondegeneracy of the quadratic form $Q$ in $\Cl(V,Q)$) is
+dropped, all three clauses collapse even in the commutative case.
+
+\begin{theorem}[Degenerate Clifford and Commutative Non-Semisimple Counterexamples]
+\label{thm:non-semisimple}
+The following two finite $\F_3$-algebras refute Clauses~I--III outside the
+semisimple regime:
+\begin{enumerate}
+\item[(a)] \textbf{Exterior algebra.} Let $A = \Lambda(\F_3^1) =
+\F_3[\varepsilon]/(\varepsilon^2)$ be the $Q = 0$ degenerate Clifford algebra.
+Its only idempotents are $0$ and $1$, and its unique minimal nonzero two-sided
+ideal is $I = \F_3 \varepsilon$ ($m_{\mathrm{two}} = 1$). However, $I^2 = 0$, so
+$I$ contains \emph{no} nonzero idempotent, and $A$ is not ring-isomorphic to
+$\Mat_n(\F_3)$ for any $n \ge 1$ (refuting Clauses~II and~III).
+\item[(b)] \textbf{Commutative local algebra.} Let $R = \F_3[x,y]/(x^2, xy, y^2)$.
+Then $R$ is commutative ($Z(R) = R$, and left ideals coincide with two-sided
+ideals) with $E(R) = \{0, 1\}$, so $1$ is primitive and central-primitive and
+\[
+  r(R) = N_{\mathrm{unord}}(R) = N_{\mathrm{ord}}(R) = 1.
+\]
+Yet $R$ has \textbf{four} minimal nonzero two-sided ideals---namely $\F_3 x$,
+$\F_3 y$, $\F_3(x+y)$, and $\F_3(x+2y)$---each satisfying $I^2 = 0$, so
+\[
+  m_{\mathrm{two}}(R) = m_{\mathrm{left}}(R) = 4 \neq 1.
+\]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a)~If $(a + b\varepsilon)^2 = a^2 + 2ab\varepsilon = a + b\varepsilon$ in
+$\F_3[\varepsilon]/(\varepsilon^2)$, then $a \in \{0,1\}$; both $a = 0$ ($0 = b$)
+and $a = 1$ ($2b = b \Rightarrow b = 0$) force $b = 0$. Every element with
+$a \neq 0$ has inverse $a^{-1} - a^{-2}b\varepsilon$, so any proper nonzero ideal
+lies in $I = \F_3\varepsilon$, which is $1$-dimensional over $\F_3$ and hence the
+unique minimal nonzero ideal, with $(b\varepsilon)(b'\varepsilon) = 0$. Finally,
+$|\F_3[\varepsilon]/(\varepsilon^2)| = 9 \neq 3 = |\Mat_1(\F_3)|$, while
+$\Mat_n(\F_3)$ is noncommutative for $n \ge 2$ ($E_{11}E_{12} = E_{12} \neq 0 =
+E_{12}E_{11}$).
+
+(b)~In $R = \F_3[x,y]/(x^2,xy,y^2)$, $(a + bx + cy)^2 = a^2 + 2abx + 2acy$ equals
+$a + bx + cy$ iff $a \in \{0,1\}$ and $b = c = 0$, so $E(R) = \{0,1\}$ and all
+decomposition lengths and counts equal $1$. Every element with $a \neq 0$ has
+unit inverse $a^{-1} - a^{-2}bx - a^{-2}cy$, so every proper nonzero ideal lies
+in the square-zero Jacobson radical $J = \F_3 x \oplus \F_3 y$. Because
+$(a + bx + cy)(u x + v y) = a(u x + v y)$ acts on $J$ solely by $\F_3$-scalar
+multiplication, the minimal nonzero ideals of $R$ are precisely the
+$3 + 1 = 4$ one-dimensional $\F_3$-subspaces of $J$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Suite}
+
+The entire mathematical development is formalized from first principles in Core
+Lean~4.19.0 (\texttt{package/lean/}, zero external dependencies, compiled with
+\texttt{-DwarningAsError=true}, zero \texttt{sorry}, zero \texttt{native\_decide},
+and zero custom axioms). Exact finite cardinalities of predicates $P : \alpha \to
+\mathrm{Prop}$ (including ideal predicates $I : R \to \mathrm{Prop}$) are
+formalized uniformly via \texttt{ExactCard P k}, with constructive Pigeonhole
+uniqueness (\texttt{exactCard\_unique : ExactCard P m $\to$ ExactCard P n $\to$
+m = n}). Table~\ref{tab:lean-map} records the correspondence between paper
+results and Lean~4 declarations, all assembled in the top-level theorem
+\texttt{conjecture\_00000007625\_resolution}.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\caption{Correspondence between mathematical theorems and Core Lean~4.19.0 declarations.}
+\label{tab:lean-map}
+\vspace{4pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Paper Result & Module & Lean~4 Declaration \\
+\midrule
+Pigeonhole uniqueness of \texttt{ExactCard} & \texttt{Basic} & \texttt{exactCard\_unique} \\
+Theorem~\ref{thm:central-block}(a)--(c) & \texttt{Positive} & \texttt{central\_block\_minimal\_ideals\_exactCard} \\
+ & \texttt{Positive} & \texttt{central\_block\_decomp\_uniqueness} \\
+Corollary~\ref{cor:split-comm} ($\F_3^{m+1}$ \& $\Cl_{1,0}(\F_3)$) & \texttt{Positive} & \texttt{f3Pow\_positive\_theorem} \\
+ & \texttt{Positive} & \texttt{cl10\_f3\_iso\_f3Pow2} \\
+Proposition~\ref{prop:mat2-domain}(a)--(d) & \texttt{MatrixCounterexample} & \texttt{mat2\_prim\_idemp\_iff} \\
+ & \texttt{MatrixCounterexample} & \texttt{mat2\_prim\_decomp\_length\_eq\_two} \\
+Proposition~\ref{prop:mat2-field}(a) & \texttt{MatrixCounterexample} & \texttt{mat2\_isSimpleRing} \\
+ & \texttt{MatrixCounterexample} & \texttt{mat2\_central\_prim\_exactCard\_one} \\
+Theorem~\ref{thm:master-f3}(a)--(b) & \texttt{MatrixCounterexample} & \texttt{cl11\_f3\_iso\_mat2\_f3} \\
+ & \texttt{MatrixCounterexample} & \texttt{mat2\_f3\_master\_refutation} \\
+Proposition~\ref{prop:mat2-inf} ($\Mat_2(\Z)$) & \texttt{MatrixCounterexample} & \texttt{mat2\_int\_infinite\_unord\_prim\_decomps} \\
+Theorem~\ref{thm:division-obstruction}(a) ($\Cl_{0,1}(\F_3)$) & \texttt{Obstructions} & \texttt{cl01\_f3\_not\_iso\_any\_matN\_f3} \\
+Theorem~\ref{thm:division-obstruction}(b) ($\HH(\Z)$ \& $\HH(K)$) & \texttt{Obstructions} & \texttt{quatInt\_not\_iso\_any\_matN\_int} \\
+ & \texttt{Obstructions} & \texttt{quatField\_simple\_and\_not\_matN} \\
+Theorem~\ref{thm:non-semisimple}(a) ($\F_3[\varepsilon]/(\varepsilon^2)$) & \texttt{Obstructions} & \texttt{dualF3\_obstruction\_theorem} \\
+Theorem~\ref{thm:non-semisimple}(b) ($\F_3[x,y]/(x^2,xy,y^2)$) & \texttt{Obstructions} & \texttt{localF3\_commutative\_counterexample} \\
+End-to-end resolution bundle & \texttt{Conjecture00000007625} & \texttt{conjecture\_00000007625\_resolution} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+In addition, the standalone Python~3.12 suite \texttt{package/verify.py}
+independently checks ideal closures, center elements, idempotent counts,
+orthogonal decompositions, Clifford relations, quaternion inverses, and rational
+infinite families across $\F_3^t$, $\Cl_{1,0}(\F_3)$, $\Mat_2(\F_2) \oplus \F_2$,
+$\Mat_2(\F_q)$ ($q \in \{2,3,5,7\}$), $\Cl_{1,1}(\Q)$, $\Cl_{0,1}(\F_3)$,
+$\Cl_{0,2}(\Q)$, $\F_3[\varepsilon]/(\varepsilon^2)$, $\F_3[x,y]/(x^2,xy,y^2)$,
+and $T_2(\F_3)$.
+
+\begin{thebibliography}{9}
+
+\bibitem{Lam2001}
+T.~Y.~Lam, \emph{A First Course in Noncommutative Rings}, 2nd~ed., Graduate
+Texts in Mathematics, vol.~131, Springer, New York, 2001.
+
+\bibitem{Lam2005}
+T.~Y.~Lam, \emph{Introduction to Quadratic Forms over Fields}, Graduate Studies
+in Mathematics, vol.~67, American Mathematical Society, Providence, RI, 2005.
+
+\bibitem{LawsonMichelsohn1989}
+H.~B.~Lawson,~Jr.\ and M.-L.~Michelsohn, \emph{Spin Geometry}, Princeton
+Mathematical Series, vol.~38, Princeton University Press, Princeton, NJ, 1989.
+
+\end{thebibliography}
+
+\end{document}
