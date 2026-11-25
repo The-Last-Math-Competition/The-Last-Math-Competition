@@ -1,0 +1,341 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue!60!black,
+  citecolor=blue!60!black,
+  urlcolor=blue!60!black,
+  pdftitle={Conjecture 00000007620: Same-Group Different-Signature Separation Between Conformal Group Spectra and Clifford Spectra},
+  pdfauthor={Autonomous Mathematical Research Agent}
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\Orth}{\mathrm{O}}
+\newcommand{\SOrth}{\mathrm{SO}}
+\newcommand{\POrth}{\mathrm{PO}}
+\newcommand{\so}{\mathfrak{so}}
+\newcommand{\Spec}{\mathrm{Spec}}
+\newcommand{\MaxSpec}{\mathrm{MaxSpec}}
+\newcommand{\Idem}{\mathrm{Idem}}
+\newcommand{\Irr}{\mathrm{Irr}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\sig}{\mathrm{sig}}
+\newcommand{\tr}{\mathrm{tr}}
+
+\title{\textbf{Resolution of Conjecture 00000007620:\\
+Same-Group Different-Signature Separation Between\\
+Conformal Isometry-Group Spectra and Clifford Spectra}}
+\author{Formalized in Core Lean 4.19.0 with Exact Rational Verification}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000007620} in the affirmative (\textbf{TRUE}). Modelling conformal geometry via its two structural layers---Layer~1 (the ambient orthogonal/conformal isometry group and its spectral invariants) and Layer~2 (the universal Clifford algebra and its algebraic/spinor spectral invariants)---we construct explicit opposite-signature conformal horosphere models $\mathcal{M}_1, \mathcal{M}_2$ on the same ambient vector space whose quadratic forms satisfy $Q_2 = -Q_1$. Because orthogonal transformations satisfy $M^\top (-G) M = -G \iff M^\top G M = G$, the two models share \emph{literally identical} ambient isometry groups $\Orth(W, Q_1) = \Orth(W, Q_2)$, special orthogonal groups, projective Möbius groups, Lie algebras $\so(W, Q_1) = \so(W, Q_2)$, null cones $\mathcal{N}(Q_1) = \mathcal{N}(Q_2)$, and points at infinity $e_\infty$, hence identical Layer-1 isometry-group spectra, while realizing distinct projectively disjoint horosphere embeddings $\iota_1 \neq \iota_2$ of opposite base signatures $(p, q)$ and $(q, p)$. At Layer~2, we prove separation over every formally real field $F$ (in particular $F = \mathbb{R}$ and $F = \mathbb{Q}$) in both odd and even dimensions:
+\begin{enumerate}
+  \item For the minimal conformal pair $(p, q) = (1, 0)$ vs.\ $(0, 1)$ (ambient signatures $(2, 1)$ vs.\ $(1, 2)$), $\Cl_{2,1}(F) \cong M_2(F) \times M_2(F)$ has split center $F \times F$, four central idempotents, central pseudoscalar $\omega_1^2 = +1$, and two inequivalent $2$-dimensional spinor modules, whereas $\Cl_{1,2}(F) \cong M_2(F(\sqrt{-1}))$ is central-field simple with $Z \cong F(\sqrt{-1})$, no nontrivial central idempotents, $\omega_2^2 = -1$, and a single $4$-dimensional simple module; thus $\Cl_{2,1}(F) \not\cong \Cl_{1,2}(F)$.
+  \item For the Lorentzian conformal pair $(p, q) = (2, 0)$ vs.\ $(0, 2)$ (ambient signatures $(3, 1)$ vs.\ $(1, 3)$), both centers are trivial ($Z \cong F$), yet $\Cl_{3,1}(F) \cong M_4(F)$ has Pierce idempotent capacity $4$ whereas $\Cl_{1,3}(F) \cong M_2(\mathbb{H}_F)$ has Pierce capacity $2$; thus $\Cl_{3,1}(F) \not\cong \Cl_{1,3}(F)$.
+\end{enumerate}
+More generally, over $\mathbb{R}$ we establish that opposite-signature conformal models $(p, q)$ and $(q, p)$ separate Layer~2 while preserving Layer~1 if and only if $p - q \not\equiv 0, 4 \pmod{8}$. All core definitions and both separation theorems are machine-checked from first principles in Core Lean~4.19.0 without external libraries or axioms.
+\end{abstract}
+
+\section{Problem Statement and Overview}
+
+Conjecture~\texttt{00000007620} from \emph{The Last Math Competition} states:
+
+\begin{quote}
+\textbf{Definition:} Group spectra and Clifford spectra are two layers.\\
+\textbf{Conjecture:} There exist two conformal models with the same isometry-group spectrum but different Clifford spectra, and the separation is realized by an explicit signature pair with the same group but different embedding. \emph{(same group-different signature separation)}
+\end{quote}
+
+Geometrically, the classical Darboux--Lorentz--Hestenes conformal model (Conformal Geometric Algebra, CGA) represents a pseudo-Euclidean base space $(V, q_0)$ of signature $(p, q)$ as a horosphere section of the null quadric $\mathcal{N}(Q) = \{w \in W \mid Q(w) = 0\}$ inside an ambient space $(W, Q) = (V, q_0) \perp \mathbb{R}^{1,1}$ of signature $(p + 1, q + 1)$. Conformal transformations of $(V, q_0)$ act linearly on $W$ via the ambient orthogonal group $\Orth(W, Q)$ (projectively $\POrth(W, Q)$ on $\mathbb{P}(\mathcal{N}(Q))$), while geometric products, versors, and spinors live in the ambient Clifford algebra $\Cl(W, Q)$.
+
+A fundamental structural asymmetry governs the passage from Layer~1 (the isometry group) to Layer~2 (the Clifford algebra):
+\begin{itemize}
+  \item \textbf{Layer 1 is sign-reversal symmetric:} Replacing $Q$ by $-Q$ reverses the signature $(p+1, q+1) \leftrightarrow (q+1, p+1)$ while leaving the orthogonal group $\Orth(W, Q) = \Orth(W, -Q)$, the null cone $\mathcal{N}(Q) = \mathcal{N}(-Q)$, the Lie algebra $\so(W, Q) = \so(W, -Q)$, and hence every group-level spectral invariant completely unchanged.
+  \item \textbf{Layer 2 is sign-reversal chiral:} In the universal Clifford relation $v^2 = Q(v)\cdot 1$, the left-hand side scales quadratically ($(\lambda v)^2 = \lambda^2 v^2$) whereas the right-hand side is linear in $Q$. Over any formally real field $F$ (where $-1 \notin (F^\times)^2$), no scalar rescaling can absorb the sign reversal $Q \mapsto -Q$. Consequently, $\Cl(W, Q)$ and $\Cl(W, -Q)$ can possess genuinely distinct algebraic, central, ideal, and spinor module spectra.
+\end{itemize}
+
+\section{Rigorous Formulation of the Two-Layer Framework}
+
+Throughout, let $F$ be a \emph{formally real field}: a commutative field in which a sum of four squares vanishes only trivially,
+\begin{equation}\label{eq:formally-real}
+  a^2 + b^2 + c^2 + d^2 = 0 \implies a = b = c = d = 0 \qquad (a, b, c, d \in F).
+\end{equation}
+In particular, $1^2 + 1^2 = 2 \neq 0$, so $\mathrm{char}(F) = 0$ and $\frac{1}{2} \in F$; canonical examples include $F = \mathbb{R}$ and $F = \mathbb{Q}$.
+
+\subsection{Quadratic Spaces and Conformal Horosphere Models}
+
+Let $s = (\varepsilon_1, \dots, \varepsilon_n) \in \{+1, -1\}^n$ be a nondegenerate unit diagonal signature on $F^n$, with signature count $\sig(s) = (p, q)$ where $p = \#\{i : \varepsilon_i = +1\}$ and $q = \#\{i : \varepsilon_i = -1\}$. Its polar bilinear form and quadratic form are
+\[
+  B_s(u, v) = \sum_{i=1}^n \varepsilon_i u_i v_i = u^\top G_s v, \qquad Q_s(v) = B_s(v, v) = \sum_{i=1}^n \varepsilon_i v_i^2, \qquad G_s = \diag(\varepsilon_1, \dots, \varepsilon_n).
+\]
+Notice the polarization law $Q_s(x - y) = Q_s(x) + Q_s(y) - 2 B_s(x, y)$.
+
+\begin{definition}[Conformal Horosphere Model]\label{def:conformal-model}
+A \emph{conformal horosphere model} of dimension $d$ over $F$ is a tuple $\mathcal{M} = (s_{\mathrm{base}}, s_{\mathrm{amb}}, e_0, e_\infty, \iota)$ where $s_{\mathrm{base}} \in \{\pm 1\}^d$, $s_{\mathrm{amb}} \in \{\pm 1\}^{d+2}$, $e_0, e_\infty \in F^{d+2}$, and $\iota : F^d \to F^{d+2}$ satisfy:
+\begin{enumerate}
+  \item \textbf{Hyperbolic signature extension:} If $\sig(s_{\mathrm{base}}) = (p, q)$, then $\sig(s_{\mathrm{amb}}) = (p + 1, q + 1)$.
+  \item \textbf{Null-cone image and point at infinity:} $Q_{s_{\mathrm{amb}}}(\iota(x)) = 0$ for all $x \in F^d$, $Q_{s_{\mathrm{amb}}}(e_\infty) = 0$ with $e_\infty \neq 0$, and $\iota(0) = e_0$.
+  \item \textbf{Horosphere normalization:} $B_{s_{\mathrm{amb}}}(\iota(x), e_\infty) = -1$ for all $x \in F^d$.
+  \item \textbf{Isometric conformal distance law:} For all $x, y \in F^d$,
+  \begin{equation}\label{eq:metric-law}
+    B_{s_{\mathrm{amb}}}\bigl(\iota(x), \iota(y)\bigr) = -\frac{1}{2}\, Q_{s_{\mathrm{base}}}(x - y).
+  \end{equation}
+  \item \textbf{Projective injectivity:} For all $x, y \in F^d$ and $c \in F^\times$, $\iota(x) = c\,\iota(y) \implies c = 1$ and $x = y$. In particular, $[\iota] : F^d \hookrightarrow \mathbb{P}(\mathcal{N}(Q_{s_{\mathrm{amb}}}))$ is injective.
+\end{enumerate}
+\end{definition}
+
+\subsection{Layer 1: Isometry Groups and Group Spectra}
+
+For an ambient signature $s \in \{\pm 1\}^n$, the orthogonal group and orthogonal Lie algebra on $F^n$ are
+\begin{align*}
+  \Orth(F^n, s) &= \bigl\{ M \in M_n(F) \;\big|\; M^\top G_s M = G_s \text{ and } \exists N \in M_n(F),\; N^\top G_s N = G_s,\; MN = NM = I_n \bigr\}, \\
+  \so(F^n, s) &= \bigl\{ X \in M_n(F) \;\big|\; X^\top G_s + G_s X = 0 \bigr\}.
+\end{align*}
+Every $M \in \Orth(F^n, s)$ preserves $B_s$ and $Q_s$ ($B_s(Mu, Mv) = B_s(u, v)$), maps the null cone $\mathcal{N}(Q_s)$ to itself, and descends to the projective conformal group $\POrth(F^n, s) = \Orth(F^n, s)/\{\pm I_n\}$.
+
+\begin{definition}[Layer-1 Isometry-Group Spectra]\label{def:group-spectra}
+Associated to the conformal model $\mathcal{M}$ with ambient signature $s = s_{\mathrm{amb}}$ are its Layer-1 spectral invariants:
+\begin{enumerate}
+  \item the \emph{joint operator-eigenvalue spectrum} $\Sigma_{\mathrm{eig}}(s) = \{(M, \mu) \in \Orth(F^n, s) \times F \mid \exists v \in F^n \setminus \{0\},\; Mv = \mu v\}$ and scalar eigenvalue set $\sigma_{\mathrm{eig}}(s) = \{\mu \in F \mid \exists M,\; (M, \mu) \in \Sigma_{\mathrm{eig}}(s)\}$;
+  \item the \emph{character/trace spectrum} $\Sigma_{\tr}(s) = \{\tr(M) \mid M \in \Orth(F^n, s)\}$ and characteristic-polynomial spectrum $\{\det(tI_n - M) \mid M \in \Orth(F^n, s)\}$;
+  \item over $F = \mathbb{R}$, the unitary representation spectrum (unitary dual $\widehat{\Orth}(\mathbb{R}^n, s)$) and Lie-algebraic root/weight/Casimir spectra of $\so(\mathbb{R}^n, s)$.
+\end{enumerate}
+\end{definition}
+
+\subsection{Layer 2: Universal Clifford Algebras and Clifford Spectra}
+
+\begin{definition}[Universal Clifford Algebra]\label{def:clifford}
+For $q = (q_1, \dots, q_n) \in F^n$, the \emph{Clifford algebra} $\Cl(F^n, q)$ is the $2^n$-dimensional associative unital $F$-algebra generated by $F^n$ subject to the universal relation
+\begin{equation}\label{eq:clifford-rel}
+  v^2 = Q_q(v)\cdot 1 \qquad (\forall v \in F^n),
+\end{equation}
+equivalently generated by orthogonal basis elements $\gamma_1, \dots, \gamma_n$ satisfying $\gamma_i^2 = q_i \cdot 1$ and $\gamma_i \gamma_j + \gamma_j \gamma_i = 0$ for $i \neq j$. When $s \in \{\pm 1\}^n$ has $\sig(s) = (P, Q)$, we write $\Cl_{P,Q}(F)$ for $\Cl(F^n, s)$ up to $F$-algebra isomorphism.
+\end{definition}
+
+\begin{remark}[Independence of Clifford Sign Convention]
+Some texts adopt the opposite sign convention $v^2 = -Q(v)\cdot 1$. Replacing $Q$ by $-Q$ simply swaps $\Cl(W, Q)$ and $\Cl(W, -Q)$, so the unordered pair $\{\Cl(W, Q_1), \Cl(W, Q_2)\}$---and hence every separation result below---is completely independent of sign convention.
+\end{remark}
+
+\begin{definition}[Layer-2 Clifford Spectra]\label{def:clifford-spectra}
+For an associative unital ring $A = \Cl(F^n, s)$, its intrinsic Layer-2 Clifford spectral invariants include:
+\begin{enumerate}
+  \item \textbf{Central Idempotent / Block Spectrum:} $\Idem(Z(A)) = \{z \in Z(A) \mid z^2 = z\}$, where $Z(A) = \{z \in A \mid \forall x \in A,\; zx = xz\}$. For finite-dimensional semisimple $A \cong \bigoplus_{k=1}^r M_{n_k}(D_k)$, $|\Idem(Z(A))| = 2^r = 2^{|\MaxSpec(A)|}$ counts the Wedderburn blocks / connected components of $\Spec(Z(A))$.
+  \item \textbf{Central Involution / Pseudoscalar Spectrum:} Existence of a nontrivial central involution $\omega \in Z(A) \setminus \{\pm 1\}$ with $\omega^2 = 1$ (yielding split eigenvalues $\{\pm 1\} \subset F$ vs.\ field extension $F(\sqrt{-1})$ when $\omega^2 = -1$).
+  \item \textbf{Pierce Capacity / Spinor Module Spectrum:} For $k \ge 1$, the property $\mathrm{OrthIdem}_k(A)$ that $A$ admits $k$ nonzero mutually orthogonal idempotents $p_1, \dots, p_k$ ($p_i^2 = p_i \neq 0$, $p_i p_j = 0$ for $i \neq j$). For $A \cong \bigoplus_{j=1}^r M_{n_j}(D_j)$ with division rings $D_j$, the maximum such $k$ is the composition length $\sum_{j=1}^r n_j$ of ${}_A A$, which directly determines the dimension of the irreducible spinor module(s).
+\end{enumerate}
+Every unital ring isomorphism $\phi : A \xrightarrow{\sim} B$ preserves $\Idem(Z(\cdot))$, nontrivial central involutions, and $\mathrm{OrthIdem}_k(\cdot)$ for all $k \ge 1$.
+\end{definition}
+
+\section{Same-Group Opposite-Signature Conformal Models}
+
+Given any base signature $s_0 \in \{\pm 1\}^d$ with $\sig(s_0) = (p, q)$, let $-s_0 \in \{\pm 1\}^d$ denote its sign flip, which has $\sig(-s_0) = (q, p)$ and $Q_{-s_0} = -Q_{s_0}$. On the common ambient space $W = F^{d+2} = F^d \oplus F^2$, define two conformal horosphere models using a shared null vector at infinity $e_\infty = (0, 1, 1)$:
+\begin{itemize}
+  \item \textbf{Standard Model $\mathcal{M}_1(s_0)$:} Base signature $s_{\mathrm{base},1} = s_0$ of signature $(p, q)$; ambient signature $s_1 = (s_0, +1, -1)$ of signature $(p + 1, q + 1)$ (so $e_+^{(1)} = e_{d+1}$ and $e_-^{(1)} = e_{d+2}$); origin $e_0^{(1)} = \frac{1}{2}(e_-^{(1)} - e_+^{(1)}) = (0, -\frac{1}{2}, \frac{1}{2})$; and horosphere embedding
+  \begin{equation}\label{eq:iota1}
+    \iota_1(x) = x + e_0^{(1)} + \frac{1}{2} Q_{s_0}(x)\, e_\infty
+    = \left(x,\; \frac{Q_{s_0}(x) - 1}{2},\; \frac{Q_{s_0}(x) + 1}{2}\right).
+  \end{equation}
+  \item \textbf{Dual Sign-Flipped Model $\mathcal{M}_2(s_0)$:} Base signature $s_{\mathrm{base},2} = -s_0$ of signature $(q, p)$; ambient signature $s_2 = (-s_0, -1, +1) = -s_1$ of signature $(q + 1, p + 1)$ (so the roles of the hyperbolic axes swap: $e_+^{(2)} = e_{d+2}$ and $e_-^{(2)} = e_{d+1}$); origin $e_0^{(2)} = \frac{1}{2}(e_-^{(2)} - e_+^{(2)}) = (0, \frac{1}{2}, -\frac{1}{2})$; and horosphere embedding
+  \begin{equation}\label{eq:iota2}
+    \iota_2(x) = x + e_0^{(2)} + \frac{1}{2} Q_{-s_0}(x)\, e_\infty
+    = \left(x,\; \frac{1 - Q_{s_0}(x)}{2},\; -\frac{1 + Q_{s_0}(x)}{2}\right).
+  \end{equation}
+\end{itemize}
+
+\begin{proposition}[Conformal Validity, Distinct Embeddings, and Layer-1 Group Identity]\label{prop:layer1}
+For every $d \ge 1$ and $s_0 \in \{\pm 1\}^d$ over a formally real field $F$:
+\begin{enumerate}
+  \item Both $\mathcal{M}_1(s_0)$ and $\mathcal{M}_2(s_0)$ satisfy all axioms of Definition~\ref{def:conformal-model}, share the exact same null cone $\mathcal{N}(Q_{s_1}) = \mathcal{N}(Q_{s_2})$ and null point at infinity $e_\infty = (0, 1, 1)$, and satisfy
+  \[
+    B_{s_1}(\iota_1(x), \iota_1(y)) = -\frac{1}{2} Q_{s_0}(x - y), \qquad
+    B_{s_2}(\iota_2(x), \iota_2(y)) = -\frac{1}{2} Q_{-s_0}(x - y) = +\frac{1}{2} Q_{s_0}(x - y).
+  \]
+  \item The embeddings $\iota_1$ and $\iota_2$ are distinct ($\iota_1(0) = -\iota_2(0) \neq \iota_2(0)$), and for every $x \in F^d \setminus \{0\}$ their images lie on distinct projective rays: $\iota_1(x) \neq c\,\iota_2(x)$ for all $c \in F$.
+  \item Because $G_{s_2} = -G_{s_1}$, the ambient isometry groups, Lie algebras, and all Layer-1 group spectra are literally identical:
+  \begin{align*}
+    \Orth(F^{d+2}, s_1) &= \Orth(F^{d+2}, s_2), &
+    \so(F^{d+2}, s_1) &= \so(F^{d+2}, s_2), \\
+    \Sigma_{\mathrm{eig}}(s_1) &= \Sigma_{\mathrm{eig}}(s_2), &
+    \Sigma_{\tr}(s_1) &= \Sigma_{\tr}(s_2).
+  \end{align*}
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(1) Using $\bigl(\frac{a - 1}{2}\bigr)\bigl(\frac{b - 1}{2}\bigr) - \bigl(\frac{a + 1}{2}\bigr)\bigl(\frac{b + 1}{2}\bigr) = -\frac{a + b}{2}$, we obtain for $\mathcal{M}_1(s_0)$:
+\[
+  B_{s_1}(\iota_1(x), \iota_1(y)) = B_{s_0}(x, y) - \frac{Q_{s_0}(x) + Q_{s_0}(y)}{2} = -\frac{1}{2} Q_{s_0}(x - y),
+\]
+and setting $y = x$ yields $Q_{s_1}(\iota_1(x)) = 0$. Moreover, $B_{s_1}(\iota_1(x), e_\infty) = \frac{Q_{s_0}(x) - 1}{2} - \frac{Q_{s_0}(x) + 1}{2} = -1$. If $\iota_1(x) = c\,\iota_1(y)$, subtracting the $(d+1)$-st coordinate from the $(d+2)$-nd coordinate gives $1 = c \cdot 1$, whence $c = 1$ and $x = y$. Model $\mathcal{M}_2(s_0)$ is obtained from $\mathcal{M}_1(-s_0)$ by transposing coordinates $d+1$ and $d+2$, so all five axioms transfer immediately with $Q_{-s_0} = -Q_{s_0}$.
+
+(2) At $x = 0$, the last coordinate of $\iota_1(0)$ is $+\frac{1}{2}$ while that of $\iota_2(0)$ is $-\frac{1}{2}$; since $\frac{1}{2} + \frac{1}{2} = 1 \neq 0$, $\iota_1(0) \neq \iota_2(0)$. If $x \neq 0$ and $\iota_1(x) = c\,\iota_2(x)$, picking $j \le d$ with $x_j \neq 0$ gives $x_j = c x_j$, so $c = 1$. Subtracting the $(d+1)$-st coordinate from the $(d+2)$-nd coordinate on both sides at $c = 1$ then yields
+\[
+  1 = \frac{Q_{s_0}(x) + 1}{2} - \frac{Q_{s_0}(x) - 1}{2}
+    = \frac{-Q_{s_0}(x) - 1}{2} - \frac{1 - Q_{s_0}(x)}{2} = -1,
+\]
+contradicting $1 + 1 \neq 0$ in $F$.
+
+(3) Since $G_{s_2} = -G_{s_1}$, for every $M \in M_{d+2}(F)$ we have $M^\top G_{s_2} M = G_{s_2} \iff -M^\top G_{s_1} M = -G_{s_1} \iff M^\top G_{s_1} M = G_{s_1}$, and similarly $X^\top G_{s_2} + G_{s_2} X = 0 \iff X^\top G_{s_1} + G_{s_1} X = 0$. Equality of $\Orth(F^{d+2}, s_1)$ and $\Orth(F^{d+2}, s_2)$ as matrix groups immediately implies equality of all eigenvalue, trace, characteristic-polynomial, Lie-algebraic, and representation spectra.
+\end{proof}
+
+\section{Layer-2 Clifford Spectral Separation Theorems}
+
+We establish explicit Layer-2 separation in both odd ambient dimension ($d = 1, n = 3$, via central idempotent and pseudoscalar spectra) and even ambient dimension ($d = 2, n = 4$, via Pierce idempotent and quaternionic spinor rank spectra).
+
+\subsection{Minimal Odd-Dimensional Conformal Separation: \texorpdfstring{$(1, 0)$ vs.\ $(0, 1)$}{(1, 0) vs. (0, 1)}}
+
+Take $d = 1$ and $s_0 = (+1)$ on $F^1$. Then $\mathcal{M}_1 = \mathcal{M}_1(s_0)$ embeds the Euclidean line $(F^1, +x^2)$ of signature $(1, 0)$ into $(F^3, \diag(+1, +1, -1))$ of signature $(2, 1)$, while $\mathcal{M}_2 = \mathcal{M}_2(s_0)$ embeds the negative-definite line $(F^1, -x^2)$ of signature $(0, 1)$ into $(F^3, \diag(-1, -1, +1))$ of signature $(1, 2)$.
+
+\begin{theorem}[Odd-Dimensional Conformal Separation]\label{thm:odd-sep}
+Over every formally real field $F$:
+\begin{enumerate}
+  \item For any $s = (\varepsilon_1, \varepsilon_2, \varepsilon_3) \in \{\pm 1\}^3$, the pseudoscalar $\omega = \gamma_1 \gamma_2 \gamma_3 \in \Cl(F^3, s)$ satisfies
+  \[
+    Z\bigl(\Cl(F^3, s)\bigr) = F\cdot 1 \oplus F\cdot \omega \qquad\text{and}\qquad \omega^2 = -(\varepsilon_1 \varepsilon_2 \varepsilon_3)\cdot 1.
+  \]
+  \item In $\Cl(F^3, s_1) = \Cl_{2,1}(F)$ ($s_1 = (+1, +1, -1)$), $\omega_1^2 = +1$, so $\omega_1$ is a nontrivial central involution, and $e_\pm = \frac{1}{2}(1 \pm \omega_1)$ are nontrivial central idempotents ($|\Idem(Z(\Cl_{2,1}(F)))| = 4$). Moreover, $\Cl_{2,1}(F) \cong M_2(F) \times M_2(F)$ has two maximal two-sided ideals and two inequivalent $2$-dimensional simple spinor modules.
+  \item In $\Cl(F^3, s_2) = \Cl_{1,2}(F)$ ($s_2 = (-1, -1, +1)$), $\omega_2^2 = -1$, $Z(\Cl_{1,2}(F)) \cong F[t]/(t^2 + 1)$ is a field, $\Idem(Z(\Cl_{1,2}(F))) = \{0, 1\}$, and no nontrivial central involution exists. Moreover, $\Cl_{1,2}(F) \cong M_2(F(\sqrt{-1}))$ is simple with a unique $4$-dimensional simple module over $F$.
+  \item Consequently, $\Cl(F^3, s_1)$ and $\Cl(F^3, s_2)$ are non-isomorphic even as abstract unital rings.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1) For each $i \in \{1, 2, 3\}$, moving $\gamma_i$ across $\omega = \gamma_1 \gamma_2 \gamma_3$ incurs two sign flips from the two generators $\gamma_j$ ($j \neq i$), so $\omega \gamma_i = (-1)^2 \gamma_i \omega = \gamma_i \omega$, whence $\omega \in Z(\Cl(F^3, s))$. Conversely, expand any $z \in Z(\Cl(F^3, s))$ in the $8$-element monomial basis $\{\gamma_S : S \subseteq \{1, 2, 3\}\}$. If $\emptyset \subsetneq S \subsetneq \{1, 2, 3\}$, pick $i \in S$ and $j \notin S$. Commuting $\gamma_S$ with $\gamma_j$ requires $(-1)^{|S|} = +1$ ($|S|$ even), while commuting $\gamma_S$ with $\gamma_i$ requires $(-1)^{|S|-1} = +1$ ($|S|$ odd), a contradiction. Since $2 \neq 0$ in $F$, all six basis coefficients with $0 < |S| < 3$ vanish, so $z = a\cdot 1 + b\cdot \omega$ with $a, b \in F$. Sorting $(\gamma_1 \gamma_2 \gamma_3)(\gamma_1 \gamma_2 \gamma_3)$ uses $2 + 1 = 3$ swaps, giving $\omega^2 = (-1)^3 \gamma_1^2 \gamma_2^2 \gamma_3^2 = -(\varepsilon_1 \varepsilon_2 \varepsilon_3)\cdot 1$.
+
+(2) For $s_1 = (+1, +1, -1)$, $\omega_1^2 = -(+1)(+1)(-1) = +1$, with $\omega_1 \notin \{\pm 1\}$ by linear independence of $\{1, \omega_1\}$. Setting $e_\pm = \frac{1}{2}(1 \pm \omega_1) \in Z(\Cl_{2,1}(F))$ gives $e_\pm^2 = \frac{1}{4}(1 \pm 2\omega_1 + 1) = e_\pm$, $e_+ e_- = 0$, $e_+ + e_- = 1$, and $e_\pm \notin \{0, 1\}$. Sending $\gamma_1 \mapsto (\sigma_z, \sigma_z)$, $\gamma_2 \mapsto (\sigma_x, \sigma_x)$, $\gamma_3 \mapsto (\varepsilon, -\varepsilon)$ where $\sigma_z = \bigl(\begin{smallmatrix}1&0\\0&-1\end{smallmatrix}\bigr)$, $\sigma_x = \bigl(\begin{smallmatrix}0&1\\1&0\end{smallmatrix}\bigr)$, $\varepsilon = \bigl(\begin{smallmatrix}0&1\\-1&0\end{smallmatrix}\bigr)$ yields an $F$-algebra isomorphism $\Cl_{2,1}(F) \xrightarrow{\sim} M_2(F) \times M_2(F)$.
+
+(3) For $s_2 = (-1, -1, +1)$, $\omega_2^2 = -(-1)(-1)(+1) = -1$. Let $z = a + b\omega_2 \in Z(\Cl_{1,2}(F))$. Then $z^2 = (a^2 - b^2) + 2ab\omega_2$.
+If $z^2 = z$, then $a^2 - b^2 = a$ and $2ab = b$. Were $b \neq 0$, cancellation in $F$ would give $2a = 1$, hence $1 - (2b)^2 = 2$, so $(2b)^2 + 1^2 + 0^2 + 0^2 = 0$, contradicting~\eqref{eq:formally-real}. Thus $b = 0$ and $a(a - 1) = 0$, giving $z \in \{0, 1\}$. Similarly, if $z^2 = 1$, then $2ab = 0$ and $a^2 - b^2 = 1$; $a = 0$ would yield $b^2 + 1^2 = 0$, impossible, so $b = 0$ and $a = \pm 1$. Mapping $\gamma_1 \mapsto i\sigma_z$, $\gamma_2 \mapsto i\sigma_x$, $\gamma_3 \mapsto \varepsilon$ gives $\Cl_{1,2}(F) \xrightarrow{\sim} M_2(F(i))$ where $F(i) = F[t]/(t^2+1)$ is a field by~\eqref{eq:formally-real}.
+
+(4) Any unital ring isomorphism $\Cl_{2,1}(F) \xrightarrow{\sim} \Cl_{1,2}(F)$ would map $e_+ \in \Idem(Z(\Cl_{2,1}(F))) \setminus \{0, 1\}$ to a nontrivial central idempotent of $\Cl_{1,2}(F)$, contradicting (3).
+\end{proof}
+
+\subsection{Even-Dimensional Lorentzian Conformal Separation: \texorpdfstring{$(2, 0)$ vs.\ $(0, 2)$}{(2, 0) vs. (0, 2)}}
+
+Take $d = 2$ and $s_0 = (+1, +1)$ on $F^2$. Then $\mathcal{M}_1(s_0)$ has East-Coast Lorentzian ambient signature $(3, 1)$ ($s_1 = (+1, +1, +1, -1)$) and $\mathcal{M}_2(s_0)$ has West-Coast Lorentzian ambient signature $(1, 3)$ ($s_2 = (-1, -1, -1, +1)$). Here both centers are $1$-dimensional ($Z \cong F$), so separation occurs purely in the noncommutative Pierce/Brauer spinor layer.
+
+\begin{theorem}[Even-Dimensional Lorentzian Conformal Separation]\label{thm:even-sep}
+Over every formally real field $F$:
+\begin{enumerate}
+  \item $\Cl(F^4, s_1) = \Cl_{3,1}(F) \cong M_4(F)$ admits four nonzero mutually orthogonal idempotents: setting $\alpha = \gamma_1$ and $\beta = \gamma_2 \gamma_4$, we have $\alpha^2 = 1$, $\beta^2 = 1$, $\alpha \beta = \beta \alpha$, and
+  \[
+    p_{\sigma, \tau} = \frac{1 + \sigma \alpha}{2}\cdot \frac{1 + \tau \beta}{2} \qquad (\sigma, \tau \in \{+1, -1\})
+  \]
+  satisfy $p_{\sigma, \tau}^2 = p_{\sigma, \tau} \neq 0$ and $p_{\sigma, \tau} p_{\sigma', \tau'} = 0$ for $(\sigma, \tau) \neq (\sigma', \tau')$.
+  \item Hamilton's quaternion algebra $\mathbb{H}_F = \Cl_{0,2}(F)$ is a division ring over $F$: for every $q = a + b\mathbf{i} + c\mathbf{j} + d\mathbf{k} \neq 0$, $N(q) = a^2 + b^2 + c^2 + d^2 \neq 0$ by~\eqref{eq:formally-real}, and $q^{-1} = N(q)^{-1}\bar{q}$ is a two-sided inverse.
+  \item Sending $\gamma_1 \mapsto \bigl(\begin{smallmatrix}0&\mathbf{i}\\\mathbf{i}&0\end{smallmatrix}\bigr)$, $\gamma_2 \mapsto \bigl(\begin{smallmatrix}0&\mathbf{j}\\\mathbf{j}&0\end{smallmatrix}\bigr)$, $\gamma_3 \mapsto \bigl(\begin{smallmatrix}0&\mathbf{k}\\\mathbf{k}&0\end{smallmatrix}\bigr)$, $\gamma_4 \mapsto \bigl(\begin{smallmatrix}1&0\\0&-1\end{smallmatrix}\bigr)$ defines an $F$-algebra isomorphism $\Phi : \Cl(F^4, s_2) = \Cl_{1,3}(F) \xrightarrow{\sim} M_2(\mathbb{H}_F)$.
+  \item In $M_2(\mathbb{H}_F)$ (and hence in $\Cl_{1,3}(F)$), there do not exist three nonzero mutually orthogonal idempotents. Consequently, $\Cl_{3,1}(F)$ and $\Cl_{1,3}(F)$ have distinct Clifford Pierce/spinor spectra and are non-isomorphic as unital rings.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1) In $\Cl_{3,1}(F)$, $\alpha^2 = \gamma_1^2 = +1$ and $\beta^2 = (\gamma_2 \gamma_4)^2 = -\gamma_2^2 \gamma_4^2 = -(+1)(-1) = +1$, while $\gamma_1(\gamma_2 \gamma_4) = (-1)^2 (\gamma_2 \gamma_4)\gamma_1 = \beta\alpha$. Hence $\frac{1 \pm \alpha}{2}$ and $\frac{1 \pm \beta}{2}$ are commuting orthogonal idempotent pairs, so their four products $p_{\sigma,\tau}$ are mutually orthogonal idempotents, each nonzero because its identity-basis coordinate equals $\frac{1}{4} \neq 0$.
+
+(2)--(3) Direct calculation gives $q\bar{q} = \bar{q}q = (a^2 + b^2 + c^2 + d^2)\cdot 1$ in $\mathbb{H}_F$, proving (2). The four matrices $G_1, G_2, G_3, G_4 \in M_2(\mathbb{H}_F)$ satisfy $G_1^2 = G_2^2 = G_3^2 = -I_2$, $G_4^2 = +I_2$, and $G_r G_s + G_s G_r = 0$ ($r \neq s$), inducing a unital algebra homomorphism $\Phi : \Cl_{1,3}(F) \to M_2(\mathbb{H}_F)$ by the universal property of Clifford algebras. Writing any $x \in \Cl_{1,3}(F)$ as $u + \gamma_4 v$ with $u, v \in \Cl_{0,3}(F)$, one checks $\Phi(u) = \bigl(\begin{smallmatrix}P_u & Q_u\\ Q_u & P_u\end{smallmatrix}\bigr)$ where $(P_u, Q_u) \in \mathbb{H}_F^2$ bijects the $8$ monomial coordinates of $u$ onto the $8$ scalar coordinates of $\mathbb{H}_F^2$, and $\Phi(u + \gamma_4 v) = \bigl(\begin{smallmatrix}P_u + P_v & Q_u + Q_v\\ Q_u - Q_v & P_u - P_v\end{smallmatrix}\bigr)$. Since $2 \neq 0$, $\Phi(x) = 0 \implies P_u = P_v = Q_u = Q_v = 0 \implies x = 0$; as $\dim_F \Cl_{1,3}(F) = 16 = \dim_F M_2(\mathbb{H}_F)$, $\Phi$ is an isomorphism.
+
+(4) Suppose $P_1, P_2, P_3 \in M_2(\mathbb{H}_F)$ were nonzero mutually orthogonal idempotents. Letting $M_2(\mathbb{H}_F)$ act on the left of the rank-$2$ right $\mathbb{H}_F$-module $\mathbb{H}_F^2$, each $P_r \neq 0$ has a nonzero column $v_r \in \mathbb{H}_F^2$ satisfying $P_r v_r = v_r$ and $P_s v_r = 0$ for $s \neq r$. The right $\mathbb{H}_F$-submodule $K = \ker(P_3) \subseteq \mathbb{H}_F^2$ contains both $v_1$ and $v_2$. Because $\mathbb{H}_F$ is a division ring and $P_2 v_1 = 0 \neq v_2 = P_2 v_2$, two-step Gauss--Jordan elimination on $v_1, v_2$ produces both standard basis vectors $(1, 0), (0, 1) \in K$, whence $K = \mathbb{H}_F^2$. In particular $v_3 \in K$, giving $v_3 = P_3 v_3 = 0$, a contradiction.
+\end{proof}
+
+\section{Complete Bott Periodicity Classification over \texorpdfstring{$\mathbb{R}$}{R}}
+
+For general base signatures $(p, q)$ vs.\ $(q, p)$ over $\mathbb{R}$, note first the hyperbolic periodicity
+\[
+  \Cl_{p+1, q+1}(F) \;\cong\; \Cl_{p, q}(F) \otimes_F \Cl_{1,1}(F) \;\cong\; M_2\bigl(\Cl_{p, q}(F)\bigr),
+\]
+realized by commuting $\tilde{v} = e_+ e_- v$ ($v \in V$) with $\Cl_{1,1}(F) \cong M_2(F)$. Over $\mathbb{R}$, the Cartan--Atiyah--Bott--Shapiro classification determines $\Cl_{P, Q}(\mathbb{R})$ of total dimension $n = P + Q = p + q + 2$ solely from $s \equiv P - Q = p - q \pmod{8}$, while the dual conformal model has $-s \equiv q - p \pmod{8}$.
+
+\begin{theorem}[Necessary and Sufficient Separation Criterion over $\mathbb{R}$]\label{thm:bott}
+For any base signature $(p, q)$, the opposite-signature conformal horosphere models $\mathcal{M}_1$ (ambient $(p+1, q+1)$) and $\mathcal{M}_2$ (ambient $(q+1, p+1)$) share the exact same conformal group $\Orth(p+1, q+1) = \Orth(q+1, p+1)$ and Layer-1 spectra, while their ambient real Clifford algebras $\Cl_{p+1, q+1}(\mathbb{R})$ and $\Cl_{q+1, p+1}(\mathbb{R})$ have distinct Clifford spectra (and are non-isomorphic as $\mathbb{R}$-algebras) if and only if
+\[
+  p - q \not\equiv 0, 4 \pmod{8}.
+\]
+\end{theorem}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}ccccc@{}}
+\toprule
+$p - q \bmod 8$ & $\Cl_{p+1,q+1}(\mathbb{R})$ & $\Cl_{q+1,p+1}(\mathbb{R})$ & Layer-2 Separating Invariant & Separated? \\
+\midrule
+$0$ & $M_{2^{n/2}}(\mathbb{R})$ & $M_{2^{n/2}}(\mathbb{R})$ & Isomorphic (e.g.\ neutral $p = q$) & No \\
+$1$ & $M_{2^{(n-1)/2}}(\mathbb{R})^2$ & $M_{2^{(n-1)/2}}(\mathbb{C})$ & Center $\mathbb{R}^2$ vs.\ $\mathbb{C}$; $2$ blocks vs.\ $1$ & \textbf{Yes} \\
+$2$ & $M_{2^{n/2}}(\mathbb{R})$ & $M_{2^{n/2-1}}(\mathbb{H})$ & Brauer $[\mathbb{R}]$ vs.\ $[\mathbb{H}]$; Pierce rank & \textbf{Yes} \\
+$3$ & $M_{2^{(n-1)/2}}(\mathbb{C})$ & $M_{2^{(n-3)/2}}(\mathbb{H})^2$ & Center $\mathbb{C}$ vs.\ $\mathbb{R}^2$ (3D CGA $(4,1)/(1,4)$) & \textbf{Yes} \\
+$4$ & $M_{2^{n/2-1}}(\mathbb{H})$ & $M_{2^{n/2-1}}(\mathbb{H})$ & Isomorphic (e.g.\ $(5,1)$ vs.\ $(1,5)$) & No \\
+$5$ & $M_{2^{(n-3)/2}}(\mathbb{H})^2$ & $M_{2^{(n-1)/2}}(\mathbb{C})$ & Center $\mathbb{R}^2$ vs.\ $\mathbb{C}$; $2$ blocks vs.\ $1$ & \textbf{Yes} \\
+$6$ & $M_{2^{n/2-1}}(\mathbb{H})$ & $M_{2^{n/2}}(\mathbb{R})$ & Brauer $[\mathbb{H}]$ vs.\ $[\mathbb{R}]$; Pierce rank & \textbf{Yes} \\
+$7$ & $M_{2^{(n-1)/2}}(\mathbb{C})$ & $M_{2^{(n-1)/2}}(\mathbb{R})^2$ & Center $\mathbb{C}$ vs.\ $\mathbb{R}^2$; $1$ block vs.\ $2$ & \textbf{Yes} \\
+\bottomrule
+\end{tabular}
+\caption{Complete $8$-fold classification of opposite-signature conformal models ($n = p + q + 2$).}
+\label{tab:bott}
+\end{table}
+
+\begin{proof}
+Inspecting Table~\ref{tab:bott}, when $p - q \equiv 0 \pmod{8}$ both algebras equal $M_{2^{n/2}}(\mathbb{R})$, and when $p - q \equiv 4 \pmod{8}$ both equal $M_{2^{n/2-1}}(\mathbb{H})$. For $p - q \equiv 1, 3, 5, 7 \pmod{8}$ (all odd dimensions $n$), one algebra has center $\mathbb{R} \times \mathbb{R}$ ($2$ simple blocks) and the other has center $\mathbb{C}$ ($1$ simple block). For $p - q \equiv 2, 6 \pmod{8}$, one algebra is $M_{2^{n/2}}(\mathbb{R})$ (Pierce capacity $2^{n/2}$, real spinor dimension $2^{n/2}$) and the other is $M_{2^{n/2-1}}(\mathbb{H})$ (Pierce capacity $2^{n/2-1}$, real spinor dimension $2^{n/2+1}$).
+\end{proof}
+
+\section{Formalization in Core Lean 4.19.0 and Computational Verification}
+
+The entire proof is formalized from scratch in Core Lean~4.19.0 (zero external dependencies, zero \texttt{sorry}, zero \texttt{native\_decide}, zero custom axioms, built with \texttt{-DwarningAsError=true}) under \texttt{package/lean/}:
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{@{}p{0.31\textwidth}p{0.18\textwidth}>{\raggedright\arraybackslash}p{0.45\textwidth}@{}}
+\toprule
+Mathematical Component & Lean Module & Key Definitions \& Theorems \\
+\midrule
+Rings, $\Idem(Z(A))$, Pierce rank, $\mathbb{Q}$ & \texttt{Field.lean} & \texttt{AssocRing}, \texttt{FormallyRealField}, \texttt{RatField} \\
+$\Orth(F^n, s)$, $\so(F^n, s)$, Group spectra & \texttt{Conformal.lean} & \texttt{fullOrthGroup\_flip\_eq}, \texttt{groupEigenSpectrum\_flip\_eq} \\
+Conformal horosphere models & \texttt{Conformal.lean} & \texttt{ConformalModel}, \texttt{stdConformalModel}, \texttt{dualConformalModel} \\
+$2^n$-dim Clifford algebra \& lift & \texttt{Clifford.lean} & \texttt{CliffordAlg}, \texttt{embedVec\_sq}, \texttt{CliffordAlg.lift}, \texttt{hom\_unique} \\
+Odd separation $(2,1)$ vs.\ $(1,2)$ & \texttt{Separation.lean} & \texttt{clifford\_21\_not\_iso\_12}, \texttt{conjecture\_00000007620} \\
+Even separation $(3,1)$ vs.\ $(1,3)$ & \texttt{Separation.lean} & \texttt{clifford\_31\_not\_iso\_13}, \texttt{conjecture\_00000007620\_lorentzian} \\
+Universal formally-real theorem & \texttt{Separation.lean} & \texttt{conjecture\_00000007620\_universal} \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical theorems and Core Lean~4.19.0 declarations.}
+\end{table}
+
+In addition, \texttt{package/verify.py} independently verifies in exact Python~\texttt{Fraction} arithmetic the horosphere metric laws, orthogonal group/boost spectra, full $8 \times 8$ and $16 \times 16$ Clifford multiplication tables and Wedderburn isomorphisms $\Cl_{2,1}(\mathbb{Q}) \cong M_2(\mathbb{Q})^2$, $\Cl_{3,1}(\mathbb{Q}) \cong M_4(\mathbb{Q})$, $\Cl_{1,3}(\mathbb{Q}) \cong M_2(\mathbb{H}_{\mathbb{Q}})$, and the $8$-fold Bott classification across $0 \le p, q \le 5$.
+
+\begin{thebibliography}{9}
+\bibitem{ABS1964}
+M.~F. Atiyah, R.~Bott, and A.~Shapiro, \emph{Clifford modules}, Topology \textbf{3} (1964), Suppl.~1, 3--38.
+
+\bibitem{Chevalley1954}
+C.~Chevalley, \emph{The Algebraic Theory of Spinors}, Columbia University Press, New York, 1954.
+
+\bibitem{HestenesSobczyk1984}
+D.~Hestenes and G.~Sobczyk, \emph{Clifford Algebra to Geometric Calculus}, D.~Reidel, Dordrecht, 1984.
+
+\bibitem{LawsonMichelsohn1989}
+H.~B. Lawson and M.-L. Michelsohn, \emph{Spin Geometry}, Princeton Mathematical Series, vol.~38, Princeton University Press, 1989.
+\end{thebibliography}
+
+\end{document}
