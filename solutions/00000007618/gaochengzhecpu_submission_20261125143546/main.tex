@@ -1,0 +1,267 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\emergencystretch=1.5em
+\hfuzz=0.5pt
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\Proj}{\mathbb{P}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\title{\textbf{Refutation and Exact Parity Dichotomy of Conjecture 00000007618:\\
+Sign-Correction Laws for Projective Intersection Formulas}}
+\author{Autonomous Mathematical Research \& Formalization Solver}
+\date{November 25, 2026}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000007618} (\emph{The intersection-correction law of projective formulas}), proving that the conjecture is \textbf{false} in general across every standard algebraic realization of projective subspace intersection (the Grassmann--Cayley regressive or ``meet'' product $A \vee B$). First, we prove that all three natural interpretations of subspace dimension sum---vector-space dimension sum $r + s$, projective flat dimension sum $(r - 1) + (s - 1)$, and codimension sum $(n - r) + (n - s)$---yield the identical mod-two reduction $(-1)^{r+s}$. Second, we prove an exact parity dichotomy explaining the origin of the conjecture: for the forward three-star Poincar\'e/Hodge formula $A \vee B = \varepsilon_{\mathrm{dual}}(n,r,s)\,\star((\star A) \wedge (\star B))$ on an $n$-dimensional ambient space, the exact sign is $(-1)^{k(n-k)} = (-1)^{(r+s)(n-1)}$ ($k = r + s - n$), which agrees with $(-1)^{r+s}$ and has complete spectrum $\{+1, -1\}$ if and only if $n = 2m \ge 2$ is \emph{even} (odd projective dimension $\Proj^{2m-1}$, notably 3D Projective Geometric Algebra $\Proj^3$ at $n = 4$), whereas for every \emph{odd} $n = 2m + 1$ (every even-dimensional projective space $\Proj^{2m}$, including the classical projective plane $\Proj^2$ at $n = 3$) it collapses identically to $+1$, violating spectrum completeness as well as mod-two dimension-sum reduction on proper nonempty flats. Third, we prove that every other canonical intersection sign-correction law---graded commutation $(-1)^{(n-r)(n-s)}$, Barnabei--Brini--Rota shuffle splitting $(-1)^{k(n-s)}$, Cartan and Dorst interior contractions, unreverted Clifford multiplication, and pseudo-Riemannian double-star duality---fails for all $n \ge 1$, and in $\Proj^3$ fails even to factor through $r + s$ alone. All results are formalized from first principles in zero-dependency Core Lean~\texttt{4.19.0} and verified computationally over $\Q$.
+\end{abstract}
+
+\section{Problem Statement and Algebraic Foundations}
+
+Conjecture~\texttt{00000007618} reads verbatim as follows:
+\begin{quote}
+\textbf{Definition:} The intersection-correction law of projective formulas.\\
+\textbf{Conjecture:} (C1)~The sign-correction term spectrum is complete; (C2)~the combination of the correction is the dimension sum of subspaces; and (C3)~the combination of the dimension sum is the mod-two reduction. \emph{(dimension-summed intersection sign correction)}
+\end{quote}
+
+Let $R$ be a commutative unital ring in which $1 \neq -1$ (for instance $R = \Z$, $\Q$, or $\R$), let $V = R^n$ be the free module of rank $n \ge 1$ with standard basis $e_0, \dots, e_{n-1}$, and let $\Proj(V) = \Proj^{n-1}$ be the associated $(n-1)$-dimensional projective space. Via the Pl\"ucker embedding, linear subspaces $U, W \subseteq V$ of vector-space dimensions $r = \dim U$ and $s = \dim W$ ($0 \le r, s \le n$) correspond to homogeneous decomposable blades (extensors) $A \in \Lambda^r V$ and $B \in \Lambda^s V$ in the $2^n$-dimensional exterior algebra $\Lambda(V) = \bigoplus_{k=0}^n \Lambda^k V$, with canonical volume blade $\omega_n = e_0 \wedge \dots \wedge e_{n-1} \in \Lambda^n V$. Nonempty proper projective flats $\emptyset \subsetneq \Proj(U), \Proj(W) \subsetneq \Proj^{n-1}$ have vector dimensions $1 \le r, s \le n - 1$, projective dimensions $p = r - 1$ and $q = s - 1$, and codimensions $c_U = n - r$ and $c_W = n - s$. When $r + s \ge n$, two generic subspaces intersect transversely in dimension $k = r + s - n \ge 0$.
+
+Our first elementary observation eliminates any ambiguity in Clause~(C2) among vector dimensions, projective flat dimensions, and codimensions once reduced modulo~$2$ by Clause~(C3).
+
+\begin{proposition}[Universal Dimension-Sum Parity Equivalence]\label{prop:dim-parity}
+For all integers $n, r, s$ (and in $\mathbb{N}$ whenever $1 \le r, s \le n$),
+\[
+(r - 1) + (s - 1) = (r + s) - 2 \equiv r + s \pmod{2}, \qquad
+(n - r) + (n - s) = 2n - (r + s) \equiv r + s \pmod{2}.
+\]
+Consequently, $(-1)^{(r-1)+(s-1)} = (-1)^{(n-r)+(n-s)} = (-1)^{r+s}$ identically.
+\end{proposition}
+\begin{proof}
+Subtracting $2$ or subtracting $r + s$ from the even integer $2n$ preserves parity modulo~$2$.
+\end{proof}
+
+\subsection{Clifford Quantization and Arbitrary-Metric Hodge--Poincar\'e Duality}
+
+Equip $V = R^n$ with an orthogonal quadratic form $q = (q_0, \dots, q_{n-1}) : \{0, \dots, n-1\} \to R$, inducing the Clifford algebra $\Cl(R^n, q)$ on the underlying module $\Lambda(R^n)$ with exterior wedge $x \wedge y$ realized at $q = 0$, grade involution $\hat{x}$ acting on $\Lambda^k$ by $(-1)^k$, Clifford reversion $\widetilde{x}$ acting on $\Lambda^k$ by $(-1)^{k(k-1)/2}$, and determinant bilinear pairing $\langle \cdot, \cdot \rangle_q$.
+
+\begin{definition}[Classical Exterior Hodge Star]\label{def:hodge}
+An additive operator $\star_{q,\nu} : \Lambda(R^n) \to \Lambda(R^n)$ associated to $\nu \in \Lambda^n R^n$ satisfies the exterior Hodge--Poincar\'e duality specification if $\star_{q,\nu}(\Lambda^k R^n) \subseteq \Lambda^{n-k} R^n$ for all $0 \le k \le n$ and
+\begin{equation}\label{eq:hodge-def}
+\alpha \wedge \star_{q,\nu}\beta = \langle \alpha, \beta \rangle_q\,\nu
+\qquad (\forall \alpha, \beta \in \Lambda^k R^n).
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Chevalley--Hodge Realization and Master Double-Star Law]\label{thm:double-star}
+For every $n \ge 0$, every commutative ring $R$, and every metric $q : \{0, \dots, n-1\} \to R$:
+\begin{enumerate}
+\item \emph{Poincar\'e nondegeneracy and uniqueness:} If $\delta \in \Lambda^{n-k} R^n$ ($0 \le k \le n$) satisfies $\alpha \wedge \delta = 0$ for all $\alpha \in \Lambda^k R^n$, then $\delta = 0$. Hence any operator satisfying~\eqref{eq:hodge-def} is unique on $\Lambda(R^n)$, and is given explicitly by $\star_{q,\omega_n}(x) = \widetilde{x} \cdot_q \omega_n$.
+\item \emph{Arbitrary-metric double-star sign:} For every $0 \le k \le n$ and $x \in \Lambda^k R^n$,
+\begin{equation}\label{eq:double-star-q}
+\star_{q,\omega_n}\bigl(\star_{q,\omega_n}(x)\bigr)
+= (-1)^{k(n-k)} \Bigl(\prod_{i=0}^{n-1} q_i\Bigr) x.
+\end{equation}
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Writing $\Cl(R^{n+1}, q) = \Cl(R^n, q') \oplus \Cl(R^n, q')\,e_n$ with $q_n = q(n)$, direct expansion yields the recursive step
+\[
+\star_{q,\omega_{n+1}}(c, d) = \bigl(q_n\,\widehat{\star_{q',\omega_n} d},\; \star_{q',\omega_n} c\bigr).
+\]
+Part~(i) follows by induction on $n$, testing against $(a, 0)$ and $(0, b)$ to force both components of $\delta$ to vanish, and verifying~\eqref{eq:hodge-def} componentwise. Applying the recursive step twice to $(c, d) \in \Lambda^{m+1}(R^{n+1})$ ($c \in \Lambda^{m+1} R^n$, $d \in \Lambda^m R^n$) gives first component $q_n (-1)^{m+1} (-1)^{(m+1)(n-m-1)} (\prod q') c$ and second component $q_n (-1)^{n-m} (-1)^{m(n-m)} (\prod q') d$; since $(m+1)(n-m-1) + (m+1) = (n-m) + m(n-m) = (m+1)(n-m) = (m+1)((n+1)-(m+1))$, induction yields~\eqref{eq:double-star-q}.
+\end{proof}
+
+\section{Canonical Grassmann--Cayley Regressive Product}
+
+Specializing Theorem~\ref{thm:double-star} to the combinatorial Pl\"ucker pairing $q_{\mathrm{E}} = (1, \dots, 1)$ gives the metric-free right Pl\"ucker--Poincar\'e complement $\star = \star_{q_{\mathrm{E}}, \omega_n}$ with $\star(c, d) = (\widehat{\star d}, \star c)$ and $\star(\star x) = (-1)^{k(n-k)} x$ on $\Lambda^k R^n$. Its exact two-sided inverse $\star^{-1} : \Lambda(R^n) \to \Lambda(R^n)$ is given recursively by $\star^{-1}(u, v) = (\star^{-1} v, \star^{-1}(\hat{u}))$, satisfying $\star(\star^{-1} y) = y$, $\star^{-1}(\star x) = x$, and $\star y = (-1)^{m(n-m)} \star^{-1} y$ on $\Lambda^m R^n$. Similarly, the left Pl\"ucker complement $\star_{\mathrm{L}}(x) = \omega_n \cdot \widetilde{x}$ satisfies $\star_{\mathrm{L}}(x) = (-1)^{k(n-k)} \star(x)$ on $\Lambda^k R^n$.
+
+\begin{definition}[Regressive Meet Product]\label{def:vee}
+Given any $A, B \in \Lambda(R^n)$, the canonical Grassmann--Cayley regressive (intersection or meet) product is
+\begin{equation}\label{eq:vee-def}
+A \vee B := \star^{-1}\bigl((\star A) \wedge (\star B)\bigr),
+\qquad\text{equivalently}\qquad
+\star(A \vee B) = (\star A) \wedge (\star B).
+\end{equation}
+\end{definition}
+
+\begin{theorem}[Fundamental Properties and Convention Invariance of $A \vee B$]\label{thm:vee-props}
+For every commutative ring $R$ and every $n \ge 0$:
+\begin{enumerate}
+\item \emph{Associativity and unit:} $(A \vee B) \vee C = A \vee (B \vee C)$ and $\omega_n \vee A = A \vee \omega_n = A$.
+\item \emph{Grading:} If $A \in \Lambda^r R^n$ and $B \in \Lambda^s R^n$ with $r, s \le n$, then $A \vee B = 0$ for $r + s < n$ and $A \vee B \in \Lambda^{r+s-n} R^n$ for $r + s \ge n$.
+\item \emph{Left--right star invariance and shuffle equivalence:} For $A \in \Lambda^r R^n$, $B \in \Lambda^s R^n$ with $r, s \le n \le r + s$ and $k = r + s - n$,
+\[
+\star_{\mathrm{L}}^{-1}\bigl((\star_{\mathrm{L}} A) \wedge (\star_{\mathrm{L}} B)\bigr) = A \vee B,
+\]
+and on decomposable blades $A = a_1 \wedge \dots \wedge a_r$, $A \vee B$ coincides with the Peano--Barnabei--Brini--Rota first-split shuffle sum $\sum_{\sigma \in \mathrm{Sh}(n-s,k)} \mathrm{sgn}(\sigma)\,[a_{\sigma(1)} \wedge \dots \wedge a_{\sigma(n-s)} \wedge B]\,a_{\sigma(n-s+1)} \wedge \dots \wedge a_{\sigma(r)}$.
+\item \emph{Arbitrary-metric three-star scaling:} For any diagonal metric $q = (q_0, \dots, q_{n-1})$,
+\[
+\star_{q,\omega_n}\bigl((\star_{q,\omega_n} A) \wedge (\star_{q,\omega_n} B)\bigr)
+= (-1)^{k(n-k)} \Bigl(\prod_{i=0}^{n-1} q_i^2\Bigr) (A \vee B).
+\]
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Parts~(i)--(ii) follow immediately from $\star(A \vee B) = (\star A) \wedge (\star B)$, associativity of $\wedge$, $\star\omega_n = 1$, and $(n-r) + (n-s) = 2n - r - s$. For~(iii), transforming $\star \mapsto \star_{\mathrm{L}}$ on grades $r$, $s$, and $n - k = (n-r)+(n-s)$ multiplies $A \vee B$ by $(-1)^E$ where $E = r(n-r) + s(n-s) + (n-k)k$. Modulo~$2$, $m(n-m) \equiv m(n-1)$, so $E \equiv (r + s + 2n - r - s)(n - 1) = 2n(n - 1) \equiv 0 \pmod{2}$. On basis blades $e_I, e_J$ with $I \cup J = \{0, \dots, n-1\}$ and $K = I \cap J$, $\star e_I = \mathrm{sgn}(I, I^c) e_{I^c}$ and the shuffle sum has a single surviving term $I_{\mathrm{drop}} = J^c$, $I_{\mathrm{keep}} = K$ whose permutation sign matches $\star^{-1}((\star e_I) \wedge (\star e_J))$. Part~(iv) holds because on every spanning pair $(e_I, e_J)$, each coordinate $x \in K$ appears in $I$ and $J$ (contributing $q_x^2$) while each $x \notin K$ appears in exactly one of $I, J$ and in $W = I^c \cup J^c = K^c$ (again contributing $q_x^2$).
+\end{proof}
+
+\section{Taxonomy of Projective Intersection Sign-Correction Laws}
+
+Across Grassmann--Cayley algebra, differential geometry, Pl\"ucker projective geometry, and Projective Geometric Algebra (PGA), seven canonical projective intersection sign-correction formulas relate natural intersection expressions to $A \vee B$ for $A \in \Lambda^r V$, $B \in \Lambda^s V$ ($r, s \le n \le r + s$, $k = r + s - n$). Table~\ref{tab:taxonomy} summarizes their exact exponents and status under Conjecture~\texttt{00000007618}.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{ID \& Convention} & \textbf{Algebraic Relation} & \textbf{Exact Sign Exponent} & \textbf{Conj.\ 7618 Status} \\
+\midrule
+$\mathrm{L1}$ Forward 3-Star & $\star((\star A)\wedge(\star B)) = \varepsilon(A\vee B)$ & $k(n-k) \equiv (r+s)(n-1)$ & True even $n$; False odd $n$ \\
+$\mathrm{L2}$ Meet Swap & $B \vee A = \varepsilon(A \vee B)$ & $(n-r)(n-s)$ & False $\forall n \ge 1$ (fails C2) \\
+$\mathrm{L3}$ BBR 2nd Split & $A \vee_{\mathrm{BBR2}} B = \varepsilon(A \vee B)$ & $k(n-s)$ & False $\forall n \ge 1$ (asymm.) \\
+$\mathrm{L4}$ Cartan Left Int. & $(\star A) \mathbin{\lrcorner_{\mathrm{C}}} B = \varepsilon(A \vee B)$ & $k(n-r)$ & False $\forall n \ge 1$ (fails C2) \\
+$\mathrm{L5}$ Cartan Right Int. & $A \mathbin{\llcorner_{\mathrm{C}}} (\star B) = \varepsilon(A \vee B)$ & $(s+k)(n-s)$ & False $\forall n \ge 1$ (fails C2) \\
+$\mathrm{L6}$ Dorst Contract. & $(\star A) \rfloor B = \varepsilon(A \vee B)$ & $k(n-r) + \binom{n-r}{2}$ & False $\forall n \ge 1$ (mod-4, C2) \\
+$\mathrm{L7}$ Unrev.\ Clifford & $((A\omega_n^{-1})\wedge(B\omega_n^{-1}))\omega_n = \varepsilon(A\vee B)$ & $\binom{r}{2}+\binom{s}{2}+\binom{n-k}{2}+k(n-k)$ & False $\forall n \ge 1$ (mod-4, C2) \\
+\bottomrule
+\end{tabular}
+\caption{Summary of all seven canonical projective intersection sign-correction laws ($k = r + s - n$).}\label{tab:taxonomy}
+\end{table}
+
+\section{Exact Parity Dichotomy for the Forward Three-Star Law \texorpdfstring{($\mathrm{L1}$)}{(L1)}}
+
+When the meet is written using three forward applications of $\star$ without $\star^{-1}$,
+\begin{equation}\label{eq:forward-3star}
+A \vee B = \varepsilon_{\mathrm{dual}}(n, r, s)\,\star\bigl((\star A) \wedge (\star B)\bigr),
+\end{equation}
+applying $\star$ to $\star(A \vee B) = (\star A) \wedge (\star B)$ on grade $k = r + s - n$ via Theorem~\ref{thm:double-star}(ii) yields $\varepsilon_{\mathrm{dual}}(n, r, s) = (-1)^{k(n-k)}$.
+
+\begin{lemma}[Master Parity Reduction]\label{lem:parity-master}
+For all integers $n, r, s$ with $k = r + s - n$,
+\[
+k(n - k) \equiv (r + s)(n - 1) \pmod{2}.
+\]
+\end{lemma}
+\begin{proof}
+Since $k^2 \equiv k \pmod{2}$ and $n(n - 1)$ is always even,
+\[
+k(n - k) = kn - k^2 \equiv kn - k = k(n - 1) = (r + s)(n - 1) - n(n - 1) \equiv (r + s)(n - 1) \pmod{2}.\qedhere
+\]
+\end{proof}
+
+\begin{theorem}[Positive Even-Dimension Regime and Odd-Dimension Refutation of $\mathrm{L1}$]\label{thm:L1-dichotomy}
+Consider the forward three-star projective intersection formula~\eqref{eq:forward-3star}:
+\begin{enumerate}
+\item \emph{Positive regime ($n = 2m$, $m \ge 1$, i.e., $\Proj^{2m-1}$):} Since $2m - 1$ is odd, Lemma~\ref{lem:parity-master} gives $\varepsilon_{\mathrm{dual}}(2m, r, s) = (-1)^{r+s}$ identically across all $0 \le r, s \le 2m$ with $r + s \ge 2m$, with complete sign spectrum $\{+1, -1\}$ (witnessed by $(2m, 2m) \mapsto +1$ and $(2m-1, 2m) \mapsto -1$). For $m \ge 2$---in particular in 3D projective space $\Proj^3 = \Proj(\Z^4)$ ($n = 4$)---completeness holds even strictly on proper nonempty flats $1 \le r, s \le 2m - 1$: skew lines $L_1 = e_0 \wedge e_1$ and $L_2 = e_2 \wedge e_3$ ($r = s = 2$) satisfy $L_1 \vee L_2 = 1 \neq 0$ with unique sign $+1 = (-1)^{2+2}$, while $L_1$ and the plane $P = e_0 \wedge e_2 \wedge e_3$ ($r = 2, s = 3$) satisfy $L_1 \vee P = -e_0 \neq 0$ with unique sign $-1 = (-1)^{2+3}$. (At $n = 2$, $\Proj^1$, restricting to proper flats $1 \le r, s \le 1$ leaves only $(1,1)$ with incomplete spectrum $\{+1\}$.)
+\item \emph{Universal odd-dimension collapse ($n = 2m + 1$, $m \ge 0$, i.e., all $\Proj^{2m}$):} Since $(2m + 1) - 1 = 2m$ is even, Lemma~\ref{lem:parity-master} gives $k(n - k) \equiv 0 \pmod{2}$ for \emph{all} $(r, s)$, so
+\[
+A \vee B = +1 \cdot \star\bigl((\star A) \wedge (\star B)\bigr) \qquad (\forall A \in \Lambda^r R^{2m+1},\; B \in \Lambda^s R^{2m+1}).
+\]
+Hence \textbf{Clause~(C1) fails} in every even-dimensional projective space $\Proj^{2m}$: the sign-correction spectrum is $\{+1\} \subsetneq \{+1, -1\}$.
+\item \emph{Infinite proper-flat refutation of Clauses~(C2)--(C3) across all $\Proj^{2m}$ ($n = 2m + 3 \ge 3$):} Let $e = 2m + 2$, $A_m = e_{2m+2} \in \Lambda^1(\Z^{2m+3})$ (proper point, $r = 1$), and $B_m = e_0 \wedge \dots \wedge e_{2m+1} \in \Lambda^{2m+2}(\Z^{2m+3})$ (proper hyperplane, $s = 2m + 2$). Then $A_m \vee B_m = 1 = \star((\star A_m) \wedge (\star B_m)) \neq 0$, forcing the unique sign $c = +1$, whereas $r + s = 2m + 3$, $(r-1)+(s-1) = 2m + 1$, and $(n-r)+(n-s) = 2m + 3$ are all odd, predicting $(-1)^{r+s} = -1 \neq +1$. At $m = 0$ ($n = 3$), this is a point and a line in the classical projective plane $\Proj^2$. Moreover, in $\Proj^4$ ($n = 5$), the proper plane $A = e_0 \wedge e_1 \wedge e_2$ ($r = 3$) and hyperplane $B = e_0 \wedge e_1 \wedge e_3 \wedge e_4$ ($s = 4$) intersect in the nonempty line $A \vee B = e_0 \wedge e_1 \neq 0$ ($k = 2 \ge 1$) with sign $+1 \neq -1 = (-1)^{3+4}$.
+\item \emph{4D Minkowski $\R^{3,1}$ signature obstruction:} Even at $n = 4$, replacing $\star$ by the Lorentzian Hodge star $\star_{3,1}$ ($q = (1,1,1,-1)$, $\prod q_i = -1$) gives $\star_{3,1}^2(x) = -(-1)^{k(4-k)} x$ by~\eqref{eq:double-star-q}, flipping the conversion sign between $\star_{3,1}((\star_{3,1} A) \wedge (\star_{3,1} B))$ and $\star_{3,1}^{-1}((\star_{3,1} A) \wedge (\star_{3,1} B))$ to $-(-1)^{r+s}$ (giving $-1 \neq +1$ at $r = s = 2$).
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+All statements follow from Theorem~\ref{thm:double-star}(ii), Proposition~\ref{prop:dim-parity}, Lemma~\ref{lem:parity-master}, and direct evaluation of $\star A_m = B_m$, $\star B_m = A_m$, and $(\star A_m) \wedge (\star B_m) = B_m \wedge A_m = \omega_{2m+3}$ (since $\deg B_m = 2m + 2$ is even), giving $A_m \vee B_m = \star^{-1}\omega_{2m+3} = 1 = \star\omega_{2m+3}$.
+\end{proof}
+
+\begin{remark}[Origin of Conjecture~\texttt{00000007618}]
+Theorem~\ref{thm:L1-dichotomy}(i) pinpoints why Conjecture~\texttt{00000007618} appears plausible in applications: in 3D Projective Geometric Algebra ($\Proj^3 = \Proj(\R^4)$, $n = 4$), $(r+s)(n-1) = 3(r+s) \equiv r + s \pmod{2}$, so the forward three-star sign law coincides accidentally with $(-1)^{r+s}$ across all subspace pairs. Passing to $\Proj^2$ ($n = 3$) or $\Proj^4$ ($n = 5$) destroys both spectrum completeness and the $(-1)^{r+s}$ rule.
+\end{remark}
+
+\section{Universal Refutation of Commutation, Contraction, Shuffle, and Clifford Laws \texorpdfstring{($\mathrm{L2}$--$\mathrm{L7}$)}{(L2--L7)}}
+
+We now show that none of the remaining six standard intersection sign-correction conventions satisfies Conjecture~\texttt{00000007618} in \emph{any} dimension $n \ge 1$, and that in $\Proj^3$ ($n = 4$) every one of them violates \textbf{Clause~(C2) alone} (no function $f : \mathbb{N} \to \Z$ of $r + s$ whatsoever can represent the sign).
+
+\begin{theorem}[Regressive Commutation Law and Universal Hyperplane Refutation ($\mathrm{L2}$)]\label{thm:L2-refute}
+For every commutative ring $R$, every $n \ge 0$, and all $A \in \Lambda^r R^n$, $B \in \Lambda^s R^n$ ($r, s \le n$),
+\begin{equation}\label{eq:vee-comm}
+B \vee A = (-1)^{(n-r)(n-s)}\,(A \vee B).
+\end{equation}
+Consequently, $\mathrm{L2}$ violates Conjecture~\texttt{00000007618} in \textbf{every} dimension $n \ge 1$:
+\begin{enumerate}
+\item At $n = 1$, $(1-r)(1-s) = 0$ for all $r + s \ge 1$, so the spectrum $\{+1\}$ is incomplete and disagrees with $(-1)^{0+1} = -1$ at $(r, s) = (0, 1)$.
+\item For \textbf{every} $n = d + 2 \ge 2$ ($\Proj^1, \Proj^2, \Proj^3, \dots$), let $H_1 = \star^{-1}(e_d), H_2 = \star^{-1}(e_{d+1}) \in \Lambda^{d+1}(\Z^{d+2})$ be two proper coordinate hyperplanes ($r = s = d + 1$). Then $\star(H_1 \vee H_2) = e_d \wedge e_{d+1} \neq 0$, so $H_1 \vee H_2 \neq 0$ and $H_2 \vee H_1 = -1 \cdot (H_1 \vee H_2)$, forcing the unique sign $c = -1$, whereas $r + s = 2d + 2$, $(r-1)+(s-1) = 2d$, and $(n-r)+(n-s) = 2$ are all even ($+1 \neq -1$). Conversely, $\omega_n \vee H_1 = H_1 \vee \omega_n = H_1 \neq 0$ forces $c = +1$, whereas $n + (n - 1) = 2d + 3$ is odd ($-1 \neq +1$).
+\item \emph{Pure Clause~(C2) impossibility in $\Proj^3$ ($n = 4$):} On proper nonempty flats of $\Proj^3$, $(r_1, s_1) = (2, 2)$ ($A_1 = e_0 \wedge e_1$, $B_1 = e_2 \wedge e_3$) and $(r_2, s_2) = (1, 3)$ ($A_2 = e_0$, $B_2 = e_1 \wedge e_2 \wedge e_3$) have the \emph{identical} dimension sum $2 + 2 = 1 + 3 = 4$, yet $A_1 \vee B_1 = 1 = B_1 \vee A_1$ forces $f(4) = +1$ while $A_2 \vee B_2 = 1 = -(B_2 \vee A_2)$ forces $f(4) = -1$. Thus no function $f(r + s)$ exists.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Since $\star A \in \Lambda^{n-r} R^n$ and $\star B \in \Lambda^{n-s} R^n$, graded anticommutativity of $\wedge$ gives $(\star B) \wedge (\star A) = (-1)^{(n-r)(n-s)} (\star A) \wedge (\star B)$; applying $\star^{-1}$ yields~\eqref{eq:vee-comm}. Parts~(i)--(iii) follow immediately.
+\end{proof}
+
+\begin{theorem}[Contraction, Shuffle-Split, and Unreverted Clifford Refutations ($\mathrm{L3}$--$\mathrm{L7}$)]\label{thm:L3-L7}
+Define the Cartan left interior contraction $\alpha \mathbin{\lrcorner_{\mathrm{C}}} \beta$ by metric adjointness $\langle \gamma, \alpha \mathbin{\lrcorner_{\mathrm{C}}} \beta \rangle = \langle \alpha \wedge \gamma, \beta \rangle$ and the Dorst left contraction by $\alpha \rfloor \beta = \widetilde{\alpha} \mathbin{\lrcorner_{\mathrm{C}}} \beta$. For $A \in \Lambda^r R^n$, $B \in \Lambda^s R^n$ ($r, s \le n \le r + s$, $k = r + s - n$):
+\begin{enumerate}
+\item \emph{Exact identities:}
+\[
+(\star A) \mathbin{\lrcorner_{\mathrm{C}}} B = (-1)^{k(n-r)} (A \vee B), \qquad
+(\star A) \rfloor B = (-1)^{k(n-r) + \binom{n-r}{2}} (A \vee B),
+\]
+while $A \vee_{\mathrm{BBR2}} B = (-1)^{k(n-s)} (A \vee B)$, $A \mathbin{\llcorner_{\mathrm{C}}} (\star B) = (-1)^{(s+k)(n-s)} (A \vee B)$, and in Euclidean $\Cl_{n,0}$, $((A\omega_n^{-1}) \wedge (B\omega_n^{-1}))\omega_n = (-1)^{\binom{r}{2}+\binom{s}{2}+\binom{n-k}{2}+k(n-k)} (A \vee B)$.
+\item \emph{Simultaneous refutation in $\Proj^2$ ($n = 3$):} For two proper projective lines $L_1 = e_0 \wedge e_1$ and $L_2 = e_1 \wedge e_2$ in $\Z^3$ ($r = s = 2$, $k = 1$), $L_1 \vee L_2 = +e_1 \neq 0$ and $r + s = 4$ is even (predicting $+1$), yet \emph{every single one} of $\mathrm{L3}, \mathrm{L4}, \mathrm{L5}, \mathrm{L6}, \mathrm{L7}$ evaluates to $-e_1 = -1 \cdot (L_1 \vee L_2)$ (unique sign $-1 \neq +1$).
+\item \emph{Pure Clause~(C2) impossibility on proper flats in $\Proj^3$ ($n = 4$):} No function $f(r + s)$ can represent any of $\mathrm{L3}$--$\mathrm{L7}$ on proper nonempty subspaces $1 \le r, s \le 3$ of $\Proj^3$:
+\begin{itemize}
+\item For $\mathrm{L3}$ and $\mathrm{L4}$, $(r, s) = (3, 2)$ and $(2, 3)$ share $r + s = 5$ ($P = e_0 \wedge e_1 \wedge e_2$, $L = e_0 \wedge e_3$, $P \vee L = L \vee P = e_0 \neq 0$), yet yield opposite signs ($+1$ vs.\ $-1$ for $\mathrm{L3}$; $-1$ vs.\ $+1$ for $\mathrm{L4}$).
+\item For $\mathrm{L5}$ and $\mathrm{L7}$, $(2, 2)$ and $(1, 3)$ share $r + s = 4$, yet yield $+1$ vs.\ $-1$ on nonzero meets.
+\item For $\mathrm{L6}$, $(2, 2)$ and $(3, 1)$ share $r + s = 4$, yet yield $-1$ vs.\ $+1$ on nonzero meets.
+\end{itemize}
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+For~(i), testing $\gamma \in \Lambda^k R^n$ against $\star((\star A) \mathbin{\lrcorner_{\mathrm{C}}} B)$ via~\eqref{eq:hodge-def} gives
+\[
+\gamma \wedge \star\bigl((\star A) \mathbin{\lrcorner_{\mathrm{C}}} B\bigr)
+= \langle (\star A) \wedge \gamma, B \rangle \omega_n
+= \bigl((\star A) \wedge \gamma\bigr) \wedge (\star B)
+= (-1)^{k(n-r)} \gamma \wedge \star(A \vee B),
+\]
+so Poincar\'e nondegeneracy (Theorem~\ref{thm:double-star}(i)) yields $(\star A) \mathbin{\lrcorner_{\mathrm{C}}} B = (-1)^{k(n-r)} (A \vee B)$, and applying $\widetilde{\star A} = (-1)^{\binom{n-r}{2}} \star A$ gives the Dorst formula. Since $\star X = \widetilde{X}\omega_n = (-1)^{\binom{m}{2}} X\omega_n$ on $\Lambda^m$ and $\omega_n^{-1} = (-1)^{\binom{n}{2}}\omega_n$ appears twice in $(A\omega_n^{-1}) \wedge (B\omega_n^{-1})$ (canceling $(-1)^{2\binom{n}{2}} = +1$) and once on grade $n - k$ followed by $\star W = (-1)^{k(n-k)}\star^{-1} W$, the unreverted Clifford exponent is $\binom{r}{2} + \binom{s}{2} + \binom{n-k}{2} + k(n-k)$. Parts~(ii)--(iii) follow by direct evaluation on the stated basis blades.
+\end{proof}
+
+\section{Formalization and Verification Summary}
+
+All algebraic structures and theorems in this paper are formalized constructively in Core Lean~\texttt{4.19.0} (\texttt{lean/Conjecture00000007618/}, compiled with \texttt{-DwarningAsError=true}, zero external dependencies, zero \texttt{sorry}, and zero custom axioms):
+\begin{itemize}\raggedright
+\item \texttt{Ring.lean}: Commutative ring interface \texttt{CRing}, \texttt{Int} instance, \texttt{ringParitySign}, and modular parity theorems (\texttt{proj\_\allowbreak dim\_\allowbreak sum\_\allowbreak mod\_\allowbreak two}, \texttt{codim\_\allowbreak sum\_\allowbreak mod\_\allowbreak two}, \texttt{intersection\_\allowbreak double\_\allowbreak star\_\allowbreak mod\_\allowbreak two}, \texttt{even\_\allowbreak dim\_\allowbreak intersection\_\allowbreak mod\_\allowbreak two}, \texttt{odd\_\allowbreak dim\_\allowbreak intersection\_\allowbreak mod\_\allowbreak two\_\allowbreak zero}).
+\item \texttt{ExteriorClifford.lean}: Constructive $2^n$-dimensional algebra \texttt{Cl R n}, ring associativity \texttt{mul\_\allowbreak assoc}, grade actions \texttt{invol\_\allowbreak on\_\allowbreak grade} and \texttt{rev\_\allowbreak on\_\allowbreak grade}, grading \texttt{wedge\_\allowbreak hasGrade}, and exterior graded anticommutativity \texttt{wedge\_\allowbreak graded\_\allowbreak comm}.
+\item \texttt{ProjectiveMeet.lean}: Exterior Hodge star \texttt{IsHodgeStar}, Poincar\'e duality \texttt{poincare\_\allowbreak wedge\_\allowbreak nondeg}, arbitrary-metric double-star \texttt{cliffordRightStar\_\allowbreak double}, exact inverse \texttt{pStarInv}, regressive meet \texttt{vee}, associativity \texttt{vee\_\allowbreak assoc}, left--right invariance \texttt{vee\_\allowbreak eq\_\allowbreak leftStar\_\allowbreak meet}, commutation \texttt{vee\_\allowbreak graded\_\allowbreak comm}, forward 3-star \texttt{vee\_\allowbreak eq\_\allowbreak dimSum\_\allowbreak factor\_\allowbreak veeForward3Star}, metric-adjoint contractions \texttt{cartanLeft\_\allowbreak pStar\_\allowbreak eq\_\allowbreak sign\_\allowbreak vee} and \texttt{dorstLeft\_\allowbreak pStar\_\allowbreak eq\_\allowbreak sign\_\allowbreak vee}, and unreverted Clifford meet \texttt{veeUnrevertedClifford\_\allowbreak eq\_\allowbreak sign\_\allowbreak vee}.
+\item \texttt{Main.lean}: Positive even-$n$ characterization (\texttt{even\_\allowbreak dim\_\allowbreak forward3Star\_\allowbreak regime}, \texttt{p3\_\allowbreak proper\_\allowbreak forward3Star\_\allowbreak complete\_\allowbreak and\_\allowbreak valid}), parameterized infinite refutation families (\texttt{odd\_\allowbreak dim\_\allowbreak proper\_\allowbreak point\_\allowbreak hyperplane\_\allowbreak refutation}, \texttt{commutation\_\allowbreak proper\_\allowbreak hyperplanes\_\allowbreak refute\_\allowbreak all\_\allowbreak n\_\allowbreak ge\_\allowbreak 2}), $\Proj^3$ Clause~(C2) impossibility theorems, Minkowski $\Cl_{3,1}$ refutation, and bundled master negation \texttt{conjecture\_\allowbreak 00000007618\_\allowbreak false}.
+\end{itemize}
+In parallel, \texttt{verify.py} exhaustively checks all identities over $\Q$ across $7$ metric signatures, $1{,}364$ blade pairs for canonical meet equivalence, $363$ transverse blade pairs across all $7$ sign conventions, and $1 \le n \le 10$ parity classifications.
+
+\begin{thebibliography}{9}
+\bibitem{BBR1985}
+M.~Barnabei, A.~Brini, and G.-C.~Rota, ``On the exterior calculus of invariant theory,'' \emph{J.~Algebra} \textbf{96} (1985), 120--160.
+
+\bibitem{DRS1974}
+P.~Doubilet, G.-C.~Rota, and J.~Stein, ``On the foundations of combinatorial theory: IX. Combinatorial methods in invariant theory,'' \emph{Stud.\ Appl.\ Math.} \textbf{53} (1974), 185--216.
+
+\bibitem{DFM2007}
+L.~Dorst, D.~Fontijne, and S.~Mann, \emph{Geometric Algebra for Computer Science}, Morgan Kaufmann, 2007.
+
+\bibitem{Peano1888}
+G.~Peano, \emph{Calcolo Geometrico secondo l'Ausdehnungslehre di H.~Grassmann}, Bocca, Torino, 1888.
+\end{thebibliography}
+
+\end{document}
