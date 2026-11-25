@@ -1,0 +1,391 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\emergencystretch=1.5em
+\newcommand{\smmat}[1]{\bigl(\begin{smallmatrix}#1\end{smallmatrix}\bigr)}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\aut}{\mathrm{aut}}
+\newcommand{\vecd}{\mathbf{d}}
+\newcommand{\vecu}{\mathbf{u}}
+\newcommand{\vecv}{\mathbf{v}}
+\newcommand{\vecw}{\mathbf{w}}
+\newcommand{\vecz}{\mathbf{z}}
+\newcommand{\vece}{\mathbf{e}}
+\newcommand{\vecx}{\mathbf{x}}
+\newcommand{\vect}{\mathbf{t}}
+
+\title{\textbf{Disproof of Conjecture 00000000441 on Transition Matrices of the Multisymmetric Monomial Basis}}
+\author{Formalized in Core Lean 4.19.0 with Exact Computational Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture~00000000441 asserts that in the ring of multisymmetric functions in $r$ sets of variables, the transition matrix of the multisymmetric monomial basis is triangular with determinant a power of two, whose exponent is a function of $r$. We prove that this conjecture is \textbf{false} under every standard multiplicative basis of the ring of multisymmetric functions $\Lambda^{(r)}$---specifically against the elementary multisymmetric basis $\{e_\Lambda\}$, the complete homogeneous multisymmetric basis $\{h_\Lambda\}$, the power-sum multisymmetric basis $\{p_\Lambda\}$, and the augmented (divided-power) monomial basis $\{\tilde{m}_\Lambda\}$---as well as for their inverse transition matrices, polarized scalings, and separate-symmetry tensor analogues.
+
+For $\{e_\Lambda\}$ and $\{h_\Lambda\}$, we explain why small multilinear degrees ($r \le 3$, $|\det| \in \{1, 2\}$) look deceptive, and prove that all three clauses fail: permutation-triangularity fails already for $M(h,m)_{(1,1)}$ ($r=2$) and $M(e,m)_{(1,1,1)}$ ($r=3$), while at $r=2$, $\vecd=(2,2)$ we have $\det M(e,m)_{(2,2)} = \det M(h,m)_{(2,2)} = 3$, and in multilinear degree $\vecd=(1,1,1,1)$ ($r=4$) we have $\det M(e,m)_{(1^4)} = -96 = -2^5 \cdot 3$ and $\det M(h,m)_{(1^4)} = 96$. For $\{p_\Lambda\}$ (and $\{\tilde{m}_\Lambda\}$), we prove that $M(p,m)_{\vecd}$ is always lower triangular with $\det M(p,m)_{\vecd} = \prod_{\Lambda \vdash \vecd} \aut(\Lambda)$, which is indeed a power of two whenever $\vecd \in \{0,1,2\}^r$ (giving $\det = 1, 2, 32$ at $\vecd = (1,1), (2,1), (2,2)$ for $r=2$, already refuting pure $r$-dependence), whereas for \emph{every} $r \ge 1$ in strictly positive multidegree $\vecd'_r = (3,1,\dots,1)$ one has $6 \mid \det M(p,m)_{\vecd'_r}$ (e.g.\ $\det M(p,m)_{(3,1)} = 12$), refuting the power-of-two property universally. All main results and polynomial basis identities are formally verified from first principles in Core Lean~4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Introduction and Problem Analysis}
+
+We investigate Conjecture~00000000441 from \emph{The Last Math Competition}, stated in \texttt{SOURCE.md} as follows:
+\begin{quote}
+\textbf{Definition:} Multisymmetric functions form the ring of symmetric functions in several sets of variables. \textbf{Conjecture:} The transition matrix of the multisymmetric monomial basis is triangular with determinant a power of two; and the exponent is a function of the number of variable sets.
+\end{quote}
+
+In algebraic combinatorics and invariant theory (MacMahon~\cite{MacMahon}, Dalbec~\cite{Dalbec}, Rosas~\cite{Rosas}, Briand~\cite{Briand}, Vaccarino~\cite{Vaccarino}), the ring of \emph{multisymmetric functions} $\Lambda^{(r)}$ in $r \ge 1$ sets of variables $\vecx^{(1)}, \dots, \vecx^{(r)}$ is the $\NN^r$-graded projective limit as $n \to \infty$ of the diagonal $S_n$-invariant polynomial rings $\QQ[\vecx_1, \dots, \vecx_n]^{S_n}$, where each $\vecx_i = (x_{i,1}, \dots, x_{i,r})$ is a vector of $r$ indeterminates and $\sigma \in S_n$ permutes the index $i$ simultaneously across all $r$ variable sets: $\sigma(x_{i,j}) = x_{\sigma(i), j}$. When $r = 1$, $\Lambda^{(1)}$ reduces to the classical ring $\Lambda$ of symmetric functions.
+
+In each nonzero multidegree $\vecd = (d_1, \dots, d_r) \in \NN^r \setminus \{\mathbf{0}\}$, the homogeneous component $\Lambda^{(r)}_{\vecd}$ has a canonical integral basis $\{m_\Lambda\}_{\Lambda \vdash \vecd}$, the \emph{multisymmetric monomial basis}, indexed by \emph{vector partitions} $\Lambda$ of $\vecd$. Because the conjecture refers concisely to ``the transition matrix of the multisymmetric monomial basis'' without specifying the partner basis or basis ordering, a mathematically complete resolution must test $\{m_\Lambda\}$ under the most permissive conventions against \emph{every} canonical family of multiplicative generators of $\Lambda^{(r)}_{\vecd}$. Specifically, Conjecture~00000000441 asserts three simultaneous properties for the transition matrix $M_{\vecd}$ in multidegree $\vecd$ on $r$ variable sets:
+\begin{enumerate}
+  \setlength{\itemsep}{2pt}
+  \item[(C1)] \textbf{Triangularity:} Up to reordering the indexing bases (even allowing \emph{independent} row and column permutations $P M_{\vecd} Q$), $M_{\vecd}$ is upper or lower triangular.
+  \item[(C2)] \textbf{Power-of-two determinant:} $\det M_{\vecd}$ is a power of two (even up to sign and inversion, $\det M_{\vecd} = \pm 2^z$ with $z \in \ZZ$).
+  \item[(C3)] \textbf{Pure $r$-dependence:} The exponent $z = f(r)$ depends solely on the number of variable sets $r$, independently of the multidegree $\vecd$.
+\end{enumerate}
+
+\begin{theorem}[Main Negative Resolution]\label{thm:main}
+Conjecture~00000000441 is \textbf{false} under every standard basis convention for $\Lambda^{(r)}$:
+\begin{enumerate}
+  \setlength{\itemsep}{3pt}
+  \item[(a)] \textbf{Elementary multisymmetric basis $\{e_\Lambda\}$:}
+  \begin{itemize}
+    \setlength{\itemsep}{1pt}
+    \item At $r = 3$, $\vecd = (1,1,1)$ ($5 \times 5$), $\det M(e,m)_{(1,1,1)} = -2$, yet $M(e,m)_{(1,1,1)}$ is not triangular under any row and column permutations, violating \emph{(C1)}.
+    \item At $r = 2$, $\vecd = (2,2)$ ($9 \times 9$), $\det M(e,m)_{(2,2)} = 3$, violating \emph{(C1)}, \emph{(C2)}, and---together with $|\det M(e,m)_{(1,1)}| = 1$---also \emph{(C3)}.
+    \item Even restricting exclusively to multilinear degree $\vecd = (1^r) = (1,\dots,1)$, at $r = 4$ ($15 \times 15$) one has $\det M(e,m)_{(1,1,1,1)} = -96 = -2^5 \cdot 3$, violating both \emph{(C1)} and \emph{(C2)}.
+  \end{itemize}
+  \item[(b)] \textbf{Complete homogeneous multisymmetric basis $\{h_\Lambda\}$:}
+  \begin{itemize}
+    \setlength{\itemsep}{1pt}
+    \item Every entry of $M(h,m)_{\vecd}$ is strictly positive, violating \emph{(C1)} whenever $\dim \Lambda^{(r)}_{\vecd} \ge 2$ (already at $r = 2$, $\vecd = (1,1)$, where $M(h,m)_{(1,1)} = \smmat{2 & 1 \\ 1 & 1}$).
+    \item Moreover, $|\det M(h,m)_{\vecd}| = |\det M(e,m)_{\vecd}|$ for all $\vecd$, giving $\det M(h,m)_{(2,2)} = 3$ and $\det M(h,m)_{(1,1,1,1)} = 96$, violating \emph{(C2)} and \emph{(C3)}.
+  \end{itemize}
+  \item[(c)] \textbf{Power-sum basis $\{p_\Lambda\}$ and augmented monomial basis $\{\tilde{m}_\Lambda\}$:}
+  \begin{itemize}
+    \setlength{\itemsep}{1pt}
+    \item Ordered by non-decreasing part count, $M(p,m)_{\vecd}$ \emph{is} lower triangular for all $r, \vecd$, with $\det M(p,m)_{\vecd} = \det M(\tilde{m},m)_{\vecd} = \prod_{\Lambda \vdash \vecd} \aut(\Lambda)$.
+    \item Whenever $\vecd \in \{0,1,2\}^r$, $\det M(p,m)_{\vecd}$ is an exact power of two, but at $r = 2$ it takes the distinct values $2^0 = 1$, $2^1 = 2$, and $2^5 = 32$ at $\vecd = (1,1), (2,1), (2,2)$, violating \emph{(C3)}.
+    \item For \emph{every} $r \ge 1$, in the strictly positive multidegree $\vecd'_r = (3,1,\dots,1) \in \NN^r$, $6$ divides $\det M(p,m)_{\vecd'_r}$ (e.g.\ $\det M(p,m)_{(3)} = 6$ for $r=1$ and $\det M(p,m)_{(3,1)} = 12$ for $r=2$), violating \emph{(C2)} for every $r \ge 1$.
+  \end{itemize}
+\end{enumerate}
+By invariance of permutation-triangularity and prime support of determinants under matrix inversion, the inverse transition matrices $M(m,b)_{\vecd} = M(b,m)_{\vecd}^{-1}$ fail identically.
+\end{theorem}
+
+\section{Multisymmetric Polynomials and Multiplicative Bases}
+
+Fix $r \ge 1$ and $n \ge 1$, and consider the polynomial ring $\ZZ[x_{i,j} : 0 \le i < n,\; 1 \le j \le r]$ graded by multidegree $\vecd = (d_1, \dots, d_r) \in \NN^r$, where $\deg(x_{i,j}) = \vece_j$ is the $j$-th standard basis vector of $\NN^r$. For $\vecu = (u_1, \dots, u_r) \in \NN^r$, we write $|\vecu| = \sum_{j=1}^r u_j$ and $\vecx_i^{\vecu} = \prod_{j=1}^r x_{i,j}^{u_j}$.
+
+\begin{definition}[Vector partitions and multisymmetric monomial basis]
+A \emph{vector partition} of $\vecd \in \NN^r \setminus \{\mathbf{0}\}$, written $\Lambda \vdash \vecd$, is a finite multiset $\Lambda = \{\vecu^{(1)}, \dots, \vecu^{(\ell)}\}$ of nonzero vectors $\vecu^{(a)} \in \NN^r \setminus \{\mathbf{0}\}$ such that $\sum_{a=1}^\ell \vecu^{(a)} = \vecd$. Its \emph{length} is $\ell(\Lambda) = \ell$, and its \emph{automorphism factor} is
+\[
+  \aut(\Lambda) = \prod_{\vecu \in \NN^r \setminus \{\mathbf{0}\}} m_\Lambda(\vecu)!,
+\]
+where $m_\Lambda(\vecu)$ is the multiplicity of $\vecu$ in $\Lambda$. For $n \ge \ell(\Lambda)$, the \emph{multisymmetric monomial polynomial} $m_\Lambda(\vecx_0, \dots, \vecx_{n-1})$ is the sum of all distinct monomials in the $S_n$-orbit of the representative monomial
+\[
+  M_\Lambda := \vecx_0^{\vecu^{(1)}} \vecx_1^{\vecu^{(2)}} \cdots \vecx_{\ell-1}^{\vecu^{(\ell)}}.
+\]
+The \emph{augmented} (or divided-power) monomial function is $\tilde{m}_\Lambda := \aut(\Lambda)\, m_\Lambda$, equal to the sum over all injective assignments $\{1,\dots,\ell\} \hookrightarrow \{0,\dots,n-1\}$.
+\end{definition}
+
+Because two $n$-tuples of exponent vectors lie in the same $S_n$-orbit if and only if they have the same multiset of nonzero vectors, the coefficient functional $[M_\Gamma]$ extracting the coefficient of $M_\Gamma$ satisfies the dual-basis identity $[M_\Gamma]\, m_\Lambda = \delta_{\Lambda,\Gamma}$ whenever $n \ge \max(\ell(\Lambda), \ell(\Gamma))$. Since $\ell(\Lambda) \le |\vecd|$ for every $\Lambda \vdash \vecd$, all basis expansions in multidegree $\vecd$ stabilize completely once $n \ge |\vecd|$: if $F \in \Lambda^{(r)}_{\vecd}$ is expanded as $F = \sum_{\Gamma \vdash \vecd} c_\Gamma m_\Gamma$, then $c_\Gamma = [M_\Gamma]\, F$ is uniquely determined.
+
+\begin{definition}[Elementary, complete homogeneous, and power-sum bases]
+Let $\vect = (t_1, \dots, t_r)$ be formal multidegree variables with $\vect^{\vecu} = t_1^{u_1}\cdots t_r^{u_r}$. The canonical multiplicative generators of $\Lambda^{(r)}$ are defined for each $\vecu \in \NN^r \setminus \{\mathbf{0}\}$ by:
+\begin{align}
+  \sum_{\vecu \in \NN^r} e_{\vecu}\, \vect^{\vecu} &= \prod_{i \ge 0} \Bigl(1 + \sum_{j=1}^r t_j x_{i,j}\Bigr), \label{eq:gen-e}\\
+  \sum_{\vecu \in \NN^r} h_{\vecu}\, \vect^{\vecu} &= \prod_{i \ge 0} \Bigl(1 - \sum_{j=1}^r t_j x_{i,j}\Bigr)^{-1}, \label{eq:gen-h}\\
+  p_{\vecu} &= \sum_{i \ge 0} \vecx_i^{\vecu} = m_{\{\vecu\}}. \label{eq:gen-p}
+\end{align}
+For any vector partition $\Lambda = \{\vecu^{(1)}, \dots, \vecu^{(\ell)}\} \vdash \vecd$, one sets
+\[
+  e_\Lambda = \prod_{a=1}^\ell e_{\vecu^{(a)}}, \qquad
+  h_\Lambda = \prod_{a=1}^\ell h_{\vecu^{(a)}}, \qquad
+  p_\Lambda = \prod_{a=1}^\ell p_{\vecu^{(a)}}.
+\]
+\end{definition}
+
+Over $\QQ$, $\Lambda^{(r)}_{\QQ} = \QQ[p_{\vecu} : \vecu \neq \mathbf{0}] = \QQ[e_{\vecu} : \vecu \neq \mathbf{0}] = \QQ[h_{\vecu} : \vecu \neq \mathbf{0}]$ is a free commutative polynomial algebra, so $\{e_\Lambda\}_{\Lambda \vdash \vecd}$, $\{h_\Lambda\}_{\Lambda \vdash \vecd}$, and $\{p_\Lambda\}_{\Lambda \vdash \vecd}$ are $\QQ$-bases of $\Lambda^{(r)}_{\vecd}$ of dimension $N(\vecd) = |\{\Lambda : \Lambda \vdash \vecd\}|$. For $b \in \{e, h, p\}$, the transition matrix $M(b,m)_{\vecd}$ is the $N(\vecd) \times N(\vecd)$ integer matrix defined by
+\[
+  b_\Lambda = \sum_{\Gamma \vdash \vecd} M(b,m)_{\Lambda,\Gamma}\, m_\Gamma \qquad (\Lambda \vdash \vecd).
+\]
+
+\begin{remark}[Alternative product series do not form bases]
+If one replaces \eqref{eq:gen-e} or \eqref{eq:gen-h} by the factorized products $\prod_{i \ge 0} \prod_{j=1}^r (1 + t_j x_{i,j})$ or $\prod_{i \ge 0} \prod_{j=1}^r (1 - t_j x_{i,j})^{-1}$, the resulting elements satisfy $E_{(1,0)} E_{(0,1)} = E_{(1,1)}$ and $H_{(1,0)} H_{(0,1)} = H_{(1,1)} = m_{\{(1,1)\}} + m_{\{(1,0),(0,1)\}}$ already at $r = 2$, $\vecd = (1,1)$, so their products have determinant $0$ and fail even to span $\Lambda^{(2)}_{(1,1)}$. Thus \eqref{eq:gen-e}--\eqref{eq:gen-p} are the unique standard multiplicative generator families.
+\end{remark}
+
+Table~\ref{tab:summary} summarizes the exact transition determinants and permutation-triangularity across small multidegrees, computed both symbolically and in \texttt{verify.py}.
+
+\begin{table}[ht]
+\centering
+\caption{Exact determinants and permutation-triangularity ($P M Q$ triangular for some permutation matrices $P, Q$) of $M(b,m)_{\vecd}$ across $r \in \{1,2,3,4\}$.}
+\label{tab:summary}
+\medskip
+{\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{lcrcrcrc}
+\hline
+Multidegree $\vecd$ & $N(\vecd)$ & $\det M(e,m)_{\vecd}$ & Tri? & $\det M(h,m)_{\vecd}$ & Tri? & $\det M(p,m)_{\vecd}$ & Tri? \\
+\hline
+$(1)$ ($r=1$)         &  1 & $1$   & Yes & $1$  & Yes & $1$  & Yes \\
+$(2)$ ($r=1$)         &  2 & $-1$  & Yes & $1$  & No  & $2$  & Yes \\
+$(3)$ ($r=1$)         &  3 & $-1$  & Yes & $1$  & No  & $6$  & Yes \\
+$(1,1)$ ($r=2$)       &  2 & $-1$  & Yes & $1$  & No  & $1$  & Yes \\
+$(2,1)$ ($r=2$)       &  4 & $1$   & Yes & $1$  & No  & $2$  & Yes \\
+$(2,2)$ ($r=2$)       &  9 & $3$   & No  & $3$  & No  & $32$ & Yes \\
+$(3,1)$ ($r=2$)       &  7 & $-1$  & Yes & $1$  & No  & $12$ & Yes \\
+$(1,1,1)$ ($r=3$)     &  5 & $-2$  & No  & $2$  & No  & $1$  & Yes \\
+$(2,1,1)$ ($r=3$)     & 11 & $-6$  & No  & $6$  & No  & $4$  & Yes \\
+$(1,1,1,1)$ ($r=4$)   & 15 & $-96$ & No  & $96$ & No  & $1$  & Yes \\
+\hline
+\end{tabular}}
+\end{table}
+
+\section{General Obstruction Lemmas}
+
+To rule out triangularity regardless of how one orders the vector partitions on rows and columns, we work with the weakest possible notion of triangularity.
+
+\begin{definition}[Permutation-triangularity]
+An $N \times N$ matrix $A$ is \emph{permutation-upper-triangular} (resp.\ \emph{permutation-lower-triangular}) if there exist bijections $\sigma, \tau \in S_N$ such that $A_{\sigma(i),\tau(j)} = 0$ whenever $j < i$ (resp.\ $i < j$). We say $A$ is \emph{permutation-triangular} if it is permutation-upper-triangular or permutation-lower-triangular.
+\end{definition}
+
+Composing both $\sigma$ and $\tau$ with the order-reversing involution $k \mapsto N - 1 - k$ shows immediately that $A$ is permutation-lower-triangular if and only if $A$ is permutation-upper-triangular. Moreover, if $A \in \mathrm{GL}_N(\QQ)$ satisfies $P A Q = T$ with $T$ upper triangular and $P, Q$ permutation matrices, then $Q^{-1} A^{-1} P^{-1} = T^{-1}$ is also upper triangular; hence $A$ is permutation-triangular if and only if $A^{-1}$ is permutation-triangular.
+
+\begin{lemma}[Row-support obstructions to permutation-triangularity]\label{lem:tri-obs}
+Let $A$ be an $N \times N$ matrix over an integral domain.
+\begin{enumerate}
+  \setlength{\itemsep}{2pt}
+  \item[(i)] If $N \ge 2$ and every row of $A$ contains at least two nonzero entries, then $A$ is not permutation-triangular.
+  \item[(ii)] If $N \ge 3$ and there exist indices $(r_0, c_0)$ such that $A_{r_0, c_0} \neq 0$ while every row $r \neq r_0$ contains at least two nonzero entries in columns $c \neq c_0$, then $A$ is not permutation-triangular.
+  \item[(iii)] If $A \in \{0,1\}^{N \times N}$ is permutation-triangular, then $\det A \in \{-1, 0, 1\}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Suppose $\sigma, \tau \in S_N$ make $B_{i,j} = A_{\sigma(i),\tau(j)}$ upper triangular (indexing $0 \le i,j \le N-1$).
+For $j < N - 1$, $A_{\sigma(N-1),\tau(j)} = B_{N-1,j} = 0$. Since $\tau$ is bijective, $A_{\sigma(N-1), c} = 0$ for every column $c \neq \tau(N-1)$, so row $\sigma(N-1)$ has at most one nonzero entry; this proves~(i).
+
+Under the hypotheses of~(ii), every row $r \neq r_0$ has at least two nonzero entries altogether, forcing $\sigma(N-1) = r_0$. Since $A_{r_0, c_0} \neq 0$ while $A_{r_0, c} = 0$ for all $c \neq \tau(N-1)$, we must also have $\tau(N-1) = c_0$. Now consider row $i = N - 2 \ge 1$: injectivity of $\sigma$ gives $\sigma(N-2) \neq r_0$, and for every column $c \notin \{c_0, \tau(N-2)\}$, its preimage $j = \tau^{-1}(c)$ satisfies $j \notin \{N-1, N-2\}$, hence $j < N - 2$ and $A_{\sigma(N-2), c} = B_{N-2, j} = 0$. Thus row $\sigma(N-2) \neq r_0$ has at most one nonzero entry outside column $c_0$, contradicting~(ii).
+
+Finally, for~(iii), if $B_{i,j} = A_{\sigma(i),\tau(j)}$ is upper triangular with entries in $\{0,1\}$, then $\det B = \prod_{i=0}^{N-1} B_{i,i} \in \{0,1\}$, so $\det A = \mathrm{sgn}(\sigma)\mathrm{sgn}(\tau)\det B \in \{-1,0,1\}$.
+\end{proof}
+
+\begin{lemma}[Odd-prime obstruction to powers of two]\label{lem:pow2}
+Let $d \in \ZZ$ satisfy $3 \mid d$. Then $d \neq \pm 2^k$ for all $k \in \NN$, and neither $d$ nor $1/d$ is of the form $\pm 2^z$ for any $z \in \ZZ$.
+\end{lemma}
+
+\begin{proof}
+By induction on $k \in \NN$, $2^k \equiv 1$ or $2 \pmod{3}$, so $3 \nmid \pm 2^k$. If $d = \pm 2^{-k}$ with $k \ge 1$, then $|d| < 1$, impossible for a nonzero multiple of $3$; if $1/d = \pm 2^z$, then $d = \pm 2^{-z}$, reducing to the same contradiction.
+\end{proof}
+
+\section{Disproof for the Elementary and Complete Homogeneous Bases}
+
+\subsection{Multilinear Set-Partition Structure and Failure at \texorpdfstring{$r = 3, 4$}{r = 3, 4}}
+
+Consider first the multilinear multidegree $\vecd = (1^r) = (1, \dots, 1) \in \NN^r$. A vector $\vecu \le (1^r)$ is the indicator vector $\vecu_B \in \{0,1\}^r$ of a nonempty subset $B \subseteq \{1,\dots,r\}$, so vector partitions of $(1^r)$ correspond bijectively to set partitions $\pi \in \Pi_r$ of $\{1,\dots,r\}$ ($N(1^r) = B_r$, the $r$-th Bell number: $B_1 = 1$, $B_2 = 2$, $B_3 = 5$, $B_4 = 15$).
+
+\begin{proposition}[Multilinear transition matrix $M(e,m)_{(1^r)}$]\label{prop:multilinear}
+Under the bijection between vector partitions of $(1^r)$ and set partitions $\Pi_r$, the $(\pi,\sigma)$-entry of $M(e,m)_{(1^r)}$ is
+\[
+  M(e,m)_{\pi,\sigma} =
+  \begin{cases}
+    1 & \text{if } |B \cap C| \le 1 \text{ for all } B \in \pi \text{ and } C \in \sigma \text{ (i.e.\ } \pi \wedge \sigma = \hat{0} \text{ in } \Pi_r\text{)},\\
+    0 & \text{otherwise.}
+  \end{cases}
+\]
+\end{proposition}
+
+\begin{proof}
+For a single block $B \subseteq \{1,\dots,r\}$, extracting $[t^B]$ from $\prod_{i \ge 0}(1 + \sum_{j=1}^r t_j x_{i,j})$ yields $e_{\vecu_B} = \sum_{(i_j)_{j \in B}\text{ distinct}} \prod_{j \in B} x_{i_j, j}$. For $\sigma = \{C_1, \dots, C_\ell\} \in \Pi_r$, the representative monomial $M_\sigma$ assigns variable slot $a - 1$ to all $j \in C_a$. In the product $e_\pi = \prod_{B \in \pi} e_{\vecu_B}$, each variable set $j \in \{1,\dots,r\}$ appears in a unique block $B \in \pi$, so $M_\sigma$ can be formed in at most one way (by choosing slot $a - 1$ for $j \in B \cap C_a$), and that choice is valid in $e_{\vecu_B}$ if and only if no two elements of $B$ share the same slot $C_a$, i.e.\ $|B \cap C_a| \le 1$ for all $B \in \pi$ and $C_a \in \sigma$.
+\end{proof}
+
+Proposition~\ref{prop:multilinear} explains why small values of $r$ appear deceptive:
+\begin{itemize}
+  \setlength{\itemsep}{2pt}
+  \item For $r = 1$: $M(e,m)_{(1)} = (1)$, triangular with $\det = 1 = 2^0$.
+  \item For $r = 2$: ordering $\Pi_2$ as $\{\{1,2\}\}, \{\{1\},\{2\}\}$ gives
+  $M(e,m)_{(1,1)} = \smmat{0 & 1 \\ 1 & 1}$, which becomes upper unitriangular after swapping its two rows, with $|\det| = 1 = 2^0$ (though $\det = -1 < 0$ in identical row/column order).
+  \item For $r = 3$: ordering $\Pi_3$ as $123,\; 12|3,\; 13|2,\; 23|1,\; 1|2|3$ gives the $5 \times 5$ matrix
+  \[
+    M(e,m)_{(1,1,1)} =
+    \begin{pmatrix}
+      0 & 0 & 0 & 0 & 1 \\
+      0 & 0 & 1 & 1 & 1 \\
+      0 & 1 & 0 & 1 & 1 \\
+      0 & 1 & 1 & 0 & 1 \\
+      1 & 1 & 1 & 1 & 1
+    \end{pmatrix},
+    \qquad \det M(e,m)_{(1,1,1)} = -2.
+  \]
+  Here $|\det M(e,m)_{(1,1,1)}| = 2 = 2^1$ is still a power of two! However, every entry of $M(e,m)_{(1,1,1)}$ lies in $\{0,1\}$, so by Lemma~\ref{lem:tri-obs}(ii) (with $(r_0, c_0) = (0, 4)$) and Lemma~\ref{lem:tri-obs}(iii) ($|-2| = 2 \notin \{0,1\}$), \emph{$M(e,m)_{(1,1,1)}$ is not triangular under any row and column permutations}. Explicitly, its middle $3 \times 3$ block on the $(2,1)$-type partitions is $\smmat{0 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0}$ of determinant $+2$, corresponding to the classic $2!$-torsion obstruction of Dalbec~\cite{Dalbec} and Briand~\cite{Briand}.
+  \item For $r = 4$: $|\Pi_4| = 15$. By Proposition~\ref{prop:multilinear}, $M(e,m)_{(1,1,1,1)} \in \{0,1\}^{15 \times 15}$; exact Hermite row reduction (verified in Core Lean~4.19.0 via 31 integer row operations) yields diagonal entries $(1,1,1,1,1,1,1,1,-2,1,-2,-2,2,-6,1)$ and
+  \[
+    \det M(e,m)_{(1,1,1,1)} = -96 = -2^5 \cdot 3.
+  \]
+  By Lemma~\ref{lem:pow2}, $-96$ is divisible by $3$ and is \textbf{not} a power of two; by Lemma~\ref{lem:tri-obs}(ii)--(iii), $M(e,m)_{(1,1,1,1)}$ is not permutation-triangular either. Thus even if one restricts Conjecture~00000000441 exclusively to multilinear multisymmetric functions $\vecd = (1^r)$, both triangularity and the power-of-two determinant fail.
+\end{itemize}
+
+\subsection{Explicit Failure at \texorpdfstring{$r = 2$}{r = 2}, Multidegree \texorpdfstring{$\vecd = (2,2)$}{d = (2,2)}}
+
+Even for $r = 2$ variable sets, the conjecture fails for $\{e_\Lambda\}$ at $\vecd = (2,2)$. While $\vecd = (1,1)$ and $\vecd = (2,1)$ are permutation-unitriangular ($\det M(e,m)_{(1,1)} = -1$, $\det M(e,m)_{(2,1)} = 1$), multidegree $\vecd = (2,2)$ has $9$ vector partitions, ordered reverse-lexicographically as:
+\begin{align*}
+  \Lambda_0 &= \{(2,2)\}, &
+  \Lambda_1 &= \{(2,1),(0,1)\}, &
+  \Lambda_2 &= \{(2,0),(0,2)\}, \\
+  \Lambda_3 &= \{(2,0),(0,1),(0,1)\}, &
+  \Lambda_4 &= \{(1,2),(1,0)\}, &
+  \Lambda_5 &= \{(1,1),(1,1)\}, \\
+  \Lambda_6 &= \{(1,1),(1,0),(0,1)\}, &
+  \Lambda_7 &= \{(1,0),(1,0),(0,2)\}, &
+  \Lambda_8 &= \{(1,0),(1,0),(0,1),(0,1)\}.
+\end{align*}
+
+\begin{proposition}[Failure of all three claims for $\{e_\Lambda\}$ at $r = 2$, $\vecd = (2,2)$]\label{prop:e22}
+In $\Lambda^{(2)}_{(2,2)}$ (realized identically in any $n \ge 4$ vector variables), the transition matrix $M(e,m)_{(2,2)}$ with respect to $(\Lambda_0, \dots, \Lambda_8)$ is
+\[
+  M(e,m)_{(2,2)} =
+  \begin{pmatrix}
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 2 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 1 & 0 & 1 \\
+    0 & 0 & 0 & 0 & 1 & 2 & 2 & 1 & 2 \\
+    0 & 0 & 0 & 1 & 0 & 0 & 1 & 0 & 2 \\
+    0 & 0 & 1 & 2 & 0 & 2 & 2 & 2 & 4 \\
+    0 & 1 & 1 & 2 & 1 & 2 & 3 & 2 & 4 \\
+    0 & 1 & 0 & 1 & 0 & 2 & 2 & 0 & 2 \\
+    1 & 2 & 1 & 2 & 2 & 4 & 4 & 2 & 4
+  \end{pmatrix}.
+\]
+It satisfies $\det M(e,m)_{(2,2)} = 3$, is not permutation-triangular, does not have determinant $\pm 2^z$, and (compared with $|\det M(e,m)_{(1,1)}| = 1$) shows that $|\det M(e,m)_{\vecd}|$ is not a function of $r$ alone.
+\end{proposition}
+
+\begin{proof}
+Each row $i$ is verified directly by expanding $e_{\Lambda_i}$ in $\ZZ[\vecx_0,\vecx_1,\vecx_2,\vecx_3]$ (proved in Lean as \texttt{basis\_e\_22}). Applying row swaps $(0,8)$, $(1,6)$, $(2,5)$, $(3,4)$ (four swaps, sign $(-1)^4 = +1$) gives an integer matrix whose first seven rows have unit pivots $1$ on the diagonal and zeros below them except in row~$7$:
+\[
+  R_7 = (0, 1, 0, 1, 0, 2, 2, 0, 2) \quad\text{(original $\Lambda_7$: $e_{(1,0)}^2 e_{(0,2)}$)},
+\]
+while the swapped pivot rows are:
+\begin{align*}
+  R'_1 &= (0, 1, 1, 2, 1, 2, 3, 2, 4), &
+  R'_2 &= (0, 0, 1, 2, 0, 2, 2, 2, 4), &
+  R'_3 &= (0, 0, 0, 1, 0, 0, 1, 0, 2), \\
+  R'_4 &= (0, 0, 0, 0, 1, 2, 2, 1, 2), &
+  R'_5 &= (0, 0, 0, 0, 0, 1, 1, 0, 1), &
+  R'_6 &= (0, 0, 0, 0, 0, 0, 1, 1, 2),
+\end{align*}
+and $R'_8 = (0,0,0,0,0,0,0,0,1)$. Eliminating columns $1$ through $6$ of $R_7$ via
+\[
+  R_7 - R'_1 + R'_2 - R'_3 + R'_4 - 4 R'_5 + 2 R'_6 = (0, 0, 0, 0, 0, 0, 0, 3, 2)
+\]
+yields an upper triangular matrix whose diagonal entries are $(1,1,1,1,1,1,1,3,1)$, whence $\det M(e,m)_{(2,2)} = 3$. By Lemma~\ref{lem:pow2}, $3 \neq \pm 2^z$. Moreover, row~$0$ has its sole nonzero entry at $(0,8)$, while each of rows $1, \dots, 8$ has at least two nonzero entries among columns $0, \dots, 7$; hence Lemma~\ref{lem:tri-obs}(ii) proves $M(e,m)_{(2,2)}$ is not permutation-triangular.
+\end{proof}
+
+\subsection{Consequences for the Complete Homogeneous Basis \texorpdfstring{$\{h_\Lambda\}$}{\{h\_Lambda\}}}
+
+Multiplying \eqref{eq:gen-e} (with $\vect \mapsto -\vect$) and \eqref{eq:gen-h} yields the formal power series identity
+\[
+  \Bigl(\sum_{\vecu \in \NN^r} h_{\vecu}\, \vect^{\vecu}\Bigr)
+  \Bigl(\sum_{\vecv \in \NN^r} (-1)^{|\vecv|} e_{\vecv}\, \vect^{\vecv}\Bigr) = 1.
+\]
+Hence for every $\vecu \neq \mathbf{0}$, $h_{\vecu} = (-1)^{|\vecu|-1} e_{\vecu} + \text{(products of $e_{\vecv}$ with $|\vecv| < |\vecu|$)}$. Ordering vector partitions $\Lambda \vdash \vecd$ by non-decreasing length $\ell(\Lambda)$, the transition matrix $M(h,e)_{\vecd}$ is upper triangular with diagonal entries $\prod_{\vecu \in \Lambda} (-1)^{|\vecu|-1} = (-1)^{|\vecd| - \ell(\Lambda)} \in \{\pm 1\}$. Consequently,
+\[
+  |\det M(h,m)_{\vecd}| = |\det M(h,e)_{\vecd}| \cdot |\det M(e,m)_{\vecd}| = |\det M(e,m)_{\vecd}|
+\]
+for all $r$ and $\vecd$. In particular, $\det M(h,m)_{(2,2)} = 3$ and $\det M(h,m)_{(1,1,1,1)} = 96$ (both also verified directly in Core Lean~4.19.0 as \texttt{det\_M\_h\_22} and \texttt{det\_M\_h\_1111}), refuting (C2) and (C3). Furthermore, in \eqref{eq:gen-h}, expanding $\prod_{i \ge 0} \sum_{k \ge 0} (\sum_{j=1}^r t_j x_{i,j})^k$ shows that every multidegree-$\vecu$ monomial appears in $h_{\vecu}$ with a strictly positive multinomial product coefficient. Given any two vector partitions $\Lambda = \{\vecu^{(1)}, \dots, \vecu^{(\ell)}\} \vdash \vecd$ and $\Gamma = \{\vecw^{(1)}, \dots, \vecw^{(s)}\} \vdash \vecd$, for each coordinate $j \in \{1,\dots,r\}$ we have $\sum_{a=1}^\ell u^{(a)}_j = d_j = \sum_{b=1}^s w^{(b)}_j$, so there exists an $\ell \times s$ nonnegative integer contingency table $(z^{(a,b)}_j)_{a,b}$ with row sums $u^{(a)}_j$ and column sums $w^{(b)}_j$. Setting $\vecz^{(a,b)} = (z^{(a,b)}_1, \dots, z^{(a,b)}_r) \in \NN^r$ and choosing the monomial $\prod_{b=1}^s \vecx_{b-1}^{\vecz^{(a,b)}}$ from $h_{\vecu^{(a)}}$ produces $M_\Gamma$ in $h_\Lambda$ with positive coefficient; hence $M(h,m)_{\Lambda,\Gamma} \ge 1$ for \emph{all} $\Lambda, \Gamma \vdash \vecd$. Already at $r = 2$, $\vecd = (1,1)$,
+\begin{gather*}
+  h_{(1,1)} = 2 m_{\{(1,1)\}} + m_{\{(1,0),(0,1)\}}, \qquad
+  h_{(1,0)} h_{(0,1)} = m_{\{(1,1)\}} + m_{\{(1,0),(0,1)\}}, \\
+  M(h,m)_{(1,1)} = \begin{pmatrix} 2 & 1 \\ 1 & 1 \end{pmatrix},
+\end{gather*}
+which fails permutation-triangularity by Lemma~\ref{lem:tri-obs}(i).
+
+\section{Exact Structure and All-\texorpdfstring{$r$}{r} Disproof for Power-Sum and Augmented Monomial Bases}
+
+Unlike $\{e_\Lambda\}$ and $\{h_\Lambda\}$, the power-sum basis $\{p_\Lambda\}$ \emph{does} yield a genuinely triangular transition matrix in every multidegree, which reveals a second source of small-degree power-of-two determinants while still refuting Conjecture~00000000441 for every $r \ge 1$.
+
+\begin{theorem}[Triangularity and determinant formula for $M(p,m)_{\vecd}$]\label{thm:powersum}
+For every $r \ge 1$ and $\vecd \in \NN^r \setminus \{\mathbf{0}\}$, order the vector partitions $\Lambda \vdash \vecd$ so that $\ell(\Lambda)$ is non-decreasing. Then $M(p,m)_{\vecd}$ is lower triangular with diagonal entries $M(p,m)_{\Lambda,\Lambda} = \aut(\Lambda)$, and hence
+\[
+  \det M(p,m)_{\vecd} = \prod_{\Lambda \vdash \vecd} \aut(\Lambda) = \prod_{\Lambda \vdash \vecd} \prod_{\vecu \neq \mathbf{0}} m_\Lambda(\vecu)!.
+\]
+\end{theorem}
+
+\begin{proof}
+Write $\Lambda = \{\vecu^{(1)}, \dots, \vecu^{(\ell)}\}$ with $\ell = \ell(\Lambda)$. Expanding
+\[
+  p_\Lambda = \prod_{a=1}^\ell \Bigl(\sum_{i \ge 0} \vecx_i^{\vecu^{(a)}}\Bigr) = \sum_{f : \{1,\dots,\ell\} \to \NN} \prod_{i \ge 0} \vecx_i^{\sum_{a \in f^{-1}(i)} \vecu^{(a)}}
+\]
+shows that every monomial occurring in $p_\Lambda$ involves at most $\ell$ distinct variable indices $i$. Thus if $\ell(\Gamma) > \ell(\Lambda)$, $[M_\Gamma]\, p_\Lambda = 0$. If $\ell(\Gamma) = \ell(\Lambda) = \ell$, a map $f : \{1,\dots,\ell\} \to \{0,\dots,\ell-1\}$ can yield $M_\Gamma = \vecx_0^{\vecv^{(1)}}\cdots \vecx_{\ell-1}^{\vecv^{(\ell)}}$ (where each $\vecv^{(b)} \neq \mathbf{0}$) only if $f$ is surjective, hence bijective. Such a bijection exists if and only if the multisets $\Lambda$ and $\Gamma$ coincide, and when $\Gamma = \Lambda$ the number of bijections satisfying $\vecu^{(f^{-1}(b))} = \vecv^{(b)}$ for all $b$ is precisely $\aut(\Lambda) = \prod_{\vecu} m_\Lambda(\vecu)!$. Thus $M(p,m)_{\vecd}$ is lower triangular with diagonal $\aut(\Lambda)$.
+\end{proof}
+
+\begin{corollary}[Positive regime vs.\ universal failure for $\{p_\Lambda\}$ and $\{\tilde{m}_\Lambda\}$]\label{cor:powersum-disproof}
+\leavevmode
+\begin{enumerate}
+  \setlength{\itemsep}{2pt}
+  \item[(a)] \textbf{Bounded-coordinate power-of-two regime:} Whenever $\vecd \in \{0,1,2\}^r$, every vector $\vecu \neq \mathbf{0}$ satisfies $m_\Lambda(\vecu) \le 2$ in every $\Lambda \vdash \vecd$, so $\aut(\Lambda)$ is a power of $2$ and $\det M(p,m)_{\vecd} = 2^k$ is an exact power of two. However, at fixed $r = 2$,
+  \[
+    \det M(p,m)_{(1,1)} = 1 = 2^0, \qquad
+    \det M(p,m)_{(2,1)} = 2 = 2^1, \qquad
+    \det M(p,m)_{(2,2)} = 32 = 2^5,
+  \]
+  so the exponent $k$ varies with $\vecd$ and is \textbf{not} a function of $r$ alone, refuting \emph{(C3)}.
+  \item[(b)] \textbf{Universal divisibility by $3$ for all $r \ge 1$:} For every $r \ge 1$, in the strictly positive multidegree $\vecd'_r = (3, 1, \dots, 1) \in \NN^r$ (and likewise in $(3, 0, \dots, 0)$), the vector partition
+  \[
+    \Lambda^*_r = \{\vece_1, \vece_1, \vece_1, \vece_2, \dots, \vece_r\} \vdash \vecd'_r
+  \]
+  has $m_{\Lambda^*_r}(\vece_1) = 3$ and $\aut(\Lambda^*_r) = 3! = 6$. Since $\aut(\Gamma) \ge 1$ is an integer for every $\Gamma \vdash \vecd'_r$, Theorem~\ref{thm:powersum} gives $6 \mid \det M(p,m)_{\vecd'_r}$ (explicitly, $\det M(p,m)_{(3)} = 6$ for $r = 1$ and $\det M(p,m)_{(3,1)} = 12$ for $r = 2$). By Lemma~\ref{lem:pow2}, $\det M(p,m)_{\vecd'_r}$ is \textbf{never} a power of two for any $r \ge 1$, refuting \emph{(C2)}.
+  \item[(c)] Since $\tilde{m}_\Lambda = \aut(\Lambda) m_\Lambda$, the transition matrix $M(\tilde{m},m)_{\vecd} = \mathrm{diag}(\aut(\Lambda))$ has the exact same determinant $\prod_{\Lambda \vdash \vecd} \aut(\Lambda)$ and fails identically, while $M(p,\tilde{m})_{\vecd}$ is unitriangular ($\det = 1$ identically for all $r, \vecd$).
+\end{enumerate}
+\end{corollary}
+
+\begin{remark}[Polarized scalings and tensor products $\Lambda^{\otimes r}$]
+In Dalbec~\cite{Dalbec}, generators obtained via polarization operators carry multinomial factors $\alpha_{\vecu} = \binom{|\vecu|}{u_1,\dots,u_r}$, multiplying $\det M(b,m)_{\vecd}$ by $\prod_{\Lambda \vdash \vecd} \prod_{\vecu \in \Lambda} \alpha_{\vecu}$. Already at $r = 2$, $\vecd = (2,1)$, $\alpha_{(2,1)} = 3$ and $\alpha_{(1,1)} = 2$ give scalar factor $6$, introducing a factor of $3$ into all three bases. Finally, if one instead interpreted ``symmetric functions in $r$ sets of variables'' as the separately symmetric tensor algebra $\Lambda^{\otimes r}$ (invariant under $S_\infty^r$), then $M^{\otimes r}(b,m)_{\vecd} = \bigotimes_{j=1}^r M(b,m)_{d_j}$: here $M^{\otimes r}(h,m)$ is non-triangular for $d_1 \ge 2$, $M^{\otimes r}(p,m)$ has determinant divisible by $3$ for $d_1 = 3$ ($\det M^{\otimes r}(p,m)_{(3,1,\dots,1)} = 6$), and $M^{\otimes r}(e,m)$ has $|\det| = 1$ identically (with $\det M(e,m)_{(2)} = -1 < 0$ in standard partition order). Thus no standard interpretation salvages Conjecture~00000000441.
+\end{remark}
+
+\section{Formal Verification in Core Lean 4.19.0}
+
+The entire proof is formalized in Core Lean~4.19.0 (\texttt{package/lean/}, zero external dependencies, \texttt{-DwarningAsError=true}, zero \texttt{sorry}, zero \texttt{native\_decide}, depending only on standard Lean kernel axioms):
+{\sloppy
+\begin{itemize}
+  \setlength{\itemsep}{3pt}
+  \item \texttt{Conjecture00000000441/\allowbreak LinearAlgebra.lean}: Formalizes $N \times N$ integer matrices, textbook recursive Laplace cofactor determinants \texttt{det}, row multilinearity and alternating properties, Hermite integer row reduction (\texttt{det\_\allowbreak applyRowOps}), triangular determinant formulas (\texttt{det\_\allowbreak upperTri}, \texttt{det\_\allowbreak lowerTri}), Lemma~\ref{lem:tri-obs} (\texttt{not\_\allowbreak permTriangular\_\allowbreak of\_\allowbreak two\_\allowbreak nonzeros\_\allowbreak each\_\allowbreak row} and \texttt{not\_\allowbreak permTriangular\_\allowbreak of\_\allowbreak unique\_\allowbreak singleton\_\allowbreak row}), and Lemma~\ref{lem:pow2} (\texttt{not\_\allowbreak isPowerOfTwoUpToSign\_\allowbreak of\_\allowbreak dvd\_\allowbreak three}).
+  \item \texttt{Conjecture00000000441/\allowbreak Multisymmetric.lean}: Constructs the sparse multivariate polynomial ring \texttt{Poly} in $n \times r$ variables from first principles, defines \texttt{mPoly}, \texttt{ePoly}, \texttt{hPoly}, and \texttt{pPoly} directly from their generating products, proves dual-functional uniqueness of basis transition matrices (\texttt{basisTransition\_\allowbreak unique}), formalizes Proposition~\ref{prop:multilinear} (\texttt{multilinearElemEntry}), and proves the universal all-$r$ divisibility obstruction Corollary~\ref{cor:powersum-disproof}(b) (\texttt{powerSum\_\allowbreak all\_\allowbreak r\_\allowbreak not\_\allowbreak power\_\allowbreak of\_\allowbreak two}).
+  \item \texttt{Conjecture00000000441/\allowbreak Counterexamples.lean} and \texttt{Conjecture00000000441.lean}: Verifies the exact polynomial transition matrices for multidegrees $\vecd \in \{(1,1), (2,1), (1,1,1), (2,2), (3,1)\}$ and multilinear $(1,1,1,1)$, proves the positive low-degree results (\texttt{positive\_\allowbreak elementary\_\allowbreak low\_\allowbreak degrees}, \texttt{positive\_\allowbreak powerSum\_\allowbreak bounded\_\allowbreak two}), and establishes the master disproof theorems \texttt{disproof\_\allowbreak elementary\_\allowbreak basis}, \texttt{disproof\_\allowbreak completeHomogeneous\_\allowbreak basis}, \texttt{disproof\_\allowbreak powerSum\_\allowbreak basis}, and \texttt{conjecture\_\allowbreak 00000000441\_\allowbreak disproved}.
+\end{itemize}
+}
+
+\begin{thebibliography}{9}
+
+\bibitem{Briand}
+E.~Briand, \emph{When is the algebra of multisymmetric polynomials generated by the elementary multisymmetric polynomials?}, Beitr\"age Algebra Geom.\ \textbf{45} (2004), no.~2, 353--368.
+
+\bibitem{Dalbec}
+J.~Dalbec, \emph{Multisymmetric functions}, Comm.\ Algebra \textbf{27} (1999), no.~9, 4371--4395.
+
+\bibitem{MacMahon}
+P.~A.~MacMahon, \emph{Combinatory Analysis}, Vol.~II, Cambridge University Press, 1916.
+
+\bibitem{Rosas}
+M.~H.~Rosas, \emph{MacMahon symmetric functions, the partition lattice, and Young subgroups}, J.\ Combin.\ Theory Ser.~A \textbf{96} (2001), no.~2, 326--340.
+
+\bibitem{Vaccarino}
+F.~Vaccarino, \emph{Linear representations, symmetric products and the commuting scheme}, J.\ Algebra \textbf{317} (2007), no.~2, 634--641.
+
+\end{thebibliography}
+
+\end{document}
