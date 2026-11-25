@@ -1,0 +1,95 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Weyl group signs do not determine the \(\chi_y\)-genus\\[2pt]
+  \large Disproof of Conjecture 00000001131}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+For the ordinary sign distribution, take the two counts of elements with
+sign $+1$ and sign $-1$. Two complex semisimple flag varieties have the
+same sign distribution, rank, dimension, and Weyl group order, but
+different Hirzebruch $\chi_y$-genera.
+
+\section*{The genus and the Weyl length polynomial}
+
+Let $G$ be a connected complex semisimple group, $B$ a Borel subgroup,
+and $X=G/B$. Write $W$ for the Weyl group and $\ell$ for its Coxeter
+length. The Bruhat decomposition of $X$ has one affine cell of complex
+dimension $\ell(w)$ for each $w\in W$~\cite[\S8.3]{springer}. Each such
+cell contributes $(uv)^{\ell(w)}$ to the compactly supported
+Hodge--Deligne polynomial~\cite[Example~3.5]{mustata}. By additivity and
+the smooth projectivity of $X$, this gives
+\[
+ \sum_{p,q}(-1)^{p+q}h^{p,q}(X)u^pv^q
+    =\sum_{w\in W}(uv)^{\ell(w)}.
+\]
+It follows that $h^{p,q}=0$ for $p\ne q$ and that $h^{p,p}$ counts the
+elements of length $p$. The Hirzebruch genus is therefore
+\[
+ \chi_y(X)=\sum_{p,q}(-1)^q h^{p,q}(X)y^p
+          =P_W(-y),\qquad P_W(t)=\sum_{w\in W}t^{\ell(w)}.
+\]
+
+\section*{Equal sign counts and unequal genera}
+
+Use groups of types $A_1\times B_3\times G_2\times G_2$ and
+$A_2\times A_2\times B_4$, respectively. The Weyl length polynomial is a
+product of factors $[d]_t=1+t+\cdots+t^{d-1}$, where $d$ are the basic
+invariant degrees~\cite[\S3.15]{humphreys}. The degrees of the groups of
+types $A_r$ and $B_r$ are $2,3,\ldots,r+1$ and $2,4,\ldots,2r$, as seen
+from symmetric polynomials and symmetric polynomials in the squared
+coordinates, respectively. The $G_2$ Weyl group is dihedral of order
+twelve, with two alternating elements of each length from one through
+five and one element at each of lengths zero and six. Its polynomial is
+$[2]_t[6]_t$. Lengths add across direct products, so the degree lists are
+\[
+  (2,2,2,2,4,6,6,6),\qquad (2,2,2,3,3,4,6,8).
+\]
+Both lists have eight entries, the rank in each case. Both length
+polynomials have degree $22$, the dimension of the largest Bruhat cell,
+and each has value $13824$ at $t=1$, the Weyl group order. Multiplication
+by a simple reflection pairs elements of opposite sign, so both groups
+have $6912$ elements of each sign.
+
+For the coefficient of $t^2$, one can take the linear term from two
+distinct factors in $\binom{8}{2}=28$ ways, or take the quadratic term
+from one factor with $d\ge3$. There are four such factors in the first
+product and five in the second. Thus the coefficient of $t^2$ is $32$
+and $33$, respectively. These are also the coefficients of $y^2$ in
+the two genera. The identical sign counts cannot determine both values,
+even with the rank, dimension, and group order supplied. The polynomial
+$\sum_w\operatorname{sgn}(w)y^{\ell(w)}$ does give $\chi_y$, because that
+polynomial retains the length of each element in addition to its sign.
+
+\section*{Lean verification}
+
+The Lean 4 project multiplies the eight factors in each degree list by
+coefficient convolution. It checks the rank, dimension, group order,
+and sign counts, and checks the different $y^2$ coefficients. The
+theorem \texttt{C1131.no\_rule\_from\_invariants} rules out any coefficient
+rule that uses just the matching data. Run \texttt{lake build} in the
+\texttt{lean} directory to verify it.
+
+\begin{thebibliography}{3}
+\bibitem{springer}
+T.~A. Springer, \emph{Linear Algebraic Groups}, second edition, Birkh\"auser,
+1998. \href{https://www.math.utah.edu/~ptrapa/math-library/springer/Springer-Linear-Algebraic%20Groups-1998.pdf}{Book PDF}.
+
+\bibitem{mustata}
+M.~Musta\c{t}\u{a}, \emph{Spaces of arcs in birational geometry},
+lecture notes. \href{https://websites.umich.edu/mmustata/lectures_arcs.pdf}{Author's copy}.
+
+\bibitem{humphreys}
+J.~E. Humphreys, \emph{Reflection Groups and Coxeter Groups}, Cambridge
+University Press, 1990.
+\href{https://doi.org/10.1017/CBO9780511623646.004}{Chapter 3}.
+\end{thebibliography}
+
+\end{document}
