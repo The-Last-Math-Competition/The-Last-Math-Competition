@@ -1,0 +1,548 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\emergencystretch=1.5em
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\title{\textbf{Disproof of Conjecture 00000007161:\\
+Non-Cyclic Realizable Spectra and Failure of Rotation Closure\\
+in the Nonnegative Inverse Eigenvalue Problem}}
+\author{Formal Verification \& Mathematical Analysis Report}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We analyze and disprove Conjecture~00000007161 concerning the Nonnegative Inverse
+Eigenvalue Problem (NIEP), which asserts that the realizable spectra of entrywise
+nonnegative matrices are the cyclic lists and that their completeness is governed by a
+rotation lattice. Evaluating every natural mathematical reading of both clauses, we
+establish complete counterexamples and general structural obstructions:
+(1)~even among symmetric, zero-diagonal (trace-zero), irreducible $\{0,1\}$-matrices,
+the hollow all-ones matrices $A_n = J_n - I_n$ ($n \ge 3$) realize the purely real spectra
+$(n-1, -1, \dots, -1)$, which are neither cyclic root-of-unity lists nor disjoint unions
+of cyclic root-of-unity lists; (2)~via Gauss's sum-of-three-squares identity for
+$3 \times 3$ circulant characteristic polynomials, no real $3 \times 3$ circulant matrix
+can realize three distinct real eigenvalues, whereas both the trace-zero primitive
+nonnegative matrix $M_3$ with spectrum $(3,-1,-2)$ and the symmetric primitive nonnegative
+matrix $S_3$ with spectrum $(3,0,-2)$ do so; and (3)~complex phase rotation destroys
+nonnegative realizability (rotating $(1,-1)$ by $\pi/2$ yields $(i,-i)$ with
+$\sum \lambda_k^2 = -2 < 0$, violating $\mathrm{tr}(A^2) \ge 0$ and Perron--Frobenius),
+while circular coordinate shifts preserve unordered spectra and fail componentwise lattice
+closure. All core theorems and counterexamples are formally verified from first principles
+in Core Lean~4.19.0 with zero external dependencies and independently checked in Python.
+\end{abstract}
+
+\section{Problem Statement and Mathematical Readings}
+
+\subsection{Original Conjecture}
+
+The source problem (\texttt{SOURCE.md}, ID~\texttt{00000007161}) states:
+
+\begin{quote}
+\textbf{English.} Definition: The inverse eigenvalue problem with the characterization of
+realizable spectra. Conjecture: The realizable spectra of nonnegative matrices are the
+cyclic lists, and the completeness of the lists is the rotation lattice.
+(rotation-lattice nonnegative realizable spectra)
+\end{quote}
+
+In the accompanying Chinese formulation, \emph{ni tezhengzhi wenti} denotes the inverse
+eigenvalue problem, \emph{feifu juzhen de keshixian pu} denotes the realizable spectra of
+entrywise nonnegative matrices, \emph{xunhuan liebiao} translates literally to ``cyclic
+lists'' (with \emph{xunhuan} also used in Chinese matrix theory for circulant structures),
+and \emph{lunhuan ge} denotes a ``rotation / circular-shift lattice.''
+
+\subsection{Definitions and Candidate Interpretations}
+
+\begin{definition}[Nonnegative Realizable Spectrum]
+Let $n \ge 1$ be an integer. An $n$-tuple $\Lambda = (\lambda_1, \dots, \lambda_n) \in
+\mathbb{C}^n$ is \emph{nonnegative realizable} if there exists an entrywise nonnegative
+real matrix $A = (A_{ij})_{1 \le i,j \le n} \in M_n(\mathbb{R}_{\ge 0})$ whose
+characteristic polynomial is
+\[
+  \chi_A(t) := \det(t I_n - A) = \prod_{k=1}^n (t - \lambda_k).
+\]
+A nonnegative matrix $A \in M_n(\mathbb{R}_{\ge 0})$ is \emph{irreducible} if
+$\sum_{k=0}^{n-1} A^k$ has strictly positive entries (equivalently, its directed graph is
+strongly connected), and \emph{zero-diagonal} (or \emph{hollow}) if $A_{ii} = 0$ for all
+$1 \le i \le n$, which forces $\mathrm{tr}(A) = \sum_{k=1}^n \lambda_k = 0$.
+\end{definition}
+
+To ensure that no plausible interpretation of Conjecture~00000007161 is overlooked, we
+examine all three standard meanings of ``cyclic lists'' and ``rotation lattice'' in
+spectral and combinatorial matrix theory:
+
+\begin{enumerate}
+  \item \textbf{Reading~I (Cyclic Root-of-Unity Lists and Disjoint Unions):}
+    In Perron--Frobenius theory, the peripheral spectrum of an imprimitive irreducible
+    nonnegative matrix of period $n$ and spectral radius $r \ge 0$ is the scaled $n$-th
+    root-of-unity list
+    \[
+      \Lambda_{\mathrm{cyc}}(n, r)
+      := \bigl(r, \, r\zeta_n, \, r\zeta_n^2, \, \dots, \, r\zeta_n^{n-1}\bigr),
+      \qquad \zeta_n := e^{2\pi i / n}.
+    \]
+    More broadly, reducible block-diagonal sums of cyclic matrices realize disjoint
+    multiset unions $\bigsqcup_{j=1}^m \Lambda_{\mathrm{cyc}}(k_j, r_j)$ ($k_j \ge 1$,
+    $r_j \ge 0$).
+
+  \item \textbf{Reading~II (Spectra of Nonnegative Circulant Matrices):}
+    Interpreting ``cyclic'' via circulant matrices (\emph{xunhuan juzhen}), a list
+    $\Lambda \in \mathbb{C}^n$ is a nonnegative circulant spectrum if $\Lambda$ is the
+    spectrum of $\mathrm{circ}(c_0, c_1, \dots, c_{n-1})$ for some $c_0, \dots, c_{n-1}
+    \ge 0$, i.e., $\lambda_k = \sum_{j=0}^{n-1} c_j \zeta_n^{jk}$ ($0 \le k < n$).
+
+  \item \textbf{Reading~III (Complex Phase Rotations and Circular-Shift Lattices):}
+    Interpreting the ``rotation lattice'' (\emph{lunhuan ge}) as completing cyclic lists
+    either under complex phase rotations $\Lambda \mapsto e^{i\theta}\Lambda$ in
+    $\mathbb{C}^n$, under circular index shifts $\sigma(\lambda_1, \lambda_2, \dots,
+    \lambda_n) = (\lambda_2, \dots, \lambda_n, \lambda_1)$, or under componentwise lattice
+    operations ($\wedge, \vee$) generated by circular shifts in $\mathbb{R}^n$.
+\end{enumerate}
+
+We prove that the conjecture is \textbf{false} under every reading above, even when
+restricted to irreducible, zero-diagonal (trace-zero), or symmetric integer nonnegative
+matrices.
+
+\section{Positive Non-Vacuity Witnesses: Cyclic Shift Matrices}
+
+We first verify that cyclic root-of-unity spectra are indeed nonnegative realizable, so
+the class of cyclic spectra inside the NIEP is nonempty in every dimension $n \ge 1$.
+
+\begin{proposition}[Weighted Cyclic Permutation Witnesses]\label{prop:positive}
+For every integer $n \ge 1$ and real $r \ge 0$, let $C_n(r) = r P_n \in
+M_n(\mathbb{R}_{\ge 0})$ be the weighted cyclic shift matrix with entries
+$(C_n(r))_{ij} = r$ if $j \equiv i + 1 \pmod{n}$ and $0$ otherwise. Then $C_n(r)$ is
+entrywise nonnegative (and irreducible for $r > 0$, zero-diagonal for $n \ge 2$), with
+\[
+  \chi_{C_n(r)}(t) = \det(t I_n - r P_n) = t^n - r^n
+  = \prod_{k=0}^{n-1} \bigl(t - r e^{2\pi i k / n}\bigr).
+\]
+In particular:
+\begin{itemize}
+  \item For $n = 2$ and $r = 1$, $P_2 = \bigl(\begin{smallmatrix} 0 & 1 \\ 1 & 0
+    \end{smallmatrix}\bigr)$ is nonnegative, symmetric, zero-diagonal, and irreducible,
+    realizing $\Lambda_{\mathrm{cyc}}(2, 1) = (1, -1)$ via $\chi_{P_2}(t) = t^2 - 1 =
+    (t - 1)(t + 1)$.
+  \item For $n = 3$ and $r = 1$, $P_3$ is nonnegative, zero-diagonal, and irreducible,
+    satisfying $\chi_{P_3}(t) = t^3 - 1 = (t - 1)(t^2 + t + 1)$.
+  \item Over $\mathbb{Z}[i]$, the $4$-cycle polynomial factors exactly as
+    $(z - 1)(z - i)(z + 1)(z + i) = z^4 - 1$, witnessing $\Lambda_{\mathrm{cyc}}(4, 1) =
+    (1, i, -1, -i)$.
+\end{itemize}
+\end{proposition}
+
+\begin{proof}
+In $tI_n - rP_n$, the first column has $(1,1)$-entry $t$ (whose complementary minor is
+lower triangular with diagonal $(t, \dots, t)$ and determinant $t^{n-1}$) and $(n,1)$-entry
+$-r$ (whose complementary $(n-1) \times (n-1)$ minor is upper triangular with diagonal
+$(-r, \dots, -r)$ and determinant $(-r)^{n-1}$). Cofactor expansion along the first column
+therefore yields $t \cdot t^{n-1} + (-1)^{n+1}(-r)(-r)^{n-1} = t^n - r^n$. Irreducibility
+for $r > 0$ follows from $(C_n(r)^k)_{i, \, i+k \bmod n} = r^k > 0$ for $0 \le k < n$. For
+$n = 4$ over $\mathbb{Z}[i]$, $(z - 1)(z + 1) = z^2 - 1$ and $(z - i)(z + i) = z^2 - i^2 =
+z^2 + 1$, whose product is $(z^2)^2 - 1 = z^4 - 1$.
+\end{proof}
+
+\section{Refutation of Reading~I: Non-Cyclic Realizable Spectra}
+
+\subsection{Universal Modulus-Presence Obstruction}
+
+\begin{lemma}[Modulus-Presence Invariant for Unions of Cyclic Lists]\label{lem:modulus}
+Suppose a multiset $\Lambda \subset \mathbb{C}$ can be covered by a family of cyclic
+root-of-unity lists $\Lambda_{\mathrm{cyc}}(k_j, r_j) = \{r_j e^{2\pi i s / k_j} : 0 \le s
+< k_j\}$ with $k_j \ge 1$ and $r_j \ge 0$, in the sense that
+$\mathrm{supp}(\Lambda) = \bigcup_{j=1}^m \Lambda_{\mathrm{cyc}}(k_j, r_j)$. Then for
+every $\lambda \in \Lambda$, its nonnegative real modulus $|\lambda|$ also belongs to
+$\Lambda$:
+\[
+  \lambda \in \Lambda \implies |\lambda| \in \Lambda.
+\]
+\end{lemma}
+
+\begin{proof}
+Given $\lambda \in \Lambda$, choose a piece $\Lambda_{\mathrm{cyc}}(k_j, r_j)$ containing
+$\lambda$. Then $\lambda = r_j e^{2\pi i s / k_j}$ for some $0 \le s < k_j$, and since
+$r_j \ge 0$ we have $|\lambda| = r_j$. Setting $s = 0$ shows that $r_j = r_j e^0 \in
+\Lambda_{\mathrm{cyc}}(k_j, r_j) \subseteq \mathrm{supp}(\Lambda)$, so $|\lambda| \in
+\Lambda$.
+\end{proof}
+
+\begin{remark}
+In dimension $n = 2$, the diagonal nonnegative matrix $D_2 = \mathrm{diag}(2, 1)$ already
+realizes $(2, 1)$, which is not a single $2$-cycle $(r, -r)$ since $2 + 1 = 3 \ne 0$.
+However, $(2, 1) = \Lambda_{\mathrm{cyc}}(1, 2) \sqcup \Lambda_{\mathrm{cyc}}(1, 1)$ is a
+union of two trivial $1$-cycles because $D_2$ is reducible with positive trace. Lemma
+\ref{lem:modulus} immediately rules out even arbitrary unions of cyclic lists for
+irreducible trace-zero matrices in all dimensions $n \ge 3$.
+\end{remark}
+
+\subsection{Hollow All-Ones Infinite Family (\texorpdfstring{$n \ge 3$}{n >= 3})}
+
+\begin{theorem}[Symmetric Zero-Diagonal Irreducible Counterexample Family]\label{thm:hollow}
+For every integer $n \ge 3$, let $A_n = J_n - I_n \in M_n(\{0, 1\})$ be the adjacency
+matrix of the complete graph $K_n$, defined by $(A_n)_{ii} = 0$ and $(A_n)_{ij} = 1$ for
+$i \ne j$. Then:
+\begin{enumerate}
+  \item $A_n$ is entrywise nonnegative, symmetric, zero-diagonal ($\mathrm{tr}(A_n) = 0$),
+    and irreducible (since $I_n + A_n = J_n > 0$).
+  \item $A_n$ has exact characteristic polynomial
+    $\chi_{A_n}(t) = (t - (n - 1))(t + 1)^{n - 1}$ and spectrum
+    \[
+      \Lambda(A_n) = \bigl(n - 1, \, \underbrace{-1, \, -1, \, \dots, \, -1}_{n - 1}\bigr).
+    \]
+  \item $\Lambda(A_n)$ is neither a cyclic root-of-unity list nor covered by any family of
+    cyclic root-of-unity lists.
+\end{enumerate}
+In particular, at $n = 3$,
+\[
+  A_3 = \begin{pmatrix} 0 & 1 & 1 \\ 1 & 0 & 1 \\ 1 & 1 & 0 \end{pmatrix}
+  \qquad\text{realizes}\qquad
+  \Lambda(A_3) = (2, -1, -1),
+\]
+providing a minimal $3 \times 3$ symmetric, trace-zero, irreducible $\{0,1\}$-matrix
+counterexample.
+\end{theorem}
+
+\begin{proof}
+Property~(1) is immediate from the definition of $J_n - I_n$. For~(2), let $\mathbf{1} =
+(1, \dots, 1)^T \in \mathbb{R}^n$; each row of $A_n$ has $n - 1$ ones, so $A_n \mathbf{1}
+= (n - 1)\mathbf{1}$. For each $2 \le k \le n$, the vector $v^{(k)} := e_1 - e_k$ satisfies
+\[
+  (A_n v^{(k)})_i = (A_n)_{i,1} - (A_n)_{i,k} =
+  \begin{cases}
+    0 - 1 = -1 = -v^{(k)}_1 & \text{if } i = 1, \\
+    1 - 0 = +1 = -v^{(k)}_k & \text{if } i = k, \\
+    1 - 1 = 0 = -v^{(k)}_i & \text{if } i \notin \{1, k\},
+  \end{cases}
+\]
+so $\{v^{(2)}, \dots, v^{(n)}\}$ is a linearly independent set of $n - 1$ eigenvectors of
+$A_n$ with eigenvalue $-1$, linearly independent of $\mathbf{1}$ since $\mathbf{1}^T
+v^{(k)} = 0$ whereas $\mathbf{1}^T \mathbf{1} = n > 0$. Thus $A_n$ is diagonalizable with
+spectrum $(n - 1, -1, \dots, -1)$.
+
+For~(3), observe that $-1 \in \Lambda(A_n)$, whereas for $n \ge 3$ we have $n - 1 \ge 2
+\ne 1$, so $|-1| = 1 \notin \Lambda(A_n)$. By Lemma~\ref{lem:modulus}, $\Lambda(A_n)$
+cannot be covered by cyclic root-of-unity lists.
+\end{proof}
+
+\subsection{Suleimanova's General Companion Family}
+
+Even requiring all $n$ eigenvalues to be \emph{pairwise distinct} real numbers summing to
+zero yields an infinite family in every dimension $n \ge 3$.
+
+\begin{theorem}[Suleimanova Companion Realizability]\label{thm:suleimanova}
+Let $n \ge 2$, let $\mu_2, \dots, \mu_n \ge 0$, and let $\lambda_1 \ge \sum_{k=2}^n \mu_k$.
+Then the polynomial
+\[
+  p(t) := (t - \lambda_1)\prod_{k=2}^n (t + \mu_k)
+  = t^n - \sum_{j=0}^{n-1} c_j t^j
+\]
+satisfies $c_j \ge 0$ for every $0 \le j \le n - 1$, with $c_{n-1} = \lambda_1 -
+\sum_{k=2}^n \mu_k$. Consequently, the Frobenius companion matrix
+\[
+  C(p) = \begin{pmatrix}
+    0 & 1 & 0 & \cdots & 0 \\
+    0 & 0 & 1 & \cdots & 0 \\
+    \vdots & \vdots & \vdots & \ddots & \vdots \\
+    0 & 0 & 0 & \cdots & 1 \\
+    c_0 & c_1 & c_2 & \cdots & c_{n-1}
+  \end{pmatrix} \in M_n(\mathbb{R}_{\ge 0})
+\]
+is entrywise nonnegative (with zero diagonal whenever $\lambda_1 = \sum_{k=2}^n \mu_k$)
+and realizes the spectrum $(\lambda_1, -\mu_2, \dots, -\mu_n)$. In particular, choosing
+$\mu_k = k - 1$ for $2 \le k \le n$ and $\lambda_1 = \binom{n}{2}$ at any $n \ge 3$
+yields a zero-diagonal nonnegative integer matrix realizing the $n$ pairwise distinct
+nonzero integers
+\[
+  \Bigl(\tbinom{n}{2}, \, -1, \, -2, \, \dots, \, -(n - 1)\Bigr),
+\]
+which violate Lemma~\ref{lem:modulus}.
+\end{theorem}
+
+\begin{proof}
+We prove $c_j \ge 0$ by induction on $n - 1$ (the number of factors $t + \mu_k$). For a
+single factor $(t - \lambda_1)$ with $\lambda_1 \ge 0$, $p(t) = t - \lambda_1$ has $c_0 =
+\lambda_1 \ge 0$. For the inductive step with $\mu_2 \ge 0$ and $\lambda_1' := \lambda_1 -
+\mu_2 \ge \sum_{k=3}^n \mu_k$, let $Q(t) := \prod_{k=3}^n (t + \mu_k) = t^{n-2} +
+\sum_{j=0}^{n-3} q_j t^j$, which has $q_j \ge 0$. Using the algebraic identity
+\[
+  (t - \lambda_1)(t + \mu_2) = t\bigl(t - (\lambda_1 - \mu_2)\bigr) - \lambda_1 \mu_2
+  = t(t - \lambda_1') - \lambda_1 \mu_2
+\]
+and the induction hypothesis $(t - \lambda_1')Q(t) = t^{n-1} - \sum_{j=0}^{n-2} c'_j t^j$
+($c'_j \ge 0$), we obtain
+\[
+  p(t) = t\bigl[(t - \lambda_1')Q(t)\bigr] - \lambda_1 \mu_2 Q(t)
+  = t^n - c'_{n-2} t^{n-1} - (c'_{n-3} + \lambda_1 \mu_2)t^{n-2}
+    - \sum_{j=1}^{n-3} (c'_{j-1} + \lambda_1 \mu_2 q_j)t^j - \lambda_1 \mu_2 q_0.
+\]
+Since $\lambda_1 \ge \mu_2 \ge 0$, every subtracted coefficient is a sum of nonnegative
+terms, and the coefficient of $t^{n-1}$ is $-c'_{n-2} = -(\lambda_1 - \sum_{k=2}^n \mu_k)$.
+For $n \ge 3$, $\binom{n}{2} \ge 3 > 1$, so $-1$ lies in the spectrum while $|-1| = 1$
+does not.
+\end{proof}
+
+\section{Refutation of Reading~II: Nonnegative Circulant Matrices}
+
+Notice that $A_3 = J_3 - I_3 = \mathrm{circ}(0, 1, 1)$ is itself a circulant matrix, so a
+separate obstruction is needed to test Reading~II (that every nonnegative realizable
+spectrum is realized by a nonnegative circulant matrix). We prove that Reading~II already
+fails at $n = 3$ for both trace-zero and symmetric irreducible nonnegative integer
+matrices.
+
+\begin{theorem}[$3 \times 3$ Real Circulant Multiplicity Obstruction]\label{thm:circulant}
+For any $c_0, c_1, c_2 \in \mathbb{R}$ (not even assuming $c_i \ge 0$), let
+\[
+  C(c_0, c_1, c_2) := \begin{pmatrix}
+    c_0 & c_1 & c_2 \\
+    c_2 & c_0 & c_1 \\
+    c_1 & c_2 & c_0
+  \end{pmatrix}.
+\]
+Then for all $t \in \mathbb{R}$,
+\begin{equation}\label{eq:gauss}
+  2 \det\bigl(t I_3 - C(c_0, c_1, c_2)\bigr)
+  = \bigl(t - (c_0 + c_1 + c_2)\bigr)
+    \Bigl((t - c_0 + c_1)^2 + (t - c_0 + c_2)^2 + (c_1 - c_2)^2\Bigr).
+\end{equation}
+Consequently, if $\det(t I_3 - C(c_0, c_1, c_2)) = (t - \lambda_1)(t - \lambda_2)
+(t - \lambda_3)$ splits into real linear factors ($\lambda_1, \lambda_2, \lambda_3 \in
+\mathbb{R}$), then at least two of $\lambda_1, \lambda_2, \lambda_3$ are equal.
+\end{theorem}
+
+\begin{proof}
+Setting $s := t - c_0$, direct cofactor expansion gives
+\[
+  \det\bigl(t I_3 - C(c_0, c_1, c_2)\bigr) = s^3 - 3 c_1 c_2 s - c_1^3 - c_2^3.
+\]
+Applying Gauss's factorization $a^3 + b^3 + c^3 - 3abc = \frac{1}{2}(a + b + c)\bigl((a -
+b)^2 + (b - c)^2 + (c - a)^2\bigr)$ to $(a, b, c) = (s, -c_1, -c_2)$ yields
+\eqref{eq:gauss}. Now let $t \in \mathbb{R}$ be any root of $\det(t I_3 - C(c_0, c_1, c_2))
+= 0$. By \eqref{eq:gauss}, either $t = c_0 + c_1 + c_2$, or the sum of three real squares
+vanishes:
+\[
+  (t - c_0 + c_1)^2 + (t - c_0 + c_2)^2 + (c_1 - c_2)^2 = 0,
+\]
+which forces $t - c_0 + c_1 = 0$ (and $c_1 = c_2$), i.e., $t = c_0 - c_1$. Thus every real
+root belongs to the at-most-two-element set $\{c_0 + c_1 + c_2, \, c_0 - c_1\}$. By the
+pigeonhole principle, three real roots $\lambda_1, \lambda_2, \lambda_3$ cannot be pairwise
+distinct.
+\end{proof}
+
+\begin{corollary}[Explicit Non-Circulant Nonnegative Witnesses]\label{cor:noncirculant}
+Consider the two $3 \times 3$ entrywise nonnegative integer matrices
+\[
+  M_3 := \begin{pmatrix} 0 & 1 & 0 \\ 0 & 0 & 1 \\ 6 & 7 & 0 \end{pmatrix},
+  \qquad
+  S_3 := \begin{pmatrix} 0 & 2 & 1 \\ 2 & 0 & 1 \\ 1 & 1 & 1 \end{pmatrix}.
+\]
+\begin{enumerate}
+  \item $M_3$ is nonnegative, zero-diagonal ($\mathrm{tr}(M_3) = 0$), and primitive
+    ($M_3^5 > 0$, hence irreducible), with $\chi_{M_3}(t) = t^3 - 7t - 6 =
+    (t - 3)(t + 1)(t + 2)$ and spectrum $(3, -1, -2)$.
+  \item $S_3$ is nonnegative, symmetric, and primitive ($S_3^2 > 0$, hence irreducible),
+    with $\chi_{S_3}(t) = t^3 - t^2 - 6t = t(t - 3)(t + 2)$ and spectrum $(3, 0, -2)$.
+\end{enumerate}
+Because $(3, -1, -2)$ and $(3, 0, -2)$ each consist of three pairwise distinct integers,
+Theorem~\ref{thm:circulant} implies that neither spectrum is realizable by \emph{any} real
+$3 \times 3$ circulant matrix, while Lemma~\ref{lem:modulus} implies that neither is
+covered by cyclic root-of-unity lists.
+\end{corollary}
+
+\section{Refutation of Reading~III: Rotations and Lattice Completeness}
+
+\subsection{Universal Power-Trace Bounds and Failure of Complex Phase Rotation}
+
+\begin{lemma}[Nonnegativity of Power Sums]\label{lem:powertrace}
+Let $A \in M_n(\mathbb{R}_{\ge 0})$ have spectrum $\Lambda = (\lambda_1, \dots,
+\lambda_n)$. For every integer $k \ge 0$, the matrix power $A^k$ is entrywise nonnegative,
+and hence the $k$-th Newton power sum satisfies
+\[
+  s_k(\Lambda) := \sum_{j=1}^n \lambda_j^k = \mathrm{tr}(A^k) \ge 0.
+\]
+In particular, $s_1(\Lambda) = \mathrm{tr}(A) \ge 0$ and $s_2(\Lambda) = \mathrm{tr}(A^2)
+= \sum_{i,j=1}^n A_{ij} A_{ji} \ge 0$.
+\end{lemma}
+
+\begin{proof}
+Induct on $k$: $A^0 = I_n \ge 0$, and if $A^k \ge 0$, then $(A^{k+1})_{ij} = \sum_{\ell=1}^n
+(A^k)_{i\ell} A_{\ell j} \ge 0$ since sums and products of nonnegative reals are
+nonnegative. Summing the diagonal entries $(A^k)_{ii} \ge 0$ gives $\mathrm{tr}(A^k) \ge 0$.
+\end{proof}
+
+\begin{theorem}[Complex Phase Rotation Destroys Realizability]\label{thm:rotation}
+Let $n \ge 2$ and $r > 0$. Although $\Lambda_{\mathrm{cyc}}(n, r) = (r, r\zeta_n, \dots,
+r\zeta_n^{n-1})$ is nonnegative realizable (Proposition~\ref{prop:positive}), a complex
+phase rotation $e^{i\theta}\Lambda_{\mathrm{cyc}}(n, r)$ is nonnegative realizable if and
+only if $e^{in\theta} = 1$ (in which case $e^{i\theta}\Lambda_{\mathrm{cyc}}(n, r)$ equals
+$\Lambda_{\mathrm{cyc}}(n, r)$ as an unordered multiset).
+
+In particular, for $n = 2$ and any integer $r \ge 1$, rotating $(r, -r)$ by $\theta =
+\pi / 2$ gives $(ri, -ri) \in \mathbb{Z}[i]^2$, which has real characteristic polynomial
+$(t - ri)(t + ri) = t^2 + r^2$ yet satisfies
+\[
+  s_2(ri, -ri) = (ri)^2 + (-ri)^2 = -2r^2 < 0,
+\]
+and therefore is realized by \emph{no} nonnegative $2 \times 2$ matrix.
+\end{theorem}
+
+\begin{proof}
+The monic polynomial with roots $e^{i\theta}\Lambda_{\mathrm{cyc}}(n, r)$ is
+\[
+  p_\theta(t) = \prod_{k=0}^{n-1} \bigl(t - r e^{i\theta}\zeta_n^k\bigr)
+  = t^n - r^n e^{in\theta}.
+\]
+If $A \in M_n(\mathbb{R}_{\ge 0})$ realizes $e^{i\theta}\Lambda_{\mathrm{cyc}}(n, r)$, then
+$\chi_A(t) = p_\theta(t)$ must have real coefficients, so $e^{in\theta} \in \mathbb{R} \cap
+S^1 = \{1, -1\}$. If $e^{in\theta} = -1$, then every root $\lambda_k = r e^{i\theta}
+\zeta_n^k$ satisfies $\lambda_k^n = -r^n$, whence
+\[
+  \mathrm{tr}(A^n) = \sum_{k=0}^{n-1} \lambda_k^n = -n r^n < 0,
+\]
+contradicting Lemma~\ref{lem:powertrace} (and also contradicting the Perron--Frobenius
+requirement that $\rho(A) = r$ be an eigenvalue of $A$). Thus $e^{in\theta} = 1$, which
+merely permutes $\Lambda_{\mathrm{cyc}}(n, r)$ cyclically. For $n = 2$, $\chi_A(z) =
+(z - z_1)(z - z_2)$ over $\mathbb{Z}[i]$ implies $\mathrm{Re}(z_1^2 + z_2^2) =
+(\mathrm{tr}\,A)^2 - 2\det(A) = \mathrm{tr}(A^2) \ge 0$, directly ruling out
+$(z_1, z_2) = (ri, -ri)$ since $-2r^2 < 0$.
+\end{proof}
+
+\subsection{Circular Coordinate Shifts and Componentwise Lattice Operations}
+
+\begin{proposition}[Circular-Shift Invariance and Lattice-Meet Failure]\label{prop:lattice}
+Let $\sigma(x_1, x_2, \dots, x_n) := (x_2, \dots, x_n, x_1)$ denote the circular left shift
+on $n$-tuples.
+\begin{enumerate}
+  \item \textbf{Unordered spectral invariance:} For any list $L = (\lambda_1, \dots,
+    \lambda_n)$, $\prod_{\mu \in \sigma(L)} (t - \mu) = \prod_{\lambda \in L}
+    (t - \lambda)$ identically. Hence closing cyclic lists under circular coordinate shifts
+    (or arbitrary coordinate permutations) produces no new unordered spectra and misses
+    $(2, -1, -1)$, $(3, -1, -2)$, and $(3, 0, -2)$.
+  \item \textbf{Failure of componentwise lattice closure:} Equip $\mathbb{R}^n$ with the
+    componentwise lattice meet $(u \wedge v)_k := \min(u_k, v_k)$.
+    \begin{itemize}
+      \item In $\mathbb{R}^2$, both $(1, -1)$ and its circular shift $\sigma(1, -1) =
+        (-1, 1)$ are realized by $P_2 \ge 0$, yet their meet $(1, -1) \wedge (-1, 1) =
+        (-1, -1)$ has trace $-2 < 0$ and is not nonnegative realizable.
+      \item In $\mathbb{R}^3$, all three circular shifts $(2, -1, -1)$, $(-1, -1, 2)$, and
+        $(-1, 2, -1)$ are realized by $A_3 = J_3 - I_3 \ge 0$, yet their meet $(-1, -1, -1)$
+        has trace $-3 < 0$ and is not nonnegative realizable.
+    \end{itemize}
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Part~(1) follows from commutativity and associativity of multiplication:
+$\bigl(\prod_{k=2}^n (t - \lambda_k)\bigr)(t - \lambda_1) = (t - \lambda_1)\prod_{k=2}^n
+(t - \lambda_k)$. For Part~(2), if $A \in M_n(\mathbb{R}_{\ge 0})$ realized $(-1, \dots,
+-1)$, then Lemma~\ref{lem:powertrace} would require $0 \le \mathrm{tr}(A) = -n < 0$, a
+contradiction.
+\end{proof}
+
+\begin{remark}[Geometric Context in the Classical NIEP]
+Classical results on the NIEP explain why no discrete ``cyclic list + rotation lattice''
+description can capture nonnegative realizability. Even for individual eigenvalues of
+$n \times n$ stochastic matrices, Karpelevich's theorem (1951) shows that for $n \ge 4$ the
+boundary of the realizable eigenvalue region $\Theta_n \subset \mathbb{C}$ consists of
+curvilinear algebraic arcs rather than polygons spanned by roots of unity; and at the full
+spectral tuple level, the Loewy--London ($n^{m-1}s_{km} \ge s_k^m$) and Laffey--Meehan
+inequalities cut out non-polyhedral semialgebraic cones far richer than cyclic spectra yet
+strictly constrained away from rotated spectra.
+\end{remark}
+
+\section{Summary of Formal Verification}
+
+All algebraic obstructions, infinite families, and finite witnesses are mechanized in Core
+Lean~4.19.0 (\texttt{lean/Main.lean}, compiled with \texttt{-DwarningAsError=true}, zero
+external dependencies, and zero axioms beyond Lean's core kernel) and independently tested
+in Python~3.12 (\texttt{verify.py}). Table~\ref{tab:lean} summarizes the correspondence.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.31\textwidth}>{\raggedright\arraybackslash}p{0.47\textwidth}>{\raggedright\arraybackslash}p{0.16\textwidth}@{}}
+\toprule
+\textbf{Paper Result} & \textbf{Lean~4.19.0 Declaration (\texttt{Main.lean})} & \textbf{Role} \\
+\midrule
+Prop.~\ref{prop:positive} ($P_2, P_3, z^4-1, C_n(r)$) &
+  \texttt{P2\_positive\_witness}, \texttt{P3\_positive\_witness},
+  \texttt{four\_cycle\_\allowbreak roots\_factorization}, \texttt{cyclicShiftMat\_nonneg} &
+  Non-vacuity \\
+Lemma~\ref{lem:modulus} ($z \in \Lambda \Rightarrow |z| \in \Lambda$) &
+  \texttt{abs\_mem\_of\_\allowbreak coveredByCyclicPieces} &
+  Reading~I invariant \\
+Theorem~\ref{thm:hollow} ($A_3$ and $J_n - I_n$, $n \ge 3$) &
+  \texttt{K3Adj\_realizes\_\allowbreak and\_not\_union\_cyclic},
+  \texttt{hollowOnes\_infinite\_\allowbreak counterexample\_family} &
+  Reading~I disproof \\
+Theorem~\ref{thm:suleimanova} (Suleimanova family) &
+  \texttt{suleimanova\_nonneg\_\allowbreak companion\_poly} &
+  Distinct real family \\
+Theorem~\ref{thm:circulant} ($3 \times 3$ circulant roots) &
+  \texttt{circulant3\_charPoly\_\allowbreak sum\_of\_squares},
+  \texttt{no\_circulant3\_\allowbreak three\_distinct\_roots} &
+  Reading~II invariant \\
+Corollary~\ref{cor:noncirculant} ($M_3, S_3$) &
+  \texttt{M3\_refutes\_\allowbreak circulant\_and\_cyclic},
+  \texttt{S3\_symmetric\_refutes\_\allowbreak circulant\_and\_cyclic} &
+  Reading~II disproof \\
+Lemma~\ref{lem:powertrace} ($\mathrm{tr}(A^k) \ge 0$) &
+  \texttt{trace\_pow\_nonneg\_of\_nonneg}, \texttt{trace\_sq\_\allowbreak nonneg\_of\_nonneg} &
+  Reading~III invariant \\
+Theorem~\ref{thm:rotation} (phase rotation $(ri,-ri)$) &
+  \texttt{no\_nonneg2\_realizes\_\allowbreak rotated\_cyclic},
+  \texttt{P2\_realizes\_one\_negOne\_\allowbreak but\_rotation\_I\_negI\_\allowbreak unrealizable} &
+  Reading~III disproof \\
+Prop.~\ref{prop:lattice} (shift \& meet obstructions) &
+  \texttt{polyOfRoots\_rotList\_eq},
+  \texttt{circular\_shift\_meet\_\allowbreak unrealizable\_dim2},
+  \texttt{circular\_shift\_meet\_\allowbreak unrealizable\_dim3} &
+  Lattice disproof \\
+Master combined theorem &
+  \texttt{conjecture\_00000007161\_\allowbreak completely\_refuted} &
+  Full refutation \\
+\bottomrule
+\end{tabular}
+\caption{Mapping between mathematical results and machine-checked Core Lean~4.19.0 theorems.}
+\label{tab:lean}
+\end{table}
+
+\begin{thebibliography}{9}
+
+\bibitem{BoyleHandelman1991}
+M.~Boyle and D.~Handelman,
+\emph{The spectra of nonnegative matrices via symbolic dynamics},
+Ann.\ of Math.\ (2) \textbf{133} (1991), no.~2, 249--316.
+
+\bibitem{Karpelevich1951}
+F.~I.~Karpelevich,
+\emph{On the characteristic roots of matrices with nonnegative elements},
+Izv.\ Akad.\ Nauk SSSR Ser.\ Mat.\ \textbf{15} (1951), 361--383.
+
+\bibitem{LoewyLondon1978}
+R.~Loewy and D.~London,
+\emph{A note on an inverse problem for nonnegative matrices},
+Linear and Multilinear Algebra \textbf{6} (1978), no.~1, 83--90.
+
+\bibitem{Suleimanova1949}
+Kh.~R.~Suleimanova,
+\emph{Stochastic matrices with real characteristic numbers},
+Dokl.\ Akad.\ Nauk SSSR \textbf{66} (1949), 343--345.
+
+\end{thebibliography}
+
+\end{document}
