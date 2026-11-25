@@ -1,0 +1,421 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array,booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\tr}{\mathrm{tr}}
+
+\title{\textbf{Disproof of the Diagonal-Equality Conjecture for\\Lidskii Product Logarithmic Majorization}\\[0.5em]
+\large Resolution and Core Lean~4 Formalization of Conjecture 00000007153}
+\author{Autonomous Mathematical Research \& Formalization Solver}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000007153}, which proposes that Lidskii's singular-value majorization strengthens in product form to logarithmic majorization and that equality in this majorization characterizes diagonal operators (\emph{diagonal-equality Lidskii product majorization}). While the multiplicative counterpart of Lidskii's additive singular-value majorization is indeed a classical theorem---namely the Horn--Lidskii--Wielandt product logarithmic majorization $\sigma(AB) \prec_{\log} \sigma(A)\circ\sigma(B)$ (and, for a single operator, Weyl's logarithmic majorization $|\lambda(A)| \prec_{\log} \sigma(A)$)---we prove that the conjectured diagonal-operator characterization of equality is \textbf{false} under every standard mathematical interpretation. Specifically, equality $\sigma(AB) = \sigma(A)\circ\sigma(B)$ (hence equality in every partial product $\prod_{j=1}^k \sigma_j(AB) = \prod_{j=1}^k \sigma_j(A)\sigma_j(B)$) fails to force $A$, $B$, or $AB$ to be diagonal in a fixed orthonormal basis, normal (unitarily diagonalizable in \emph{any} orthonormal basis), commuting, or even diagonalizable by an arbitrary invertible similarity over $\C$. Using a Pythagorean parameterization of $2 \times 2$ singular value decompositions, we construct explicit integer matrices $A_{\mathrm{def}}, B_{\mathrm{def}} \in M_2(\Z)$ with simple positive integer singular values attaining exact log-majorization equality even though both $A_{\mathrm{def}}$ and $A_{\mathrm{def}} B_{\mathrm{def}}$ are non-normal and Jordan-defective over $\C$, and we extend the refutation to all dimensions $n \ge 2$ and to injective compact operators on $\ell^2(\N)$. We also refute the alternative Weyl ($|\lambda(A)| \prec_{\log} \sigma(A)$) and diagonal-pinching ($|\diag(A)|^\downarrow$ vs.\ $\sigma(A)$) readings, prove the exact necessary and sufficient Gram-commutation and alignment criterion for equality, and formalize both the positive $2\times 2$ majorization theory and all disproofs in Core Lean~4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Introduction and Problem Analysis}
+
+\subsection{Problem Statement}
+
+Conjecture~\texttt{00000007153} reads verbatim as follows:
+
+\begin{quote}
+\textbf{English.} Definition: Lidskii with the majorization of singular values. Conjecture: The strengthening in product form is the logarithmic majorization, and the equality of the majorization is the diagonal operator. (diagonal-equality Lidskii product majorization)
+\end{quote}
+
+The accompanying Chinese formulation (\emph{Lidskii singular-value majorization; strengthening in product form as logarithmic majorization whose equality case is the diagonal operator}) carries the identical two-part assertion: (i)~passing from sums to products strengthens additive singular-value majorization to logarithmic majorization, and (ii)~equality in that logarithmic majorization holds if and only if the operator(s) involved are diagonal.
+
+\subsection{Classical Operator-Theoretic Background}
+
+Let $M_n(\mathbb{F})$ ($\mathbb{F} \in \{\R, \C\}$) denote the algebra of $n \times n$ matrices, and for $X \in M_n(\mathbb{F})$ let
+\[
+  \sigma_1(X) \ge \sigma_2(X) \ge \dots \ge \sigma_n(X) \ge 0
+\]
+denote its singular values, i.e., the non-negative square roots of the eigenvalues of $X^* X$. Three classical pillars connect Lidskii's theorem, singular values, logarithmic majorization, and diagonal entries:
+
+\begin{enumerate}
+  \item \textbf{Lidskii--Wielandt--Mirsky singular-value majorization (additive vs.\ multiplicative).}
+  In his landmark 1950 note~\cite{Lidskii1950}, Lidskii investigated both the eigenvalues of sums $H_1 + H_2$ and the eigenvalues of products $H_1 H_2$ of Hermitian (or symmetric positive definite) matrices. Via Wielandt's~\cite{Wielandt1955} Hermitian dilation and Mirsky's~\cite{Mirsky1960} singular-value inequalities, Lidskii's additive theorem yields weak majorization of singular values:
+  \[
+    |\sigma(A) - \sigma(B)|^\downarrow \prec_w \sigma(A - B)
+    \qquad\text{and}\qquad
+    \sigma(A + B) \prec_w \sigma(A) + \sigma(B).
+  \]
+  Its multiplicative counterpart---proved independently by Gel'fand and Naimark~\cite{GelfandNaimark1950}, Lidskii~\cite{Lidskii1950}, and Horn~\cite{Horn1950} (see Bhatia~\cite[Theorem~III.4.5 and Corollary~III.4.6]{Bhatia1997})---states that for every $1 \le k \le n$ and every index subset $1 \le i_1 < \dots < i_k \le n$,
+  \begin{equation}\label{eq:lw-subset}
+    \prod_{j=1}^k \sigma_{i_j}(AB) \le \prod_{j=1}^k \sigma_{i_j}(A)\,\sigma_j(B),
+  \end{equation}
+  with equality at $k = n$ via $|\det(AB)| = |\det A|\,|\det B|$. Specializing~\eqref{eq:lw-subset} to $i_j = j$ gives the \textbf{Horn--Lidskii product logarithmic majorization}
+  \begin{equation}\label{eq:horn-logmaj}
+    \sigma(AB) \prec_{\log} \sigma(A) \circ \sigma(B),
+  \end{equation}
+  where $(\sigma(A)\circ\sigma(B))_j = \sigma_j(A)\sigma_j(B)$. Because $x \prec_{\log} y \implies x \prec_w y$ on $\R_{\ge 0}^n$, logarithmic majorization literally strengthens additive weak majorization.
+
+  \item \textbf{Weyl's eigenvalue--singular-value logarithmic majorization.}
+  For a single matrix $A \in M_n(\C)$ with eigenvalues ordered by $|\lambda_1(A)| \ge \dots \ge |\lambda_n(A)|$, Weyl~\cite{Weyl1949} proved $|\lambda(A)| \prec_{\log} \sigma(A)$, strengthening $|\lambda(A)| \prec_w \sigma(A)$.
+
+  \item \textbf{Ky Fan / Gohberg--Krein diagonal pinching.}
+  Let $\mathcal{D}(A) = \diag(a_{11}, \dots, a_{nn})$ be the diagonal pinching of $A$, whose singular values are $|d(A)|^\downarrow = (|a_{11}|, \dots, |a_{nn}|)^\downarrow$. Averaging sign-diagonal conjugations via Ky Fan's singular-value sum inequality gives $\sigma(\mathcal{D}(A)) = |d(A)|^\downarrow \prec_w \sigma(A)$, with vector equality $|d(A)|^\downarrow = \sigma(A)$ if and only if $A$ is diagonal.
+\end{enumerate}
+
+\subsection{Summary of Multi-Interpretation Verdict}
+
+Because natural-language problem statements in matrix analysis can attach ``diagonal operator'' to several distinct notions---canonical-basis diagonality of the factors or product, unitary diagonalizability (normality), similarity diagonalizability, Weyl's single-operator inequality, or diagonal pinching---we analyze all six readings in detail. As summarized in Table~\ref{tab:interpretations}, \textbf{Conjecture~\texttt{00000007153} is false under every reading}.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.6cm}>{\raggedright\arraybackslash}p{4.7cm}l>{\raggedright\arraybackslash}p{5.1cm}@{}}
+\toprule
+\textbf{Reading} & \textbf{Mathematical Statement} & \textbf{Log-Maj.?} & \textbf{Why Conjecture Fails} \\
+\midrule
+\textbf{A1} (Factors diag.) & $\sigma(AB) \prec_{\log} \sigma(A)\circ\sigma(B)$, eq.\ $\iff A, B$ diagonal & Yes (Thm.~\ref{thm:2x2-logmaj}) & Disproved by SPD $A=\bigl(\begin{smallmatrix}3&1\\1&3\end{smallmatrix}\bigr)$, $B=\bigl(\begin{smallmatrix}3&2\\2&3\end{smallmatrix}\bigr)$ (Thm.~\ref{thm:spd-cex}) \\
+\addlinespace[3pt]
+\textbf{A2} (Product diag.) & Eq.\ in $\sigma(AB) \prec_{\log} \sigma(A)\circ\sigma(B)$ $\implies A$, $B$, or $AB$ diagonal & Yes (Thm.~\ref{thm:2x2-logmaj}) & Disproved for all $n \ge 2$: none of $A,B,AB$ is diagonal (Thms.~\ref{thm:spd-cex}, \ref{thm:all-dim}) \\
+\addlinespace[3pt]
+\textbf{A3} (Normal or comm.) & Eq.\ in $\sigma(AB) \prec_{\log} \sigma(A)\circ\sigma(B)$ $\implies$ normality or $AB=BA$ & Yes (Thm.~\ref{thm:2x2-logmaj}) & Disproved: $A_{\mathrm{def}}, B_{\mathrm{def}}, A_{\mathrm{def}}B_{\mathrm{def}}$ are non-normal and $AB \ne BA$ (Thm.~\ref{thm:defective-cex}) \\
+\addlinespace[3pt]
+\textbf{A4} (Similar to diag.) & Eq.\ in $\sigma(AB) \prec_{\log} \sigma(A)\circ\sigma(B)$ $\implies$ diagonalizable over $\C$ & Yes (Thm.~\ref{thm:2x2-logmaj}) & Disproved: $A_{\mathrm{def}}$ and $A_{\mathrm{def}}B_{\mathrm{def}}$ have Jordan blocks over $\C$ (Thm.~\ref{thm:defective-cex}) \\
+\addlinespace[3pt]
+\textbf{B} (Weyl inequality) & $|\lambda(A)| \prec_{\log} \sigma(A)$, eq.\ $\iff A$ diagonal & Yes (Thm.~\ref{thm:weyl}) & Eq.\ $\iff A$ normal, not diagonal; $W=\bigl(\begin{smallmatrix}2&1\\1&2\end{smallmatrix}\bigr)$ gives $|\lambda|=\sigma=(3,1)$ (Thm.~\ref{thm:weyl}) \\
+\addlinespace[3pt]
+\textbf{C} (Diag.\ pinching) & $|d(A)|^\downarrow \prec_{\log} \sigma(A)$ (or $\prec_{w\log}$ in either direction) & \textbf{No} (Thm.~\ref{thm:pinching}) & On $W=\bigl(\begin{smallmatrix}2&1\\1&2\end{smallmatrix}\bigr)$, $|d|=(2,2)$ and $\sigma=(3,1)$ are $\prec_{w\log}$-incomparable \\
+\bottomrule
+\end{tabular}
+\caption{Complete evaluation of Conjecture~\texttt{00000007153} across all standard interpretations.}
+\label{tab:interpretations}
+\end{table}
+
+The conceptual root of the misconception in Readings~A1--A4 is illuminated by Theorem~\ref{thm:svd-coupling}: if $A = U_1 \Sigma_A V_1^*$ and $B = U_2 \Sigma_B V_2^*$ have simple positive singular values, then $\sigma(AB) = \sigma(A)\circ\sigma(B)$ holds if and only if the \emph{internal singular-vector coupling matrix} $W = V_1^* U_2$ is a diagonal unitary matrix (equivalently, $|A| = (A^* A)^{1/2}$ and $|B^*| = (B B^*)^{1/2}$ commute with coherently ordered eigenspaces). Because the \emph{outer} unitary factors $U_1, V_2 \in U(n)$ and the shared inner basis $V_1 \in U(n)$ remain completely unconstrained, the operators $A$, $B$, and $AB$ themselves need not be diagonal, normal, commuting, or even diagonalizable over $\C$.
+
+\section{Preliminaries and Non-Vacuity Witnesses}
+
+\begin{definition}[Additive and logarithmic majorization]\label{def:majorization}
+Suppose $x, y \in \R^n$ have ordered entries $x_1 \ge \dots \ge x_n \ge 0$ and $y_1 \ge \dots \ge y_n \ge 0$.
+\begin{enumerate}
+  \item[(a)] $x$ is \emph{weakly majorized} by $y$, written $x \prec_w y$, if $\sum_{j=1}^k x_j \le \sum_{j=1}^k y_j$ for all $1 \le k \le n$; it is \emph{majorized} by $y$ ($x \prec y$) if equality holds at $k = n$.
+  \item[(b)] $x$ is \emph{weakly log-majorized} by $y$, written $x \prec_{w\log} y$, if $\prod_{j=1}^k x_j \le \prod_{j=1}^k y_j$ for all $1 \le k \le n$.
+  \item[(c)] $x$ is \emph{logarithmically majorized} by $y$, written $x \prec_{\log} y$, if $x \prec_{w\log} y$ and $\prod_{j=1}^n x_j = \prod_{j=1}^n y_j$.
+  \item[(d)] \emph{Equality in logarithmic majorization} holds if $\prod_{j=1}^k x_j = \prod_{j=1}^k y_j$ for every $1 \le k \le n$. (When $y_n > 0$, this is equivalent to $x_j = y_j$ for all $1 \le j \le n$.)
+\end{enumerate}
+\end{definition}
+
+Let us record the elementary polynomial link between logarithmic and additive majorization for $n = 2$, which underlies both our $2\times 2$ universal theorems and our Lean~4 formalization.
+
+\begin{lemma}[Two-variable product-to-sum bridge]\label{lem:pair-bridge}
+Let $X \ge Y \ge 0$ and $P \ge Q \ge 0$ be real numbers (or integers) satisfying $XY = PQ$. Then
+\begin{equation}\label{eq:factor-bridge}
+  (X - P)(X - Q) = X\bigl((X + Y) - (P + Q)\bigr),
+  \qquad
+  (P - X)(P - Y) = P\bigl((P + Q) - (X + Y)\bigr).
+\end{equation}
+Consequently:
+\begin{enumerate}
+  \item[(i)] $X \le P \iff X + Y \le P + Q$, so $(X, Y) \prec_{\log} (P, Q) \implies (X, Y) \prec_w (P, Q)$;
+  \item[(ii)] $X + Y = P + Q \iff (X = P \text{ and } Y = Q)$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Expanding $(X - P)(X - Q) = X^2 - X(P + Q) + PQ$ and substituting $PQ = XY$ yields the first identity in~\eqref{eq:factor-bridge}; exchanging $(X, Y) \leftrightarrow (P, Q)$ gives the second. If $X + Y \le P + Q$ and $X > P$, then $X > P \ge Q \ge 0$, so $(X - P)(X - Q) > 0$ whereas $X((X + Y) - (P + Q)) \le 0$, a contradiction; hence $X \le P$. Conversely, if $X \le P$, then $P \ge X \ge Y \ge 0$; if $P = 0$ then $X = Y = Q = 0$, while if $P > 0$ then $(P - X)(P - Y) \ge 0$ implies $P + Q - (X + Y) \ge 0$. Finally, if $X + Y = P + Q$, then $(X - P)(X - Q) = 0$; either $X = P$ (forcing $Y = Q$) or $X = Q$ and $Y = P$, in which case $P \ge Q = X \ge Y = P$ forces $X = P = Q = Y$.
+\end{proof}
+
+\begin{proposition}[Algebraic characterization and uniqueness of $2\times 2$ singular values]\label{prop:sv2-unique}
+For $M \in M_2(\R)$, a pair $(s_1, s_2) \in \R^2$ is the ordered singular-value pair $(\sigma_1(M), \sigma_2(M))$ if and only if
+\begin{equation}\label{eq:sv2-char}
+  s_1 \ge s_2 \ge 0, \qquad
+  s_1^2 + s_2^2 = \tr(M^\top M) = \|M\|_F^2, \qquad
+  (s_1 s_2)^2 = \det(M^\top M) = (\det M)^2.
+\end{equation}
+In particular,~\eqref{eq:sv2-char} uniquely determines $(s_1, s_2)$ over $\Z$ (and over $\R$).
+\end{proposition}
+
+\begin{proof}
+The characteristic polynomial of the symmetric positive semidefinite matrix $M^\top M$ is $t^2 - \tr(M^\top M)t + \det(M^\top M)$, which factors as $(t - s_1^2)(t - s_2^2)$ if and only if $s_1^2 + s_2^2 = \tr(M^\top M)$ and $s_1^2 s_2^2 = \det(M^\top M) = (\det M)^2$. If $(t_1, t_2)$ also satisfies~\eqref{eq:sv2-char}, non-negativity gives $s_1 s_2 = t_1 t_2$, hence $(s_1 \pm s_2)^2 = s_1^2 + s_2^2 \pm 2 s_1 s_2 = (t_1 \pm t_2)^2$. Since $s_1 + s_2 \ge 0$, $t_1 + t_2 \ge 0$, $s_1 - s_2 \ge 0$, and $t_1 - t_2 \ge 0$, we obtain $s_1 + s_2 = t_1 + t_2$ and $s_1 - s_2 = t_1 - t_2$, whence $s_1 = t_1$ and $s_2 = t_2$.
+\end{proof}
+
+\begin{example}[Positive non-vacuity witness on diagonal matrices]\label{ex:diag-witness}
+Let $D_1 = \diag(4, 2)$ and $D_2 = \diag(5, 1)$, so $D_1 D_2 = \diag(20, 2)$. By~\eqref{eq:sv2-char}, $\sigma(D_1) = (4, 2)$, $\sigma(D_2) = (5, 1)$, and $\sigma(D_1 D_2) = (20, 2) = \sigma(D_1)\circ\sigma(D_2)$, attaining equality at both $k = 1$ ($20 = 4 \cdot 5$) and $k = 2$ ($40 = 20 \cdot 2$). Notice that even among diagonal matrices, ordering matters: $D_1' = \diag(2, 4)$ and $D_2 = \diag(5, 1)$ give $D_1' D_2 = \diag(10, 4)$, whose singular values $(10, 4)$ satisfy strict inequality $10 < 20 = \sigma_1(D_1')\sigma_1(D_2)$ at $k = 1$. Thus diagonality alone is not sufficient without coherent singular-value ordering, and---as Section~\ref{sec:counterexamples} shows---it is completely unnecessary.
+\end{example}
+
+\section{Universal Product Log-Majorization and Exact Equality Criterion}
+
+We now give a self-contained algebraic proof of both Horn--Lidskii product logarithmic majorization for $2\times 2$ matrices and the exact necessary and sufficient condition for equality, directly mirroring our Core Lean~4 formalization.
+
+\begin{theorem}[Universal $2\times 2$ Horn--Lidskii product log-majorization and equality criterion]\label{thm:2x2-logmaj}
+Let $A, B \in M_2(\R)$ have singular values $(a_1, a_2) = \sigma(A)$ and $(b_1, b_2) = \sigma(B)$, and let $(c_1, c_2) = \sigma(AB)$. Put
+\[
+  G_A = A^\top A = \begin{pmatrix} p & q \\ q & r \end{pmatrix},
+  \qquad
+  G_B = B B^\top = \begin{pmatrix} u & v \\ v & w \end{pmatrix}.
+\]
+\begin{enumerate}
+  \item[(a)] \textbf{(Logarithmic majorization.)} $\sigma(AB) \prec_{\log} \sigma(A)\circ\sigma(B)$, i.e., $c_1 \le a_1 b_1$ and $c_1 c_2 = (a_1 b_1)(a_2 b_2)$.
+  \item[(b)] \textbf{(Exact equality characterization.)} Assume $a_1 > a_2$ and $b_1 > b_2$. Then $(c_1, c_2) = (a_1 b_1, a_2 b_2)$ holds if and only if
+  \begin{equation}\label{eq:gram-aligned}
+    G_A G_B = G_B G_A
+    \qquad\text{and}\qquad
+    (p - r)(u - w) + 4qv \ge 0.
+  \end{equation}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+First, $c_1^2 c_2^2 = (\det(AB))^2 = (\det A)^2 (\det B)^2 = (a_1 b_1)^2 (a_2 b_2)^2$, so non-negativity gives $c_1 c_2 = a_1 b_1 a_2 b_2$. Next, by cyclic invariance of trace, $\|AB\|_F^2 = \tr(B^\top A^\top A B) = \tr(G_A G_B) = pu + rw + 2qv$, while $\|A\|_F^2 = p + r$ and $\|B\|_F^2 = \tr(B B^\top) = u + w$. Direct expansion yields
+\begin{equation}\label{eq:trace-decomp}
+  2(c_1^2 + c_2^2) - (a_1^2 + a_2^2)(b_1^2 + b_2^2)
+  = 2\,\tr(G_A G_B) - (p + r)(u + w)
+  = (p - r)(u - w) + (2q)(2v).
+\end{equation}
+Moreover, $(a_1^2 - a_2^2)^2 = (a_1^2 + a_2^2)^2 - 4 a_1^2 a_2^2 = (p + r)^2 - 4(pr - q^2) = (p - r)^2 + (2q)^2$, and similarly $(b_1^2 - b_2^2)^2 = (u - w)^2 + (2v)^2$. Applying the Brahmagupta--Fibonacci identity gives
+\begin{equation}\label{eq:bf-gram}
+  \bigl((p - r)(u - w) + 4qv\bigr)^2
+  + 4\bigl((p - r)v - q(u - w)\bigr)^2
+  = \bigl(a_1^2 - a_2^2\bigr)^2 \bigl(b_1^2 - b_2^2\bigr)^2.
+\end{equation}
+Since $a_1^2 - a_2^2 \ge 0$ and $b_1^2 - b_2^2 \ge 0$,~\eqref{eq:bf-gram} implies $(p - r)(u - w) + 4qv \le (a_1^2 - a_2^2)(b_1^2 - b_2^2)$. Substituting into~\eqref{eq:trace-decomp} gives
+\[
+  2(c_1^2 + c_2^2) \le (a_1^2 + a_2^2)(b_1^2 + b_2^2) + (a_1^2 - a_2^2)(b_1^2 - b_2^2)
+  = 2\bigl((a_1 b_1)^2 + (a_2 b_2)^2\bigr),
+\]
+so $c_1^2 + c_2^2 \le (a_1 b_1)^2 + (a_2 b_2)^2$. Applying Lemma~\ref{lem:pair-bridge}(i) to $(X, Y) = (c_1^2, c_2^2)$ and $(P, Q) = ((a_1 b_1)^2, (a_2 b_2)^2)$ yields $c_1^2 \le (a_1 b_1)^2$, hence $c_1 \le a_1 b_1$, proving~(a).
+
+For~(b), note that a direct calculation gives the commutator
+\[
+  G_A G_B - G_B G_A = \begin{pmatrix} 0 & (p - r)v - q(u - w) \\ q(u - w) - (p - r)v & 0 \end{pmatrix}.
+\]
+By Lemma~\ref{lem:pair-bridge}(ii) and non-negativity, $(c_1, c_2) = (a_1 b_1, a_2 b_2)$ holds if and only if $c_1^2 + c_2^2 = (a_1 b_1)^2 + (a_2 b_2)^2$, which by~\eqref{eq:trace-decomp} holds if and only if $(p - r)(u - w) + 4qv = (a_1^2 - a_2^2)(b_1^2 - b_2^2) > 0$. By~\eqref{eq:bf-gram}, this holds if and only if $(p - r)v - q(u - w) = 0$ (i.e., $G_A G_B = G_B G_A$) and $(p - r)(u - w) + 4qv \ge 0$.
+\end{proof}
+
+In arbitrary dimension $n \ge 2$, the corresponding structural characterization is equally transparent.
+
+\begin{theorem}[General $n\times n$ SVD coupling characterization]\label{thm:svd-coupling}
+Let $A, B \in M_n(\C)$ have singular value decompositions $A = U_1 \Sigma_A V_1^*$ and $B = U_2 \Sigma_B V_2^*$ with simple strictly positive singular values $\sigma_1(A) > \dots > \sigma_n(A) > 0$ and $\sigma_1(B) > \dots > \sigma_n(B) > 0$. Then equality holds in $\sigma(AB) \prec_{\log} \sigma(A)\circ\sigma(B)$ (i.e., $\prod_{j=1}^k \sigma_j(AB) = \prod_{j=1}^k \sigma_j(A)\sigma_j(B)$ for all $1 \le k \le n$) if and only if the unitary coupling matrix $W = V_1^* U_2$ is diagonal unitary: $W = \diag(e^{i\theta_1}, \dots, e^{i\theta_n})$.
+\end{theorem}
+
+\begin{proof}
+Since $\sigma_n(A)\sigma_n(B) > 0$, equality for all $1 \le k \le n$ is equivalent to $\sigma_j(AB) = \sigma_j(A)\sigma_j(B)$ for all $1 \le j \le n$. Because unitary factors preserve singular values, $\sigma(AB) = \sigma(\Sigma_A W \Sigma_B)$. If $W = \diag(e^{i\theta_1}, \dots, e^{i\theta_n})$, then $\Sigma_A W \Sigma_B = \diag(e^{i\theta_1}\sigma_1(A)\sigma_1(B), \dots, e^{i\theta_n}\sigma_n(A)\sigma_n(B))$, whose singular values are $\sigma_j(A)\sigma_j(B)$. Conversely, suppose $\sigma_1(\Sigma_A W \Sigma_B) = \sigma_1(A)\sigma_1(B)$, and choose a unit vector $x \in \C^n$ attaining $\|\Sigma_A W \Sigma_B x\|_2 = \sigma_1(A)\sigma_1(B)$. Then
+\[
+  \sigma_1(A)\sigma_1(B) = \|\Sigma_A W \Sigma_B x\|_2 \le \sigma_1(A)\,\|W \Sigma_B x\|_2 = \sigma_1(A)\,\|\Sigma_B x\|_2 \le \sigma_1(A)\sigma_1(B).
+\]
+Since $\sigma_1(B) > \sigma_2(B) > \dots > \sigma_n(B) > 0$, equality $\|\Sigma_B x\|_2 = \sigma_1(B)$ forces $x = \alpha e_1$ with $|\alpha| = 1$. Setting $y = W e_1$, which is a unit vector, the first equality above becomes $\|\Sigma_A y\|_2 = \sigma_1(A)$; since $\sigma_1(A) > \sigma_2(A)$, this forces $y = e^{i\theta_1} e_1$. Because $W$ is unitary, $W = \diag(e^{i\theta_1}) \oplus W'$, and induction on $n$ completes the proof.
+\end{proof}
+
+\section{Counterexamples Refuting Readings A1--A4 and Extensions}\label{sec:counterexamples}
+
+Theorem~\ref{thm:svd-coupling} shows how to generate counterexamples systematically: set $U_2 = V_1$, so $W = I_n$, while choosing $U_1, V_1, V_2$ freely so that $A = U_1 \Sigma_A V_1^\top$, $B = V_1 \Sigma_B V_2^\top$, and $AB = U_1(\Sigma_A \Sigma_B)V_2^\top$ violate every conceivable diagonalizability property.
+
+\begin{theorem}[Symmetric positive definite integer counterexample---refuting A1 and A2]\label{thm:spd-cex}
+Let
+\[
+  A_{\mathrm{spd}} = \begin{pmatrix} 3 & 1 \\ 1 & 3 \end{pmatrix},
+  \qquad
+  B_{\mathrm{spd}} = \begin{pmatrix} 3 & 2 \\ 2 & 3 \end{pmatrix},
+  \qquad
+  A_{\mathrm{spd}} B_{\mathrm{spd}} = \begin{pmatrix} 11 & 9 \\ 9 & 11 \end{pmatrix}.
+\]
+Then $A_{\mathrm{spd}}, B_{\mathrm{spd}}, A_{\mathrm{spd}}B_{\mathrm{spd}} \in M_2(\Z)$ are symmetric positive definite with singular values
+\[
+  \sigma(A_{\mathrm{spd}}) = (4, 2), \qquad
+  \sigma(B_{\mathrm{spd}}) = (5, 1), \qquad
+  \sigma(A_{\mathrm{spd}}B_{\mathrm{spd}}) = (20, 2) = \sigma(A_{\mathrm{spd}})\circ\sigma(B_{\mathrm{spd}}),
+\]
+achieving equality in $\sigma(AB) \prec_{\log} \sigma(A)\circ\sigma(B)$ for all $k \in \{1, 2\}$, yet none of $A_{\mathrm{spd}}$, $B_{\mathrm{spd}}$, or $A_{\mathrm{spd}}B_{\mathrm{spd}}$ is diagonal.
+\end{theorem}
+
+\begin{proof}
+Using $H = \frac{1}{\sqrt{2}}\bigl(\begin{smallmatrix} 1 & -1 \\ 1 & 1 \end{smallmatrix}\bigr)$, one has $A_{\mathrm{spd}} = H\,\diag(4,2)\,H^\top$, $B_{\mathrm{spd}} = H\,\diag(5,1)\,H^\top$, and $A_{\mathrm{spd}}B_{\mathrm{spd}} = H\,\diag(20,2)\,H^\top$ (or directly verify~\eqref{eq:sv2-char}: $\|A_{\mathrm{spd}}\|_F^2 = 20 = 4^2+2^2$, $\det A_{\mathrm{spd}} = 8 = 4\cdot 2$; $\|B_{\mathrm{spd}}\|_F^2 = 26 = 5^2+1^2$, $\det B_{\mathrm{spd}} = 5 = 5\cdot 1$; $\|A_{\mathrm{spd}}B_{\mathrm{spd}}\|_F^2 = 404 = 20^2+2^2$, $\det(A_{\mathrm{spd}}B_{\mathrm{spd}}) = 40 = 20\cdot 2$). All three matrices have non-zero off-diagonal entries ($1$, $2$, and $9$).
+\end{proof}
+
+One might wonder whether ``diagonal operator'' in Conjecture~\texttt{00000007153} was intended to mean \emph{unitarily diagonalizable} (normal) or \emph{diagonalizable by similarity} in some basis. Our next theorem refutes even these drastically weakened readings over $\C$.
+
+\begin{lemma}[Defective $2\times 2$ matrices are non-diagonalizable over $\C$]\label{lem:defective}
+If $M \in M_2(\C)$ satisfies $(\tr M)^2 = 4\det M$ and $M$ is not a scalar multiple of $I_2$, then $M$ is not similar to any diagonal matrix over $\C$.
+\end{lemma}
+
+\begin{proof}
+Suppose $S M S^{-1} = \diag(\lambda_1, \lambda_2)$ for some $S \in GL_2(\C)$. Taking trace and determinant gives $\lambda_1 + \lambda_2 = \tr M$ and $\lambda_1 \lambda_2 = \det M$, so $(\lambda_1 - \lambda_2)^2 = (\tr M)^2 - 4\det M = 0$, whence $\lambda_1 = \lambda_2 = \lambda$. Then $M = S^{-1}(\lambda I_2)S = \lambda I_2$, contradicting that $M$ is non-scalar.
+\end{proof}
+
+To construct integer matrices with exact rational singular values that are simultaneously Jordan-defective, note that for integers $p > q > 0$ and $c > 0$, Euclid's Pythagorean rotation
+\[
+  R(p, q) = \frac{1}{p^2 + q^2}\begin{pmatrix} 2pq & -(p^2 - q^2) \\ p^2 - q^2 & 2pq \end{pmatrix} \in SO(2, \Q)
+\]
+satisfies $\tr\bigl(\diag(p^2 c, q^2 c)\,R(p, q)\bigr) = (p^2 + q^2)c \cdot \frac{2pq}{p^2 + q^2} = 2pqc$ and $\det\bigl(\diag(p^2 c, q^2 c)\,R(p, q)\bigr) = p^2 q^2 c^2$, so its characteristic polynomial is $(t - pqc)^2$ while its singular values are $p^2 c > q^2 c$! Choosing $(p, q) = (2, 1)$ for $A$ and $(p, q) = (4, 1)$ for $AB$ yields:
+
+\begin{theorem}[Non-normal, non-commuting, Jordan-defective counterexample---refuting A3 and A4]\label{thm:defective-cex}
+Define $A_{\mathrm{def}}, B_{\mathrm{def}} \in M_2(\Z)$ by
+\[
+  A_{\mathrm{def}} = \begin{pmatrix} 16 & -12 \\ 3 & 4 \end{pmatrix},
+  \qquad
+  B_{\mathrm{def}} = \begin{pmatrix} 173 & -216 \\ -36 & 212 \end{pmatrix},
+  \qquad
+  A_{\mathrm{def}} B_{\mathrm{def}} = \begin{pmatrix} 3200 & -6000 \\ 375 & 200 \end{pmatrix}.
+\]
+Then:
+\begin{enumerate}
+  \item[(a)] $\sigma(A_{\mathrm{def}}) = (20, 5)$, $\sigma(B_{\mathrm{def}}) = (340, 85)$, and $\sigma(A_{\mathrm{def}} B_{\mathrm{def}}) = (6800, 425) = (20\cdot 340,\, 5\cdot 85)$, so exact equality holds in $\sigma(AB) \prec_{\log} \sigma(A)\circ\sigma(B)$ for all $k \in \{1, 2\}$ (and across all subset inequalities~\eqref{eq:lw-subset} at $I = \{1\}, \{1, 2\}$).
+  \item[(b)] None of $A_{\mathrm{def}}$, $B_{\mathrm{def}}$, or $A_{\mathrm{def}} B_{\mathrm{def}}$ is diagonal or normal ($X^\top X \ne X X^\top$), and $A_{\mathrm{def}} B_{\mathrm{def}} \ne B_{\mathrm{def}} A_{\mathrm{def}}$.
+  \item[(c)] Both $A_{\mathrm{def}}$ and $A_{\mathrm{def}} B_{\mathrm{def}}$ are defective ($\chi_{A_{\mathrm{def}}}(t) = (t - 10)^2$ and $\chi_{A_{\mathrm{def}} B_{\mathrm{def}}}(t) = (t - 1700)^2$) and hence are not similar to any diagonal matrix over $\C$.
+  \item[(d)] Moreover, the $4\times 4$ integer block pair $\mathcal{A} = 17 A_{\mathrm{def}} \oplus B_{\mathrm{def}}^\top$ and $\mathcal{B} = B_{\mathrm{def}} \oplus 17 A_{\mathrm{def}}^\top$ satisfies $\sigma(\mathcal{A}\mathcal{B}) = \sigma(\mathcal{A})\circ\sigma(\mathcal{B}) = (115600, 115600, 7225, 7225)$ while \emph{all three} of $\mathcal{A}$, $\mathcal{B}$, and $\mathcal{A}\mathcal{B}$ are Jordan-defective (non-diagonalizable over $\C$), non-normal, non-commuting, and non-diagonal.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Let $V = R(2, 1)^\top = \frac{1}{5}\bigl(\begin{smallmatrix} 4 & 3 \\ -3 & 4 \end{smallmatrix}\bigr)$ and $V_2^\top = R(4, 1) = \frac{1}{17}\bigl(\begin{smallmatrix} 8 & -15 \\ 15 & 8 \end{smallmatrix}\bigr)$. Direct multiplication gives $A_{\mathrm{def}} = \diag(20, 5)\,V^\top$, $B_{\mathrm{def}} = V\,\diag(340, 85)\,V_2^\top$, and $A_{\mathrm{def}} B_{\mathrm{def}} = \diag(6800, 425)\,V_2^\top$, establishing~(a). For~(b), $A_{\mathrm{def}} A_{\mathrm{def}}^\top = \diag(400, 25) \ne \bigl(\begin{smallmatrix} 265 & -180 \\ -180 & 160 \end{smallmatrix}\bigr) = A_{\mathrm{def}}^\top A_{\mathrm{def}}$, $B_{\mathrm{def}}^\top B_{\mathrm{def}} \ne B_{\mathrm{def}} B_{\mathrm{def}}^\top$, $(A_{\mathrm{def}} B_{\mathrm{def}})(A_{\mathrm{def}} B_{\mathrm{def}})^\top = \diag(6800^2, 425^2)$ whereas $(A_{\mathrm{def}} B_{\mathrm{def}})^\top (A_{\mathrm{def}} B_{\mathrm{def}})$ has $(1,2)$-entry $-19{,}125{,}000 \ne 0$, and $(B_{\mathrm{def}} A_{\mathrm{def}})_{11} = 2120 \ne 3200 = (A_{\mathrm{def}} B_{\mathrm{def}})_{11}$. For~(c), $\tr(A_{\mathrm{def}})^2 = 20^2 = 400 = 4(100) = 4\det(A_{\mathrm{def}})$ and $\tr(A_{\mathrm{def}} B_{\mathrm{def}})^2 = 3400^2 = 11{,}560{,}000 = 4(2{,}890{,}000) = 4\det(A_{\mathrm{def}} B_{\mathrm{def}})$, so Lemma~\ref{lem:defective} applies to both. Part~(d) follows immediately from $\mathcal{A}\mathcal{B} = 17(A_{\mathrm{def}} B_{\mathrm{def}}) \oplus 17(A_{\mathrm{def}} B_{\mathrm{def}})^\top$ and the invariance of singular values and defectiveness under transpose.
+\end{proof}
+
+\begin{theorem}[All finite dimensions $n \ge 2$ and compact operators on $\ell^2(\N)$]\label{thm:all-dim}
+\leavevmode
+\begin{enumerate}
+  \item[(a)] For each $n \ge 2$, define the rational orthogonal matrix $U^{(n)} = \frac{1}{5}\bigl(\begin{smallmatrix} 3 & -4 \\ 4 & 3 \end{smallmatrix}\bigr) \oplus I_{n-2}$ and
+  \[
+    A^{(n)} = \begin{pmatrix} 34 & 12 \\ 12 & 41 \end{pmatrix} \oplus 25 I_{n-2},
+    \qquad
+    B^{(n)} = \begin{pmatrix} 43 & 24 \\ 24 & 57 \end{pmatrix} \oplus 25 I_{n-2}.
+  \]
+  Then $A^{(n)} = U^{(n)}\,\diag(50, 25, \dots, 25)\,(U^{(n)})^\top$ and $B^{(n)} = U^{(n)}\,\diag(75, 25, \dots, 25)\,(U^{(n)})^\top$ have product $A^{(n)} B^{(n)} = U^{(n)}\,\diag(3750, 625, \dots, 625)\,(U^{(n)})^\top$, satisfying
+  \[
+    \prod_{j=1}^k \sigma_j(A^{(n)}B^{(n)}) = \prod_{j=1}^k \sigma_j(A^{(n)})\,\sigma_j(B^{(n)})
+    \qquad (1 \le k \le n),
+  \]
+  while none of $A^{(n)}$, $B^{(n)}$, or $A^{(n)}B^{(n)}$ is diagonal (their $(1,2)$-entries are $12$, $24$, and $1500$).
+  \item[(b)] On $\mathcal{H} = \ell^2(\N)$ with its canonical orthonormal basis $\{e_m\}_{m=1}^\infty$, define injective trace-class (hence compact) operators
+  \[
+    T_A = A_{\mathrm{def}} \oplus \diag\bigl(4\cdot 2^{-(m-3)}\bigr)_{m=3}^\infty,
+    \qquad
+    T_B = B_{\mathrm{def}} \oplus \diag\bigl(64\cdot 2^{-(m-3)}\bigr)_{m=3}^\infty.
+  \]
+  Their singular-value sequences $s(T_A) = (20, 5, 4, 2, 1, \dots)$ and $s(T_B) = (340, 85, 64, 32, \dots)$ are strictly decreasing and positive, and $s(T_A T_B) = (6800, 425, 256, 64, \dots)$ satisfies
+  \[
+    \prod_{j=1}^k s_j(T_A T_B) = \prod_{j=1}^k s_j(T_A)\,s_j(T_B)
+    \qquad (\forall k \ge 1),
+  \]
+  yet neither $T_A$, $T_B$, nor $T_A T_B$ is diagonal in $\{e_m\}$, and neither $T_A$ nor $T_A T_B$ is unitarily equivalent (or boundedly similar) to any diagonal operator on $\ell^2(\N)$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(a) follows by direct computation on the top-left $2\times 2$ block:
+\[
+\begin{aligned}
+  \frac{1}{25}\begin{pmatrix} 3 & -4 \\ 4 & 3 \end{pmatrix}\diag(50, 25)\begin{pmatrix} 3 & 4 \\ -4 & 3 \end{pmatrix} &= \begin{pmatrix} 34 & 12 \\ 12 & 41 \end{pmatrix}, \\
+  \frac{1}{25}\begin{pmatrix} 3 & -4 \\ 4 & 3 \end{pmatrix}\diag(75, 25)\begin{pmatrix} 3 & 4 \\ -4 & 3 \end{pmatrix} &= \begin{pmatrix} 43 & 24 \\ 24 & 57 \end{pmatrix},
+\end{aligned}
+\]
+with $(A^{(n)}B^{(n)})_{12} = 34\cdot 24 + 12\cdot 57 = 1500 \ne 0$. In part~(b), $\sum_{m\ge 1} s_m(T_A) < \infty$ and $\sum_{m\ge 1} s_m(T_B) < \infty$, so $T_A, T_B, T_A T_B$ are trace-class; since $4 < 5$ and $64 < 85$, the tail singular values stay below $(20, 5)$, $(340, 85)$, and $(6800, 425)$, preserving ordering for all $k \ge 1$. Finally, $(T_A - 10 I)^2 e_1 = 0$ while $(T_A - 10 I)e_1 = 6 e_1 + 3 e_2 \ne 0$, which is invariant under bounded similarity.
+\end{proof}
+
+\section{Alternative Single-Operator Readings: Weyl and Diagonal Pinching}
+
+For completeness, we verify that Conjecture~\texttt{00000007153} is rescued by neither single-operator interpretation.
+
+\begin{theorem}[Reading B: Weyl eigenvalue--singular-value log-majorization]\label{thm:weyl}
+For every $M \in M_2(\C)$ with eigenvalues $|\lambda_1| \ge |\lambda_2|$ and singular values $\sigma_1 \ge \sigma_2 \ge 0$, one has $|\lambda(M)| \prec_{\log} \sigma(M)$, with equality $|\lambda_j| = \sigma_j$ ($j = 1, 2$) if and only if $M$ is normal ($M^* M = M M^*$). In particular, if $M \in M_2(\R)$ has real eigenvalues $\lambda_1, \lambda_2$, then
+\begin{equation}\label{eq:weyl-frob}
+  (\sigma_1^2 + \sigma_2^2) - (\lambda_1^2 + \lambda_2^2) = (m_{12} - m_{21})^2,
+\end{equation}
+so equality holds if and only if $M^\top = M$, \textbf{not} if and only if $M$ is diagonal. The non-diagonal matrix $W = \bigl(\begin{smallmatrix} 2 & 1 \\ 1 & 2 \end{smallmatrix}\bigr)$ satisfies $|\lambda(W)| = (3, 1) = \sigma(W)$, refuting Reading~B.
+\end{theorem}
+
+\begin{proof}
+By Schur's unitary triangularization $M = U \bigl(\begin{smallmatrix} \lambda_1 & \tau \\ 0 & \lambda_2 \end{smallmatrix}\bigr) U^*$, we have $|\lambda_1 \lambda_2| = |\det M| = \sigma_1 \sigma_2$ and $\sigma_1^2 + \sigma_2^2 = \|M\|_F^2 = |\lambda_1|^2 + |\lambda_2|^2 + |\tau|^2 \ge |\lambda_1|^2 + |\lambda_2|^2$. Lemma~\ref{lem:pair-bridge} gives $|\lambda_1| \le \sigma_1$, with equality $(|\lambda_1|, |\lambda_2|) = (\sigma_1, \sigma_2)$ iff $\tau = 0$ iff $M$ is normal. When $M \in M_2(\R)$ has real eigenvalues, $\lambda_1^2 + \lambda_2^2 = (\lambda_1 + \lambda_2)^2 - 2\lambda_1\lambda_2 = (m_{11} + m_{22})^2 - 2(m_{11}m_{22} - m_{12}m_{21}) = m_{11}^2 + m_{22}^2 + 2 m_{12} m_{21}$, subtracting which from $\|M\|_F^2$ yields~\eqref{eq:weyl-frob}. For $W = \bigl(\begin{smallmatrix} 2 & 1 \\ 1 & 2 \end{smallmatrix}\bigr)$, $\chi_W(t) = (t-3)(t-1)$ and $W^\top W = W^2$ has eigenvalues $(9, 1)$, so $|\lambda(W)| = \sigma(W) = (3, 1)$ while $W$ is non-diagonal.
+\end{proof}
+
+\begin{theorem}[Reading C: Failure of log-majorization for diagonal pinching]\label{thm:pinching}
+For every $M \in M_n(\C)$, the sorted diagonal magnitudes $|d(M)|^\downarrow = \sigma(\mathcal{D}(M))$ satisfy Ky Fan's additive weak majorization $|d(M)|^\downarrow \prec_w \sigma(M)$, and $|d(M)|^\downarrow = \sigma(M)$ holds if and only if $M$ is diagonal (since $\sum_{j=1}^n \sigma_j(M)^2 - \sum_{j=1}^n |m_{jj}|^2 = \sum_{i \ne j} |m_{ij}|^2$). However, the multiplicative strengthening fails in \textbf{both} directions: on the symmetric positive definite integer matrix $W = \bigl(\begin{smallmatrix} 2 & 1 \\ 1 & 2 \end{smallmatrix}\bigr)$, one has $|d(W)|^\downarrow = (2, 2)$ and $\sigma(W) = (3, 1)$, so
+\[
+  |d|_1 |d|_2 = 4 > 3 = \sigma_1(W)\sigma_2(W)
+  \qquad\text{and}\qquad
+  \sigma_1(W) = 3 > 2 = |d|_1.
+\]
+Hence neither $|d(W)|^\downarrow \prec_{w\log} \sigma(W)$ nor $\sigma(W) \prec_{w\log} |d(W)|^\downarrow$ holds.
+\end{theorem}
+
+\section{Formalization in Core Lean~4.19.0 and Computational Verification}
+
+All core definitions, universal $2\times 2$ majorization theorems, equality characterizations, non-vacuity witnesses, and finite-dimensional counterexamples (including the arbitrary-dimension family $n = m + 2 \ge 2$) are mechanized in \textbf{Core Lean~4.19.0} (\texttt{leanprover/lean4:v4.19.0}) inside \texttt{lean/} with \textbf{zero external dependencies}. Compilation uses \texttt{-DwarningAsError=true}, and axioms are audited via \texttt{\#print axioms}. Table~\ref{tab:lean-map} maps the paper's theorems to their Lean~4 declarations.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Mathematical Result} & \textbf{File} & \textbf{Lean~4 Declaration} \\
+\midrule
+Brahmagupta--Fibonacci (Eq.~\eqref{eq:bf-gram}) & \texttt{Algebra.lean} & \texttt{brahmagupta\_fibonacci} \\
+Product-to-sum bridge (Lem.~\ref{lem:pair-bridge}) & \texttt{Algebra.lean} & \texttt{pair\_domination\_of\_sum\_le\_of\_prod\_eq} \\
+Defective non-diag.\ (Lem.~\ref{lem:defective}) & \texttt{Matrix2.lean} & \texttt{Mat2.defective\_not\_similar\_to\_diag} \\
+$\prec_{\log}$ implies $\prec_w$ & \texttt{Matrix2.lean} & \texttt{logMajorizes2\_implies\_weakMajorizes2} \\
+Singular-value uniqueness (Prop.~\ref{prop:sv2-unique}) & \texttt{Matrix2.lean} & \texttt{hasSingularValues\_unique} \\
+Universal $2\times 2$ $\prec_{\log}$ (Thm.~\ref{thm:2x2-logmaj}(a)) & \texttt{Matrix2.lean} & \texttt{lidskii\_product\_log\_majorization} \\
+Exact Gram equality iff (Thm.~\ref{thm:2x2-logmaj}(b)) & \texttt{Matrix2.lean} & \texttt{lidskii\_product\_eq\_iff\_gram\_aligned} \\
+Weyl $\prec_{\log}$ \& symmetry iff (Thm.~\ref{thm:weyl}) & \texttt{Matrix2.lean} & \texttt{weyl\_log\_majorization} \\
+Pinching equality $\implies$ diagonal & \texttt{Matrix2.lean} & \texttt{diag\_abs\_eq\_sv\_implies\_diagonal} \\
+Positive diagonal witness (Ex.~\ref{ex:diag-witness}) & \texttt{Counterexamples.lean} & \texttt{positive\_witness\_diagonal} \\
+Refutation of A1 (Thm.~\ref{thm:spd-cex}) & \texttt{Counterexamples.lean} & \texttt{disproof\_interpA\_diagFactors} \\
+Refutation of A2 (Thm.~\ref{thm:spd-cex}) & \texttt{Counterexamples.lean} & \texttt{disproof\_interpA\_anyDiag} \\
+Refutation of A3 (Thm.~\ref{thm:defective-cex}) & \texttt{Counterexamples.lean} & \texttt{disproof\_interpA\_normalOrCommuting} \\
+Refutation of A4 (Thm.~\ref{thm:defective-cex}) & \texttt{Counterexamples.lean} & \texttt{disproof\_interpA\_similarDiag} \\
+Refutation of B (Thm.~\ref{thm:weyl}) & \texttt{Counterexamples.lean} & \texttt{disproof\_interpB\_weylDiag} \\
+Refutation of C (Thm.~\ref{thm:pinching}) & \texttt{Counterexamples.lean} & \texttt{disproof\_interpC\_diagWeakLogMaj} \\
+All dims.\ $n = m + 2 \ge 2$ (Thm.~\ref{thm:all-dim}(a)) & \texttt{Counterexamples.lean} & \texttt{disproof\_all\_dimensions\_ge\_two} \\
+Master conjunction disproof & \texttt{LidskiiProduct.lean} & \texttt{conjecture\_00000007153\_disproved} \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical theorems and Core Lean~4.19.0 declarations.}
+\label{tab:lean-map}
+\end{table}
+
+In addition, the standalone Python~3 script \texttt{verify.py} (using only the standard library: exact integer/rational arithmetic together with a self-contained one-sided Jacobi SVD) independently validates all counterexamples, checks the universal identities and equality criterion across $5{,}000$ matrix pairs, tests all Lidskii--Wielandt index-subset product inequalities~\eqref{eq:lw-subset} for $n \in \{2, 3, 4, 5\}$, checks Weyl's inequality and normality criterion across $2{,}000$ matrices, and verifies the injective compact operator truncation on $\ell^2(\N)$.
+
+\begin{thebibliography}{9}
+
+\bibitem{Bhatia1997}
+R.~Bhatia, \emph{Matrix Analysis}, Graduate Texts in Mathematics, vol.~169, Springer-Verlag, New York, 1997.
+
+\bibitem{GelfandNaimark1950}
+I.~M. Gel'fand and M.~A. Naimark, The relation between the unitary representations of the complex unimodular group and its unitary subgroup, \emph{Izv.\ Akad.\ Nauk SSSR Ser.\ Mat.} \textbf{14} (1950), 239--260.
+
+\bibitem{Horn1950}
+A.~Horn, On the singular values of a product of completely continuous operators, \emph{Proc.\ Natl.\ Acad.\ Sci.\ USA} \textbf{36} (1950), 374--375.
+
+\bibitem{Lidskii1950}
+V.~B. Lidskii, On the characteristic numbers of the sum and product of symmetric matrices, \emph{Dokl.\ Akad.\ Nauk SSSR} \textbf{75} (1950), 769--772.
+
+\bibitem{MarshallOlkinArnold2011}
+A.~W. Marshall, I.~Olkin, and B.~C. Arnold, \emph{Inequalities: Theory of Majorization and Its Applications}, 2nd ed., Springer, New York, 2011.
+
+\bibitem{Mirsky1960}
+L.~Mirsky, Symmetric gauge functions and unitarily invariant norms, \emph{Quart.\ J.\ Math.\ Oxford Ser.~(2)} \textbf{11} (1960), 50--59.
+
+\bibitem{Weyl1949}
+H.~Weyl, Inequalities between the two kinds of eigenvalues of a linear transformation, \emph{Proc.\ Natl.\ Acad.\ Sci.\ USA} \textbf{35} (1949), 408--411.
+
+\bibitem{Wielandt1955}
+H.~Wielandt, An extremum property of sums of eigenvalues, \emph{Proc.\ Amer.\ Math.\ Soc.} \textbf{6} (1955), 106--110.
+
+\end{thebibliography}
+
+\end{document}
