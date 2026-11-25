@@ -1,0 +1,88 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+\begin{center}
+  {\Large\bfseries A non-tree graph with a formal configuration space\par}
+  \smallskip
+  Disproof of Conjecture 00000004113
+\end{center}
+
+\noindent
+The cycle $C_3$ is a non-tree graph whose two-particle configuration
+space is rationally formal. The unordered space deformation retracts
+onto a circle. The ordered space also has the homotopy type of a circle.
+
+\section*{The unordered configuration space}
+
+The graph $C_3$ has vertices $0,1,2$ and edges $01,12,20$. Let $U_2(C_3)$
+be the space of unordered pairs of distinct points of its geometric
+realization. Its discretized subspace $UD_2(C_3)$ uses pairs of open graph
+cells with disjoint closures, with the two factors identified under
+interchange.
+
+The subdivision criterion in Farley--Sabalka~\cite[Theorem~3.1]{fs},
+proved in the strengthened form by Prue--Scrimshaw~\cite[Theorem~3.2]{ps},
+applies at $n=2$. There are at least two vertices. The paths connecting
+distinct vertices of degree other than two would need at least one edge,
+and every vertex here has degree two. A homotopically nontrivial closed
+path has length at least three. Indeed, there are no loops and any
+closed walk of length two backtracks. Hence $U_2(C_3)$ deformation
+retracts onto $UD_2(C_3)$.
+
+The zero-cells of $UD_2(C_3)$ are the three unordered pairs of distinct
+original vertices. Identify each pair with its missing vertex. A one-cell
+consists of an original edge $ab$ and the remaining vertex $c$. Its
+endpoints are $\{c,a\}$ and $\{c,b\}$, which identify with $b$ and $a$.
+Every original edge gives exactly one such cell. There are no two-cells
+because any two original edges have a common endpoint. These vertex and
+edge identifications give a graph isomorphism $UD_2(C_3)\cong C_3$, whose
+geometric realization is $S^1$.
+
+\section*{Formality and the ordered space}
+
+Take a closed element $\omega\in A_{\mathrm{PL}}^1(S^1)$ representing a
+generator of $H^1(S^1;\mathbb Q)$. Sullivan's rational polynomial forms
+compute rational cohomology~\cite{fh}. Graded commutativity gives
+$\omega^2=0$. The map $\Lambda_{\mathbb Q}(a)\to A_{\mathrm{PL}}(S^1)$
+sending $a$ to $\omega$, where $|a|=1$ and $da=0$, induces an isomorphism
+in every cohomological degree. Thus $S^1$ is formal, as is $U_2(C_3)$ by
+homotopy invariance.
+
+For the ordered version, identify $|C_3|$ with the unit circle in
+$\mathbb C$. The map $(z,w)\mapsto (z,z^{-1}w)$ is a homeomorphism from
+the ordered configuration space to $S^1\times(S^1\setminus\{1\})$, with
+inverse $(z,u)\mapsto(z,zu)$. The second factor is contractible, so the
+ordered space is also formal. Either convention gives a counterexample to
+the implication that formality forces the graph to be a tree.
+
+\section*{Lean verification}
+
+The Lean 4 project checks the original three-cycle and computes the
+admissible cell pairs from their closures. It proves that there are no
+square cells and constructs inverse vertex and edge maps preserving the
+unordered incidences. The theorem
+\texttt{C4113.cycle\_configuration\_certificate} records these finite
+claims. The deformation retraction and rational model above give the
+topological conclusion. Run \texttt{lake build} in the \texttt{lean}
+directory to check the certificate.
+
+\begin{thebibliography}{3}
+\bibitem{fs}
+D.~Farley and L.~Sabalka, \emph{Discrete Morse theory and graph braid groups},
+Algebraic \& Geometric Topology \textbf{5} (2005), 1075--1109.
+\href{https://doi.org/10.2140/agt.2005.5.1075}{DOI 10.2140/agt.2005.5.1075}.
+
+\bibitem{ps}
+P.~Prue and T.~Scrimshaw, \emph{Abrams's stable equivalence for graph braid groups},
+\href{https://arxiv.org/abs/0909.5511}{arXiv:0909.5511}.
+
+\bibitem{fh}
+Y.~F\'elix and S.~Halperin, \emph{Rational homotopy via Sullivan models and enriched Lie algebras},
+EMS Surveys in Mathematical Sciences \textbf{10} (2023), 101--122.
+\href{https://doi.org/10.4171/EMSS/67}{DOI 10.4171/EMSS/67}.
+\end{thebibliography}
+
+\end{document}
