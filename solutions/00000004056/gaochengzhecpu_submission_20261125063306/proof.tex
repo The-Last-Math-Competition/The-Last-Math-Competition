@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{A group-algebra block with distinct Tate and AR periods}
+\author{The Last Math Competition, conjecture 00000004056}
+\date{}
+\begin{document}
+\maketitle
+
+Let \(k=\mathbb F_3\), let \(g\) generate \(C_3\), and set \(u=g-1\).
+The group algebra is
+\[
+  A=kC_3\cong k[u]/(u^3)
+\]
+because \((g-1)^3=g^3-1=0\) and both algebras have dimension three.
+It is local with maximal ideal \((u)\), so the whole algebra is one block.
+Taking the coefficient of \(u^2\) in a product gives a symmetric
+nondegenerate associative pairing, so \(A\) is symmetric. Write \(S=A/(u)\).
+
+Use the Tate period of \(S\) in the stable extension category, namely the
+least \(n>0\) with \(\Omega^n S\cong S\) stably. In the graded Tate
+self-extension ring this is the least positive degree of a graded unit.
+Indeed, a degree-\(n\) class is represented by a stable map
+\(\Omega^n S\to S\), and a graded inverse represents its inverse after
+applying the syzygy shift. Here the stable syzygy is invertible because
+the group algebra is self-injective.
+
+The quotient \(A\to S\) is a projective cover with kernel \(uA\).
+Multiplication by \(u\) gives a projective cover of \(uA\) with kernel
+\(u^2A\). Both kernels lie in the radical of the corresponding free
+module \(A\). The map \(S\to u^2A\) sending \(1\) to \(u^2\) is an
+isomorphism. Hence \(\Omega^2 S\cong S\). Equivalently, the alternating
+maps \(u\) and \(u^2\) on copies of \(A\) give an exact complete
+resolution. Their kernels and images are \(\ker(u)=u^2A=\operatorname{im}(u^2)\)
+and \(\ker(u^2)=uA=\operatorname{im}(u)\). Applying
+\(\operatorname{Hom}_A(-,A)\) gives the same alternating maps and remains
+exact.
+
+Every map \(S\to uA\) has image in \(u^2A\), the subspace of \(uA\)
+annihilated by \(u\). Every map \(uA\to S\) kills \(u^2A=u(uA)\).
+Thus every composite \(S\to uA\to S\) is zero. The stable identity of
+\(S\) is nonzero. Indeed, every map \(S\to A\) lands in \(u^2A\), and
+every map \(A\to S\) kills \(u^2A\). Every finitely generated projective
+is a summand of a finite sum of copies of \(A\), so any endomorphism of
+\(S\) factoring through a projective is zero. It follows that
+\(\Omega S\) is never stably isomorphic to \(S\). The Tate period of
+\(S\) is exactly two.
+
+For the Auslander--Reiten translate, the minimal projective presentation
+of \(S\) is \(A\xrightarrow{u} A\to S\to0\).
+The transpose \(\operatorname{Tr} S\) is the cokernel of the dual map,
+which under \(\operatorname{Hom}_A(A,A)\cong A\) is again multiplication by
+\(u\). Thus \(\operatorname{Tr} S\cong S\) as right modules, and
+\(\tau S=D\operatorname{Tr} S\cong S\), where \(D=\operatorname{Hom}_k(-,k)\).
+The AR-translation period is one. The two periods already differ in
+the group-algebra block \(kC_3\), refuting the claimed equality.
+
+\paragraph{Block-wide periods.}
+The same example also distinguishes the orders of the two functors on
+the stable category. View \(A\) as a bimodule via the quotient
+\[
+  R=A\otimes_k A^{\mathrm{op}}\cong k[x,y]/(x^3,y^3)
+        \longrightarrow A,\qquad x,y\longmapsto u .
+\]
+In characteristic three, \(z=x-y\) changes coordinates to
+\(R=k[z,y]/(z^3,y^3)\). The quotient is \(R/(z)\) and the alternating
+multiplications by \(z\) and \(z^2\) give an exact bimodule resolution,
+with second syzygy \(z^2R\cong A\). This resolution splits as a complex
+of right \(A\)-modules with its augmentation, since its successive
+kernels are free over \(k[y]/(y^3)\). Tensoring with a left module
+therefore gives a natural two-step projective resolution whose second
+kernel is the original module. The terms are projective because
+\(R\otimes_A M\cong A\otimes_k M\) is free as a left \(A\)-module. Thus
+\(\Omega^2\) is naturally the identity stably. Its order is exactly two
+by the computation on \(S\). For this symmetric algebra the standard
+stable functor formula \(\tau\simeq\Omega^2\) gives order one
+\cite[Corollary IV.8.6]{ARS}.
+
+\paragraph{Lean verification.}
+The Lean project checks the exact kernel and image formulas in
+\(\mathbb F_3^3\), the module maps and the obstruction to a stable
+inverse in degree one. It verifies the resulting unequal periods on
+the two stable isomorphism classes in the syzygy orbit of \(S\).
+The identifications with the group-algebra block and its stable and
+Auslander--Reiten categories are given above.
+
+\begin{thebibliography}{1}
+\bibitem{ARS}
+M. Auslander, I. Reiten, and S. O. Smal{\o},
+\emph{Representation Theory of Artin Algebras},
+Cambridge Studies in Advanced Mathematics 36, Cambridge University Press, 1995.
+\end{thebibliography}
+\end{document}
