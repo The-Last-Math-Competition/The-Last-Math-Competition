@@ -1,0 +1,654 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{color}
+\usepackage{hyperref}
+
+\definecolor{linkblue}{rgb}{0,0,0.55}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=linkblue,
+  citecolor=linkblue,
+  urlcolor=linkblue,
+  pdftitle={A Complete Disproof of Conjecture 00000002223},
+  pdfauthor={Formalized Submission for Conjecture 00000002223}
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Spec}{\operatorname{Spec}}
+\newcommand{\diam}{\operatorname{diam}}
+\newcommand{\dist}{\operatorname{dist}}
+\newcommand{\htop}{\operatorname{ht}}
+\newcommand{\FF}{\mathbb{F}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\NN}{\mathbb{N}}
+
+\title{\textbf{A Complete Disproof of Conjecture 00000002223:\\
+Zero-Divisor Graph Diameter and Prime-Ideal Chains in Amalgamated Duplications}}
+\author{Formalized Submission for Conjecture 00000002223}
+\date{November 24, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture~00000002223 considers the amalgamated duplication $R \bowtie P$ of a
+commutative ring $R$ along a prime ideal $P \in \Spec(R)$ and asserts two clauses:
+(1)~the diameter of its zero-divisor graph $\Gamma(R \bowtie P)$ is at most~$3$, and
+(2)~the spectral condition on ideals attaining diameter~$3$ is given by prime chains of
+length~$2$. While the first clause holds universally by the classical theorem of
+Anderson and Livingston (1999), we disprove the second clause---and hence the
+conjecture---in \emph{both} logical directions (necessity and sufficiency) across every
+standard convention for prime-chain length and ambient spectrum:
+\begin{itemize}
+  \item \textbf{Failure of necessity:} For the $4$-element Boolean ring
+  $R_0 = \FF_2 \times \FF_2$ with prime ideal $P_0 = \{0\} \times \FF_2$---and more
+  generally for the infinite family of pairwise non-isomorphic finite Boolean rings
+  $R^{(m)} = \FF_2^{m+2}$ ($m \ge 0$) along $P^{(m)} = \{f \in \FF_2^{m+2} : f(0) = 0\}$---the
+  zero-divisor graph $\Gamma(R^{(m)} \bowtie P^{(m)})$ has exact diameter~$3$, yet both
+  $R^{(m)}$ and $R^{(m)} \bowtie P^{(m)}$ are Boolean rings of Krull dimension~$0$ whose
+  prime spectra contain \emph{no} strict inclusion $\mathfrak{q}_0 \subsetneq \mathfrak{q}_1$
+  of prime ideals whatsoever (hence neither $1$-edge nor $2$-edge prime chains).
+  \item \textbf{Failure of sufficiency:} For \emph{every} commutative integral domain $D$
+  and \emph{every} nonzero prime ideal $P \in \Spec(D) \setminus \{\{0\}\}$, the
+  zero-divisor graph $\Gamma(D \bowtie P)$ is a complete bipartite graph
+  $K_{|P \setminus \{0\}|, |P \setminus \{0\}|}$ with $|P \setminus \{0\}| \ge 2$, and
+  therefore has exact diameter $2 \neq 3$. In particular, for $D = \FF_2[x, y]$ at the
+  maximal ideal $P = (x, y)$, we prove from first principles that $P$ has \emph{exact}
+  height $\htop(P) = 2$ witnessed by $(0) \subsetneq (x) \subsetneq (x, y)$ (lifting to a
+  prime chain of length~$2$ in $\FF_2[x, y] \bowtie (x, y)$ as well), yet
+  $\diam(\Gamma(\FF_2[x, y] \bowtie (x, y))) = 2 \neq 3$.
+\end{itemize}
+All definitions, positive non-vacuity witnesses, universal structural theorems, and
+disproofs are formally verified from first principles in self-contained Core Lean~4.19.0
+without external dependencies.
+\end{abstract}
+
+\section{Official Problem Statement and Scope of Results}
+
+The official statement of Conjecture~00000002223 (reproduced byte-for-byte in
+\texttt{SOURCE.md}) reads as follows.
+
+\begin{quote}
+\textbf{English.} Definition: Amalgamated duplication is the doubled-copy ring of a prime
+ideal. Conjecture: The diameter of its zero-divisor graph is at most three; and the
+spectral condition on ideals attaining three is given by prime chains of length two.
+(duplicated ring zero-divisor graph diameter three)
+\end{quote}
+
+The accompanying Chinese version states the identical definition and two-clause
+conjecture: defining amalgamated duplication as the doubled-copy ring of a prime ideal,
+and asserting that the diameter of its zero-divisor graph is at most~$3$ while the
+spectral condition on ideals attaining~$3$ is given by prime chains of length~$2$.
+
+In commutative algebra, the \emph{amalgamated duplication} $R \bowtie I$ of a commutative
+ring $R$ along an ideal $I$ was introduced by D'Anna and Fontana~\cite{DAnnaFontana2007,DAnna2007},
+and the \emph{zero-divisor graph} $\Gamma(A)$ on the set $Z^*(A)$ of nonzero zero-divisors
+of a commutative ring $A$ was standardized by Anderson and
+Livingston~\cite{AndersonLivingston1999} (refining Beck's coloring graph~\cite{Beck1988},
+where $0_A$ is an universal vertex forcing diameter at most~$2$ for all rings).
+
+A complete mathematical audit reveals why Conjecture~00000002223 is false and diagnoses
+the exact misconception behind its second clause:
+\begin{enumerate}
+  \item \textbf{Clause~1 is true in full generality:} By Anderson and Livingston's Theorem~2.3
+  (\cite{AndersonLivingston1999}; proved from first principles as Theorem~\ref{thm:al-bound}
+  below), $\dist_{\Gamma(A)}(u, v) \le 3$ for \emph{every} commutative ring $A$ and all
+  $u, v \in Z^*(A)$. Thus $\diam(\Gamma(R \bowtie P)) \le 3$ holds whenever
+  $Z^*(R \bowtie P) \neq \emptyset$.
+  \item \textbf{Clause~2 confuses horizontal prime antichains with vertical prime chains:}
+  In zero-divisor graph theory (Lucas~\cite{Lucas2006}), attaining diameter~$3$ is
+  governed by the existence of \emph{incomparable} annihilator or minimal prime ideals
+  (for instance, $|\operatorname{Min}(R)| \ge 2$ in reduced rings)---a \emph{horizontal
+  antichain} condition in $\Spec(R)$---rather than a \emph{vertical chain}
+  $\mathfrak{q}_0 \subsetneq \mathfrak{q}_1 \subsetneq \mathfrak{q}_2$ of length~$2$.
+  \item \textbf{Both directions of Clause~2 fail under every convention:}
+  To eliminate any possible ambiguity in how Clause~2 is interpreted, we simultaneously
+  refute \emph{necessity} ($\diam = 3 \implies \text{prime chain}$) and \emph{sufficiency}
+  ($\text{prime chain} \implies \diam = 3$) across:
+  \begin{itemize}
+    \item chains in $\Spec(R)$ versus chains in $\Spec(R \bowtie P)$;
+    \item arbitrary prime chains $\mathfrak{q}_0 \subsetneq \mathfrak{q}_1 \subsetneq \mathfrak{q}_2$,
+    chains ending at $P$ ($\htop_R(P) \ge 2$), and \emph{exact} height $\htop_R(P) = 2$;
+    \item standard Krull edge-length~$2$ ($\mathfrak{q}_0 \subsetneq \mathfrak{q}_1 \subsetneq \mathfrak{q}_2$)
+    as well as $1$-indexed vertex-count ``length~$2$'' ($\mathfrak{q}_0 \subsetneq \mathfrak{q}_1$).
+  \end{itemize}
+\end{enumerate}
+
+\section{Preliminaries: Amalgamated Duplication, \texorpdfstring{$\Gamma(A)$}{Gamma(A)}, and Clause~1}
+
+Throughout this paper, every commutative ring $R$ is associative, commutative, and unital
+with $0_R \neq 1_R$. Ring homomorphisms preserve $0$, $1$, $+$, and $\cdot$.
+
+\begin{definition}[Ideals, prime ideals, and prime chains]\label{def:prime-chains}
+Let $R$ be a commutative ring. An \emph{ideal} $I \subseteq R$ is an additive subgroup
+satisfying $r a \in I$ for all $r \in R$ and $a \in I$. An ideal $P \subseteq R$ is a
+\emph{prime ideal} ($P \in \Spec(R)$) if $1_R \notin P$ and $ab \in P \implies a \in P$
+or $b \in P$ for all $a, b \in R$. For $k \in \NN$:
+\begin{enumerate}
+  \item A \emph{prime chain of length~$k$ ending at $P$} is a sequence of prime ideals
+  $\mathfrak{q}_0, \mathfrak{q}_1, \dots, \mathfrak{q}_k \in \Spec(R)$ with
+  $\mathfrak{q}_k = P$ and $k$ strict inclusions
+  $\mathfrak{q}_0 \subsetneq \mathfrak{q}_1 \subsetneq \dots \subsetneq \mathfrak{q}_k = P$.
+  \item We say $\Spec(R)$ \emph{contains a prime chain of length~$k$} if some
+  $P \in \Spec(R)$ admits a prime chain of length~$k$ ending at $P$.
+  \item A prime ideal $P \in \Spec(R)$ has \emph{exact height~$k$}, written $\htop_R(P) = k$,
+  if $P$ admits a prime chain of length~$k$ ending at $P$ and admits no prime chain of
+  length~$k + 1$ (equivalently, by dropping initial terms, no prime chain of any length
+  $m > k$) ending at $P$.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Amalgamated duplication along an ideal~\cite{DAnnaFontana2007}]\label{def:dup}
+Let $R$ be a commutative ring and $P \subseteq R$ an ideal (specifically $P \in \Spec(R)$).
+The \emph{amalgamated duplication} of $R$ along $P$ is the subset of the direct product
+ring $R \times R$ defined by
+\[
+  R \bowtie P := \{(r, s) \in R \times R : s - r \in P\}
+               = \{(r, r + p) \in R \times R : r \in R,\; p \in P\},
+\]
+equipped with componentwise operations $(r_1, s_1) + (r_2, s_2) = (r_1 + r_2, s_1 + s_2)$,
+$(r_1, s_1)(r_2, s_2) = (r_1 r_2, s_1 s_2)$, zero $(0_R, 0_R)$, and identity $(1_R, 1_R)$.
+\end{definition}
+
+\begin{proposition}[Subring closure and lifting of prime chains]\label{prop:dup-ring}
+For any commutative ring $R$ and ideal $P \subseteq R$:
+\begin{enumerate}
+  \item $R \bowtie P$ is a commutative ring with $0_{R \bowtie P} \neq 1_{R \bowtie P}$.
+  \item Let $\pi_1 : R \bowtie P \to R$, $\pi_1(r, s) = r$, be the first projection. For
+  every prime ideal $Q \in \Spec(R)$, $\pi_1^{-1}(Q) = \{(r, s) \in R \bowtie P : r \in Q\}$
+  is a prime ideal of $R \bowtie P$. Moreover, $I \subsetneq J \implies \pi_1^{-1}(I) \subsetneq \pi_1^{-1}(J)$,
+  so every prime chain of length~$k$ in $\Spec(R)$ lifts to a prime chain of length~$k$
+  in $\Spec(R \bowtie P)$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+(1) Clearly $(0, 0), (1, 1) \in R \bowtie P$ since $0 - 0 = 1 - 1 = 0 \in P$, and
+$(0, 0) \neq (1, 1)$ since $0_R \neq 1_R$. Closure under addition and negation follows from
+$(s_1 + s_2) - (r_1 + r_2) = (s_1 - r_1) + (s_2 - r_2) \in P$ and $(-s_1) - (-r_1) = -(s_1 - r_1) \in P$.
+Closure under multiplication holds because
+\[
+  s_1 s_2 - r_1 r_2 = s_1(s_2 - r_2) + r_2(s_1 - r_1) \in P.
+\]
+All commutative ring axioms are inherited coordinatewise from $R \times R$.
+
+(2) Since $\pi_1$ is a ring homomorphism and the diagonal embedding
+$\Delta(r) = (r, r) \in R \bowtie P$ satisfies $\pi_1(\Delta(r)) = r$, $\pi_1$ is
+surjective. Pullbacks along surjective ring homomorphisms preserve primality and strict
+inclusions (if $x \in J \setminus I$, then $(x, x) \in \pi_1^{-1}(J) \setminus \pi_1^{-1}(I)$).
+\end{proof}
+
+\begin{definition}[Zero-divisor graph and graph diameter~\cite{AndersonLivingston1999}]\label{def:zdg}
+Let $A$ be a commutative ring. Its set of \emph{nonzero zero-divisors} is
+\[
+  Z^*(A) := \{x \in A : x \neq 0_A \text{ and } \exists y \in A \setminus \{0_A\},\; x y = 0_A\}.
+\]
+The \emph{zero-divisor graph} $\Gamma(A)$ is the simple undirected graph with vertex set
+$V(\Gamma(A)) = Z^*(A)$, where $u, v \in Z^*(A)$ are adjacent ($u \sim v$) if and only if
+$u \neq v$ and $u v = 0_A$. A \emph{walk of length~$k$} from $u$ to $v$ is a sequence
+$w_0, w_1, \dots, w_k \in Z^*(A)$ with $w_0 = u$, $w_k = v$, and $w_i \sim w_{i+1}$ for
+$0 \le i < k$; it is a \emph{simple path} if $w_0, \dots, w_k$ are pairwise distinct.
+\begin{enumerate}
+  \item We write $\dist_{\Gamma(A)}(u, v) \le d$ if there exists a walk of length
+  $m \le d$ from $u$ to $v$, and $\dist_{\Gamma(A)}(u, v) = d$ if there is a walk of
+  length~$d$ from $u$ to $v$ and no walk of length $m < d$ from $u$ to $v$.
+  \item We say $\Gamma(A)$ \emph{has diameter~$d$}, written $\diam(\Gamma(A)) = d$, if
+  $Z^*(A)$ is nonempty, $\dist_{\Gamma(A)}(u, v) \le d$ for all $u, v \in Z^*(A)$, and
+  $\dist_{\Gamma(A)}(u_0, v_0) = d$ for at least one pair $u_0, v_0 \in Z^*(A)$.
+\end{enumerate}
+\end{definition}
+
+\begin{lemma}[Equivalence with simple paths and uniqueness of diameter]\label{lem:walk-path}
+For any commutative ring $A$:
+\begin{enumerate}
+  \item For all $u, v \in Z^*(A)$ and $d \in \NN$, there exists a walk of length $\le d$
+  from $u$ to $v$ if and only if there exists a duplicate-free simple path of length
+  $\le d$ from $u$ to $v$.
+  \item If $\diam(\Gamma(A)) = d_1$ and $\diam(\Gamma(A)) = d_2$, then $d_1 = d_2$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(1) Every simple path is a walk. Conversely, by induction on walk length~$k$: a walk of
+length~$0$ is a single vertex $[u]$; if a step $u \sim w$ prepends to a simple path
+$w = v_0, \dots, v_m = v$ ($m \le k$) and $u = v_j$ for some $j$, then the suffix
+$v_j, \dots, v_m$ is a simple path from $u$ to $v$ of length $m - j \le m \le k + 1$;
+otherwise $u, v_0, \dots, v_m$ is duplicate-free of length $m + 1 \le k + 1$.
+
+(2) Let $(u_1, v_1)$ achieve $\dist(u_1, v_1) = d_1$. Since $\dist(u_1, v_1) \le d_2$,
+there is a walk from $u_1$ to $v_1$ of length $m \le d_2$. Minimality of $d_1$ forces
+$d_1 \le m \le d_2$; by symmetry $d_2 \le d_1$, whence $d_1 = d_2$.
+\end{proof}
+
+\begin{theorem}[Clause~1: Universal diameter bound~\cite{AndersonLivingston1999}]\label{thm:al-bound}
+For every commutative ring $A$ and all vertices $x, y \in Z^*(A)$, one has
+$\dist_{\Gamma(A)}(x, y) \le 3$. In particular, for every commutative ring $R$ and every
+ideal $P \subseteq R$, every pair of vertices in $\Gamma(R \bowtie P)$ has distance at
+most~$3$.
+\end{theorem}
+\begin{proof}
+Let $x, y \in Z^*(A)$. If $x = y$, the length-$0$ walk $[x]$ shows $\dist(x, y) = 0 \le 3$.
+Assume $x \neq y$. If $xy = 0$, then $x \sim y$ gives $\dist(x, y) = 1 \le 3$. Assume now
+that $x \neq y$ and $xy \neq 0$. Choose $a, b \in A \setminus \{0\}$ such that $xa = 0$
+and $yb = 0$. Since $x, y \neq 0$, both $a, b \in Z^*(A)$. Moreover, $a \neq y$ (else
+$xy = xa = 0$) and $b \neq x$ (else $xy = yx = yb = 0$).
+\begin{itemize}
+  \item \emph{Case~1 ($ab \neq 0$):} Put $c = ab \neq 0$. Then $xc = (xa)b = 0$ and
+  $cy = a(by) = a(yb) = 0$, so $c \in Z^*(A)$. Furthermore, $x \neq c$ (else $xy = cy = 0$)
+  and $c \neq y$ (else $xy = xc = 0$). Thus $x \sim c \sim y$ is a walk of length~$2 \le 3$.
+  \item \emph{Case~2 ($ab = 0$):} If $a = b$, then $x \neq a$, $a \neq y$, and $ay = by = 0$,
+  so $x \sim a \sim y$ has length~$2$. Assume $a \neq b$. If $x = a$, then $xb = ab = 0$,
+  $x \neq b$, and $b \neq y$ (else $xy = ab = 0$), so $x \sim b \sim y$ has length~$2$.
+  If $x \neq a$ and $b = y$, then $ay = ab = 0$, so $x \sim a \sim y$ has length~$2$.
+  Finally, if $x \neq a$ and $b \neq y$, then $x \sim a \sim b \sim y$ is a walk of
+  length~$3$.\qedhere
+\end{itemize}
+\end{proof}
+
+\begin{remark}[Degenerate case $P = \{0\}$ in an integral domain]\label{rem:empty}
+If $R$ is an integral domain and $P = \{0\} \in \Spec(R)$, then
+$R \bowtie \{0\} = \{(r, r) : r \in R\} \cong R$ is an integral domain with
+$Z^*(R \bowtie \{0\}) = \emptyset$. Whenever $P \neq \{0\}$ ($p \in P \setminus \{0\}$),
+$(0, p)$ and $(p, 0)$ are distinct elements of $Z^*(R \bowtie P)$ satisfying
+$(0, p)(p, 0) = (0, 0)$, so $Z^*(R \bowtie P)$ has at least two elements and
+$\diam(\Gamma(R \bowtie P)) \in \{1, 2, 3\}$ is unconditionally well-defined. All our
+counterexamples below have $|Z^*(R \bowtie P)| \ge 6$.
+\end{remark}
+
+\section{Failure of Necessity: Krull-Dimension-Zero Boolean Counterexamples}
+
+We first show that attaining $\diam(\Gamma(R \bowtie P)) = 3$ requires \emph{no} prime
+chains of positive length at all.
+
+\begin{definition}[Boolean rings]\label{def:boolean}
+A commutative ring $B$ is a \emph{Boolean ring} if $a^2 = a$ for all $a \in B$.
+\end{definition}
+
+\begin{theorem}[Boolean spectrum theorem]\label{thm:boolean-spec}
+Let $B$ be a Boolean ring.
+\begin{enumerate}
+  \item If $Q_0, Q_1 \in \Spec(B)$ satisfy $Q_0 \subseteq Q_1$, then $Q_0 = Q_1$.
+  \item Consequently, $\Spec(B)$ contains \emph{no} prime chain of length $k \ge 1$
+  (in particular, neither a $1$-edge chain $Q_0 \subsetneq Q_1$ nor a $2$-edge chain
+  $Q_0 \subsetneq Q_1 \subsetneq Q_2$).
+  \item For every ideal $P \subseteq B$, the amalgamated duplication $B \bowtie P$ is
+  again a Boolean ring, so $\Spec(B \bowtie P)$ likewise contains no prime chain of
+  length $k \ge 1$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+(1) Let $a \in Q_1$. Suppose toward a contradiction that $a \notin Q_0$. Since $B$ is
+Boolean, $a(1 - a) = a - a^2 = 0 \in Q_0$. Primality of $Q_0$ and $a \notin Q_0$ imply
+$1 - a \in Q_0 \subseteq Q_1$. Because $Q_1$ is closed under addition and $a \in Q_1$,
+we obtain $1 = (1 - a) + a \in Q_1$, contradicting $1 \notin Q_1$. Thus $Q_1 \subseteq Q_0$,
+so $Q_0 = Q_1$.
+
+(2) Any prime chain of length $k \ge 1$ truncates (by dropping its first $k - 1$ ideals)
+to a strict inclusion $Q_0 \subsetneq Q_1$ of prime ideals, contradicting~(1).
+
+(3) For any $(r, s) \in B \bowtie P$, $(r, s)^2 = (r^2, s^2) = (r, s)$, so $B \bowtie P$
+is Boolean, and~(2) applies to $B \bowtie P$.
+\end{proof}
+
+\subsection{Minimal \texorpdfstring{$4$}{4}-Element Counterexample \texorpdfstring{$R_0 = \FF_2 \times \FF_2$}{R0 = F2 x F2}}
+
+Consider the $4$-element Boolean ring $R_0 = \FF_2 \times \FF_2$ with componentwise
+addition and multiplication over $\FF_2 = \{0, 1\}$, and let
+\[
+  P_0 := \{0\} \times \FF_2 = \{(0, 0),\, (0, 1)\} \subset R_0.
+\]
+Since $P_0 = \ker(\mathrm{pr}_1 : \FF_2 \times \FF_2 \twoheadrightarrow \FF_2)$ is the
+kernel of a surjective homomorphism onto the field $\FF_2$, $P_0 \in \Spec(R_0)$. Its
+amalgamated duplication is
+\[
+  R_0 \bowtie P_0 = \{((u, v), (u, w)) : u, v, w \in \FF_2\} \cong \FF_2^3,
+\]
+an $8$-element Boolean ring. Removing the zero element $((0, 0), (0, 0))$ and the unit
+$((1, 1), (1, 1))$ leaves the $6$-element zero-divisor set $Z^*(R_0 \bowtie P_0)$ listed in
+Table~\ref{tab:minimal-zdg}.
+
+\begin{table}[htbp]
+\centering
+\caption{Exact structure of the $6$-vertex zero-divisor graph $\Gamma(R_0 \bowtie P_0)$
+($3$-sunlet / net graph).}\label{tab:minimal-zdg}
+\smallskip
+\begin{tabular}{@{}llll@{}}
+\toprule
+Vertex label & Element in $R_0 \bowtie P_0$ & Image in $\FF_2^3$ & Neighbors in $\Gamma(R_0 \bowtie P_0)$ \\
+\midrule
+$a_0$ & $((1, 0), (1, 0))$ & $(1, 0, 0)$ & $b_0,\; c_0,\; x_0$ \quad (degree $3$) \\
+$b_0$ & $((0, 1), (0, 0))$ & $(0, 1, 0)$ & $a_0,\; c_0,\; y_0$ \quad (degree $3$) \\
+$c_0$ & $((0, 0), (0, 1))$ & $(0, 0, 1)$ & $a_0,\; b_0,\; z_0$ \quad (degree $3$) \\
+$x_0$ & $((0, 1), (0, 1))$ & $(0, 1, 1)$ & $a_0$ \quad (leaf, degree $1$) \\
+$y_0$ & $((1, 0), (1, 1))$ & $(1, 0, 1)$ & $b_0$ \quad (leaf, degree $1$) \\
+$z_0$ & $((1, 1), (1, 0))$ & $(1, 1, 0)$ & $c_0$ \quad (leaf, degree $1$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The three weight-$1$ vertices $\{a_0, b_0, c_0\}$ form a triangle $K_3$, and the three
+weight-$2$ vertices $x_0, y_0, z_0$ are degree-$1$ leaves attached to $a_0, b_0, c_0$,
+respectively. Consequently, $x_0$ and $y_0$ are non-adjacent ($x_0 y_0 = c_0 \neq 0$) and
+share no common neighbor ($N(x_0) = \{a_0\} \neq \{b_0\} = N(y_0)$), while
+$x_0 \sim a_0 \sim b_0 \sim y_0$ is a shortest path of length~$3$. Thus
+$\diam(\Gamma(R_0 \bowtie P_0)) = 3$, whereas $\Spec(R_0) = \{P_0,\, \FF_2 \times \{0\}\}$
+and $\Spec(R_0 \bowtie P_0)$ (three maximal-minimal primes) have Krull dimension~$0$.
+
+\subsection{Infinite Pairwise Non-Isomorphic Family \texorpdfstring{$R^{(m)} = \FF_2^{m+2}$}{R(m) = F2\^{}(m+2)}}
+
+To establish that this failure of necessity is not an isolated finite coincidence, we
+extend $(R_0, P_0)$ to an infinite family of pairwise non-isomorphic finite Boolean rings.
+For each integer $m \ge 0$, let
+\[
+  R^{(m)} := \FF_2^{m+2} = \{f : \{0, 1, \dots, m+1\} \to \FF_2\}, \qquad
+  P^{(m)} := \{f \in R^{(m)} : f(0) = 0\}.
+\]
+
+\begin{theorem}[Infinite Boolean counterexample family]\label{thm:boolean-family}
+For every $m \in \NN$:
+\begin{enumerate}
+  \item $R^{(m)}$ is a finite Boolean commutative ring of exact cardinality $|R^{(m)}| = 2^{m+2}$,
+  $P^{(m)}$ is a prime ideal of $R^{(m)}$, and $R^{(m)} \bowtie P^{(m)} \cong \FF_2^{2m+3}$
+  is a finite Boolean ring of exact cardinality $2^{2m+3}$.
+  \item For $m_1 \neq m_2$, neither $R^{(m_1)} \cong R^{(m_2)}$ nor
+  $R^{(m_1)} \bowtie P^{(m_1)} \cong R^{(m_2)} \bowtie P^{(m_2)}$ as rings.
+  \item $\diam(\Gamma(R^{(m)} \bowtie P^{(m)})) = 3$.
+  \item Neither $\Spec(R^{(m)})$ nor $\Spec(R^{(m)} \bowtie P^{(m)})$ contains a prime
+  chain of length $k$ for any $k \ge 1$ (in particular, for $k = 1$ and $k = 2$).
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+(1)--(2) Pointwise operations over $\FF_2$ make $R^{(m)}$ a Boolean ring of size
+$2^{m+2}$, and $P^{(m)} = \ker(\mathrm{ev}_0 : R^{(m)} \twoheadrightarrow \FF_2)$ is
+prime because $\FF_2$ is an integral domain. The map
+$\Phi : R^{(m)} \bowtie P^{(m)} \to \FF_2^{2m+3}$ sending $(f, g)$ (where $g(0) = f(0)$)
+to $(f(0), \dots, f(m+1), g(1), \dots, g(m+1))$ is a bijective ring homomorphism with
+inverse $(h_0, \dots, h_{2m+2}) \mapsto ((h_0, \dots, h_{m+1}), (h_0, h_{m+2}, \dots, h_{2m+2}))$.
+Since $2^{m+2}$ and $2^{2m+3}$ are strictly increasing in $m$, any ring isomorphism
+between distinct members of either family would induce a bijection between finite sets of
+distinct cardinalities, which is impossible by pigeonhole induction.
+
+(3) Define $f_x, f_y, g_1, e_0, e_1, z_0 \in R^{(m)}$ by
+\[
+  f_x(i) = \begin{cases} 0 & i = 0, \\ 1 & i \neq 0, \end{cases} \qquad
+  f_y(i) = \begin{cases} 0 & i = 1, \\ 1 & i \neq 1, \end{cases} \qquad
+  g_1(i) = 1, \qquad z_0(i) = 0,
+\]
+and let $e_0, e_1$ be the indicator functions of $i = 0$ and $i = 1$, respectively. Since
+$m + 2 \ge 2$, indices $0$ and $1$ are distinct in $\{0, \dots, m+1\}$. The four elements
+\[
+  x_m := (f_x, f_x), \qquad y_m := (f_y, g_1), \qquad
+  a_m := (e_0, e_0), \qquad b_m := (e_1, z_0)
+\]
+all belong to $R^{(m)} \bowtie P^{(m)} \setminus \{(0, 0)\}$ (as $f_y(0) = 1 = g_1(0)$
+and $e_1(0) = 0 = z_0(0)$) and satisfy $x_m a_m = 0$, $a_m b_m = 0$, and $b_m y_m = 0$,
+with $x_m \neq a_m$, $a_m \neq b_m$, and $b_m \neq y_m$. Hence $x_m, y_m \in Z^*(R^{(m)} \bowtie P^{(m)})$
+and $x_m \sim a_m \sim b_m \sim y_m$ is a walk of length~$3$.
+
+We check that no walk of length $d < 3$ joins $x_m$ to $y_m$:
+\begin{itemize}
+  \item $d = 0$: $x_m \neq y_m$ because $f_x(0) = 0 \neq 1 = f_y(0)$.
+  \item $d = 1$: $(x_m y_m)_2(1) = f_x(1) g_1(1) = 1 \cdot 1 = 1 \neq 0$, so $x_m y_m \neq 0$.
+  \item $d = 2$: Suppose $w = (u, v) \in Z^*(R^{(m)} \bowtie P^{(m)})$ satisfies
+  $x_m w = 0$ and $w y_m = 0$. From $v \cdot g_1 = 0$ and $g_1 \equiv 1$ we obtain
+  $v = 0$. Since $w \in R^{(m)} \bowtie P^{(m)}$, $u(0) = v(0) = 0$. For every $i \neq 0$,
+  $f_x(i) = 1$ and $(f_x u)(i) = 0$ force $u(i) = 0$. Thus $w = (0, 0)$, contradicting
+  $w \in Z^*(R^{(m)} \bowtie P^{(m)})$.
+\end{itemize}
+Combining $\dist(x_m, y_m) = 3$ with Theorem~\ref{thm:al-bound} yields
+$\diam(\Gamma(R^{(m)} \bowtie P^{(m)})) = 3$.
+
+(4) Immediate from Theorem~\ref{thm:boolean-spec} since $R^{(m)}$ is Boolean.
+\end{proof}
+
+\section{Failure of Sufficiency: Integral Domains and Exact Height-Two Primes}
+
+We next prove that the converse direction of Clause~2 also fails completely: even when
+$P \in \Spec(R)$ has \emph{exact} height~$2$ (with prime chains of length~$2$ in both
+$\Spec(R)$ and $\Spec(R \bowtie P)$), $\Gamma(R \bowtie P)$ need not attain diameter~$3$.
+
+\begin{lemma}[Nonzero proper ideals in integral domains]\label{lem:domain-two-elems}
+Let $D$ be a commutative integral domain and let $P \subsetneq D$ be a proper ideal
+($1_D \notin P$). If $P$ contains a nonzero element $p \neq 0$, then $P$ contains at least
+two distinct nonzero elements $p_1, p_2 \in P \setminus \{0\}$ with $p_1 \neq p_2$.
+\end{lemma}
+\begin{proof}
+If $p + p \neq 0$, take $p_1 = p$ and $p_2 = p + p \in P$; if $p = p + p$, cancellation
+gives $p = 0$, impossible. Assume $p + p = 0$. Could every element of $D$ belong to
+$\{0, 1\}$? If so, $p \neq 0$ forces $p = 1 \in P$, contradicting $1 \notin P$. Hence
+there exists $r \in D$ with $r \neq 0$ and $r \neq 1$. Set $p_1 = p$ and $p_2 = r p \in P$.
+Since $D$ is a domain, $r p \neq 0$; if $p = r p$, then $(r - 1) p = 0$ forces $r = 1$,
+a contradiction. Thus $p_1 \neq p_2$.
+\end{proof}
+
+\begin{theorem}[General integral domain duplication theorem]\label{thm:domain-dup}
+Let $D$ be a commutative integral domain and let $P \in \Spec(D)$ be any nonzero prime
+ideal ($P \neq \{0\}$). Then $Z^*(D \bowtie P)$ partitions into the two disjoint nonempty
+sets
+\[
+  X := \{(0, p) : p \in P \setminus \{0\}\}, \qquad
+  Y := \{(p, 0) : p \in P \setminus \{0\}\},
+\]
+inducing the complete bipartite graph $K_{|P \setminus \{0\}|, |P \setminus \{0\}|}$ with
+$|P \setminus \{0\}| \ge 2$. Consequently, $\diam(\Gamma(D \bowtie P)) = 2 \neq 3$.
+\end{theorem}
+\begin{proof}
+Let $z = (r, s) \in Z^*(D \bowtie P)$, so $z \neq (0, 0)$, $s - r \in P$, and $z w = (0, 0)$
+for some $w = (u, v) \in D \bowtie P \setminus \{(0, 0)\}$. In the integral domain $D$,
+$r u = 0$ and $s v = 0$. If $r \neq 0$ and $s \neq 0$, then $u = v = 0$, contradicting
+$w \neq (0, 0)$. If $r = 0$, then $s \neq 0$ and $s = s - 0 \in P$, so $z \in X$. If
+$s = 0$, then $r \neq 0$ and $-r = 0 - r \in P \implies r \in P$, so $z \in Y$.
+Conversely, for every $p \in P \setminus \{0\}$, $(0, p), (p, 0) \in D \bowtie P \setminus \{(0, 0)\}$
+annihilate one another, so $Z^*(D \bowtie P) = X \sqcup Y$.
+
+By Lemma~\ref{lem:domain-two-elems}, choose $p_1, p_2 \in P \setminus \{0\}$ with
+$p_1 \neq p_2$. Every $x \in X$ and $y \in Y$ satisfy $x \neq y$ and $x y = (0, 0)$, so
+$\dist(x, y) = 1$. Any two distinct elements of $X$ are joined via $(p_1, 0) \in Y$ in~$2$
+steps, and any two distinct elements of $Y$ are joined via $(0, p_1) \in X$ in~$2$ steps;
+hence $\dist(u, v) \le 2$ for all $u, v \in Z^*(D \bowtie P)$. Finally,
+$u_1 = (0, p_1)$ and $u_2 = (0, p_2)$ satisfy $u_1 \neq u_2$ and
+$u_1 u_2 = (0, p_1 p_2) \neq (0, 0)$ (since $D$ is an integral domain), so
+$\dist(u_1, u_2) = 2$. Therefore $\diam(\Gamma(D \bowtie P)) = 2$, and by
+Lemma~\ref{lem:walk-path}(2), $\diam(\Gamma(D \bowtie P)) \neq 3$.
+\end{proof}
+
+\subsection{Exact Height-Two Witness in \texorpdfstring{$\FF_2[x, y]$}{F2[x, y]}}
+
+To certify non-vacuity of all prime-chain predicates and refute sufficiency even under the
+strictest reading $\htop_R(P) = 2$, consider the bivariate polynomial ring
+$D = (\FF_2[y])[x] = \FF_2[x, y]$ (constructed in \texttt{Main.lean} by iterating the
+finitely-supported sequence functor $\mathrm{Poly}(R) = \{f : \NN \to R \mid \exists N,\; \forall k \ge N,\; f(k) = 0\}$
+twice over $\FF_2$) and the three ideals
+\begin{align*}
+  \mathfrak{q}_0 &:= (0), \\
+  \mathfrak{q}_1 &:= (x) = \{f \in \FF_2[x, y] : f(0) = 0_{\FF_2[y]}\}, \\
+  P &:= (x, y) = \{f \in \FF_2[x, y] : (f(0))(0) = 0_{\FF_2}\}.
+\end{align*}
+
+\begin{theorem}[Exact height-two sufficiency counterexample]\label{thm:f2xy}
+In the commutative integral domain $D = \FF_2[x, y]$:
+\begin{enumerate}
+  \item $\mathfrak{q}_0 \subsetneq \mathfrak{q}_1 \subsetneq P$ is a strict chain of prime
+  ideals of length~$2$ ending at $P = (x, y)$, and lifts via Proposition~\ref{prop:dup-ring}(2)
+  to a strict chain of prime ideals of length~$2$ in $\Spec(D \bowtie P)$.
+  \item $P = (x, y)$ has \emph{exact} height $\htop_D(P) = 2$: no strict chain of prime
+  ideals $Q_0 \subsetneq Q_1 \subsetneq Q_2 \subsetneq P$ of length~$3$ ends at $P$.
+  \item Nevertheless, $\diam(\Gamma(D \bowtie P)) = 2 \neq 3$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+(1) Iterating lowest/highest-term degree additivity shows $\FF_2[y]$ and
+$D = (\FF_2[y])[x]$ are integral domains, so $\mathfrak{q}_0 = (0)$ is prime. Since
+$f \mapsto f(0) : D \twoheadrightarrow \FF_2[y]$ and
+$f \mapsto (f(0))(0) : D \twoheadrightarrow \FF_2$ are surjective ring homomorphisms onto
+integral domains, their kernels $\mathfrak{q}_1 = (x)$ and $P = (x, y)$ are prime ideals.
+Strict inclusions hold because $x \in (x) \setminus (0)$ and $y \in (x, y) \setminus (x)$.
+
+(2) Suppose toward a contradiction that $Q_0 \subsetneq Q_1 \subsetneq Q_2 \subsetneq P$
+is a strict chain of prime ideals in $D = R_1[x]$ where $R_1 = \FF_2[y]$. Every polynomial
+$p \in \mathrm{Poly}(R)$ satisfies $p = p(0) + t \cdot \mathrm{shift}(p)$, where $t$ is
+the indeterminate and $(\mathrm{shift}\,p)(k) = p(k+1)$.
+\begin{itemize}
+  \item \emph{Case~A ($y \in Q_2$):} Let $Q \subsetneq P$ be any prime ideal of $D$
+  containing $y$. Note $x \notin Q$: if $x, y \in Q$, then for every $g \in P$, writing
+  $g = g(0) + x\,\mathrm{shift}_x(g)$ and $g(0) = y\,\mathrm{shift}_y(g(0))$ puts
+  $g \in Q$, contradicting $Q \subsetneq P$. By induction on $m \in \NN$, if $f \in Q \subseteq P$,
+  then $f(0) \in y R_1 \subseteq Q$, so $x\,\mathrm{shift}_x(f) = f - f(0) \in Q$;
+  primality of $Q$ and $x \notin Q$ give $\mathrm{shift}_x(f) \in Q$, whence
+  $(f(m))(0) = 0$ for all $m$. Conversely, any $f$ with $(f(m))(0) = 0$ for all $m$
+  factors as $f = y \cdot \tilde{f} \in Q$. Hence $Q = y D$ is uniquely determined! Thus
+  $Q_2 = y D$ and $y \notin Q_1$ (else $Q_1 = y D = Q_2$). Pick $g_0 \in Q_1 \setminus Q_0$
+  ($g_0 \neq 0$) and choose $m_0$ with $g_0(m_0) \neq 0$ in $R_1$. Among all $g \in Q_1$
+  with $g(m_0) \neq 0$, choose one minimizing $d = \deg_y(g(m_0))$. Since
+  $g \in Q_1 \subseteq y D$, $g = y \cdot \tilde{g}$ and $(g(m_0))(0) = 0$, so $d \ge 1$.
+  Primality of $Q_1$ and $y \notin Q_1$ force $\tilde{g} \in Q_1$ with
+  $\deg_y(\tilde{g}(m_0)) = d - 1 < d$, contradicting minimality of $d$.
+
+  \item \emph{Case~B ($y \notin Q_2$):} Let $I_2 = Q_2 \cap R_1 \subseteq P \cap R_1 = y R_1$.
+  Then $I_2$ is a prime ideal of $R_1 = \FF_2[y]$ with $y \notin I_2$. For any
+  $c \in I_2 \subseteq y R_1$, $c = y\,\mathrm{shift}_y(c) \in I_2 \implies \mathrm{shift}_y(c) \in I_2$;
+  induction on $n$ shows $c(n) = 0$ for all $n$, so $I_2 = \{0\}$. Hence
+  $Q_1 \cap R_1 = Q_2 \cap R_1 = \{0\}$. Choose $g \in Q_1 \setminus \{0\}$ (nonempty
+  since $Q_0 \subsetneq Q_1$) of minimal $x$-degree $d_1 \ge 1$ in $Q_1 \setminus \{0\}$,
+  and $h \in Q_2 \setminus \{0\}$ of minimal $x$-degree $d_2 \ge 1$ in $Q_2 \setminus \{0\}$
+  ($d_2 \ge 1$ since $Q_2 \cap R_1 = \{0\}$). Let $c = \mathrm{lead}_x(h) \in R_1 \setminus \{0\}$.
+  By polynomial pseudo-division in $R_1[x]$, $c^k g = q h + r$ with $\deg_x(r) < d_2$ or
+  $r = 0$. Since $r = c^k g - q h \in Q_2$, minimality of $d_2$ forces $r = 0$, so
+  $c^k g = q h \in Q_1$. If $h \notin Q_1$, primality of $Q_1$ gives $q \in Q_1 \setminus \{0\}$
+  with $\deg_x(q) = d_1 - d_2 < d_1$, contradicting minimality of $d_1$. Thus $h \in Q_1$.
+  Now for any $f \in Q_2 \setminus Q_1$, pseudo-dividing $f$ by $h$ yields $c^{k_f} f = q_f h \in Q_1$
+  (again remainder~$0$ by minimality of $d_2$). Since $c^{k_f} \in R_1 \setminus \{0\}$
+  and $Q_1 \cap R_1 = \{0\}$, $c^{k_f} \notin Q_1$, so primality of $Q_1$ forces
+  $f \in Q_1$, a contradiction.
+\end{itemize}
+
+(3) Since $y \in P \setminus \{0\}$ and $D$ is an integral domain, Theorem~\ref{thm:domain-dup}
+gives $\diam(\Gamma(D \bowtie P)) = 2 \neq 3$.
+\end{proof}
+
+\begin{remark}[Mixed-characteristic analogue {$\ZZ[x]$}]
+By Theorem~\ref{thm:domain-dup}, the exact same conclusion holds in mixed characteristic
+for $D = \ZZ[x]$ along the maximal ideal $P = (2, x)$, where $(0) \subsetneq (x) \subsetneq (2, x)$
+has exact height~$2$ and $\diam(\Gamma(\ZZ[x] \bowtie (2, x))) = 2 \neq 3$; bounded
+windows of both $\FF_2[x, y] \bowtie (x, y)$ and $\ZZ[x] \bowtie (2, x)$ are cross-checked
+in \texttt{verify.py}.
+\end{remark}
+
+\section{Formalization in Core Lean 4.19.0 and Verification Audit}
+
+Every definition, positive witness, structural theorem, and refutation in Sections~2--4 is
+formalized from first principles in \texttt{lean/Main.lean} (namespace
+\texttt{Conjecture2223}) using self-contained Core Lean~4.19.0 with
+\texttt{-DwarningAsError=true} and zero external dependencies (\texttt{packages = []}).
+Table~\ref{tab:lean-map} summarizes the correspondence between paper results and
+machine-checked declarations.
+
+\begin{table}[htbp]
+\centering
+\caption{Mapping between mathematical results and Lean~4.19.0 declarations in \texttt{Main.lean}.}\label{tab:lean-map}
+\smallskip
+\footnotesize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.36\textwidth}>{\raggedright\arraybackslash}p{0.60\textwidth}@{}}
+\toprule
+Mathematical Concept / Result & Lean~4 Declaration(s) in \texttt{Conjecture2223} \\
+\midrule
+Commutative rings, ideals, prime ideals, prime chains, exact height &
+\texttt{CommRing}, \texttt{Ideal}, \texttt{IsPrimeIdeal}, \texttt{HasPrimeChainEndingAt},
+\texttt{HasPrimeChainOfLength}, \texttt{HasExactHeight} \\
+\addlinespace[3pt]
+Amalgamated duplication $R \bowtie P$ and lifting of prime chains (Prop.~\ref{prop:dup-ring}) &
+\texttt{AmalgamatedDuplication}, \texttt{mem\_duplication\_iff\_add},
+\texttt{instCommRingAmalgamatedDuplication}, \texttt{lift\_primeChainOfLength} \\
+\addlinespace[3pt]
+Zero-divisor graph $\Gamma(A)$, simple-path equivalence, unique diameter (Lem.~\ref{lem:walk-path}) &
+\texttt{ZeroDivisorVertex}, \texttt{zdgAdj}, \texttt{HasGraphDiameter},
+\texttt{hasGraphDiameter\_unique}, \texttt{exists\_walk\_le\_iff\_exists\_simplePath\_le} \\
+\addlinespace[3pt]
+Clause~1: Universal bound $\dist \le 3$ (Thm.~\ref{thm:al-bound}) &
+\texttt{zeroDivisorGraph\_diameter\_at\_most\_three},
+\texttt{amalgamatedDuplication\_diameter\_at\_most\_three} \\
+\addlinespace[3pt]
+Boolean spectrum theorem (Thm.~\ref{thm:boolean-spec}) &
+\texttt{IsBooleanRing}, \texttt{boolean\_prime\_subset\_eq},
+\texttt{boolean\_no\_prime\_chain\_ge\_one}, \texttt{amalgamatedDuplication\_isBoolean} \\
+\addlinespace[3pt]
+Infinite Boolean family $R^{(m)} = \FF_2^{m+2}$ and non-isomorphism (Thm.~\ref{thm:boolean-family}) &
+\texttt{CounterexampleRingFamily}, \texttt{counterexampleDupFamily\_hasDiameter\_three},
+\texttt{counterexampleRingFamily\_pairwise\_noniso},
+\texttt{counterexampleDupFamily\_pairwise\_noniso} \\
+\addlinespace[3pt]
+Integral domain duplication theorem $\diam = 2$ (Thm.~\ref{thm:domain-dup}) &
+\texttt{domain\_nonzero\_prime\_duplication\_diam\_two},
+\texttt{domain\_chain\_ge\_one\_diam\_two} \\
+\addlinespace[3pt]
+Exact height~$2$ witness $\FF_2[x, y]$ at $P = (x, y)$ (Thm.~\ref{thm:f2xy}) &
+\texttt{Poly}, \texttt{F2XY}, \texttt{f2xy\_idealXY\_hasExactHeight\_two},
+\texttt{f2xy\_dup\_hasDiameter\_two}, \texttt{f2xy\_dup\_not\_hasDiameter\_three} \\
+\addlinespace[3pt]
+Non-vacuity witnesses and refutations across all Clause~2 formulations &
+\texttt{non\_vacuity\_positive\_witnesses},
+\texttt{disproof\_conjecture2223\_iff\_baseChain2},
+\texttt{disproof\_conjecture2223\_iff\_idealChain2},
+\texttt{disproof\_conjecture2223\_iff\_exactHeight2},
+\texttt{disproof\_conjecture2223\_iff\_dupChain2},
+\texttt{disproof\_conjecture2223\_iff\_chain1\_base},
+\texttt{disproof\_conjecture2223\_iff\_chain1\_dup},
+\texttt{disproof\_necessity\_anyStrictChain},
+\texttt{disproof\_sufficiency\_exactHeight2} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+{\sloppy
+All $24$ \texttt{\#print axioms} checks in \texttt{lean/Main.lean} depend exclusively on
+subsets of Lean's standard foundational axioms
+\texttt{\{propext, Classical.choice, Quot.sound\}} (with declaration
+\texttt{hasGraphDiameter\_unique} depending on zero axioms), and \texttt{Main.lean}
+contains zero occurrences of \texttt{sorry}, \texttt{admit}, \texttt{native\_decide},
+custom \texttt{axiom}, \texttt{unsafe}, \texttt{extern}, or \texttt{implemented\_by}.
+Independently, \texttt{verify.py} confirms all finite-ring zero-divisor graphs, diameters,
+and prime spectra together with bounded windows of $\FF_2[x, y] \bowtie (x, y)$ and
+$\ZZ[x] \bowtie (2, x)$.\par}
+
+\begin{thebibliography}{9}
+
+\bibitem{AndersonLivingston1999}
+D.~F. Anderson and P.~S. Livingston,
+\emph{The zero-divisor graph of a commutative ring},
+J.~Algebra \textbf{217} (1999), no.~2, 434--447.
+
+\bibitem{Beck1988}
+I.~Beck,
+\emph{Coloring of commutative rings},
+J.~Algebra \textbf{116} (1988), no.~1, 208--226.
+
+\bibitem{DAnna2007}
+M.~D'Anna,
+\emph{A construction of Gorenstein rings},
+J.~Algebra \textbf{306} (2006), no.~2, 507--519.
+
+\bibitem{DAnnaFontana2007}
+M.~D'Anna and M.~Fontana,
+\emph{An amalgamated duplication of a ring along an ideal: the basic properties},
+J.~Algebra Appl.\ \textbf{6} (2007), no.~3, 443--459.
+
+\bibitem{Lucas2006}
+T.~G. Lucas,
+\emph{The diameter of a zero divisor graph},
+J.~Algebra \textbf{301} (2006), no.~1, 174--193.
+
+\end{thebibliography}
+
+\end{document}
