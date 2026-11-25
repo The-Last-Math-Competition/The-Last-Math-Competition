@@ -1,0 +1,394 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\emergencystretch=1.5em
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\vol}{\mathrm{vol}}
+\newcommand{\inv}{\mathrm{inv}}
+\newcommand{\sgn}{\mathrm{sgn}}
+\newcommand{\codim}{\mathrm{codim}}
+\newcommand{\id}{\mathrm{id}}
+
+\title{\textbf{Refutation and Exact Signature Classification of the\\
+Hodge Double-Star Sign Law and Middle-Dimension Self-Duality\\
+(Conjecture 00000007615)}}
+\author{Formal Mathematical Analysis and Verification}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007615} negatively (\textbf{FALSE}) and establish the exact mathematical classification governing every clause of the statement. Constructing the exterior algebra $\Lambda^p(\R^{r,s})$ ($n = r + s$) and the Hodge star operator $\star : \Lambda^p(\R^{r,s}) \to \Lambda^{n-p}(\R^{r,s})$ from first principles via the intrinsic duality relation $\alpha \wedge \star\beta = \langle \alpha, \beta \rangle\,\vol$, we prove the master double-star identity
+\[
+  \star(\star\omega) = (-1)^{p(n-p)+s}\,\omega \qquad \bigl(\omega \in \Lambda^p(\R^{r,s})\bigr).
+\]
+Testing each clause of Conjecture \texttt{00000007615} against this law exposes three independent mathematical failures:
+(1)~for pseudo-Riemannian metrics with odd negative index $s$ (such as the Lorentzian plane $\R^{1,1}$ or $4$-dimensional Minkowski spacetime $\R^{3,1}$), the sign exponent is $p(n-p)+s$, not a signature-free combination of $(n,p)$ alone;
+(2)~even in positive-definite Riemannian signature ($s=0$), the exponent $p(n-p)$ is the product of \emph{degree} $p$ and \emph{codimension} $n-p$, whereas the literal product of codimensions $(n-p)^2$ fails already on $0$-forms in $\R^1$ and $\R^3$; and
+(3)~even under the most charitable Riemannian reading ($s=0$, exponent $p(n-p)$), middle-dimension self-duality ($\star\omega = \omega$ for $\omega \in \Lambda^m(\R^{2m}) \setminus \{0\}$) holds if and only if $m$ is \emph{even} ($n = 4k$), failing completely at codimension~$1$ ($n=2, m=1$, where $\star^2 = -\id$) and holding first at codimension~$2$ ($n=4, m=2$, Yang--Mills self-dual $2$-forms, where the linear subspace codimension of $\Lambda^2_+$ inside $\Lambda^2$ is $3 \neq 1$). Furthermore, in Lorentzian signature ($s=1$), middle-dimension self-duality holds for \emph{all} odd $m \ge 1$ (e.g.\ $n=6, m=3$ on $\R^{5,1}$ at form codimension $3 \neq 1$ and subspace codimension $10 \neq 1$). All definitions, positive witnesses, and refutations are formalized from first principles in core Lean~4.19.0 with zero external dependencies and verified computationally via exact rational linear algebra.
+\end{abstract}
+
+\section{Problem Statement and Overview of Verdict}
+
+Conjecture \texttt{00000007615} (from \texttt{SOURCE.md}, stated identically in English and Chinese) reads as follows:
+
+\begin{quote}
+\textbf{Definition:} The Hodge star as the duality-map structure.\\
+\textbf{Conjecture:}
+\begin{itemize}
+  \item[(C1)] The double-star sign is a power of minus one with exponent a dimension combination;
+  \item[(C2)] the combination exponent is the product of codimensions; and
+  \item[(C3)] the sign law gives the self-duality condition in middle dimension with condition codimension one.
+\end{itemize}
+\emph{(exact double-star sign law)}
+\end{quote}
+
+In the parallel Chinese formulation, Clause~(C2) specifies that the exponent is the ``product of codimensions'' (\emph{yuwei chengji}), and Clause~(C3) asserts that the sign law yields the middle-dimension self-duality condition and that ``the codimension of the condition is one'' (\emph{tiaojian de yuwei wei yi}).
+
+\medskip
+\noindent\textbf{Main Verdict.} Conjecture \texttt{00000007615} is \textbf{FALSE}. It fails under every consistent mathematical reading---whether the ambient metric is general pseudo-Riemannian or strictly Riemannian ($s=0$), whether ``product of codimensions'' in~(C2) is read literally as $(n-p)^2$ or charitably as the dual-pair product $(n-p)(n-(n-p)) = p(n-p)$, and whether ``condition codimension one'' in~(C3) refers to the form codimension $n - m = 1$ or to the linear-subspace codimension $\codim_{\Lambda^m}(\Lambda^m_+) = 1$ of the self-dual eigenspace $\Lambda^m_+ = \{\omega \in \Lambda^m : \star\omega = \omega\}$.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Clause / Reading} & \textbf{Claimed Law} & \textbf{Exact Mathematical Truth} & \textbf{Status} \\
+\midrule
+(C1)--(C2) Pseudo-Riemannian & $(-1)^{p(n-p)}$ or $(-1)^{(n-p)^2}$ & $(-1)^{p(n-p)+s}$ ($s$ = neg.\ index) & \textbf{False} ($s$ odd) \\
+(C2) Literal Riemannian ($s=0$) & $(-1)^{(n-p)^2}$ & $(-1)^{p(n-p)}$ ($\text{deg}\times\text{codim}$) & \textbf{False} ($\R^3, p=0$) \\
+(C2) Dual-pair ($s=0$ only) & $(-1)^{(n-p)(n-(n-p))}$ & $(-1)^{p(n-p)}$ & True ($s=0$ only) \\
+(C3) Riemannian, $n-m = 1$ & $\Lambda^1_+(\R^2) \neq \{0\}$ ($n=2$) & $\star^2 = -\id$; $\Lambda^1_+(\R^2) = \{0\}$ & \textbf{False} \\
+(C3) Riemannian, $\codim = 1$ & $\dim(\Lambda^m/\Lambda^m_+) = 1$ & $\codim \in \{0, 2, 3, 20, 35, \dots\}$ & \textbf{False} ($\forall\, m \ge 0$) \\
+(C3) Lorentzian ($s=1$, $n=2m$) & Unique to $m=1$ & Holds iff $m$ odd ($m=1,3,\dots$) & \textbf{False} ($\R^{5,1}, m=3$) \\
+\bottomrule
+\end{tabular}
+\caption{Summary of all clauses and natural interpretations of Conjecture \texttt{00000007615}.}
+\label{tab:verdict-summary}
+\end{table}
+
+\section{First-Principles Construction of \texorpdfstring{$\Lambda^p(\R^{r,s})$}{Lambda\^{}p(R\^{}(r,s))} and the Hodge Star}
+
+Let $n = r + s \ge 0$, and let $\R^{r,s}$ denote $\R^n$ equipped with the canonical non-degenerate symmetric bilinear form $g$ of signature $(r,s)$ and standard orientation. In the oriented $g$-orthonormal basis $(e_0, e_1, \dots, e_{n-1})$ of $(\R^{r,s})^*$, the inner product satisfies
+\begin{equation}\label{eq:metric-diag}
+  \langle e_i, e_j \rangle = \eta_i\,\delta_{ij}, \qquad
+  \eta_i = \begin{cases}
+    +1 & \text{if } 0 \le i < r,\\
+    -1 & \text{if } r \le i < r + s = n,
+  \end{cases}
+\end{equation}
+and the canonical orientation volume element is $\vol = e_0 \wedge e_1 \wedge \dots \wedge e_{n-1} \in \Lambda^n(\R^{r,s})$ (with $\vol = 1 \in \Lambda^0$ when $n = 0$).
+
+Let $\mathcal{P}_n = \{0, 1\}^n$ denote the set of subsets $I \subseteq \{0, 1, \dots, n-1\}$ (represented in Lean~4 as Boolean bitmasks $\mathrm{Mask}\,n = (\mathrm{Fin}\,n \to \mathrm{Bool})$). Writing a subset $I$ of cardinality $|I| = p$ in strictly increasing order $I = \{i_1 < i_2 < \dots < i_p\}$, the elementary $p$-blades
+\[
+  e_I = e_{i_1} \wedge e_{i_2} \wedge \dots \wedge e_{i_p} \qquad (|I| = p,\quad e_\emptyset = 1)
+\]
+form a basis of $\Lambda^p(\R^{r,s})$ of dimension $\binom{n}{p}$, and $\{e_I : I \in \mathcal{P}_n\}$ forms a basis of the full exterior algebra $\Lambda(\R^{r,s}) = \bigoplus_{p=0}^n \Lambda^p(\R^{r,s})$ of dimension $2^n$.
+
+\begin{definition}[Inversion Number, Wedge Product, and Gram Form]\label{def:exterior-structures}
+For subsets $I, J \subseteq \{0, \dots, n-1\}$:
+\begin{itemize}
+  \item[(i)] The \emph{shuffle inversion count} is
+  \[
+    \inv(I, J) = \bigl|\{(i, j) \in I \times J : i > j\}\bigr|, \qquad \sgn(I, J) = (-1)^{\inv(I, J)} \in \{+1, -1\}.
+  \]
+  \item[(ii)] The \emph{exterior wedge product} $\wedge : \Lambda(\R^{r,s}) \times \Lambda(\R^{r,s}) \to \Lambda(\R^{r,s})$ is defined bilinearly on basis blades by
+  \[
+    e_I \wedge e_J = \begin{cases}
+      \sgn(I, J)\,e_{I \cup J} & \text{if } I \cap J = \emptyset,\\
+      0 & \text{if } I \cap J \neq \emptyset.
+    \end{cases}
+  \]
+  In particular, $e_i \wedge e_i = 0$ and $e_i \wedge e_j = -e_j \wedge e_i$ for $i \neq j$, and $e_I \wedge e_J \in \Lambda^{p+q}$ whenever $e_I \in \Lambda^p$ and $e_J \in \Lambda^q$.
+  \item[(iii)] The induced \emph{Gram bilinear form} $\langle \cdot, \cdot \rangle$ on $\Lambda(\R^{r,s})$ is orthogonal on distinct basis blades and satisfies
+  \[
+    \langle e_I, e_J \rangle = \eta_I\,\delta_{IJ}, \qquad
+    \eta_I = \prod_{i \in I} \eta_i = (-1)^{|I \cap \{r, \dots, n-1\}|} \in \{+1, -1\}.
+  \]
+\end{itemize}
+\end{definition}
+
+Because all structure constants $\sgn(I, J)$ and $\eta_I$ lie in $\{+1, -1\} \subset \Z$, the entire exterior algebra and Hodge duality structure are defined integrally over $\Z$ and extend by base change $-\otimes_\Z K$ to $K = \R$, $\C$, or any commutative ring.
+
+\begin{theorem}[Existence and Uniqueness of the Hodge Star Duality Map]\label{thm:hodge-duality}
+Let $0 \le p \le n = r + s$. Define the linear operator $\star : \Lambda^p(\R^{r,s}) \to \Lambda^{n-p}(\R^{r,s})$ on basis blades $|I| = p$ by
+\begin{equation}\label{eq:hodge-basis}
+  \star e_I = \eta_I\,\sgn(I, I^c)\,e_{I^c}, \qquad I^c = \{0, \dots, n-1\} \setminus I.
+\end{equation}
+Then for all $\alpha, \beta \in \Lambda^p(\R^{r,s})$,
+\begin{equation}\label{eq:hodge-duality}
+  \alpha \wedge \star\beta = \langle \alpha, \beta \rangle\,\vol,
+\end{equation}
+and for each $\beta \in \Lambda^p(\R^{r,s})$, $\star\beta$ is the \emph{unique} element $\gamma \in \Lambda^{n-p}(\R^{r,s})$ satisfying $\alpha \wedge \gamma = \langle \alpha, \beta \rangle\,\vol$ for all $\alpha \in \Lambda^p(\R^{r,s})$.
+\end{theorem}
+
+\begin{proof}
+Since $|I| = p \implies |I^c| = n - p$, $\star$ maps $\Lambda^p$ into $\Lambda^{n-p}$. Therefore, for $\alpha, \beta \in \Lambda^p$, we have $\alpha \wedge \star\beta \in \Lambda^{p+(n-p)} = \Lambda^n = \mathrm{span}(\vol)$. A pair of subsets $(I, J)$ satisfies $I \cap J = \emptyset$ and $I \cup J = \{0, \dots, n-1\}$ if and only if $J = I^c$. Expanding $\alpha = \sum_{|I|=p} \alpha_I e_I$ and $\beta = \sum_{|K|=p} \beta_K e_K$, only $J = I^c$ (hence $K = (I^c)^c = I$) contributes to the coefficient of $\vol$:
+\[
+  \alpha \wedge \star\beta
+  = \sum_{|I|=p} \alpha_I \bigl(\eta_I\,\sgn(I, I^c)\,\beta_I\bigr) \sgn(I, I^c)\,\vol
+  = \sum_{|I|=p} \eta_I\,\alpha_I\,\beta_I\,\vol
+  = \langle \alpha, \beta \rangle\,\vol,
+\]
+since $\sgn(I, I^c)^2 = (\pm 1)^2 = 1$. For uniqueness, suppose $\gamma = \sum_{|J|=n-p} \gamma_J e_J \in \Lambda^{n-p}$ satisfies $\alpha \wedge \gamma = \langle \alpha, \beta \rangle\,\vol$ for all $\alpha \in \Lambda^p$. For each $J$ with $|J| = n - p$, put $I = J^c$, so $|I| = p$ and $I^c = J$. Testing $\alpha = e_I$ gives $\sgn(I, J)\,\gamma_J\,\vol = e_I \wedge \gamma = \langle e_I, \beta \rangle\,\vol = \eta_I\,\beta_I\,\vol$. Multiplying by $\sgn(I, J) = \sgn(I, J)^{-1}$ yields $\gamma_J = \eta_I\,\sgn(I, I^c)\,\beta_I = (\star\beta)_J$, so $\gamma = \star\beta$.
+\end{proof}
+
+\section{Proof of the Exact Double-Star Sign Law}
+
+We now establish the two combinatorial partition identities that govern $\star \circ \star$.
+
+\begin{lemma}[Complement Shuffle Partition Identity]\label{lem:shuffle-partition}
+For every subset $I \subseteq \{0, \dots, n-1\}$ and its complement $I^c = \{0, \dots, n-1\} \setminus I$,
+\begin{equation}\label{eq:shuffle-sum}
+  \inv(I, I^c) + \inv(I^c, I) = |I| \cdot |I^c|.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Because $I$ and $I^c$ are disjoint, every ordered pair $(i, j) \in I \times I^c$ satisfies $i \neq j$, hence satisfies \emph{exclusively} either $i > j$ or $j > i$. The pairs in $I \times I^c$ with $i > j$ have cardinality $\inv(I, I^c)$, while the pairs in $I \times I^c$ with $j > i$ stand in bijection $(i, j) \leftrightarrow (j, i)$ with the pairs in $I^c \times I$ satisfying $j > i$, which have cardinality $\inv(I^c, I)$. Thus $\inv(I, I^c) + \inv(I^c, I) = |I \times I^c| = |I|\cdot |I^c|$.
+\end{proof}
+
+\begin{lemma}[Complement Metric Sign Identity]\label{lem:metric-sign}
+For a metric of signature $(r, s)$ ($r + s = n$) and every subset $I \subseteq \{0, \dots, n-1\}$,
+\begin{equation}\label{eq:eta-product}
+  \eta_I \cdot \eta_{I^c} = (-1)^s.
+\end{equation}
+\end{lemma}
+
+\begin{proof}
+Since $\{0, \dots, n-1\} = I \sqcup I^c$, we have $\eta_I \cdot \eta_{I^c} = \prod_{i \in I} \eta_i \cdot \prod_{j \in I^c} \eta_j = \prod_{k=0}^{n-1} \eta_k = (+1)^r (-1)^s = (-1)^s$.
+\end{proof}
+
+\begin{theorem}[Master Exact Double-Star Sign Law]\label{thm:double-star}
+Let $(V, g)$ be an oriented $n$-dimensional real inner-product space of signature $(r, s)$ ($r + s = n$, where $s$ is the negative index of inertia). For every integer $0 \le p \le n$ and every $p$-form $\omega \in \Lambda^p(V^*)$,
+\begin{equation}\label{eq:double-star}
+  \star(\star\omega) = (-1)^{p(n-p)+s}\,\omega.
+\end{equation}
+In particular, in positive-definite Riemannian signature ($s = 0$), $\star(\star\omega) = (-1)^{p(n-p)}\,\omega$. Moreover, reversing the orientation ($\vol \mapsto -\vol$) replaces $\star$ by $-\star$ and leaves $\star \circ \star = (-\star) \circ (-\star)$ unchanged.
+\end{theorem}
+
+\begin{proof}
+By linearity and choice of an oriented $g$-orthonormal basis, it suffices to evaluate $\star(\star e_I)$ for a basis blade $e_I$ with $|I| = p$ and $|I^c| = n - p$. Applying~\eqref{eq:hodge-basis} twice and using $(I^c)^c = I$, Lemma~\ref{lem:shuffle-partition}, and Lemma~\ref{lem:metric-sign}, we compute
+\begin{align*}
+  \star(\star e_I)
+  &= \eta_I\,\sgn(I, I^c)\,\star e_{I^c}
+   = \eta_I\,\eta_{I^c}\,\sgn(I, I^c)\,\sgn(I^c, I)\,e_{(I^c)^c} \\
+  &= (-1)^s \cdot (-1)^{\inv(I, I^c) + \inv(I^c, I)}\,e_I
+   = (-1)^{p(n-p)+s}\,e_I. \qedhere
+\end{align*}
+\end{proof}
+
+\begin{remark}[Independence of Convention and Scalar Domain]\label{rem:conventions}
+Some authors define an alternative star $\tilde{\star}$ via $(\tilde{\star}\beta) \wedge \alpha = \langle \alpha, \beta \rangle\,\vol$, which satisfies $\tilde{\star} e_I = (-1)^{p(n-p)}\,\star e_I$. Because $(n-p)p = p(n-p)$, applying $\tilde{\star}$ twice multiplies $\star^2$ by $(-1)^{2p(n-p)} = +1$, yielding the \emph{exact same} double-star identity $\tilde{\star}(\tilde{\star}\omega) = (-1)^{p(n-p)+s}\,\omega$. Likewise, in $4$-dimensional Minkowski spacetime, flipping between mostly-plus signature $(3,1)$ ($s=1$) and mostly-minus signature $(1,3)$ ($s=3$) preserves $(-1)^s = -1$, so $\star^2 = (-1)^{p(4-p)+1}\,\id$ under both conventions. Finally, because $\star$ acts on basis blades purely by signs $\pm 1$, identity~\eqref{eq:double-star} holds verbatim for forms with coefficients in \emph{any} additive group $K$ with involution (formalized as \texttt{hodgeStarK\_hodgeStarK} in Lean~4).
+\end{remark}
+
+\section{Middle-Dimension Self-Duality and Exact Subspace Codimension}
+
+For $\star : \Lambda^p \to \Lambda^{n-p}$ to be an endomorphism ($\Lambda^p = \Lambda^{n-p}$), the ambient dimension must be even, $n = 2m$, and the degree must be the middle dimension $p = m$ (so $n - p = m$). A middle-dimensional form $\omega \in \Lambda^m(\R^{r,s})$ ($r + s = 2m$) is \emph{self-dual} if $\star\omega = \omega$, and we write
+\[
+  \Lambda^m_+(\R^{r,s}) = \bigl\{\omega \in \Lambda^m(\R^{r,s}) : \star\omega = \omega\bigr\} = \ker(\star - \id_{\Lambda^m}).
+\]
+
+\begin{theorem}[Exact Middle-Dimension Self-Duality Criterion]\label{thm:self-dual-iff}
+Let $m \ge 1$ and $r + s = 2m$. Over $\R$ (and over $\Z$, $\Q$, $\C$, or any scalar domain without $2$-torsion), a non-zero self-dual $m$-form $\omega \in \Lambda^m(\R^{r,s}) \setminus \{0\}$ satisfying $\star\omega = \omega$ exists if and only if
+\begin{equation}\label{eq:sd-parity}
+  m^2 + s \equiv 0 \pmod{2} \qquad \Longleftrightarrow \qquad m \equiv s \pmod{2}.
+\end{equation}
+Consequently:
+\begin{itemize}
+  \item[(a)] In \textbf{Riemannian signature} ($s = 0$), non-zero self-dual $m$-forms exist if and only if $m$ is \textbf{even}, i.e.\ $n = 4k$ ($n = 4, 8, 12, \dots$).
+  \item[(b)] In \textbf{Lorentzian signature} ($s = 1$), non-zero self-dual $m$-forms exist if and only if $m$ is \textbf{odd}, i.e.\ $n = 4k + 2$ ($n = 2, 6, 10, \dots$).
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) Suppose $\omega \in \Lambda^m(\R^{r,s})$ satisfies $\star\omega = \omega$. Applying $\star$ and Theorem~\ref{thm:double-star} at $n = 2m$, $p = m$ gives
+\[
+  \omega = \star\omega = \star(\star\omega) = (-1)^{m(2m-m)+s}\,\omega = (-1)^{m^2+s}\,\omega.
+\]
+If $m^2 + s \equiv 1 \pmod 2$, then $(-1)^{m^2+s} = -1$, so $\omega = -\omega$, i.e.\ $2\omega = 0$, forcing $\omega = 0$ in any module without $2$-torsion. Thus $\omega \neq 0$ implies $m^2 + s \equiv 0 \pmod 2$ (and $m^2 \equiv m \pmod 2$).
+
+($\Leftarrow$) Conversely, assume $m \ge 1$ and $m^2 + s \equiv 0 \pmod 2$, so $\star(\star\alpha) = +\alpha$ for all $\alpha \in \Lambda^m(\R^{r,s})$. Choose $I_0 = \{0, \dots, m-1\}$ of size $m$. Because $m \ge 1$, its complement $I_0^c = \{m, \dots, 2m-1\}$ is disjoint from $I_0$, so $I_0^c \neq I_0$. Set $\omega_+ = e_{I_0} + \star e_{I_0} \in \Lambda^m(\R^{r,s})$. Since $\star e_{I_0} = \pm e_{I_0^c}$ and $I_0^c \neq I_0$, the $e_{I_0}$-coefficient of $\omega_+$ is $1 \neq 0$, hence $\omega_+ \neq 0$. Moreover,
+\[
+  \star\omega_+ = \star e_{I_0} + \star(\star e_{I_0}) = \star e_{I_0} + e_{I_0} = \omega_+. \qedhere
+\]
+\end{proof}
+
+To analyze the phrase ``with condition codimension one'' under its linear-algebraic reading as well, we compute the exact codimension $\codim_{\Lambda^m}(\Lambda^m_+) = \dim\Lambda^m - \dim\Lambda^m_+$ (and prove the corresponding split exact sequence over $\Z$).
+
+\begin{theorem}[Split Direct-Sum Decomposition and Exact Subspace Codimension]\label{thm:subspace-codim}
+Let $m \ge 1$ and $r + s = 2m$, and partition the $\binom{2m}{m}$ middle-degree basis masks into
+\[
+  \mathcal{M}_+ = \bigl\{I \subseteq \{0,\dots,2m-1\} : |I|=m,\ 0 \in I\bigr\}, \qquad
+  \mathcal{M}_- = \bigl\{J \subseteq \{0,\dots,2m-1\} : |J|=m,\ 0 \notin J\bigr\},
+\]
+each of cardinality $|\mathcal{M}_+| = |\mathcal{M}_-| = \binom{2m-1}{m} = \frac{1}{2}\binom{2m}{m}$, exchanged bijectively by $I \mapsto I^c$.
+\begin{itemize}
+  \item[(i)] If $m^2 + s \equiv 1 \pmod 2$, then $\Lambda^m_+(\R^{r,s}) = \{0\}$ and $\codim_{\Lambda^m}(\Lambda^m_+) = \binom{2m}{m}$.
+  \item[(ii)] If $m^2 + s \equiv 0 \pmod 2$, define the linear defect map $D : \Lambda^m \to \Z^{\mathcal{M}_-}$ (or $\R^{\mathcal{M}_-}$) by $D(\omega)_J = \omega_J - (\star\omega)_J$ for $J \in \mathcal{M}_-$, and the section $\sigma : \Z^{\mathcal{M}_-} \to \Lambda^m$ supported on $\mathcal{M}_-$ by $\sigma(d)_J = d_J$. Then $\ker D = \Lambda^m_+$ and $D \circ \sigma = \id$, giving a split short exact sequence
+  \[
+    0 \longrightarrow \Lambda^m_+ \longrightarrow \Lambda^m \xrightarrow{\;D\;} \Z^{\mathcal{M}_-} \longrightarrow 0
+  \]
+  already over $\Z$. In particular, $\dim\Lambda^m_+ = \codim_{\Lambda^m}(\Lambda^m_+) = \binom{2m-1}{m} = \frac{1}{2}\binom{2m}{m}$.
+\end{itemize}
+\end{theorem}
+
+\begin{proof}
+Part~(i) is immediate from Theorem~\ref{thm:self-dual-iff}. For~(ii), clearly $\star\omega = \omega \implies D(\omega) = 0$. Conversely, suppose $D(\omega) = 0$, so $\omega_J = (\star\omega)_J$ for all $J \in \mathcal{M}_-$. For any $K \in \mathcal{M}_+$, we have $K^c \in \mathcal{M}_-$, so $\omega_{K^c} = (\star\omega)_{K^c}$. Using $\star(\star\omega) = \omega$, we deduce
+\[
+  (\star\omega)_K = \eta_{K^c}\sgn(K^c, K)\,\omega_{K^c} = \eta_{K^c}\sgn(K^c, K)\,(\star\omega)_{K^c} = (\star(\star\omega))_K = \omega_K,
+\]
+so $\star\omega = \omega$ everywhere and $\ker D = \Lambda^m_+$. Finally, for any $d \in \Z^{\mathcal{M}_-}$ and $J \in \mathcal{M}_-$, we have $J^c \in \mathcal{M}_+$, so $\sigma(d)_{J^c} = 0$ and $(\star\sigma(d))_J = 0$; hence $D(\sigma(d))_J = d_J - 0 = d_J$.
+\end{proof}
+
+\begin{corollary}[Subspace Codimension One]\label{cor:codim-one}
+Let $m \ge 1$ and $r + s = 2m$. Then
+\[
+  \codim_{\Lambda^m}\bigl(\Lambda^m_+(\R^{r,s})\bigr) = 1
+  \quad\Longleftrightarrow\quad
+  m = 1 \text{ and } s \text{ is odd}
+\]
+(for instance, on the Lorentzian plane $\R^{1,1}$). In Riemannian signature ($s = 0$), the subspace codimension $\codim_{\Lambda^m}(\Lambda^m_+)$ of $\Lambda^m_+(\R^{2m})$ never equals~$1$ for \emph{any} integer $m \ge 0$, taking values $0, 2, 3, 20, 35, \dots$ for $m = 0, 1, 2, 3, 4, \dots$.
+\end{corollary}
+
+\begin{proof}
+For $m = 1$, $\binom{2}{1} = 2 \neq 1$ when $1 + s$ is odd ($s$ even), and $\binom{1}{1} = 1$ when $1 + s$ is even ($s$ odd). For $m \ge 2$, elementary Pascal inequalities give $\binom{2m}{m} > \binom{2m-1}{m} \ge 2m - 1 \ge 3 > 1$. For $m = 0$ and $s = 0$, $\star 1 = 1$ on $\Lambda^0(\R^0)$, so $\codim_{\Lambda^0}(\Lambda^0_+) = 1 - 1 = 0 \neq 1$.
+\end{proof}
+
+\section{Clause-by-Clause Refutation and Explicit Non-Vacuity Witnesses}
+
+We exhibit explicit minimal counterexamples refuting each false claim of Conjecture \texttt{00000007615}, paired with explicit positive self-dual witnesses confirming non-vacuity of the true theory.
+
+\begin{proposition}[Refutation of Signature-Free Exponents in Pseudo-Riemannian Geometry]\label{prop:refute-pseudo}
+Any double-star formula whose exponent depends only on $(n, p)$ and omits the negative metric index $s$---in particular $(-1)^{p(n-p)}$---is false for odd $s$:
+\begin{itemize}
+  \item[(a)] \textbf{Lorentzian plane $\R^{1,1}$ ($n=2, r=1, s=1$, $p=0$):} Since $\langle 1, 1 \rangle = +1$ and $\langle e_0 \wedge e_1, e_0 \wedge e_1 \rangle = (+1)(-1) = -1$, we have $\star 1 = e_0 \wedge e_1$ and $\star(e_0 \wedge e_1) = -1$, so
+  \[
+    \star(\star 1) = -1 \neq +1 = (-1)^{0 \cdot (2 - 0)}\cdot 1.
+  \]
+  \item[(b)] \textbf{$4$D Minkowski spacetime $\R^{3,1}$ ($n=4, r=3, s=1$, $p=2$):} On $\omega = e_0 \wedge e_1 \in \Lambda^2(\R^{3,1})$, $\star(e_0 \wedge e_1) = e_2 \wedge e_3$ and $\star(e_2 \wedge e_3) = (-1)\cdot(+1)\,e_0 \wedge e_1 = -e_0 \wedge e_1$, so
+  \[
+    \star\bigl(\star(e_0 \wedge e_1)\bigr) = -(e_0 \wedge e_1) \neq +(e_0 \wedge e_1) = (-1)^{2(4-2)}(e_0 \wedge e_1).
+  \]
+\end{itemize}
+\end{proposition}
+
+\begin{proposition}[Refutation of Literal ``Product of Codimensions'' in Riemannian Geometry]\label{prop:refute-codim-sq}
+In an $n$-dimensional space, a $p$-form has degree $p$ and codimension $n - p$. The literal product of two codimensions $(n - p)(n - p) = (n - p)^2$ disagrees with $p(n - p)$ whenever $n$ is odd and $p$ is even. Specifically, on Euclidean $\R^3$ ($n = 3, r = 3, s = 0$) at degree $p = 0$, $\star 1 = e_0 \wedge e_1 \wedge e_2$ and $\star(e_0 \wedge e_1 \wedge e_2) = +1$, so
+\[
+  \star(\star 1) = +1 \neq -1 = (-1)^{(3-0)(3-0)}\cdot 1.
+\]
+\end{proposition}
+
+\begin{proposition}[Refutation of Middle-Dimension Self-Duality at Codimension One and Positive Witnesses]\label{prop:refute-clause3}
+Clause~(C3) fails under every reading of signature and codimension:
+\begin{itemize}
+  \item[(a)] \textbf{Failure at Riemannian codimension $1$ ($\R^2$, $n=2, p=1$):} On $\Lambda^1(\R^{2,0})$, $\star e_0 = e_1$ and $\star e_1 = -e_0$, so $\star(\star\omega) = -\omega$. For $\omega = a e_0 + b e_1$, $\star\omega = \omega$ yields $-b = a$ and $a = b$, hence $a = b = 0$. Thus $\Lambda^1_+(\R^2) = \{0\}$ (and over $\C$, $\ker(\star - \id) = \{0\}$ as well since $+1 \notin \{\pm i\}$).
+  \item[(b)] \textbf{Positive Witness 1 ($4$D Riemannian Yang--Mills self-dual $2$-form, codimension $\neq 1$):} On Euclidean $\R^{4,0}$ ($n = 4, p = 2$), define
+  \[
+    \omega_{\mathrm{YM}} = e_0 \wedge e_1 + e_2 \wedge e_3 \in \Lambda^2(\R^{4,0}) \setminus \{0\}.
+  \]
+  Since $\star(e_0 \wedge e_1) = e_2 \wedge e_3$ and $\star(e_2 \wedge e_3) = e_0 \wedge e_1$, we have $\star\omega_{\mathrm{YM}} = \omega_{\mathrm{YM}}$. Here the form codimension is $4 - 2 = 2 \neq 1$, and $\codim_{\Lambda^2}(\Lambda^2_+) = \binom{3}{2} = 3 \neq 1$. By Theorem~\ref{thm:self-dual-iff}(a) and Corollary~\ref{cor:codim-one}, \emph{every} Riemannian space admitting non-zero self-dual forms in positive dimension has form codimension $m \ge 2 \neq 1$ and subspace codimension $\binom{2m-1}{m} \ge 3 \neq 1$.
+  \item[(c)] \textbf{Positive Witnesses 2 and 3 (Lorentzian $\R^{1,1}$ and $\R^{5,1}$):} On $\R^{1,1}$ ($n=2, p=1$), $\omega_{\mathrm{Lor},2} = e_0 + e_1 \neq 0$ satisfies $\star(e_0 + e_1) = e_1 + e_0 = \omega_{\mathrm{Lor},2}$ (form codimension $1$, subspace codimension $1$), \emph{but} on $\R^{1,1}$ Clauses~(C1)--(C2) fail ($\star^2 = (-1)^{p(2-p)+1}\id$, so $(-1)^{1 \cdot 1} = -1$ predicts the opposite sign!). Moreover, even with the corrected Lorentzian law $(-1)^{p(n-p)+1}$, self-duality is \emph{not} restricted to codimension~$1$: on $\R^{5,1}$ ($n = 6, p = 3$),
+  \[
+    \omega_{\mathrm{Lor},6} = e_0 \wedge e_1 \wedge e_2 + e_3 \wedge e_4 \wedge e_5 \in \Lambda^3(\R^{5,1}) \setminus \{0\}
+  \]
+  satisfies $\star\omega_{\mathrm{Lor},6} = \omega_{\mathrm{Lor},6}$ with form codimension $6 - 3 = 3 \neq 1$ and subspace codimension $\binom{5}{3} = 10 \neq 1$.
+\end{itemize}
+\end{proposition}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}cccccccc@{}}
+\toprule
+$n = 2m$ & $m$ & Signature $(r,s)$ & $\star^2$ on $\Lambda^m$ & $\dim\Lambda^m$ & $\dim\Lambda^m_+$ & Form codim $n-m$ & Subspace codim \\
+\midrule
+$0$ & $0$ & $(0,0)$ & $+\id$ & $1$ & $1$ & $0$ & $0$ \\
+$2$ & $1$ & $(2,0)$ & $-\id$ & $2$ & $0$ & $1$ & $2$ \\
+$2$ & $1$ & $(1,1)$ & $+\id$ & $2$ & $1$ & $1$ & $1$ \\
+$4$ & $2$ & $(4,0)$ & $+\id$ & $6$ & $3$ & $2$ & $3$ \\
+$4$ & $2$ & $(3,1)$ & $-\id$ & $6$ & $0$ & $2$ & $6$ \\
+$6$ & $3$ & $(6,0)$ & $-\id$ & $20$ & $0$ & $3$ & $20$ \\
+$6$ & $3$ & $(5,1)$ & $+\id$ & $20$ & $10$ & $3$ & $10$ \\
+$8$ & $4$ & $(8,0)$ & $+\id$ & $70$ & $35$ & $4$ & $35$ \\
+$8$ & $4$ & $(7,1)$ & $-\id$ & $70$ & $0$ & $4$ & $70$ \\
+\bottomrule
+\end{tabular}
+\caption{Exact middle-dimension Hodge star invariants across Riemannian ($s=0$) and Lorentzian ($s=1$) spaces for $0 \le n \le 8$, verified both in Lean~4 and in \texttt{verify.py}.}
+\label{tab:middle-dim}
+\end{table}
+
+\section{Formal Verification in Lean 4.19.0 and Computational Checks}
+
+The entire mathematical development is formalized in core Lean~4 (\texttt{leanprover/lean4:v4.19.0}) inside \texttt{lean/} with \texttt{moreLeanArgs = ["-DwarningAsError=true"]}, zero external dependencies, and zero \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, or custom axioms. The library comprises three modules:
+\begin{itemize}
+  \item \texttt{Basic.lean}: Bitmask combinatorics on $\mathrm{Fin}\,n \to \mathrm{Bool}$, subset cardinality and complements, explicit ordered-pair inversion equivalence, the complement shuffle partition identity (Lemma~\ref{lem:shuffle-partition}), and pseudo-Riemannian metric signature products (Lemma~\ref{lem:metric-sign}).
+  \item \texttt{ExteriorHodge.lean}: Exterior algebra $\Lambda(\R^{r,s})$, graded wedge product and $1$-form anticommutativity, Gram inner product, existence and uniqueness of the Hodge duality map (Theorem~\ref{thm:hodge-duality}), the exact double-star law (Theorem~\ref{thm:double-star}), and the arbitrary scalar-domain generalization (Remark~\ref{rem:conventions}).
+  \item \texttt{ConjectureAnalysis.lean}: Middle-dimension self-duality criterion (Theorem~\ref{thm:self-dual-iff}), split exact defect decomposition (Theorem~\ref{thm:subspace-codim}), exact codimension-one classification (Corollary~\ref{cor:codim-one}), explicit non-vacuity witnesses, clause-level counterexamples, and bundled conjecture negations under all three readings.
+\end{itemize}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Paper Result} & \textbf{Module} & \textbf{Primary Lean 4 Declaration} \\
+\midrule
+Lemma~\ref{lem:shuffle-partition} (shuffle partition) & \texttt{Basic} & \texttt{invCount\_add\_invCount\_comp} \\
+Lemma~\ref{lem:metric-sign} (metric sign product) & \texttt{Basic} & \texttt{etaSign\_mul\_etaSign\_comp} \\
+Theorem~\ref{thm:hodge-duality} (wedge duality) & \texttt{ExteriorHodge} & \texttt{hodgeStar\_wedge\_duality} \\
+Theorem~\ref{thm:hodge-duality} (uniqueness of $\star$) & \texttt{ExteriorHodge} & \texttt{hodgeStar\_unique} \\
+Theorem~\ref{thm:double-star} (master double-star) & \texttt{ExteriorHodge} & \texttt{hodgeStar\_hodgeStar\_sigOfRS} \\
+Remark~\ref{rem:conventions} (arbitrary scalar $K$) & \texttt{ExteriorHodge} & \texttt{hodgeStarK\_hodgeStarK} \\
+Theorem~\ref{thm:self-dual-iff} (self-duality criterion) & \texttt{ConjectureAnalysis} & \texttt{exists\_nonzero\_selfDual\_iff} \\
+Theorem~\ref{thm:subspace-codim} (split exact defect) & \texttt{ConjectureAnalysis} & \texttt{isSelfDual\_iff\_sdDefect\_zero} \\
+Corollary~\ref{cor:codim-one} ($\codim = 1$ obstruction) & \texttt{ConjectureAnalysis} & \texttt{riemannian\_selfDualSubspaceCodim\_ne\_one} \\
+Prop.~\ref{prop:refute-pseudo} ($\R^{1,1}$ \& $\R^{3,1}$) & \texttt{ConjectureAnalysis} & \texttt{refute\_sigFree\_minkowski4\_deg2} \\
+Prop.~\ref{prop:refute-codim-sq} ($\R^3$, $(n-p)^2$) & \texttt{ConjectureAnalysis} & \texttt{refute\_codimProduct\_riem3\_deg0} \\
+Prop.~\ref{prop:refute-clause3}(a) ($\R^2$ codim-$1$ failure) & \texttt{ConjectureAnalysis} & \texttt{refute\_riemannian\_codim1\_selfDual} \\
+Prop.~\ref{prop:refute-clause3}(b) ($4$D Yang--Mills) & \texttt{ConjectureAnalysis} & \texttt{ymSelfDual2Form\_selfDual} \\
+Prop.~\ref{prop:refute-clause3}(c) ($6$D Lorentzian) & \texttt{ConjectureAnalysis} & \texttt{lor6SelfDual3Form\_selfDual} \\
+Full Conjecture Disproofs & \texttt{ConjectureAnalysis} & \texttt{not\_Conjecture7615\_CharitableRiemannian} \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical theorems and Lean 4.19.0 formal declarations.}
+\label{tab:lean-map}
+\end{table}
+
+Independently, \texttt{verify.py} solves the intrinsic linear duality equations $e_A \wedge (\star e_B) = \langle e_A, e_B \rangle\,\vol$ over $\Q$ via exact Gauss--Jordan elimination across all $204$ spaces $(n, r, s, p)$ for $0 \le n \le 7$, confirms exact agreement with~\eqref{eq:hodge-basis}, verifies~\eqref{eq:double-star} and orientation-reversal invariance across all $285$ spaces for $0 \le n \le 8$ ($4{,}097$ basis blades), checks $SO^+(1,1)$ Lorentz boost invariance, and computes exact rational matrix ranks of $\star - I$ in middle dimensions $0 \le n \le 8$.
+
+\begin{thebibliography}{9}
+\bibitem{BaezMuniain}
+J.~Baez and J.~P.~Muniain, \emph{Gauge Fields, Knots and Gravity}, Series on Knots and Everything, vol.~4, World Scientific, 1994.
+
+\bibitem{Flanders}
+H.~Flanders, \emph{Differential Forms with Applications to the Physical Sciences}, Dover Publications, 1989.
+
+\bibitem{ONeill}
+B.~O'Neill, \emph{Semi-Riemannian Geometry With Applications to Relativity}, Pure and Applied Mathematics, vol.~103, Academic Press, 1983.
+
+\bibitem{Warner}
+F.~W.~Warner, \emph{Foundations of Differentiable Manifolds and Lie Groups}, Graduate Texts in Mathematics, vol.~94, Springer, 1983.
+\end{thebibliography}
+
+\end{document}
