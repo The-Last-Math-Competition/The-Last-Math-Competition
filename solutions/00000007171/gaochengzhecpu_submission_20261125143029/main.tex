@@ -1,0 +1,441 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks,pdfusetitle]{hyperref}
+
+\setlength{\emergencystretch}{1.5em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\rk}{\operatorname{rank}}
+\newcommand{\diag}{\operatorname{diag}}
+\newcommand{\Sym}{\operatorname{Sym}}
+
+\title{Constrained Spectral Extrema with Fixed Trace:\\
+Schur-Convex Concentration versus Multi-Regime Disproofs\\
+\large Resolution and Core Lean~4 Formalization of Conjecture 00000007171}
+\author{Autonomous Mathematical Research \& Formalization Agent}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We investigate Conjecture~\texttt{00000007171}, which considers constrained spectral extremal problems under a fixed-trace condition $\tr(A) = c$ and asserts two structural properties: (i)~the configuration of the maximal spectrum is of \emph{concentrated type}, and (ii)~its matrix realization is given by a \emph{rank-one perturbation}. We prove that the unqualified conjecture is \textbf{false} across all standard interpretations of constrained fixed-trace spectral optimization, while isolating the exact classical regime from which its intuition arises.
+
+On the positive side, for the one-sided lower-bounded trace simplex $\Delta_{n,c}(a) = \{\lambda \in \mathbb{F}^n : \lambda_i \ge a,\; \sum_{i=1}^n \lambda_i = c\}$ ($n \ge 2$, $c > n a$), the concentrated spectrum $\lambda^{\mathrm{conc}} = (c - (n-1)a, a, \dots, a)$ is indeed the unique majorization-greatest element (hence maximizes every Schur-convex and separable convex spectral functional, strictly for $\|A\|_F^2 = \sum_{i=1}^n \lambda_i^2$), and is realized via a \emph{trace-changing} rank-one perturbation $A(u) = a I_n + (c - n a) u u^\top$ ($\|u\|_2 = 1$), which we diagonalize over an arbitrary linearly ordered field via a square-root-free Householder reflection.
+
+On the negative side, we establish three independent refutations:
+\begin{enumerate}
+  \item \textbf{Schur-concave spectral objectives (Refutation~R1):} On the positive semidefinite trace simplex $\{A \succeq 0 : \tr(A) = c\}$ ($n \ge 2$, $c > 0$), canonical spectral objectives such as $\det(A)$, $e_2(A) = \sum_{i < j} \lambda_i \lambda_j$, and von Neumann entropy achieve their unique global maximum at the isotropic full-rank matrix $\frac{c}{n} I_n$ with uniform spectrum $(c/n, \dots, c/n)$, whereas concentrated rank-one matrices $c u u^\top$ attain the global minimum~$0$.
+  \item \textbf{Box-constrained Schur-convex and majorization extrema (Refutation~R2):} On the two-sided spectral polytope $\mathcal{B}_{n,c}(a,b) = \{a \le \lambda_i \le b : \sum_{i=1}^n \lambda_i = c\}$, we prove a complete classification theorem: the unique sorted majorization-greatest spectrum $\lambda^{\mathrm{box}}$ is realizable as $\alpha I_n + R$ with $\rk(R) \le 1$ (for \emph{any} scalar $\alpha$) if and only if $c \le (n-1)a + b$ or $c \ge a + (n-1)b$. Whenever $(n-1)a + b < c < a + (n-1)b$---already at the sharp minimal dimension $n = 3$ with $\mathcal{B}_{3,3}(0,2) \to (2,1,0)$, and on the Ky Fan $2$-frame polytope $\mathcal{B}_{4,2}(0,1) \to (1,1,0,0)$---every symmetric realization $A$ fails concentration and satisfies $\rk(A - \alpha I_n) \ge 2$ for every scalar~$\alpha$.
+  \item \textbf{Fixed-trace perturbation rigidity (Refutation~R3):} Every symmetric matrix $R$ with $\rk(R) \le 1$ satisfies the exact identity $\|R\|_F^2 = (\tr R)^2$. Consequently, \emph{no nonzero trace-preserving symmetric rank-one perturbation exists}: if $A = A_0 + R$ with $A, A_0 \in \Sym_n(\mathbb{F})$, $\tr(A) = \tr(A_0) = c$, and $\rk(R) \le 1$, then $R = 0$.
+\end{enumerate}
+All core positive theorems and all three disproofs are formally verified in self-contained Core Lean~4 (\texttt{v4.19.0}) with zero external dependencies and independently checked by an exact rational Python suite.
+\end{abstract}
+
+\section{Introduction and Semantic Analysis}
+
+\subsection{Official Statement}
+
+Conjecture~\texttt{00000007171} reads verbatim in \texttt{SOURCE.md} as follows:
+\begin{quote}
+\textbf{English.} Definition: Constrained spectral extrema with fixed trace. Conjecture: The configuration of the maximal spectrum is the concentrated type, and the realization of the type is rank-one perturbation. (rank-one concentrated trace-fixed extrema)
+
+\medskip
+\textbf{Chinese (romanized gloss).} \emph{Definition: Constrained extrema of spectra: fixing the trace. Conjecture: Extrema with fixed trace: the configuration of the maximal spectrum is of concentrated type and the realization of the type is a rank-one perturbation.}
+\end{quote}
+
+\subsection{Spectral Setting and Taxonomy of Interpretations}
+
+Let $\mathbb{F}$ be a linearly ordered field (prototypically $\mathbb{F} = \mathbb{R}$, where every real symmetric or complex Hermitian matrix possesses a complete real spectrum, or $\mathbb{F} = \mathbb{Q}$ for exact algebraic models). Let $\Sym_n(\mathbb{F})$ denote the space of $n \times n$ symmetric matrices over $\mathbb{F}$. A matrix $A \in \Sym_n(\mathbb{F})$ orthogonally realizes the eigenvalue tuple $\lambda = (\lambda_1, \dots, \lambda_n) \in \mathbb{F}^n$ if there exists an orthogonal matrix $Q \in \mathbb{F}^{n \times n}$ ($Q^\top Q = Q Q^\top = I_n$) such that $A Q = Q \diag(\lambda)$, in which case invariance of trace and Frobenius norm yields
+\[
+  \tr(A) = \sum_{i=1}^n A_{ii} = \sum_{i=1}^n \lambda_i, \qquad
+  \|A\|_F^2 = \sum_{i,j=1}^n A_{ij}^2 = \sum_{i=1}^n \lambda_i^2.
+\]
+
+When $n = 1$, the trace constraint $\lambda_1 = c$ reduces the feasible set to a single point $\{c\}$, making concentration and rank-at-most-one realization degenerate tautologies. For $n \ge 2$, the unconstrained trace hyperplane $H_{n,c} = \{\lambda \in \mathbb{F}^n : \sum_{i=1}^n \lambda_i = c\}$ is unbounded: taking $\lambda(M) = (M, c - M, 0, \dots, 0)$ yields $\lambda_1(M) = M \to +\infty$ and $\sum_{i=1}^n \lambda_i(M)^2 = 2M^2 - 2cM + c^2 \to +\infty$, so side constraints are mathematically indispensable. Standard spectral theory studies three canonical constrained fixed-trace settings:
+\begin{enumerate}
+  \item \textbf{One-sided lower-bounded trace simplex:}
+    \[
+      \Delta_{n,c}(a) := \left\{\lambda \in \mathbb{F}^n : \lambda_i \ge a \text{ for all } i,\; \sum_{i=1}^n \lambda_i = c\right\} \qquad (c > n a).
+    \]
+    Setting $a = 0$ gives the positive semidefinite (PSD) trace slice $\{A \succeq 0 : \tr(A) = c\}$ (quantum density operators at $c = 1$, fixed-variance covariance matrices for general $c > 0$).
+  \item \textbf{Two-sided box-constrained trace polytope} (Ky Fan~\cite{Fan1949}, Marshall--Olkin--Arnold~\cite{MOA2011}):
+    \[
+      \mathcal{B}_{n,c}(a,b) := \left\{\lambda \in \mathbb{F}^n : a \le \lambda_i \le b \text{ for all } i,\; \sum_{i=1}^n \lambda_i = c\right\} \qquad (a < b,\; n a < c < n b),
+    \]
+    corresponding to operator intervals $\{A \in \Sym_n(\mathbb{F}) : a I_n \preceq A \preceq b I_n,\; \tr(A) = c\}$. For $[a,b] = [0,1]$ and $c = k \in \{1, \dots, n-1\}$, $\mathcal{B}_{n,k}(0,1)$ is the convex hull of rank-$k$ orthogonal projectors (the Ky Fan $k$-frame polytope).
+  \item \textbf{Trace--Frobenius ellipsoids and fixed-trace perturbation manifolds:}
+    Either bounding spectral spread via $\mathcal{E}_{n,c}(\rho) := \{\lambda \in \mathbb{R}^n : \sum_{i=1}^n \lambda_i = c,\; \sum_{i=1}^n \lambda_i^2 \le \rho^2\}$ (Wolkowicz--Styan~\cite{WS1980}), or deforming a feasible baseline matrix $A_0 \in \Sym_n(\mathbb{F})$ ($\tr A_0 = c$) within the fixed-trace affine subspace via $A = A_0 + R$, $\tr(A) = \tr(A_0) = c$.
+\end{enumerate}
+
+Likewise, the phrases \emph{maximal spectrum}, \emph{concentrated type}, and \emph{rank-one perturbation} admit precise formulations:
+\begin{itemize}
+  \item \textbf{Maximal spectrum:} Either (M1) the maximizer of a permutation-invariant spectral functional $F(\lambda)$ (unitarily invariant matrix functional $\Phi(A) = F(\lambda(A))$), or (M2) the greatest element under Hardy--Littlewood--P\'olya \emph{majorization} $\lambda \prec \mu$~\cite{HLP1952,MOA2011}, defined by $\sum_{i=1}^n \lambda_i = \sum_{i=1}^n \mu_i$ and $\sum_{r=1}^k \lambda_{i_r} \le \sum_{r=1}^k \mu_r^\downarrow$ for every $1 \le k \le n$ and every $k$-element index set $\{i_1 < \dots < i_k\} \subseteq \{1, \dots, n\}$.
+  \item \textbf{Concentrated type:} Strictly, floor concentration $\lambda^{\mathrm{conc}}(n,c,a) := (c - (n-1)a, a, \dots, a)$ (up to permutation), where all excess trace $c - n a > 0$ is placed into one eigenvalue; weakly, \emph{single-spike concentration}, meaning there exist $\alpha \in \mathbb{F}$ and $k \in \{1, \dots, n\}$ such that $\lambda_i = \alpha$ for all $i \neq k$.
+  \item \textbf{Rank-one perturbation:} Either (P1) a \emph{trace-changing} perturbation $A = \alpha I_n + R$ with $\rk(R) \le 1$ from an infeasible scalar matrix $\alpha I_n$ ($\tr(\alpha I_n) = n\alpha \neq c$), or (P2) a \emph{trace-preserving} perturbation $A = A_0 + R$ with $\rk(R) \le 1$ from a reference matrix $A_0$ already satisfying $\tr(A_0) = c$.
+\end{itemize}
+
+Table~\ref{tab:regimes} summarizes the status of both clauses across all canonical regimes.
+
+\begin{table}[htbp]
+\centering
+\caption{Summary of Conjecture~\texttt{00000007171} across constrained fixed-trace spectral regimes ($n \ge 2$).}
+\label{tab:regimes}
+\small
+\begin{tabular}{@{}p{0.27\textwidth}p{0.21\textwidth}p{0.22\textwidth}p{0.22\textwidth}@{}}
+\toprule
+\textbf{Domain \& Criterion} & \textbf{Maximal Spectrum} & \textbf{Concentrated?} & \textbf{Rank-$\le 1$ Realizable?} \\
+\midrule
+$\Delta_{n,c}(a)$, majorization or Schur-convex max &
+$\bigl(c - (n-1)a, a, \dots, a\bigr)$ &
+\textbf{Yes} (floor-concentrated) &
+\textbf{Yes} from $a I_n$ (P1); \textbf{No} within $\tr = c$ (P2) \\
+\addlinespace[3pt]
+$\Delta_{n,c}(0)$, Schur-concave max ($\det A$, $e_2(A)$, entropy) &
+$\bigl(\tfrac{c}{n}, \dots, \tfrac{c}{n}\bigr)$ &
+\textbf{No} (uniform; conc.\ is global min $0$) &
+\textbf{No} from $0$ ($\rk = n$); rank~$0$ trivial scalar \\
+\addlinespace[3pt]
+$\mathcal{B}_{n,c}(a,b)$, majorization or Schur-convex max, $(n-1)a+b < c < a+(n-1)b$ &
+$(\underbrace{b,\dots,b}_{q}, a+r, \underbrace{a,\dots,a}_{n-1-q})$ ($1 \le q \le n-2$) &
+\textbf{No} (fails even weak concentration for $n \ge 3$) &
+\textbf{No} over \emph{all} $\alpha I_n$: $\rk(A - \alpha I_n) \ge 2$ \\
+\addlinespace[3pt]
+$\mathcal{E}_{n,c}(\rho)$ ($\tr A^2 \le \rho^2$), $n \ge 3$ &
+None ($\max \lambda_1 \neq \max(\lambda_1+\lambda_2)$) &
+\textbf{No} ($2$-spike maximizes $\lambda_1 + \lambda_2$) &
+\textbf{No} for $k$-fan ($2 \le k \le n-2$, $n \ge 4$) \\
+\addlinespace[3pt]
+Fixed-trace manifold $\tr(A) = \tr(A_0) = c$, $A \neq A_0$ &
+Any distinct target spectrum &
+N/A &
+\textbf{Impossible:} $R^\top = R$, $\rk(R) \le 1$, $\tr R = 0 \Rightarrow R = 0$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{The Positive Regime: Schur-Convex Extrema on \texorpdfstring{$\Delta_{n,c}(a)$}{the Lower-Bounded Trace Simplex}}
+\label{sec:positive}
+
+Before refuting the unqualified conjecture, we prove the exact positive theorem on $\Delta_{n,c}(a)$ in full generality over any linearly ordered field~$\mathbb{F}$.
+
+\begin{theorem}[Universal Majorization Top on $\Delta_{n,c}(a)$]
+\label{thm:simplex-maj}
+Let $n \ge 1$ and $a, c \in \mathbb{F}$ satisfy $c > n a$. Define $\lambda^{\mathrm{conc}} \in \mathbb{F}^n$ by $\lambda_1^{\mathrm{conc}} = c - (n-1)a$ and $\lambda_i^{\mathrm{conc}} = a$ for $2 \le i \le n$. Then $\lambda^{\mathrm{conc}} \in \Delta_{n,c}(a)$ is nonincreasing and majorizes every $\lambda \in \Delta_{n,c}(a)$ ($\lambda \prec \lambda^{\mathrm{conc}}$).
+\end{theorem}
+
+\begin{proof}
+Since $c - (n-1)a - a = c - n a > 0$, we have $\lambda_1^{\mathrm{conc}} > a = \lambda_2^{\mathrm{conc}} = \dots = \lambda_n^{\mathrm{conc}}$, so $\lambda^{\mathrm{conc}}$ is nonincreasing, satisfies $\lambda_i^{\mathrm{conc}} \ge a$, and has trace $(c - (n-1)a) + (n-1)a = c$. Let $\lambda \in \Delta_{n,c}(a)$ and let $I = \{i_1, \dots, i_k\} \subseteq \{1, \dots, n\}$ be any subset of cardinality $k \in \{0, \dots, n\}$. For $k = 0$ both sums equal~$0$. For $1 \le k \le n$, every index $j \notin I$ satisfies $\lambda_j \ge a$, so summing over the $(n - k)$-element complement $I^c$ gives $\sum_{j \notin I} \lambda_j \ge (n - k) a$. Therefore,
+\[
+  \sum_{r=1}^k \lambda_{i_r}
+  = c - \sum_{j \notin I} \lambda_j
+  \le c - (n - k) a
+  = \bigl(c - (n - 1)a\bigr) + (k - 1)a
+  = \sum_{r=1}^k \lambda_r^{\mathrm{conc}},
+\]
+establishing $\lambda \prec \lambda^{\mathrm{conc}}$.
+\end{proof}
+
+\begin{theorem}[Separable Convex Maximization and Strict Quadratic Uniqueness]
+\label{thm:simplex-convex}
+Let $n \ge 2$ and $c > n a$ in $\mathbb{F}$, and set $s := c - n a > 0$.
+\begin{enumerate}
+  \item \emph{(Karamata--chord inequality on $\Delta_{n,c}(a)$.)} For every function $\phi : \mathbb{F} \to \mathbb{F}$ that is convex on $[a, a + s]$ (meaning $\phi((1-t)u + t v) \le (1-t)\phi(u) + t\phi(v)$ for all $u,v \in [a, a+s]$ and $t \in [0,1]$) and every $\lambda \in \Delta_{n,c}(a)$,
+  \[
+    \sum_{i=1}^n \phi(\lambda_i) \le \phi\bigl(c - (n-1)a\bigr) + (n - 1)\phi(a) = \sum_{i=1}^n \phi(\lambda_i^{\mathrm{conc}}).
+  \]
+  \item \emph{(Exact quadratic identity and strict uniqueness.)} For every $\lambda \in \Delta_{n,c}(a)$,
+  \begin{equation}
+    \label{eq:f2-gap}
+    \sum_{i=1}^n (\lambda_i^{\mathrm{conc}})^2 - \sum_{i=1}^n \lambda_i^2
+    = \sum_{\substack{1 \le i, j \le n \\ i \neq j}} (\lambda_i - a)(\lambda_j - a) \ge 0,
+  \end{equation}
+  with equality if and only if there exists $k \in \{1, \dots, n\}$ such that $\lambda_k = c - (n-1)a$ and $\lambda_i = a$ for all $i \neq k$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Write $x_i := \lambda_i - a \ge 0$, so $\sum_{i=1}^n x_i = \sum_{i=1}^n \lambda_i - n a = s > 0$. Since all $x_j \ge 0$, each $x_i \le \sum_{j=1}^n x_j = s$, whence $t_i := x_i / s \in [0,1]$ satisfies $\sum_{i=1}^n t_i = 1$ and $\lambda_i = a + t_i s = (1 - t_i)a + t_i(a + s)$. By convexity of $\phi$ on $[a, a + s]$,
+\[
+  \sum_{i=1}^n \phi(\lambda_i)
+  \le \sum_{i=1}^n \bigl((1 - t_i)\phi(a) + t_i \phi(a + s)\bigr)
+  = (n - 1)\phi(a) + \phi(a + s)
+  = \sum_{i=1}^n \phi(\lambda_i^{\mathrm{conc}}).
+\]
+For~(2), expanding $\lambda_i^2 = (x_i + a)^2 = x_i^2 + 2 a x_i + a^2$ yields $\sum_{i=1}^n \lambda_i^2 = \sum_{i=1}^n x_i^2 + 2 a s + n a^2$, while $\sum_{i=1}^n (\lambda_i^{\mathrm{conc}})^2 = s^2 + 2 a s + n a^2$. Subtracting gives
+\[
+  \sum_{i=1}^n (\lambda_i^{\mathrm{conc}})^2 - \sum_{i=1}^n \lambda_i^2
+  = \left(\sum_{i=1}^n x_i\right)^2 - \sum_{i=1}^n x_i^2
+  = \sum_{i \neq j} x_i x_j \ge 0.
+\]
+Since every term $x_i x_j$ ($i \neq j$) is nonnegative, the sum vanishes if and only if $x_i x_j = 0$ for all $i \neq j$. Because $\sum_{i=1}^n x_i = s > 0$, at least one index $k$ satisfies $x_k > 0$; then $x_k x_i = 0$ forces $x_i = 0$ for all $i \neq k$, and thus $x_k = s$, i.e., $\lambda_k = c - (n-1)a$ and $\lambda_i = a$ for all $i \neq k$.
+\end{proof}
+
+\begin{theorem}[Square-Root-Free Householder Rank-One Matrix Realization]
+\label{thm:householder}
+Let $n \ge 1$, $c > n a$ in $\mathbb{F}$, and let $u \in \mathbb{F}^n$ be any unit vector ($\sum_{i=1}^n u_i^2 = 1$). Define
+\[
+  A(u) := a I_n + (c - n a) u u^\top \in \Sym_n(\mathbb{F}).
+\]
+Then $\rk(A(u) - a I_n) = 1$, $\tr(A(u)) = c$, $x^\top A(u) x \ge a \|x\|_2^2$ for all $x \in \mathbb{F}^n$, and $A(u)$ orthogonally realizes $\lambda^{\mathrm{conc}}$ over $\mathbb{F}$ itself.
+\end{theorem}
+
+\begin{proof}
+Since $c - n a > 0$ and $\|u\|_2^2 = 1$, $u$ has a nonzero coordinate $u_k \neq 0$, so $(A(u) - a I_n)_{kk} = (c - n a) u_k^2 \neq 0$ while $A(u) - a I_n = ((c - n a)u) u^\top$ has rank~$1$. Its trace is $\tr(A(u)) = n a + (c - n a)\sum_{i=1}^n u_i^2 = c$, and for any $x \in \mathbb{F}^n$, $x^\top A(u) x = a \|x\|_2^2 + (c - n a)(u^\top x)^2 \ge a \|x\|_2^2$.
+
+To construct an orthogonal eigenbasis $Q \in \mathbb{F}^{n \times n}$ without square roots, let $e_1 = (1, 0, \dots, 0)^\top$. If $u_1 = 1$, then $1 = u_1^2 + \sum_{i=2}^n u_i^2 = 1 + \sum_{i=2}^n u_i^2$ forces $u = e_1$, and $Q = I_n$ diagonalizes $A(e_1)$ directly. Otherwise $d := 1 - u_1 \neq 0$. Put $w := u - e_1$; then
+\[
+  \|w\|_2^2 = (u_1 - 1)^2 + \sum_{i=2}^n u_i^2 = \|u\|_2^2 - 2u_1 + 1 = 2(1 - u_1) = 2d.
+\]
+Define the symmetric Householder matrix $H := I_n - d^{-1} w w^\top \in \Sym_n(\mathbb{F})$. Then
+\[
+  H^\top H = H^2 = I_n - 2 d^{-1} w w^\top + d^{-2} \|w\|_2^2 w w^\top
+  = I_n - 2 d^{-1} w w^\top + 2 d^{-1} w w^\top = I_n,
+\]
+and its first column is $H e_1 = e_1 - d^{-1} w_1 w = e_1 - d^{-1}(-d)(u - e_1) = u$. Because the columns $h_1, \dots, h_n$ of $H$ are pairwise orthonormal with $h_1 = u$, we obtain $A(u) h_1 = a u + (c - n a) u = (c - (n-1)a) h_1$ and $A(u) h_j = a h_j + (c - n a)(u^\top h_j) u = a h_j$ for all $2 \le j \le n$.
+\end{proof}
+
+\section{Refutation I: Schur-Concave Fixed-Trace Extrema}
+\label{sec:r1}
+
+Conjecture~\texttt{00000007171} does not restrict the extremal problem to Schur-convex objectives. In classical matrix analysis, optimizing $\det(A)$, $\log\det(A)$, elementary symmetric polynomials $e_k(A)$ ($2 \le k \le n$), or von Neumann entropy $S(A) = -\tr(A \log A)$ over $\{A \succeq 0 : \tr(A) = c\}$ is the canonical constrained fixed-trace extremal problem (e.g., maximum-entropy quantum states and $D$-optimal covariance design~\cite{Bhatia1997,HJ2013}). Here the conjecture fails completely: the unique maximum is \emph{uniform} and \emph{full-rank}, while the concentrated rank-one state is the \emph{global minimum}.
+
+\begin{lemma}[Bernoulli Inequality and General $n$-Variable AM--GM over Ordered Fields]
+\label{lem:amgm}
+Let $\mathbb{F}$ be any linearly ordered field.
+\begin{enumerate}
+  \item For every $x \in \mathbb{F}$ with $1 + x \ge 0$ and every $k \in \mathbb{N}$, $(1 + x)^k \ge 1 + k x$; moreover, if $1 + x > 0$, $x \neq 0$, and $k \ge 2$, then $(1 + x)^k > 1 + k x$.
+  \item For every $n \ge 1$ and $\lambda_1, \dots, \lambda_n \ge 0$ in $\mathbb{F}$ with arithmetic mean $m := \frac{1}{n}\sum_{i=1}^n \lambda_i$,
+  \[
+    \prod_{i=1}^n \lambda_i \le m^n, \qquad\text{with equality if and only if }\lambda_1 = \dots = \lambda_n = m.
+  \]
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Claim~(1) follows by induction on $k$: for $k \ge 1$, multiplying $(1+x)^k \ge 1 + kx$ by $1 + x \ge 0$ yields $(1+x)^{k+1} \ge 1 + (k+1)x + k x^2 \ge 1 + (k+1)x$, with strict inequality whenever $1 + x > 0$ and $k x^2 > 0$.
+
+For~(2), we induct on $n \ge 1$. The case $n = 1$ is immediate. Suppose~(2) holds for $k \ge 1$, and let $\lambda_1, \dots, \lambda_{k+1} \ge 0$ have mean $m = \frac{1}{k+1}\sum_{i=1}^{k+1} \lambda_i$. Set $\mu := \frac{1}{k}\sum_{i=1}^k \lambda_i \ge 0$. If $\mu = 0$, then $\lambda_1 = \dots = \lambda_k = 0$, so $\prod_{i=1}^{k+1} \lambda_i = 0 \le m^{k+1}$, with equality $m^{k+1} = 0 \iff m = 0 \iff \lambda_{k+1} = 0$. If $\mu > 0$, then $(k+1)m = k\mu + \lambda_{k+1} > 0$, so $m > 0$. Define $x := \frac{\lambda_{k+1} - \mu}{(k+1)\mu}$. Then
+\[
+  1 + x = \frac{k\mu + \lambda_{k+1}}{(k+1)\mu} = \frac{m}{\mu} > 0, \qquad
+  1 + (k + 1)x = \frac{\lambda_{k+1}}{\mu}.
+\]
+Applying~(1) at exponent $k + 1 \ge 2$ and multiplying by $\mu^{k+1} > 0$ gives $\mu^k \lambda_{k+1} \le m^{k+1}$, with strict inequality whenever $x \neq 0$ (i.e., $\lambda_{k+1} \neq \mu$). Combining with the inductive hypothesis $\prod_{i=1}^k \lambda_i \le \mu^k$ (multiplied by $\lambda_{k+1} \ge 0$) yields $\prod_{i=1}^{k+1} \lambda_i \le \mu^k \lambda_{k+1} \le m^{k+1}$. Equality requires $x = 0$, so $\lambda_{k+1} = \mu = m > 0$, and cancelling $m > 0$ gives $\prod_{i=1}^k \lambda_i = \mu^k$, which by the inductive hypothesis forces $\lambda_1 = \dots = \lambda_k = \mu = m$.
+\end{proof}
+
+\begin{theorem}[Refutation~R1: Uniform Full-Rank Extrema of $\det(A)$ and $e_2(A)$]
+\label{thm:r1}
+Let $n \ge 2$ and $c > 0$ in $\mathbb{F}$, and set $\lambda^{\mathrm{unif}} := (c/n, \dots, c/n) \in \Delta_{n,c}(0)$. For every $\lambda \in \Delta_{n,c}(0)$:
+\begin{enumerate}
+  \item $\prod_{i=1}^n \lambda_i \le (c/n)^n = \prod_{i=1}^n \lambda_i^{\mathrm{unif}}$, with equality if and only if $\lambda = \lambda^{\mathrm{unif}}$.
+  \item $2 e_2(\lambda) := \sum_{i \neq j} \lambda_i \lambda_j = \frac{n-1}{n}c^2 - \sum_{i=1}^n \bigl(\lambda_i - \frac{c}{n}\bigr)^2 \le \frac{n-1}{n}c^2 = 2 e_2(\lambda^{\mathrm{unif}})$, with equality if and only if $\lambda = \lambda^{\mathrm{unif}}$.
+  \item Every floor-concentrated spectrum $\lambda^{\mathrm{conc}}$ on $\Delta_{n,c}(0)$ ($\lambda_k = c$, $\lambda_i = 0$ for $i \neq k$) satisfies $\prod_{i=1}^n \lambda_i^{\mathrm{conc}} = 0 < (c/n)^n$ and $e_2(\lambda^{\mathrm{conc}}) = 0 < \frac{n-1}{2n}c^2$, whereas $\lambda^{\mathrm{unif}}$ is not floor-concentrated and its matrix realization $\frac{c}{n}I_n$ has full rank $n \ge 2$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(1) is immediate from Lemma~\ref{lem:amgm}(2) since $\frac{1}{n}\sum_{i=1}^n \lambda_i = c/n$. For~(2), set $u := c/n$; expanding $\sum_{i=1}^n (\lambda_i - u)^2 = \sum_{i=1}^n \lambda_i^2 - 2 u c + n u^2 = \sum_{i=1}^n \lambda_i^2 - \frac{c^2}{n}$ and combining with $\sum_{i \neq j} \lambda_i \lambda_j = c^2 - \sum_{i=1}^n \lambda_i^2$ gives the stated identity, whose squared-deviation sum vanishes if and only if $\lambda_i = u$ for all~$i$. For~(3), since $n \ge 2$, any spectrum with $\lambda_k = c$ and $\lambda_i = 0$ ($i \neq k$) has at least one zero entry (so $\prod_{i=1}^n \lambda_i = 0$) and at most one nonzero entry (so $\lambda_i \lambda_j = 0$ for all $i \neq j$), while $c/n > 0$ implies $(c/n)^n > 0$ and $\frac{n-1}{n}c^2 > 0$.
+\end{proof}
+
+\section{Refutation II: Box-Constrained Extrema and Complete Rank-One Classification}
+\label{sec:r2}
+
+One might attempt to salvage Conjecture~\texttt{00000007171} by restricting ``maximal spectrum'' to \emph{majorization-maximality} (or strictly Schur-convex maximization) and allowing ``rank-one perturbation'' to mean $A = \alpha I_n + R$ with $\rk(R) \le 1$ for \emph{any} scalar $\alpha \in \mathbb{F}$. We prove that even under this maximally charitable reading, \textbf{both clauses fail} on standard two-sided constrained fixed-trace polytopes $\mathcal{B}_{n,c}(a,b)$ for every dimension $n \ge 3$.
+
+\begin{lemma}[Weyl's Rank-One Multiplicity Obstruction]
+\label{lem:weyl-rank1}
+Let $A \in \Sym_n(\mathbb{F})$ orthogonally realize $\lambda \in \mathbb{F}^n$, and suppose $A - \alpha I_n = u v^\top$ has rank at most~$1$ for some $\alpha \in \mathbb{F}$ and $u, v \in \mathbb{F}^n$. Then at most one index $j \in \{1, \dots, n\}$ satisfies $\lambda_j \neq \alpha$; in particular, $\lambda$ is weakly concentrated around~$\alpha$.
+\end{lemma}
+
+\begin{proof}
+Let $Q = [q_1 \mid \cdots \mid q_n] \in \mathbb{F}^{n \times n}$ satisfy $Q^\top Q = I_n$ and $A q_m = \lambda_m q_m$ for all $m$. Then $(\lambda_m - \alpha) q_m = (A - \alpha I_n) q_m = (v^\top q_m) u$. Suppose for contradiction that $j \neq k$ satisfy $\lambda_j \neq \alpha$ and $\lambda_k \neq \alpha$. Taking inner products with $q_j$ and $q_k$ using $q_j^\top q_j = q_k^\top q_k = 1$ and $q_k^\top q_j = 0$ gives three equations:
+\begin{align*}
+  \lambda_j - \alpha &= q_j^\top \bigl((\lambda_j - \alpha) q_j\bigr) = (q_j^\top u)(v^\top q_j) \neq 0 \implies v^\top q_j \neq 0,\\
+  0 &= (\lambda_j - \alpha)(q_k^\top q_j) = q_k^\top \bigl((\lambda_j - \alpha) q_j\bigr) = (q_k^\top u)(v^\top q_j) \implies q_k^\top u = 0,\\
+  \lambda_k - \alpha &= q_k^\top \bigl((\lambda_k - \alpha) q_k\bigr) = (q_k^\top u)(v^\top q_k) = 0 \cdot (v^\top q_k) = 0,
+\end{align*}
+contradicting $\lambda_k \neq \alpha$.
+\end{proof}
+
+\begin{theorem}[Majorization Top of $\mathcal{B}_{n,c}(a,b)$ and Complete Rank-One Classification]
+\label{thm:box-classification}
+Let $n \ge 2$, $a < b$, and $n a < c < n b$ in $\mathbb{F}$, and let $q \in \{0, \dots, n-1\}$ satisfy $q(b - a) \le c - n a < (q + 1)(b - a)$ (in any Archimedean field, $q = \lfloor (c - n a)/(b - a) \rfloor$). Define $\lambda^{\mathrm{box}} \in \mathbb{F}^n$ by
+\[
+  \lambda_i^{\mathrm{box}} :=
+  \begin{cases}
+    b, & 1 \le i \le q,\\
+    c - q b - (n - 1 - q)a, & i = q + 1,\\
+    a, & q + 2 \le i \le n.
+  \end{cases}
+\]
+Then:
+\begin{enumerate}
+  \item $\lambda^{\mathrm{box}} \in \mathcal{B}_{n,c}(a,b)$ is nonincreasing and majorizes every $\lambda \in \mathcal{B}_{n,c}(a,b)$ ($\lambda \prec \lambda^{\mathrm{box}}$).
+  \item $\lambda^{\mathrm{box}}$ is floor-concentrated above~$a$ if and only if $c \le (n-1)a + b$ (i.e., $q = 0$, or $q = 1$ with $\lambda_2^{\mathrm{box}} = a$).
+  \item Let $A \in \Sym_n(\mathbb{F})$ be \emph{any} symmetric matrix orthogonally realizing any permutation of $\lambda^{\mathrm{box}}$. There exists $\alpha \in \mathbb{F}$ with $\rk(A - \alpha I_n) \le 1$ (equivalently, $\lambda^{\mathrm{box}}$ is weakly concentrated) \textbf{if and only if}
+  \[
+    c \le (n - 1)a + b \qquad\text{or}\qquad c \ge a + (n - 1)b.
+  \]
+  Whenever $(n - 1)a + b < c < a + (n - 1)b$ (a nonempty open interval for every $n \ge 3$), $\lambda^{\mathrm{box}}$ is not weakly concentrated and $\rk(A - \alpha I_n) \ge 2$ for every $\alpha \in \mathbb{F}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Set $r_{\mathrm{val}} := c - q b - (n - 1 - q)a = a + \bigl((c - n a) - q(b - a)\bigr)$. By the choice of $q$, $0 \le (c - n a) - q(b - a) < b - a$, so $a \le r_{\mathrm{val}} < b$. Hence $\lambda^{\mathrm{box}}$ is nonincreasing, lies in $[a,b]^n$, and sums to $q b + r_{\mathrm{val}} + (n - 1 - q)a = c$. For any $\lambda \in \mathcal{B}_{n,c}(a,b)$ and any $k$-element subset $I \subseteq \{1, \dots, n\}$:
+\begin{itemize}
+  \item If $k \le q$, then $\lambda_i \le b$ gives $\sum_{i \in I} \lambda_i \le k b = \sum_{r=1}^k \lambda_r^{\mathrm{box}}$.
+  \item If $k \ge q + 1$, then $\lambda_j \ge a$ for $j \notin I$ gives $\sum_{i \in I} \lambda_i = c - \sum_{j \notin I} \lambda_j \le c - (n - k)a = q b + r_{\mathrm{val}} + (k - 1 - q)a = \sum_{r=1}^k \lambda_r^{\mathrm{box}}$.
+\end{itemize}
+This proves~(1).
+
+For~(2) and~(3), if $c \le (n-1)a + b$, then $c - n a \le b - a$, so either $q = 0$ and $\lambda^{\mathrm{box}} = (c - (n-1)a, a, \dots, a)$, or $q = 1$, $c = (n-1)a + b$, and $\lambda^{\mathrm{box}} = (b, a, \dots, a)$; in both cases $\lambda^{\mathrm{box}} = \lambda^{\mathrm{conc}}$ is floor-concentrated and realized with $\alpha = a$. Symmetrically, if $c \ge a + (n-1)b$, then $c - n a \ge (n-1)(b-a)$ forces $q = n - 1$ and $\lambda^{\mathrm{box}} = (b, \dots, b, c - (n-1)b)$, which is weakly concentrated around $\alpha = b$ (though anti-concentrated with $n - 1$ top eigenvalues when $n \ge 3$).
+
+Conversely, suppose $(n-1)a + b < c < a + (n-1)b$. Then $b - a < c - n a < (n - 1)(b - a)$, which implies $1 \le q \le n - 2$. Thus index $1$ has $\lambda_1^{\mathrm{box}} = b$, index $q + 1$ has $\lambda_{q+1}^{\mathrm{box}} = r_{\mathrm{val}}$, and index $n$ (since $q + 1 \le n - 1 < n$) has $\lambda_n^{\mathrm{box}} = a$. We split into two cases:
+\begin{itemize}
+  \item \emph{Case 1: $r_{\mathrm{val}} > a$.} Then $b > r_{\mathrm{val}} > a$ at the three distinct indices $1 < q + 1 < n$. For every $\alpha \in \mathbb{F}$, at most one of the three pairwise distinct values $\{b, r_{\mathrm{val}}, a\}$ can equal $\alpha$, leaving at least two distinct indices with $\lambda_i^{\mathrm{box}} \neq \alpha$.
+  \item \emph{Case 2: $r_{\mathrm{val}} = a$.} Then $c - n a = q(b - a) > b - a$ forces $q \ge 2$. Hence indices $1, 2$ both have value $b$ while indices $q + 1, n$ ($q + 1 < n$) both have value $a \neq b$. If $\alpha = b$, indices $q + 1$ and $n$ have $\lambda_i^{\mathrm{box}} = a \neq \alpha$; if $\alpha \neq b$, indices $1$ and $2$ have $\lambda_i^{\mathrm{box}} = b \neq \alpha$.
+\end{itemize}
+In both cases, no $\alpha \in \mathbb{F}$ agrees with $\lambda^{\mathrm{box}}$ outside a single index (nor with any permutation of $\lambda^{\mathrm{box}}$), so $\lambda^{\mathrm{box}}$ is not weakly concentrated, and Lemma~\ref{lem:weyl-rank1} guarantees $\rk(A - \alpha I_n) \ge 2$ for every realizing symmetric matrix $A$ and every $\alpha \in \mathbb{F}$.
+\end{proof}
+
+\begin{corollary}[Sharp Minimal Counterexample at $n = 3$ and Ky Fan $2$-Frame Projector at $n = 4$]
+\label{cor:n3-n4}
+\leavevmode
+\begin{enumerate}
+  \item \emph{(Sharpness of $n = 3$.)} At $n = 2$, every $\lambda = (\lambda_1, \lambda_2) \in \mathbb{F}^2$ is trivially weakly concentrated ($\lambda_2 = \alpha$ leaves at most one coordinate $\lambda_1$). At $n = 3$, on $\mathcal{B}_{3,3}(0,2) = \{0 \le \lambda_i \le 2 : \lambda_1 + \lambda_2 + \lambda_3 = 3\}$, the unique sorted majorization-maximum (and unique sorted maximizer of $\|A\|_F^2 = 5$) is $\lambda^* = (2, 1, 0)$, which has three distinct eigenvalues and satisfies $\rk(A - \alpha I_3) \ge 2$ for all $\alpha \in \mathbb{F}$.
+  \item \emph{(Ky Fan $2$-frame projector at $n = 4$.)} On $\mathcal{B}_{4,2}(0,1) = \{0 \le \lambda_i \le 1 : \sum_{i=1}^4 \lambda_i = 2\}$, every $\lambda \in \mathcal{B}_{4,2}(0,1)$ satisfies
+  \[
+    \sum_{i=1}^4 \lambda_i^2 = 2 - \sum_{i=1}^4 \lambda_i(1 - \lambda_i) \le 2,
+  \]
+  with equality if and only if $\lambda$ is a permutation of $(1, 1, 0, 0)$ (two $1$'s and two $0$'s, realized by rank-$2$ orthogonal projectors $P^\top = P = P^2$, $\tr P = 2$). By contrast, the best feasible floor-concentrated configuration $(1, \frac{1}{3}, \frac{1}{3}, \frac{1}{3})$ achieves $\sum_{i=1}^4 \lambda_i^2 = \frac{4}{3} < 2$, and every realization $A$ of $(1, 1, 0, 0)$ satisfies $\rk(A - \alpha I_4) \ge 2$ for all $\alpha \in \mathbb{F}$.
+\end{enumerate}
+\end{corollary}
+
+\begin{proposition}[Absence of a Majorization-Greatest Spectrum on Trace--Frobenius Slices]
+\label{prop:ellipsoid}
+For every $n \ge 3$ and $\rho^2 > c^2 / n$ in $\mathbb{R}$, the trace--Frobenius slice $\mathcal{E}_{n,c}(\rho) = \{\lambda \in \mathbb{R}^n : \sum_{i=1}^n \lambda_i = c,\; \sum_{i=1}^n \lambda_i^2 \le \rho^2\}$ has \emph{no} majorization-greatest element: setting $R := \sqrt{\rho^2 - c^2/n} > 0$,
+\begin{itemize}
+  \item $\max_{\lambda \in \mathcal{E}_{n,c}(\rho)} \lambda_1^\downarrow = \frac{c}{n} + R\sqrt{\frac{n-1}{n}}$, uniquely attained at the $1$-spike Wolkowicz--Styan configuration;
+  \item $\max_{\lambda \in \mathcal{E}_{n,c}(\rho)} (\lambda_1^\downarrow + \lambda_2^\downarrow) = \frac{2c}{n} + R\sqrt{\frac{2(n-2)}{n}}$, uniquely attained at the $2$-spike configuration with two high eigenvalues $\frac{c}{n} + R\sqrt{\frac{n-2}{2n}}$ and $n-2$ low eigenvalues $\frac{c}{n} - R\sqrt{\frac{2}{n(n-2)}}$.
+\end{itemize}
+Because $\sqrt{\frac{n-1}{n}} - \frac{1}{\sqrt{n(n-1)}} = \frac{n-2}{\sqrt{n(n-1)}} < \sqrt{\frac{2(n-2)}{n}}$ for all $n \ge 3$ (strict for $n \ge 3$: at $n = 3$, $\frac{1}{\sqrt{6}} < \sqrt{\frac{2}{3}}$), the $2$-spike spectrum strictly beats the $1$-spike spectrum on the Ky Fan $2$-norm $\lambda_1^\downarrow + \lambda_2^\downarrow$ (and for $n \ge 4$ has $\rk(A - \alpha I_n) \ge 2$ for all $\alpha$).
+\end{proposition}
+
+\section{Refutation III: Fixed-Trace Rank-One Perturbation Rigidity}
+\label{sec:r3}
+
+Finally, we examine the literal meaning of ``realization of the type is rank-one perturbation'' under ``fixed trace'' (Interpretation~P2): starting from any reference matrix $A_0 \in \Sym_n(\mathbb{F})$ already satisfying $\tr(A_0) = c$ (for instance, the uniform baseline $A_0 = \frac{c}{n} I_n$), can one reach a distinct extremal matrix $A \in \Sym_n(\mathbb{F})$ with $\tr(A) = c$ by a rank-one perturbation $A = A_0 + R$? An elementary universal identity shows that this is algebraically impossible.
+
+\begin{theorem}[Traceless Symmetric Rank-One Rigidity]
+\label{thm:traceless-rank1}
+Let $R \in \Sym_n(\mathbb{F})$ satisfy $\rk(R) \le 1$ (i.e., $R = u v^\top$ for some $u, v \in \mathbb{F}^n$). Then:
+\begin{enumerate}
+  \item $\|R\|_F^2 = (\tr R)^2$.
+  \item If $\tr(R) = 0$, then $R = 0$.
+  \item Consequently, for any $A_0, A \in \Sym_n(\mathbb{F})$ with $\tr(A) = \tr(A_0) = c$, if $\rk(A - A_0) \le 1$, then $A = A_0$. Every nontrivial fixed-trace symmetric perturbation satisfies $\rk(A - A_0) \ge 2$, and rank~$2$ is sharp (attained for every $n \ge 2$ and $\delta \neq 0$ by the Robin--Muirhead transfer $R = \delta(e_1 e_1^\top - e_2 e_2^\top)$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Write $R_{ij} = u_i v_j$. Using symmetry $R_{ij} = R_{ji}$ together with commutativity in $\mathbb{F}$, every $2 \times 2$ principal minor vanishes:
+\[
+  R_{ij}^2 = R_{ij} R_{ji} = (u_i v_j)(u_j v_i) = (u_i v_i)(u_j v_j) = R_{ii} R_{jj}.
+\]
+Summing over all $1 \le i, j \le n$ gives
+\[
+  \|R\|_F^2 = \sum_{i=1}^n \sum_{j=1}^n R_{ij}^2
+  = \sum_{i=1}^n \sum_{j=1}^n R_{ii} R_{jj}
+  = \left(\sum_{i=1}^n R_{ii}\right)\left(\sum_{j=1}^n R_{jj}\right)
+  = (\tr R)^2.
+\]
+If $\tr(R) = 0$, then $\sum_{i,j=1}^n R_{ij}^2 = 0$; since squares in the linearly ordered field $\mathbb{F}$ are nonnegative, $R_{ij}^2 = 0$ and hence $R_{ij} = 0$ for all $i,j$. Part~(3) follows on setting $R = A - A_0$ ($\tr R = \tr A - \tr A_0 = 0$). For sharpness at $n \ge 2$ and $\delta \neq 0$, $T := \delta(e_1 e_1^\top - e_2 e_2^\top)$ is symmetric with $\tr(T) = \delta - \delta = 0$ and $T_{11} = \delta \neq 0$, so by~(2) $\rk(T) \not\le 1$, while $T = (\delta e_1)e_1^\top + (-\delta e_2)e_2^\top$ has rank~$2$.
+\end{proof}
+
+\begin{remark}[Non-symmetric traceless rank-one perturbations are nilpotent]
+\label{rem:nilpotent}
+Even if one drops symmetry of $R = u v^\top$ while keeping $\tr(R) = v^\top u = 0$, associative matrix multiplication gives
+\[
+  R^2 = (u v^\top)(u v^\top) = u (v^\top u) v^\top = (\tr R)\, u v^\top = 0.
+\]
+Hence $R$ is nilpotent of index at most~$2$, and for any scalar baseline $A_0 = \alpha I_n$, $A_0 + R = \alpha I_n + R$ has characteristic polynomial $\det(t I_n - (\alpha I_n + R)) = (t - \alpha)^n$, leaving the uniform eigenvalue configuration $(\alpha, \dots, \alpha)$ completely unchanged.
+\end{remark}
+
+\section{Formal Verification in Core Lean 4 and Computational Audit}
+\label{sec:formal}
+
+Every definition, positive theorem, and refutation is formalized in \texttt{lean/Main.lean} using Core Lean~4 (\texttt{leanprover/lean4:v4.19.0}) with \texttt{-DwarningAsError=true} and zero external dependencies. To ensure full generality across $\mathbb{R}$ and $\mathbb{Q}$ while guaranteeing constructive non-vacuity inside Core Lean~4, we axiomatize linearly ordered fields via \texttt{OrderedField F}, construct the exact rational quotient model \texttt{RatField} with a verified instance \texttt{instOrderedFieldRat}, prove every structural theorem polymorphically over \texttt{OrderedField F}, and instantiate ground refutations directly on \texttt{RatField}. Table~\ref{tab:lean-map} records the correspondence between manuscript results and Lean declarations.
+
+\begin{table}[htbp]
+\centering
+\caption{Correspondence between mathematical theorems and Core Lean~4 declarations in \texttt{lean/Main.lean}.}
+\label{tab:lean-map}
+\footnotesize
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.41\textwidth}>{\raggedright\arraybackslash}p{0.55\textwidth}@{}}
+\toprule
+\textbf{Mathematical Result} & \textbf{Core Lean~4 Declaration (\texttt{Conjecture00000007171})} \\
+\midrule
+Non-vacuity of \texttt{OrderedField} via \texttt{RatField} & \texttt{instOrderedFieldRat}, \texttt{orderedField\_nonvacuous} \\
+Bernoulli inequality \& $n$-variable AM--GM (Lemma~\ref{lem:amgm}) & \texttt{bernoulli\_ge}, \texttt{bernoulli\_strict}, \texttt{am\_gm\_complete} \\
+Simplex majorization top (Theorem~\ref{thm:simplex-maj}) & \texttt{concSpec\_majorizes\_lowerTraceSimplex} \\
+Convex sum \& strict $F_2$ max (Theorem~\ref{thm:simplex-convex}) & \texttt{convex\_sum\_le\_concSpec}, \texttt{specSumSq\_eq\_concSpec\_iff} \\
+Householder rank-one realization (Theorem~\ref{thm:householder}) & \texttt{rankOnePerturb\_realizes\_concSpec} \\
+Refutation~R1: $\det$ \& $e_2$ uniform max (Theorem~\ref{thm:r1}) & \texttt{refutation\_R1\_det\_and\_elemSymm2} \\
+Weyl rank-one multiplicity lemma (Lemma~\ref{lem:weyl-rank1}) & \texttt{scalar\_plus\_rankAtMostOne\_at\_most\_one\_non\_alpha} \\
+Refutation~R2: box majorization \& iff classification (Theorem~\ref{thm:box-classification}, Corollary~\ref{cor:n3-n4}) & \texttt{boxSpec\_majorizes\_boxTracePolytope}, \texttt{refutation\_R2\_box\_interior}, \texttt{refutation\_R2\_n3\_and\_n4} \\
+Refutation~R3: $\|R\|_F^2 = (\tr R)^2$, traceless rigidity, nilpotency (Theorem~\ref{thm:traceless-rank1}, Remark~\ref{rem:nilpotent}) & \texttt{symmetric\_rankAtMostOne\_frobSq\_eq\_trace\_sq}, \texttt{no\_trace\_preserving\_symmetric\_rankOne\_perturbation}, \texttt{traceless\_rankAtMostOne\_nilpotent} \\
+Master disproof \& ground synthesis & \texttt{conjecture\_00000007171\_disproved} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Every audited declaration in \texttt{verification/lean-axioms.log} depends exclusively on Lean's standard foundational axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}), with zero \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, or custom axioms. Independently, \texttt{verify.py} tests exact rational Householder diagonalizations across $2000$ simplex spectra, $D$-optimal / entropy maxima for $2 \le n \le 6$, $155$ box-polytope parameter regimes (confirming $100\%$ agreement with Theorem~\ref{thm:box-classification}), the trace--Frobenius $1$-spike vs.\ $2$-spike majorization split, and $1000$ rank-at-most-one trace-rigidity instances.
+
+\begin{thebibliography}{9}
+
+\bibitem{Bhatia1997}
+R.~Bhatia,
+\emph{Matrix Analysis},
+Graduate Texts in Mathematics, vol.~169, Springer, New York, 1997.
+
+\bibitem{Fan1949}
+K.~Fan,
+On a theorem of Weyl concerning eigenvalues of linear transformations~I,
+\emph{Proc.\ Natl.\ Acad.\ Sci.\ U.S.A.} \textbf{35} (1949), no.~11, 652--655.
+
+\bibitem{HLP1952}
+G.~H.~Hardy, J.~E.~Littlewood, and G.~P\'olya,
+\emph{Inequalities}, 2nd~ed.,
+Cambridge University Press, Cambridge, 1952.
+
+\bibitem{HJ2013}
+R.~A.~Horn and C.~R.~Johnson,
+\emph{Matrix Analysis}, 2nd~ed.,
+Cambridge University Press, Cambridge, 2013.
+
+\bibitem{MOA2011}
+A.~W.~Marshall, I.~Olkin, and B.~C.~Arnold,
+\emph{Inequalities: Theory of Majorization and Its Applications}, 2nd~ed.,
+Springer, New York, 2011.
+
+\bibitem{WS1980}
+H.~Wolkowicz and G.~P.~H.~Styan,
+Bounds for eigenvalues using traces,
+\emph{Linear Algebra Appl.} \textbf{29} (1980), 471--506.
+
+\end{thebibliography}
+
+\end{document}
