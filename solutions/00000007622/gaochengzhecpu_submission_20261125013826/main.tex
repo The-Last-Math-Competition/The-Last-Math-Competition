@@ -1,0 +1,547 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\emergencystretch}{1.5em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\End}{\mathrm{End}}
+\newcommand{\rad}{\mathrm{rad}}
+\newcommand{\Nbar}{N_{\mathrm{bar}}}
+\newcommand{\Nrev}{N_{\mathrm{rev}}}
+\newcommand{\Nreg}{N_{\mathrm{reg}}}
+
+\title{\textbf{Disproof of Conjecture 00000007622:\\
+Zero Divisors, Involution Norms, Isotropic Vectors,\\
+and Minimal Left Ideals in Clifford Algebras}}
+
+\author{Formal Verification \& Mathematical Analysis Report}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000007622} in the negative across every standard
+Clifford algebra convention. The conjecture asserts three linked claims for a
+Clifford algebra $\Cl(V, Q)$ associated to a quadratic space $(V, Q)$:
+(A)~vanishing of the conversion/Clifford norm is necessary and sufficient for a
+nonzero multivector to be a zero divisor; (B)~the kernel of necessity is given by
+isotropic vectors of $(V, Q)$; and (C)~the minimal left ideal of zero divisors is
+the spinor module. We first isolate the three restricted regimes that motivate the
+conjecture---grade-$1$ vectors in arbitrary dimension, full multivectors in
+dimension $\dim V \le 2$, and primitive-idempotent ideals in simple split algebras
+such as $\Cl_{1,1}(F) \cong M_2(F)$---and then prove unconditionally that all three
+clauses fail in general. Specifically: (1)~strictly anisotropic Euclidean spaces
+yield zero divisors under both defining relations $v^2 = +Q(v)\cdot 1$ (already in
+$\Cl_{1,0}(F) \cong F \oplus F$, even over $F = \mathbb{C}$) and $v^2 = -Q(v)\cdot 1$
+(in $\Cl_{0,3}(\mathbb{R}) \cong \mathbb{H} \oplus \mathbb{H}$), while even in
+$\Cl_{1,1}(F)$ the annihilator kernel of $1 + e_0$ meets $V$ trivially;
+(2)~in dimension $3$ ($\Cl_{0,3}, \Cl_{2,1}$) and universally in dimension $4$
+(both $\Cl_{4,0}$ and $\Cl_{0,4}$), $x = 1 + \omega$ is a two-sided zero divisor
+fixed by all canonical involutions, so $x\,\iota(x) = 2x \neq 0$ and
+$\langle x\,\iota(x)\rangle_0 = 2 \neq 0$; and (3)~minimal left ideals fail to be
+spinor modules in degenerate exterior algebras $\Lambda(F^n)$, split semisimple
+Clifford algebras, and division Clifford algebras. All results are verified by
+exact rational computation (\texttt{verify.py}) and machine-checked in Core
+Lean~4.19.0 with zero external dependencies and zero \texttt{sorry} axioms.
+\end{abstract}
+
+\section{Introduction and Statement of the Conjecture}
+
+Conjecture~\texttt{00000007622} from \emph{The Last Math Competition} is stated
+bilingually as follows:
+\begin{quote}
+\textbf{English.} \emph{Definition: Zero divisors with the divisor structure of
+Clifford algebras. Conjecture: The conversion constant is the zero-divisor
+criterion and the norm-vanishing criterion is necessary and sufficient; the kernel
+of necessity is the isotropic vector of the quadratic form; and the minimal left
+ideal of zero divisors is the spinor module. (norm-vanishing conversion)}
+\end{quote}
+In the accompanying Chinese formulation, the three clauses read:
+(i)~the conversion constant serves as the zero-divisor criterion and the
+norm-vanishing criterion is necessary and sufficient;
+(ii)~the kernel of the necessity direction is the isotropic vector of the
+quadratic form; and
+(iii)~the minimal left ideal of zero divisors is the spinor module.
+
+To ensure that our negative resolution does not depend on any ambiguity of
+terminology or sign convention, we analyze every standard algebraic formulation
+of Clifford algebras over a field $F$ with $\mathrm{char}(F) \neq 2$ (including
+$F = \mathbb{Q}$, $F = \mathbb{R}$, and $F = \mathbb{C}$):
+\begin{enumerate}
+  \item \textbf{Both defining sign conventions:} the algebraic/Chevalley convention
+    $\Cl^+(V, Q)$ defined by $v^2 = +Q(v)\cdot 1$, and the geometric/Lawson--Michelsohn
+    convention $\Cl^-(V, Q)$ defined by $v^2 = -Q(v)\cdot 1$.
+  \item \textbf{All canonical involutions and norms:} the multivector Clifford
+    conjugation norm $\Nbar(x) = x\bar{x}$, the reversion norm $\Nrev(x) = x\tilde{x}$,
+    the grade-involution product $x\,\alpha(x)$, their grade-$0$ scalar trace
+    projections $\langle x\,\iota(x)\rangle_0 \in F$, and the regular-representation
+    determinant $\Nreg(x) = \det(L_x) \in F$.
+  \item \textbf{Both readings of isotropic necessity:} existence of nonzero
+    isotropic vectors in $(V, Q)$ as a prerequisite for zero divisors in
+    $\Cl(V, Q)$, as well as element-level intersection $\ker(L_x) \cap V$ for
+    individual zero divisors $x$.
+  \item \textbf{All regimes of $(V, Q)$:} positive-definite, indefinite/split,
+    and degenerate (including totally degenerate exterior algebras $\Lambda(V)$).
+\end{enumerate}
+
+\textbf{Main Verdict.} Conjecture~\texttt{00000007622} is \textbf{FALSE} under
+every combination of the conventions above.
+
+\section{Algebraic Preliminaries and Graded Construction}
+
+Let $F$ be a field with $\mathrm{char}(F) \neq 2$, and let $V$ be an
+$n$-dimensional $F$-vector space equipped with a quadratic form $Q : V \to F$ and
+associated symmetric bilinear form $B(u, v) = \frac{1}{2}\bigl(Q(u + v) - Q(u) - Q(v)\bigr)$.
+Every quadratic form over $F$ ($\mathrm{char}(F) \neq 2$) admits a $B$-orthogonal
+basis $e_0, e_1, \dots, e_{n-1}$ with $Q(e_i) = c_i \in F$, so that
+$Q\bigl(\sum_{i=0}^{n-1} v_i e_i\bigr) = \sum_{i=0}^{n-1} c_i v_i^2$.
+
+\begin{definition}[Clifford algebras $\Cl^+(V, Q)$ and $\Cl^-(V, Q)$]
+For $\sigma = (c_0, \dots, c_{n-1}) \in F^n$, the Clifford algebra
+$\Cl(F^n, \sigma) := T(V) / \langle v \otimes v - Q(v)\cdot 1 : v \in V\rangle$
+has dimension $2^n$ with ordered blade basis
+$e_S = e_{i_1} e_{i_2} \cdots e_{i_k}$ indexed by subsets
+$S = \{i_1 < \dots < i_k\} \subseteq \{0, \dots, n-1\}$, governed by
+$e_i^2 = c_i \cdot 1$ and $e_i e_j = -e_j e_i$ ($i \neq j$). Writing
+$-\sigma = (-c_0, \dots, -c_{n-1})$:
+\[
+  \Cl^+(V, Q) := \Cl(F^n, \sigma) \quad (v^2 = +Q(v)\cdot 1), \qquad
+  \Cl^-(V, Q) := \Cl(F^n, -\sigma) \quad (v^2 = -Q(v)\cdot 1).
+\]
+Over $F$ with Euclidean form $Q_{\mathrm{pos}}(v) = \sum_{i=0}^{n-1} v_i^2$,
+$\Cl^+(F^n, Q_{\mathrm{pos}}) = \Cl_{n,0}(F)$ has $e_i^2 = +1$, while
+$\Cl^-(F^n, Q_{\mathrm{pos}}) = \Cl_{0,n}(F)$ has $e_i^2 = -1$.
+\end{definition}
+
+\begin{proposition}[Recursive $\mathbb{Z}/2\mathbb{Z}$-graded model]
+\label{prop:recursive}
+For any commutative unital ring $R$ and $\sigma = (c_0, c_1, \dots, c_{n-1}) \in R^n$,
+let $A = \Cl(R^{n-1}, (c_1, \dots, c_{n-1}))$ with grade involution $\alpha : A \to A$.
+Then $\Cl(R^n, \sigma) \cong A \oplus e_0 A$ via $(a, b) \leftrightarrow a + e_0 b$,
+with associative unital multiplication and involutions given recursively by
+\begin{align}
+  (a + e_0 b)(u + e_0 v) &= \bigl(a u + c_0\,\alpha(b) v\bigr) + e_0\bigl(\alpha(a) v + b u\bigr), \\
+  \alpha(a + e_0 b) &= \alpha(a) - e_0\,\alpha(b), \qquad
+  \widetilde{a + e_0 b} = \tilde{a} + e_0\,\alpha(\tilde{b}), \qquad
+  \overline{a + e_0 b} = \alpha(\widetilde{a + e_0 b}).
+\end{align}
+\end{proposition}
+\begin{proof}
+Since $e_0$ anticommutes with $e_1, \dots, e_{n-1}$, moving any $w \in A$ past
+$e_0$ yields $w e_0 = e_0\,\alpha(w)$, and $e_0^2 = c_0$. Expanding
+$(a + e_0 b)(u + e_0 v) = au + a e_0 v + e_0 b u + e_0 b e_0 v$ substitutes
+$a e_0 = e_0\alpha(a)$ and $e_0 b e_0 = e_0^2 \alpha(b) = c_0 \alpha(b)$.
+Associativity follows directly from $\alpha^2 = \mathrm{id}_A$ and the
+automorphism property $\alpha(xy) = \alpha(x)\alpha(y)$: comparing the even and
+odd components of $((a,b)(u,v))(p,q)$ and $(a,b)((u,v)(p,q))$ gives identical
+four-term sums. Similarly, $(a + e_0 b)^\sim = \tilde{a} + \tilde{b} e_0 =
+\tilde{a} + e_0\alpha(\tilde{b})$ reverses products by induction.
+\end{proof}
+
+On an orthogonal $k$-blade $e_S$ ($|S| = k$), the three canonical involutions act
+by pure grade signs:
+\begin{equation}
+\label{eq:grade-signs}
+  \alpha(e_S) = (-1)^k e_S, \qquad
+  \tilde{e}_S = (-1)^{k(k-1)/2} e_S, \qquad
+  \bar{e}_S = (-1)^{k(k+1)/2} e_S.
+\end{equation}
+In particular, Clifford conjugation $\bar{x}$ negates grades $k \equiv 1, 2 \pmod 4$
+and \emph{fixes} grades $k \equiv 0, 3 \pmod 4$, whereas reversion $\tilde{x}$
+negates grades $k \equiv 2, 3 \pmod 4$ and \emph{fixes} grades $k \equiv 0, 1 \pmod 4$.
+
+\begin{definition}[Zero divisors, isotropic vectors, and minimal left ideals]
+Let $A = \Cl(V, Q)$ over a field $F$.
+\begin{enumerate}
+  \item An element $x \in A \setminus \{0\}$ is a \emph{left zero divisor} if
+    $\exists y \in A \setminus \{0\}$ with $xy = 0$, and a \emph{right zero divisor}
+    if $\exists y \in A \setminus \{0\}$ with $yx = 0$. Since $\dim_F A = 2^n < \infty$,
+    left multiplication $L_x : A \to A$ is injective iff surjective iff invertible:
+    \begin{align*}
+      x \neq 0 \text{ is a left zero divisor}
+      &\iff x \neq 0 \text{ is a right zero divisor} \\
+      &\iff x \notin A^\times \iff \det(L_x) = 0.
+    \end{align*}
+  \item A vector $v \in V$ is \emph{isotropic} if $v \neq 0$ and $Q(v) = 0$. The
+    quadratic space $(V, Q)$ is \emph{anisotropic} if no isotropic vector exists.
+  \item A nonzero left ideal $I \subseteq A$ is \emph{minimal} if every nonzero
+    left ideal $J \subseteq I$ satisfies $J = I$. An \emph{algebraic spinor module}
+    of a simple nondegenerate Clifford algebra $A \cong M_r(D)$ ($D$ a division
+    $F$-algebra) is a minimal left ideal $S = A f$ generated by a primitive
+    idempotent $f^2 = f \neq 0$; such an $S$ is a simple, faithful left $A$-module.
+\end{enumerate}
+\end{definition}
+
+\section{Restricted Positive Regimes Motivating the Conjecture}
+
+Before refuting Conjecture~\texttt{00000007622} in full generality, we establish
+three exact positive theorems showing where each clause holds under strict
+dimensional or grade hypotheses. These theorems also serve as constructive
+non-vacuity witnesses in our Lean~4 formalization.
+
+\begin{theorem}[Grade-$1$ vector criterion in arbitrary dimension]
+\label{thm:grade1}
+Let $(V, Q)$ be any finite-dimensional quadratic space over a field $F$, and let
+$v \in V \subset \Cl^\pm(V, Q)$. Then $v$ is a zero divisor in $\Cl^\pm(V, Q)$
+if and only if $v$ is an isotropic vector of $(V, Q)$ ($v \neq 0$ and $Q(v) = 0$).
+\end{theorem}
+\begin{proof}
+Under $v^2 = \pm Q(v)\cdot 1$, if $v \neq 0$ and $Q(v) = 0$, then $v \cdot v = 0$,
+witnessing that $v$ is a two-sided zero divisor. Conversely, if $v = 0$, $v$ is
+not a zero divisor by definition; if $Q(v) \neq 0$, then $u := (\pm Q(v))^{-1} v$
+satisfies $vu = uv = 1$, so $v \in \Cl^\pm(V, Q)^\times$ cannot be a zero divisor.
+\end{proof}
+
+\begin{theorem}[Low-dimensional Clifford norm criterion, $\dim V \le 2$]
+\label{thm:dim2}
+Let $(V, Q)$ have orthogonal signature $\sigma$ of dimension $n \le 2$ over a
+field $F$. Then:
+\begin{enumerate}
+  \item For every $x \in \Cl(F^n, \sigma)$, the Clifford conjugation product is
+    scalar: $x\bar{x} = \bar{x}x = \Nbar(x)\cdot 1$ with $\Nbar(x) \in F$. Explicitly,
+    for $n = 2$ and $x = a_0 + a_1 e_0 + a_2 e_1 + a_{12} e_0 e_1$,
+    \[
+      \Nbar(x) = a_0^2 - c_0 a_1^2 - c_1 a_2^2 + c_0 c_1 a_{12}^2, \qquad
+      \det(L_x) = \Nbar(x)^2.
+    \]
+  \item Consequently, for every $x \in \Cl(F^n, \sigma) \setminus \{0\}$,
+    $x$ is a zero divisor if and only if $x\bar{x} = 0$ (equivalently $\Nbar(x) = 0$).
+  \item Over any ordered field $F$ (in particular $\mathbb{Q}$ and $\mathbb{R}$),
+    $\Cl_{0,1}(F) = \Cl(F, [-1])$ and $\Cl_{0,2}(F) = \Cl(F, [-1, -1])$ are
+    division algebras with zero zero-divisors.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+For $n \le 2$, only grades $0, 1, 2$ occur. By~\eqref{eq:grade-signs},
+$\bar{e}_0 = -e_0$, $\bar{e}_1 = -e_1$, and $\overline{e_0 e_1} = -e_0 e_1$.
+Writing $x = a_0 + m$ with $m = a_1 e_0 + a_2 e_1 + a_{12} e_0 e_1$, we have
+$\bar{x} = a_0 - m$, and pairwise anticommutation among $\{e_0, e_1, e_0 e_1\}$
+together with $(e_0 e_1)^2 = -c_0 c_1$ yields
+$x\bar{x} = \bar{x}x = a_0^2 - m^2 = (a_0^2 - c_0 a_1^2 - c_1 a_2^2 + c_0 c_1 a_{12}^2)\cdot 1$.
+For $x \neq 0$, involution bijectivity ($\bar{\bar{x}} = x$) ensures $\bar{x} \neq 0$.
+Thus if $\Nbar(x) = 0$, $x\bar{x} = 0$ directly exhibits $x$ as a zero divisor;
+if $\Nbar(x) \neq 0$, then $\Nbar(x)^{-1}\bar{x}$ is a two-sided inverse of $x$.
+When $c_0 = c_1 = -1$ over an ordered field, $\Nbar(x) = a_0^2 + a_1^2 + a_2^2 + a_{12}^2$
+is a sum of squares, vanishing only at $x = 0$.
+\end{proof}
+
+\begin{theorem}[Simple faithful spinor ideal in $\Cl_{1,1}(F) \cong M_2(F)$]
+\label{thm:cl11}
+Over any field $F$ with $\mathrm{char}(F) \neq 2$, let $\Cl_{1,1}(F) = \Cl(F^2, [1, -1])$
+with $e_0^2 = 1$, $e_1^2 = -1$, and primitive idempotent $f = \frac{1}{2}(1 + e_0)$.
+Then $S = \Cl_{1,1}(F) f$ is a $2$-dimensional minimal left ideal, every
+$x \in S \setminus \{0\}$ is a zero divisor, and $S$ is a faithful simple left
+$\Cl_{1,1}(F)$-module realizing $\Cl_{1,1}(F) \xrightarrow{\sim} \End_F(S) \cong M_2(F)$.
+\end{theorem}
+\begin{proof}
+Since $e_0^2 = 1$, $f^2 = \frac{1}{4}(2 + 2e_0) = f$, and $f(1 - f) = 0$ with
+$1 - f = \frac{1}{2}(1 - e_0) \neq 0$, so every $x = af \in S \setminus \{0\}$
+satisfies $x(1 - f) = 0$. Writing $a = u + e_0 v$ with $u, v \in \Cl(F, [-1])$ gives
+$af = w + e_0 \alpha(w)$ where $w = \frac{1}{2}(u + \alpha(v)) = p + q e_1$, so
+$\dim_F S = 2$. Given any nonzero $x = w + e_0 \alpha(w)$ in a nonzero left
+subideal $J \subseteq S$: if $p \neq 0$, then $x + e_0 x = 4p f \in J$ implies
+$f \in J$; if $p = 0$, then $q \neq 0$ and $e_1 x = -q + e_0(-q) = -2q f \in J$
+again implies $f \in J$, so $J = S$ and $S$ is minimal. Finally, if
+$(u + e_0 v) S = 0$, evaluating on $2f = 1 + e_0$ and $2 e_1 f = e_1 - e_0 e_1$
+yields $u + \alpha(v) = 0$ and $(u - \alpha(v))e_1 = 0$; multiplying the latter
+by $-e_1$ ($e_1(-e_1) = 1$) gives $u - \alpha(v) = 0$, whence $2u = 0 \implies u = v = 0$.
+\end{proof}
+
+\section{Disproof of Clause B: Zero Divisors Without Isotropic Vectors}
+
+Clause~B fails catastrophically as soon as one passes from grade-$1$ vectors
+(Theorem~\ref{thm:grade1}) to mixed-grade multivectors, under \emph{both} sign
+conventions and over $\mathbb{Q}$, $\mathbb{R}$, and $\mathbb{C}$.
+
+\begin{theorem}[Anisotropic zero divisors under both sign conventions]
+\label{thm:disproof-B}
+\leavevmode
+\begin{enumerate}
+  \item \textbf{Convention $v^2 = +Q(v)\cdot 1$ (arbitrary field $F$, $\mathrm{char}(F) \neq 2$):}
+    On the $1$-dimensional quadratic space $(F^1, Q(v_0) = v_0^2)$, $Q(v_0) = 0 \iff v_0 = 0$,
+    so $(F^1, Q)$ has \emph{zero} nonzero isotropic vectors (even when $F = \mathbb{C}$).
+    Yet in $\Cl^+(F^1, Q) = \Cl_{1,0}(F) \cong F \oplus F$, the nonzero elements
+    $x = 1 + e_0$ and $y = 1 - e_0$ satisfy $xy = yx = 1 - e_0^2 = 0$.
+    Over any ordered field $F$ ($\mathbb{Q}, \mathbb{R}$), the same holds for all
+    Euclidean spaces $(F^n, \sum_{i=0}^{n-1} v_i^2)$ with $n \ge 1$ (including
+    simple $\Cl_{2,0}(\mathbb{R}) \cong M_2(\mathbb{R})$).
+  \item \textbf{Convention $v^2 = -Q(v)\cdot 1$ (ordered fields $\mathbb{Q}, \mathbb{R}$, and $\mathbb{C}$):}
+    Over any ordered field $F$, the $3$-dimensional Euclidean space
+    $(F^3, v_0^2 + v_1^2 + v_2^2)$ is strictly anisotropic ($Q(v) = 0 \implies v = 0$).
+    Yet in $\Cl^-(F^3, Q_{\mathrm{pos}}) = \Cl_{0,3}(F)$ ($e_i^2 = -1$), the central
+    volume blade $\omega_3 = e_0 e_1 e_2$ satisfies
+    \[
+      \omega_3^2 = (e_0 e_1 e_2)(e_0 e_1 e_2) = (-1)^3 e_0^2 e_1^2 e_2^2
+                 = (-1)(-1)^3 = +1,
+    \]
+    so $(1 + \omega_3)(1 - \omega_3) = 1 - \omega_3^2 = 0$ with $1 \pm \omega_3 \neq 0$.
+    (Over $F = \mathbb{C}$, even $n = 1$ under $v^2 = -Q(v)$ has $(i + e_0)(i - e_0) = -1 - (-1) = 0$.)
+  \item \textbf{Element-level annihilator kernel in $\Cl_{1,1}(F)$:}
+    Even in split signature $\Cl_{1,1}(F)$ ($e_0^2 = 1, e_1^2 = -1$), where nonzero
+    isotropic vectors $e_0 \pm e_1 \in V \setminus \{0\}$ exist, the zero divisor
+    $x = 1 + e_0$ satisfies $\ker(L_{1 + e_0}) \cap V = \{0\}$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Parts~(1) and~(2) are immediate from the displayed products; strict anisotropy of
+$Q_{\mathrm{pos}}$ over an ordered field follows from positivity of nonzero squares.
+For part~(3), let $v = v_0 e_0 + v_1 e_1 \in V$. Then
+$(1 + e_0)(v_0 e_0 + v_1 e_1) = v_0 + v_0 e_0 + v_1 e_1 + v_1 e_0 e_1$, whose
+grade-$0$ and grade-$1$ coordinates vanish iff $v_0 = v_1 = 0$.
+\end{proof}
+
+\section{Disproof of Clause A: Breakdown of Clifford and Involution Norms}
+
+Theorem~\ref{thm:dim2} showed that $\Nbar(x) = x\bar{x}$ characterizes zero
+divisors for $\dim V \le 2$ because Clifford conjugation negates grades $1$ and $2$.
+At grade $3$ and grade $4$, Equation~\eqref{eq:grade-signs} gives
+$(-1)^{3\cdot 4/2} = +1$ and $(-1)^{4\cdot 5/2} = +1$, causing Clause~A to collapse.
+
+\begin{theorem}[Three-dimensional failure of Clifford conjugation norm]
+\label{thm:dim3-norm}
+Over any ordered field $F$ ($\mathbb{Q}, \mathbb{R}$), let
+$\Cl_{0,3}(F) = \Cl^-(F^3, Q_{\mathrm{pos}})$ with $\omega_3 = e_0 e_1 e_2$, and
+set $x = 1 + \omega_3$. Then:
+\begin{enumerate}
+  \item $x$ is a left and right zero divisor: $x(1 - \omega_3) = (1 - \omega_3)x = 0$,
+    with $\det(L_x) = 0$ and $\mathrm{rank}(L_x) = 4 < 8$;
+  \item $\bar{x} = 1 + \bar{\omega}_3 = 1 + \omega_3 = x$, so the multivector
+    Clifford norm is
+    \[
+      x\bar{x} = (1 + \omega_3)^2 = 2(1 + \omega_3) \neq 0,
+    \]
+    which is neither scalar ($x\bar{x} \notin F\cdot 1$) nor zero;
+  \item the grade-$0$ scalar trace norm is $\langle x\bar{x}\rangle_0 = 2 \neq 0$.
+\end{enumerate}
+The identical failure occurs in indefinite signature $\Cl_{2,1}(F)$ ($e_0^2 = e_1^2 = 1$,
+$e_2^2 = -1$), where again $\omega_3^2 = (-1)^3(1)(1)(-1) = +1$ and $\bar{\omega}_3 = \omega_3$.
+\end{theorem}
+\begin{proof}
+By~\eqref{eq:grade-signs} at $k = 3$, $\bar{\omega}_3 = (-1)^6 \omega_3 = \omega_3$.
+Since $\omega_3^2 = 1$, $(1 + \omega_3)^2 = 1 + 2\omega_3 + 1 = 2 + 2\omega_3$.
+Because $\mathrm{char}(F) \neq 2$, both the grade-$0$ coefficient $2$ and the
+grade-$3$ coefficient $2$ are nonzero.
+\end{proof}
+
+Even more strikingly, in dimension $4$ we obtain a \emph{universal} counterexample
+that simultaneously defeats \emph{both} sign conventions $v^2 = +Q(v)$ and
+$v^2 = -Q(v)$ on positive-definite Euclidean $4$-space and \emph{all three}
+canonical involutions at once.
+
+\begin{theorem}[Universal $4$-dimensional counterexample across all conventions]
+\label{thm:dim4-universal}
+Let $F$ be any field with $\mathrm{char}(F) \neq 2$, let $\epsilon \in \{+1, -1\}$,
+and consider $\Cl(F^4, [\epsilon, \epsilon, \epsilon, \epsilon])$---which equals
+$\Cl_{4,0}(F) = \Cl^+(F^4, Q_{\mathrm{pos}})$ for $\epsilon = +1$ and
+$\Cl_{0,4}(F) = \Cl^-(F^4, Q_{\mathrm{pos}})$ for $\epsilon = -1$. Let
+$\omega_4 = e_0 e_1 e_2 e_3$ and $x = 1 + \omega_4$. Then:
+\begin{enumerate}
+  \item $\omega_4^2 = (-1)^{4\cdot 3/2} \epsilon^4 = (+1)(+1) = +1$, so
+    $x(1 - \omega_4) = (1 - \omega_4)x = 0$ with $1 \pm \omega_4 \neq 0$, making $x$
+    a two-sided zero divisor ($\det(L_x) = 0$, $\mathrm{rank}(L_x) = 8 < 16$);
+  \item for \textbf{every} canonical involution $\iota \in \{\bar{\cdot}, \tilde{\cdot}, \alpha\}$,
+    \[
+      \iota(x) = x, \qquad
+      x\,\iota(x) = 2(1 + \omega_4) \neq 0, \qquad
+      \langle x\,\iota(x)\rangle_0 = 2 \neq 0;
+    \]
+  \item when $F$ is an ordered field ($\mathbb{Q}$ or $\mathbb{R}$), the underlying
+    Euclidean form $Q_{\mathrm{pos}}(v) = v_0^2 + v_1^2 + v_2^2 + v_3^2$ has zero
+    nonzero isotropic vectors.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Moving each $e_i$ across the preceding factors in $(e_0 e_1 e_2 e_3)^2$ requires
+$3 + 2 + 1 = 6$ anticommutations, so $\omega_4^2 = (-1)^6 e_0^2 e_1^2 e_2^2 e_3^2
+= \epsilon^4 = 1$ since $\epsilon^2 = 1$. At grade $k = 4$,
+$(-1)^4 = (-1)^6 = (-1)^{10} = +1$, so $\alpha(\omega_4) = \tilde{\omega}_4 =
+\bar{\omega}_4 = \omega_4$. Hence $\iota(x) = x$ and $x\,\iota(x) = x^2 = 2(1 + \omega_4)$,
+whose scalar part is $2 \neq 0$.
+\end{proof}
+
+\begin{remark}[Regular-representation determinant $\Nreg(x) = \det(L_x)$]
+If one abandons Clifford involution norms altogether and redefines the norm of
+$x \in \Cl(V, Q)$ to be the generic finite-dimensional algebra determinant
+$\Nreg(x) = \det(L_x)$ (or reduced norm in a semisimple representation), then
+$\Nreg(x) = 0 \iff x \text{ is a zero divisor}$ ($x \neq 0$) becomes a tautology valid
+in \emph{every} finite-dimensional associative algebra (unrelated to Clifford
+structure or conversion constants), while Clauses~B and~C remain false by
+Theorem~\ref{thm:disproof-B} and Section~\ref{sec:clause-c}.
+\end{remark}
+
+\section{Disproof of Clause C: Minimal Left Ideals vs.\ Spinor Modules}
+\label{sec:clause-c}
+
+Clause~C asserts that ``the minimal left ideal of zero divisors is the spinor
+module.'' While true for primitive-idempotent left ideals in central simple split
+algebras such as $\Cl_{1,1}(F) \cong M_2(F)$ (Theorem~\ref{thm:cl11}), this
+identification fails in three distinct structural classes of Clifford algebras.
+
+\begin{theorem}[Degenerate exterior algebras $\Lambda(F^n) = \Cl(F^n, 0)$]
+\label{thm:exterior}
+Let $F$ be a field with $\mathrm{char}(F) \neq 2$, and consider the totally
+degenerate quadratic space $(F^n, 0)$ ($n \ge 1$), whose Clifford algebra is the
+exterior algebra $\Lambda(F^n) = \Cl(F^n, [0, \dots, 0])$. Let
+$\omega_n = e_0 \wedge \dots \wedge e_{n-1}$ and $M = \Lambda(F^n)\omega_n = F\cdot\omega_n$.
+Then:
+\begin{enumerate}
+  \item $M$ consists of zero divisors (together with $0$) and is the \textbf{unique}
+    minimal left ideal of $\Lambda(F^n)$: every nonzero left ideal $J \subseteq \Lambda(F^n)$
+    contains $M$;
+  \item every generating vector $v \in F^n$ acts identically by \textbf{zero} on $M$
+    ($v \wedge \omega_n = 0$), so $M$ is unfaithful ($\ker\rho_M = \Lambda^+(F^n)$)
+    and $\dim_F M = 1 < 2^{\lfloor n/2\rfloor}$ for all $n \ge 2$;
+  \item $\Lambda(F^n)$ is local with Jacobson radical $\Lambda^+(F^n)$ and possesses
+    \textbf{no nontrivial idempotents}: $e^2 = e \implies e \in \{0, 1\}$. Thus $M$
+    is not generated by any primitive idempotent and is not a direct summand of
+    $\Lambda(F^n)$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Since $e_i \wedge \omega_n = 0$ for all $i$, $\Lambda^+(F^n)\omega_n = 0$, so
+$\Lambda(F^n)\omega_n = F\cdot\omega_n$ and $\omega_n^2 = 0$. Given any nonzero
+$z = \sum_S z_S e_S \in J$, pick a minimal-cardinality subset $S$ with $z_S \neq 0$;
+left-multiplying $z$ by the complementary blade $e_{\{0,\dots,n-1\}\setminus S}$
+annihilates every $e_T$ with $T \cap (\{0,\dots,n-1\}\setminus S) \neq \emptyset$
+(hence every $T \neq S$ with $|T| \ge |S|$), producing $\pm z_S \omega_n \in J$,
+whence $\omega_n \in J$ and $M \subseteq J$. Finally, if $e = p + m$ ($p \in F$,
+$m \in \Lambda^+(F^n)$) satisfies $e^2 = e$, taking grade $0$ gives $p^2 = p$, so
+$p \in \{0, 1\}$. Since $m^{n+1} = 0$: if $p = 0$, $m = m^2 = \dots = m^{n+1} = 0$;
+if $p = 1$, $1 + 2m + m^2 = 1 + m \implies m(1 + m) = 0$, and multiplying by the
+unit $\sum_{k=0}^n (-m)^k = (1 + m)^{-1}$ gives $m = 0$.
+\end{proof}
+
+\begin{theorem}[Split semisimple Clifford algebras and non-unique/unfaithful ideals]
+\label{thm:split}
+Let $F$ be a field with $\mathrm{char}(F) \neq 2$, and consider
+$\Cl_{1,0}(F) = \Cl(F, [1]) \cong F \oplus F$ with central orthogonal idempotents
+$p_+ = \frac{1}{2}(1 + e_0)$ and $p_- = \frac{1}{2}(1 - e_0)$. Then:
+\begin{enumerate}
+  \item $I_+ = \Cl_{1,0}(F)p_+ = F p_+$ and $I_- = \Cl_{1,0}(F)p_- = F p_-$ are
+    both minimal left ideals whose nonzero elements are zero divisors;
+  \item neither $I_+$ nor $I_-$ is a faithful $\Cl_{1,0}(F)$-module
+    ($p_- I_+ = 0$ and $p_+ I_- = 0$);
+  \item $I_+$ and $I_-$ are \textbf{not isomorphic} as left $\Cl_{1,0}(F)$-modules,
+    since $e_0$ acts as $+1$ on $I_+$ and as $-1$ on $I_-$ (they are distinct
+    half-pinor representations, whereas spinor modules of $\Cl^0_{1,0}(F) = F$
+    contain no zero divisors at all);
+  \item $p_+$ and $p_-$ are zero divisors whose sum $p_+ + p_- = 1$ is a unit, so
+    the set of zero divisors (union $\{0\}$) does not form a left ideal.
+\end{enumerate}
+Analogously, in $\Cl_{0,3}(F)$ ($\cong \mathbb{H} \oplus \mathbb{H}$ for $F = \mathbb{R}$),
+$q_\pm = \frac{1}{2}(1 \pm e_0 e_1 e_2)$ generate two non-isomorphic, unfaithful
+$4$-dimensional minimal left ideals distinguished by $\omega_3 \mapsto \pm 1$.
+\end{theorem}
+\begin{proof}
+Since $\dim_F I_\pm = 1$, both are minimal; $p_+ p_- = \frac{1}{4}(1 - e_0^2) = 0$
+gives zero-divisor membership and unfaithfulness. If $\varphi : I_+ \to I_-$ were
+a $\Cl_{1,0}(F)$-linear isomorphism, then for $y = \varphi(p_+) \in I_-$ we would have
+$y = \varphi(e_0 p_+) = e_0 \varphi(p_+) = e_0 y = -y$, so $2y = 0 \implies y = 0$,
+contradicting bijectivity since $p_+ \neq 0$.
+\end{proof}
+
+\begin{corollary}[Division Clifford algebras have no zero-divisor left ideals]
+\label{cor:division}
+Over any ordered field $F$ ($\mathbb{Q}, \mathbb{R}$), $\Cl_{0,1}(F)$ and
+$\Cl_{0,2}(F)$ possess no nonzero left ideals consisting of zero divisors, even
+though $\Cl_{0,1}(\mathbb{R}) \cong \mathbb{C}$ and
+$\Cl_{0,2}(\mathbb{R}) \cong \mathbb{H}$ possess well-defined spinor modules
+($\mathbb{C}$ and $\mathbb{H}$ themselves).
+\end{corollary}
+
+\section{Synthesis Across Conventions and Formal Verification}
+
+Table~\ref{tab:summary} synthesizes the status of Clauses~A, B, and~C across
+representative Clifford algebras in dimensions $1 \le n \le 4$.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.2pt}
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+Algebra ($\mathbb{R}$) & Signature $\sigma$ & Isotropic $v$? & Zero div.? & $x\bar{x}=0$ crit.? & Minimal left ideals \\
+\midrule
+$\Cl_{0,1} \cong \mathbb{C}$ & $[-1]$ & No & No & Holds ($n=1$) & None of ZDs (div.) \\
+$\Cl_{1,0} \cong \mathbb{R}\oplus\mathbb{R}$ & $[+1]$ & \textbf{No} & \textbf{Yes} ($1\pm e_0$) & Holds ($n=1$) & \textbf{2 non-iso.\ unfaithful} \\
+$\Cl_{0,2} \cong \mathbb{H}$ & $[-1,-1]$ & No & No & Holds ($n=2$) & None of ZDs (div.) \\
+$\Cl_{2,0} \cong M_2(\mathbb{R})$ & $[+1,+1]$ & \textbf{No} & \textbf{Yes} ($1\pm e_0$) & Holds ($n=2$) & Faithful spinor ($\mathbb{R}^2$) \\
+$\Cl_{1,1} \cong M_2(\mathbb{R})$ & $[+1,-1]$ & Yes ($e_0\pm e_1$) & Yes ($\ker\cap V=0$) & Holds ($n=2$) & Faithful spinor ($\mathbb{R}^2$) \\
+$\Lambda(\mathbb{R}^2)$ & $[0,0]$ & Yes ($V\setminus 0$) & Yes (nilp.) & Holds ($n=2$) & \textbf{1D trivial $V$-act.} \\
+$\Cl_{0,3} \cong \mathbb{H}\oplus\mathbb{H}$ & $[-1,-1,-1]$ & \textbf{No} & \textbf{Yes} ($1\pm\omega_3$) & \textbf{Fails} ($x\bar{x}=2x$) & \textbf{2 non-iso.\ unfaithful} \\
+$\Cl_{4,0} \cong M_2(\mathbb{H})$ & $[+1,+1,+1,+1]$ & \textbf{No} & \textbf{Yes} ($1\pm\omega_4$) & \textbf{Fails all $\iota$} & Faithful spinor ($\mathbb{H}^2$) \\
+$\Cl_{0,4} \cong M_2(\mathbb{H})$ & $[-1,-1,-1,-1]$ & \textbf{No} & \textbf{Yes} ($1\pm\omega_4$) & \textbf{Fails all $\iota$} & Faithful spinor ($\mathbb{H}^2$) \\
+\bottomrule
+\end{tabular}
+\caption{Summary of zero-divisor, norm, isotropy, and ideal properties across
+standard Clifford algebras ($e_i^2 = \sigma_i$). Bold entries mark direct
+counterexamples to Clauses~A, B, or~C.}
+\label{tab:summary}
+\end{table}
+
+\subsection*{Computational and Formal Verification}
+
+\begin{itemize}
+  \item \textbf{Exact Rational Python Suite (\texttt{verify.py}):} Uses Python~3's
+    \texttt{fractions.Fraction} (zero floating-point arithmetic) to verify basis
+    isomorphism between bitmask and recursive Clifford models across $16$
+    signatures, check exact determinants $\det(L_x)$ and nullspaces on $>1{,}200$
+    vectors and multivectors, and confirm every counterexample in
+    Theorems~\ref{thm:disproof-B}--\ref{thm:split}.
+  \item \textbf{Core Lean~4.19.0 Formalization (\texttt{lean/}):} Compiled with
+    flag \texttt{-DwarningAsError=true}, zero external dependencies, and zero
+    \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, or custom axioms.
+    Module \texttt{Basic.lean} axiomatizes \texttt{CommRingOps}, \texttt{FieldOps},
+    \texttt{CharNeTwoField}, and \texttt{OrderedField} (covering both $\mathbb{Q}$
+    and $\mathbb{R}$) and constructs \texttt{QRat} ($\mathbb{Q}$) explicitly as a
+    quotient of $\mathbb{Z} \times \mathbb{Z}_{>0}$. Module \texttt{Clifford.lean}
+    formalizes Proposition~\ref{prop:recursive} in arbitrary dimension $n$. Module
+    \texttt{PositiveRegimes.lean} proves Theorems~\ref{thm:grade1}--\ref{thm:cl11}.
+    Finally, \texttt{Disproof.lean} proves
+    Theorems~\ref{thm:disproof-B}--\ref{thm:split}, culminating in the master
+    theorem
+    \begin{center}
+      \texttt{conjecture\_00000007622\_false\_over\_ordered\_field}
+    \end{center}
+    and its unconditional ground specialization
+    \begin{center}
+      \texttt{conjecture\_00000007622\_disproved\_over\_QRat}.
+    \end{center}
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{Chevalley1954}
+C.~Chevalley, \emph{The Algebraic Theory of Spinors}, Columbia University Press,
+New York, 1954.
+
+\bibitem{LawsonMichelsohn1989}
+H.~B.~Lawson and M.-L.~Michelsohn, \emph{Spin Geometry}, Princeton Mathematical
+Series, vol.~38, Princeton University Press, Princeton, NJ, 1989.
+
+\bibitem{Lounesto2001}
+P.~Lounesto, \emph{Clifford Algebras and Spinors}, 2nd ed., London Mathematical
+Society Lecture Note Series, vol.~286, Cambridge University Press, Cambridge, 2001.
+
+\bibitem{ABS1964}
+M.~F.~Atiyah, R.~Bott, and A.~Shapiro, \emph{Clifford modules}, Topology
+\textbf{3} (1964), suppl.~1, 3--38.
+\end{thebibliography}
+
+\end{document}
