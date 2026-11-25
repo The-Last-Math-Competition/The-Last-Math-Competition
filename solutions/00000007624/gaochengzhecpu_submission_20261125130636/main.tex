@@ -1,0 +1,598 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\sloppy
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\Mat}{\mathrm{M}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\HH}{\mathbb{H}}
+
+\title{\textbf{Refutation and Sharp Structural Classification for the\\
+Null-Vector Sum Construction of Nilpotent Formulas\\
+(Conjecture 00000007624)}}
+\author{Formalized in Core Lean 4.19.0 with Independent Computational Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007624}, which proposes an ``isotropic null-vector sum
+construction'' of nilpotent algebraic formulas asserting three linked equivalences:
+(i) nilpotent formulas arise from explicit construction domains via sums of null vectors
+where a sum of squares evaluates to a null vector; (ii) the existence of nonzero
+nilpotent/null objects is equivalent to the existence of a nonzero isotropic vector; and
+(iii) the existence of a nonzero isotropic vector is equivalent to an indefinite signature
+condition. We prove that the conjecture is \textbf{false in general} across all three
+links, while isolating the exact restricted regime in which its underlying geometric
+intuition holds. Positively, for a single grade-$1$ vector $v \in V \hookrightarrow \Cl(V, Q)$
+over any integral domain, $\iota(v)$ is nilpotent of arbitrary index $k \ge 1$ if and only
+if $Q(v) = 0$, and for a nondegenerate real quadratic space of signature $(p, q)$ this
+occurs if and only if $p \ge 1$ and $q \ge 1$. Globally, however, we establish three
+decisive families of counterexamples: (1) strictly positive-definite Euclidean Clifford
+algebras (with \emph{zero} nonzero isotropic vectors) admit explicit nonzero multivector
+nilpotents under \emph{both} standard sign conventions---$x = e_1 + e_1 e_2$ in
+$\Cl_{2,0}(\R) \cong \Mat_2(\R)$ and $y = e_4 + e_1 e_2 e_3 e_4$ in
+$\Cl_{0,4}(\R) \cong \Mat_2(\HH)$---and we prove a complete classification showing that
+$\Cl_{p,q}(R)$ over any ordered integral domain $R$ contains nonzero nilpotents if and
+only if $(p, q) \notin \{(0,0), (1,0), (0,1), (0,2), (0,3)\}$; (2) the sum of two null
+vectors in $\Cl_{1,1}(R)$ need not be nilpotent, as $(e_1 + e_2) + (e_1 - e_2) = 2 e_1$
+squares to the invertible scalar $4 \cdot 1$; and (3) the signature criterion fails for
+degenerate real forms of inertia $(p, 0, r)$ ($r \ge 1$), for pure sums of squares over
+$\C$, $\Z[i]$, and finite prime fields $\F_p$, and---by Hasse--Minkowski local
+obstructions---for indefinite rational forms such as $x_1^2 - 2 x_2^2$ and
+$x_1^2 + x_2^2 - 3 x_3^2$. All main positive theorems and counterexamples are mechanized
+from first principles in Core Lean 4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Introduction and Problem Decomposition}
+
+Conjecture \texttt{00000007624} reads verbatim in English:
+\begin{quote}
+\emph{Definition: The null-vector sum construction of nilpotent formulas. Conjecture:
+The construction domain is explicit and the sum of squares is the null vector; the
+existence of null vectors is the isotropic vector; and the existence of isotropic vectors
+is the signature condition. (isotropic null-vector sum construction)}
+\end{quote}
+The accompanying Chinese statement expresses the identical three-part chain using standard
+quadratic-geometry terminology: \emph{m\`il\'\i ng g\=ongsh\`\i} (nilpotent formulas),
+\emph{l\'\i ng xi\`angli\`ang h\'e g\`ouz\`ao} (null-vector sum construction),
+\emph{p\'\i ngf\=angh\'e w\'ei l\'\i ng xi\`angli\`ang} (sum of squares is the null
+vector), \emph{m\'\i xi\`ang xi\`angli\`ang} (isotropic vector), and
+\emph{f\'uh\`aoch\=a ti\'aoji\`an} (signature condition).
+
+\medskip
+\noindent\textbf{Terminological clarification.}
+In linear algebra, ``null vector'' (\emph{l\'\i ng xi\`angli\`ang}) can refer trivially to
+the zero vector $0 \in V$, which exists in every module regardless of signature and yields
+only the trivial nilpotent $0^2 = 0$. In pseudo-Riemannian geometry, spinor theory, and
+Clifford algebras, a \emph{null vector} is a nonzero lightlike vector $v \in V \setminus \{0\}$
+satisfying $Q(v) = 0$, i.e., a nonzero \emph{isotropic vector}. Under either reading, the
+conjecture asserts an unconditional equivalence linking:
+\begin{enumerate}
+  \item[\textbf{(L1)}] \textbf{Null-vector sum / sum-of-squares construction:}
+    constructing nonzero nilpotent formulas via sums of null vectors and quadratic sums of
+    squares;
+  \item[\textbf{(L2)}] \textbf{Nilpotent--isotropic equivalence:}
+    the existence of nonzero nilpotent elements in the quadratic/Clifford algebra is
+    equivalent to the existence of a nonzero isotropic vector in $(V, Q)$;
+  \item[\textbf{(L3)}] \textbf{Isotropic--signature equivalence:}
+    the existence of a nonzero isotropic vector in $(V, Q)$ is equivalent to the
+    indefinite signature condition ($p \ge 1$ and $q \ge 1$).
+\end{enumerate}
+
+\noindent\textbf{Verdict.}
+Conjecture \texttt{00000007624} is \textbf{false in general}. Every link (L1), (L2), and
+(L3) fails outside a narrow special case. At the same time, restricting strictly to
+\emph{single grade-$1$ vectors} inside the Clifford algebra $\Cl(V, Q)$ of a
+\emph{nondegenerate real} quadratic space recovers a clean, non-vacuous positive theorem.
+Table~\ref{tab:summary} summarizes the exact boundary between validity and refutation.
+
+\begin{table}[ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.16}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.28\textwidth}>{\raggedright\arraybackslash}p{0.23\textwidth}>{\raggedright\arraybackslash}p{0.43\textwidth}@{}}
+\toprule
+\textbf{Mathematical Regime} & \textbf{Status} & \textbf{Exact Theorem / Minimal Counterexample} \\
+\midrule
+Single grade-$1$ vector $v \in V \subset \Cl(V, \pm Q)$ over domain $R$ &
+\textbf{Holds} (Thm.~\ref{thm:grade1}) &
+$\iota(v) \ne 0 \land \iota(v)^k = 0 \iff v \ne 0 \land Q(v) = 0$ for all $k \ge 1$. \\
+Nondegenerate real form $Q_{p,q}$ (grade-$1$ vectors only) &
+\textbf{Holds} (Thm.~\ref{thm:signature}) &
+Nonzero isotropic vector exists $\iff p \ge 1$ and $q \ge 1$. \\
+Full Clifford algebra $\Cl_{p,q}(R)$ ($+Q$ and $-Q$ conventions) &
+\textbf{Fails (L2, L3)} (Thms.~\ref{thm:posdef}, \ref{thm:classification}) &
+Definite Euclidean $\Cl_{2,0}$ has $(e_1 + e_1 e_2)^2 = 0$; $\Cl_{0,4}$ has $(e_4 + e_1 e_2 e_3 e_4)^2 = 0$; only $5$ pairs $(p,q)$ are reduced. \\
+Sums of null vectors $u + w$ in $\Cl_{1,1}(R)$ &
+\textbf{Fails (L1)} (Prop.~\ref{prop:polar}, Thm.~\ref{thm:nullsum}) &
+$u = e_1 + e_2$, $w = e_1 - e_2$ satisfy $u^2 = w^2 = 0$, yet $(u+w)^2 = 4 \cdot 1$ is a unit ($B_Q(u,w) \ne 0$). \\
+Degenerate real forms $Q_{p,0,r}$ ($r \ge 1$) &
+\textbf{Fails (L3)} (Prop.~\ref{prop:degenerate}) &
+Zero negative squares ($q = 0$), yet radical vector $e_{p+1} \ne 0$ satisfies $Q(e_{p+1}) = 0$. \\
+Non-ordered fields ($\C$, $\Z[i]$, $\F_p$) &
+\textbf{Fails (L1, L3)} (Props.~\ref{prop:complex}, \ref{prop:fp}) &
+Unsigned sums of squares are isotropic: $1^2 + i^2 = 0$ in $\Z[i]$; $x_1^2 + x_2^2 + x_3^2 = 0$ in every $\F_p$. \\
+Ordered non-real-closed field $\Q$ &
+\textbf{Fails (L3)} (Thm.~\ref{thm:hasse}) &
+Indefinite forms $x_1^2 - 2x_2^2$ ($(1,1)$) and $x_1^2 + x_2^2 - 3x_3^2$ ($(2,1)$) have no nonzero $\Q$-isotropic vectors. \\
+\bottomrule
+\end{tabular}
+\caption{Summary of positive results and structural counterexamples for Conjecture \texttt{00000007624}.}
+\label{tab:summary}
+\end{table}
+
+\section{Algebraic Framework and Restricted Positive Theorems}
+
+Let $R$ be a commutative unital ring and let $g = (g_1, \dots, g_n) \in R^n$. Set
+$V = R^n$, equipped with the diagonal quadratic form and associated symmetric bilinear
+form
+\begin{equation}\label{eq:quad-polar}
+  Q_g(v) = \sum_{i=1}^n g_i v_i^2, \qquad
+  B_g(u, w) = \sum_{i=1}^n g_i u_i w_i, \qquad
+  Q_g(u + w) = Q_g(u) + Q_g(w) + 2 B_g(u, w).
+\end{equation}
+Over any field of characteristic $\ne 2$, every finite-dimensional quadratic space admits
+an orthogonal basis and is isometric to $(R^n, Q_g)$ for suitable weights $g$. A vector
+$v \in V$ is called \emph{isotropic} (or a \emph{null vector}) if $v \ne 0$ and
+$Q_g(v) = 0$.
+
+\subsection{Graded Doubling Construction of the Clifford Algebra}
+
+To formalize $\Cl(R^n, Q_g)$ over an arbitrary commutative ring $R$ without quotienting
+tensor algebras, we construct $\Cl(R, g)$ recursively as a $\Z/2\Z$-graded associative
+unital algebra equipped with its grade involution $\alpha : \Cl(R, g) \to \Cl(R, g)$:
+\begin{itemize}
+  \item For $n = 0$ ($g = []$), $\Cl(R, []) = R$ with $\alpha(r) = r$.
+  \item For $g = (c, g')$, $\Cl(R, (c, g')) = \Cl(R, g') \times \Cl(R, g')$, where a pair
+    $(x, y)$ represents $x + y e_0$ for a new odd generator $e_0$ satisfying $e_0^2 = c$
+    and $e_0 z = \alpha(z) e_0$ for all $z \in \Cl(R, g')$. Multiplication and grade
+    involution are given explicitly by
+    \begin{equation}\label{eq:cliff-mul}
+      (x_1, y_1) \cdot (x_2, y_2) =
+      \bigl(x_1 x_2 + c\, y_1 \alpha(y_2),\; x_1 y_2 + y_1 \alpha(x_2)\bigr),
+      \qquad
+      \hat{\alpha}(x, y) = \bigl(\alpha(x),\, -\alpha(y)\bigr).
+    \end{equation}
+\end{itemize}
+
+\begin{lemma}[Clifford Superalgebra Structure]\label{lem:clifford}
+For every commutative ring $R$ and weight tuple $g \in R^n$, $(\Cl(R, g), +, \cdot, 0, 1)$
+is an associative unital ring of rank $2^n$ over $R$, $\alpha$ is a ring involution
+($\alpha(z w) = \alpha(z)\alpha(w)$, $\alpha^2 = \mathrm{id}$), the scalar map
+$\sigma_g : R \to \Cl(R, g)$ is an injective central ring homomorphism, and the grade-$1$
+linear map $\iota_g : R^n \to \Cl(R, g)$ admits a left-inverse projection $\pi_1 : \Cl(R, g) \to R^n$
+and satisfies, for all $u, v, w \in R^n$:
+\begin{equation}\label{eq:clifford-rel}
+  \iota_g(v)^2 = \sigma_g(Q_g(v)), \qquad
+  \iota_g(u)\iota_g(w) + \iota_g(w)\iota_g(u) = \sigma_g\bigl(2 B_g(u, w)\bigr).
+\end{equation}
+\end{lemma}
+\begin{proof}
+By structural induction on $g$. Assuming $\Cl(R, g')$ is associative and $\alpha$ is an
+involution, expanding $((x_1, y_1)(x_2, y_2))(x_3, y_3)$ and $(x_1, y_1)((x_2, y_2)(x_3, y_3))$
+via \eqref{eq:cliff-mul} and using $\alpha(x_2 x_3 + c y_2 \alpha(y_3)) =
+\alpha(x_2)\alpha(x_3) + c \alpha(y_2) y_3$ and $\alpha(x_2 y_3 + y_2 \alpha(x_3)) =
+\alpha(x_2)\alpha(y_3) + \alpha(y_2) x_3$ yields identical four-term expressions in both
+components. Defining $\iota_{(c, g')}(x_0, v') = (\iota_{g'}(v'), \sigma_{g'}(x_0))$ gives
+$\hat{\alpha}(\iota_g(v)) = -\iota_g(v)$ and
+\[
+  \iota_{(c,g')}(x_0, v')^2
+  = \bigl(\iota_{g'}(v')^2 + c\,\sigma_{g'}(x_0^2),\;
+    x_0 \iota_{g'}(v') - x_0 \iota_{g'}(v')\bigr)
+  = \sigma_{(c,g')}\bigl(c x_0^2 + Q_{g'}(v')\bigr).
+\]
+Applying this identity to $\iota_g(u + w) = \iota_g(u) + \iota_g(w)$ together with
+\eqref{eq:quad-polar} and cancelling $\iota_g(u)^2 + \iota_g(w)^2$ yields the
+anticommutator formula in \eqref{eq:clifford-rel}. Left-inverse projections
+$\pi_0 : \Cl(R, g) \to R$ and $\pi_1 : \Cl(R, g) \to R^n$ follow immediately by
+induction, proving injectivity of $\sigma_g$ and $\iota_g$.
+\end{proof}
+
+An element $z$ of an associative ring $A$ is \emph{square-zero} if $z^2 = 0$, and
+\emph{nilpotent} if $z^k = 0$ for some integer $k \ge 1$. Note that the opposite Clifford
+sign convention $\iota(v)^2 = -Q_g(v)\cdot 1$ is simply $\Cl(R, -g)$, since
+$Q_{-g}(v) = -Q_g(v)$.
+
+\begin{lemma}[Index Reduction for Reducedness]\label{lem:nil-red}
+An associative unital ring $A$ contains a nonzero nilpotent element if and only if it
+contains a nonzero square-zero element.
+\end{lemma}
+\begin{proof}
+Any square-zero element is nilpotent with $k = 2$. Conversely, let $x \in A \setminus \{0\}$
+satisfy $x^m = 0$ with $m \ge 1$ minimal, or split at $q = \lfloor (m+1)/2 \rfloor$: since
+$m \ge 2$ (as $x^1 = x \ne 0$), we have $1 \le q < m$ and $2q \ge m$. If $x^q = 0$,
+induction on $m$ applies; otherwise $z = x^q \ne 0$ satisfies $z^2 = x^{2q} = x^m x^{2q-m} = 0$.
+\end{proof}
+
+\subsection{The Positive Theorems in Grade \texorpdfstring{$1$}{1}}
+
+\begin{theorem}[Grade-$1$ Nilpotent--Isotropic Equivalence]\label{thm:grade1}
+Let $R$ be an integral domain and $g \in R^n$. For every $v \in R^n$, under either sign
+convention $\Cl(R, +g)$ or $\Cl(R, -g)$, the following are equivalent:
+\begin{enumerate}
+  \item $\iota(v) \ne 0$ and $\iota(v)$ is nilpotent ($\iota(v)^k = 0$ for some $k \ge 1$);
+  \item $\iota(v) \ne 0$ and $\iota(v)^2 = 0$;
+  \item $v$ is a nonzero isotropic vector of $Q_g$ ($v \ne 0$ and $Q_g(v) = 0$).
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Since $\iota$ and $\sigma$ are injective, $(2) \iff (3)$ follows directly from
+$\iota(v)^2 = \sigma(\pm Q_g(v))$, and $(2) \implies (1)$ is immediate. For $(1) \implies (3)$,
+suppose $\iota(v) \ne 0$ (so $v \ne 0$) and $\iota(v)^k = 0$ with $k \ge 1$. By
+induction on $m \ge 0$, $\iota(v)^{2m} = \sigma\bigl((\pm Q_g(v))^m\bigr)$ and
+$\iota(v)^{2m+1} = (\pm Q_g(v))^m \iota(v)$. If $k = 2m$ ($m \ge 1$), applying $\pi_0$
+gives $(\pm Q_g(v))^m = 0$, so $Q_g(v) = 0$ because $R$ is a domain. If $k = 2m + 1$,
+applying $\pi_1$ gives $(\pm Q_g(v))^m v = 0$ in the free module $R^n$; since $v \ne 0$
+and $R$ is a domain, $(\pm Q_g(v))^m = 0$, which rules out $m = 0$ (as $1 \ne 0$ in $R$)
+and forces $Q_g(v) = 0$.
+\end{proof}
+
+Let $R$ be an \emph{ordered integral domain} (an integral domain equipped with a
+non-negative cone $P \subset R$ closed under addition and containing $0$, $1$, and all
+squares $a^2$, with $P \cap (-P) = \{0\}$; examples include $\Z$, $\Q$, and $\R$). Write
+$Q_{p,q,r}$ for the canonical Sylvester form on $R^{p+q+r}$ with $p$ weights $+1$, $q$
+weights $-1$, and $r$ weights $0$, and abbreviate $Q_{p,q} = Q_{p,q,0}$. By Sylvester's
+law of inertia, every quadratic form on $\R^n$ is congruent to a unique $Q_{p,q,r}$.
+
+\begin{theorem}[Sylvester Signature and Inertia Criteria]\label{thm:signature}
+Over any ordered integral domain $R$:
+\begin{enumerate}
+  \item $(R^{p+q}, Q_{p,q})$ admits a nonzero isotropic vector if and only if $p \ge 1$
+    and $q \ge 1$. Consequently, $\Cl_{p,q}(R) = \Cl(R, Q_{p,q})$ admits a nonzero
+    \emph{grade-$1$} nilpotent element if and only if $p \ge 1$ and $q \ge 1$.
+  \item More generally, $(R^{p+q+r}, Q_{p,q,r})$ admits a nonzero isotropic vector if and
+    only if $(p \ge 1 \text{ and } q \ge 1)$ or $r \ge 1$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+If $p \ge 1$ and $q \ge 1$, the vector $v = e_1 + e_{p+1} \ne 0$ has $Q_{p,q,r}(v) = 1^2 - 1^2 = 0$;
+if $r \ge 1$, the radical basis vector $e_{p+q+1} \ne 0$ has $Q_{p,q,r}(e_{p+q+1}) = 0 \cdot 1^2 = 0$.
+Conversely, suppose $r = 0$ and $Q_{p,q}(v) = 0$. If $q = 0$, then $\sum_{i=1}^p v_i^2 = 0$;
+since each $v_i^2 \in P$ and $P \cap (-P) = \{0\}$, every $v_i^2 = 0$, so $v = 0$.
+Symmetrically, if $p = 0$, then $-\sum_{j=1}^q v_j^2 = 0$ forces $v = 0$. Combining part
+(1) with Theorem~\ref{thm:grade1} yields the grade-$1$ Clifford equivalence.
+\end{proof}
+
+\begin{proposition}[Polar Orthogonality Criterion for Null-Vector Sums]\label{prop:polar}
+Let $R$ be an ordered integral domain (or any integral domain with $\mathrm{char}(R) \ne 2$),
+and let $u, w \in R^n$ satisfy $Q_g(u) = Q_g(w) = 0$. Then in $\Cl(R, g)$, the sum
+$\iota_g(u) + \iota_g(w)$ is nilpotent (equivalently, square-zero) if and only if
+$B_g(u, w) = 0$.
+\end{proposition}
+\begin{proof}
+By linearity of $\iota_g$, Lemma~\ref{lem:clifford}, and polarization \eqref{eq:quad-polar},
+\[
+  \bigl(\iota_g(u) + \iota_g(w)\bigr)^2
+  = \iota_g(u + w)^2
+  = \sigma_g\bigl(Q_g(u) + Q_g(w) + 2 B_g(u, w)\bigr)
+  = \sigma_g\bigl(2 B_g(u, w)\bigr).
+\]
+Since $2 \ne 0$ in $R$ and $\sigma_g$ is injective, $(\iota_g(u) + \iota_g(w))^2 = 0 \iff B_g(u, w) = 0$.
+If $\iota_g(u) + \iota_g(w) \ne 0$, Theorem~\ref{thm:grade1} shows higher-index nilpotency
+is equivalent to square-zero.
+\end{proof}
+
+\section{Counterexample Family 1: Positive-Definite Clifford Nilpotents and Complete Classification}
+
+We now refute Links (L2) and (L3) for nilpotent formulas in $\Cl(V, Q)$: nonzero
+nilpotent elements exist in \emph{strictly positive-definite} Euclidean spaces---where
+$Q(v) > 0$ for all $v \ne 0$ and \emph{zero} nonzero isotropic vectors exist---under
+\emph{both} Clifford sign conventions.
+
+\begin{theorem}[Positive-Definite Nilpotents under $+Q$ and $-Q$]\label{thm:posdef}
+Let $R$ be any ordered integral domain (in particular $R = \Z, \Q, \R$).
+\begin{enumerate}
+  \item \textbf{$+Q$ convention ($\Cl_{2,0}(R)$):} The $2$-dimensional positive-definite
+    space $(R^2, Q_{2,0})$ with $Q_{2,0}(x_1, x_2) = x_1^2 + x_2^2$ has no nonzero
+    isotropic vectors, yet in $\Cl_{2,0}(R)$ ($e_1^2 = e_2^2 = +1$, $e_1 e_2 = -e_2 e_1$),
+    the nonzero mixed-grade multivector $x = e_1 + e_1 e_2$ (or $x' = (1 + e_2)e_1 = e_1 - e_1 e_2$)
+    satisfies
+    \[
+      x^2 = e_1^2 + e_1(e_1 e_2) + (e_1 e_2)e_1 + (e_1 e_2)^2
+          = 1 + e_2 - e_2 - 1 = 0.
+    \]
+  \item \textbf{$-Q$ convention ($\Cl_{0,4}(R)$):} Under $\iota(v)^2 = -Q(v)\cdot 1$ on
+    $4$-dimensional positive-definite Euclidean space $(R^4, Q_{4,0})$, there are no
+    nonzero isotropic vectors, and in $\Cl_{0,4}(R)$ ($e_i^2 = -1$ for $1 \le i \le 4$),
+    the degree-$3$ blade $\omega_3 = e_1 e_2 e_3$ satisfies $\omega_3^2 = +1$ and
+    $e_4 \omega_3 = -\omega_3 e_4$. Consequently, the nonzero multivector
+    $y = (1 + e_1 e_2 e_3)e_4 = e_4 + e_1 e_2 e_3 e_4$ satisfies
+    \[
+      y^2 = (1 + \omega_3)e_4(1 + \omega_3)e_4
+          = (1 + \omega_3)(1 - \omega_3)e_4^2
+          = (1 - \omega_3^2)(-1) = 0.
+    \]
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Lack of nonzero isotropic vectors follows from Theorem~\ref{thm:signature}(1) since
+$q = 0$ in $(2, 0)$ and $p = 0$ in $(0, 4)$. In $\Cl_{2,0}(R)$, $(e_1 e_2)^2 = -e_1^2 e_2^2 = -1$,
+giving $x^2 = 0$; concretely, under $\Cl_{2,0}(\R) \xrightarrow{\sim} \Mat_2(\R)$ via
+$e_1 \mapsto \bigl(\begin{smallmatrix} 1 & 0 \\ 0 & -1 \end{smallmatrix}\bigr)$ and
+$e_2 \mapsto \bigl(\begin{smallmatrix} 0 & 1 \\ 1 & 0 \end{smallmatrix}\bigr)$, $x$ maps to
+$\bigl(\begin{smallmatrix} 1 & 1 \\ -1 & -1 \end{smallmatrix}\bigr) \ne 0$, whose square is
+$0$. In $\Cl_{0,4}(R)$, moving $e_1, e_2, e_3$ across one another requires $2 + 1 = 3$
+transpositions, so $\omega_3^2 = (-1)^3 e_1^2 e_2^2 e_3^2 = -(-1)^3 = +1$; since $e_4$
+anticommutes with each of $e_1, e_2, e_3$, $e_4 \omega_3 = (-1)^3 \omega_3 e_4 = -\omega_3 e_4$,
+giving $y^2 = 0$ (reflecting $\Cl_{0,4}(\R) \cong \Mat_2(\HH)$).
+\end{proof}
+
+Why did dimensions $n = 2$ (for $+Q$) and $n = 4$ (for $-Q$) appear as minimal dimensions
+in Theorem~\ref{thm:posdef}? We answer this completely by proving the sharp classification
+for all $(p, q) \in \mathbb{N}^2$.
+
+\begin{theorem}[Complete Classification of Nilpotents in $\Cl_{p,q}(R)$]\label{thm:classification}
+Over any ordered integral domain $R$, the Clifford algebra $\Cl_{p,q}(R)$ possesses a
+nonzero nilpotent element (of arbitrary index $k \ge 1$, equivalently of index $2$) if and
+only if
+\begin{equation}\label{eq:five-exceptions}
+  (p, q) \notin \bigl\{(0, 0),\, (1, 0),\, (0, 1),\, (0, 2),\, (0, 3)\bigr\}.
+\end{equation}
+\end{theorem}
+\begin{proof}
+By Lemma~\ref{lem:nil-red}, it suffices to classify nonzero square-zero elements.
+
+\smallskip
+\noindent\emph{Sufficiency of \eqref{eq:five-exceptions}.}
+Every $(p, q)$ outside the five pairs in \eqref{eq:five-exceptions} falls into one of
+three families:
+(i) $p \ge 1$ and $q \ge 1$, where $\iota(e_1 + e_{p+1})$ is a nonzero grade-$1$
+square-zero element by Theorems~\ref{thm:grade1}--\ref{thm:signature};
+(ii) $p \ge 2$ and $q = 0$, where $\Cl_{2,0}(R) \hookrightarrow \Cl_{p,0}(R)$ embeds the
+nonzero square-zero element of Theorem~\ref{thm:posdef}(1);
+(iii) $p = 0$ and $q \ge 4$, where $\Cl_{0,4}(R) \hookrightarrow \Cl_{0,q}(R)$ embeds the
+nonzero square-zero element of Theorem~\ref{thm:posdef}(2).
+
+\smallskip
+\noindent\emph{Reducedness of the five exceptional signatures (without division by $2$).}
+Let $z \in \Cl_{p,q}(R)$ satisfy $z^2 = 0$:
+\begin{itemize}
+  \item $(0, 0)$: $\Cl_{0,0}(R) = R$, which is a domain, so $z = 0$.
+  \item $(1, 0)$: Write $z = a + b e_1 \in \Cl_{1,0}(R)$. The scalar part of $z^2$ is
+    $a^2 + b^2 = 0$, forcing $a = b = 0$ in the ordered domain $R$.
+  \item $(0, 1)$: Write $z = a + b f_1 \in \Cl_{0,1}(R)$ ($f_1^2 = -1$). Then
+    $z^2 = (a^2 - b^2) + 2 a b f_1 = 0$. Since $2 \ne 0$ in $R$, $ab = 0$, so $a = 0$ or
+    $b = 0$; then $a^2 - b^2 = 0$ gives $a = b = 0$. Notice also that $\Cl_{0,1}(R)$ is
+    commutative.
+  \item $(0, 2)$: Realize $\Cl_{0,2}(R)$ as pairs $(u, v) = u + v f_0$ over the
+    commutative ring $\Cl_{0,1}(R)$, and define quaternionic conjugation
+    $\overline{(u, v)} = (\alpha(u), -v)$. Direct computation gives
+    $z \overline{z} = \sigma(N(z))$ where $N(z) = z_0^2 + z_1^2 + z_2^2 + z_3^2 \in R$
+    is central. Hence $z^2 = 0$ implies
+    $0 = z^2 \overline{z}^2 = z(z\overline{z})\overline{z} = \sigma(N(z)^2)$, so
+    $N(z)^2 = 0 \implies N(z) = 0 \implies z_0 = z_1 = z_2 = z_3 = 0$.
+  \item $(0, 3)$: Realize $\Cl_{0,3}(R) = \Cl_{0,2}(R) \oplus \Cl_{0,2}(R) f_0$. In
+    $\Cl_{0,2}(R)$, the bivector $\omega_2 = f_1 f_2$ satisfies $\omega_2^2 = -1$ and
+    $\omega_2 w = \alpha(w)\omega_2$ for all $w \in \Cl_{0,2}(R)$. Consequently, both maps
+    $\pi_\pm : \Cl_{0,3}(R) \to \Cl_{0,2}(R)$ given by $\pi_\pm(u, v) = u \pm v \omega_2$
+    are unital ring homomorphisms! From $z^2 = 0$ we obtain $\pi_+(z)^2 = \pi_-(z)^2 = 0$
+    in $\Cl_{0,2}(R)$, so $\pi_+(z) = \pi_-(z) = 0$ by the $(0, 2)$ case. Adding yields
+    $2 u = 0 \implies u = 0$ (since $2 \ne 0$ in $R$), whence $v \omega_2 = 0 \implies
+    -v = v \omega_2^2 = 0 \implies v = 0$. \qedhere
+\end{itemize}
+\end{proof}
+
+Over $R = \R$, the five reduced signatures correspond precisely to the division-ring
+blocks $\R$, $\R \oplus \R$, $\C$, $\HH$, and $\HH \oplus \HH$ in the Atiyah--Bott--Shapiro
+table, whereas every $k \times k$ matrix ring $\Mat_k(D)$ with $k \ge 2$ contains nonzero
+nilpotents regardless of whether $Q_{p,q}$ is definite or indefinite.
+
+\section{Counterexample Family 2: Failure of the Null-Vector Sum Construction}
+
+We next refute Link (L1): summing null/isotropic vectors does not in general produce a
+nilpotent formula or a null vector, even when the sum of their individual squares is zero.
+
+\begin{theorem}[Invertible Sum of Null Vectors in $\Cl_{1,1}(R)$]\label{thm:nullsum}
+Over any ordered integral domain $R$, consider $(R^2, Q_{1,1})$ with
+$Q_{1,1}(x_1, x_2) = x_1^2 - x_2^2$ and its Clifford algebra $\Cl_{1,1}(R)$ ($e_1^2 = +1$,
+$e_2^2 = -1$). Define $u = e_1 + e_2$ and $w = e_1 - e_2$. Then:
+\begin{enumerate}
+  \item Both $u$ and $w$ are nonzero isotropic (null) vectors: $Q_{1,1}(u) = Q_{1,1}(w) = 0$,
+    $\iota(u)^2 = 0$, $\iota(w)^2 = 0$, and the sum of their squares vanishes:
+    $\iota(u)^2 + \iota(w)^2 = 0$.
+  \item Their sum $u + w = 2 e_1$ satisfies $Q_{1,1}(u + w) = 4 \ne 0$ and
+    \[
+      \bigl(\iota(u) + \iota(w)\bigr)^2 = 4 \cdot 1_{\Cl} \ne 0.
+    \]
+    Hence $\iota(u) + \iota(w)$ is \emph{not} nilpotent of any index $k \ge 1$; over $\Q$
+    or $\R$, it is an invertible unit with inverse $\frac{1}{2}\iota(e_1)$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Direct calculation gives $Q_{1,1}(1, \pm 1) = 1^2 - (\pm 1)^2 = 0$, while
+$B_{Q_{1,1}}(u, w) = 1 \cdot 1 - 1 \cdot (-1) = 2 \ne 0$. By Proposition~\ref{prop:polar},
+$(\iota(u) + \iota(w))^2 = \sigma(2 \cdot 2) = 4 \cdot 1_{\Cl} \ne 0$, and Proposition~\ref{prop:polar}
+guarantees $\iota(u) + \iota(w)$ is not nilpotent of any index $k \ge 1$. Under
+$\Cl_{1,1}(\R) \cong \Mat_2(\R)$, $\frac{1}{2}\iota(u) \mapsto E_{12}$ and
+$\frac{1}{2}\iota(w) \mapsto E_{21}$, recovering $E_{12}^2 = E_{21}^2 = 0$ while
+$(E_{12} + E_{21})^2 = I_2$.
+\end{proof}
+
+\begin{remark}[Critique of ``the sum of squares is the null vector'']
+In addition to the failure of null-vector addition, the literal clause ``the sum of
+squares is the null vector'' conflates two distinct objects: a quadratic form
+$Q(v) = \sum_{i=1}^n x_i^2$ takes \emph{scalar} values in $\F$ (or central scalars
+$Q(v)\cdot 1_{\Cl}$), not vector values in $V$; and over $\R$, setting an unsigned sum of
+squares equal to zero ($\sum_{i=1}^n x_i^2 = 0$) forces $v = 0$, producing only the
+trivial zero element rather than a nonzero isotropic vector. Moreover, by
+Proposition~\ref{prop:polar}, sums of null vectors remain null throughout a linear span
+if and only if the vectors are pairwise $B_Q$-orthogonal, generating a \emph{totally
+isotropic subspace} (whose maximal dimension in $\R^{p,q}$ is the Witt index $\min(p, q)$).
+\end{remark}
+
+\section{Counterexample Family 3: Breakdown of the Signature Condition}
+
+Finally, even if one restricts exclusively to grade-$1$ isotropic vectors $Q(v) = 0$,
+Link (L3) (``the existence of isotropic vectors is the signature condition'') fails
+whenever the quadratic form is degenerate or the construction domain $\F$ is not a real
+closed field.
+
+\begin{proposition}[Degenerate Semidefinite Real Forms]\label{prop:degenerate}
+Over any ordered integral domain $R$ (including $\R$), for every $p \ge 0$ and $r \ge 1$,
+the positive-semidefinite form $Q_{p,0,r}(x) = \sum_{i=1}^p x_i^2 + \sum_{k=1}^r 0 \cdot x_{p+k}^2$
+has zero negative squares ($q = 0$, violating $p \ge 1 \land q \ge 1$), yet admits the
+nonzero isotropic vector $v = e_{p+1}$ and nonzero grade-$1$ Clifford nilpotent
+$\iota(e_{p+1})^2 = 0$. In particular, for $p = q = 0, r = n \ge 1$, $\Cl(R^n, 0) = \bigwedge R^n$
+is the exterior algebra, in which every nonzero grade-$1$ vector is nilpotent.
+\end{proposition}
+\begin{proof}
+Immediate from Theorem~\ref{thm:signature}(2) and Theorem~\ref{thm:grade1}.
+\end{proof}
+
+\begin{proposition}[Complex and Gaussian-Integer Sums of Squares]\label{prop:complex}
+Over $\C$ (where every nondegenerate quadratic form of rank $n$ is congruent to
+$\sum_{j=1}^n z_j^2$ and no signature invariant exists) and over the Gaussian integers
+$\Z[i]$, the pure unsigned sum of squares $Q(z_1, z_2) = z_1^2 + z_2^2$ admits the
+explicit nonzero isotropic vector $v = (1, i)$ with $Q(1, i) = 1^2 + i^2 = 0$, and
+$\iota(1, i) \in \Cl(\Z[i], [1, 1])$ is a nonzero grade-$1$ square-zero element.
+\end{proposition}
+\begin{proof}
+In $\Z[i]$, $1^2 + i^2 = 1 + (-1) = 0$ with $(1, i) \ne (0, 0)$; Theorem~\ref{thm:grade1}
+applies since $\Z[i]$ is an integral domain.
+\end{proof}
+
+\begin{proposition}[Finite Prime Fields $\F_p$]\label{prop:fp}
+Over every odd prime field $\F_p = \Z/p\Z$, signature is undefined, and the pure unsigned
+sum of three squares $Q(x_1, x_2, x_3) = x_1^2 + x_2^2 + x_3^2$ always admits a nonzero
+isotropic vector (hence a nonzero grade-$1$ Clifford nilpotent). Specifically:
+\begin{enumerate}
+  \item Over $\F_5$, even in dimension $2$, $Q(x_1, x_2) = x_1^2 + x_2^2$ has $Q(1, 2) = 5 \equiv 0 \pmod 5$.
+  \item Over $\F_3$, $Q(x_1, x_2, x_3) = x_1^2 + x_2^2 + x_3^2$ has $Q(1, 1, 1) = 3 \equiv 0 \pmod 3$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+For general odd prime $p$, the sets $S_1 = \{x^2 : x \in \F_p\}$ and
+$S_2 = \{-1 - y^2 : y \in \F_p\}$ each have cardinality $(p + 1)/2$. Since
+$|S_1| + |S_2| = p + 1 > |\F_p|$, $S_1 \cap S_2 \ne \emptyset$ by the pigeonhole principle
+(a special case of the Chevalley--Warning theorem), yielding $x, y \in \F_p$ with
+$x^2 + y^2 + 1^2 = 0$ and $(x, y, 1) \ne (0, 0, 0)$.
+\end{proof}
+
+\begin{theorem}[Hasse--Minkowski Obstructions over $\Q$ in Indefinite Signatures]\label{thm:hasse}
+Over the ordered field $\Q \subset \R$, real Sylvester signature $(p, q)$ is well-defined,
+yet the indefinite signature condition $p \ge 1 \land q \ge 1$ is \emph{not} sufficient
+for the existence of a nonzero isotropic vector:
+\begin{enumerate}
+  \item The binary form $Q_1(x_1, x_2) = x_1^2 - 2 x_2^2$ has indefinite real signature
+    $(1, 1)$, yet $Q_1(x_1, x_2) = 0 \implies x_1 = x_2 = 0$ for all $(x_1, x_2) \in \Q^2$.
+  \item The ternary form $Q_2(x_1, x_2, x_3) = x_1^2 + x_2^2 - 3 x_3^2$ has indefinite
+    real signature $(2, 1)$, yet $Q_2(x_1, x_2, x_3) = 0 \implies x_1 = x_2 = x_3 = 0$
+    for all $(x_1, x_2, x_3) \in \Q^3$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Clearing nonzero denominators reduces both statements to $\Z$ (and via absolute values to
+$\mathbb{N}$).
+\begin{enumerate}
+  \item Suppose $n^2 = 2 m^2$ in $\mathbb{N}$ with $n > 0$ minimal. Since $n^2$ is even,
+    $n = 2q$ for some $q \ge 1$, giving $4q^2 = 2m^2$, so $m^2 = 2q^2$. Because $n > 0$,
+    $m^2 < 2m^2 = n^2$ implies $0 < m < n$, contradicting minimality of $n$.
+  \item Suppose $a^2 + b^2 = 3 c^2$ in $\mathbb{N}$ with $s = a + b + c > 0$ minimal.
+    Modulo $3$, squares take values only in $\{0, 1\}$, so $a^2 + b^2 \equiv 0 \pmod 3$
+    forces $a \equiv b \equiv 0 \pmod 3$. Writing $a = 3 q_a$ and $b = 3 q_b$ gives
+    $9(q_a^2 + q_b^2) = 3 c^2$, hence $c^2 = 3(q_a^2 + q_b^2)$, which forces $c = 3 q_c$
+    and $q_a^2 + q_b^2 = 3 q_c^2$ with $q_a + q_b + q_c = s/3 < s$, a contradiction. \qedhere
+\end{enumerate}
+\end{proof}
+
+\section{Formal Verification and Computational Suite}
+
+The entire algebraic hierarchy, graded Clifford algebra construction, positive theorems,
+and counterexample families are formalized in Core Lean 4.19.0 inside
+\texttt{lean/Conjecture00000007624/} with \texttt{moreLeanArgs = ["-DwarningAsError=true"]},
+zero external dependencies, zero \texttt{sorry}, zero \texttt{native\_decide}, and zero
+custom axioms. Table~\ref{tab:lean} records the correspondence between paper statements
+and mechanized Lean declarations.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.16}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.29\textwidth}>{\raggedright\arraybackslash}p{0.21\textwidth}>{\raggedright\arraybackslash}p{0.44\textwidth}@{}}
+\toprule
+\textbf{Paper Result} & \textbf{Module} & \textbf{Lean Declaration} \\
+\midrule
+Lemma~\ref{lem:clifford} (Clifford ring \& relations) & \texttt{Clifford.lean} &
+\texttt{instAssocRingCl}, \texttt{embedVec\_sq}, \texttt{embedVec\_anticomm} \\
+Lemma~\ref{lem:nil-red} (Index reduction) & \texttt{Algebra.lean} &
+\texttt{exists\_nonzero\_nilpotent\_iff\_}\penalty0\texttt{exists\_nonzero\_sq\_zero} \\
+Theorem~\ref{thm:grade1} (Grade-$1$ equivalence) & \texttt{Clifford.lean} &
+\texttt{grade1\_nilpotent\_iff}, \texttt{grade1\_nilpotent\_negSig\_iff} \\
+Theorem~\ref{thm:signature} (Signature \& inertia) & \texttt{QuadraticForm.lean} &
+\texttt{hasIsotropic\_sigList\_iff}, \texttt{hasIsotropic\_inertiaList\_iff} \\
+Proposition~\ref{prop:polar} (Polar criterion) & \texttt{Counterexamples.lean} &
+\texttt{null\_vector\_sum\_nilpotent\_iff} \\
+Theorem~\ref{thm:posdef}(1) ($\Cl_{2,0}$ $+Q$) & \texttt{Counterexamples.lean} &
+\texttt{refutation\_pos\_def\_plus\_conv} \\
+Theorem~\ref{thm:posdef}(2) ($\Cl_{0,4}$ $-Q$) & \texttt{Counterexamples.lean} &
+\texttt{refutation\_pos\_def\_minus\_conv} \\
+Theorem~\ref{thm:classification} (Sharp $(p,q)$ iff) & \texttt{Counterexamples.lean} &
+\texttt{cl\_has\_nilpotent\_iff} \\
+Theorem~\ref{thm:nullsum} ($\Cl_{1,1}$ sum failure) & \texttt{Counterexamples.lean} &
+\texttt{refutation\_null\_vector\_sum} \\
+Proposition~\ref{prop:degenerate} (Degenerate form) & \texttt{Counterexamples.lean} &
+\texttt{refutation\_degenerate\_semidefinite} \\
+Proposition~\ref{prop:complex} ($\Z[i]$ $2$-squares) & \texttt{Counterexamples.lean} &
+\texttt{refutation\_complex\_sum\_of\_squares} \\
+Proposition~\ref{prop:fp} ($\F_5, \F_3$ sums of squares) & \texttt{Counterexamples.lean} &
+\texttt{refutation\_finite\_fields\_sum\_of\_squares} \\
+Theorem~\ref{thm:hasse} (Hasse--Minkowski over $\Q$) & \texttt{Counterexamples.lean} &
+\texttt{refutation\_hasse\_minkowski\_indefinite} \\
+Concrete $\Z$ non-vacuity witnesses & \texttt{Counterexamples.lean} &
+\texttt{nonvacuous\_int\_cl\_classification}, \texttt{nonvacuous\_int\_pos\_def\_nilpotents} \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical results and Core Lean 4.19.0 theorems.}
+\label{tab:lean}
+\end{table}
+
+In addition, the standalone Python 3.12 script \texttt{verify.py} independently constructs
+the $2^n$-dimensional basis multiplication tables of $\Cl(g)$ over $\Z$, $\Q$, $\Z[i]$, and
+$\Z/p\Z$, verifying associativity, grade-$1$ nilpotency for exponents $1 \le k \le 5$, the
+positive-definite nilpotents in $\Cl_{2,0}$ and $\Cl_{0,4}$, reducedness across the five
+exceptional signatures, all $32^2$ null-vector pairs in $\Cl_{2,2}$, Chevalley--Warning
+three-square isotropy across all $24$ odd primes $p < 100$, and rational anisotropy of
+$x_1^2 - 2x_2^2$ and $x_1^2 + x_2^2 - 3x_3^2$.
+
+\begin{thebibliography}{9}
+\bibitem{ABS64}
+M.~F.~Atiyah, R.~Bott, and A.~Shapiro,
+\emph{Clifford modules}, Topology \textbf{3} (Suppl.~1) (1964), 3--38.
+
+\bibitem{Lam05}
+T.~Y.~Lam,
+\emph{Introduction to Quadratic Forms over Fields},
+Graduate Studies in Mathematics, vol.~67, American Mathematical Society, Providence, RI, 2005.
+
+\bibitem{LM89}
+H.~B.~Lawson and M.-L.~Michelsohn,
+\emph{Spin Geometry},
+Princeton Mathematical Series, vol.~38, Princeton University Press, Princeton, NJ, 1989.
+
+\bibitem{Ser73}
+J.-P.~Serre,
+\emph{A Course in Arithmetic},
+Graduate Texts in Mathematics, vol.~7, Springer-Verlag, New York, 1973.
+\end{thebibliography}
+
+\end{document}
