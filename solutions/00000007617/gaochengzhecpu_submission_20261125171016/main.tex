@@ -1,0 +1,378 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\Gr}{\mathrm{Gr}}
+\newcommand{\Sh}{\mathrm{Sh}}
+\newcommand{\sgn}{\mathrm{sgn}}
+\newcommand{\spn}{\mathrm{span}}
+\newcommand{\Psp}{\mathbb{P}}
+
+\title{\textbf{Resolution of Conjecture 00000007617:\\
+Non-Uniqueness, Non-Sign Conversion Factors, Non-Transverse Vanishing,\\
+and Degenerate Metric Obstructions for the Pl\"ucker Intersection Formula}}
+\author{Autonomous Mathematical Research \& Lean 4 Formalization}
+\date{November 2026}
+
+\begin{document}
+\sloppy
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007617}, which defines projective geometric algebra as the Grassmann exterior algebra and asserts that the intersection formula of the Pl\"ucker embedding is unique and that the correction of the formula is purely a sign factor. We prove that the conjecture is \textbf{false} (\textbf{refuted}) across every standard formulation of Grassmann--Cayley algebra and Projective Geometric Algebra (PGA), while establishing the exact positive transverse regime and rigidity theorem that explain its origin. First, for transverse subspaces $U \in \Gr(r,V)$ and $W \in \Gr(s,V)$ ($\dim V = n$, $r+s \ge n$, $U+W = V$), we prove that the inverse-star regressive product $A \vee_\omega^{\mathrm{inv}} B = \star_\omega^{-1}(\star_\omega A \wedge \star_\omega B)$ coincides identically with the coordinate-free Grassmann--Cayley shuffle meet $A \vee_\omega^{\mathrm{sh}} B$, produces a nonzero $(r+s-n)$-blade representing $U \cap W$, differs from alternative star/order conventions by explicit grade-dependent signs $(-1)^{d(n-d)}$ and $(-1)^{(n-r)(n-s)}$, and is rigid up to a global scalar in $K^\times$ among all transverse-valid bilinear operators. Second, we establish three independent refutations of the unqualified conjecture: \textbf{(R1)} valid bilinear meet formulas form a non-unique $1$-parameter family over $K^\times$ under volume-bracket scaling, and even for unit-normalized rational Pl\"ucker $2$-blades in $\mathbb{Q}^3$ ($A = e_1 \wedge e_2$, $B = \frac{3}{5}e_1\wedge e_2 + \frac{4}{5}e_1\wedge e_3$), $A \vee_\omega B = \frac{4}{5}e_1$ carries a non-unit sine-angle factor $\sin\theta = \frac{4}{5} \notin \{\pm 1\}$ that \emph{no} bilinear map can eliminate; \textbf{(R2)} whenever $\dim(U+W) < n$ (such as coinciding lines in $\Psp^2$ or distinct coplanar lines in $\Psp^3$ meeting in a point), $A \vee_\omega B = 0$ vanishes identically, and we prove both an arbitrary-degree polynomial impossibility theorem and an incident-only bilinear impossibility theorem showing no polynomial or bilinear formula on $\Lambda^2(K^4) \times \Lambda^2(K^4) \to K^4$ can recover non-transverse Pl\"ucker intersections; and \textbf{(R3)} in Euclidean PGA $\Cl_{n-1,0,1}$ ($e_0^2 = 0$), metric Clifford duality maps the entire algebra into the nilpotent ideal $(e_0)$, forcing $\star_q \circ \star_q \equiv 0$ and $\star_q(A) \wedge \star_q(B) \equiv 0$ identically so that non-metric Poincar\'e duality cannot be replaced by any sign-factor correction. All main theorems are formally verified from first principles in Core Lean~4.19.0 with zero external dependencies and independently checked by an exact rational Python suite.
+\end{abstract}
+
+\section{Introduction and Problem Statement}
+
+Conjecture \texttt{00000007617} states verbatim:
+\begin{quote}
+\textbf{English.} Definition: Projective geometric algebra as the Grassmann exterior algebra. Conjecture: The intersection formula of the Plucker embedding is unique; and the correction of the formula is the sign factor. (\emph{Plucker intersection-formula sign correction})
+
+\textbf{Chinese translation summary (\emph{Pl\"ucker jiao gongshi fuhao xiuzheng}).} Defines projective geometric algebra (\emph{sheying jihe daishu}) as the Grassmann exterior algebra (\emph{Gelasiman wai daishu}), and conjectures that the intersection formula (\emph{jiao gongshi}) of the Pl\"ucker embedding is unique (\emph{weiyi}) and that the correction of the formula is a sign factor (\emph{fuhao yinzi}).
+\end{quote}
+
+\subsection*{Mathematical Context and Summary of Verdict}
+
+Let $K$ be a field (or more generally a commutative integral domain $R$) and let $V = K^n$ ($n \ge 2$, with $n \ge 3$ for non-degenerate projective geometry on $\Psp(V) = \Psp^{n-1}(K)$). Under the identification of projective $(r-1)$-flats in $\Psp(V)$ with $r$-dimensional linear subspaces $U \in \Gr(r,V)$, the \emph{Pl\"ucker embedding}
+\[
+  \iota_r : \Gr(r, V) \hookrightarrow \Psp(\Lambda^r V), \qquad \spn\{u_1, \dots, u_r\} \longmapsto [u_1 \wedge \dots \wedge u_r],
+\]
+represents each subspace $U$ by a projective equivalence class $[A] \in \Psp(\Lambda^r V)$ of nonzero decomposable $r$-blades $A \in \Lambda^r V \setminus \{0\}$, characterized intrinsically by
+\begin{equation}\label{eq:membership}
+  v \in U \Longleftrightarrow v \wedge A = 0 \qquad (\forall v \in V).
+\end{equation}
+While the join $U + W$ of independent subspaces ($U \cap W = \{0\}$) is canonically represented by the exterior wedge $A \wedge B \in \Lambda^{r+s} V$ without auxiliary data, intersecting two subspaces $U \in \Gr(r,V)$ and $W \in \Gr(s,V)$ ($r + s \ge n$) uses the \emph{Grassmann--Cayley regressive product} (or \emph{meet}) $A \vee_\omega B \in \Lambda^{r+s-n} V$ associated with a volume element $\omega \in \Lambda^n V \setminus \{0\}$ (Doubilet--Rota--Stein, Barnabei--Brini--Rota, Gunn, Dorst).
+
+We prove that Conjecture \texttt{00000007617} is \textbf{false (refuted)} in general. A complete mathematical analysis reveals both the exact positive phenomenon motivating the statement and three independent structural obstructions refuting it:
+\begin{enumerate}
+  \item \textbf{Positive Transverse Regime and Bilinear Rigidity (Section~\ref{sec:positive}):} When $U$ and $W$ are \emph{transverse} ($U + W = V$, so $d := \dim(U \cap W) = r + s - n \ge 0$), the inverse-star dual-wedge meet $A \vee_\omega^{\mathrm{inv}} B = \star_\omega^{-1}(\star_\omega A \wedge \star_\omega B)$ equals the coordinate-free shuffle meet $A \vee_\omega^{\mathrm{sh}} B$ identically across all dimensions and grades, outputs a nonzero decomposable $d$-blade representing $U \cap W$, and differs from forward-star and reversed-dual conventions strictly by explicit grade-dependent signs $(-1)^{d(n-d)}$ and $(-1)^{(n-r)(n-s)} \in \{\pm 1\}$ (\textbf{Theorem~\ref{thm:transverse}}). Moreover, every transverse-valid bilinear meet on $\Lambda^2(R^3)$ is uniquely of the form $c\,\vee_{\omega_0}$ for $c \in R$ (\textbf{Theorem~\ref{thm:rigidity}}).
+  \item \textbf{Refutation R1 --- Non-Uniqueness Beyond $\{\pm 1\}$ and Non-Unit Sine/Determinant Factor (Section~\ref{sec:r1}):} On the exterior algebra $\Lambda(V)$ itself, no canonical volume form is distinguished: rescaling $\omega \mapsto \lambda\omega$ ($\lambda \in K^\times \setminus \{\pm 1\}$) scales $\vee_{\lambda\omega} = \lambda^{-1}\vee_\omega$, producing a non-unique $K^\times$-family of valid meet formulas (\textbf{Theorem~\ref{thm:r1-scale}}). Even when both a Euclidean metric and unit orientation $\omega_0$ are fixed and input Pl\"ucker blades are unit-normalized ($\|A\| = \|B\| = 1$), two rational planes in $\mathbb{Q}^3$ meeting at angle $\theta$ with $\cos\theta = \frac{3}{5}$, $\sin\theta = \frac{4}{5}$ satisfy $A \vee_{\omega_0} B = \frac{4}{5}e_1$, whose conversion factor to a unit Pl\"ucker blade $\pm e_1$ is $(\sin\theta)^{-1} = \frac{5}{4} \notin \{\pm 1\}$ (\textbf{Theorem~\ref{thm:r1-unit}}). Furthermore, \emph{no} bilinear map on $\Lambda^2(\mathbb{Q}^3)$ can preserve unit norm on transverse unit $2$-blades (\textbf{Theorem~\ref{thm:r1-imposs}}).
+  \item \textbf{Refutation R2 --- Identical Vanishing on Non-Transverse Intersections and Polynomial/Bilinear Impossibility (Section~\ref{sec:r2}):} Whenever $\dim(U + W) < n$ ($r + s \ge n$), $A \vee_\omega B = 0$ vanishes identically (\textbf{Proposition~\ref{prop:r2-vanish}}), including coinciding lines in $\Psp^2$ ($n=3, r=s=2$) and distinct coplanar lines in $\Psp^3$ ($n=4, r=s=2$, meeting in a unique projective point $\Psp(U \cap W)$). No scalar or sign factor multiplying $0$ can recover $U \cap W$. Stronger still, we prove that \emph{no polynomial map of any degree} $F : \Lambda^2(R^4) \times \Lambda^2(R^4) \to R^4$ satisfying $F(A,B) \in U \cap W$ can be nonzero on $(e_1\wedge e_2, e_1\wedge e_3)$ (\textbf{Theorem~\ref{thm:r2-poly}}), and even with \emph{zero} constraint on skew pairs, \emph{no bilinear map} can output a nonzero vector in $U \cap W$ for all incident line pairs in $\Psp^3$ (\textbf{Theorem~\ref{thm:r2-incident}}).
+  \item \textbf{Refutation R3 --- Degenerate Metric Collapse in Euclidean PGA $\Cl_{n-1,0,1}$ (Section~\ref{sec:r3}):} In metric Projective Geometric Algebra $\Cl_{m,0,1}$ ($e_0^2 = 0$, $e_1^2 = \dots = e_m^2 = 1$), the pseudoscalar $\omega = e_0 e_1 \dots e_m$ lies in the two-sided nilpotent ideal $\mathcal{J} = (e_0)$ ($\mathcal{J}\cdot_q \mathcal{J} = \mathcal{J}\wedge\mathcal{J} = \{0\}$). Consequently, the metric Hodge dual $\star_q(x) = \widetilde{x}\cdot_q\omega$ lands inside $\mathcal{J}$ for \emph{every} $x$, forcing $\star_q(\star_q(x)) = 0$ and $\star_q(A) \wedge \star_q(B) = 0$ identically across the entire algebra (\textbf{Theorem~\ref{thm:r3-pga}}). Replacing metric duality by non-metric Poincar\'e duality is therefore an essential structural change, not a sign correction.
+\end{enumerate}
+
+\section{Exterior Algebra, Pl\"ucker Meet, and Positive Rigidity}\label{sec:positive}
+
+Let $R$ be a commutative ring and $V = R^n$ ($n \ge 0$) with standard basis $(e_0, \dots, e_{n-1})$ and canonical volume blade $\omega_n = e_0 \wedge \dots \wedge e_{n-1} \in \Lambda^n(R^n)$ (in classical $1$-indexed notation, $(e_1, \dots, e_n)$). Following our Core Lean~4 formalization, we construct the $2^n$-rank module $\Cl(R^n, q)$ recursively via $\Cl(R^0, \emptyset) := R$ and $\Cl(R^{n+1}, q) := \Cl(R^n, q') \times \Cl(R^n, q')$, where $(a,b)$ represents $a + b \wedge e_n$. Grade involution $\hat{x}$ and reversion $\widetilde{x}$ act on $\Lambda^k(R^n)$ by $(-1)^k$ and $(-1)^{k(k-1)/2}$, and the orthogonal Clifford product for $q = (q_0, \dots, q_{n-1})$ is
+\begin{equation}\label{eq:clifford-def}
+  (a, b)\cdot_q (c, d) := \bigl(a\cdot_{q'} c + q_n\, b\cdot_{q'}\hat{d},\;\; a\cdot_{q'} d + b\cdot_{q'}\hat{c}\bigr).
+\end{equation}
+Setting $q \equiv 0$ yields the Grassmann exterior algebra $\Lambda(R^n) = \Cl(R^n, 0)$ with wedge product $(a,b) \wedge (c,d) = (a \wedge c,\; a \wedge d + b \wedge \hat{c})$. Note that $v \wedge v = 0$ holds for every $1$-vector $v \in \Lambda^1(R^n)$ over \emph{every} commutative ring $R$ without characteristic assumptions: inductively, writing $v = (a, r\cdot 1_n)$ with $a \in \Lambda^1(R^n)$ and $r \in R$ gives $v \wedge v = (a \wedge a,\; r\,a - r\,a) = (0,0)$.
+
+\subsection{Metric-Free Poincar\'e Complement Duality and Regressive Products}
+
+Define the volume-form coordinate functional $[\,\cdot\,]_{\omega_n} : \Lambda(R^n) \to R$ recursively by $[a]_{\omega_0} := a$ and $[(a,b)]_{\omega_{n+1}} := [b]_{\omega_n}$. Define the right Poincar\'e/basis-complement operator $\star : \Lambda(R^n) \to \Lambda(R^n)$ and its inverse $\star^{-1}$ recursively by $\star_0(a) := a$, $\star_0^{-1}(a) := a$, and
+\begin{equation}\label{eq:pstar-def}
+  \star_{n+1}(a, b) := \bigl(\widehat{\star_n(b)},\; \star_n(a)\bigr), \qquad
+  \star_{n+1}^{-1}(u, v) := \bigl(\star_n^{-1}(v),\; \star_n^{-1}(\hat{u})\bigr).
+\end{equation}
+
+\begin{lemma}[Intrinsic Duality Properties]\label{lem:pstar}
+For every $n \ge 0$ and commutative ring $R$:
+\begin{enumerate}
+  \item $\star_n^{-1} \circ \star_n = \star_n \circ \star_n^{-1} = \mathrm{id}_{\Lambda(R^n)}$.
+  \item For all $x, y \in \Lambda(R^n)$, $[x \wedge \star_n(y)]_{\omega_n} = \langle x, y \rangle_{\mathrm{std}}$, where $\langle e_I, e_J \rangle_{\mathrm{std}} = \delta_{I,J}$ on basis blades $e_I = \bigwedge_{i \in I} e_i$.
+  \item For $0 \le k \le n$ and $x \in \Lambda^k(R^n)$, $\star_n(x) \in \Lambda^{n-k}(R^n)$, $\star_n^{-1}$ maps $\Lambda^{n-k}(R^n) \to \Lambda^k(R^n)$, and $\star_n(\star_n(x)) = (-1)^{k(n-k)} x$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+Part~(1) follows by induction on $n$ using $\hat{\hat{z}} = z$: writing $u := \star_n(b)$,
+\[
+  \star_{n+1}^{-1}(\star_{n+1}(a,b)) = \bigl(\star_n^{-1}(\star_n(a)),\; \star_n^{-1}(\hat{\hat{u}})\bigr) = (a,b),
+\]
+and symmetrically for $\star_{n+1}(\star_{n+1}^{-1}(u,v))$. For~(2), writing $w := \star_n d$, expanding $(a,b) \wedge (\hat{w}, \star_n c)$ gives top component $a \wedge \star_n c + b \wedge \hat{\hat{w}} = a \wedge \star_n c + b \wedge \star_n d$, whose $[\,\cdot\,]_{\omega_n}$-value is $\langle a,c\rangle_{\mathrm{std}} + \langle b,d\rangle_{\mathrm{std}}$ by induction. Part~(3) follows by induction on $n$ from \eqref{eq:pstar-def}, since at grade $k = j+1 \le n$, $\widehat{\star_n(\star_n(x_1))}$ acquires sign $(-1)^{(j+1)(n-j-1) + (j+1)} = (-1)^{(j+1)(n-j)}$ while $\star_n(\widehat{\star_n(x_2)})$ acquires sign $(-1)^{(n-j) + j(n-j)} = (-1)^{(j+1)(n-j)}$.
+\end{proof}
+
+\begin{definition}[Regressive Product Conventions]\label{def:meet}
+Let $\omega \in \Lambda^n V \setminus \{0\}$ be a volume form on $V = K^n$, and let $A \in \Lambda^r V$, $B \in \Lambda^s V$ with $r + s \ge n$ and $d := r + s - n$.
+\begin{enumerate}
+  \item The \emph{canonical (inverse-star) regressive product} is $A \vee_\omega B := \star_\omega^{-1}(\star_\omega A \wedge \star_\omega B) \in \Lambda^d V$.
+  \item The \emph{forward-star regressive product} is $A \vee_\omega^{\mathrm{fwd}} B := \star_\omega(\star_\omega A \wedge \star_\omega B) \in \Lambda^d V$.
+  \item The \emph{reversed-dual regressive product} is $A \vee_\omega^{\mathrm{rev}} B := \star_\omega^{-1}(\star_\omega B \wedge \star_\omega A) \in \Lambda^d V$.
+  \item On factored blades $A = a_1 \wedge \dots \wedge a_r$ and $B = b_1 \wedge \dots \wedge b_s$, the coordinate-free \emph{Grassmann--Cayley shuffle meet} (Barnabei--Brini--Rota) is
+  \begin{equation}\label{eq:shuffle}
+    A \vee_\omega^{\mathrm{sh}} B := \sum_{\sigma \in \Sh(n-s,\, d)} \sgn(\sigma)\, [a_{\sigma(1)} \wedge \dots \wedge a_{\sigma(n-s)} \wedge B]_\omega\; a_{\sigma(n-s+1)} \wedge \dots \wedge a_{\sigma(r)},
+  \end{equation}
+  where $\Sh(p,q)$ denotes the set of $(p,q)$-shuffles of $\{1,\dots,p+q\}$.
+\end{enumerate}
+\end{definition}
+
+\begin{theorem}[Equivalence, Positive Transverse Intersection, and Sign-Correction Laws]\label{thm:transverse}
+Let $V = K^n$ ($n \ge 2$) with standard volume form $\omega = e_0 \wedge \dots \wedge e_{n-1}$, and let $A \in \Lambda^r V$, $B \in \Lambda^s V$ with $0 \le r, s \le n$ and $r + s \ge n$. Put $d = r + s - n$.
+\begin{enumerate}
+  \item \textbf{Exact Shuffle Equivalence:} $A \vee_\omega B = A \vee_\omega^{\mathrm{sh}} B$ identically for all $A \in \Lambda^r V$ and $B \in \Lambda^s V$.
+  \item \textbf{Convention Sign-Correction Laws:} Across all blades of grades $(r,s)$,
+  \begin{equation}\label{eq:sign-laws}
+    A \vee_\omega^{\mathrm{fwd}} B = (-1)^{d(n-d)}\,(A \vee_\omega B), \qquad
+    B \vee_\omega A = A \vee_\omega^{\mathrm{rev}} B = (-1)^{(n-r)(n-s)}\,(A \vee_\omega B).
+  \end{equation}
+  \item \textbf{Positive Transverse Pl\"ucker Intersection:} Suppose $A, B \neq 0$ are decomposable blades representing transverse subspaces $U \in \Gr(r,V)$ and $W \in \Gr(s,V)$ ($U + W = V$). Choose a basis $(z_1, \dots, z_d)$ of $U \cap W$, extend it to bases $(x_1, \dots, x_{n-s}, z_1, \dots, z_d)$ of $U$ and $(z_1, \dots, z_d, y_1, \dots, y_{n-r})$ of $W$, and set $A = x_1 \wedge \dots \wedge x_{n-s} \wedge C$ and $B = C \wedge y_1 \wedge \dots \wedge y_{n-r}$ where $C := z_1 \wedge \dots \wedge z_d$. Then $\mathcal{B} = (x_1, \dots, x_{n-s}, z_1, \dots, z_d, y_1, \dots, y_{n-r})$ is a basis of $V$, and
+  \begin{equation}\label{eq:adapted-meet}
+    A \vee_\omega B = [x_1 \wedge \dots \wedge x_{n-s} \wedge z_1 \wedge \dots \wedge z_d \wedge y_1 \wedge \dots \wedge y_{n-r}]_\omega \, C = \det_\omega(\mathcal{B})\, C \neq 0,
+  \end{equation}
+  which is a nonzero decomposable $d$-blade representing $U \cap W$ ($\iota_d(U \cap W) = [A \vee_\omega B]$). On transverse coordinate basis blades ($I \cup J = \{0,\dots,n-1\}$), $e_I \vee_\omega e_J = \pm e_{I \cap J}$ with a pure sign coefficient in $\{+1,-1\}$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+By bilinearity, (1) reduces to standard basis blades $A = e_I$ ($|I|=r$) and $B = e_J$ ($|J|=s$). Let $I^c, J^c$ be their complements in $\{0,\dots,n-1\}$. If $I \cup J \neq \{0,\dots,n-1\}$, then $I^c \cap J^c \neq \emptyset$, so $\star_\omega e_I \wedge \star_\omega e_J = \pm e_{I^c} \wedge e_{J^c} = 0$; likewise in \eqref{eq:shuffle}, every bracket wedges indices inside $I \cup J \subsetneq \{0,\dots,n-1\}$ and hence vanishes. Now assume $I \cup J = \{0,\dots,n-1\}$. By alternating multilinearity of both sides, permuting $(e_0,\dots,e_{n-1})$ multiplies both $[\,\cdot\,]_\omega$ and $\star_\omega^{-1}(\star_\omega(\cdot)\wedge\star_\omega(\cdot))$ by the permutation sign, so we may assume after an even/odd basis reordering that $I \setminus J = \{0,\dots,n-s-1\}$, $I \cap J = \{n-s,\dots,r-1\}$, and $J \setminus I = \{r,\dots,n-1\}$. Then:
+\begin{itemize}
+  \item In $e_I \vee_\omega^{\mathrm{sh}} e_J$, any shuffle $\sigma \in \Sh(n-s,d)$ placing an element of $I \cap J$ into the first $n-s$ positions repeats an index of $J$ inside the bracket and vanishes. Only $\sigma = \mathrm{id}$ survives, giving $+[e_0 \wedge \dots \wedge e_{n-1}]_\omega\, e_{I \cap J} = +e_{I \cap J}$.
+  \item In $e_I \vee_\omega e_J$, we have $e_I \wedge e_{J \setminus I} = \omega \implies \star_\omega(e_I) = +e_{J \setminus I}$; $e_J \wedge e_{I \setminus J} = (-1)^{s(n-s)}\omega \implies \star_\omega(e_J) = (-1)^{s(n-s)} e_{I \setminus J}$; hence
+  \[
+    \star_\omega(e_I) \wedge \star_\omega(e_J) = (-1)^{s(n-s) + (n-r)(n-s)} e_{I \setminus J} \wedge e_{J \setminus I}.
+  \]
+  Meanwhile, $e_{I \cap J} \wedge (e_{I \setminus J} \wedge e_{J \setminus I}) = (-1)^{d(n-s)}\omega \implies \star_\omega^{-1}(e_{I \setminus J} \wedge e_{J \setminus I}) = (-1)^{d(n-s)} e_{I \cap J}$. Summing the three sign exponents yields
+  \[
+    s(n-s) + (n-r)(n-s) + (r+s-n)(n-s) = (n-s)(s + n - r + r + s - n) = 2s(n-s) \equiv 0 \pmod 2,
+  \]
+  so $e_I \vee_\omega e_J = +e_{I \cap J} = e_I \vee_\omega^{\mathrm{sh}} e_J$, proving~(1).
+\end{itemize}
+For~(2), put $Z := \star_\omega A \wedge \star_\omega B = \star_\omega(A \vee_\omega B)$. Since $A \vee_\omega B \in \Lambda^d V$, Lemma~\ref{lem:pstar}(3) gives $A \vee_\omega^{\mathrm{fwd}} B = \star_\omega(\star_\omega(A \vee_\omega B)) = (-1)^{d(n-d)}(A \vee_\omega B)$. Graded anticommutativity of $\wedge$ on $\star_\omega A \in \Lambda^{n-r} V$ and $\star_\omega B \in \Lambda^{n-s} V$ gives $\star_\omega B \wedge \star_\omega A = (-1)^{(n-r)(n-s)} \star_\omega A \wedge \star_\omega B$, yielding the second identity in~\eqref{eq:sign-laws}.
+
+Finally, for~(3), $(n-s) + d + (n-r) = n$ and $\spn(\mathcal{B}) = U + W = V$, so $\mathcal{B}$ is a basis of $V$ and $\det_\omega(\mathcal{B}) \neq 0$. Applying~\eqref{eq:shuffle} via~(1) to $A = x_1 \wedge \dots \wedge x_{n-s} \wedge z_1 \wedge \dots \wedge z_d$ and $B = z_1 \wedge \dots \wedge z_d \wedge y_1 \wedge \dots \wedge y_{n-r}$, any non-identity shuffle moves some $z_j$ into the bracket against $B$, where $z_j \wedge B = 0$; hence only $\sigma = \mathrm{id}$ survives, giving~\eqref{eq:adapted-meet}.
+\end{proof}
+
+\subsection{Rigidity of Transverse Bilinear Intersection Operators}
+
+\begin{theorem}[Transverse Bilinear Rigidity in $\Psp^2$]\label{thm:rigidity}
+Let $R$ be any commutative ring, and let $M : \Lambda^2(R^3) \times \Lambda^2(R^3) \to \Lambda^1(R^3)$ be any $R$-bilinear map such that whenever $A, B \in \Lambda^2(R^3)$ have unimodularly transverse dual minors (i.e.\ the coordinates of $A \vee_{\omega_3} B$ generate the unit ideal $R$), $M(A, B)$ lies in both subspaces ($M(A,B) \wedge A = 0$ and $M(A,B) \wedge B = 0$). Then there exists a unique scalar $c \in R$ such that
+\begin{equation}\label{eq:rigidity}
+  M(A, B) = c\,(A \vee_{\omega_3} B) \qquad \forall A, B \in \Lambda^2(R^3).
+\end{equation}
+\end{theorem}
+\begin{proof}
+Let $(E_0, E_1, E_2) := (e_1 \wedge e_2,\; e_2 \wedge e_0,\; e_0 \wedge e_1)$ be the cyclic dual basis of $\Lambda^2(R^3)$, so that for $v = x_0 e_0 + x_1 e_1 + x_2 e_2$ and $B = b_0 E_0 + b_1 E_1 + b_2 E_2$ we have $[v \wedge B]_{\omega_3} = x_0 b_0 + x_1 b_1 + x_2 b_2$.
+\begin{enumerate}
+  \item \emph{Off-diagonal coordinate pairs:} For distinct $i \neq j$ with $\{i,j,k\} = \{0,1,2\}$, $(E_i, E_j)$ has minor $\pm 1$ (unit in $R$), so $[M(E_i, E_j) \wedge E_i]_{\omega_3} = [M(E_i, E_j) \wedge E_j]_{\omega_3} = 0$, forcing $M(E_i, E_j) = c_{ij} e_k$ for scalars $c_{ij} \in R$. Put $c := c_{01}$ (so $M(E_0, E_1) = c\,e_2$).
+  \item \emph{Diagonal pairs vanish:} The pair $(E_0 + E_1, E_0)$ has minor $-1$ (unit), so $v := M(E_0, E_0) + M(E_1, E_0) = M(E_0, E_0) + c_{10} e_2$ satisfies $x_0(v) = 0$ and $x_0(v) + x_1(v) = 0$, giving $x_0(M(E_0, E_0)) = x_1(M(E_0, E_0)) = 0$. Similarly, $(E_0 + E_2, E_0)$ has minor $+1$, giving $x_2(M(E_0, E_0)) = 0$, hence $M(E_0, E_0) = 0$. By cyclic symmetry, $M(E_1, E_1) = M(E_2, E_2) = 0$.
+  \item \emph{Sheared unimodular relations:} Testing the five unimodular pairs $(E_0 + E_2, E_1)$, $(E_0 + E_1, E_1 + E_2)$, $(E_0 + E_1, E_2)$, $(E_1, E_0 + E_2)$, and $(E_1 + E_2, E_0)$ (each having a $2 \times 2$ minor equal to $+1$) yields respectively:
+  \[
+    c_{21} + c = 0,\quad c_{02} + c = 0,\quad c_{12} + c_{02} = 0,\quad c_{12} + c_{10} = 0,\quad c_{20} + c_{10} = 0,
+  \]
+  whence $c_{01} = c_{12} = c_{20} = c$ and $c_{10} = c_{21} = c_{02} = -c$.
+\end{enumerate}
+Thus $M(E_i, E_j) = c\,(E_i \vee_{\omega_3} E_j)$ on all $9$ basis pairs, and bilinearity extends \eqref{eq:rigidity} to all of $\Lambda^2(R^3) \times \Lambda^2(R^3)$. Evaluating at $(E_0, E_1)$ gives $c' e_2 = c e_2 \implies c' = c$.
+\end{proof}
+
+\section{Refutation R1: Scalar Non-Uniqueness and Non-Sign Conversion Factors}\label{sec:r1}
+
+Theorem~\ref{thm:rigidity} shows that on $\Lambda^2(K^3)$, the space of nonzero transverse-valid bilinear intersection formulas is isomorphic to $K^\times$, not $\{+1\}$ and not $\{+1,-1\}$. We now prove three precise results refuting both the uniqueness clause and the sign-correction clause even on strictly transverse subspaces.
+
+\begin{theorem}[Bracket-Scaling Non-Uniqueness Beyond $\{\pm 1\}$]\label{thm:r1-scale}
+Let $V = K^n$ ($n \ge 3$) over any field $K$ with $|K| > 3$ (or $R = \mathbb{Z}$). Rescaling the volume form $\omega \mapsto \lambda\omega$ ($\lambda \in K^\times$) rescales the dual bracket $[\,\cdot\,]_{\lambda\omega} = \lambda^{-1}[\,\cdot\,]_\omega$ and hence scales the regressive product by
+\[
+  A \vee_{\lambda\omega}^{\mathrm{sh}} B = \lambda^{-1}\,(A \vee_\omega^{\mathrm{sh}} B).
+\]
+In particular, for every $c \in R \setminus \{0, +1, -1\}$ (e.g.\ $c = 2 \in \mathbb{Z}$), $M_c(A,B) := c\,(A \vee_{\omega_3} B)$ is a valid transverse bilinear Pl\"ucker intersection formula satisfying $M_c \neq \pm \vee_{\omega_3}$.
+\end{theorem}
+\begin{proof}
+Immediate from \eqref{eq:shuffle} since $[\,\cdot\,]_{\lambda\omega} = \lambda^{-1}[\,\cdot\,]_\omega$ appears linearly in each shuffle summand. At $c = 2$ on $R = \mathbb{Z}$, $M_2(E_0, E_1) = 2 e_2 \notin \{0, +e_2, -e_2\}$, while $M_2(A, B) \wedge A = 2((A \vee_{\omega_3} B) \wedge A) = 0$ and $M_2(A, B) \wedge B = 0$ for all $2$-vectors $A, B$.
+\end{proof}
+
+One might ask whether fixing a positive-definite inner product $\langle \cdot, \cdot \rangle$ and unit orientation $\omega_0$ and restricting inputs $(A, B)$ to \emph{unit-norm Pl\"ucker blades} ($\langle A, A \rangle = \langle B, B \rangle = 1$, which fixes each blade up to $\{\pm 1\}$) reduces the correction factor of $A \vee_{\omega_0} B$ to a sign $\pm 1$. Even over $\mathbb{Q}$, the answer is \textbf{no}.
+
+\begin{theorem}[Unit-Normalized Rational Pl\"ucker Counterexample]\label{thm:r1-unit}
+Equip $V = \mathbb{Q}^3$ (or $\mathbb{R}^3$) with the standard Euclidean inner product $\langle \cdot, \cdot \rangle$ and volume form $\omega_3 = e_0 \wedge e_1 \wedge e_2$. Consider the two decomposable $2$-blades
+\[
+  A := e_0 \wedge e_1, \qquad
+  B := e_0 \wedge \Bigl(\frac{3}{5}e_1 + \frac{4}{5}e_2\Bigr) = \frac{3}{5}(e_0 \wedge e_1) + \frac{4}{5}(e_0 \wedge e_2),
+\]
+representing the transverse planes $U = \spn\{e_0, e_1\}$ and $W = \spn\{e_0, 3e_1 + 4e_2\}$ with intersection $U \cap W = \spn\{e_0\}$. Then:
+\begin{enumerate}
+  \item Both $A$ and $B$ have unit Pl\"ucker norm: $\langle A, A \rangle = 1$ and $\langle B, B \rangle = \bigl(\frac{3}{5}\bigr)^2 + \bigl(\frac{4}{5}\bigr)^2 = \frac{25}{25} = 1$.
+  \item Every standard regressive-product convention yields $A \vee_{\omega_3} B = A \vee_{\omega_3}^{\mathrm{fwd}} B = \frac{4}{5} e_0$ and $A \vee_{\omega_3}^{\mathrm{rev}} B = -\frac{4}{5} e_0$, with squared norm $\langle A \vee_{\omega_3} B, A \vee_{\omega_3} B \rangle = \frac{16}{25} \neq 1$.
+  \item The unique unit-norm Pl\"ucker $1$-blades representing $U \cap W = \spn\{e_0\}$ are $+e_0$ and $-e_0$, and the conversion factor normalizing $A \vee_{\omega_3} B$ to $\pm e_0$ is $\pm \frac{5}{4} = \pm (\sin\theta)^{-1} \notin \{+1, -1\}$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Since $e_0 \wedge e_1$ and $e_0 \wedge e_2$ are orthonormal in $\Lambda^2(\mathbb{Q}^3)$, $\langle B, B \rangle = \frac{9}{25} + \frac{16}{25} = 1$. By bilinearity, $(e_0 \wedge e_1) \vee_{\omega_3} (e_0 \wedge e_1) = 0$ and $(e_0 \wedge e_1) \vee_{\omega_3} (e_0 \wedge e_2) = +e_0$ (Theorem~\ref{thm:transverse}), so $A \vee_{\omega_3} B = \frac{4}{5} e_0$. Because $d(n-d) = 1 \cdot 2 = 2$ is even, $A \vee_{\omega_3}^{\mathrm{fwd}} B = +\frac{4}{5} e_0$, while $(n-r)(n-s) = 1 \cdot 1 = 1$ gives $A \vee_{\omega_3}^{\mathrm{rev}} B = -\frac{4}{5} e_0$. Finally, $\epsilon \cdot \frac{4}{5} = \pm 1$ has no solution $\epsilon \in \{+1, -1\}$, requiring scalar $\pm \frac{5}{4} \notin \{\pm 1\}$.
+\end{proof}
+
+\begin{theorem}[Universal Bilinear Unit-Norm Impossibility]\label{thm:r1-imposs}
+Let $K$ be any field of characteristic $0$ (such as $\mathbb{Q}$ or $\mathbb{R}$). There does \textbf{not} exist any $K$-bilinear map $M : \Lambda^2(K^3) \times \Lambda^2(K^3) \to \Lambda^1(K^3)$ that sends every transverse pair of unit-norm $2$-blades $(A, B)$ to a unit-norm $1$-blade in $U \cap W$.
+\end{theorem}
+\begin{proof}
+Suppose such a bilinear map $M$ exists. Fix $A = e_0 \wedge e_1$ ($\langle A, A \rangle = 1$), and consider the three $2$-blades
+\[
+  B_1 := e_0 \wedge e_2, \qquad
+  B_2 := \frac{3}{5}(e_0 \wedge e_1) + \frac{4}{5}(e_0 \wedge e_2), \qquad
+  B_3 := -\frac{3}{5}(e_0 \wedge e_1) + \frac{4}{5}(e_0 \wedge e_2).
+\]
+Each pair $(A, B_i)$ ($i = 1, 2, 3$) is strictly transverse ($U + W_i = K^3$), has unit Euclidean norm $\langle B_i, B_i \rangle = 1$, and satisfies $U \cap W_i = \spn\{e_0\}$, whose only unit-norm vectors are $\pm e_0$. Thus $M(A, B_i) = \epsilon_i e_0$ with $\epsilon_i \in \{+1, -1\}$ for $i = 1, 2, 3$. However, $B_2 + B_3 = \frac{8}{5} B_1$, so bilinearity of $M$ forces
+\[
+  (\epsilon_2 + \epsilon_3) e_0 = M(A, B_2) + M(A, B_3) = \frac{8}{5} M(A, B_1) = \frac{8}{5}\epsilon_1 e_0 \implies 5(\epsilon_2 + \epsilon_3) = 8\epsilon_1.
+\]
+For $\epsilon_1, \epsilon_2, \epsilon_3 \in \{+1, -1\}$, $5(\epsilon_2 + \epsilon_3) \in \{-10, 0, +10\}$ whereas $8\epsilon_1 \in \{-8, +8\}$, a contradiction.
+\end{proof}
+
+\section{Refutation R2: Non-Transverse Vanishing and Algebraic Impossibility}\label{sec:r2}
+
+The conjecture asserts unqualifiedly that ``the intersection formula of the Pl\"ucker embedding is unique; and the correction of the formula is the sign factor.'' Yet two projective subspaces frequently intersect \emph{non-transversely} ($\dim(U + W) < n$ while $r + s \ge n$), where $\dim(U \cap W) > r + s - n$.
+
+\begin{proposition}[Identical Vanishing on Non-Transverse Pairs]\label{prop:r2-vanish}
+Let $U \in \Gr(r, V)$ and $W \in \Gr(s, V)$ with $r + s \ge n$ and $\dim(U + W) < n$. Then for any blades $A \in \Lambda^r U$ and $B \in \Lambda^s W$ and any volume form $\omega$,
+\[
+  A \vee_\omega B = A \vee_\omega^{\mathrm{fwd}} B = A \vee_\omega^{\mathrm{rev}} B = 0.
+\]
+Consequently, $c\,(A \vee_\omega B) = 0$ for \emph{every} scalar $c \in K$, so no sign or scalar factor can recover the nonzero Pl\"ucker coordinates of $U \cap W$:
+\begin{enumerate}
+  \item \emph{Coinciding lines in $\Psp^2$ ($n = 3, r = s = 2$):} For $U = W = \spn\{e_0, e_1\}$ ($A = e_0 \wedge e_1 \neq 0$), $U \cap W = U$ has Pl\"ucker blade $[A] \in \Psp(\Lambda^2 K^3)$, whereas $A \vee_\omega A = 0 \in \Lambda^1 K^3$.
+  \item \emph{Distinct coplanar lines in $\Psp^3$ ($n = 4, r = s = 2$):} For $U = \spn\{e_0, e_1\}$ ($A = e_0 \wedge e_1$) and $W = \spn\{e_0, e_2\}$ ($B = e_0 \wedge e_2$), $A$ and $B$ are linearly independent ($U \neq W$) and intersect in the $1$-dimensional line $U \cap W = \spn\{e_0\}$ (a unique projective point $[e_0] \in \Psp^3$), yet $\dim(U + W) = 3 < 4$ and $A \vee_\omega B = 0 \in \Lambda^0 K^4$.
+  \item \emph{Line contained in a plane in $\Psp^3$ ($n = 4, r = 3, s = 2$):} For $H = e_0 \wedge e_1 \wedge e_2$ and $A = e_0 \wedge e_1$, $r + s - n = 1$ and $\dim(U_H \cap U_A) = 2$, yet $H \vee_\omega A = 0 \in \Lambda^1 K^4$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+In the shuffle expansion \eqref{eq:shuffle}, every bracket $[a_{\sigma(1)} \wedge \dots \wedge a_{\sigma(n-s)} \wedge b_1 \wedge \dots \wedge b_s]_\omega$ wedges $(n-s) + s = n$ vectors all belonging to $U + W$. Since $\dim(U + W) \le n - 1$, $\Lambda^n(U + W) = \{0\}$, so every term vanishes identically. Theorem~\ref{thm:transverse}(1)--(2) then gives $A \vee_\omega B = A \vee_\omega^{\mathrm{fwd}} B = A \vee_\omega^{\mathrm{rev}} B = 0$.
+\end{proof}
+
+Could one replace $A \vee_\omega B$ by a \emph{different} bilinear or polynomial formula $F : \Lambda^2(K^4) \times \Lambda^2(K^4) \to \Lambda^1(K^4) = K^4$ to compute the intersection point $[e_0] = \Psp(U \cap W)$ of coplanar projective lines in $\Psp^3$? Both theorems below prove that this is \emph{algebraically impossible}.
+
+\begin{theorem}[Arbitrary-Degree Polynomial Impossibility in $R^4$]\label{thm:r2-poly}
+Let $R$ be any infinite integral domain (such as $\mathbb{Z}$, $\mathbb{Q}$, $\mathbb{R}$, or $\mathbb{C}$), and let $F : \Lambda^2(R^4) \times \Lambda^2(R^4) \to \Lambda^1(R^4) = R^4$ be \emph{any} polynomial map (of arbitrary total degree $D \ge 0$, including all bilinear maps at $D = 1$) such that whenever $A, B \in \Lambda^2(R^4)$ are decomposable $2$-blades representing $2$-planes $U, W \subset R^4$, $F(A, B)$ lies in $U \cap W$ ($F(A,B) \wedge A = 0$ and $F(A,B) \wedge B = 0$). Then for the distinct intersecting $2$-planes $U = \spn\{e_0, e_1\}$ and $W_0 = \spn\{e_0, e_2\}$ ($U \cap W_0 = \spn\{e_0\} \neq \{0\}$),
+\[
+  F(e_0 \wedge e_1,\; e_0 \wedge e_2) = 0.
+\]
+\end{theorem}
+\begin{proof}
+Fix $A := e_0 \wedge e_1$ ($U = \spn\{e_0, e_1\}$) and consider for $t \in R$ the $1$-parameter pencil of $2$-blades
+\[
+  B_t := (e_0 + t e_3) \wedge e_2 = e_0 \wedge e_2 - t\,(e_2 \wedge e_3) \in \Lambda^2(R^4), \qquad W_t := \spn\{e_0 + t e_3,\; e_2\}.
+\]
+Let $v = x_0 e_0 + x_1 e_1 + x_2 e_2 + x_3 e_3 \in \Lambda^1(R^4)$ satisfy $v \wedge A = 0$ and $v \wedge B_t = 0$ for some $t \neq 0$. Expanding $v \wedge (e_0 \wedge e_1) = x_2(e_0 \wedge e_1 \wedge e_2) + x_3(e_0 \wedge e_1 \wedge e_3) = 0$ forces $x_2 = x_3 = 0$. Substituting $v = x_0 e_0 + x_1 e_1$ into $v \wedge B_t = 0$ yields
+\[
+  (x_0 e_0 + x_1 e_1) \wedge \bigl(e_0 \wedge e_2 - t\,(e_2 \wedge e_3)\bigr)
+  = -x_1(e_0 \wedge e_1 \wedge e_2) - (t x_0)(e_0 \wedge e_2 \wedge e_3) - (t x_1)(e_1 \wedge e_2 \wedge e_3) = 0,
+\]
+forcing $x_1 = 0$ and $t x_0 = 0$. Since $R$ is an integral domain and $t \neq 0$, $x_0 = 0$, so $v = 0$. Thus $F(A, B_t) = 0$ for \emph{every} $t \in R \setminus \{0\}$.
+
+Because $B_t$ is affine-linear in $t$ and $F$ is a polynomial map of degree $\le D$, each coordinate $P_i(t) := \mathrm{coord}_i(F(A, B_t)) \in R[t]$ ($0 \le i \le 3$) is a univariate polynomial of degree $\le D$ that vanishes on any $D + 1$ pairwise distinct nonzero elements $t_0, \dots, t_D \in R \setminus \{0\}$ (for $R = \mathbb{Z}$ or $\mathbb{Q}$ with $D = 1$, simply $t_0 = 1, t_1 = 2$). By iterated Bezout synthetic division $P_i(t) - P_i(r) = (t - r) Q_i(t)$ over the integral domain $R$, $P_i(t) = 0$ for all $t \in R$. Setting $t = 0$ gives $F(e_0 \wedge e_1, e_0 \wedge e_2) = F(A, B_0) = 0$.
+\end{proof}
+
+Even if one drops \emph{all} conditions on skew pairs ($U \cap W = \{0\}$) and constrains a bilinear formula $F$ \emph{only} on coplanar intersecting line pairs ($\dim(U \cap W) = 1$), no single bilinear formula can succeed:
+
+\begin{theorem}[Incident-Only Bilinear Impossibility and $8$D Relative-Meet Classification]\label{thm:r2-incident}
+Let $R$ be any integral domain (in particular any field $K$).
+\begin{enumerate}
+  \item \textbf{Universal Incident-Only Impossibility:} There does \emph{not} exist any $R$-bilinear map $F : \Lambda^2(R^4) \times \Lambda^2(R^4) \to \Lambda^1(R^4)$ such that for every pair of $2$-planes $(U, W)$ meeting in a $1$-dimensional line, $F(A, B)$ is a nonzero vector in $U \cap W$.
+  \item \textbf{Classification over $K = \mathbb{Q}$:} The vector space of bilinear maps $F : \Lambda^2(\mathbb{Q}^4) \times \Lambda^2(\mathbb{Q}^4) \to \mathbb{Q}^4$ satisfying $\dim(U \cap W) = 1 \implies F(A, B) \in U \cap W$ has exact dimension $144 - 136 = 8$, spanned by $[A \wedge B]_{\omega_4} e_m$ ($0 \le m \le 3$, which vanish on all incident pairs) and the four hyperplane-projected relative meets $(A \wedge e_m) \vee_{\omega_4} B$ ($0 \le m \le 3$), each of which vanishes whenever $e_m \in U + W$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+For~(1), suppose $F$ is $R$-bilinear and outputs a nonzero multiple of $e_0$ on $(U, W_{(\alpha,\beta)})$ where $U = \spn\{e_0, e_1\}$ ($A = e_0 \wedge e_1$) and $W_{(\alpha,\beta)} = \spn\{e_0, \alpha e_2 + \beta e_3\}$ ($B_{(\alpha,\beta)} = e_0 \wedge (\alpha e_2 + \beta e_3)$) for every $(\alpha, \beta) \in R^2 \setminus \{(0,0)\}$ (note $U \cap W_{(\alpha,\beta)} = \spn\{e_0\}$ whenever $(\alpha,\beta) \neq (0,0)$). Write $F(A, e_0 \wedge e_2) = c_2 e_0$ ($c_2 \neq 0$) and $F(A, e_0 \wedge e_3) = c_3 e_0$. Taking $(\alpha, \beta) := (-c_3, c_2) \neq (0,0)$ gives an incident pair $(U, W_{(-c_3, c_2)})$ on which bilinearity forces
+\[
+  F\bigl(A,\; e_0 \wedge (-c_3 e_2 + c_2 e_3)\bigr)
+  = -c_3 F(A, e_0 \wedge e_2) + c_2 F(A, e_0 \wedge e_3) = (-c_3 c_2 + c_2 c_3) e_0 = 0,
+\]
+contradicting $F(A, B_{(-c_3, c_2)}) \neq 0$.
+
+For~(2), if $\dim(U \cap W) = 1$ with $U = \spn\{w_0, u_1\}$ and $W = \spn\{w_0, v_1\}$, then $A \wedge B = 0$, while for any $z \in K^4$, $(A \wedge z) \vee_{\omega_4} B = [(w_0 \wedge u_1 \wedge z) \wedge v_1]_{\omega_4} w_0 - [(w_0 \wedge u_1 \wedge z) \wedge w_0]_{\omega_4} v_1 = [w_0 \wedge u_1 \wedge z \wedge v_1]_{\omega_4} w_0 \in K w_0 = U \cap W$. Linear independence of the $8$ maps is immediate on standard basis pairs, and exact rational Gaussian elimination in \texttt{verify.py} confirms that the homogeneous incidence constraints have rank $136$ in $6 \times 6 \times 4 = 144$ variables, so nullity is $144 - 136 = 8$.
+\end{proof}
+
+\section{Refutation R3: Degenerate Metric Collapse in Euclidean PGA}\label{sec:r3}
+
+In modern Projective Geometric Algebra (Gunn, Dorst), $m$-dimensional Euclidean projective space is modeled by the \emph{degenerate} Clifford algebra $\Cl_{m,0,1} := \Cl(R^{m+1}, q_{\mathrm{PGA}})$ with orthogonal generators $(e_0, e_1, \dots, e_m)$ satisfying
+\[
+  q_{\mathrm{PGA}}(e_0) = e_0^2 = 0, \qquad q_{\mathrm{PGA}}(e_1) = \dots = q_{\mathrm{PGA}}(e_m) = +1.
+\]
+In nondegenerate Clifford algebras $\Cl_{p,q}$, the metric Hodge dual $\star_q(x) := \widetilde{x}\cdot_q \omega$ satisfies $\star_q(\star_q(x)) = \pm x$, so the inverse dual differs from $\star_q$ only by a sign factor. In $\Cl_{m,0,1}$, by contrast, metric duality collapses globally:
+
+\begin{theorem}[Nilpotent Null Ideal and Identical Collapse of Metric Duality]\label{thm:r3-pga}
+Let $R$ be any commutative ring, $m \ge 0$, and $\Cl_{m,0,1} = \Cl(R^{m+1}, q_{\mathrm{PGA}})$ with pseudoscalar $\omega_{m+1} = e_0 \wedge e_1 \wedge \dots \wedge e_m$ and metric Clifford dual $\star_q(x) := \widetilde{x}\cdot_{q_{\mathrm{PGA}}} \omega_{m+1}$. Let $\mathcal{J} := (e_0) \subset \Cl_{m,0,1}$ denote the $R$-submodule of multivectors every basis blade of which contains $e_0$.
+\begin{enumerate}
+  \item \textbf{Nilpotent Two-Sided Ideal:} $\mathcal{J}$ is closed under grade involution and reversion, is a two-sided ideal under \emph{both} the degenerate geometric product $\cdot_{q_{\mathrm{PGA}}}$ and the exterior wedge $\wedge$, and satisfies $\mathcal{J}\cdot_{q_{\mathrm{PGA}}} \mathcal{J} = \{0\}$ and $\mathcal{J} \wedge \mathcal{J} = \{0\}$.
+  \item \textbf{Global Collapse of Double Dual and Metric Meet:} Because $\omega_{m+1} \in \mathcal{J}$, $\star_q(x) \in \mathcal{J}$ for \emph{every} $x \in \Cl_{m,0,1}$. Consequently, across the \emph{entire} algebra $\Cl_{m,0,1}$,
+  \begin{equation}\label{eq:pga-collapse}
+    \star_q\bigl(\star_q(x)\bigr) = 0 \quad (\forall x), \qquad
+    \star_q(A) \wedge \star_q(B) = 0 \quad\text{and}\quad \star_q\bigl(\star_q(A) \wedge \star_q(B)\bigr) = 0 \quad (\forall A, B).
+  \end{equation}
+  \item \textbf{Origin-Lines Obstruction in $2$D PGA $\Cl_{2,0,1}$:} Over any integral domain $R$, the orthogonal origin lines $A = e_0 \wedge e_1 \in \mathcal{J}$ and $B = e_0 \wedge e_2 \in \mathcal{J}$ intersect transversely at $e_0$ under non-metric Poincar\'e duality ($A \vee_{\omega_3} B = e_0 \neq 0$), yet $\star_q(A) = \star_q(B) = 0$ and for \emph{all} multipliers $L_1, R_1, L_2, R_2 \in \Cl_{2,0,1}$,
+  \[
+    (L_1 \cdot_{q_{\mathrm{PGA}}} A \cdot_{q_{\mathrm{PGA}}} R_1) \wedge (L_2 \cdot_{q_{\mathrm{PGA}}} B \cdot_{q_{\mathrm{PGA}}} R_2) = 0.
+  \]
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+For~(1), at $m = 0$ ($\Cl_{0,0,1} = R \oplus R e_0$, $e_0^2 = 0$), $\mathcal{J} = \{(0, b)\}$ satisfies $(0,b)\cdot_q (c,d) = (0, bc) \in \mathcal{J}$, $(c,d)\cdot_q (0,b) = (0, cb) \in \mathcal{J}$, and $(0,b)\cdot_q (0,d) = (0,0)$ whenever $q(0) = 0$ (which holds for both $q_{\mathrm{PGA}}$ and the zero metric of $\wedge$). Inducting on $m$ via \eqref{eq:clifford-def} preserves $\mathcal{J}$-membership and $\mathcal{J}^2 = \{0\}$ componentwise for arbitrary $q_1, \dots, q_m \in R$.
+
+For~(2), $\omega_{m+1} = (0, \omega_m) \in \mathcal{J}$ by induction on $m$. Right ideal closure gives $\star_q(x) = \widetilde{x}\cdot_{q_{\mathrm{PGA}}} \omega_{m+1} \in \mathcal{J}$ for all $x$. Reversion closure and $\mathcal{J}\cdot_{q_{\mathrm{PGA}}} \mathcal{J} = \{0\}$ then yield $\star_q(\star_q(x)) = \widetilde{\star_q(x)}\cdot_{q_{\mathrm{PGA}}} \omega_{m+1} = 0$, while $\mathcal{J} \wedge \mathcal{J} = \{0\}$ yields $\star_q(A) \wedge \star_q(B) = 0$ and $\star_q(\star_q(A) \wedge \star_q(B)) = 0$.
+
+For~(3), in $\Cl_{2,0,1}$ ($m = 2$), $A = e_0 \wedge e_1 \in \mathcal{J}$ and $B = e_0 \wedge e_2 \in \mathcal{J}$ satisfy $A \vee_{\omega_3} B = e_0 \neq 0$ by Theorem~\ref{thm:transverse}, whereas two-sided ideal closure puts $L_1 \cdot_{q_{\mathrm{PGA}}} A \cdot_{q_{\mathrm{PGA}}} R_1 \in \mathcal{J}$ and $L_2 \cdot_{q_{\mathrm{PGA}}} B \cdot_{q_{\mathrm{PGA}}} R_2 \in \mathcal{J}$, whose wedge vanishes by $\mathcal{J} \wedge \mathcal{J} = \{0\}$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0 and Python}\label{sec:lean}
+
+All definitions, positive theorems, and counterexamples in this paper have been formalized from scratch in Core Lean \texttt{v4.19.0} (zero external dependencies, compiled with \texttt{-DwarningAsError=true}, zero \texttt{sorry}, zero custom axioms) inside \texttt{lean/Conjecture00000007617/}, and independently verified over exact rational arithmetic in \texttt{verify.py}. Table~\ref{tab:lean} records the correspondence between paper theorems and kernel-verified Lean declarations.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Mathematical Result} & \textbf{Core Lean 4.19.0 Declaration} & \textbf{Module} \\
+\midrule
+Intrinsic duality $[x \wedge \star y]_{\omega_n} = \langle x, y \rangle$ & \texttt{Cl.topCoeff\_wedge\_pStar} & \texttt{PluckerMeet} \\
+Basis-blade meet \& zero law ($\forall n$) & \texttt{Cl.regressive\_basisBlade} & \texttt{PluckerMeet} \\
+Positive transverse basis meet ($\forall n$) & \texttt{Cl.positive\_transverse\_basis\_meet} & \texttt{Main} \\
+Convention signs $(-1)^{d(n-d)}$, $(-1)^{(n-r)(n-s)}$ & \texttt{Cl.positive\_convention\_sign\_corrections} & \texttt{Main} \\
+Lagrange--Grassmann meet in $R^3$ & \texttt{Cl.p2\_lagrange\_grassmann\_meet} & \texttt{Main} \\
+Transverse bilinear rigidity $M = c\,\vee_{\omega_3}$ & \texttt{Cl.p2\_transverse\_bilinear\_rigidity} & \texttt{Main} \\
+\textbf{(R1a)} Bracket-scaling non-uniqueness & \texttt{Cl.r1\_bracket\_scaling\_nonunique} & \texttt{Main} \\
+\textbf{(R1b)} Unit $2$-blades ($A \vee B = \frac{4}{5}e_0$) & \texttt{Cl.r1\_unit\_plucker\_blades\_non\_sign\_factor} & \texttt{Main} \\
+\textbf{(R1c)} Bilinear unit-norm impossibility & \texttt{Cl.r1\_no\_unit\_preserving\_bilinear\_meet} & \texttt{Main} \\
+\textbf{(R2b)} Coinciding lines in $\Psp^2$ vanish & \texttt{Cl.r2\_coinciding\_lines\_p2\_vanish} & \texttt{Main} \\
+\textbf{(R2c)} Coplanar lines in $\Psp^3$ vanish & \texttt{Cl.r2\_distinct\_planes\_k4\_vanish} & \texttt{Main} \\
+\textbf{(R2d)} Degree-$D$ polynomial impossibility & \texttt{Cl.r2\_no\_polynomial\_intersection\_k4} & \texttt{Main} \\
+\textbf{(R2d$'$)} Bilinear $\Lambda^2(\mathbb{Q}^4)$ impossibility & \texttt{Cl.r2\_no\_bilinear\_intersection\_q4} & \texttt{Main} \\
+\textbf{(R2e)} Incident-only bilinear impossibility & \texttt{Cl.r2\_no\_incident\_only\_bilinear\_intersection\_k4} & \texttt{Main} \\
+\textbf{(R3a--b)} PGA $\star_q^2 = 0$ \& $\star_q A \wedge \star_q B = 0$ & \texttt{Cl.r3\_pga\_metricStar\_sq\_eq\_zero} & \texttt{Main} \\
+\textbf{(R3c)} $2$D PGA $\Cl_{2,0,1}$ origin lines & \texttt{Cl.r3\_pga\_origin\_lines\_obstruction} & \texttt{Main} \\
+Master negation of \texttt{00000007617} & \texttt{Cl.conjecture\_00000007617\_false} & \texttt{Main} \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical theorems and Core Lean \texttt{v4.19.0} declarations.}
+\label{tab:lean}
+\end{table}
+
+\begin{thebibliography}{9}
+
+\bibitem{BarnabeiBriniRota1985}
+M.~Barnabei, A.~Brini, and G.-C.~Rota,
+\emph{On the exterior calculus of invariant theory},
+Journal of Algebra \textbf{96} (1985), no.~1, 120--160.
+
+\bibitem{Dorst2020}
+L.~Dorst,
+\emph{A guided tour to the plane-based geometric algebra $\mathbb{R}^*_{3,0,1}$},
+University of Amsterdam Technical Report, 2020.
+
+\bibitem{DoubiletRotaStein1974}
+P.~Doubilet, G.-C.~Rota, and J.~Stein,
+\emph{On the foundations of combinatorial theory: IX. Combinatorial methods in invariant theory},
+Studies in Applied Mathematics \textbf{53} (1974), no.~3, 185--216.
+
+\bibitem{Gunn2019}
+C.~G.~Gunn,
+\emph{Projective geometric algebra: A new framework for doing Euclidean geometry},
+arXiv:1901.05873, 2019.
+
+\bibitem{Sturmfels2008}
+B.~Sturmfels,
+\emph{Algorithms in Invariant Theory},
+2nd ed., Texts and Monographs in Symbolic Computation, Springer, Vienna, 2008.
+
+\end{thebibliography}
+
+\end{document}
