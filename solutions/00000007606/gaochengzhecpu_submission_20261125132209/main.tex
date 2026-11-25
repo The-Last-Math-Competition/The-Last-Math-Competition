@@ -1,0 +1,355 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\emergencystretch=1.5em
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\Spin}{\mathrm{Spin}}
+\newcommand{\Pin}{\mathrm{Pin}}
+\newcommand{\Ad}{\mathrm{Ad}}
+\newcommand{\tAd}{\widetilde{\mathrm{Ad}}}
+\newcommand{\SO}{\mathrm{SO}}
+\newcommand{\Orth}{\mathrm{O}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\sn}{\mathrm{sn}}
+
+\title{\textbf{Disproof and Repaired Double-Cover Analysis of Conjecture 00000007606:\\
+Even Clifford Units, Rotors, and Adjoint Realizations of Spin Groups}}
+\author{Formal Resolution and Core Lean 4.19.0 Verification}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~00000007606, which defines rotors as unit elements of the even Clifford subalgebra and asserts that the spin group forms a double cover of the orthogonal group with kernel of order two realized by the adjoint map. As stated, the conjecture is \textbf{false} on three independent mathematical grounds: (1)~for every nondegenerate quadratic space $(V,Q)$ of dimension $n \ge 1$ over a field $K$ with $\mathrm{char}(K) \ne 2$, every invertible even element $x \in (\Cl(V,Q)^+)^\times$ stabilizing $V$ under $\Ad_x(v) = x v x^{-1}$ commutes with the pseudoscalar $\omega = e_1 \cdots e_n$ and hence induces a transformation of determinant $+1$ in $\SO(V,Q)$, missing every hyperplane reflection in $\Orth(V,Q) \setminus \SO(V,Q)$ (moreover, in odd dimensions $n = 2m+1$, $\omega$ is central in all of $\Cl(V,Q)$, so not even $\Pin(V,Q)$ or $\Cl(V,Q)^\times$ can cover $\Orth(V,Q)$ via the ordinary adjoint map, requiring Atiyah--Bott--Shapiro's twisted adjoint $\tAd_x(v) = \alpha(x) v x^{-1}$); (2)~defining rotors as algebraic units $(\Cl(V,Q)^+)^\times$ yields an infinite scalar kernel $K^\times \cdot 1$ over $\mathbb{Q}$ or $\mathbb{R}$ and fails even to preserve $V$ for $n \ge 4$ (e.g.\ $x = 1 + 2 e_{1234} \in (\Cl_{4,0}^+)^\times$), while restricting to unit-norm even elements $\{x \in \Cl(V,Q)^+ : x \widetilde{x} = 1\}$ still fails to preserve $V$ for $n \ge 6$ by the Chevalley--Porteous phenomenon (e.g.\ $x = \frac{3}{5} + \frac{4}{5} e_{123456} \in \Cl_{6,0}^+$); and (3)~in characteristic~$2$ the kernel collapses to order~$1$, while in indefinite signature $(p,q)$ with $p,q \ge 1$ (such as $\Cl_{1,1}$) unit-norm rotors cover only the identity component $\SO^+(p,q)$. Alongside these refutations, we establish the exact repaired classical theorem---showing that $\Ad : \Spin(n) \twoheadrightarrow \SO(n)$ is a surjective double cover with kernel $\{\pm 1\}$ of order~$2$ for $n \ge 1$ over $\mathbb{R}$, and proving the universal kernel-two theorem across all dimensions in Core Lean~4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Introduction and Analysis of the Source Statement}
+
+Conjecture~00000007606 is stated bilingually in \texttt{SOURCE.md} as follows:
+\begin{quote}
+\textbf{English.} Definition: Rotors as unit elements of the even subalgebra. Conjecture: The kernel of the double cover of the spin group over the orthogonal group is two; and the realization of the cover is the adjoint map. (adjoint-realized kernel-two double cover)
+\end{quote}
+The accompanying Chinese formulation (\emph{``Dingyi: zhuanzi wei ouzidaishu de danweiyuan jiegou. Caixiang: xuanqun dao zhengjiaoqun de shuangfugai de he wei er; qie fugai de shixian wei Adjun yingshe.''}) carries the identical mathematical content, defining rotors as the unit-element structure of the even subalgebra $\Cl(V,Q)^+$ and claiming that the ordinary adjoint map $\Ad_x(v) = x v x^{-1}$ realizes a kernel-two double cover from the spin group onto the full orthogonal group $\Orth(V,Q)$.
+
+\subsection{Verdict and Structural Overview}
+
+The conjecture is \textbf{false as stated}, failing simultaneously in its target group, its definition of rotors, and its unstated field and signature hypotheses. At the same time, it points toward a cornerstone theorem of Clifford algebra and Lie theory once three precise repairs are made:
+\begin{enumerate}
+\item[(i)] \textbf{Repairing the rotor definition:} Replace ``unit elements of $\Cl(V,Q)^+$'' by the genuine spin group
+\[
+\Spin(V,Q) \;=\; \bigl\{\, x \in \Cl(V,Q)^+ \;:\; x V x^{-1} \subseteq V \;\text{and}\; x \widetilde{x} = \widetilde{x} x = 1 \,\bigr\},
+\]
+incorporating \emph{both} the unit-norm condition $x \widetilde{x} = 1$ and the Lipschitz vector-stabilization condition $x V x^{-1} \subseteq V$.
+\item[(ii)] \textbf{Repairing the target group (or the adjoint action):} Either replace the full orthogonal group $\Orth(V,Q)$ by the \emph{special} orthogonal group $\SO(V,Q)$ (over $\mathbb{R}$ with definite $Q$), or replace $\Spin(V,Q)$ by $\Pin(V,Q)$ \emph{and} replace the ordinary adjoint $\Ad_x(v) = x v x^{-1}$ by the \emph{twisted} adjoint $\tAd_x(v) = \alpha(x) v x^{-1}$.
+\item[(iii)] \textbf{Imposing characteristic, field, and signature hypotheses:} Require $\mathrm{char}(K) \ne 2$ so that $+1 \ne -1$, and work over a Euclidean real field with definite quadratic form $Q$ (so the spinor norm $\sn : \SO(V,Q) \to K^\times / (K^\times)^2$ is trivial and $\SO(V,Q)$ is connected for $n \ge 2$).
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.26\textwidth}>{\raggedright\arraybackslash}p{0.31\textwidth}>{\raggedright\arraybackslash}p{0.37\textwidth}@{}}
+\toprule
+\textbf{Aspect} & \textbf{Stated Conjecture} & \textbf{Exact Mathematical Reality} \\
+\midrule
+Target group ($n \ge 1$, $\mathrm{char}(K) \ne 2$) &
+Full orthogonal group $\Orth(V,Q)$ via $\Ad_x(v) = x v x^{-1}$ &
+\textbf{False:} $\det(\Ad_x|_V) = +1$ for all $x \in \Gamma^+(V,Q)$; misses all reflections in $\Orth(V,Q) \setminus \SO(V,Q)$. \\
+Odd dimensions $n = 2m + 1$ &
+Ordinary adjoint $\Ad_x(v) = x v x^{-1}$ &
+\textbf{False even on $\Pin(V,Q)$:} $\omega$ is central in all of $\Cl(V,Q)$, so $\det(\Ad_x|_V) = +1$ on $\Gamma(V,Q)$; covering $\Orth(V,Q)$ requires $\tAd_x(v) = \alpha(x) v x^{-1}$. \\
+Rotors as algebraic units $(\Cl^+)^\times$ &
+Kernel has order $2$; acts on $V$ &
+\textbf{False:} $K^\times \cdot 1 \subseteq \ker(\Ad)$ (infinite over $\mathbb{Q},\mathbb{R}$); for $n \ge 4$, $1 + 2 e_{1234} \in (\Cl_{4,0}^+)^\times$ fails $\Ad_x(V) \subseteq V$. \\
+Rotors as unit-norm even elements $\{x \in \Cl^+ : x \widetilde{x} = 1\}$ &
+Coincides with $\Spin(n)$ and preserves $V$ &
+\textbf{False for $n \ge 6$:} In $\Cl_{6,0}^+$, $x = \frac{3}{5} + \frac{4}{5} e_{123456}$ satisfies $x \widetilde{x} = 1$ yet $\Ad_x(e_1) \notin V$ ($\dim \mathrm{U}(4) = 16 > 15 = \dim \Spin(6)$). \\
+Characteristic $2$ \& indefinite signature &
+Unrestricted base field and form &
+\textbf{False:} Over $\mathbb{F}_2$, $+1 = -1$ gives $|\ker| = 1$; in $\Cl_{1,1}$, $\{x \in \Cl_{1,1}^+ : x \widetilde{x} = 1\} = \Spin^+(1,1)$ misses $-I_2 \in \SO(1,1)$. \\
+Repaired theorem ($K = \mathbb{R}$, definite $Q$, $n \ge 1$) &
+$\Ad : \Spin(n) \twoheadrightarrow \SO(n)$ &
+\textbf{True:} Surjective group homomorphism onto $\SO(n)$ with $\ker(\Ad) = \{\pm 1\}$ of order $2$. \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the failure modes of Conjecture~00000007606 and its repaired classical counterpart.}
+\label{tab:summary}
+\end{table}
+
+\section{Clifford Algebra Preliminaries and the Repaired Classical Theorem}
+
+Let $K$ be a field and $(V,Q)$ an $n$-dimensional quadratic space over $K$ with associated symmetric bilinear form $B(u,v) = \frac{1}{2}(Q(u+v) - Q(u) - Q(v))$ when $\mathrm{char}(K) \ne 2$. Following standard geometric algebra conventions, the Clifford algebra $\Cl(V,Q)$ is the associative unital $K$-algebra generated by $V$ subject to the fundamental relation
+\begin{equation}\label{eq:clifford-law}
+v^2 \;=\; Q(v) \cdot 1 \qquad (\forall v \in V),
+\end{equation}
+equivalently $u v + v u = 2 B(u,v) \cdot 1$ for $u,v \in V$. If $(e_1, \dots, e_n)$ is an orthogonal basis of $(V,Q)$ with $Q(e_i) = c_i \in K$, we write $\Cl(K; c_1, \dots, c_n) := \Cl(V,Q)$, and $\Cl_{p,q}(K)$ when $p$ of the $c_i$ equal $+1$ and $q$ equal $-1$.
+
+\begin{remark}[Independence of Clifford Sign Convention]
+Many differential-geometric treatments replace~\eqref{eq:clifford-law} by $v^2 = -Q(v) \cdot 1$. Because $-Q$ has opposite signature, $\Cl(V,-Q)^+ \cong \Cl(V,Q)^+$ canonically: for any product $x = u_1 \cdots u_{2k}$ of an even number of unit vectors, $(-1)^{2k} = +1$, so both $x \widetilde{x} = 1$ and $\Ad_x(v) = x v x^{-1}$ are unchanged. Every positive theorem and every counterexample in this paper holds verbatim under either sign convention.
+\end{remark}
+
+The algebra $\Cl(V,Q)$ carries two canonical involutions:
+\begin{enumerate}
+\item[(1)] \textbf{Grade involution} $\alpha : \Cl(V,Q) \to \Cl(V,Q)$, the unique $K$-algebra automorphism extending $\alpha(v) = -v$ on $V$. When $\mathrm{char}(K) \ne 2$, $\Cl(V,Q) = \Cl(V,Q)^+ \oplus \Cl(V,Q)^-$ decomposes into the $\pm 1$-eigenspaces of $\alpha$, where $\Cl(V,Q)^+ = \{x \in \Cl(V,Q) : \alpha(x) = x\}$ is the \emph{even subalgebra} (spanned in all characteristics by products of an even number of vectors).
+\item[(2)] \textbf{Reversion} $x \mapsto \widetilde{x}$, the unique $K$-algebra anti-automorphism ($\widetilde{xy} = \widetilde{y}\,\widetilde{x}$) fixing $V$ pointwise. On a homogeneous orthogonal blade $e_{i_1} \cdots e_{i_r}$ of grade $r$,
+\begin{equation}\label{eq:rev-sign}
+\widetilde{e_{i_1} \cdots e_{i_r}} \;=\; e_{i_r} \cdots e_{i_1} \;=\; (-1)^{r(r-1)/2}\, e_{i_1} \cdots e_{i_r}.
+\end{equation}
+Note that \emph{Clifford conjugation} $\overline{x} := \alpha(\widetilde{x})$ satisfies $\overline{x} = \widetilde{x}$ identically on $\Cl(V,Q)^+$.
+\end{enumerate}
+
+\begin{definition}[Lipschitz Groups and Spin Group]\label{def:spin}
+Assume $(V,Q)$ is nondegenerate and $\mathrm{char}(K) \ne 2$. The \emph{even Lipschitz (or Clifford) group} and the \emph{spin group} are defined respectively by
+\begin{align*}
+\Gamma^+(V,Q) &\;:=\; \bigl\{\, x \in (\Cl(V,Q)^+)^\times \;:\; x V x^{-1} \subseteq V \,\bigr\}, \\
+\Spin(V,Q) &\;:=\; \bigl\{\, x \in \Gamma^+(V,Q) \;:\; x \widetilde{x} = \widetilde{x} x = 1 \,\bigr\}.
+\end{align*}
+For $x \in \Gamma^+(V,Q)$, the \emph{ordinary adjoint action} on $V$ is the linear map $\Ad_x : V \to V$, $\Ad_x(v) = x v x^{-1}$ (which equals $x v \widetilde{x}$ when $x \in \Spin(V,Q)$).
+\end{definition}
+
+\begin{theorem}[Universal Adjoint Orthogonality and Universal Kernel-Two Theorem]\label{thm:universal-kernel-two}
+Let $K$ be any field with $\mathrm{char}(K) \ne 2$ and $(V,Q)$ any nondegenerate $n$-dimensional quadratic space over $K$ ($n \ge 0$).
+\begin{enumerate}
+\item[(a)] For every $x \in \Cl(V,Q)^\times$ and $v \in V$ such that $w := x v x^{-1} \in V$, one has $Q(w) = Q(v)$. In particular, $\Ad_x \in \Orth(V,Q)$ for all $x \in \Gamma^+(V,Q)$, and $\Ad : \Spin(V,Q) \to \Orth(V,Q)$ is a group homomorphism.
+\item[(b)] The elements $+1$ and $-1$ are distinct members of $\Spin(V,Q)$, and the kernel of $\Ad : \Spin(V,Q) \to \Orth(V,Q)$ has exact cardinality~$2$:
+\[
+\ker\bigl(\Ad : \Spin(V,Q) \to \Orth(V,Q)\bigr) \;=\; \{+1, -1\}.
+\]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For~(a), if $w = x v x^{-1} \in V$, then in $\Cl(V,Q)$ we compute
+\[
+Q(w) \cdot 1 \;=\; w^2 \;=\; (x v x^{-1})(x v x^{-1}) \;=\; x v^2 x^{-1} \;=\; x\bigl(Q(v) \cdot 1\bigr)x^{-1} \;=\; Q(v) \cdot 1.
+\]
+Since the scalar map $K \hookrightarrow \Cl(V,Q)$ is injective, $Q(w) = Q(v)$. Because $\dim V < \infty$ and $\Ad_{x^{-1}}$ inverts $\Ad_x$, $\Ad_x \in \Orth(V,Q)$, and $\Ad_{xy}(v) = (xy)v(xy)^{-1} = \Ad_x(\Ad_y(v))$.
+
+For~(b), since $\mathrm{char}(K) \ne 2$, $+1 \ne -1$ in $K \hookrightarrow \Cl(V,Q)$, and clearly $\pm 1 \in \Spin(V,Q)$ with $\Ad_{\pm 1} = \id_V$. Conversely, let $(e_1, \dots, e_n)$ be an orthogonal basis of $(V,Q)$ with $c_i := Q(e_i) \ne 0$. We prove by induction on $n$ that any even element $x \in \Cl(K; c_1, \dots, c_n)^+$ commuting with $V$ lies in $K \cdot 1$. The base case $n = 0$ ($\Cl = K$) is immediate. For $n \ge 1$, decompose $\Cl(K; c_1, \dots, c_n) = \Cl' \oplus \Cl' e_n$ where $\Cl' = \Cl(K; c_1, \dots, c_{n-1})$ and $e_n y = \alpha(y) e_n$ for $y \in \Cl'$. Writing $x = x_0 + x_1 e_n$ with $x_0, x_1 \in \Cl'$, the condition $\alpha(x) = x$ yields $\alpha(x_0) = x_0$ and $\alpha(x_1) = -x_1$. Commutation $x e_n = e_n x$ gives
+\[
+x e_n \;=\; c_n x_1 + x_0 e_n, \qquad e_n x \;=\; e_n x_0 + e_n x_1 e_n \;=\; \alpha(x_0) e_n + c_n \alpha(x_1) \;=\; -c_n x_1 + x_0 e_n.
+\]
+Comparing $\Cl'$-components yields $c_n x_1 = -c_n x_1$, i.e.\ $2 c_n x_1 = 0$. Since $2 \ne 0$ and $c_n \ne 0$, we obtain $x_1 = 0$, so $x = x_0 \in (\Cl')^+$. Then $x_0$ commutes with $e_1, \dots, e_{n-1}$, so $x_0 = k \cdot 1$ ($k \in K$) by the induction hypothesis. Finally, if $x \in \Spin(V,Q)$ satisfies $\Ad_x = \id_V$, then $x v x^{-1} = v \implies x v = v x$ for all $v \in V$, hence $x = k \cdot 1$. The unit-norm condition $1 = x \widetilde{x} = k^2 \cdot 1$ gives $k^2 = 1$, so $k \in \{+1, -1\}$.
+\end{proof}
+
+\begin{theorem}[Classical Repaired Double Cover $\Spin(n) \twoheadrightarrow \SO(n)$]\label{thm:repaired-positive}
+Let $n \ge 1$ and equip $\mathbb{R}^n$ with the standard Euclidean form $Q(v) = \sum_{i=1}^n v_i^2$. Then $\Ad : \Spin(n) \to \SO(n)$ is a \textbf{surjective} group homomorphism with kernel $\{+1, -1\}$ of cardinality~$2$; hence every proper rotation $g \in \SO(n)$ has an exact two-element fiber $\{x, -x\} \subset \Spin(n)$ with $x \ne -x$. More generally, for $n \in \{1, 2\}$, surjectivity $\Spin_n(E) \twoheadrightarrow \SO_n(E)$ holds over every Euclidean ordered field $E$ (any ordered field in which non-negative elements have square roots).
+\end{theorem}
+
+\begin{proof}
+That $\Ad(\Spin(n)) \subseteq \SO(n)$ holds in all dimensions is proved in Theorem~\ref{thm:target-refutation} below, and $\ker(\Ad) = \{\pm 1\}$ is Theorem~\ref{thm:universal-kernel-two}(b). For surjectivity over $\mathbb{R}$: for any unit vector $u \in \mathbb{R}^n$ ($Q(u) = 1$, $u^2 = 1$), the identity $u v + v u = 2 B(u,v) \cdot 1$ yields
+\[
+\tAd_u(v) \;:=\; \alpha(u) v u^{-1} \;=\; -u v u \;=\; v - 2 B(u,v) u \;=\; r_u(v),
+\]
+the hyperplane reflection across $u^\perp$. By the Cartan--Dieudonn\'e theorem, every $g \in \SO(n)$ factors as a product $g = r_{u_1} \circ \cdots \circ r_{u_{2k}}$ of an \emph{even} number of unit reflections ($\det(g) = (-1)^m = +1 \implies m = 2k$). Setting $x := u_1 \cdots u_{2k} \in \Cl_{n,0}(\mathbb{R})^+$ gives $x \widetilde{x} = u_1 \cdots u_{2k} u_{2k} \cdots u_1 = 1$ and $\Ad_x(v) = (-1)^{2k} u_1 \cdots u_{2k} v u_{2k}^{-1} \cdots u_1^{-1} = g(v)$, so $x \in \Spin(n)$ and $\Ad_x = g$.
+
+For $n = 2$ over an arbitrary Euclidean ordered field $E$, any $M \in \SO_2(E)$ satisfies $M^\top M = I_2$ and $\det M = 1$, which algebraically forces $M = \bigl(\begin{smallmatrix} c & s \\ -s & c \end{smallmatrix}\bigr)$ with $c^2 + s^2 = 1$ (since $M_{22} = (M_{11}^2 + M_{21}^2) M_{22} = M_{11} \det M + M_{21}(M_{11} M_{12} + M_{21} M_{22}) = M_{11}$ and similarly $M_{21} = -M_{12}$). An even rotor $x = a + b e_{12} \in \Spin_2(E)$ ($a^2 + b^2 = 1$) acts on $(e_1, e_2)$ via
+\[
+\Ad_x(e_1) \;=\; (a^2 - b^2) e_1 - 2ab\, e_2, \qquad \Ad_x(e_2) \;=\; 2ab\, e_1 + (a^2 - b^2) e_2.
+\]
+If $c = -1$, then $s = 0$ and $x = e_{12}$ ($a = 0, b = 1$) satisfies $\Ad_x = -I_2 = M$. If $c \ne -1$, then $1 + c > 0$ (as $-(1+c)(1-c) = c^2 - 1 = -s^2 \le 0$ rules out $c < -1$). Choosing $a = \sqrt{(1+c)/2} \ne 0$ and $b = s / (2a)$ gives $2a^2 = 1 + c$, $2ab = s$, and $(1+c)(2b^2) = 4a^2 b^2 = s^2 = 1 - c^2 = (1+c)(1-c)$, whence $2b^2 = 1 - c$. Adding and subtracting yields $a^2 + b^2 = 1$ and $a^2 - b^2 = c$, so $x = a + b e_{12} \in \Spin_2(E)$ lifts $M$, with fiber $\{x, -x\}$ of size~$2$.
+\end{proof}
+
+\begin{remark}[Spinor-Norm Non-Surjectivity over Non-Euclidean Fields such as $\mathbb{Q}$]\label{rem:spinor-norm}
+Over a general field $K$ ($\mathrm{char}(K) \ne 2$), $\Ad : \Spin(V,Q) \to \SO(V,Q)$ fits into the exact sequence
+\[
+1 \longrightarrow \{\pm 1\} \longrightarrow \Spin(V,Q) \xrightarrow{\;\Ad\;} \SO(V,Q) \xrightarrow{\;\sn\;} K^\times / (K^\times)^2.
+\]
+Concretely, in $\Cl_{2,0}(\mathbb{Q})$, the Pythagorean rotor $x = \frac{3}{5} + \frac{4}{5} e_{12} \in \Spin_2(\mathbb{Q})$ maps to the nontrivial rotation $\bigl(\begin{smallmatrix} -7/25 & 24/25 \\ -24/25 & -7/25 \end{smallmatrix}\bigr) \in \SO_2(\mathbb{Q})$, whereas the $90^\circ$ rotation $R_{90^\circ} = \bigl(\begin{smallmatrix} 0 & 1 \\ -1 & 0 \end{smallmatrix}\bigr) \in \SO_2(\mathbb{Q})$ has \emph{no} preimage in $\Spin_2(\mathbb{Q})$: solving $a^2 + b^2 = 1$ and $a^2 - b^2 = 0$ forces $2a^2 = 1$, which is insoluble in $\mathbb{Q}$ ($\sn(R_{90^\circ}) = [2] \ne [1]$ in $\mathbb{Q}^\times / (\mathbb{Q}^\times)^2$), though $R_{90^\circ}$ lifts to $\pm\bigl(\frac{\sqrt{2}}{2} + \frac{\sqrt{2}}{2} e_{12}\bigr)$ over $\mathbb{Q}(\sqrt{2})$.
+\end{remark}
+
+\section{Refutation I: Spin Never Covers the Full Orthogonal Group \texorpdfstring{$\Orth(V,Q)$}{O(V,Q)}}
+
+We now prove the first fundamental refutation of Conjecture~00000007606: in \emph{every} dimension $n \ge 1$ over any field of characteristic $\ne 2$, neither $\Spin(V,Q)$ nor any subgroup of $(\Cl(V,Q)^+)^\times$ can cover the orthogonal group $\Orth(V,Q)$ via the adjoint map.
+
+\begin{theorem}[Universal Pseudoscalar and Determinant Obstruction]\label{thm:target-refutation}
+Let $K$ be a field with $\mathrm{char}(K) \ne 2$, let $(V,Q)$ be a nondegenerate quadratic space of dimension $n \ge 1$ with orthogonal basis $(e_1, \dots, e_n)$ ($Q(e_i) = c_i \in K^\times$), and let $\omega := e_1 e_2 \cdots e_n \in \Cl(V,Q)$ be the pseudoscalar.
+\begin{enumerate}
+\item[(a)] \textbf{Even commutation (all $n \ge 1$):} Every even element $x \in \Cl(V,Q)^+$ satisfies $x \omega = \omega x$.
+\item[(b)] \textbf{Properness of $\Ad$ on $\Gamma^+(V,Q)$:} For every $x \in \Gamma^+(V,Q)$, $\det(\Ad_x|_V) = +1$, so $\Ad(\Gamma^+(V,Q)) \subseteq \SO(V,Q)$. Consequently, the hyperplane reflection $r_{e_n} \in \Orth(V,Q)$ ($r_{e_n}(e_n) = -e_n$, $r_{e_n}(e_j) = e_j$ for $j < n$, which satisfies $\det(r_{e_n}) = -1 \ne +1$) has \textbf{no} preimage in $(\Cl(V,Q)^+)^\times$ (and hence none in $\Spin(V,Q)$) under $\Ad$.
+\item[(c)] \textbf{Odd-dimension centrality ($n = 2m + 1$):} When $n$ is odd, $\omega$ lies in the center of the \textbf{entire} Clifford algebra $\Cl(V,Q)$. Hence $\det(\Ad_x|_V) = +1$ holds for \emph{every} $x \in \Gamma(V,Q) \subset \Cl(V,Q)^\times$ (even or odd!), so in odd dimensions not even $\Pin(V,Q)$ or $\Cl(V,Q)^\times$ can realize $r_{e_n} \in \Orth(V,Q)$ via the ordinary adjoint map $\Ad_x(v) = x v x^{-1}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For each $i \in \{1, \dots, n\}$, moving $e_i$ across $e_1 \cdots e_{i-1}$ produces $i - 1$ sign changes, whereas moving $e_i$ across $e_{i+1} \cdots e_n$ produces $n - i$ sign changes:
+\[
+e_i \omega \;=\; (-1)^{i-1} c_i\, e_1 \cdots \widehat{e_i} \cdots e_n, \qquad
+\omega e_i \;=\; (-1)^{n-i} c_i\, e_1 \cdots \widehat{e_i} \cdots e_n.
+\]
+Since $(n - i) - (i - 1) = n - 2i + 1 \equiv n - 1 \pmod{2}$, we obtain
+\begin{equation}\label{eq:ei-omega}
+e_i \omega \;=\; (-1)^{n-1} \omega e_i \qquad (1 \le i \le n).
+\end{equation}
+For any product $e_i e_j$ of two basis vectors, $(e_i e_j)\omega = ((-1)^{n-1})^2 \omega (e_i e_j) = +\omega (e_i e_j)$, proving~(a). Moreover, when $n$ is odd, $(-1)^{n-1} = +1$ in~\eqref{eq:ei-omega}, so every generator $e_i$ commutes with $\omega$, proving that $\omega$ is central in $\Cl(V,Q)$!
+
+Now let $x \in \Cl(V,Q)^\times$ commute with $\omega$ and stabilize $V$, and write $T := \Ad_x|_V \in \Orth(V,Q)$ with matrix $T(e_j) = \sum_{i=1}^n a_{ij} e_i$. Because conjugation $y \mapsto x y x^{-1}$ is an algebra automorphism of $\Cl(V,Q)$,
+\[
+T(e_1) T(e_2) \cdots T(e_n) \;=\; (x e_1 x^{-1})(x e_2 x^{-1}) \cdots (x e_n x^{-1}) \;=\; x \omega x^{-1} \;=\; \omega x x^{-1} \;=\; \omega.
+\]
+Expanding the left-hand side in the $2^n$-dimensional blade basis $\{e_I : I \subseteq \{1,\dots,n\}\}$, any term $e_{i_1} \cdots e_{i_n}$ with a repeated index collapses to grade $\le n - 2$, whereas permutation tuples $(i_1, \dots, i_n) = (\sigma(1), \dots, \sigma(n))$ ($\sigma \in S_n$) contribute $\mathrm{sgn}(\sigma)\, \omega$. Comparing the $\omega$-coordinate gives $\det(T) = +1$. In particular, $r_{e_n}$ satisfies $r_{e_n}(e_1) \cdots r_{e_n}(e_n) = -\omega \ne +\omega$ (as $2\omega \ne 0$), completing~(b) and~(c).
+\end{proof}
+
+\begin{remark}[How $\Pin(V,Q)$ Covers $\Orth(V,Q)$: The Twisted Adjoint Map]
+To double-cover the full orthogonal group $\Orth(V,Q)$ (for $K = \mathbb{R}$ and definite $Q$), one must enlarge $\Spin(V,Q)$ to $\Pin(V,Q) \subset \Cl(V,Q)^\times$ \emph{and} replace $\Ad_x$ by Atiyah--Bott--Shapiro's \emph{twisted} adjoint representation $\tAd_x(v) := \alpha(x) v x^{-1}$. On $\Spin(V,Q) \subset \Cl(V,Q)^+$, $\alpha(x) = x$ so $\tAd_x = \Ad_x$; on an odd unit vector $u \in V$ ($u^2 = 1$), $\tAd_u(v) = -u v u = r_u(v)$ realizes the hyperplane reflection across $u^\perp$, whereas the ordinary adjoint $\Ad_u(u) = u u u^{-1} = +u \ne -u$ fails even to reflect $u$!
+\end{remark}
+
+\section{Refutation II: Failures of ``Rotors as Unit Elements of the Even Subalgebra''}
+
+The conjecture's opening definition (\emph{``Rotors as unit elements of the even subalgebra''}) admits two natural mathematical readings: (A)~the multiplicative group of \emph{algebraic units} (invertible elements) $(\Cl(V,Q)^+)^\times$, or (B)~the set of \emph{unit-norm} even elements $\{x \in \Cl(V,Q)^+ : x \widetilde{x} = 1\}$. Both readings fail decisively.
+
+\subsection{Failure of Algebraic Even Units \texorpdfstring{$(\Cl(V,Q)^+)^\times$}{(Cl+)x}}
+
+\begin{proposition}[Scalar-Unit Kernel Blowup]\label{prop:scalar-kernel}
+For every quadratic space $(V,Q)$ over any field $K$, every nonzero scalar $c \cdot 1$ ($c \in K^\times$) belongs to $(\Cl(V,Q)^+)^\times$, stabilizes $V$, and acts trivially under $\Ad$:
+\[
+\Ad_{c \cdot 1}(v) \;=\; (c \cdot 1)\, v\, (c^{-1} \cdot 1) \;=\; v \qquad (\forall v \in V).
+\]
+Consequently, whenever $|K| > 3$ (and in particular over $\mathbb{Q}$ or $\mathbb{R}$, where $K^\times$ is infinite), the kernel of $\Ad$ on $\Gamma^+(V,Q) \subseteq (\Cl(V,Q)^+)^\times$ has cardinality at least $|K^\times| > 2$.
+\end{proposition}
+
+In dimensions $n \le 3$, low-dimensional accidents ($\Cl_{1,0}^+ \cong \mathbb{R}$, $\Cl_{2,0}^+ \cong \mathbb{C}$, $\Cl_{3,0}^+ \cong \mathbb{H}$) ensure that every $x \in (\Cl_{n,0}(\mathbb{R})^+)^\times$ at least satisfies $x V x^{-1} = V$, reducing $(\Cl_{n,0}^+)^\times$ to $\mathbb{R}^\times \cdot \Spin(n)$. Starting at $n = 4$, even vector-space stabilization breaks down completely:
+
+\begin{theorem}[Non-Stabilization of $V$ by $(\Cl_{4,0}^+)^\times$]\label{thm:cl40-counterexample}
+Let $K$ be any field in which $2 \ne 0$ and $3 \ne 0$ (in particular any ordered field such as $\mathbb{Q}$ or $\mathbb{R}$), and consider $\Cl_{4,0}(K)$ with orthonormal generators $e_1, e_2, e_3, e_4$ ($e_i^2 = +1$) and pseudoscalar $\omega_4 = e_1 e_2 e_3 e_4 \in \Cl_{4,0}(K)^+$. Set
+\[
+x \;:=\; 1 + 2 \omega_4 \;\in\; \Cl_{4,0}(K)^+, \qquad
+x^{-1} \;:=\; -\frac{1}{3}(1 - 2 \omega_4) \;\in\; \Cl_{4,0}(K)^+.
+\]
+Then $x x^{-1} = x^{-1} x = 1$, so $x \in (\Cl_{4,0}(K)^+)^\times$, yet $\Ad_x$ does \textbf{not} map $V$ into $V$:
+\[
+\Ad_x(e_1) \;=\; -\frac{5}{3} e_1 + \frac{4}{3} e_2 e_3 e_4 \;\notin\; V, \qquad
+\Ad_x(e_4) \;=\; -\frac{5}{3} e_4 - \frac{4}{3} e_1 e_2 e_3 \;\notin\; V.
+\]
+\end{theorem}
+
+\begin{proof}
+Since $\omega_4^2 = (-1)^{4 \cdot 3 / 2} e_1^2 e_2^2 e_3^2 e_4^2 = (-1)^6 \cdot 1 = +1$, we have $(1 + 2\omega_4)(1 - 2\omega_4) = 1 - 4\omega_4^2 = -3$, confirming $x x^{-1} = x^{-1} x = 1$. By~\eqref{eq:ei-omega} with $n = 4$, $\omega_4 e_i = -e_i \omega_4$ for each $i$, so $x e_i = (1 + 2\omega_4) e_i = e_i (1 - 2\omega_4)$. Multiplying on the right by $x^{-1} = -\frac{1}{3}(1 - 2\omega_4)$ yields
+\[
+\Ad_x(e_i) \;=\; -\frac{1}{3} e_i (1 - 2\omega_4)^2 \;=\; -\frac{1}{3} e_i (1 - 4\omega_4 + 4\omega_4^2) \;=\; -\frac{5}{3} e_i + \frac{4}{3} e_i \omega_4.
+\]
+Since $e_1 \omega_4 = e_2 e_3 e_4$ and $e_4 \omega_4 = -e_1 e_2 e_3$ are nonzero grade-$3$ trivectors and $\frac{4}{3} \ne 0$, neither $\Ad_x(e_1)$ nor $\Ad_x(e_4)$ lies in the grade-$1$ subspace $V$.
+\end{proof}
+
+\subsection{Failure of Unit-Norm Even Elements \texorpdfstring{$\{x \in \Cl(V,Q)^+ : x \widetilde{x} = 1\}$}{\{x in Cl+ : x rev(x) = 1\}} at \texorpdfstring{$n = 6$}{n = 6}}
+
+In geometric algebra literature, ``unit element'' often means an element of \emph{unit norm} $x \widetilde{x} = 1$ (equivalently $x \overline{x} = 1$ on $\Cl^+$). Remarkably, for Euclidean spaces of dimension $n \le 5$, every solution to $x \widetilde{x} = 1$ in $\Cl_{n,0}(\mathbb{R})^+$ happens to lie in $\Spin(n)$! At $n = 6$, however, the Lie algebra of $R_{\mathrm{norm}}(n) := \{x \in \Cl_{n,0}(\mathbb{R})^+ : x \widetilde{x} = 1\}$ at $1$ is
+\[
+\mathfrak{r}_{\mathrm{norm}}(n) \;=\; \bigl\{\, y \in \Cl_{n,0}(\mathbb{R})^+ \;:\; y + \widetilde{y} = 0 \,\bigr\}
+\;=\; \bigoplus_{\substack{r \equiv 2 \pmod{4} \\ 0 \le r \le n}} \Lambda^r \mathbb{R}^n,
+\]
+by~\eqref{eq:rev-sign}, since $(-1)^{2k(2k-1)/2} = (-1)^k = -1$ precisely when $k$ is odd ($r = 2, 6, 10, \dots$). For $n \le 5$ this equals $\Lambda^2 \mathbb{R}^n = \mathfrak{spin}(n)$ of dimension $\binom{n}{2}$, whereas at $n = 6$ we have $\Cl_{6,0}(\mathbb{R})^+ \cong M_4(\mathbb{C})$, $R_{\mathrm{norm}}(6) \cong \mathrm{U}(4)$ of real dimension $\binom{6}{2} + \binom{6}{6} = 15 + 1 = 16$, and $\Spin(6) \cong \mathrm{SU}(4)$ of dimension~$15$ (the classical Chevalley--Porteous phenomenon).
+
+\begin{theorem}[Chevalley--Porteous Counterexample for Unit-Norm Even Elements in $n = 6$]\label{thm:cl60-counterexample}
+Let $K$ be any field in which $2 \ne 0$, $3 \ne 0$, and $5 \ne 0$ (in particular $\mathbb{Q}$ or $\mathbb{R}$), and let $\omega_6 = e_1 e_2 e_3 e_4 e_5 e_6 \in \Cl_{6,0}(K)^+$. Define
+\[
+x \;:=\; \frac{3}{5} + \frac{4}{5} \omega_6 \;\in\; \Cl_{6,0}(K)^+.
+\]
+Then $\widetilde{x} = \overline{x} = \frac{3}{5} - \frac{4}{5} \omega_6$ and $x \widetilde{x} = \widetilde{x} x = x \overline{x} = \overline{x} x = 1$, yet $\Ad_x$ fails to preserve $V$:
+\[
+\Ad_x(e_1) \;=\; -\frac{7}{25} e_1 - \frac{24}{25} e_2 e_3 e_4 e_5 e_6 \;\notin\; V, \qquad
+\Ad_x(e_6) \;=\; -\frac{7}{25} e_6 + \frac{24}{25} e_1 e_2 e_3 e_4 e_5 \;\notin\; V.
+\]
+\end{theorem}
+
+\begin{proof}
+By~\eqref{eq:rev-sign} for $r = 6$, $(-1)^{6 \cdot 5 / 2} = (-1)^{15} = -1$, so $\widetilde{\omega_6} = -\omega_6$ and $\omega_6^2 = (-1)^{15} e_1^2 \cdots e_6^2 = -1$. Hence $\widetilde{x} = \frac{3}{5} - \frac{4}{5} \omega_6$ and
+\[
+x \widetilde{x} \;=\; \widetilde{x} x \;=\; \left(\frac{3}{5}\right)^2 - \left(\frac{4}{5}\right)^2 \omega_6^2 \;=\; \frac{9}{25} + \frac{16}{25} \;=\; 1,
+\]
+so $x^{-1} = \widetilde{x}$. Because $n = 6$ is even, $\omega_6 e_i = -e_i \omega_6$ by~\eqref{eq:ei-omega}, whence $x e_i = e_i \widetilde{x}$ and
+\[
+\Ad_x(e_i) \;=\; x e_i \widetilde{x} \;=\; e_i (\widetilde{x})^2 \;=\; e_i \left(\frac{9 - 16}{25} - \frac{24}{25}\omega_6\right) \;=\; -\frac{7}{25} e_i - \frac{24}{25} e_i \omega_6.
+\]
+Since $e_1 \omega_6 = e_2 e_3 e_4 e_5 e_6$ and $e_6 \omega_6 = -e_1 e_2 e_3 e_4 e_5$ have grade~$5$ and $\frac{24}{25} \ne 0$, $\Ad_x(e_1), \Ad_x(e_6) \notin V$.
+\end{proof}
+
+\section{Refutation III: Characteristic 2 and Indefinite Signature Defects}
+
+Even when one restricts to genuine rotors stabilizing $V$, omitting characteristic and signature hypotheses produces two further failures.
+
+\begin{proposition}[Characteristic $2$ Kernel Collapse]\label{prop:char2}
+Over $\mathbb{F}_2$ ($\mathrm{char}(\mathbb{F}_2) = 2$), $+1 = -1$ in $\Cl_{n,0}(\mathbb{F}_2)$, so $\{+1, -1\} = \{1\}$ has cardinality $1 \ne 2$. Concretely, in $\Cl_{1,0}(\mathbb{F}_2)$, the even subalgebra is $\Cl_{1,0}(\mathbb{F}_2)^+ = \mathbb{F}_2 \cdot 1 = \{0, 1\}$, whose invertible (and unit-norm) subgroup is $\{1\}$ of order~$1$; thus $\ker(\Ad)$ has cardinality $1 \ne 2$.
+\end{proposition}
+
+\begin{proposition}[Indefinite Lorentzian Signature $\Cl_{1,1}(K)$]\label{prop:lorentz}
+Let $K$ be any ordered field (including $\mathbb{Q}$ and $\mathbb{R}$) and consider $\Cl_{1,1}(K)$ with $e_1^2 = +1$, $e_2^2 = -1$, $e_1 e_2 = -e_2 e_1$. Every unit-norm even element $x \in \{z \in \Cl_{1,1}(K)^+ : z \widetilde{z} = 1\} = \Spin^+(1,1;K)$ has the form $x = a + b e_{12}$ with $a^2 - b^2 = 1$ and acts on $V$ by the proper orthochronous Lorentz matrix
+\[
+\Ad_x \;\longmapsto\; \begin{pmatrix} a^2 + b^2 & -2ab \\ -2ab & a^2 + b^2 \end{pmatrix} \;\in\; \SO^+(1,1;K), \qquad a^2 + b^2 \;=\; 1 + 2b^2 \;\ge\; 1 \;>\; 0.
+\]
+In particular, the proper rotation $-I_2 = \mathrm{diag}(-1,-1) \in \SO(1,1;K)$ (having $\det(-I_2) = +1$) has \textbf{no} preimage in $\Spin^+(1,1;K)$ (requiring $x = \pm e_{12}$ with $x \widetilde{x} = -1$ in $\Spin(1,1;K) = \{z \in \Gamma^+(1,1) : z \widetilde{z} = \pm 1\}$, which itself still misses both reflection components of $\Orth(1,1;K) \setminus \SO(1,1;K)$).
+\end{proposition}
+
+\begin{proof}
+Here $(e_{12})^2 = -e_1^2 e_2^2 = -(+1)(-1) = +1$ and $\widetilde{e_{12}} = -e_{12}$, so $(a + b e_{12})(a - b e_{12}) = a^2 - b^2 = 1$. Since $e_{12} e_1 = -e_1 e_{12} = -e_2$, $\Ad_x(e_1) = e_1 (a - b e_{12})^2 = (a^2 + b^2) e_1 - 2ab\, e_2$. If $\Ad_x = -I_2$, then $a^2 + b^2 = -1$; adding $a^2 - b^2 = 1$ gives $2a^2 = 0 \implies a = 0$, whence $b^2 = -1$, impossible in any ordered field since $b^2 \ge 0 > -1$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Audit}
+
+All results in Sections~2--5 have been formally verified in \textbf{Core Lean~4.19.0} using toolchain \nolinkurl{leanprover/lean4:v4.19.0} with \nolinkurl{-DwarningAsError=true}, zero external dependencies, zero \nolinkurl{sorry}, zero \nolinkurl{native_decide}, and zero custom axioms inside \nolinkurl{package/lean/}, complemented by an exact rational and finite-field computational suite in \nolinkurl{package/verify.py}.
+
+Specifically, \nolinkurl{Field.lean} develops a self-contained field hierarchy (\nolinkurl{FieldK}, \nolinkurl{FieldCharNeTwo}, \nolinkurl{OrderedFieldK}, \nolinkurl{EuclideanFieldK}) together with three unconditional concrete field instances: $\mathbb{F}_2$ (\nolinkurl{F2}), exact rationals $\mathbb{Q}$ (\nolinkurl{RatQ}, including infinite-descent irrationality of $\sqrt{2}$), and $\mathbb{Q}(\sqrt{2})$ (\nolinkurl{QSqrt2}). \nolinkurl{Clifford.lean} constructs the recursive $2^n$-dimensional Clifford algebra \texttt{Cl K sig} for arbitrary dimension $n$ and signature \texttt{sig}, proving associativity, distributivity, grade involution, reversion, the fundamental Clifford law $v^2 = Q(v) \cdot 1$, pseudoscalar commutation, and the universal theorems across all $n$. Table~\ref{tab:lean-map} records the correspondence between paper statements and Lean declarations.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.24\textwidth}>{\raggedright\arraybackslash}p{0.43\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}@{}}
+\toprule
+\textbf{Paper Result} & \textbf{Core Lean 4.19.0 Declaration} & \textbf{Module} \\
+\midrule
+Theorem~\ref{thm:universal-kernel-two}(a) ($Q$-isometry) & \nolinkurl{Cl.adjoint_preserves_quadForm} & \nolinkurl{Clifford.lean} \\
+Theorem~\ref{thm:universal-kernel-two}(b) ($\ker = \{\pm 1\}$, $\forall n$) & \nolinkurl{Cl.spin_adjoint_kernel_eq_pm_one} & \nolinkurl{Clifford.lean} \\
+Theorem~\ref{thm:repaired-positive} ($n=1$ \& $\Pin_1$) & \nolinkurl{spin1_double_cover_and_pin1_twisted_adjoint} & \nolinkurl{LowDimCovers.lean} \\
+Theorem~\ref{thm:repaired-positive} ($\Spin_2(E) \twoheadrightarrow \SO_2(E)$) & \nolinkurl{spin2_euclidean_double_cover_over_SO2} & \nolinkurl{LowDimCovers.lean} \\
+Remark~\ref{rem:spinor-norm} ($\mathbb{Q}$ vs.\ $\mathbb{Q}(\sqrt{2})$) & \nolinkurl{rat_rot90_not_in_spin2_image}, \nolinkurl{qsqrt2_rot90_lifts_to_spin2} & \nolinkurl{LowDimCovers.lean} \\
+Theorem~\ref{thm:target-refutation}(a,b) ($\forall n \ge 1$) & \nolinkurl{Cl.even_unit_never_covers_orthogonal_reflection} & \nolinkurl{Clifford.lean} \\
+Theorem~\ref{thm:target-refutation}(c) (odd $n$, $\Cl^\times$) & \nolinkurl{Cl.odd_dim_no_clifford_unit_covers_reflection} & \nolinkurl{Clifford.lean} \\
+Proposition~\ref{prop:scalar-kernel} ($\infty$ kernel) & \nolinkurl{rat_even_units_infinite_kernel} & \nolinkurl{LowDimCovers.lean} \\
+Theorem~\ref{thm:cl40-counterexample} ($n=4$, $(\Cl^+)^\times$) & \nolinkurl{cl40_even_unit_fails_to_preserve_V} & \nolinkurl{HigherDimCounterexamples.lean} \\
+Theorem~\ref{thm:cl60-counterexample} ($n=6$, $x\widetilde{x}=1$) & \nolinkurl{cl60_unit_norm_even_fails_to_preserve_V} & \nolinkurl{HigherDimCounterexamples.lean} \\
+Proposition~\ref{prop:char2} ($\mathrm{char}=2$) & \nolinkurl{char_two_kernel_size_one} & \nolinkurl{LowDimCovers.lean} \\
+Proposition~\ref{prop:lorentz} ($\Cl_{1,1}$) & \nolinkurl{cl11_unit_norm_even_misses_neg_id_in_SO11} & \nolinkurl{LowDimCovers.lean} \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical theorems and Core Lean~4.19.0 declarations.}
+\label{tab:lean-map}
+\end{table}
+
+\clearpage
+\begin{thebibliography}{9}
+\bibitem{ABS1964}
+M.~F. Atiyah, R.~Bott, and A.~Shapiro, \emph{Clifford modules}, Topology \textbf{3} (1964), Suppl.~1, 3--38.
+
+\bibitem{Chevalley1954}
+C.~Chevalley, \emph{The Algebraic Theory of Spinors}, Columbia University Press, New York, 1954.
+
+\bibitem{LawsonMichelsohn1989}
+H.~B. Lawson, Jr.\ and M.-L. Michelsohn, \emph{Spin Geometry}, Princeton Mathematical Series, vol.~38, Princeton University Press, 1989.
+
+\bibitem{Lounesto2001}
+P.~Lounesto, \emph{Clifford Algebras and Spinors}, 2nd ed., London Mathematical Society Lecture Note Series, vol.~286, Cambridge University Press, 2001.
+
+\bibitem{Porteous1995}
+I.~R. Porteous, \emph{Clifford Algebras and the Classical Groups}, Cambridge Studies in Advanced Mathematics, vol.~50, Cambridge University Press, 1995.
+\end{thebibliography}
+
+\end{document}
