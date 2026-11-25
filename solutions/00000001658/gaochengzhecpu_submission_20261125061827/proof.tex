@@ -1,0 +1,71 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\title{Three derived classes from faithful actions of one cyclic group}
+\author{The Last Math Competition, conjecture 00000001658}
+\date{}
+\begin{document}
+\maketitle
+
+Fix the same algebra \(A=\mathbb Q^6\) and the same cyclic group
+\(C_2=\{1,s\}\) for all three examples. For \(t\in\{1,2,3\}\), let \(s\)
+interchange the first \(t\) disjoint coordinate pairs and fix the
+remaining \(6-2t\) coordinates. Write this involution as \(\sigma_t\).
+Every action is faithful because it interchanges the first pair.
+Let \(B_t=A\rtimes_{\sigma_t}C_2\).
+
+Write \(e_i\) for the \(i\)-th coordinate idempotent of \(A\). The skew
+group algebra has the basis \(e_i[s^a]\) with \(a\in\{0,1\}\), and
+multiplication
+\[
+ (e_i[s^a])(e_j[s^b])=
+ \begin{cases}
+ e_i[s^{a+b}], & i=\sigma_t^a(j),\\
+ 0, & \text{otherwise},
+ \end{cases}
+\]
+where the group exponent is taken modulo two. For each coordinate orbit
+\(O\), the sum \(\sum_{i\in O}e_i[1]\) is a central idempotent. These
+idempotents are pairwise orthogonal and sum to one, so their blocks give
+a direct product decomposition.
+
+A fixed coordinate gives a block isomorphic to \(\mathbb Q[C_2]\).
+The map \(a+b[s]\mapsto(a+b,a-b)\) identifies this block with
+\(\mathbb Q\times\mathbb Q\), with inverse
+\((x,y)\mapsto\frac{x+y}{2}+\frac{x-y}{2}[s]\).
+For a two-element orbit \(O=\{p,q\}\), map \(e_i[s^a]\) to
+the matrix unit \(E_{i,\sigma_t^a(i)}\) in the rows and columns labeled
+by \(p,q\). Its four basis elements map bijectively to the four matrix
+units. The displayed multiplication becomes matrix-unit multiplication,
+so this block is \(M_2(\mathbb Q)\). Consequently
+\[
+ B_t \cong \bigl(\mathbb Q\times\mathbb Q\bigr)^{6-2t}
+              \times M_2(\mathbb Q)^t .
+\]
+
+Each field factor and each matrix-ring factor contributes one simple
+module up to isomorphism. Thus the three semisimple algebras have
+\(2(6-2t)+t=12-3t\) simple classes, giving \(9,6,3\), respectively.
+These counts are derived invariants in this situation. Every bounded
+complex over a semisimple algebra splits in the derived category as the
+sum of its cohomology modules in their respective degrees. The
+indecomposable derived objects are therefore the shifts of the simple
+modules. A triangulated equivalence preserves indecomposability and
+commutes with suspension up to isomorphism. It must induce a bijection
+between the suspension orbits of indecomposable objects, whose counts
+here are \(9,6,3\). Equivalently these counts are the ranks of the
+derived Grothendieck groups, with the simple classes as bases and
+alternating cohomology multiplicities giving the coordinates.
+
+The algebras \(B_1,B_2,B_3\) are pairwise derived-inequivalent. Hence
+even for one fixed algebra and one fixed cyclic group with faithful
+actions, the asserted upper bound of two fails.
+
+\paragraph{Lean verification.}
+The Lean project verifies the involutions and faithfulness, the coordinate
+orbit decomposition, the change of basis for the fixed blocks and the
+matrix-unit multiplication for the pair blocks. It counts the simple
+labels and verifies the obstruction to a bijection between the three
+sets of derived suspension-orbit labels. The algebra and derived-category
+identifications are justified above.
+\end{document}
