@@ -1,0 +1,360 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage{color}
+\usepackage[hypertexnames=false,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\emergencystretch=2em
+\renewcommand{\arraystretch}{1.25}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\CCl}{\mathbb{C}\mathrm{l}}
+\newcommand{\Pin}{\mathrm{Pin}}
+\newcommand{\Spin}{\mathrm{Spin}}
+\newcommand{\End}{\mathrm{End}}
+\newcommand{\Hom}{\mathrm{Hom}}
+\newcommand{\Ad}{\widetilde{\mathrm{Ad}}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\HH}{\mathbb{H}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\tr}{\mathrm{tr}}
+
+\title{\textbf{Disproof and Complete Structural Analysis of Conjecture 00000007605:\\
+Spinor Representation Classification of Pin Groups, Quaternionic Division-Ring Obstruction, and Clifford Centers}}
+\author{The Last Math Competition Formalization Project}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~00000007605 concerning the classification of irreducible spinor representations of $\Pin$ groups. The conjecture asserts three coupled properties for the spinor representation classification of $\Pin$ groups: (A)~irreducible spinor representations possess a unique isomorphism type governed by a conversion invariant, (B)~the type spectrum is finite of cardinality two (\emph{real and complex}), and (C)~the kernel of uniqueness is the Clifford center. We prove that the conjecture is \textbf{false} across every standard mathematical reading in Clifford-algebra and Lie/Pin-group representation theory. First, because $\Pin^\pm(p,q)$ linearly spans the ambient Clifford algebra $\Cl_{p,q}^\pm(\R)$, real $\Pin$-spinor modules and their endomorphism algebras coincide identically with $\Cl_{p,q}^\pm(\R)$-modules; by Frobenius's theorem and Atiyah--Bott--Shapiro $\bmod\,8$ periodicity, the division-ring type spectrum $\End_{\Pin}(S)$ has exact cardinality \textbf{three}---$\{\R, \C, \HH\}$---not two, with Hamilton's non-commutative quaternion algebra $\HH$ already occurring at $(p,q)=(0,2)$ under $v^2 = +Q(v)$ and at Euclidean signature $(2,0)$ ($\Pin^-(2)$) under $v^2 = -Q(v)$. The same three-fold reality spectrum $\{+1, 0, -1\}$ appears via the Frobenius--Schur indicator on complex spinor representations of compact $\Pin$ groups for $n \le 2$. Second, uniqueness of the irreducible spinor module fails in split signatures $p - q \equiv 1, 5 \pmod{8}$ (e.g.\ $\Pin(1,0)$ and $\Pin^-(3)$), which possess \textbf{two} non-isomorphic irreducible spinor representations $S_+ \not\cong S_-$. Third, on simple Clifford algebras such as $\Cl_{1,1}^+(\R) \cong M_2(\R)$ (and $\Cl_{0,1}^+(\R) \cong \C$), the unique spinor representation is faithful ($\ker = \{0\}$ on the algebra and $\{+1\}$ on $\Pin$), whereas the Clifford center is non-trivial; meanwhile, the full irreducible group representation spectrum of $\Pin^-(2)$ is \textbf{infinite}. Finally, we prove a positive non-vacuity and salvage theorem over complexified Clifford algebras $\CCl_n$, showing how the even/odd dichotomy and restriction from $\Pin(2m+1)$ to $\Spin(2m+1)$ explain the central obstruction behind Clause~(C). All core counterexamples, universal properties, infinite harmonic families, and complex salvage theorems are machine-checked without axioms or external dependencies in Core Lean~4.19.0 and independently verified in exact rational arithmetic.
+\end{abstract}
+
+\section{Introduction and Analysis of the Conjecture}
+
+\subsection{Verbatim Statement and Clause Decomposition}
+Conjecture~00000007605 is stated in \texttt{SOURCE.md} in parallel English and Chinese formulations. The English text reads verbatim:
+\begin{quote}
+\textbf{Definition:} Spinors with the spinor-representation classification of Pin groups.\\
+\textbf{Conjecture:} The conversion constant is the representation classification of spinors with the unique type of irreducible representations; the spectrum is finite with count two (real and complex); and the kernel of uniqueness is the Clifford center. \emph{(spinor unique-type conversion)}
+\end{quote}
+The parallel Chinese formulation translates term-for-term to the same three structural assertions on the spinor representation classification of $\Pin$ groups (\emph{Pin qun de xuanliang biaoshi fenlei}):
+\begin{itemize}
+\item[\textbf{(Claim A)}] \textbf{Unique Irreducible Spinor Type:} Irreducible spinor representations of a $\Pin$ group have a unique isomorphism type classified by a conversion invariant (\emph{bukeyue biaoshi de weiyi xing}).
+\item[\textbf{(Claim B)}] \textbf{Count-Two Real/Complex Spectrum:} The classification spectrum is finite of cardinality \emph{two}, consisting specifically of \emph{real and complex} types (\emph{pu youxian qie pu de geshu wei er (shi yu fu)}).
+\item[\textbf{(Claim C)}] \textbf{Clifford Center as Kernel of Uniqueness:} The kernel of uniqueness equals the center of the Clifford algebra (\emph{weiyixing de he wei Clifford zhongxin}).
+\end{itemize}
+
+\subsection{Summary of Mathematical Verdict Across All Readings}
+Because mathematical physics and differential geometry employ two opposite sign conventions for Clifford algebras ($v^2 = +Q(v)$ in Lawson--Michelsohn~\cite{LM89} and Chevalley~\cite{Che54}, versus $v^2 = -Q(v)$ in Atiyah--Bott--Shapiro~\cite{ABS64}), and distinguish between real Clifford spinor modules, complex spinors with reality structures, and general group representations of $\Pin^\pm(p,q)$, a rigorous resolution must examine every standard reading. As summarized in Table~\ref{tab:readings}, Conjecture~00000007605 is \textbf{false} under every faithful interpretation of $\Pin$-group spinors.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{3.5cm}>{\raggedright\arraybackslash}p{3.8cm}}
+\hline
+\textbf{Mathematical Reading} & \textbf{Claim A (Unique Type)} & \textbf{Claim B (Count 2: $\R, \C$)} & \textbf{Claim C (Kernel = $Z(\Cl)$)} \\
+\hline
+Real spinor modules of $\Pin^+(p,q)$ ($v^2 = +Q(v)$) &
+\textbf{False:} 2 non-isomorphic irreps at $p-q \equiv 1,5 \pmod 8$, e.g.\ $\Pin(1,0)$ &
+\textbf{False:} Exact count \textbf{3} ($\R, \C, \HH$); $\HH$ at $(0,2)$ &
+\textbf{False:} $\ker(\rho) = \{0\} \neq Z(\Cl)$; uniqueness holds for $\Cl_{0,1}^+ \cong \C$ with $\dim Z = 2$ \\
+\hline
+Euclidean $\Pin^-(n)$ spinors ($v^2 = -Q(v)$, ABS~\cite{ABS64}) &
+\textbf{False:} 2 non-isomorphic irreps at $n \equiv 3,7 \pmod 8$, e.g.\ $\Pin^-(3)$ &
+\textbf{False:} Exact count \textbf{3} ($\R, \C, \HH$); $\HH$ already at $\Pin^-(2)$ &
+\textbf{False:} $-1 \in Z(C_n) \cap \Pin^-(n)$ acts as $-\mathrm{id} \neq +\mathrm{id}$ \\
+\hline
+Complex $\Pin$ spinors + Frobenius--Schur indicator &
+\textbf{False:} 2 inequivalent $\Pin$ irreps in all odd $n = 2m+1$ &
+\textbf{False:} Indicator $\iota(V)$ takes \textbf{3} values $\{+1, 0, -1\}$ for $n \le 2$ &
+\textbf{Partial origin:} $Z(\CCl_{2m+1})$ separates $S_+, S_-$, but $\ker(\rho_\pm) \neq Z(\CCl_{2m+1})$ \\
+\hline
+Full group dual $\widehat{\Pin^\pm(p,q)}$ &
+\textbf{False:} $\ge 4$ irreps for $n=1$; $\infty$ irreps for $n \ge 2$ &
+\textbf{False:} Count is $4$ at $\Pin(1,0)$ and $\infty$ at $\Pin^-(2)$ &
+\textbf{False:} Tensor/harmonic reps factor through $O(p,q)$, killing $-1$ \\
+\hline
+\end{tabular}
+\caption{Evaluation of Claims A, B, and C across all standard mathematical readings.}
+\label{tab:readings}
+\end{table}
+
+\section{Preliminaries: Clifford Algebras, Pin Groups, and the Span Equivalence}
+
+Let $F$ be a formally real field: a commutative field of characteristic zero in which $a^2 + b^2 + c^2 + d^2 = 0$ implies $a = b = c = d = 0$ (with canonical instances $F = \R$ and $F = \Q$). Let $V = F^{p+q}$ carry the diagonal quadratic form
+\[
+  Q(x_1,\dots,x_{p+q}) = x_1^2 + \dots + x_p^2 - x_{p+1}^2 - \dots - x_{p+q}^2
+\]
+with polar bilinear form $2 B(u,w) = Q(u+w) - Q(u) - Q(w)$ and canonical orthogonal basis $e_1,\dots,e_n$ ($n = p+q$).
+
+\begin{definition}[Clifford Algebras Under Both Sign Conventions and Pin Groups]
+\label{def:cliff-pin}
+For $\varepsilon \in \{+1, -1\}$, the Clifford algebra $\Cl_{p,q}^\varepsilon(F)$ is the universal unital associative $F$-algebra generated by an $F$-linear map $\iota : V \to \Cl_{p,q}^\varepsilon(F)$ subject to
+\begin{equation}\label{eq:cliff-rel}
+  \iota(v)^2 = \varepsilon Q(v)\cdot 1, \qquad v \in V.
+\end{equation}
+Thus $\varepsilon = +1$ ($\Cl_{p,q}^+$) imposes $e_r^2 = +1$ ($1 \le r \le p$) and $e_{p+s}^2 = -1$ ($1 \le s \le q$), whereas $\varepsilon = -1$ ($\Cl_{p,q}^-$, the Atiyah--Bott--Shapiro convention~\cite{ABS64}) negates the form, so $\Cl_{p,q}^-(F) \cong \Cl_{q,p}^+(F)$. Inside the unit group $\Cl_{p,q}^\varepsilon(F)^\times$, the \emph{Pin group} $\Pin^\varepsilon(p,q; F)$ is the multiplicative subgroup generated by unit vectors:
+\[
+  \Pin^\varepsilon(p,q; F) = \bigl\langle \iota(v) \;\big|\; v \in V,\; Q(v) \in \{+1, -1\} \bigr\rangle \subseteq \Cl_{p,q}^\varepsilon(F)^\times.
+\]
+For $F = \R$, we write $\Pin^+(p,q) = \Pin^{+1}(p,q;\R)$, $\Pin^-(p,q) = \Pin^{-1}(p,q;\R)$, and in the Euclidean case $(n,0)$, $\Pin^\pm(n) = \Pin^\pm(n,0;\R)$.
+\end{definition}
+
+Every generator $\iota(v)$ with $Q(v) = \delta \in \{+1, -1\}$ satisfies $\iota(v) \cdot (\varepsilon \delta\, \iota(v)) = \varepsilon \delta \, \iota(v)^2 = (\varepsilon \delta)^2 \cdot 1 = 1$, where $-\iota(v) = \iota(-v)$ also satisfies $Q(-v) = Q(v) = \delta$. By induction on word length, $\Pin^\varepsilon(p,q; F)$ is closed under two-sided multiplicative inverses. Moreover, via the grade involution $\alpha(\iota(v)) = -\iota(v)$, the twisted adjoint action $\Ad_u(w) = \alpha(u) w u^{-1} = -u w u^{-1} = w - \frac{2 B(u,w)}{Q(u)} u$ sends each unit vector $u$ to reflection across $u^\perp$, yielding the classical exact sequence $1 \to \{\pm 1\} \to \Pin^\pm(p,q) \xrightarrow{\Ad} O(p,q) \to 1$ over $\R$.
+
+In standard terminology~\cite{ABS64,LM89}, a \emph{spinor representation} of $\Pin^\varepsilon(p,q; F)$ is the restriction $S|_{\Pin^\varepsilon(p,q; F)}$ of a representation $\rho : \Cl_{p,q}^\varepsilon(F) \to \End_F(S)$ of the ambient Clifford algebra. The following fundamental lemma ensures that passing from $\Cl_{p,q}^\varepsilon(F)$ to the subgroup $\Pin^\varepsilon(p,q; F)$ loses no module-theoretic information whatsoever.
+
+\begin{theorem}[Pin--Clifford Linear Span Equivalence]
+\label{thm:pin-span}
+For every signature $(p,q)$ and sign $\varepsilon \in \{+1,-1\}$, every canonical Grassmann basis blade $e_I = \iota(e_{i_1})\cdots \iota(e_{i_k})$ ($1 \le i_1 < \dots < i_k \le p+q$, with $e_\emptyset = 1$) belongs to $\Pin^\varepsilon(p,q; F)$. Consequently, $\mathrm{span}_F\bigl(\Pin^\varepsilon(p,q; F)\bigr) = \Cl_{p,q}^\varepsilon(F)$, and for any unital representations $(S, \rho), (S', \rho')$ of $\Cl_{p,q}^\varepsilon(F)$:
+\begin{enumerate}
+\item[(i)] An $F$-subspace $W \subseteq S$ is $\Pin^\varepsilon(p,q; F)$-invariant if and only if it is $\Cl_{p,q}^\varepsilon(F)$-invariant. In particular, $S$ is irreducible over $\Pin^\varepsilon(p,q; F)$ if and only if $S$ is irreducible over $\Cl_{p,q}^\varepsilon(F)$.
+\item[(ii)] An $F$-linear map $T : S \to S'$ intertwines $\Pin^\varepsilon(p,q; F)$ if and only if it intertwines $\Cl_{p,q}^\varepsilon(F)$; hence $S|_{\Pin} \cong S'|_{\Pin}$ if and only if $S \cong S'$ as Clifford modules.
+\item[(iii)] The commutant (endomorphism) $F$-algebras are canonically isomorphic:
+\[
+  \End_{\Pin^\varepsilon(p,q; F)}(S) = \End_{\Cl_{p,q}^\varepsilon(F)}(S).
+\]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Each basis vector $e_r$ satisfies $Q(e_r) \in \{+1, -1\}$, so $\iota(e_r) \in \Pin^\varepsilon(p,q; F)$. Since $1 \in \Pin^\varepsilon(p,q; F)$ and $\Pin^\varepsilon(p,q; F)$ is closed under multiplication, every ordered blade $e_I = \iota(e_{i_1})\cdots \iota(e_{i_k})$ lies in $\Pin^\varepsilon(p,q; F)$. Because the $2^{p+q}$ blades $\{e_I\}$ span $\Cl_{p,q}^\varepsilon(F)$ linearly over $F$, every $a \in \Cl_{p,q}^\varepsilon(F)$ is a finite $F$-linear combination $a = \sum_I c_I e_I$ with $e_I \in \Pin^\varepsilon(p,q; F)$. If $W \subseteq S$ is an $F$-subspace preserved by $\Pin^\varepsilon(p,q; F)$, then $\rho(e_I)s \in W$ for all $s \in W$, so $\rho(a)s = \sum_I c_I \rho(e_I)s \in W$ by subspace linearity; the converse is immediate since $\Pin^\varepsilon(p,q; F) \subseteq \Cl_{p,q}^\varepsilon(F)$. Similarly, if $T : S \to S'$ is $F$-linear and satisfies $T(\rho(g)s) = \rho'(g)T(s)$ for all $g \in \Pin^\varepsilon(p,q; F)$, then by $F$-linearity in $a$,
+\[
+  T(\rho(a)s) = \sum_I c_I T(\rho(e_I)s) = \sum_I c_I \rho'(e_I)T(s) = \rho'(a)T(s)
+\]
+for all $a \in \Cl_{p,q}^\varepsilon(F)$. Claims~(i)--(iii) follow immediately.
+\end{proof}
+
+\section{Complete Refutation Over Real Pin Groups and Clifford Algebras}
+
+\subsection{Refutation of Claim B: Quaternionic Type \texorpdfstring{$\HH$}{H} and Division-Ring Count Three}
+
+By Schur's Lemma, for any irreducible representation $S$ of $\Pin^\varepsilon(p,q; F)$ over $F$, every nonzero endomorphism $T \in \End_{\Pin}(S)$ has $\ker(T) = \{0\}$ and $\mathrm{im}(T) = S$, so $\End_{\Pin}(S)$ is a finite-dimensional division $F$-algebra. Over $F = \R$, Frobenius's theorem classifies finite-dimensional associative division $\R$-algebras into \textbf{three} isomorphism classes: $\R$ (dimension~$1$), $\C$ (dimension~$2$), and Hamilton's quaternions $\HH$ (dimension~$4$). Claim~B asserts that the spinor spectrum has count \emph{two (real and complex)}, omitting $\HH$. We refute this directly in dimension~$2$ under \emph{both} sign conventions.
+
+Over any formally real field $F$, let $C(F) = F[i]/(i^2+1)$ and let $H(F) = F \oplus F\mathbf{i} \oplus F\mathbf{j} \oplus F\mathbf{k}$ be the quaternion algebra with $\mathbf{i}^2 = \mathbf{j}^2 = \mathbf{k}^2 = -1$ and $\mathbf{i}\mathbf{j} = \mathbf{k} = -\mathbf{j}\mathbf{i}$. For $q = w + x\mathbf{i} + y\mathbf{j} + z\mathbf{k} \in H(F)$, write $\bar{q} = w - x\mathbf{i} - y\mathbf{j} - z\mathbf{k}$ and $N(q) = w^2 + x^2 + y^2 + z^2$.
+
+\begin{theorem}[Quaternionic Spinor Endomorphism Algebra and Impossibility of Two Types]
+\label{thm:quat-refutation}
+Let $F$ be any formally real field (in particular $F = \R$ or $F = \Q$).
+\begin{enumerate}
+\item[(i)] $F$, $C(F)$, and $H(F)$ are division $F$-algebras and are pairwise non-isomorphic as unital $F$-algebras: $F \not\cong C(F)$, $F \not\cong H(F)$, and $C(F) \not\cong H(F)$.
+\item[(ii)] Under the embedding $\iota : F^2 \to H(F)$, $\iota(u,v) = u\mathbf{i} + v\mathbf{j}$, the algebra $H(F)$ satisfies $\iota(u,v)^2 = -(u^2 + v^2)\cdot 1$ and realizes \textbf{both} $\Cl_{0,2}^+(F)$ (under $v^2 = +Q_{0,2}(v)$) and Euclidean $\Cl_{2,0}^-(F)$ (under $v^2 = -Q_{2,0}(v)$).
+\item[(iii)] Let $S_{\HH} = H(F)$ carry the left regular representation $\rho(a)(x) = a x$. Then $S_{\HH}$ is irreducible over both $\Pin^+(0,2; F)$ and $\Pin^-(2,0; F)$, every irreducible spinor module of $H(F)$ is isomorphic to $S_{\HH}$, and the map
+\[
+  \Phi : H(F) \xrightarrow{\;\sim\;} \End_{\Pin^+(0,2; F)}(S_{\HH}) = \End_{\Pin^-(2,0; F)}(S_{\HH}), \qquad (\Phi(q))(x) = x \bar{q},
+\]
+is an explicit isomorphism of unital $F$-algebras with inverse $\Phi^{-1}(T) = \overline{T(1)}$.
+\item[(iv)] Consequently, $\End_{\Pin}(S_{\HH})$ is a non-commutative division $F$-algebra isomorphic neither to $F$ nor to $C(F)$. Moreover, for \emph{any} two $F$-algebras $B_1, B_2$, it is impossible for each of the three spinor endomorphism algebras of $\Pin^+(0,0;F)$, $\Pin^+(0,1;F)$, and $\Pin^+(0,2;F)$ (or of Euclidean $\Pin^-(0,0;F)$, $\Pin^-(1,0;F)$, and $\Pin^-(2,0;F)$) to be isomorphic to $B_1$ or $B_2$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) For any $q \neq 0$ in $H(F)$, formal reality of $F$ gives $N(q) = w^2 + x^2 + y^2 + z^2 \neq 0$, and $q \cdot (N(q)^{-1}\bar{q}) = (N(q)^{-1}\bar{q})\cdot q = 1$; similarly $C(F)$ is a field since $a^2 + b^2 \neq 0$ for $(a,b) \neq (0,0)$. If $e : F \xrightarrow{\sim} C(F)$ were an $F$-algebra isomorphism, then $u = e^{-1}(i) \in F$ would satisfy $u^2 + 1 = e^{-1}(i^2 + 1) = 0$, impossible in a formally real field since $u^2 + 1^2 + 0^2 + 0^2 = 0 \implies 1 = 0$. Furthermore, $F$ and $C(F)$ are commutative, whereas in $H(F)$ we have $\mathbf{i}\mathbf{j} - \mathbf{j}\mathbf{i} = 2\mathbf{k} \neq 0$ (as $2 = 1^2 + 1^2 \neq 0$). Since commutativity is preserved under algebra isomorphism, $H(F) \not\cong F$ and $H(F) \not\cong C(F)$.
+
+(ii) Direct expansion gives $(u\mathbf{i} + v\mathbf{j})^2 = -u^2 - v^2 + (uv - vu)\mathbf{k} = -(u^2 + v^2)\cdot 1 = +Q_{0,2}(u,v)\cdot 1 = -Q_{2,0}(u,v)\cdot 1$. Any linear map $f : F^2 \to B$ satisfying $f(u,v)^2 = -(u^2+v^2)1_B$ has $f(1,0)^2 = f(0,1)^2 = -1_B$ and $f(1,0)f(0,1) + f(0,1)f(1,0) = f(1,1)^2 - f(1,0)^2 - f(0,1)^2 = 0$, so $w + x\mathbf{i} + y\mathbf{j} + z\mathbf{k} \mapsto w 1_B + x f(1,0) + y f(0,1) + z f(1,0)f(0,1)$ is the unique algebra homomorphism extending $f$.
+
+(iii) Since $H(F)$ is a division algebra, if $W \subseteq H(F)$ is a left $H(F)$-invariant subspace containing $s_0 \neq 0$, then for every $x \in H(F)$ we have $x = (x s_0^{-1}) s_0 \in W$, so $S_{\HH}$ is irreducible over $H(F)$, and hence over both $\Pin^+(0,2;F)$ and $\Pin^-(2,0;F)$ by Theorem~\ref{thm:pin-span} (using $\mathbf{i} = \iota(1,0)$, $\mathbf{j} = \iota(0,1)$, $\mathbf{k} = \mathbf{i}\mathbf{j}$). If $(M, \sigma)$ is any irreducible $H(F)$-module and $m_0 \in M \setminus \{0\}$, the map $q \mapsto \sigma(q)m_0$ is injective (since $q \neq 0 \implies m_0 = \sigma(q^{-1})\sigma(q)m_0 \neq 0$) and has nonzero invariant image, hence is an isomorphism $S_{\HH} \xrightarrow{\sim} M$.
+
+For any $q \in H(F)$, $\Phi(q)(ax) = (ax)\bar{q} = a(x\bar{q}) = a\,\Phi(q)(x)$ by associativity, so $\Phi(q) \in \End_{H(F)}(S_{\HH})$. Using the anti-multiplicativity of conjugation $\overline{p q} = \bar{q}\bar{p}$,
+\[
+  (\Phi(p) \circ \Phi(q))(x) = (x \bar{q})\bar{p} = x(\bar{q}\bar{p}) = x\,\overline{p q} = \Phi(p q)(x),
+\]
+so $\Phi$ is a unital $F$-algebra homomorphism. For $T \in \End_{H(F)}(S_{\HH})$, $H(F)$-linearity gives $T(x) = T(x \cdot 1) = x \, T(1) = x \, \overline{\overline{T(1)}} = \Phi(\overline{T(1)})(x)$, while $\overline{\Phi(q)(1)} = \overline{1 \cdot \bar{q}} = q$. Combining with Theorem~\ref{thm:pin-span}(iii) yields $\End_{\Pin}(S_{\HH}) \cong H(F)$.
+
+(iv) At $(0,0)$ we have $\Cl_{0,0}(F) = F$ with $\End_{\Pin}(S_{\R}) \cong F$; at $(0,1)$ under $+Q$ (and $(1,0)$ under $-Q$) we have $\Cl_{0,1}^+(F) = \Cl_{1,0}^-(F) \cong C(F)$ with $\End_{\Pin}(S_{\C}) \cong C(F)$; and at $(0,2)$ under $+Q$ (and $(2,0)$ under $-Q$) we have $\End_{\Pin}(S_{\HH}) \cong H(F)$. If all three were isomorphic to $B_1$ or $B_2$, then by the pigeonhole principle two of $\{F, C(F), H(F)\}$ would both be isomorphic to some $B_r$, hence isomorphic to each other by symmetry and transitivity, contradicting~(i).
+\end{proof}
+
+\begin{remark}[Full Bott Periodicity Classification Table]
+By $\bmod\,8$ periodicity~\cite{ABS64,LM89}, let $k \equiv p - q \pmod 8$ under $v^2 = +Q(v)$ (or $k \equiv q - p \pmod 8$ under $v^2 = -Q(v)$). Then $\Cl_{p,q}(\R)$ is isomorphic to $M_{2^m}(\R)$ for $k \in \{0,2\}$ ($1$~irrep, type~$\R$), $M_{2^m}(\R) \oplus M_{2^m}(\R)$ for $k = 1$ ($2$~irreps, type~$\R$), $M_{2^m}(\C)$ for $k \in \{3,7\}$ ($1$~irrep, type~$\C$), $M_{2^{m-1}}(\HH)$ for $k \in \{4,6\}$ ($1$~irrep, type~$\HH$), and $M_{2^{m-1}}(\HH) \oplus M_{2^{m-1}}(\HH)$ for $k = 5$ ($2$~irreps, type~$\HH$). Thus all three division rings $\{\R, \C, \HH\}$ appear infinitely often even within purely Euclidean signatures $(n,0)$ under either convention.
+\end{remark}
+
+\begin{proposition}[Three-Fold Frobenius--Schur Spectrum on Complex Spinors]
+\label{prop:fs-indicator}
+Even if one restricts to irreducible \emph{complex} spinor representations $V$ of compact Euclidean $\Pin^\pm(n)$ groups ($n \le 2$) and classifies reality types via the Frobenius--Schur indicator $\iota_G(V) = \int_G \chi_V(g^2)\,dg$, the spectrum still has cardinality \textbf{three}, not two:
+\[
+  \iota_{\Pin^+(2)}(\C^2) = +1 \;\text{(real)}, \qquad
+  \iota_{\Pin^-(1)}(\C) = 0 \;\text{(complex)}, \qquad
+  \iota_{\Pin^-(2)}(\C^2) = -1 \;\text{(quaternionic)}.
+\]
+\end{proposition}
+
+\begin{proof}
+First, $\Pin^-(1) = \{\pm 1, \pm \mathbf{i}\} \cong C_4$ acts on $V = \C$ via $\mathbf{i} \mapsto i$, giving $\iota_{\Pin^-(1)}(\C) = \frac{1}{4}(1 + i^2 + 1 + (-i)^2) = 0$. Next, inside $\HH^\times$, $\Pin^-(2) = \Spin(2) \sqcup \Spin(2)\mathbf{i}$, where $\Spin(2) = \{\cos\phi + \sin\phi\,\mathbf{k} : \phi \in [0,2\pi)\}$. On the faithful $2$-dimensional complex spinor module $V = \C^2$ ($\mathbf{i} \mapsto i\sigma_1, \mathbf{j} \mapsto i\sigma_2, \mathbf{k} \mapsto i\sigma_3$), elements $g(\phi) \in \Spin(2)$ satisfy $\chi_V(g(\phi)^2) = 2\cos(2\phi)$, whose Haar average over $[0,2\pi)$ is $0$. Every element $h(\theta) = \cos\theta\,\mathbf{i} + \sin\theta\,\mathbf{j}$ of the odd component $\Spin(2)\mathbf{i}$ satisfies $h(\theta)^2 = -1$, so $\chi_V(h(\theta)^2) = \tr(-I_2) = -2$. Averaging equally over the two connected components gives $\iota_{\Pin^-(2)}(\C^2) = \frac{1}{2}(0) + \frac{1}{2}(-2) = -1$. In $\Pin^+(2)$, odd elements satisfy $h(\theta)^2 = +1$ with $\tr(+I_2) = +2$, giving $\iota_{\Pin^+(2)}(\C^2) = \frac{1}{2}(0) + \frac{1}{2}(2) = +1$. (The exact same values $+1, 0, -1$ hold on the finite coordinate subgroups $D_8 \subset \Pin^+(2)$, $C_4 = \Pin^-(1)$, and $Q_8 \subset \Pin^-(2)$.)
+\end{proof}
+
+\subsection{Refutation of Claim A: Non-Uniqueness of Irreducible Spinor Modules}
+
+\begin{theorem}[Complete Classification and Non-Uniqueness for $\Pin^+(1,0; F)$]
+\label{thm:pin10-nonunique}
+Let $\Cl_{1,0}^+(F) = F \oplus F e_1$ with $e_1^2 = +1$ (equivalently $\Cl_{0,1}^-(F)$). Define the two $1$-dimensional spinor representations $S_+, S_-$ on $F$ by $(a + b e_1)\cdot s = (a \pm b)s$. Then:
+\begin{enumerate}
+\item[(i)] Both $S_+$ and $S_-$ are irreducible representations of $\Pin^+(1,0; F)$.
+\item[(ii)] $S_+$ and $S_-$ are \textbf{not} isomorphic over $\Pin^+(1,0; F)$: $\Hom_{\Pin^+(1,0; F)}(S_+, S_-) = \{0\}$.
+\item[(iii)] Every irreducible $\Pin^+(1,0; F)$-spinor representation $(M, \rho)$ is isomorphic either to $S_+$ or to $S_-$. Thus there are \textbf{two} isomorphism classes of irreducible spinor representations, refuting Claim~A.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) Since $\dim_F S_\pm = 1$ and $1 \neq 0$, the only $F$-subspaces of $S_\pm$ are $\{0\}$ and $S_\pm$, so both are $\Pin^+(1,0;F)$-irreducible.
+
+(ii) Since $e_1 = \iota(1) \in \Pin^+(1,0;F)$, any $\Pin^+(1,0;F)$-intertwiner $T : S_+ \to S_-$ satisfies $T(1) = T(e_1 \cdot 1) = e_1 \cdot T(1) = -T(1)$, so $2\,T(1) = 0$. Because $2 \neq 0$ in $F$, $T(1) = 0$, hence $T = 0$ by $F$-linearity; in particular, no bijective intertwiner exists.
+
+(iii) Let $(M, \rho)$ be an irreducible $\Pin^+(1,0;F)$-spinor module; by Theorem~\ref{thm:pin-span}(i), $M$ is irreducible over $\Cl_{1,0}^+(F)$. Pick $m_0 \in M \setminus \{0\}$ and set $v_\pm = m_0 \pm \rho(e_1)m_0$. Since $v_+ + v_- = 2 m_0 \neq 0$, at least one of $v_+, v_-$ is nonzero. If $v_+ \neq 0$, then $\rho(e_1)v_+ = \rho(e_1)m_0 + \rho(e_1^2)m_0 = v_+$, so $F v_+$ is a nonzero $\Cl_{1,0}^+(F)$-invariant line in $M$; by irreducibility, $M = F v_+ \cong S_+$. Otherwise $v_- \neq 0$, $\rho(e_1)v_- = -v_-$, and $M = F v_- \cong S_-$.
+\end{proof}
+
+\begin{remark}[Simultaneous Failure of Claims A and B in Euclidean Dimension 3]
+In $\Cl_{0,3}^+(\R) = \Cl_{3,0}^-(\R) \cong \HH \oplus \HH$ (compact Euclidean $\Pin^-(3)$ under Atiyah--Bott--Shapiro's convention), the two $4$-dimensional real spinor modules $S_{\HH,+}$ and $S_{\HH,-}$ (given on $\HH$ by $(e_1,e_2,e_3) \mapsto (\mathbf{i},\mathbf{j},\mathbf{k})$ and $(-\mathbf{i},-\mathbf{j},-\mathbf{k})$, where central $e_1 e_2 e_3$ acts as $-1$ and $+1$ respectively) are non-isomorphic ($\Hom_{\Pin^-(3)}(S_{\HH,+}, S_{\HH,-}) = \{0\}$) and \emph{both} have quaternionic endomorphism algebra $\HH$. Thus $\Pin^-(3)$ violates Claim~A and Claim~B simultaneously.
+\end{remark}
+
+\subsection{Refutation of Claim C: Representation Kernel Versus Clifford Center}
+
+\begin{theorem}[Discrepancy Between Spinor Kernel and Clifford Center]
+\label{thm:kernel-center}
+Let $F$ be any formally real field.
+\begin{enumerate}
+\item[(i)] In $\Cl_{1,1}^+(F) \cong M_2(F)$ (generated by $\gamma_1 = \bigl(\begin{smallmatrix}1 & 0\\ 0 & -1\end{smallmatrix}\bigr)$ and $\gamma_2 = \bigl(\begin{smallmatrix}0 & 1\\ -1 & 0\end{smallmatrix}\bigr)$ with $\gamma_1^2 = I_2$, $\gamma_2^2 = -I_2$, $\gamma_1\gamma_2 = -\gamma_2\gamma_1$), the standard $2$-component spinor representation $\rho_{1,1}$ on $F^2$ is $\Pin^+(1,1;F)$-irreducible and unique up to isomorphism, yet:
+\begin{itemize}
+\item the algebra kernel is $\ker(\rho_{1,1}) = \{0\}$, whereas the Clifford center $Z(\Cl_{1,1}^+(F)) = F \cdot I_2$ is $1$-dimensional and nonzero ($I_2 \neq 0$);
+\item on the group $\Pin^+(1,1;F)$, the group kernel is $\ker(\rho_{1,1}|_{\Pin}) = \{+I_2\}$, whereas $-I_2 = \gamma_2^2 \in Z(\Cl_{1,1}^+(F)) \cap \Pin^+(1,1;F)$ satisfies $\rho_{1,1}(-I_2) = -I_2 \neq +I_2$.
+\end{itemize}
+\item[(ii)] Even if ``kernel of uniqueness'' is read structurally as ``irreducible spinor uniqueness holds if and only if $Z(\Cl)$ is reduced to scalars $F \cdot 1$'', this too is false over $F$: in $\Cl_{0,1}^+(F) \cong C(F)$ ($e_1^2 = -1$), the Clifford center is all of $C(F) = F \cdot 1 \oplus F \cdot i$ ($\dim_F Z = 2 > 1$), yet because $C(F)$ is a field, the irreducible $F$-spinor module $S_{\C} = C(F)$ \textbf{is} unique up to isomorphism (with $\ker(\rho_{0,1}) = \{0\} \neq Z(\Cl_{0,1}^+(F))$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) Every $A \in M_2(F)$ expands in the $\Pin^+(1,1;F)$ basis $\{I_2, \gamma_1, \gamma_2, \gamma_1\gamma_2\}$ as
+\[
+  A = \tfrac{a_{11}+a_{22}}{2} I_2 + \tfrac{a_{11}-a_{22}}{2}\gamma_1 + \tfrac{a_{12}-a_{21}}{2}\gamma_2 + \tfrac{a_{12}+a_{21}}{2}\gamma_1\gamma_2.
+\]
+If $W \subseteq F^2$ is an $M_2(F)$-invariant subspace containing $(a,b) \neq (0,0)$, then for any $(x,y) \in F^2$ either $\bigl(\begin{smallmatrix}xa^{-1} & 0\\ ya^{-1} & 0\end{smallmatrix}\bigr)(a,b) = (x,y)$ (if $a \neq 0$) or $\bigl(\begin{smallmatrix}0 & xb^{-1}\\ 0 & yb^{-1}\end{smallmatrix}\bigr)(0,b) = (x,y)$ (if $a = 0, b \neq 0$), proving irreducibility over $M_2(F)$ and hence over $\Pin^+(1,1;F)$ by Theorem~\ref{thm:pin-span}. Evaluating $A(1,0) = (a_{11}, a_{21})$ and $A(0,1) = (a_{12}, a_{22})$ shows $\ker(\rho_{1,1}) = \{0\}$, whereas $I_2 \in Z(M_2(F))$ is nonzero. On $\Pin^+(1,1;F)$, $-I_2 = \gamma_2^2 \in \Pin^+(1,1;F) \cap Z(M_2(F))$, and $(-I_2)(1,0) = (-1,0) \neq (1,0)$ since $2 \neq 0$.
+
+(ii) Since $C(F)$ is commutative, $Z(C(F)) = C(F) \supsetneq F \cdot 1$. Since $C(F)$ is a division algebra over $F$, every irreducible $C(F)$-module is isomorphic to the left regular module $S_{\C} = C(F)$ (by the same cyclic argument as in Theorem~\ref{thm:quat-refutation}(iii)), and $z \cdot 1 = 0 \implies z = 0$, so $\ker(\rho_{0,1}) = \{0\}$.
+\end{proof}
+
+\subsection{Refutation of Finite Group Representation Spectrum for \texorpdfstring{$\Pin$}{Pin}}
+
+If ``the spectrum is finite with count two'' is instead interpreted as the full irreducible group representation spectrum of $\Pin^\varepsilon(p,q; F)$ (allowing representations that do not extend $F$-linearly to $\Cl_{p,q}^\varepsilon(F)$, e.g.\ those sending $-1 \mapsto +\mathrm{id}$), the claim fails in every positive dimension.
+
+\begin{theorem}[Cardinality $\ge 4$ at $n=1$ and Infinite Spectrum at $\Pin^-(2,0; F)$]
+\label{thm:infinite-pin2}
+Let $F$ be any formally real field.
+\begin{enumerate}
+\item[(i)] $\Pin^+(1,0; F) = \{\pm 1, \pm e_1\} \cong C_2 \times C_2$ possesses at least \textbf{four} pairwise non-isomorphic $1$-dimensional irreducible group representations over $F$, given by restricting the four multiplicative polynomials $1$, $a^2 - b^2$, $a + b$, and $a - b$ on $a + b e_1 \in \Cl_{1,0}^+(F)$.
+\item[(ii)] Inside $\Cl_{2,0}^-(F) = H(F)$, every $g = w + x\mathbf{i} + y\mathbf{j} + z\mathbf{k} \in \Pin^-(2,0; F)$ satisfies either $(x = y = 0,\; w^2 + z^2 = 1)$ or $(w = z = 0,\; x^2 + y^2 = 1)$. For each integer $k \ge 1$, the map $\sigma_{2k} : \Pin^-(2,0; F) \to \mathrm{GL}_F(C(F))$ defined by
+\begin{equation}\label{eq:harmonic-rep}
+  \sigma_{2k}(w + x\mathbf{i} + y\mathbf{j} + z\mathbf{k})(u) = (w + z i)^{2k} u + (x + y i)^{2k} \bar{u}, \qquad u \in C(F),
+\end{equation}
+is an \textbf{irreducible} $2$-dimensional $F$-linear group representation of $\Pin^-(2,0; F)$, and $\sigma_{2j} \not\cong \sigma_{2k}$ whenever $1 \le j < k$. Hence $\Pin^-(2,0; F)$ has \textbf{infinitely many} pairwise non-isomorphic finite-dimensional irreducible representations.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(i) Direct multiplication in $\Cl_{1,0}^+(F)$ verifies that $\chi_{00}(x)=1$, $\chi_{01}(a+be_1)=a^2-b^2$, $\chi_{10}(a+be_1)=a+b$, and $\chi_{11}(a+be_1)=a-b$ are unital multiplicative homomorphisms. Evaluating on $-1 = e_1\iota(-1) \in \Pin^+(1,0;F)$ and $e_1 \in \Pin^+(1,0;F)$ yields the four distinct sign pairs $(+1,+1)$, $(+1,-1)$, $(-1,+1)$, $(-1,-1)$ since $2 \neq 0$, so no two are intertwined by a nonzero linear map $F \to F$.
+
+(ii) Because $u^2 + v^2 = -1$ has no solution in a formally real field, every generator $\iota(u,v) = u\mathbf{i} + v\mathbf{j}$ of $\Pin^-(2,0;F)$ has $u^2 + v^2 = 1$, hence lies in the odd component $\{x\mathbf{i} + y\mathbf{j} : x^2 + y^2 = 1\}$. Closure of $\{w + z\mathbf{k} : w^2+z^2=1\} \sqcup \{x\mathbf{i} + y\mathbf{j} : x^2+y^2=1\}$ under quaternion multiplication follows from Brahmagupta's identity. Using $0^{2k} = 0$ for $k \ge 1$, checking the four component products ($L\times L$, $L\times R$, $R\times L$, $R\times R$) in~\eqref{eq:harmonic-rep} reduces to $(z_1 z_2)^{2k} = z_1^{2k} z_2^{2k}$, $\overline{z}^{2k} = \overline{z^{2k}}$, and $(-z_1\bar{z}_2)^{2k} = +z_1^{2k}\bar{z}_2^{2k}$ (since $2k$ is even!), proving $\sigma_{2k}(g_1 g_2) = \sigma_{2k}(g_1)\circ \sigma_{2k}(g_2)$.
+
+Now consider the two unit vectors $u_0 = \mathbf{i} = \iota(1,0)$ and $u_1 = -\tfrac{3}{5}\mathbf{i} + \tfrac{4}{5}\mathbf{j} = \iota(-\tfrac{3}{5}, \tfrac{4}{5})$ (noting $5 = 2^2 + 1^2 \neq 0$ and $(-\tfrac{3}{5})^2 + (\tfrac{4}{5})^2 = \tfrac{25}{25} = 1$). Their product in $\Pin^-(2,0; F)$ is
+\[
+  g_0 = u_0 u_1 = \tfrac{3}{5} + \tfrac{4}{5}\mathbf{k} \in \Pin^-(2,0; F).
+\]
+Set $\zeta = \tfrac{3}{5} + \tfrac{4}{5}i \in C(F)$. Define $(a_n, b_n) \in \Z^2$ by $(a_0,b_0)=(1,0)$ and $(a_{n+1},b_{n+1})=(3a_n - 4b_n,\, 4a_n + 3b_n)$, so $5^n \zeta^n = a_n + b_n i$. By induction on $n \ge 1$: for $n=1$, $(a_1,b_1)=(3,4) \equiv (3,4) \pmod 5$; if $(a_n, b_n) \equiv (3,4) \pmod 5$, then $a_{n+1} \equiv 9 - 16 = -7 \equiv 3 \pmod 5$ and $b_{n+1} \equiv 12 + 12 = 24 \equiv 4 \pmod 5$. Hence $b_n \equiv 4 \not\equiv 0 \pmod 5$, so $b_n \neq 0$ in $\Z$ and $\mathrm{Im}(\zeta^n) = 5^{-n} b_n \neq 0$ in $F$ for \textbf{every} $n \ge 1$.
+
+To see $\sigma_{2k}$ is irreducible, let $W \subseteq C(F)$ be a nonzero $\Pin^-(2,0;F)$-invariant $F$-subspace containing $u_0 \neq 0$. Since $\sigma_{2k}(\mathbf{i})(u) = \bar{u}$, $u_0 + \bar{u}_0 = 2\,\mathrm{Re}(u_0)\cdot 1 \in W$. If $\mathrm{Re}(u_0) \neq 0$, then $1 \in W$; if $\mathrm{Re}(u_0) = 0$, then $i \in W$, and $\sigma_{2k}(g_0)(i) = \zeta^{2k} i = -\mathrm{Im}(\zeta^{2k}) + \mathrm{Re}(\zeta^{2k})i \in W$ has nonzero real part $-\mathrm{Im}(\zeta^{2k}) \neq 0$, again yielding $1 \in W$. Once $1 \in W$, $\sigma_{2k}(g_0)(1) = \zeta^{2k} \in W$, so $\zeta^{2k} - \mathrm{Re}(\zeta^{2k})\cdot 1 = \mathrm{Im}(\zeta^{2k}) i \in W \implies i \in W$, whence $W = C(F)$.
+
+Finally, suppose $T : C(F) \xrightarrow{\sim} C(F)$ intertwined $\sigma_{2j}$ and $\sigma_{2k}$ ($1 \le j < k$). For any $F$-linear maps $U, V$ on $C(F) \cong F^2$, expanding in the basis $\{1, i\}$ gives $\tr_F(U \circ V) = \tr_F(V \circ U)$, so $\tr_F(\sigma_{2k}(g_0)) = \tr_F(T \circ \sigma_{2j}(g_0) \circ T^{-1}) = \tr_F(\sigma_{2j}(g_0))$. In basis $\{1, i\}$, multiplication by $w \in C(F)$ has trace $2\,\mathrm{Re}(w)$, giving $2\,\mathrm{Re}(\zeta^{2j}) = 2\,\mathrm{Re}(\zeta^{2k})$, so $\zeta^{2j} + \bar{\zeta}^{2j} = \zeta^{2k} + \bar{\zeta}^{2k}$. Using $\zeta \bar{\zeta} = 1$ and $\zeta^{2k} = \zeta^{2j}\zeta^{2(k-j)}$, multiplying by $\zeta^{2j}\zeta^{2k}$ yields the factorization
+\[
+  (\zeta^{2(k-j)} - 1)(\zeta^{2j+2k} - 1) = 0 \quad\text{in } C(F).
+\]
+Since $C(F)$ is a field, either $\zeta^{2(k-j)} = 1$ or $\zeta^{2(j+k)} = 1$. Both exponents $2(k-j) \ge 2$ and $2(j+k) \ge 6$ are positive, contradicting $\mathrm{Im}(\zeta^n) \neq 0$ for all $n \ge 1$.
+\end{proof}
+
+\section{Positive Non-Vacuity Theorem: Complexified Clifford Modules}
+
+To show what genuine phenomenon in Clifford-module theory underlies the conjecture's phrasing about uniqueness and the Clifford center, we pass from $F$ to its quadratic closure $K = C(F) = F(i)$ (when $F = \R$, $K = \C$, giving the complexified Clifford algebras $\CCl_n = \Cl_n(\C)$~\cite{ABS64}).
+
+\begin{theorem}[Complexified Clifford Dichotomy and Spin Restriction Restoration]
+\label{thm:complex-salvage}
+Let $K = C(F)$ for any formally real field $F$ (in particular $K = \C$ when $F = \R$).
+\begin{enumerate}
+\item[(i)] \textbf{Even Complexified Case ($\CCl_{2m} \cong M_{2^m}(K)$):} In even dimensions $n = 2m$, $\CCl_{2m}$ is central simple over $K$: its center is $Z(\CCl_{2m}) = K \cdot 1$, it possesses a \textbf{unique} isomorphism class of irreducible $K$-spinor modules $S \cong K^{2^m}$, and its endomorphism division algebra is uniquely $\End_{\CCl_{2m}}(S) \cong K$ (explicitly verified for $m=1$ via Pauli generators $\sigma_1, \sigma_3 \in M_2(K)$).
+\item[(ii)] \textbf{Odd Complexified Case ($\CCl_{2m+1} \cong M_{2^m}(K) \oplus M_{2^m}(K)$) and Central Obstruction:} In odd dimensions $n = 2m+1$, the complex volume element $\omega_{\C} = i^{\lfloor (n+1)/2 \rfloor} e_1 \cdots e_n$ satisfies $\omega_{\C}^2 = 1$ and generates a $2$-dimensional center $Z(\CCl_{2m+1}) = K \cdot 1 \oplus K \cdot \omega_{\C} \cong K \times K$. There are \textbf{two} non-isomorphic irreducible $\Pin(2m+1)$-spinor modules $S_+^K, S_-^K$ (on which $\omega_{\C}$ acts as $+1$ and $-1$, respectively, so $\Hom_{\CCl_{2m+1}}(S_+^K, S_-^K) = \{0\}$), distinguished precisely by their central kernels $K(1 - \omega_{\C}) \neq K(1 + \omega_{\C})$ inside $Z(\CCl_{2m+1})$.
+\item[(iii)] \textbf{Restoration of Uniqueness on $\Spin(2m+1)$:} Restricting $S_+^K$ and $S_-^K$ from $\CCl_{2m+1}$ ($\Pin$) to the even subalgebra $\CCl_{2m+1}^0 \cong M_{2^m}(K)$ ($\Spin$, generated by products $e_r e_s$, which quotients out the odd generator $\omega_{\C}$ of $Z(\CCl_{2m+1})$) renders them \textbf{isomorphic}: $S_+^K|_{\Spin} \cong S_-^K|_{\Spin}$ (explicitly realized on $3$-dimensional Pauli spinors $S_\pm^K$ via $e_r \mapsto \pm\sigma_r$, where $(- \sigma_r)(- \sigma_s) = +\sigma_r \sigma_s$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For $m=1$, $\sigma_1 = \bigl(\begin{smallmatrix}0 & 1\\ 1 & 0\end{smallmatrix}\bigr)$ and $\sigma_3 = \bigl(\begin{smallmatrix}1 & 0\\ 0 & -1\end{smallmatrix}\bigr)$ over $K$ satisfy $\sigma_1^2 = \sigma_3^2 = I_2$ and $\sigma_1\sigma_3 + \sigma_3\sigma_1 = 0$. Any $T \in M_2(K)$ commuting with $\sigma_3$ satisfies $2 t_{12} = 2 t_{21} = 0 \implies t_{12} = t_{21} = 0$, and commuting with $\sigma_1$ gives $t_{11} = t_{22}$, proving $\End_{\CCl_2}(K^2) = K \cdot I_2 \cong K$; inductively, $\CCl_{2m} \cong \CCl_2^{\otimes m} \cong M_{2^m}(K)$ is central simple over $K$ by Wedderburn's theorem. For $n = 2m+1$, $\omega_{\C}$ commutes with every $e_r$ (since $n-1 = 2m$ is even) and satisfies $\omega_{\C}^2 = 1$, yielding orthogonal central idempotents $p_\pm = \frac{1 \pm \omega_{\C}}{2} \in Z(\CCl_{2m+1})$ that split $\CCl_{2m+1} \cong \CCl_{2m+1}^0 p_+ \oplus \CCl_{2m+1}^0 p_- \cong M_{2^m}(K) \oplus M_{2^m}(K)$. Specifically for $n=3$, $\sigma_1, \sigma_2 = \bigl(\begin{smallmatrix}0 & -i\\ i & 0\end{smallmatrix}\bigr), \sigma_3$ satisfy $(-i)\sigma_1\sigma_2\sigma_3 = +I_2$ on $S_+^K$ whereas $(-i)(-\sigma_1)(-\sigma_2)(-\sigma_3) = -I_2$ on $S_-^K$. Any $T \in M_2(K)$ satisfying $T \sigma_r = -\sigma_r T$ for $r=1,2,3$ satisfies $T = T(-i\sigma_1\sigma_2\sigma_3) = -(-i\sigma_1\sigma_2\sigma_3)T = -T \implies 2T = 0 \implies T = 0$. Conversely, on the even generators $e_r e_s$, $(-\sigma_r)(-\sigma_s) = \sigma_r\sigma_s$, so $I_2 : S_+^K|_{\CCl_3^0} \xrightarrow{\sim} S_-^K|_{\CCl_3^0}$ is a $K$-linear isomorphism.
+\end{proof}
+
+\section{Machine-Checked Verification in Core Lean 4.19.0 and Python}
+
+The entire algebraic development is formalized in Core Lean~4.19.0 (\texttt{package/lean/}) with \texttt{-DwarningAsError=true}, zero external dependencies, zero \texttt{sorry}/\texttt{admit}/\texttt{native\_decide}, and zero custom axioms (using only Lean's standard core axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}). Every theorem is proved universally over an arbitrary \texttt{FormallyRealField F} and constructively instantiated on the exact rational field \texttt{QField} to guarantee non-vacuity. Table~\ref{tab:lean-map} records the correspondence between paper results and Lean declarations.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{>{\raggedright\arraybackslash}p{4.0cm}>{\raggedright\arraybackslash}p{3.6cm}>{\raggedright\arraybackslash}p{7.4cm}}
+\hline
+\textbf{Paper Result} & \textbf{Lean Module} & \textbf{Verified Lean Declaration} \\
+\hline
+Non-vacuity of \texttt{FormallyRealField} & \texttt{FieldAndAlgebras} & \texttt{QField.instFormallyRealField} \\
+$\R, \C, \HH$ pairwise non-isomorphic & \texttt{FieldAndAlgebras} & \texttt{three\_division\_types\_pairwise\_noniso} \\
+$\Pin$ subgroup unit inverses & \texttt{ModulesAndPin} & \texttt{inPin\_inv\_mem} \\
+Theorem~\ref{thm:pin-span} ($\Pin$--$\Cl$ span) & \texttt{ModulesAndPin} & \texttt{pinIrreducible\_iff\_irreducible}, \texttt{pinEndAlgIsoEndAlg} \\
+Theorem~\ref{thm:quat-refutation} ($\End_{\Pin}(S_{\HH}) \cong \HH$) & \texttt{RealClifford\dots} & \texttt{quat\_spinor\_endAlg\_neither\_real\_nor\_complex} \\
+Theorem~\ref{thm:quat-refutation}(iv) (no 2 types) & \texttt{RealClifford\dots} & \texttt{no\_two\_types\_cover\_pin\_spinor\_endAlgs} \\
+Theorem~\ref{thm:pin10-nonunique} ($S_+ \not\cong S_-$) & \texttt{RealClifford\dots} & \texttt{not\_pinIso\_spinorPlus\_spinorMinus} \\
+Theorem~\ref{thm:kernel-center} ($\ker \neq Z(\Cl)$) & \texttt{RealClifford\dots} & \texttt{center\_vs\_kernel\_cl11}, \texttt{center\_vs\_kernel\_cl01} \\
+Theorem~\ref{thm:infinite-pin2}(i) ($4$ irreps of $\Pin(1,0)$) & \texttt{InfinitePin\dots} & \texttt{pin10\_four\_pairwise\_noniso\_irreps} \\
+Theorem~\ref{thm:infinite-pin2}(ii) ($\infty$ irreps of $\Pin^-(2)$) & \texttt{InfinitePin\dots} & \texttt{pin2Minus\_infinite\_pairwise\_noniso\_irreps} \\
+Theorem~\ref{thm:complex-salvage} ($\CCl_2, \CCl_3$ salvage) & \texttt{InfinitePin\dots} & \texttt{complex\_clifford\_non\_vacuity} \\
+Master Refutation \& Witness & \texttt{Conjecture00000007605} & \texttt{conjecture\_00000007605\_refuted} \\
+\hline
+\end{tabular}
+\caption{Correspondence between mathematical theorems and verified Core Lean~4.19.0 declarations.}
+\label{tab:lean-map}
+\end{table}
+
+In addition, the standalone Python~3.12 verification script \texttt{verify.py} uses exact rational linear algebra (\texttt{fractions.Fraction}) to construct all $30$ Clifford algebras with $p+q \le 4$ under both $\pm Q$ conventions, verify exact $\Pin$-blade spanning and center dimensions, confirm Bott $\bmod\,8$ periodicity, compute exact intertwiner spaces and determinants on $\Cl_{0,0}$, $\Cl_{1,0}^+$, $\Cl_{0,1}^+$, $\Cl_{0,2}^+ \cong \HH$, $\Cl_{1,1}^+ \cong M_2(\R)$, and $\Cl_{0,3}^+ \cong \HH \oplus \HH$, evaluate Frobenius--Schur indicators, verify $40$ distinct $\Pin^-(2)$ harmonic traces via $(3+4i)^N \equiv 3+4i \pmod 5$, and confirm the complexified $\CCl_2/\CCl_3$ dichotomy.
+
+\begin{thebibliography}{9}
+
+\bibitem{ABS64}
+M.~F.~Atiyah, R.~Bott, and A.~Shapiro,
+\emph{Clifford modules},
+Topology \textbf{3} (1964), Suppl.~1, 3--38.
+
+\bibitem{Che54}
+C.~Chevalley,
+\emph{The Algebraic Theory of Spinors},
+Columbia University Press, New York, 1954.
+
+\bibitem{LM89}
+H.~B.~Lawson, Jr.\ and M.-L.~Michelsohn,
+\emph{Spin Geometry},
+Princeton Mathematical Series, vol.~38, Princeton University Press, Princeton, NJ, 1989.
+
+\end{thebibliography}
+
+\end{document}
