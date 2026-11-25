@@ -1,0 +1,329 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\emergencystretch}{1.5em}
+\newcommand{\ust}{\_\allowbreak}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\RePt}{\mathrm{Re}}
+\newcommand{\ImPt}{\mathrm{Im}}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\GL}{\mathrm{GL}}
+\newcommand{\Un}{\mathrm{U}}
+
+\title{\textbf{Disproof and Complete Taxonomic Analysis of Conjecture 00000007168:\\
+Schur's Inequality, Power Sums, and Spectral-Radius Bounds}}
+\author{Formal Mathematical Analysis \& Lean 4 Verification Package}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007168} (\emph{normal-realized Schur power-sum bound}), which asserts under the heading of ``Schur's inequality with the spectral bounds of power sums'' that \emph{``the upper bound of power sums is the sum of spectral-radius powers, and the realization of the bound is the normal matrix.''} We prove that for every matrix dimension $n \ge 2$, over both $M_n(\C)$ and $M_n(\R)$, \textbf{the conjecture is false under every natural mathematical interpretation}. Specifically:
+\begin{enumerate}
+  \item For \textbf{eigenvalue modulus power sums} $\sum_{i=1}^n |\lambda_i(A)|^k \le n\,\rho(A)^k$ and \textbf{trace (Newton) power sums} $|\tr(A^k)| \le n\,\rho(A)^k$ ($k \ge 1$), the upper bound holds universally, \emph{but normality is neither necessary nor sufficient for equality}: the non-normal Jordan/shear block $J_n = I_n + E_{12}$ attains exact equality $n = n\,\rho(J_n)^k$ for all $k \ge 1$ while $J_n J_n^* \ne J_n^* J_n$, whereas the normal projection $D_n = \diag(1,0,\dots,0)$ strictly fails equality ($1 < n = n\,\rho(D_n)^k$) for all $k \ge 1$.
+  \item In contrast, classical \textbf{Schur's inequality} $\sum_{i=1}^n |\lambda_i(A)|^2 \le \|A\|_F^2 = \tr(A^* A)$ \emph{does} characterize normal matrices via equality, whereas replacing its right-hand side or left-hand side to bound \textbf{Frobenius, singular-value, or Schatten power sums} ($\|A^k\|_F^2$, $\tr((A^* A)^k)$, or $\sum_{i=1}^n \sigma_i(A)^p$) above by $n\,\rho(A)^{2k}$ or $n\,\rho(A)^p$ \textbf{fails as an inequality} on non-normal nilpotent matrices $N_{n,c} = c E_{12}$ ($c \ne 0$, $\rho = 0$, $\|N_{n,c}\|_F^2 = |c|^2 > 0$) and on $J_n$ ($\|J_n^k\|_F^2 = n + k^2 > n$).
+  \item Multi-exponent sums $\sum_{k=1}^K P_k(A)$ and unscaled spectral-radius sums $\sum_{k=1}^K \rho(A)^k$ (omitting the factor $n$) likewise fail, the latter already on the normal identity matrix $I_n$.
+\end{enumerate}
+All positive benchmark theorems (including the full $n \times n$ Schur inequality and normality characterization) and all counterexample families are formalized from first principles in self-contained Core Lean~4.19.0 with zero external dependencies and zero \texttt{sorry}s, and independently checked in Python.
+\end{abstract}
+
+\section{Problem Statement and Mathematical Diagnosis}
+
+\subsection{Source Conjecture}
+Conjecture \texttt{00000007168} (\texttt{SOURCE.md}) is stated in English as follows:
+\begin{quote}
+\textbf{English.} Definition: Schur's inequality with the spectral bounds of power sums. Conjecture: The upper bound of power sums is the sum of spectral-radius powers, and the realization of the bound is the normal matrix. (normal-realized Schur power-sum bound)
+\end{quote}
+The accompanying Chinese formulation (\emph{``Schur \textit{budengshi}: \textit{mihe de pujie} \dots \textit{mihe de shangjie wei pubanjing mi de he qie jie de shixian wei zhenggui juzhen}''}) carries the identical two-clause structure: (i) an upper bound on matrix power sums in terms of sums of powers of the spectral radius $\rho(A)$, and (ii) a characterization of equality (``the realization of the bound'') by normal matrices ($A A^* = A^* A$).
+
+Throughout, let $\mathbb{F} \in \{\R, \C\}$ and let $A \in M_n(\mathbb{F})$ have complex eigenvalues $\lambda_1(A), \dots, \lambda_n(A) \in \C$ (counted with algebraic multiplicity), singular values $\sigma_1(A) \ge \dots \ge \sigma_n(A) \ge 0$ (the nonnegative square roots of the eigenvalues of $A^* A$), spectral radius
+\[
+  \rho(A) \;=\; \max_{1 \le i \le n} |\lambda_i(A)|,
+\]
+and squared Frobenius norm $\|A\|_F^2 = \tr(A^* A) = \sum_{i,j=1}^n |a_{ij}|^2 = \sum_{i=1}^n \sigma_i(A)^2$. Recall that $A$ is \emph{normal} if $A A^* = A^* A$ (which for $A \in M_n(\R)$ reduces to $A A^T = A^T A$).
+
+\begin{remark}[Degenerate $n=1$ case vs.\ matrix regime $n \ge 2$]
+When $n = 1$, $M_1(\mathbb{F}) \cong \mathbb{F}$ is commutative: every $1 \times 1$ matrix $A = (z)$ is trivially normal, $\lambda_1 = z$, $\sigma_1 = \rho(A) = |z|$, and $|\lambda_1|^k = \sigma_1^k = \rho(A)^k$ for all $k \ge 1$ (though $|\tr(A^k)| = |z|^k$ vs.\ $\tr(A^k)$ can still differ in sign/phase). Non-trivial matrix theory and Schur's inequality concern dimensions $n \ge 2$, where normal matrices form a proper subset of $M_n(\mathbb{F})$. Every universal matrix conjecture must hold for all $n \ge 1$, and Conjecture \texttt{00000007168} fails for \emph{every} $n \ge 2$.
+\end{remark}
+
+\subsection{Origin of the Conflation and Structural Obstruction}
+Conjecture \texttt{00000007168} arises from splicing together two distinct classical theorems whose hypotheses and equality cases live in incompatible symmetry groups:
+\begin{itemize}
+  \item \textbf{Classical Schur's Inequality (1909):} $\sum_{i=1}^n |\lambda_i(A)|^2 \le \|A\|_F^2 = \sum_{i=1}^n \sigma_i(A)^2$ (and more generally Weyl's majorization inequality $\sum_{i=1}^n |\lambda_i(A)|^p \le \sum_{i=1}^n \sigma_i(A)^p$ for any $p > 0$), where \emph{equality holds if and only if $A$ is normal}. Here the upper bound $\|A\|_F^2$ is unitarily invariant ($A \mapsto U A U^*$, $U \in \Un(n)$) but \emph{not} similarity-invariant, which is why it detects non-orthogonal eigenspaces and Jordan blocks.
+  \item \textbf{Spectral-Radius Power-Sum Bound:} $\bigl|\tr(A^k)\bigr| \le \sum_{i=1}^n |\lambda_i(A)|^k \le \sum_{i=1}^n \rho(A)^k = n\,\rho(A)^k$ ($k \ge 1$). Both sides of $\sum_{i=1}^n |\lambda_i(A)|^k \le n\,\rho(A)^k$ depend \emph{exclusively on the spectrum of $A$} and are therefore invariant under arbitrary invertible similarity $A \mapsto S A S^{-1}$ ($S \in \GL_n(\mathbb{F})$) and insensitive to superdiagonal Jordan entries. Consequently, no purely spectral equality condition can ever characterize normality for $n \ge 2$:
+  \begin{enumerate}
+    \item[(a)] Equality $\sum_{i=1}^n |\lambda_i(A)|^k = n\,\rho(A)^k$ holds iff $|\lambda_1(A)| = \dots = |\lambda_n(A)| = \rho(A)$ (\emph{equal-modulus spectrum}), which holds for non-normal Jordan blocks $J_n$ and non-normal similarity conjugates $S D S^{-1}$, and fails for normal matrices with unequal eigenvalue moduli such as $D_n = \diag(1,0,\dots,0)$.
+    \item[(b)] Conversely, if one keeps the Frobenius or singular-value power sum $\|A^k\|_F^2$ or $\sum_{i=1}^n \sigma_i(A)^p$ on the left and replaces the bound by $n\,\rho(A)^{2k}$ or $n\,\rho(A)^p$, the inequality holds \emph{for normal matrices} (where $\sigma_i(A) = |\lambda_i(A)| \le \rho(A)$) but \emph{collapses completely for general matrices} (where $\rho(A)$ can be $0$ while $\|A\|_F$ is arbitrarily large).
+  \end{enumerate}
+\end{itemize}
+
+\begin{table}[t]
+\centering
+\small
+\renewcommand{\arraystretch}{1.28}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.30\textwidth}>{\raggedright\arraybackslash}p{0.11\textwidth}>{\raggedright\arraybackslash}p{0.21\textwidth}>{\raggedright\arraybackslash}p{0.28\textwidth}@{}}
+\hline
+\textbf{Mathematical Reading ($n \ge 2$)} & \textbf{Bound} & \textbf{Normality Eq.} & \textbf{True Status / Witness} \\
+\hline
+\textbf{1A.} $\sum_{i=1}^n |\lambda_i|^k \le n\,\rho(A)^k$ ($k \ge 1$)
+  & \textbf{Holds}
+  & Fails ($\not\Rightarrow$, $\not\Leftarrow$)
+  & Eq.\ $\Leftrightarrow |\lambda_i|\equiv \rho(A)$; $J_n$ ($\neg$normal) attains, $D_n$ (normal) fails \\
+\textbf{1B.} $|\tr(A^k)| \le n\,\rho(A)^k$ ($k \ge 1$)
+  & \textbf{Holds}
+  & Fails ($\not\Rightarrow$, $\not\Leftarrow$)
+  & Eq.\ $\Leftrightarrow |\lambda_i|\equiv\rho$ \& $\lambda_i^k$ aligned; $J_n$ attains, $D_n$ fails \\
+\textbf{2A.} $\|A^k\|_F^2 \le n\,\rho(A)^{2k}$ ($k \ge 1$)
+  & \textbf{False}
+  & Bound itself fails
+  & $N_{n,c}=cE_{12}$: $|c|^2 > 0$; $J_n$: $n+k^2 > n$ \\
+\textbf{2B.} $\sum_{i=1}^n \sigma_i(A)^p \le n\,\rho(A)^p$ ($p > 0$)
+  & \textbf{False}
+  & Bound itself fails
+  & $\tr((N_{n,c}^*N_{n,c})^k)=|c|^{2k} > 0$; $\sum\sigma_i(J_n^k)^p > n$ \\
+\textbf{3A.} $\sum_{k=1}^K P_k(A) \le \sum_{k=1}^K n\,\rho(A)^k$
+  & \textbf{Holds} (1A/B)
+  & Fails ($\not\Rightarrow$, $\not\Leftarrow$)
+  & $J_n$ attains $Kn$, $D_n$ gives $K < Kn$ \\
+\textbf{3B.} Unscaled $\le \rho(A)^k$ or $\sum_{k=1}^K \rho(A)^k$
+  & \textbf{False}
+  & Bound itself fails
+  & Normal $I_n$ gives $n > 1$ and $Kn > K$ \\
+\hline
+\textbf{Benchmark:} Schur $\sum_{i=1}^n |\lambda_i|^2 \le \|A\|_F^2$
+  & \textbf{Holds}
+  & \textbf{Holds} ($\Leftrightarrow$ normal)
+  & Upper bound is $\|A\|_F^2$, \emph{not} $n\,\rho(A)^2$ \\
+\hline
+\end{tabular}
+\caption{Complete evaluation of Conjecture \texttt{00000007168} across all natural readings over $M_n(\R)$ and $M_n(\C)$ for all $n \ge 2$. Here $J_n = I_n + E_{12}$ and $D_n = \diag(1,0,\dots,0)$.}
+\label{tab:summary}
+\end{table}
+
+Table~\ref{tab:summary} summarizes the complete resolution across all readings.
+
+\section{Positive Benchmark Theorems}
+
+Before establishing the counterexamples, we prove the exact theorems in the immediate neighborhood of Conjecture \texttt{00000007168}; each is formalized in \texttt{lean/Main.lean}.
+
+\begin{theorem}[Classical Schur's Inequality and Normality Characterization]\label{thm:schur}
+Let $A \in M_n(\C)$ ($n \ge 1$) have eigenvalues $\lambda_1, \dots, \lambda_n \in \C$. Then
+\begin{equation}\label{eq:schur}
+  \sum_{i=1}^n |\lambda_i|^2 \;\le\; \|A\|_F^2 \;=\; \tr(A^* A),
+\end{equation}
+and equality holds in \eqref{eq:schur} if and only if $A$ is normal ($A A^* = A^* A$).
+\end{theorem}
+
+\begin{proof}
+By Schur's unitary triangularization theorem, there exist a unitary matrix $U \in \Un(n)$ ($U^* U = U U^* = I_n$) and an upper-triangular matrix $T \in M_n(\C)$ ($T_{ij} = 0$ for all $i > j$) with diagonal entries $T_{ii} = \lambda_i$ such that $A = U T U^*$. By cyclic invariance of trace,
+\[
+  \|A\|_F^2 \;=\; \tr(A^* A) \;=\; \tr(U T^* U^* U T U^*) \;=\; \tr(T^* T) \;=\; \|T\|_F^2.
+\]
+Since $T_{ij} = 0$ for $i > j$, splitting $\|T\|_F^2$ into diagonal and strictly superdiagonal entries yields
+\begin{equation}\label{eq:schur-decomp}
+  \|A\|_F^2 \;=\; \|T\|_F^2 \;=\; \sum_{i=1}^n |\lambda_i|^2 \;+\; \sum_{1 \le i < j \le n} |T_{ij}|^2 \;\ge\; \sum_{i=1}^n |\lambda_i|^2,
+\end{equation}
+proving \eqref{eq:schur}. Moreover, equality holds in \eqref{eq:schur-decomp} if and only if $T_{ij} = 0$ for all $1 \le i < j \le n$, i.e., $T$ is diagonal. Because $A A^* - A^* A = U(T T^* - T^* T)U^*$, $A$ is normal if and only if $T$ is normal. Clearly every diagonal matrix is normal. Conversely, suppose $T$ is upper triangular and $T T^* = T^* T$. We show by strong induction on $i \in \{1, \dots, n\}$ that row $i$ has $T_{ij} = 0$ for all $j \ne i$. For a given $i$, $T_{ij} = 0$ holds for $j < i$ by upper triangularity. In column $i$, we have $T_{pi} = 0$ for $p > i$ by upper triangularity, and $T_{pi} = 0$ for $p < i$ by the induction hypothesis applied to row $p$ (since $i \ne p$). Thus
+\[
+  (T^* T)_{ii} \;=\; \sum_{p=1}^n |T_{pi}|^2 \;=\; |T_{ii}|^2, \qquad
+  (T T^*)_{ii} \;=\; \sum_{q=1}^n |T_{iq}|^2 \;=\; |T_{ii}|^2 + \sum_{q > i} |T_{iq}|^2.
+\]
+Equating $(T T^*)_{ii} = (T^* T)_{ii}$ yields $\sum_{q > i} |T_{iq}|^2 = 0$, whence $T_{ij} = 0$ for all $j > i$. Hence $T$ is diagonal, completing the induction and the characterization.
+\end{proof}
+
+\begin{theorem}[Spectral-Radius Power-Sum Bounds and Exact Equality Conditions]\label{thm:spectral-bounds}
+Let $A \in M_n(\C)$ ($n \ge 1$) have eigenvalues $\lambda_1, \dots, \lambda_n \in \C$ and spectral radius $\rho(A) = \max_{1 \le i \le n} |\lambda_i|$. For every integer $k \ge 1$:
+\begin{enumerate}
+  \item[(i)] \textbf{Inequality chain:}
+  \begin{equation}\label{eq:spec-chain}
+    \bigl|\tr(A^k)\bigr| \;=\; \left|\sum_{i=1}^n \lambda_i^k\right| \;\le\; \sum_{i=1}^n |\lambda_i|^k \;\le\; \sum_{i=1}^n \rho(A)^k \;=\; n\,\rho(A)^k.
+  \end{equation}
+  \item[(ii)] \textbf{Modulus-sum equality:} $\sum_{i=1}^n |\lambda_i|^k = n\,\rho(A)^k$ holds if and only if $|\lambda_1| = |\lambda_2| = \dots = |\lambda_n| = \rho(A)$.
+  \item[(iii)] \textbf{Trace-modulus equality:} $|\tr(A^k)| = n\,\rho(A)^k$ holds if and only if $|\lambda_1| = \dots = |\lambda_n| = \rho(A)$ and $\lambda_1^k = \lambda_2^k = \dots = \lambda_n^k$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Using $A = U T U^*$ as in Theorem~\ref{thm:schur}, $A^k = U T^k U^*$ where $T^k$ is upper triangular with diagonal $(\lambda_1^k, \dots, \lambda_n^k)$, so $\tr(A^k) = \tr(T^k) = \sum_{i=1}^n \lambda_i^k$. For each $i$, $0 \le |\lambda_i| \le \rho(A)$ implies $|\lambda_i|^k \le \rho(A)^k$, with equality (since $k \ge 1$ and $t \mapsto t^k$ is strictly increasing on $[0,\infty)$) if and only if $|\lambda_i| = \rho(A)$. Summing over $i = 1, \dots, n$ yields $\sum_{i=1}^n |\lambda_i|^k \le n\,\rho(A)^k$ together with (ii).
+
+For the trace bound and (iii), set $z_i = \lambda_i^k \in \C$. By the $n$-variable complex Lagrange identity,
+\begin{equation}\label{eq:lagrange}
+  \sum_{i=1}^n \sum_{j=1}^n |z_i - z_j|^2 \;=\; 2\left(n \sum_{i=1}^n |z_i|^2 \;-\; \left|\sum_{i=1}^n z_i\right|^2\right) \;\ge\; 0.
+\end{equation}
+Hence $|\tr(A^k)|^2 = \bigl|\sum_{i=1}^n z_i\bigr|^2 \le n \sum_{i=1}^n |\lambda_i|^{2k} \le n^2 \rho(A)^{2k}$ (and by the triangle inequality $|\tr(A^k)| \le \sum_{i=1}^n |\lambda_i|^k$). Moreover, $|\tr(A^k)| = n\,\rho(A)^k$ is equivalent to $|\tr(A^k)|^2 = n^2 \rho(A)^{2k}$, which forces both $\sum_{i,j} |z_i - z_j|^2 = 0$ (so $z_1 = \dots = z_n$, i.e., $\lambda_1^k = \dots = \lambda_n^k$) and $\sum_{i=1}^n |\lambda_i|^{2k} = n\,\rho(A)^{2k}$ (so $|\lambda_i| = \rho(A)$ for all $i$).
+\end{proof}
+
+\begin{proposition}[Frobenius Power Bound Restricted to Normal Matrices]\label{prop:normal-frob}
+If $A \in M_n(\C)$ ($n \ge 1$) is normal, then for every integer $k \ge 1$,
+\[
+  \|A^k\|_F^2 \;=\; \sum_{i=1}^n |\lambda_i(A)|^{2k} \;\le\; n\,\rho(A)^{2k},
+\]
+with equality if and only if $|\lambda_1(A)| = \dots = |\lambda_n(A)| = \rho(A)$ (equivalently, $A^* A = \rho(A)^2 I_n$, so either $A = 0$ or $\rho(A)^{-1} A$ is unitary).
+\end{proposition}
+
+\begin{proof}
+By Theorem~\ref{thm:schur}, normality of $A$ ensures that $T = \diag(\lambda_1, \dots, \lambda_n)$ is diagonal in its Schur decomposition $A = U T U^*$. Hence $A^k = U \diag(\lambda_1^k, \dots, \lambda_n^k) U^*$ satisfies $\|A^k\|_F^2 = \sum_{i=1}^n |\lambda_i|^{2k}$. Applying Theorem~\ref{thm:spectral-bounds}(i)--(ii) at exponent $2k \ge 2$ yields the bound and equality condition $|\lambda_i|^2 = \rho(A)^2$ for all $i$, i.e., $T^* T = \rho(A)^2 I_n$, so $A^* A = U T^* T U^* = \rho(A)^2 I_n$.
+\end{proof}
+
+\section{Refutation of Eigenvalue, Trace, and Multi-Exponent Readings}
+
+We now refute Readings 1A, 1B, 3A, and 3B for every dimension $n \ge 2$ using matrices with entries in $\{0,1\} \subset \Z \subset \R \subset \C$, which simultaneously serve as counterexamples in $M_n(\R)$ and $M_n(\C)$. Let $E_{pq} \in M_n(\R)$ denote the matrix unit with $1$ in entry $(p,q)$ and $0$ elsewhere.
+
+\begin{theorem}[Refutation of Normality Necessity and Sufficiency in Readings 1A \& 1B]\label{thm:refute-reading1}
+Let $n \ge 2$ and $k \ge 1$ be integers, and let $\mathbb{F} \in \{\R, \C\}$.
+\begin{enumerate}
+  \item[(a)] \textbf{Failure of necessity ($\text{bound attained} \not\Rightarrow \text{normal}$):} Define $J_n = I_n + E_{12} \in M_n(\R) \subset M_n(\C)$, i.e.,
+  \[
+    J_n \;=\; \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix} \oplus I_{n-2}.
+  \]
+  Then $J_n$ is upper triangular with spectrum $(1, 1, \dots, 1)$ and spectral radius $\rho(J_n) = 1$, and for \emph{every} $k \ge 1$ we have $J_n^k = I_n + k E_{12}$ and
+  \[
+    \tr(J_n^k) \;=\; \bigl|\tr(J_n^k)\bigr| \;=\; \sum_{i=1}^n |\lambda_i(J_n)|^k \;=\; n \;=\; n\,\rho(J_n)^k.
+  \]
+  Yet $J_n$ is \textbf{not normal}: $(J_n J_n^*)_{11} = 1^2 + 1^2 = 2 \ne 1 = (J_n^* J_n)_{11}$.
+
+  \item[(b)] \textbf{Failure of sufficiency ($\text{normal} \not\Rightarrow \text{bound attained}$):} Let $D_n = E_{11} = \diag(1, 0, \dots, 0)$ in $M_n(\R) \subset M_n(\C)$. Then $D_n$ is real symmetric and diagonal, hence \textbf{normal} ($D_n D_n^* = D_n^* D_n = D_n$) and attains equality in Schur's inequality ($\sum_{i=1}^n |\lambda_i(D_n)|^2 = 1 = \|D_n\|_F^2$), with spectral radius $\rho(D_n) = 1$. Yet for \emph{every} $k \ge 1$, $D_n^k = D_n$ and
+  \[
+    \bigl|\tr(D_n^k)\bigr| \;=\; \sum_{i=1}^n |\lambda_i(D_n)|^k \;=\; 1 \;<\; n \;=\; n\,\rho(D_n)^k.
+  \]
+\end{enumerate}
+Consequently, under both Reading~1A ($\sum_{i=1}^n |\lambda_i|^k \le n\,\rho(A)^k$) and Reading~1B ($|\tr(A^k)| \le n\,\rho(A)^k$), normality is neither necessary nor sufficient for realizing the spectral-radius upper bound.
+\end{theorem}
+
+\begin{proof}
+In (a), $I_n$ and $E_{12}$ commute, and $E_{12}^2 = 0$ since $2 \ne 1$. By induction on $k \ge 0$, $J_n^{k+1} = (I_n + k E_{12})(I_n + E_{12}) = I_n + (k+1)E_{12} + k E_{12}^2 = I_n + (k+1)E_{12}$. Because $J_n$ is upper triangular with diagonal $(1,\dots,1)$, its characteristic polynomial is $(\lambda - 1)^n$, so $\lambda_1 = \dots = \lambda_n = 1$, $\rho(J_n) = 1$, $\sum_{i=1}^n |\lambda_i|^k = n = n\,\rho(J_n)^k$, and $\tr(J_n^k) = \tr(I_n + k E_{12}) = n$. Comparing entry $(1,1)$ of $J_n J_n^*$ and $J_n^* J_n$ gives $\sum_{q=1}^n |J_{n,1q}|^2 = 1 + 1 = 2$ versus $\sum_{p=1}^n |J_{n,p1}|^2 = 1$, so $J_n J_n^* \ne J_n^* J_n$.
+
+In (b), $D_n^* = D_n$ so $D_n D_n^* = D_n^* D_n$, and $D_n^k = D_n$ for all $k \ge 1$. Its eigenvalues are $(1, 0, \dots, 0)$, giving $\rho(D_n) = 1$ and $\sum_{i=1}^n |\lambda_i|^k = 1^k + (n-1)\cdot 0^k = 1 < n = n\,\rho(D_n)^k$ since $n \ge 2$.
+\end{proof}
+
+\begin{remark}[Dense non-triangular and diagonalizable non-normal witnesses]\label{rem:dense-diag}
+One might ask whether non-normal matrices realizing $\sum_{i=1}^n |\lambda_i|^k = n\,\rho(A)^k$ must be upper triangular or defective (non-diagonalizable). Neither is the case:
+\begin{enumerate}
+  \item[(i)] Conjugating $J_2$ by the exact rational Pythagorean unitary matrix $U = \frac{1}{5}\begin{pmatrix} 3 & -4 \\ 4 & 3 \end{pmatrix}$ yields the \textbf{dense non-triangular} matrix
+  \[
+    A_{\mathrm{dense}} \;=\; U J_2 U^* \;=\; \frac{1}{25}\begin{pmatrix} 13 & 9 \\ -16 & 37 \end{pmatrix} \in M_2(\Q) \subset M_2(\R) \subset M_2(\C),
+  \]
+  which is non-normal, non-triangular ($a_{21} = -16/25 \ne 0$), and satisfies $\tr(A_{\mathrm{dense}}^k) = \sum_{i=1}^2 |\lambda_i|^k = 2 = 2\,\rho(A_{\mathrm{dense}})^k$ for all $k \ge 1$ (formalized in \texttt{lean/Main.lean} as \texttt{denseJordanQ}).
+  \item[(ii)] Conjugating $\diag(1,-1)$ by $S = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}$ yields the \textbf{diagonalizable} involution
+  \[
+    B \;=\; \begin{pmatrix} 1 & -2 \\ 0 & -1 \end{pmatrix} \in M_2(\R), \qquad B^2 = I_2,
+  \]
+  which has distinct real eigenvalues $\{1, -1\}$ with $\rho(B) = 1$, attains $\sum_{i=1}^2 |\lambda_i(B)|^k = 2 = 2\,\rho(B)^k$ for \emph{all} $k \ge 1$ (and $\tr(B^k) = 2$ for all even $k$), yet is non-normal since $B B^T = \begin{pmatrix} 5 & 2 \\ 2 & 1 \end{pmatrix} \ne \begin{pmatrix} 1 & -2 \\ -2 & 5 \end{pmatrix} = B^T B$.
+  \item[(iii)] Conversely, even a \emph{unitary} (hence normal, equal-modulus) matrix such as $M = \diag(1, i) \in M_2(\C)$ fails trace equality at $k = 1$, since $|\tr(M)| = |1 + i| = \sqrt{2} < 2 = 2\,\rho(M)$.
+\end{enumerate}
+\end{remark}
+
+\begin{corollary}[Refutation of Multi-Exponent and Unscaled Readings 3A \& 3B]\label{cor:multi-exp}
+Let $n \ge 2$ and $K \ge 1$.
+\begin{enumerate}
+  \item[(a)] \textbf{Scaled multi-exponent sums (Reading~3A):} Summing across exponents $k = 1, \dots, K$, the inequality $\sum_{k=1}^K \sum_{i=1}^n |\lambda_i(A)|^k \le \sum_{k=1}^K n\,\rho(A)^k$ holds, but non-normal $J_n$ attains equality ($Kn = Kn$) while normal $D_n$ strictly fails ($K < Kn$).
+  \item[(b)] \textbf{Unscaled spectral-radius sums (Reading~3B):} If ``the sum of spectral-radius powers'' is interpreted without the multiplicity factor $n$ as $\rho(A)^k$ or $\sum_{k=1}^K \rho(A)^k$, then the upper bound itself fails on the normal identity matrix $A = I_n$, where $\rho(I_n) = 1$ gives $\sum_{i=1}^n |\lambda_i(I_n)|^k = n > 1 = \rho(I_n)^k$ and $\sum_{k=1}^K \sum_{i=1}^n |\lambda_i(I_n)|^k = Kn > K = \sum_{k=1}^K \rho(I_n)^k$.
+\end{enumerate}
+\end{corollary}
+
+\begin{proof}
+Immediate by summing the identities and strict inequalities of Theorem~\ref{thm:refute-reading1} over $k = 1, \dots, K$, and evaluating $I_n$ where $\lambda_1 = \dots = \lambda_n = 1$ and $n \ge 2$.
+\end{proof}
+
+\section{Refutation of Matrix-Norm and Singular-Value Readings}
+
+We next examine Reading~2, in which ``power sums'' refers to the matrix-norm side of Schur's inequality: squared Frobenius norms of powers $\|A^k\|_F^2 = \tr((A^k)^* A^k)$, singular-value $p$-th power sums $\sum_{i=1}^n \sigma_i(A)^p$ (including Schatten $2k$-norms $\tr((A^* A)^k) = \sum_{i=1}^n \sigma_i(A)^{2k}$), or entrywise power sums $\sum_{i,j=1}^n |a_{ij}|^p$. While Proposition~\ref{prop:normal-frob} showed that $\|A^k\|_F^2 \le n\,\rho(A)^{2k}$ holds \emph{for normal matrices}, it fails dramatically on general matrices.
+
+\begin{theorem}[Refutation of Frobenius, Singular-Value, and Entrywise Bounds]\label{thm:refute-reading2}
+Let $n \ge 2$ be an integer and let $\mathbb{F} \in \{\R, \C\}$.
+\begin{enumerate}
+  \item[(a)] \textbf{Unbounded failure at $\rho(A) = 0$ (nilpotent family):} For any nonzero $c \in \mathbb{F} \setminus \{0\}$, define $N_{n,c} = c E_{12} \in M_n(\mathbb{F})$. Then $N_{n,c}$ is strictly upper triangular with all eigenvalues equal to $0$ and $\rho(N_{n,c}) = 0$. Nevertheless, for every integer $k \ge 1$ and every real $p > 0$:
+  \[
+    \|N_{n,c}\|_F^2 \;=\; |c|^2 \;>\; 0 \;=\; n\,\rho(N_{n,c})^2, \qquad
+    \tr\bigl((N_{n,c}^* N_{n,c})^k\bigr) \;=\; |c|^{2k} \;>\; 0 \;=\; n\,\rho(N_{n,c})^{2k},
+  \]
+  and $\sum_{i=1}^n \sigma_i(N_{n,c})^p = \sum_{i,j=1}^n |(N_{n,c})_{ij}|^p = |c|^p > 0 = n\,\rho(N_{n,c})^p$. Moreover, $|c|$ may be chosen arbitrarily large while $\rho(N_{n,c}) = 0$ remains fixed.
+  \item[(b)] \textbf{Failure for all matrix powers $k \ge 1$ at $\rho(A) = 1$ (shear family):} For $J_n = I_n + E_{12}$, we have $\rho(J_n) = 1$, yet for \emph{every} integer $k \ge 1$ and \emph{every} real $p > 0$:
+  \[
+    \|J_n^k\|_F^2 \;=\; \|I_n + k E_{12}\|_F^2 \;=\; n + k^2 \;>\; n \;=\; n\,\rho(J_n)^{2k},
+  \]
+  and the singular-value power sums of $J_n^k$ satisfy $\sum_{i=1}^n \sigma_i(J_n^k)^p > n = n\,\rho(J_n)^{kp}$.
+  \item[(c)] \textbf{Failure of normality sufficiency even within normal matrices:} Even if one restricts the domain to normal matrices (where $\|A^k\|_F^2 \le n\,\rho(A)^{2k}$ holds by Proposition~\ref{prop:normal-frob}), the normal matrix $D_n = \diag(1,0,\dots,0)$ satisfies $\|D_n^k\|_F^2 = \tr((D_n^* D_n)^k) = 1 < n = n\,\rho(D_n)^{2k}$ for all $k \ge 1$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For (a), $N_{n,c}^* N_{n,c} = |c|^2 E_{22}$. Because $E_{22}^2 = E_{22}$ is idempotent with $\tr(E_{22}) = 1$, induction gives $(N_{n,c}^* N_{n,c})^k = |c|^{2k} E_{22}$ and $\tr((N_{n,c}^* N_{n,c})^k) = |c|^{2k} > 0$ for every $k \ge 1$. Similarly, the singular values of $N_{n,c}$ are $(|c|, 0, \dots, 0)$, giving $\sum_{i=1}^n \sigma_i(N_{n,c})^p = |c|^p > 0 = n\,\rho(N_{n,c})^p$.
+
+For (b), $J_n^k = I_n + k E_{12}$ has $n$ diagonal entries equal to $1$ and one superdiagonal entry equal to $k$, so $\|J_n^k\|_F^2 = n \cdot 1^2 + k^2 = n + k^2 > n$. Furthermore, $J_n^k = J_2^k \oplus I_{n-2}$, so the singular values of $J_n^k$ are $\sigma_1, \sigma_2, 1, \dots, 1$, where $\sigma_1 \ge \sigma_2 > 0$ are the singular values of $J_2^k = \begin{pmatrix} 1 & k \\ 0 & 1 \end{pmatrix}$. Since $\sigma_1 \sigma_2 = |\det(J_2^k)| = 1$ and $\sigma_1^2 + \sigma_2^2 = \|J_2^k\|_F^2 = 2 + k^2 > 2$, we have $\sigma_1 \ne \sigma_2$, so by the strict arithmetic--geometric mean inequality for any $p > 0$,
+\[
+  \sigma_1^p + \sigma_2^p \;>\; 2(\sigma_1^p \sigma_2^p)^{1/2} \;=\; 2(\sigma_1 \sigma_2)^{p/2} \;=\; 2,
+\]
+whence $\sum_{i=1}^n \sigma_i(J_n^k)^p = \sigma_1^p + \sigma_2^p + (n-2) > n = n\,\rho(J_n)^{kp}$. Part (c) follows immediately from $D_n^k = D_n^* D_n = E_{11}$ and $1 < n$.
+\end{proof}
+
+\begin{remark}[Even replacing $\rho(A)$ by the spectral norm $\|A\|_2$ does not yield normality]
+Suppose one altered the conjecture further by replacing the spectral radius $\rho(A)$ with the operator spectral norm $\|A\|_2 = \sigma_1(A) = \sqrt{\rho(A^* A)}$. By Weyl's inequality, $\sum_{i=1}^n |\lambda_i(A)|^p \le \sum_{i=1}^n \sigma_i(A)^p \le n\,\|A\|_2^p$ does hold for all $p > 0$, and equality $\sum_{i=1}^n |\lambda_i(A)|^p = n\,\|A\|_2^p$ forces \emph{both} $\sum_{i=1}^n |\lambda_i|^p = \sum_{i=1}^n \sigma_i^p$ (so $A$ is normal) \emph{and} $\sigma_1 = \dots = \sigma_n = \|A\|_2$ (so $A$ is a scalar multiple of a unitary matrix, $A^* A = \|A\|_2^2 I_n$). Even under that non-literal modification, sufficiency of normality still fails for every $n \ge 2$ via $D_n = \diag(1,0,\dots,0)$, where $1 < n = n\,\|D_n\|_2^p$.
+\end{remark}
+
+\section{Formal Verification in Lean 4 and Computational Audit}
+
+\subsection{Self-Contained Core Lean 4.19.0 Formalization}
+The directory \texttt{lean/} contains a standalone Lean~4 (\texttt{leanprover/lean4:v4.19.0}) Lake package with zero external dependencies, compiled with \texttt{-DwarningAsError=true} and zero \texttt{sorry}, \texttt{admit}, \texttt{native\_decide}, or custom axioms. In \texttt{lean/Main.lean}:
+{\sloppy
+\begin{itemize}
+  \item \textbf{Ordered rings, exact rationals $\Q$, and $\C$-extension (\S1--\S4):} We define the typeclasses \texttt{Linear\-Ordered\-Comm\-Ring R} (covering $\Z, \Q, \R$) and \texttt{Linear\-Ordered\-Field F} (covering $\Q, \R$), together with the complexification \texttt{Complex R} (covering $\Z[i], \Q(i), \C$), verified constructive instances for \texttt{Int} and \texttt{QField} (exact rational numbers $\Q$ built via \texttt{Quotient}, proving non-vacuity of \texttt{Linear\-Ordered\-Field}), finite sums \texttt{finSum} over \texttt{Fin n}, and the $n$-variable complex Lagrange/Cauchy--Schwarz theorem (\texttt{complex\ust lagrange}, \texttt{normSq\ust finSum\ust eq\ust iff}).
+  \item \textbf{Positive benchmark theorems (\S5--\S6):}
+  \begin{itemize}
+    \item \texttt{isRealNormal\ust iff\ust isNormal\ust toComplex}: equivalence of normality between $M_n(R)$ and $M_n(\mathrm{Complex}\ R)$.
+    \item \texttt{schur\ust inequality} and \texttt{schur\ust eq\ust iff\ust isNormal}: Theorem~\ref{thm:schur} for all $n \in \N$.
+    \item \texttt{eigModPowSum\ust le\ust spectralPowerBound}, \texttt{eigModPowSum\ust eq\ust iff\ust equal\ust moduli}, and \texttt{trace\ust normSq\ust le\ust spectralPowerBound}: Theorem~\ref{thm:spectral-bounds}.
+    \item \texttt{normal\ust frobNormSq\ust matPow\ust le}: Proposition~\ref{prop:normal-frob}.
+  \end{itemize}
+  \item \textbf{Refutations across all readings (\S7--\S8):}
+  \begin{itemize}
+    \item \texttt{refute\ust reading1\ust eigenvalue\ust power\ust sum} and \texttt{refute\ust reading1\ust trace\ust power\ust sum}: Theorem~\ref{thm:refute-reading1} for all $n = m + 2 \ge 2$ and $k \ge 1$.
+    \item \texttt{denseJordanQ\ust not\ust isNormal\ust yet\ust attains\ust bounds}: Remark~\ref{rem:dense-diag}(i) over \texttt{QField}.
+    \item \texttt{refute\ust reading2\ust frobenius\ust and\ust schatten}: Theorem~\ref{thm:refute-reading2}(a)--(b) for all $n = m + 2 \ge 2$ and $k \ge 1$.
+    \item \texttt{refute\ust reading3\ust multi\ust exponent\ust and\ust unscaled}: Corollary~\ref{cor:multi-exp}.
+    \item \texttt{conjecture\ust 00000007168\ust complete\ust resolution}: master theorem packaging the positive Schur benchmark alongside the refutation of every reading over \texttt{QField}.
+  \end{itemize}
+\end{itemize}
+}
+Running \texttt{\#print axioms} confirms that all theorems depend exclusively on Lean's standard kernel axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}).
+
+\subsection{Independent Python Verification}
+The standalone script \texttt{verify.py} (using only Python's standard library \texttt{fractions}, \texttt{math}, \texttt{cmath}, and \texttt{random}) independently checks: (1)~exact Gaussian-rational arithmetic over $\Q(i)$ for $J_n, D_n, N_{n,c}, I_n$ across $n = 2,\dots,6$ and $k = 1,\dots,6$; (2)~dense unitary-conjugate and diagonalizable non-normal witnesses; (3)~singular-value AM--GM inequalities for $\sum \sigma_i(J_2(c)^k)^p > 2$; and (4)~2,000 randomized real and complex matrix tests across $n = 2,\dots,5$.
+
+\begin{thebibliography}{9}
+\bibitem{Schur1909}
+I.~Schur, \emph{\"Uber die charakteristischen Wurzeln einer linearen Substitution mit einer Anwendung auf die Theorie der Integralgleichungen}, Math.\ Ann.\ \textbf{66} (1909), 488--510.
+
+\bibitem{HornJohnson2013}
+R.~A.~Horn and C.~R.~Johnson, \emph{Matrix Analysis}, 2nd ed., Cambridge University Press, Cambridge, 2013.
+
+\bibitem{Weyl1949}
+H.~Weyl, \emph{Inequalities between the two kinds of eigenvalues of a linear transformation}, Proc.\ Natl.\ Acad.\ Sci.\ U.S.A.\ \textbf{35} (1949), 408--411.
+\end{thebibliography}
+
+\end{document}
