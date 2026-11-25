@@ -1,0 +1,96 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+\begin{center}
+  {\Large\bfseries Even Euler characteristic and codimension-one immersion\par}
+  \smallskip
+  Disproof of Conjecture 00000003272
+\end{center}
+
+The closed, connected, oriented smooth six-manifold
+\[
+  M=\mathbb{CP}^{2}\times S^2
+\]
+has an even Euler characteristic and does not smoothly immerse
+in \(\mathbb R^7\). Indeed, \(\mathbb{CP}^2\) has one cell in each
+of dimensions \(0,2,4\), and \(S^2\) has one cell in each of
+dimensions \(0,2\). Their product has six cells, all of even
+dimension, so \(\chi(M)=6\).
+
+\section*{The restricted tangent bundle}
+
+Choose a projective line \(L=\mathbb{CP}^{1}\subset\mathbb{CP}^{2}\)
+and a point \(p\in S^2\). Let \(j:L\longrightarrow M\) be
+\(j(x)=(x,p)\). Write \(\varepsilon^r\) for the trivial real
+rank-\(r\) bundle and \(H=\mathcal O(1)|_L\) for the dual
+tautological complex line on \(L\). The product tangent bundle
+restricts to
+\[
+  j^*TM\cong (T\mathbb{CP}^{2}|_L)_{\mathbb R}\oplus\varepsilon^2.
+\]
+
+To identify the right side, let \(\lambda\) be the tautological line
+over \(\mathbb{CP}^2\). The complex tangent space at a line \(\ell\) is
+\(\operatorname{Hom}_{\mathbb C}(\ell,\mathbb C^3/\ell)\), as seen by
+writing nearby lines as graphs of linear maps into a complement.
+Applying \(\operatorname{Hom}_{\mathbb C}(\lambda,-)\) to the
+tautological inclusion gives the Euler sequence
+\[
+  0\longrightarrow \underline{\mathbb C}
+   \longrightarrow (\lambda^*)^{\oplus3}
+   \longrightarrow T\mathbb{CP}^2
+   \longrightarrow 0.
+\]
+The first term consists of scalar endomorphisms of \(\lambda\).
+This sequence splits as smooth complex bundles by choosing an
+orthogonal complement to the first term. Restricting to \(L\)
+and passing to real bundles gives
+\[
+  (T\mathbb{CP}^2|_L)_{\mathbb R}\oplus\varepsilon^2
+  \cong H_{\mathbb R}^{\oplus3}.
+\]
+
+\section*{The obstruction}
+
+The first Chern class of \(H\) generates \(H^2(L;\mathbb Z)\), and
+its mod-two reduction \(\bar h\) generates \(H^2(L;\mathbb F_2)\).
+For the underlying real bundle, \(w_2(H_{\mathbb R})=\bar h\)
+\cite[Theorems~3.1--3.2 and Proposition~3.8]{hatcher}. Since
+\(H^1(L;\mathbb F_2)=0\), all first Stiefel--Whitney classes
+on \(L\) vanish. The degree-two Whitney sum formula now gives
+\[
+  w_2(j^*TM)=3\bar h=\bar h\ne0.
+\]
+
+An immersion \(M\longrightarrow\mathbb R^7\) would induce
+\(TM\oplus\nu\cong\varepsilon^7\), where the normal bundle \(\nu\)
+is a real line bundle. Pulling back along \(j\) would give
+\(j^*TM\oplus j^*\nu\cong\varepsilon^7\) on \(L\). A line bundle
+has zero second Stiefel--Whitney class, so the degree-two Whitney
+formula on \(L\) would give
+\[
+  0=w_2(\varepsilon^7)=w_2(j^*TM)+w_2(j^*\nu)=\bar h,
+\]
+a contradiction. Thus even Euler characteristic is insufficient.
+
+\section*{Lean verification}
+
+The Lean~4.19.0 project computes the Euler characteristic from
+the product cell dimensions. It models bundle isomorphism classes
+on \(L\) with the standard degree-two characteristic class identities.
+From the product restriction and the split Euler sequence it derives
+the nonzero mod-two class and rules out a rank-one normal splitting.
+The geometric identifications and characteristic class rules used
+in this implication are established above. Run \verb|lake build| in
+\verb|lean/| to verify the formal calculation.
+
+\begin{thebibliography}{1}
+\bibitem{hatcher}
+A.~Hatcher, \emph{Vector Bundles and K-Theory}, version 2.2, 2017,
+\href{https://pi.math.cornell.edu/~hatcher/VBKT/VB.pdf}{Section 3.1}.
+\end{thebibliography}
+
+\end{document}
