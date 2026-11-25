@@ -1,0 +1,75 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+\begin{center}
+  {\Large\bfseries The thickness of complete graphs of prime order\par}
+  \smallskip
+  Proof of Conjecture 00000000163
+\end{center}
+
+Let $\theta(K_p)$ be the least number of planar layers covering the
+edges of $K_p$. A cover gives a decomposition by assigning each edge to
+one layer that contains it and deleting its other copies. Edge deletion
+preserves planarity. We prove $\theta(K_p)=\lceil(p+2)/6\rceil$ for prime
+$p$.
+
+\section*{The edge-count lower bound}
+
+The graphs $K_2$ and $K_3$ are planar and have edges, so each has
+thickness one, as required. Now let $p\ge5$ be prime. Then $p$ is
+divisible by neither two nor three, so $p=6m+1$ or $p=6m+5$.
+
+If $t$ planar layers cover $K_p$, we may regard each layer as spanning
+by adding isolated vertices. The simple planar edge bound from Euler's
+formula gives at most $3(p-2)$ edges per layer. Counting the edges of
+$K_p$ therefore gives
+\[
+ p(p-1)\le 6(p-2)t.
+\]
+If $p=6m+1$, then $m\ge1$ and
+\[
+ p(p-1)-6(p-2)m=12m>0.
+\]
+Thus $t\ge m+1$. If $p=6m+5$, then
+\[
+ p(p-1)-6(p-2)(m+1)=2>0,
+\]
+so $t\ge m+2$.
+
+\section*{Matching planar covers}
+
+Beineke and Harary construct a cover of $K_{6r+2}$ by $r+1$ planar
+graphs for $r\ge1$~\cite[p.~855 and Figure~3]{bh}. Restricting a
+planar cover of a complete graph to any subset of its vertices gives a
+planar cover of the smaller complete graph.
+
+For $p=6m+1$, restrict the cover of $K_{6m+2}$ to $p$ vertices. It has
+$m+1$ layers. For $p=6m+5$, take $r=m+1$ and restrict the cover of
+$K_{6m+8}$ to $p$ vertices. It has $m+2$ layers. These match the lower
+bounds. Finally,
+\[
+ \left\lceil\frac{6m+3}{6}\right\rceil=m+1,\qquad
+ \left\lceil\frac{6m+7}{6}\right\rceil=m+2,
+\]
+which gives the stated formula.
+
+\section*{Lean verification}
+
+The Lean 4 project checks the complete simple graph's edge count and the
+list covering inequality, then proves the prime residue and ceiling
+calculations. The planar Euler bound, the Beineke--Harary construction,
+and preservation of planarity under restriction supply the stated
+geometric inputs. Run \texttt{lake build} in the \texttt{lean} directory
+to verify the deduction.
+
+\begin{thebibliography}{1}
+\bibitem{bh}
+L.~W. Beineke and F.~Harary, \emph{The thickness of the complete graph},
+Canadian Journal of Mathematics \textbf{17} (1965), 850--859.
+\href{https://doi.org/10.4153/CJM-1965-084-2}{DOI 10.4153/CJM-1965-084-2}.
+\end{thebibliography}
+
+\end{document}
