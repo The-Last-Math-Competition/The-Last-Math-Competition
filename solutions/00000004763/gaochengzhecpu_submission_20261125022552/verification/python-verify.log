@@ -1,0 +1,62 @@
+=======================================================================
+Conjecture 00000004763 — Exact Combinatorial & Algebraic Verification
+=======================================================================
+
+[PASS] Step 1a: Partition sums match Bell/Catalan counts and moment-cumulant
+                recurrences identically for 1 <= n <= 8.
+[PASS] Step 1b: Exact round-trip polynomial inversion k(c(k))=k, c(k(c))=c
+                and shift-invariance verified for 1 <= n <= 8.
+
+--- Forward conversion k_n(c) ---
+  k_1 = c_1
+  k_2 = c_2
+  k_3 = c_3
+  k_4 = c_4 + c_2^2
+  k_5 = c_5 + 5 c_3 c_2
+  k_6 = c_6 + 9 c_4 c_2 + 7 c_3^2 + 4 c_2^3
+  k_7 = c_7 + 14 c_5 c_2 + 28 c_4 c_3 + 42 c_3 c_2^2
+  k_8 = c_8 + 20 c_6 c_2 + 48 c_5 c_3 + 31 c_4^2 + 102 c_4 c_2^2 + 156 c_3^2 c_2 + 27 c_2^4
+
+--- Inverse conversion c_n(k) ---
+  c_1 = k_1
+  c_2 = k_2
+  c_3 = k_3
+  c_4 = k_4 - k_2^2
+  c_5 = k_5 - 5 k_3 k_2
+  c_6 = k_6 - 9 k_4 k_2 - 7 k_3^2 + 5 k_2^3
+  c_7 = k_7 - 14 k_5 k_2 - 28 k_4 k_3 + 56 k_3 k_2^2
+  c_8 = k_8 - 20 k_6 k_2 - 48 k_5 k_3 - 31 k_4^2 + 140 k_4 k_2^2 + 224 k_3^2 k_2 - 56 k_2^4
+
+[PASS] Step 2: Positive identities k_1=c_1, k_2=c_2, k_3=c_3, k_4=c_4+c_2^2,
+               c_4=k_4-k_2^2, plus Lehner/Josuat-Verges connected-crossing
+               and Tutte T_G(1,0) formulas verified for 1 <= n <= 7.
+
+[PASS] Step 3 (Refutation 1 — NOT Low-Order): Algebraic degree of k_{2d}(c) and
+       c_{2d}(k) is d = n/2 -> infinity:
+       [c_2^d] k_{2d}(c) (d=1..8): [1, 1, 4, 27, 248, 2830, 38232, 593859]
+       [k_2^d] c_{2d}(k) (d=1..8): [1, -1, 5, -56, 1092, -32670, 1387815, -79389310]
+
+[PASS] Step 4 (Refutation 2 — Crossing Pair Count Insufficiency):
+       At n=8, type (2,2,2,2): cr=3 gives weights (0,0) on K_1+K_3 vs (+1,-1) on K_{1,3};
+       cr=4 gives Tutte weights -2 on paw vs -3 on C_4 (both connected!).
+
+[PASS] Step 5 (Refutation 3 — First Two Nontrivial Coefficients):
+       k_n(c) has (+1, +5, ...) with ALL coefficients strictly positive;
+       c_n(k) has (-1, -5, ...) [or (-1, -9, +5) on even orders];
+       +1 and -1 are the n=4 coefficients of opposite directions, not one map.
+
+[PASS] Step 6 (Refutation 4 — Unbounded Inverse Bandwidth):
+       - S^{-1} and N^{-1}: row-n bandwidth = n - 1 (verified 1 <= n <= 15).
+       - (N^{-1} S)^{-1} = S^{-1} N: exact entry (n,2) = (-1)^{n-1}(n-2)!(H_{n-2}-1) != 0,
+         row-n bandwidth = n - 2 (verified 4 <= n <= 15).
+       - (S^{-1} N)^{-1} = N^{-1} S: row-n bandwidth = n - 2 (verified 4 <= n <= 15).
+       - Bell/Kreweras triangles B(c)^{-1}, B^{NC}(k)^{-1}, B(c)^{-1}B^{NC}(c),
+         B^{NC}(c)^{-1}B(c) over Q(c_1,c_2,...): inherit unbounded bandwidths
+         n - 1 and n - 2 via specialization c_j = 1.
+       - Jacobian J = dk/dc and J^{-1} = dc/dk over Q(c_1,c_2,...): row-n bandwidth = n - 2.
+       - Canonical moment-recurrence T_{c->k}(m) and T_{k->c}(m) over Q(m_1,m_2,...):
+         [m_{n-2}] entry (n,2) = +/-(n-3) != 0, row-n bandwidth = n - 2.
+
+=======================================================================
+ALL VERIFICATION CHECKS PASSED SUCCESSFULLY (VERDICT: FALSE).
+=======================================================================
