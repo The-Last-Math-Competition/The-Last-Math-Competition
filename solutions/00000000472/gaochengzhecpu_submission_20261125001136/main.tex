@@ -1,0 +1,586 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{color}
+\usepackage{hyperref}
+
+\definecolor{linkblue}{rgb}{0,0,0.55}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=linkblue,
+  citecolor=linkblue,
+  urlcolor=linkblue
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\QQ}{\mathbb{Q}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\CC}{\mathbb{C}}
+\newcommand{\ZZ}{\mathbb{Z}}
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\des}{\operatorname{des}}
+\newcommand{\wdes}{\operatorname{wdes}}
+\newcommand{\asc}{\operatorname{asc}}
+\newcommand{\Li}{\operatorname{Li}}
+\newcommand{\Bern}{\operatorname{Bernoulli}}
+\newcommand{\Geom}{\operatorname{Geom}}
+
+\title{\textbf{A Complete Disproof of Conjecture 00000000472:\\
+Universal Real-Simplicity of Multi-Indexed Eulerian Polynomials}}
+\author{Formalized Submission for Conjecture 00000000472}
+\date{November 24, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture~00000000472 introduces $A_n(t)$ as the Eulerian polynomial of the Bernoulli
+distribution and asserts that the multi-indexed Eulerian polynomial $A_\alpha(t)$
+has all real simple roots if and only if the multi-index $\alpha$ is piecewise-constant.
+We disprove this conjecture across every standard convention. Under the primary
+combinatorial and generating-function definition---namely, the multiset Eulerian
+polynomial $A_\alpha^{\mathrm{ms}}(t) = \sum_w t^{\des(w)}$ over multiset permutations
+$w \in \mathfrak{S}(1^{\alpha_1}\cdots m^{\alpha_m})$ of MacMahon and Simion---we give an
+elementary interlacing proof
+that \emph{every} nonempty positive integer multi-index
+$\alpha = (\alpha_1,\dots,\alpha_m) \in \ZZ_{\ge 1}^m$ yields a polynomial of exact degree
+$|\alpha| - \max_i \alpha_i$ whose complex roots are all real, strictly negative, and
+simple (and likewise for the shifted polynomial $\tilde{A}_\alpha^{\mathrm{ms}}(t) =
+t A_\alpha^{\mathrm{ms}}(t)$). The same master differential operator proves
+that the multiple polylogarithm Eulerian polynomials $A_\alpha^{\mathrm{mpl}}(t)$ and
+$A_\alpha^{\mathrm{mpl},\star}(t)$ also have $|\alpha|-1$ distinct negative simple real
+roots for \emph{every} $\alpha \in \ZZ_{\ge 1}^m$. In particular, strictly increasing
+multi-indices with all run lengths equal to $1$---such as $\alpha=(1,2)$
+with $A_{(1,2)}^{\mathrm{ms}}(t)=1+2t$, $\alpha=(1,2,3)$ with
+$A_{(1,2,3)}^{\mathrm{ms}}(t)=1+17t+33t^2+9t^3$ ($\Delta=82{,}800>0$), and
+the infinite family $\alpha^{(m)}=(1,2,\dots,m)$---all have exclusively real simple roots,
+refuting necessity for every nontrivial definition of piecewise-constant index. Moreover,
+under alternative conventions retaining $t^k$ prefactors or using Savage--Schuster
+inversion-sequence Eulerian polynomials $E_\alpha(t)$, \emph{both} implications fail. All
+main theorems, concrete witnesses, and non-vacuity checks are formalized from first
+principles in Core Lean~4.19.0 (including constructive rationals $\QQ$, Cauchy reals $\RR$
+with the polynomial Intermediate Value Theorem, and $\CC=\RR[i]$) with zero external
+dependencies.
+\end{abstract}
+
+\section{Official Problem Statement and Semantic Analysis}
+
+The official bilingual text of Conjecture~00000000472 (reproduced byte-for-byte in
+\texttt{SOURCE.md}) states:
+
+\begin{quote}
+\textbf{English.} Definition: The Eulerian polynomial $A_n(t)$ of the Bernoulli
+distribution. Conjecture: The multivariate Eulerian polynomial $A_\alpha(t)$ has all real
+simple roots if and only if $\alpha$ is a piecewise-constant index (an explicit criterion,
+programmable for small indices).
+\end{quote}
+
+The accompanying Chinese text clarifies the terminology precisely: after introducing the
+Eulerian polynomial $A_n(t)$ of the Bernoulli distribution, it states the conjecture for
+the \emph{multi-index Eulerian polynomial} $A_\alpha(t)$ (literally \emph{duochong zhibiao
+Eulerian duoxiangshi $A_\alpha(t)$}), asserting that all of its roots are real simple roots
+if and only if $\alpha$ is a piecewise-constant index (\emph{fenduan changshu zhibiao}, an
+explicit criterion programmable for small indices). Notice that in both languages
+$A_\alpha(t)$ is explicitly a \emph{univariate} polynomial in the single indeterminate $t$,
+indexed by a finite multi-index $\alpha = (\alpha_1, \dots, \alpha_m) \in \ZZ_{\ge 1}^m$.
+
+\subsection{Classical \texorpdfstring{$A_n(t)$}{A\_n(t)} and the Bernoulli Distribution}
+
+Let $\mathfrak{S}_n$ denote the symmetric group on $\{1,\dots,n\}$. For $n \ge 1$, the
+classical Eulerian polynomial is
+\begin{equation}\label{eq:classical-eulerian}
+  A_n(t) := \sum_{\pi \in \mathfrak{S}_n} t^{\des(\pi)}, \qquad
+  \des(\pi) := \#\{1 \le i < n : \pi(i) > \pi(i+1)\},
+\end{equation}
+with $A_0(t) := 1$, so $A_1(t)=1$, $A_2(t)=1+t$, $A_3(t)=1+4t+t^2$, and Worpitzky's
+power-sum / negative-polylogarithm identity holds for $|t| < 1$:
+\begin{equation}\label{eq:worpitzky}
+  \sum_{k=0}^{\infty} (k+1)^n t^k = \frac{A_n(t)}{(1-t)^{n+1}}, \qquad
+  \Li_{-n}(t) := \sum_{k=1}^{\infty} k^n t^k = \frac{t A_n(t)}{(1-t)^{n+1}} \quad (n \ge 1).
+\end{equation}
+There are two canonical ways in which $A_n(t)$ governs the $\Bern(p)$ distribution:
+\begin{enumerate}
+  \item \textbf{Cumulants of $\Bern(p)$:} Let $X \sim \Bern(p)$ ($0 < p < 1$) with cumulant
+  generating function $K_X(u) = \log \mathbb{E}[e^{uX}] = \log(1 - p + p e^u)$. Setting the
+  negative odds parameter $t := -p/(1-p) \in (-\infty,0)$ gives $1 - p + p e^u =
+  (1 - t e^u)/(1 - t)$. Differentiating $n+1$ times at $u = 0$ yields, for every $n \ge 1$,
+  \begin{equation}\label{eq:bernoulli-cumulant}
+    \kappa_{n+1}(X) = \left.\frac{d^{n+1}}{du^{n+1}} \log(1 - t e^u)\right|_{u=0}
+    = -\Li_{-n}(t) = -\frac{t A_n(t)}{(1-t)^{n+1}}
+    = p(1-p)^n A_n\!\left(-\frac{p}{1-p}\right).
+  \end{equation}
+  Equivalently, by the chain rule $dp(u)/du = p(u)(1-p(u))$ for $p(u) = pe^u/(1-p+pe^u)$,
+  the cumulant polynomials satisfy $\kappa_1(p) = p$ and $\kappa_{n+1}(p) = p(1-p)\kappa_n'(p)$.
+  \item \textbf{Waiting-time moments of Bernoulli trials:} If $G \sim \Geom(1-p)$ counts the
+  number of independent $\Bern(1-p)$ trials up to and including the first success, then
+  $\mathbb{E}[G^n] = (1-p)\sum_{k=0}^\infty (k+1)^n p^k = A_n(p)/(1-p)^n$.
+\end{enumerate}
+By a classical theorem of Frobenius~\cite{Frobenius1910}, $A_n(t)$ has $\max(0,n-1)$
+distinct negative simple real roots for every $n \ge 1$.
+
+\subsection{Standard Multi-Index Generalizations \texorpdfstring{$A_\alpha(t)$}{A\_alpha(t)}}
+
+Let $\alpha = (\alpha_1, \dots, \alpha_m) \in \ZZ_{\ge 1}^m$ ($m \ge 1$) be a positive
+multi-index of total weight $|\alpha| := \alpha_1 + \dots + \alpha_m$ and maximum entry
+$M(\alpha) := \max_{1 \le i \le m} \alpha_i$. Across algebraic combinatorics, analytic
+number theory, and probability, there are four univariate multi-index extensions of $A_n(t)$:
+
+\begin{definition}[Multiset Eulerian Polynomial~\cite{MacMahon1915,DillonRoselle1969,Simion1984}]\label{def:multiset-eulerian}
+For $\alpha \in \ZZ_{\ge 1}^m$, let $\mathcal{M}(\alpha) = \{1^{\alpha_1}, \dots, m^{\alpha_m}\}$
+be the multiset with $\alpha_i$ copies of $i$, and let $\mathfrak{S}(\mathcal{M}(\alpha))$ denote
+the set of all $|\alpha|! / (\alpha_1! \cdots \alpha_m!)$ distinct words of length $|\alpha|$
+with letter multiplicities $\alpha_1,\dots,\alpha_m$. The \emph{multiset Eulerian polynomial}
+is
+\begin{equation}\label{eq:ms-def}
+  A_\alpha^{\mathrm{ms}}(t) := \sum_{w \in \mathfrak{S}(\mathcal{M}(\alpha))} t^{\des(w)},
+  \qquad \des(w) := \#\{1 \le j < |\alpha| : w_j > w_{j+1}\},
+\end{equation}
+which satisfies MacMahon's rational generating function identity
+\begin{equation}\label{eq:macmahon}
+  \sum_{k=0}^{\infty} \left(\prod_{i=1}^{m} \binom{k + \alpha_i}{\alpha_i}\right) t^k
+  = \frac{A_\alpha^{\mathrm{ms}}(t)}{(1-t)^{|\alpha|+1}}.
+\end{equation}
+When $\alpha = (1,\dots,1) \in \ZZ_{\ge 1}^n$, $A_{(1,\dots,1)}^{\mathrm{ms}}(t) = A_n(t)$.
+One also considers the $t$-shifted convention $\tilde{A}_\alpha^{\mathrm{ms}}(t) :=
+t A_\alpha^{\mathrm{ms}}(t) = \sum_w t^{\des(w)+1}$ and the weak-descent polynomial
+$W_\alpha(t) := \sum_{w \in \mathfrak{S}(\mathcal{M}(\alpha))} t^{\wdes(w)}$ where
+$\wdes(w) := \#\{1 \le j < |\alpha| : w_j \ge w_{j+1}\}$.
+\end{definition}
+
+\begin{definition}[Multiple Polylogarithm Eulerian Polynomials~\cite{TaNgo2026}]\label{def:mpl-eulerian}
+Generalizing~\eqref{eq:worpitzky} to depth-$m$ multiple polylogarithms at negative integer
+indices, for $|t| < 1$ we have rational generating functions
+\begin{align}
+  \Li_{-\alpha_1,\dots,-\alpha_m}(t)
+  &:= \sum_{n_1 > n_2 > \dots > n_m \ge 1} n_1^{\alpha_1}\cdots n_m^{\alpha_m} t^{n_1}
+  = \frac{t^m A_\alpha^{\mathrm{mpl}}(t)}{(1-t)^{|\alpha|+m}}, \label{eq:mpl-strict}\\
+  \Li_{-\alpha_1,\dots,-\alpha_m}^{\star}(t)
+  &:= \sum_{n_1 \ge n_2 \ge \dots \ge n_m \ge 1} n_1^{\alpha_1}\cdots n_m^{\alpha_m} t^{n_1}
+  = \frac{t A_\alpha^{\mathrm{mpl},\star}(t)}{(1-t)^{|\alpha|+m}}, \label{eq:mpl-star}
+\end{align}
+where $A_\alpha^{\mathrm{mpl}}(t)$ and $A_\alpha^{\mathrm{mpl},\star}(t)$ have nonzero
+constant terms and recover $A_{(n)}^{\mathrm{mpl}}(t) = A_{(n)}^{\mathrm{mpl},\star}(t) =
+A_n(t)$ at depth $m=1$.
+\end{definition}
+
+\begin{definition}[Other Multi-Index Conventions]\label{def:other-conventions}
+Two further candidates are: (i)~the \emph{comonotonic joint Bernoulli cumulant}
+$\kappa_\alpha(X,\dots,X) = \kappa_{|\alpha|}(X)$ for $X \sim \Bern(p)$, whose numerator is
+$A_{|\alpha|-1}(t) = A_{(1,\dots,1)}^{\mathrm{ms}}(t)$; and (ii)~the \emph{Savage--Schuster
+$\alpha$-Eulerian polynomial}~\cite{SavageSchuster2012,SavageVisontai2015}
+$E_\alpha(t) := \sum_{e \in \mathcal{I}_m(\alpha)} t^{\asc_\alpha(e)}$ over inversion
+sequences $\mathcal{I}_m(\alpha) = \prod_{i=1}^m \{0,\dots,\alpha_i-1\}$ with
+$\asc_\alpha(e) := \#\{0 \le i < m : e_i/\alpha_i < e_{i+1}/\alpha_{i+1}\}$ ($e_0=0,\alpha_0=1$).
+\end{definition}
+
+\begin{definition}[AllRealSimpleRoots and Piecewise-Constant Multi-Indices]\label{def:predicates}
+A nonzero polynomial $P(t) \in \RR[t]$ \emph{has all real simple roots} if every complex
+root $z \in \CC$ of $P(z)=0$ satisfies $\operatorname{Im}(z)=0$ and $P'(z)\neq 0$
+(equivalently, $P(t) = c \prod_{j=1}^d (t - r_j)$ for some $c \in \RR \setminus \{0\}$ and
+pairwise distinct $r_1,\dots,r_d \in \RR$; note that a nonzero constant polynomial of degree
+$d=0$ vacuously has all complex roots real and simple).
+
+For a finite multi-index $\alpha = (\alpha_1,\dots,\alpha_m) \in \ZZ_{\ge 1}^m$, standard
+nontrivial interpretations of ``$\alpha$ is a piecewise-constant index'' include:
+\begin{enumerate}
+  \item \textbf{Constant index:} $\alpha_1 = \alpha_2 = \dots = \alpha_m$.
+  \item \textbf{Block-constant index (minimum run length $\ge 2$):} $\alpha$ decomposes into
+  constant contiguous runs each of length at least $2$ (e.g.\ $(1,1,2,2)$ or $(2,2,2)$).
+  \item \textbf{Has at least one constant run ($\exists i,\ \alpha_i = \alpha_{i+1}$):}
+  not all adjacent entries are distinct.
+  \item \textbf{Arbitrary proper criterion:} \emph{any} predicate $\mathcal{P} \subsetneq
+  \ZZ_{\ge 1}^+$ that excludes at least one valid multi-index (for a vacuous predicate
+  $\mathcal{P} = \ZZ_{\ge 1}^+$ is not a discriminating criterion).
+\end{enumerate}
+Crucially, every strictly increasing multi-index $\alpha^{(m)} := (1,2,\dots,m)$ ($m \ge 2$)
+---in particular $\alpha=(1,2)$ and $\alpha=(1,2,3)$---has pairwise distinct entries, all
+constant runs of length $1$, and zero adjacent equalities, failing (1)--(3) simultaneously.
+\end{definition}
+
+\section{Combinatorial Insertion Reciprocity and Simion's Recurrence}
+
+We establish Simion's differential recurrence~\cite{Simion1984} directly from the
+combinatorial definition~\eqref{eq:ms-def} via a finite insertion--deletion bijection.
+
+\begin{lemma}[Insertion--Deletion Reciprocity and Descent Transition]\label{lem:insertion}
+Let $m \ge 1$, and let $w = (w_1,\dots,w_N) \in \{1,\dots,m\}^N$ be any word whose entries
+satisfy $w_j \le m$ for all $1 \le j \le N$, containing $c := \#\{j : w_j = m\}$ copies of
+the maximum letter $m$ and $k := \des(w)$ strict descents. For $0 \le p \le N$, let
+$\operatorname{ins}_p(m, w)$ denote the word of length $N+1$ obtained by inserting $m$ after
+the first $p$ entries of $w$. Then:
+\begin{enumerate}
+  \item Among the $N+1$ words $\{\operatorname{ins}_p(m,w)\}_{p=0}^N$, exactly $c + 1 + k$
+  have $\des(\operatorname{ins}_p(m,w)) = k$, and the remaining $N - c - k$ have
+  $\des(\operatorname{ins}_p(m,w)) = k + 1$. Consequently,
+  \begin{equation}\label{eq:word-sum}
+    \sum_{p=0}^{N} t^{\des(\operatorname{ins}_p(m,w))}
+    = (c + 1 + k)\,t^k + (N - c - k)\,t^{k+1}.
+  \end{equation}
+  \item For every word $w' \in \{1,\dots,m\}^{N+1}$, the number of indices $p \in \{0,\dots,N\}$
+  with $\operatorname{ins}_p(m,w) = w'$ equals the number of indices $p \in \{0,\dots,N\}$
+  with $w'_{p+1} = m$ whose deletion from $w'$ yields $w$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+For (1), inspect each insertion gap $p \in \{0,\dots,N\}$:
+\begin{itemize}
+  \item At the right endpoint $p = N$, $w_N \le m$ creates no descent, so
+  $\des(\operatorname{ins}_N(m,w)) = k$ ($1$ position).
+  \item At an interior gap $1 \le p \le N-1$: the pair $(w_p, w_{p+1})$ is replaced by
+  $(w_p, m)$ and $(m, w_{p+1})$. Since $w_p \le m$, $(w_p, m)$ is never a strict descent,
+  while $(m, w_{p+1})$ is a strict descent if and only if $w_{p+1} < m$. Hence:
+  if $w_p > w_{p+1}$ (so automatically $w_{p+1} < w_p \le m$), one old descent is lost and
+  one new descent is gained, giving $\des = k$; if $w_p \le w_{p+1}$ and $w_{p+1} = m$, no
+  descent is lost or gained, giving $\des = k$; if $w_p \le w_{p+1} < m$, one new descent is
+  gained, giving $\des = k+1$.
+  \item At the left endpoint $p = 0$, $\des(\operatorname{ins}_0(m,w)) = k$ if $w_1 = m$,
+  and $k+1$ if $w_1 < m$.
+\end{itemize}
+Because $w_p > m$ is impossible, no descent $w_p > w_{p+1}$ can satisfy $w_{p+1} = m$. Thus
+the $k$ interior descent gaps $\{1 \le p < N : w_p > w_{p+1}\}$ and the $c$ gaps
+$\{0 \le p < N : w_{p+1} = m\}$ immediately preceding a copy of $m$ are disjoint, and
+neither contains $p=N$. Hence $1 + k + c$ gaps yield $\des = k$ and $(N+1) - (c+1+k) =
+N - c - k$ gaps yield $\des = k+1$, proving~\eqref{eq:word-sum}. Part~(2) is immediate
+because $\operatorname{ins}_p(m,w) = w'$ holds if and only if $w'_{p+1} = m$ and deleting
+index $p+1$ from $w'$ recovers $w$.
+\end{proof}
+
+\begin{proposition}[Simion's Operator Recurrence]\label{prop:simion-recurrence}
+Define the linear differential operator $\mathcal{T}_{r,s} : \RR[t] \to \RR[t]$ by
+\begin{equation}\label{eq:interlace-op}
+  \mathcal{T}_{r,s}(P)(t) := t(1-t)P'(t) + (r + st)P(t).
+\end{equation}
+Let $\beta = (\alpha_1,\dots,\alpha_{m-1}, r-1)$ ($r \ge 1$, where $r-1=0$ denotes
+$(\alpha_1,\dots,\alpha_{m-1})$) have total weight $N = |\beta|$, and let
+$\alpha = (\alpha_1,\dots,\alpha_{m-1}, r)$. Then
+\begin{equation}\label{eq:simion-rec}
+  r\,A_\alpha^{\mathrm{ms}}(t) = \mathcal{T}_{r,\,N+1-r}\!\bigl(A_\beta^{\mathrm{ms}}\bigr)(t).
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+Every $w' \in \mathfrak{S}(\mathcal{M}(\alpha))$ contains exactly $r$ copies of $m$, while
+every $w \in \mathfrak{S}(\mathcal{M}(\beta))$ has length $N$, entries $\le m$, and
+$c = r - 1$ copies of $m$. Summing $t^{\des(\operatorname{ins}_p(m,w))}$ over all
+$w \in \mathfrak{S}(\mathcal{M}(\beta))$ and $0 \le p \le N$, Lemma~\ref{lem:insertion}(2)
+counts each $w' \in \mathfrak{S}(\mathcal{M}(\alpha))$ exactly $r$ times, whereas
+Lemma~\ref{lem:insertion}(1) evaluates the inner sum as $(r + \des(w))t^{\des(w)} +
+(N + 1 - r - \des(w))t^{\des(w)+1}$. Summing over $w$ gives
+\[
+  r\,A_\alpha^{\mathrm{ms}}(t)
+  = r A_\beta^{\mathrm{ms}}(t) + t A_\beta^{\mathrm{ms}\prime}(t)
+    + (N+1-r)t A_\beta^{\mathrm{ms}}(t) - t^2 A_\beta^{\mathrm{ms}\prime}(t)
+  = \mathcal{T}_{r,\,N+1-r}\!\bigl(A_\beta^{\mathrm{ms}}\bigr)(t).\qedhere
+\]
+\end{proof}
+
+\section{Master Interlacing Theorem and Universal Real-Simplicity}
+
+We now prove our central root-simplicity theorem by a purely algebraic sign-alternation
+argument coupled with the polynomial Intermediate Value Theorem.
+
+\begin{theorem}[Master Interlacing Lemma]\label{thm:master-interlacing}
+Suppose $P(t) = c \prod_{j=1}^d (t - \xi_j) \in \RR[t]$ with $c > 0$ and $d \ge 0$ strictly
+decreasing negative roots $0 > \xi_1 > \xi_2 > \dots > \xi_d$. Let $r > 0$ and $s \ge d$ be
+real numbers, and set $Q := \mathcal{T}_{r,s}(P)$.
+\begin{enumerate}
+  \item \textbf{Degree-preserving case ($s = d$):} $Q$ has exact degree $d$ and splits as
+  $Q(t) = c' \prod_{j=1}^d (t - \eta_j)$ with $c' > 0$ and $d$ strictly decreasing negative
+  roots satisfying $0 > \eta_1 > \xi_1 > \eta_2 > \xi_2 > \dots > \eta_d > \xi_d$.
+  \item \textbf{Degree-increasing case ($s > d$):} $Q$ has exact degree $d+1$ with leading
+  coefficient $c' = (s - d)c > 0$, and splits as $Q(t) = c' \prod_{j=1}^{d+1} (t - \eta_j)$
+  with $d+1$ strictly decreasing negative roots satisfying
+  $0 > \eta_1 > \xi_1 > \eta_2 > \dots > \eta_d > \xi_d > \eta_{d+1}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Write $P(t) = c t^d + R(t)$ with $\deg R \le d-1$. In
+$Q(t) = t(1-t)P'(t) + (r+st)P(t)$, the coefficient of $t^{d+1}$ is $(-d + s)c = (s-d)c$, and
+all powers $t^k$ with $k > d+1$ vanish. Thus $\deg Q \le d$ when $s=d$, whereas $\deg Q = d+1$
+with positive leading coefficient $c' = (s-d)c > 0$ when $s > d$.
+
+Set $\xi_0 := 0$. At $t = 0$, $P(0) = c\prod_{j=1}^d (-\xi_j) > 0$ since $-\xi_j > 0$, so
+$Q(\xi_0) = r P(0) > 0$. For $d=0$ and $s=0$, $Q(t) = rc > 0$ immediately satisfies~(1).
+Otherwise, for each $k \in \{1,\dots,d\}$, $P(\xi_k) = 0$ and the formal product rule gives
+\[
+  P'(\xi_k) = c \prod_{j \neq k} (\xi_k - \xi_j).
+\]
+Among $j \neq k$, the $k-1$ indices $j < k$ satisfy $\xi_k - \xi_j < 0$ and the $d-k$ indices
+$j > k$ satisfy $\xi_k - \xi_j > 0$, so $(-1)^{k-1} P'(\xi_k) > 0$. Since $\xi_k < 0$ implies
+$\xi_k(1-\xi_k) < 0$, we obtain
+\begin{equation}\label{eq:alt-signs}
+  (-1)^k Q(\xi_k) = (-1)^k \xi_k(1-\xi_k) P'(\xi_k) > 0
+  \qquad \text{for every } k \in \{0, 1, \dots, d\}.
+\end{equation}
+Thus $Q$ strictly alternates in sign across the $d+1$ points
+$\xi_d < \xi_{d-1} < \dots < \xi_1 < \xi_0 = 0$. By the Intermediate Value Theorem on each
+open subinterval $(\xi_k, \xi_{k-1})$ ($1 \le k \le d$), there exist $d$ roots $\eta_k \in
+(\xi_k, \xi_{k-1})$ of $Q$, satisfying $0 > \eta_1 > \xi_1 > \dots > \eta_d > \xi_d$.
+
+In case~(1) ($s = d$, $d \ge 1$), $\deg Q \le d$ and $Q$ vanishes at $d$ distinct points, so
+$Q(t) = c' \prod_{j=1}^d (t - \eta_j)$ for some $c' \in \RR$. Evaluating at $t = 0$ gives
+$0 < Q(0) = c' \prod_{j=1}^d (-\eta_j)$, forcing $c' > 0$ since each $-\eta_j > 0$.
+
+In case~(2) ($s > d$), $Q(t) = c' t^{d+1} + \sum_{i=0}^d q_i t^i$ with $c' = (s-d)c > 0$.
+Choosing $L < \min(-1, \xi_d, -2(|q_0|+\dots+|q_d|)/c')$, we have
+$|q_d L^{-1} + \dots + q_0 L^{-(d+1)}| \le (|q_0|+\dots+|q_d|)/|L| < c'/2$, whence
+$(-1)^{d+1} Q(L) = |L|^{d+1}(c' + q_d L^{-1} + \dots + q_0 L^{-(d+1)}) > |L|^{d+1}(c'/2) > 0$.
+Comparing with $(-1)^d Q(\xi_d) > 0$ from~\eqref{eq:alt-signs}, the Intermediate Value
+Theorem on $(L, \xi_d)$ yields an additional root $\eta_{d+1} \in (L, \xi_d) \subset
+(-\infty, \xi_d)$. Hence $Q$ has $d+1 = \deg Q$ distinct negative roots
+$0 > \eta_1 > \dots > \eta_{d+1}$ and factors as $Q(t) = c'\prod_{j=1}^{d+1}(t-\eta_j)$.
+\end{proof}
+
+\begin{lemma}[Factorization Criterion for Simple Real Roots]\label{lem:simple-roots}
+If $P(t) = c \prod_{j=1}^d (t - r_j) \in \RR[t]$ with $c \neq 0$ and pairwise distinct real
+numbers $r_1,\dots,r_d \in \RR$, then every root $z \in \CC$ of $P(z)=0$ satisfies
+$\operatorname{Im}(z) = 0$ and $P'(z) \neq 0$.
+\end{lemma}
+
+\begin{proof}
+Over the field $\CC = \RR[i]$, $P(z) = c \prod_{j=1}^d (z - r_j) = 0$ implies $z = r_k \in \RR$
+for some $k$, so $\operatorname{Im}(z) = 0$. Moreover, $P'(r_k) = c \prod_{j \neq k}
+(r_k - r_j) \neq 0$ because $c \neq 0$ and $r_k \neq r_j$ for all $j \neq k$.
+\end{proof}
+
+\begin{theorem}[Universal Real-Simplicity of Multiset Eulerian Polynomials]\label{thm:universal-ms}
+For \emph{every} nonempty positive integer multi-index
+$\alpha = (\alpha_1,\dots,\alpha_m) \in \ZZ_{\ge 1}^m$:
+\begin{enumerate}
+  \item $A_\alpha^{\mathrm{ms}}(t)$ has exact degree $d(\alpha) = |\alpha| - \max_{1\le i\le m}
+  \alpha_i$, positive leading coefficient, constant term $A_\alpha^{\mathrm{ms}}(0)=1$, and
+  splits over $\RR$ into $d(\alpha)$ distinct linear factors with strictly negative roots.
+  In particular, $A_\alpha^{\mathrm{ms}}(t)$ has all real simple roots for \emph{every}
+  $\alpha \in \ZZ_{\ge 1}^m$.
+  \item The shifted polynomial $\tilde{A}_\alpha^{\mathrm{ms}}(t) = t A_\alpha^{\mathrm{ms}}(t)$
+  has exact degree $d(\alpha)+1$ and $d(\alpha)+1$ distinct non-positive real simple roots.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+We induct on the construction of $\alpha$. For $m=1$, $\mathfrak{S}(1^{\alpha_1}) =
+\{(1,\dots,1)\}$ has $\des = 0$, so $A_{(\alpha_1)}^{\mathrm{ms}}(t) = 1$, which has degree
+$0 = \alpha_1 - \alpha_1$ and $0$ roots. Now suppose the claim holds for
+$\beta = (\alpha_1,\dots,\alpha_{m-1}, r-1)$ ($r \ge 1$) of weight $N = |\beta|$ and maximum
+$M = \max(\alpha_1,\dots,\alpha_{m-1}, r-1)$, so $\deg A_\beta^{\mathrm{ms}} = d = N - M$.
+By Proposition~\ref{prop:simion-recurrence}, $A_\alpha^{\mathrm{ms}} =
+\frac{1}{r}\mathcal{T}_{r,s}(A_\beta^{\mathrm{ms}})$ with $s = N + 1 - r$. Note that
+$s - d = (N + 1 - r) - (N - M) = M + 1 - r$:
+\begin{itemize}
+  \item If $r \le M$, then $\max(\alpha) = M$, $s \ge d + 1 > d$, and
+  Theorem~\ref{thm:master-interlacing}(2) shows that $A_\alpha^{\mathrm{ms}}$ has degree
+  $d + 1 = (N+1) - M$ and splits into $d+1$ distinct negative real linear factors.
+  \item If $r = M + 1$ (which occurs only when $r - 1 = M$), then $\max(\alpha) = M + 1$,
+  $s = d$, and Theorem~\ref{thm:master-interlacing}(1) shows that $A_\alpha^{\mathrm{ms}}$
+  has degree $d = (N+1) - (M+1)$ and splits into $d$ distinct negative real linear factors.
+\end{itemize}
+Lemma~\ref{lem:simple-roots} yields real simplicity of all complex roots. Finally, since all
+roots of $A_\alpha^{\mathrm{ms}}$ are strictly negative, $t=0$ is not a root of
+$A_\alpha^{\mathrm{ms}}$, so $t A_\alpha^{\mathrm{ms}}(t)$ also has pairwise distinct real
+roots, proving~(2).
+\end{proof}
+
+\begin{theorem}[Universal Real-Simplicity of Multiple Polylogarithm Eulerian Polynomials]\label{thm:universal-mpl}
+For \emph{every} $\alpha = (\alpha_1,\dots,\alpha_m) \in \ZZ_{\ge 1}^m$, both
+$A_\alpha^{\mathrm{mpl}}(t)$ and $A_\alpha^{\mathrm{mpl},\star}(t)$ have exact degree
+$|\alpha| - 1$ and split over $\RR$ into $|\alpha| - 1$ distinct linear factors with strictly
+negative real roots.
+\end{theorem}
+
+\begin{proof}
+From~\eqref{eq:mpl-strict}, $\Li_{-\alpha_1,\dots,-\alpha_m}(t) = (t\frac{d}{dt})^{\alpha_1}
+\bigl(\frac{t}{1-t}\Li_{-\alpha_2,\dots,-\alpha_m}(t)\bigr)$. Since
+\[
+  t\frac{d}{dt}\left(\frac{t^k P(t)}{(1-t)^M}\right)
+  = \frac{t^k\,\mathcal{T}_{k,\,M-k}(P)(t)}{(1-t)^{M+1}},
+\]
+starting at the base $\alpha_m = 1$ where $\Li_{-1}(t) = \frac{t \cdot 1}{(1-t)^2}$ ($k=1,
+M=2, \deg P = 0$), every subsequent application of $t\frac{d}{dt}$ (incrementing $M$ while
+fixing $k$) or prepending of $\frac{t}{1-t}$ followed by $t\frac{d}{dt}$ (incrementing both
+$k$ and $M$, leaving $M-k$ equal to the cumulative weight $|\text{suffix}| = \deg P + 1 >
+\deg P$) invokes Theorem~\ref{thm:master-interlacing}(2) with $s = \deg P + 1 > \deg P$.
+Similarly,~\eqref{eq:mpl-star} keeps $k=1$ throughout and applies $\mathcal{T}_{1,s}$ with
+$s = M - 1 > \deg P$ at every step after the initial step. By induction, both polynomials
+have degree $|\alpha|-1$ and $|\alpha|-1$ distinct negative real roots.
+\end{proof}
+
+\section{Explicit Counterexamples and Bidirectional Refutation}
+
+\subsection{Explicit Non-Piecewise-Constant Counterexamples}
+
+\begin{proposition}[Concrete Counterexamples]\label{prop:concrete}
+\begin{enumerate}
+  \item For $\alpha = (1,2)$, the $3!/(1!2!)=3$ permutations of $\{1,2,2\}$ are
+  $122$ ($\des=0$), $212$ ($\des=1$), and $221$ ($\des=1$), so
+  $A_{(1,2)}^{\mathrm{ms}}(t) = 1 + 2t$, which has the unique simple real root $t = -1/2$.
+  \item For $\alpha = (1,2,3)$, the $\frac{6!}{1!2!3!} = 60$ multiset permutations of
+  $\{1,2,2,3,3,3\}$ yield
+  \begin{equation}\label{eq:A123}
+    A_{(1,2,3)}^{\mathrm{ms}}(t) = 1 + 17t + 33t^2 + 9t^3.
+  \end{equation}
+  Evaluating at four rational points $-10 < -1 < -\frac{1}{3} < 0$ produces strict sign
+  alternation:
+  \begin{align*}
+    A_{(1,2,3)}^{\mathrm{ms}}(-10) &= -5869 < 0, &
+    A_{(1,2,3)}^{\mathrm{ms}}(-1) &= 8 > 0, \\
+    A_{(1,2,3)}^{\mathrm{ms}}\!\left(-\tfrac{1}{3}\right) &= -\tfrac{4}{3} < 0, &
+    A_{(1,2,3)}^{\mathrm{ms}}(0) &= 1 > 0,
+  \end{align*}
+  isolating three distinct simple real roots in $(-10,-1)$, $(-1,-1/3)$, and $(-1/3,0)$; its
+  cubic discriminant is $\Delta = 33^2\cdot 17^2 - 4\cdot 9\cdot 17^3 - 4\cdot 33^3\cdot 1
+  - 27\cdot 9^2\cdot 1^2 + 18\cdot 9\cdot 33\cdot 17\cdot 1 = 82{,}800 > 0$.
+  \item For every $m \ge 2$, the strictly increasing index $\alpha^{(m)} = (1,2,\dots,m)$ has
+  $m$ pairwise distinct entries (maximum constant-run length $1$), while
+  $A_{\alpha^{(m)}}^{\mathrm{ms}}(t)$ has degree $\binom{m}{2} \ge 1$ and $\binom{m}{2}$
+  distinct negative simple real roots.
+\end{enumerate}
+\end{proposition}
+
+\subsection{Complete Refutation Across All Conventions}
+
+\begin{corollary}[Disproof of Conjecture~00000000472]\label{cor:disproof}
+Conjecture~00000000472 is false under every interpretation:
+\begin{enumerate}
+  \item \textbf{Standard conventions ($A_\alpha^{\mathrm{ms}}$, $\tilde{A}_\alpha^{\mathrm{ms}}$,
+  $A_\alpha^{\mathrm{mpl}}$, $A_\alpha^{\mathrm{mpl},\star}$, and $\kappa_{|\alpha|+1}$):}
+  By Theorems~\ref{thm:universal-ms} and~\ref{thm:universal-mpl}, \emph{every} valid
+  multi-index $\alpha \in \ZZ_{\ge 1}^m$ produces all real simple roots. Hence for \emph{every}
+  proper subset $\mathcal{P} \subsetneq \ZZ_{\ge 1}^+$ (in particular, any definition of
+  piecewise-constant index excluding $\alpha=(1,2)$ or $\alpha=(1,2,3)$), the biconditional
+  \[
+    \forall \alpha \in \ZZ_{\ge 1}^+,\quad
+    \operatorname{AllRealSimpleRoots}(A_\alpha) \Longleftrightarrow \alpha \in \mathcal{P}
+  \]
+  fails in the ``only if'' direction.
+  \item \textbf{Alternative conventions (bidirectional failure):}
+  \begin{itemize}
+    \item \emph{Unstripped weak-descent polynomial} $W_\alpha(t) = t^{|\alpha|-1}
+    A_\alpha^{\mathrm{ms}}(t^{-1})$: non-piecewise-constant $\alpha=(1,2)$ gives
+    $W_{(1,2)}(t) = 2t + t^2 = t(2+t)$ with simple real roots $0,-2$, whereas constant
+    $\alpha=(3,3)$ gives $W_{(3,3)}(t) = t^2(1 + 9t + 9t^2 + t^3)$ with a double root at $t=0$.
+    \item \emph{Unstripped polylogarithm numerator} $P_\alpha^{\mathrm{mpl}}(t) =
+    t^m A_\alpha^{\mathrm{mpl}}(t)$: non-constant $\alpha=(2)$ gives $t(1+t)$ (simple roots),
+    whereas constant $\alpha=(1,1)$ gives $t^2(2+t)$ (double root at $t=0$).
+    \item \emph{Savage--Schuster $\alpha$-Eulerian polynomial} $E_\alpha(t)$: strictly
+    increasing $\alpha=(1,2,3)$ gives $E_{(1,2,3)}(t) = 1 + 4t + t^2$ (two simple real roots),
+    whereas block-constant $\alpha=(2,2,1,1,2,2)$ (all runs of length $2$) gives
+    $E_{(2,2,1,1,2,2)}(t) = (1 + 3t)^2$, which has a double root at $t = -1/3$.
+  \end{itemize}
+\end{enumerate}
+\end{corollary}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Audit}
+
+The entire proof is formalized from first principles in \texttt{lean/Main.lean} within
+the namespace \texttt{Conjecture00000000472}, using Core Lean~\texttt{v4.19.0} with
+\texttt{-DwarningAsError=true} and zero external dependencies:
+\begin{itemize}
+  \item \textbf{Constructive Field Tower $\QQ \subset \RR \subset \CC$:} \texttt{Q} is built
+  as the quotient of $\ZZ \times \ZZ_{>0}$; \texttt{R} is built as the Cauchy completion of
+  \texttt{Q} with dyadic moduli $2^{-k}$, proved to be an Archimedean ordered field in which
+  $\QQ$ is dense (\texttt{R.dense\_ofQ}); and \texttt{Complex} is constructed as $\RR \times \RR$
+  and proved to be an integral domain (\texttt{Complex.mul\_eq\_zero}).
+  \item \textbf{Polynomial IVT and Root-Simplicity Equivalence:} Polynomials over $\RR$,
+  Horner derivatives, synthetic linear division, Lipschitz bounds on compact intervals, and
+  bisection over $\QQ$ yield \texttt{Poly.poly\_ivt}, root factorization
+  (\texttt{Poly.factor\_of\_nodup\_roots}), and complex root-simplicity criteria.
+  \item \textbf{Eulerian Families:} Duplicate-free multiset words (\texttt{multisetPerms},
+  certified exact via letter-multiplicity histograms), \texttt{eulerianPoly}
+  ($A_\alpha^{\mathrm{ms}}$), the insertion--deletion reciprocity proof of
+  \texttt{simion\_recurrence}, and \texttt{mplEulerianPoly} ($A_\alpha^{\mathrm{mpl}}$).
+  \item \textbf{Main Theorems and Axiom Audits:} Universal real-simplicity theorems for
+  multi-indexed Eulerian families, explicit evaluations at $\alpha=(1,2)$ and
+  $\alpha=(1,2,3)$, bidirectional counterexamples under alternative conventions, non-vacuity
+  witnesses, and axiom checks confirming reliance solely on \texttt{propext},
+  \texttt{Classical.choice}, and \texttt{Quot.sound}.
+\end{itemize}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{ll}
+\hline
+\textbf{Mathematical Result} & \textbf{Lean 4 Declaration (\texttt{Main.lean})} \\
+\hline
+Polynomial Intermediate Value Theorem & \texttt{Poly.poly\_ivt} \\
+Master Interlacing Theorem (Thm.~\ref{thm:master-interlacing}) & \texttt{Poly.interlaceOp\_preserves\_negSimpleRoots} \\
+Simion's Recurrence (Prop.~\ref{prop:simion-recurrence}) & \texttt{simion\_recurrence} \\
+Universal Real-Simplicity of $A_\alpha^{\mathrm{ms}}, \tilde{A}_\alpha^{\mathrm{ms}}$ (Thm.~\ref{thm:universal-ms}) & \texttt{multiset\_allRealSimple} \\
+Universal Real-Simplicity of $A_\alpha^{\mathrm{mpl}}$ (Thm.~\ref{thm:universal-mpl}) & \texttt{mpl\_allRealSimple} \\
+Universal Real-Simplicity of $A_\alpha^{\mathrm{mpl},\star}$ (Thm.~\ref{thm:universal-mpl}) & \texttt{mplStar\_allRealSimple} \\
+$\alpha=(1,2,3)$ Certificate \& Discriminant (Prop.~\ref{prop:concrete}) & \texttt{counterexample\_123\_allRealSimple} \\
+Infinite Strictly Increasing Family $\alpha^{(m)}$ & \texttt{strictIncFamily\_counterexamples} \\
+Refutation for Any Proper Criterion (Cor.~\ref{cor:disproof}) & \texttt{disproof\_conjecture472\_multiset\_anyProper} \\
+Weak-Descent Bidirectional Failure & \texttt{weakDescent\_bidirectional\_failure} \\
+Savage--Schuster Bidirectional Failure & \texttt{savageSchuster\_bidirectional\_failure} \\
+Non-Vacuity Witness ($\alpha=(1,1)$) & \texttt{positive\_witness\_constant\_11} \\
+Non-Tautology Witness ($1+t^2$ vs.\ $\CC$-roots) & \texttt{positive\_witness\_nonreal\_roots} \\
+\hline
+\end{tabular}
+\caption{Correspondence between paper theorems and Core Lean 4.19.0 declarations.}
+\label{tab:lean-map}
+\end{table}
+
+Independently, \texttt{verify.py} verifies via exact arbitrary-precision rational Sturm
+chains that $511/511$ multiset Eulerian polynomials ($|\alpha|\le 9$) and $255/255$ multiple
+polylogarithm Eulerian polynomials ($|\alpha|\le 8$) have exclusively simple negative real
+roots, and checks the $3$-way identity between multiset permutations, MacMahon's rational
+series, and Simion's recurrence across all $127$ multi-indices with $|\alpha|\le 7$.
+
+\begin{thebibliography}{9}
+
+\bibitem{DillonRoselle1969}
+J.~F. Dillon and D.~P. Roselle,
+\emph{Simon Newcomb's problem},
+SIAM J.\ Appl.\ Math.\ \textbf{17} (1969), 1086--1093.
+
+\bibitem{Frobenius1910}
+G.~Frobenius,
+\emph{\"Uber die Bernoullischen Zahlen und die Eulerschen Polynome},
+Sitzungsber.\ Preuss.\ Akad.\ Wiss.\ Berlin (1910), 809--847.
+
+\bibitem{MacMahon1915}
+P.~A. MacMahon,
+\emph{Combinatory Analysis}, Vols.~I--II,
+Cambridge University Press, Cambridge, 1915--1916.
+
+\bibitem{SavageSchuster2012}
+C.~D. Savage and M.~J. Schuster,
+\emph{Ehrhart series of lecture hall polytopes and Eulerian polynomials for inversion sequences},
+J.\ Combin.\ Theory Ser.\ A \textbf{119} (2012), 850--870.
+
+\bibitem{SavageVisontai2015}
+C.~D. Savage and M.~Visontai,
+\emph{The $\mathbf{s}$-Eulerian polynomials have only real roots},
+Forum Math.\ Sigma \textbf{3} (2015), e1, 1--14.
+
+\bibitem{Simion1984}
+R.~Simion,
+\emph{A multiindexed Sturm sequence of polynomials and unimodality of certain combinatorial sequences},
+J.\ Combin.\ Theory Ser.\ A \textbf{36} (1984), 15--22.
+
+\bibitem{TaNgo2026}
+T.~T.~H. An and N.~Q. Hoan,
+\emph{Multiple Eulerian polynomials},
+J.\ Anal.\ \textbf{34} (2026), 21--34.
+
+\end{thebibliography}
+
+\end{document}
