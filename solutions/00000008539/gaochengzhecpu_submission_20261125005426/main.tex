@@ -1,0 +1,376 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\emergencystretch=1.5em
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\rk}{\mathrm{rk}}
+\newcommand{\hatzero}{\hat{0}}
+\newcommand{\hatone}{\hat{1}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Q}{\mathbb{Q}}
+
+\title{\textbf{Resolution of Conjecture 00000008539:\\
+M\"obius Function Absolute Values, Log-Concavity,\\
+and Global Equality on Geometric Lattices}}
+\author{Formal Disproof, Complete Classification, and Core Lean 4 Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000008539} from \emph{The Last Math Competition}, which asserts that for a geometric lattice $L$ with incidence-algebra M\"obius function $\mu = \zeta^{-1}$, the absolute values of the M\"obius function form a log-concave sequence with first term $1$, with global equality holding only for Boolean lattices. We analyze every natural mathematical convention by which the absolute values of $\mu$ yield a rank-indexed sequence on a finite geometric lattice $L$ of rank $n$, and establish that the conjecture as stated is \textbf{false} under each of them, while proving sharp structural classifications explaining both halves of the statement:
+\begin{enumerate}
+  \item \textbf{Unsigned Whitney numbers of the first kind} $w_k^+(L) = \sum_{\rk(x)=k} |\mu(\hatzero, x)|$: While $w_0^+(L)=1$ and log-concavity $(w_k^+)^2 \ge w_{k-1}^+ w_{k+1}^+$ hold for every finite geometric lattice (Adiprasito--Huh--Katz, 2018), global equality \emph{fails} on every Boolean lattice $B_n$ of rank $n \ge 2$ (already $w^+(B_2)=(1,2,1)$ gives $2^2 = 4 > 1 \cdot 1$). Stronger still, we prove from Rota's sign theorem and $\sum_{x \in L} \mu(\hatzero,x)=0$ that \emph{no} finite geometric lattice of rank $n \ge 2$ ever satisfies global equality; thus global equality holds if and only if $\rk(L) \le 1$ (vacuously over an empty interior index set).
+  \item \textbf{Elementwise, chain, rank-averaged, and rank-extremal $|\mu|$ sequences}: Along any maximal chain $\hatzero = x_0 \lessdot \dots \lessdot x_n = \hatone$ (or rank-selector, rank-average $w_k^+(L)/W_k(L)$, rank-minimum, or rank-maximum), every Boolean lattice $B_n$ yields $(1,1,\dots,1)$, attaining global equality for all $n \ge 0$. However, we prove $|\mu(\hatzero,\hatone)| = 1$ if and only if $L$ is Boolean, and deduce that log-concavity \emph{fails} on \emph{every} non-Boolean geometric lattice (minimal counterexample $M_3$: $(1,1,2)$, where $1^2 < 1 \cdot 2$).
+  \item \textbf{Binomial-normalized Whitney numbers} $b_k(L) = w_k^+(L)/\binom{n}{k}$ (ultra-log-concavity): Even after normalizing so that $B_n$ gives $(1,\dots,1)$, log-concavity fails on the rank-$3$ uniform geometric lattice $U_{3,4}$, where $b(U_{3,4})=(1, 4/3, 2, 3)$ violates $(4/3)^2 \ge 1 \cdot 2$.
+\end{enumerate}
+All definitions, counterexamples, non-vacuity witnesses, Weisner's identity, Rota's sign theorem, the Boolean characterization $|\mu(\hatzero,\hatone)|=1$, and the general classification theorems are mechanized from first principles in self-contained Core Lean 4 (\texttt{v4.19.0}, zero external dependencies, zero \texttt{sorry}) and independently verified in Python across $14$ geometric lattices.
+\end{abstract}
+
+\section{Problem Statement and Overview of Conventions}
+
+\subsection{Original Statement}
+Conjecture \texttt{00000008539} (\texttt{SOURCE.md}) states:
+\begin{quote}
+\textbf{Definition:} The Mobius function is the inverse of zeta in the incidence algebra.\\
+\textbf{Conjecture:} The absolute values of the Mobius function of a geometric lattice form a log-concave sequence with first term 1; and equality holds globally only for Boolean lattices. (\emph{Mobius log-concavity})
+\end{quote}
+The accompanying Chinese formulation (\emph{``jihege de M\"obius jueduizhi goucheng duishu ao xulie qie shouxiang wei 1; denghao jin zai buerge zhengti chengli''}) carries the identical mathematical structure, using the standard equality-case phrasing \emph{``equality holds globally [across all interior indices simultaneously] only at Boolean lattices''}.
+
+\subsection{Why Multi-Convention Analysis Is Essential}
+For a finite geometric lattice $L$ of rank $n \ge 0$ with minimum $\hatzero$, maximum $\hatone$, and rank function $\rk : L \to \{0,1,\dots,n\}$, the M\"obius function $\mu(\hatzero, x)$ is indexed by elements $x \in L$ rather than directly by integers $k \in \{0,1,\dots,n\}$. Turning ``the absolute values of the M\"obius function'' into a sequence $(a_0, a_1, \dots, a_n)$ admits three natural mathematical conventions:
+\begin{itemize}
+  \item \textbf{Convention I (Rank-summed / Unsigned Whitney numbers of the first kind):}
+  \[
+    w_k^+(L) \;=\; \sum_{\substack{x \in L \\ \rk(x)=k}} |\mu(\hatzero, x)| \qquad (0 \le k \le n).
+  \]
+  In matroid and poset theory, ``M\"obius log-concavity'' refers to the Heron--Rota--Welsh conjecture for $w_k^+(L)$, proved by Adiprasito, Huh, and Katz~\cite{AHK2018}.
+  \item \textbf{Convention II (Elementwise along maximal chains / rank-selectors, or rank-averaged / extremal):}
+  \[
+    a_k \;=\; |\mu(\hatzero, x_k)| \quad (\rk(x_k)=k), \qquad \text{or} \qquad \bar{\mu}_k(L) \;=\; \frac{w_k^+(L)}{W_k(L)},
+  \]
+  where $W_k(L) = |\{x \in L : \rk(x)=k\}|$ is the $k$-th Whitney number of the second kind.
+  \item \textbf{Convention III (Binomial-normalized Whitney numbers / Ultra-log-concavity):}
+  \[
+    b_k(L) \;=\; \frac{w_k^+(L)}{\binom{n}{k}} \qquad (0 \le k \le n).
+  \]
+\end{itemize}
+
+Table~\ref{tab:summary} summarizes the fate of every clause of Conjecture \texttt{00000008539} across all conventions. Notice the structural diagnosis of the conjecture: the author combined the log-concavity of \emph{rank-summed} Whitney numbers $w_k^+(L)$ (Convention I) with the global constant-$(1,\dots,1)$ equality behavior on Boolean lattices $B_n$ belonging to \emph{elementwise / normalized} $|\mu|$ (Conventions II--III). Under any single consistent definition, the conjecture is \textbf{false}.
+
+\begin{table}[ht]
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.28}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.95cm}ccc>{\raggedright\arraybackslash}p{3.65cm}@{}}
+\hline
+\textbf{Sequence Convention} & $a_0 = 1$ & \textbf{Log-Concave} & \textbf{Eq.\ $\Leftrightarrow$ Bool} & \textbf{Counterexample} \\
+\hline
+\textbf{I.} Unsigned Whitney $w_k^+(L)$ & True & True~\cite{AHK2018} & \textbf{False} ($n \ge 2$) & $B_2$: $(1,2,1)$, $2^2 \neq 1$ \\
+\textbf{IIA.} Chain $|\mu(\hatzero, x_k)|$ & True & \textbf{False} (non-Bool) & True on $B_n$ & $M_3$: $(1,1,2)$, $1^2 < 2$ \\
+\textbf{IIB.} Average $w_k^+(L)/W_k(L)$ & True & \textbf{False} (non-Bool) & True on $B_n$ & $M_3$: $(1,1,2)$, $1^2 < 2$ \\
+\textbf{IIC.} Extremal $\min/\max |\mu|$ & True & \textbf{False} (non-Bool) & True on $B_n$ & $M_3$: $(1,1,2)$, $1^2 < 2$ \\
+\textbf{III.} Normalized $w_k^+(L)/\binom{n}{k}$ & True & \textbf{False} & True on $B_n$ & $U_{3,4}$: $(1,\tfrac{4}{3},2,3)$, $\tfrac{16}{9} < 2$ \\
+\hline
+\end{tabular}
+\caption{Truth values and minimal counterexamples across all natural conventions.}
+\label{tab:summary}
+\end{table}
+
+\section{Incidence Algebras and Geometric Lattices}
+
+We record the exact definitions formalized in \texttt{lean/Main.lean}.
+
+\begin{definition}[Incidence Algebra and M\"obius Function]
+Let $(P, \le)$ be a finite partially ordered set. The \emph{incidence algebra} $I(P, \Z)$ consists of all functions $f : P \times P \to \Z$ such that $f(x, y) = 0$ whenever $x \not\le y$, equipped with pointwise addition and convolution
+\[
+  (f * g)(x, y) \;=\; \sum_{z \in P} f(x, z)\,g(z, y) \;=\; \sum_{x \le z \le y} f(x, z)\,g(z, y).
+\]
+The multiplicative identity is $\delta(x, y) = [x = y]$, and the \emph{zeta function} is $\zeta(x, y) = [x \le y]$. An element $\mu \in I(P, \Z)$ is the \emph{M\"obius function} of $P$ if $\mu * \zeta = \delta$ and $\zeta * \mu = \delta$.
+\end{definition}
+
+\begin{proposition}[Existence, Two-Sided Invertibility, and Uniqueness of $\mu$]
+\label{prop:mobius}
+For every finite poset $(P, \le)$, $I(P, \Z)$ is an associative unital ring under convolution, and $\zeta$ admits a unique two-sided inverse $\mu \in I(P, \Z)$, recursively determined for $x \le y$ by
+\[
+  \mu(x, x) = 1, \qquad \mu(x, y) = -\sum_{x \le z < y} \mu(x, z) \quad (x < y).
+\]
+In particular, if $y$ covers $x$ ($x \lessdot y$, meaning $x < y$ and $\{z \in P : x \le z \le y\} = \{x, y\}$), then $\mu(x, y) = -1$.
+\end{proposition}
+
+\begin{proof}
+Associativity of $*$ follows by Fubini summation over $P$, and $\delta * f = f = f * \delta$ holds because $P$ is finite. Defining $\mu_{\mathrm{L}}(x,y)$ by strong recursion on $|[x,y]|$ via $\mu_{\mathrm{L}}(x,x)=1$ and $\mu_{\mathrm{L}}(x,y) = -\sum_{x \le z < y} \mu_{\mathrm{L}}(x,z)$ for $x<y$ immediately yields $\mu_{\mathrm{L}} * \zeta = \delta$. Symmetrically, defining $\mu_{\mathrm{R}}(x,y)$ by $\mu_{\mathrm{R}}(x,x)=1$ and $\mu_{\mathrm{R}}(x,y) = -\sum_{x < z \le y} \mu_{\mathrm{R}}(z,y)$ yields $\zeta * \mu_{\mathrm{R}} = \delta$. By associativity,
+\[
+  \mu_{\mathrm{L}} \;=\; \mu_{\mathrm{L}} * \delta \;=\; \mu_{\mathrm{L}} * (\zeta * \mu_{\mathrm{R}}) \;=\; (\mu_{\mathrm{L}} * \zeta) * \mu_{\mathrm{R}} \;=\; \delta * \mu_{\mathrm{R}} \;=\; \mu_{\mathrm{R}}.
+\]
+Thus $\mu = \mu_{\mathrm{L}}$ satisfies both $\mu * \zeta = \delta$ and $\zeta * \mu = \delta$, and any $m$ with $m * \zeta = \delta$ satisfies $m = m * (\zeta * \mu) = (m * \zeta) * \mu = \mu$. When $x \lessdot y$, the interval $[x,y]$ is $\{x,y\}$, so $\mu(x,y) = -\mu(x,x) = -1$.
+\end{proof}
+
+\begin{definition}[Geometric Lattices and Boolean Lattices]
+Let $(L, \le, \hatzero, \hatone, \wedge, \vee)$ be a finite bounded lattice. An element $p \in L$ is an \emph{atom} if $\hatzero \lessdot p$.
+\begin{enumerate}
+  \item $L$ is a \emph{finite geometric lattice} (Birkhoff; Stanley~\cite[\S 3.3]{StanleyEC1}) if:
+  \begin{enumerate}
+    \item (\emph{Atomistic}) Every element is the join of the atoms below it: for all $x, y \in L$, if every atom $p \le x$ satisfies $p \le y$, then $x \le y$.
+    \item (\emph{Graded and submodular}) There is a rank function $\rk : L \to \N$ satisfying $\rk(\hatzero) = 0$, $\rk(y) = \rk(x) + 1$ whenever $x \lessdot y$, and $\rk(x \vee y) + \rk(x \wedge y) \le \rk(x) + \rk(y)$ for all $x, y \in L$.
+  \end{enumerate}
+  We write $\mathrm{rank}(L) = \rk(\hatone)$. Note that $\rk$ is uniquely determined by $(L, \le)$: in any finite poset, every relation $\hatzero < y$ admits a saturated chain $\hatzero = y_0 \lessdot y_1 \lessdot \dots \lessdot y_k = y$, forcing $\rk(y) = k$. Moreover, $p \in L$ is an atom if and only if $\rk(p) = 1$, and every rank $k \in \{0,\dots,\mathrm{rank}(L)\}$ is inhabited.
+  \item $L$ is a \emph{Boolean lattice} if it is \emph{distributive} ($x \wedge (y \vee z) = (x \wedge y) \vee (x \wedge z)$ for all $x,y,z \in L$) and \emph{complemented} (for every $x \in L$, there exists $y \in L$ with $x \wedge y = \hatzero$ and $x \vee y = \hatone$).
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Log-Concavity and Global Equality]
+A sequence $(a_0, a_1, \dots, a_n)$ of positive real (or rational/integer) numbers has \emph{first term $1$} if $a_0 = 1$, is \emph{log-concave} if $a_k^2 \ge a_{k-1} a_{k+1}$ for all $1 \le k \le n - 1$ (since $a_k > 0$, internal zeros never arise), and satisfies \emph{global equality} if $a_k^2 = a_{k-1} a_{k+1}$ for all $1 \le k \le n - 1$.
+\end{definition}
+
+\section{Weisner's Theorem, Rota's Sign Theorem, and Boolean Characterization}
+
+To prove universal structural theorems rather than merely isolated counterexamples, we establish Weisner's identity, Rota's strict sign theorem, and the M\"obius characterization of Boolean geometric lattices directly from the axioms above.
+
+\begin{theorem}[Weisner's Identity]
+\label{thm:weisner}
+Let $L$ be any finite lattice, let $a \in L$ satisfy $\hatzero < a$, and let $y \in L$. Then
+\[
+  \sum_{\substack{x \in L \\ x \vee a = y}} \mu(\hatzero, x) \;=\; 0.
+\]
+\end{theorem}
+
+\begin{proof}
+For every $z \in L$ with $a \le z \le y$, we have $\hatzero < a \le z$, hence $\hatzero \neq z$ and $(\mu * \zeta)(\hatzero, z) = \delta(\hatzero, z) = 0$. Weighting by $\mu(z, y)$ and summing over $a \le z \le y$ gives
+\[
+  0 \;=\; \sum_{a \le z \le y} \left(\sum_{\hatzero \le x \le z} \mu(\hatzero, x)\right) \mu(z, y).
+\]
+For $x, z \in L$, the pair of inequalities $(x \le z \text{ and } a \le z \le y)$ is equivalent by the universal property of join to $(x \le y \text{ and } x \vee a \le z \le y)$. Exchanging the finite sums and applying $\zeta * \mu = \delta$ (Proposition~\ref{prop:mobius}) yields
+\[
+  0 \;=\; \sum_{\hatzero \le x \le y} \mu(\hatzero, x) \left(\sum_{x \vee a \le z \le y} \mu(z, y)\right) \;=\; \sum_{\hatzero \le x \le y} \mu(\hatzero, x)\,\delta(x \vee a, y) \;=\; \sum_{\substack{x \in L \\ x \vee a = y}} \mu(\hatzero, x),
+\]
+since $x \vee a = y$ automatically implies $\hatzero \le x \le y$.
+\end{proof}
+
+\begin{lemma}[Existence of Relative Coatom Complements]
+\label{lem:coatom}
+Let $L$ be a finite geometric lattice, let $p \in L$ be an atom, and let $y, z \in L$ satisfy $p \le y$, $z \le y$, and $p \not\le z$. Then there exists $x \in L$ such that $z \le x$, $p \not\le x$, $x \vee p = y$, and $x \neq y$. Furthermore, every $x \neq y$ satisfying $x \vee p = y$ has $\rk(y) = \rk(x) + 1$.
+\end{lemma}
+
+\begin{proof}
+The finite set $S = \{w \in L : z \le w \le y \text{ and } p \not\le w\}$ is non-empty because $z \in S$. Choose $x \in S$ maximizing $\rk(x)$. Since $p \not\le x$ and $p \le y$, we have $x \neq y$ and $x \vee p \le y$. Suppose for contradiction that $x \vee p < y$. Since $L$ is atomistic and $y \not\le x \vee p$, there exists an atom $q \le y$ with $q \not\le x \vee p$; in particular, $q \not\le x$. Because $q$ is an atom ($\hatzero \lessdot q$) and $q \not\le x$, we have $x \wedge q = \hatzero$, so submodularity gives $\rk(x \vee q) \le \rk(x) + \rk(q) - \rk(\hatzero) = \rk(x) + 1$. Since $x < x \vee q$, strict monotonicity of $\rk$ yields $\rk(x \vee q) = \rk(x) + 1$. Identically, $x \wedge p = \hatzero$ and $\rk(x \vee p) = \rk(x) + 1$. Now $z \le x < x \vee q \le y$ and $\rk(x \vee q) > \rk(x)$, so maximality of $\rk(x)$ on $S$ forces $x \vee q \notin S$, hence $p \le x \vee q$. Therefore $x \vee p \le x \vee q$ while $\rk(x \vee p) = \rk(x) + 1 = \rk(x \vee q)$, forcing $x \vee p = x \vee q \ge q$, contradicting $q \not\le x \vee p$. Thus $x \vee p = y$. Finally, for any $x \neq y$ with $x \vee p = y$, we have $p \not\le x$ (otherwise $y = x \vee p = x$), so $x \wedge p = \hatzero$, $x < y$, and submodularity gives $\rk(x) < \rk(y) \le \rk(x) + 1$, hence $\rk(y) = \rk(x) + 1$.
+\end{proof}
+
+\begin{theorem}[Rota's Strict Sign Theorem~\cite{Rota1964}]
+\label{thm:rota}
+For every finite geometric lattice $L$ and every $y \in L$,
+\[
+  (-1)^{\rk(y)} \mu(\hatzero, y) \;\ge\; 1, \qquad \text{so} \qquad |\mu(\hatzero, y)| \;=\; (-1)^{\rk(y)} \mu(\hatzero, y) \;\ge\; 1.
+\]
+\end{theorem}
+
+\begin{proof}
+We proceed by strong induction on $\rk(y)$. If $\rk(y) = 0$, then $y = \hatzero$ and $(-1)^0 \mu(\hatzero, \hatzero) = 1 \ge 1$. If $\rk(y) = k + 1 \ge 1$, then $y \neq \hatzero$, so by atomisticity there exists an atom $p \le y$. Separating the $x = y$ term in Theorem~\ref{thm:weisner} (with $a = p$) and multiplying by $(-1)^{k+1}$, Lemma~\ref{lem:coatom} ($\rk(x) = k$) gives
+\begin{equation}
+\label{eq:signed-weisner}
+  (-1)^{\rk(y)} \mu(\hatzero, y) \;=\; \sum_{\substack{x \in L \\ x \vee p = y,\; x \neq y}} (-1)^{\rk(x)} \mu(\hatzero, x).
+\end{equation}
+By the induction hypothesis, each summand on the right-hand side is $\ge 1$, and applying Lemma~\ref{lem:coatom} with $z = \hatzero$ guarantees at least one summand exists. Hence $(-1)^{\rk(y)} \mu(\hatzero, y) \ge 1$.
+\end{proof}
+
+\begin{theorem}[M\"obius Characterization of Boolean Geometric Lattices]
+\label{thm:bool-char}
+Let $L$ be a finite geometric lattice. Then $L$ is a Boolean lattice if and only if $|\mu(\hatzero, \hatone)| = 1$. Moreover, when $L$ is Boolean, $|\mu(\hatzero, y)| = 1$ for every $y \in L$.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) Suppose $L$ is Boolean (in particular distributive). We prove $(-1)^{\rk(y)} \mu(\hatzero, y) = 1$ for all $y \in L$ by strong induction on $\rk(y)$. The base case $y = \hatzero$ is trivial. For $y > \hatzero$, pick an atom $p \le y$ and an element $x_0 \neq y$ with $x_0 \vee p = y$ via Lemma~\ref{lem:coatom}. For any $x \neq y$ with $x \vee p = y$, we have $p \not\le x$ and hence $x \wedge p = \hatzero = x_0 \wedge p$. By distributivity,
+\[
+  x \;=\; x \wedge y \;=\; x \wedge (x_0 \vee p) \;=\; (x \wedge x_0) \vee (x \wedge p) \;=\; x \wedge x_0 \;=\; x_0 \wedge x \;=\; x_0 \wedge (x \vee p) \;=\; x_0.
+\]
+Thus~\eqref{eq:signed-weisner} has the single summand $x = x_0$, giving $(-1)^{\rk(y)} \mu(\hatzero, y) = (-1)^{\rk(x_0)} \mu(\hatzero, x_0) = 1$.
+
+($\Leftarrow$) Conversely, suppose $|\mu(\hatzero, \hatone)| = 1$, so $(-1)^{\rk(\hatone)} \mu(\hatzero, \hatone) = 1$ by Theorem~\ref{thm:rota}. For every atom $p \in L$, applying~\eqref{eq:signed-weisner} at $y = \hatone$ writes $1$ as a sum of integers each $\ge 1$ (Theorem~\ref{thm:rota}) over a non-empty set (Lemma~\ref{lem:coatom} with $z = \hatzero$). Consequently, there is a \emph{unique} element $c_p \in L$ satisfying $c_p \vee p = \hatone$ and $c_p \neq \hatone$. Note that $p \not\le c_p$. Now for any $z \in L$: if $z \le c_p$, then $p \not\le z$; conversely, if $p \not\le z$, Lemma~\ref{lem:coatom} (applied to $y = \hatone$ and $z$) produces $x \ge z$ with $x \vee p = \hatone$ and $x \neq \hatone$, so uniqueness forces $x = c_p$ and hence $z \le c_p$. Thus
+\[
+  \forall \text{ atoms } p \in L,\; \forall z \in L, \qquad p \not\le z \;\Longleftrightarrow\; z \le c_p.
+\]
+Distributivity follows immediately: in any lattice $(x \wedge y) \vee (x \wedge z) \le x \wedge (y \vee z)$; conversely, if an atom $p$ satisfies $p \le x$ and $p \le y \vee z$, we cannot have both $p \not\le y$ and $p \not\le z$ (else $y \le c_p$ and $z \le c_p$, giving $y \vee z \le c_p$, so $p \not\le y \vee z$), hence $p \le x \wedge y$ or $p \le x \wedge z$. By atomisticity, $x \wedge (y \vee z) \le (x \wedge y) \vee (x \wedge z)$. Finally, for any $x \in L$, let $y = \bigvee \{p \text{ atom} : p \not\le x\}$. Every atom lies below $x$ or $y$, so $x \vee y = \hatone$ by atomisticity; if an atom $q$ satisfied $q \le x \wedge y$, then every atom $p$ with $p \not\le x$ satisfies $q \neq p$, hence $q \not\le p$, hence $p \le c_q$, forcing $y \le c_q$ and $q \not\le y$, a contradiction. Thus $x \wedge y = \hatzero$, so $L$ is complemented and distributive.
+\end{proof}
+
+\begin{lemma}[Geometric Lattices of Rank $\le 1$]
+\label{lem:rk1-bool}
+Every finite geometric lattice $L$ with $\mathrm{rank}(L) \le 1$ is a Boolean lattice ($L \cong B_0$ or $L \cong B_1$).
+\end{lemma}
+
+\begin{proof}
+For every $x \in L$, $0 \le \rk(x) \le \rk(\hatone) \le 1$. If $x \neq \hatzero$, strict monotonicity of $\rk$ gives $1 \le \rk(x)$, and if also $x \neq \hatone$, then $1 \le \rk(x) < \rk(\hatone) \le 1$, impossible. Hence $L = \{\hatzero, \hatone\}$, for which distributivity and complementation ($\hatzero \leftrightarrow \hatone$) hold by direct case check.
+\end{proof}
+
+\section{Convention I: Unsigned Whitney Numbers of the First Kind}
+
+Consider first the standard sequence of unsigned Whitney numbers of the first kind,
+\[
+  w_k^+(L) \;=\; \sum_{\substack{x \in L \\ \rk(x)=k}} |\mu(\hatzero, x)| \qquad (0 \le k \le n = \mathrm{rank}(L)).
+\]
+Clearly $w_0^+(L) = |\mu(\hatzero, \hatzero)| = 1$, and by the theorem of Adiprasito, Huh, and Katz~\cite{AHK2018}, the sequence $w^+(L) = (w_0^+(L), \dots, w_n^+(L))$ is log-concave for every finite geometric lattice $L$. Nevertheless, the global-equality characterization in Conjecture \texttt{00000008539} fails completely.
+
+\begin{example}[Minimal Counterexample $B_2$]
+\label{ex:b2}
+Let $B_2$ be the Boolean lattice of subsets of $\{0, 1\}$, a geometric lattice of rank $n = 2$ with $4$ elements: $\emptyset$ (rank $0$), $\{0\}, \{1\}$ (rank $1$), and $\{0, 1\}$ (rank $2$). By Theorem~\ref{thm:bool-char}, $|\mu(\emptyset, S)| = 1$ for every $S \subseteq \{0, 1\}$, so
+\[
+  \bigl(w_0^+(B_2),\, w_1^+(B_2),\, w_2^+(B_2)\bigr) \;=\; \left(\binom{2}{0},\, \binom{2}{1},\, \binom{2}{2}\right) \;=\; (1, 2, 1).
+\]
+At $k = 1$, $(w_1^+(B_2))^2 = 2^2 = 4 \neq 1 = 1 \cdot 1 = w_0^+(B_2)\,w_2^+(B_2)$. More generally, on every Boolean lattice $B_n$ of rank $n \ge 2$, $w_k^+(B_n) = \binom{n}{k}$ satisfies strict inequality at every interior index $1 \le k \le n - 1$:
+\[
+  \frac{\binom{n}{k}^2}{\binom{n}{k-1}\binom{n}{k+1}} \;=\; \frac{k + 1}{k} \cdot \frac{n - k + 1}{n - k} \;>\; 1.
+\]
+\end{example}
+
+Even more strikingly, we prove that \emph{no} geometric lattice of rank $\ge 2$ can attain global equality for $w_k^+(L)$.
+
+\begin{theorem}[Complete Classification of Global Equality for $w_k^+(L)$]
+\label{thm:whitney-class}
+Let $L$ be any finite geometric lattice of rank $n = \mathrm{rank}(L)$.
+\begin{enumerate}
+  \item If $n \ge 2$, global log-concavity equality $(w_k^+(L))^2 = w_{k-1}^+(L)\,w_{k+1}^+(L)$ ($\forall 1 \le k \le n-1$) \textbf{never} holds.
+  \item Consequently, global equality holds if and only if $n \le 1$ (where the interior index set $\{1,\dots,n-1\}$ is empty and $L \cong B_0$ or $B_1$).
+  \item In particular, Conjecture \texttt{00000008539} under Convention I (asserting that global equality holds if and only if $L$ is Boolean) is \textbf{false}.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Suppose $n \ge 2$ and $(w_k^+(L))^2 = w_{k-1}^+(L)\,w_{k+1}^+(L)$ for all $1 \le k \le n-1$. First, $w_0^+(L) = 1$. Second, let $a = w_1^+(L)$. Since $n \ge 2$, $\hatone \neq \hatzero$, so there is an atom $p_1 \le \hatone$; if $p_1$ were the only atom of $L$, atomisticity would give $\hatone \le p_1$ and $2 \le \rk(\hatone) \le \rk(p_1) = 1$, a contradiction. Thus $L$ has at least two distinct atoms $p_1 \neq p_2$, each with $|\mu(\hatzero, p_i)| \ge 1$, giving $a = w_1^+(L) \ge 2$.
+
+By strong induction on $k \le n$, the recurrence $(w_k^+)^2 = w_{k-1}^+ w_{k+1}^+$ with $w_0^+ = 1$, $w_1^+ = a \ge 2$ yields $a^{k-1} w_{k+1}^+ = (a^k)^2 = a^{k-1} a^{k+1}$, and cancelling $a^{k-1} > 0$ gives $w_k^+(L) = a^k$ for all $0 \le k \le n$.
+
+On the other hand, since $n \ge 2$, $\hatzero \neq \hatone$, so $(\mu * \zeta)(\hatzero, \hatone) = \delta(\hatzero, \hatone) = 0$. Partitioning by rank and applying Theorem~\ref{thm:rota} ($\mu(\hatzero, x) = (-1)^{\rk(x)} |\mu(\hatzero, x)|$) gives
+\[
+  0 \;=\; \sum_{x \in L} \mu(\hatzero, x) \;=\; \sum_{k=0}^n (-1)^k w_k^+(L) \;=\; \sum_{k=0}^n (-a)^k.
+\]
+Multiplying by $1 + a$ telescopes to $0 = (1 + a) \sum_{k=0}^n (-a)^k = 1 - (-a)^{n+1}$, forcing $a^{n+1} = |(-a)^{n+1}| = 1$, which is impossible since $a \ge 2$ and $n + 1 \ge 3$ imply $a^{n+1} \ge 8$. This proves~(1); (2) follows immediately since $\{k \in \N : 1 \le k \le n-1\} = \emptyset$ when $n \le 1$, and~(3) follows from Example~\ref{ex:b2}.
+\end{proof}
+
+\begin{remark}[Degenerate One-Way Implication]
+By Theorem~\ref{thm:whitney-class}(2) and Lemma~\ref{lem:rk1-bool}, the bare material implication $\mathrm{GlobalEq}(w^+(L)) \Rightarrow \mathrm{IsBoolean}(L)$ holds formally (proved as theorem \texttt{whitney1Abs\_\allowbreak global\_\allowbreak eq\_\allowbreak imp\_\allowbreak boolean} in \texttt{lean/Main.lean}), \emph{solely} because $\mathrm{GlobalEq}(w^+(L))$ is false for all $n \ge 2$ and vacuous for $n \le 1$. However, in both English (\emph{``and equality holds globally only for Boolean lattices''}) and Chinese (\emph{``denghao jin zai buerge zhengti chengli''}), specifying the equality condition of an inequality with the modifier \emph{``globally''} presupposes that Boolean lattices of general rank actually attain equality across the non-empty interior range $1 \le k \le n-1$, which Example~\ref{ex:b2} refutes.
+\end{remark}
+
+\section{Conventions II and III: Elementwise, Averaged, and Normalized Sequences}
+
+We now examine the literal elementwise reading of ``the absolute values of the M\"obius function'' (and its rank-averaged, rank-extremal, and binomial-normalized counterparts), where Boolean lattices $B_n$ \emph{do} attain global equality for every $n \ge 0$.
+
+\begin{example}[Minimal Counterexample $M_3$ for Conventions IIA, IIB, IIC]
+\label{ex:m3}
+Let $M_3$ be the $5$-element diamond lattice $\{\hatzero, p_1, p_2, p_3, \hatone\}$ with three incomparable atoms $p_1, p_2, p_3$ satisfying $p_i \wedge p_j = \hatzero$ and $p_i \vee p_j = \hatone$ ($i \neq j$). Then $M_3 \cong U_{2,3} \cong \Pi_3$ is a rank-$2$ non-Boolean geometric lattice (distributivity fails: $p_1 \wedge (p_2 \vee p_3) = p_1 \neq \hatzero = (p_1 \wedge p_2) \vee (p_1 \wedge p_3)$). Its M\"obius values from $\hatzero$ are
+\[
+  \mu(\hatzero, \hatzero) = 1, \qquad \mu(\hatzero, p_1) = \mu(\hatzero, p_2) = \mu(\hatzero, p_3) = -1, \qquad \mu(\hatzero, \hatone) = -(1 - 3) = 2.
+\]
+Along \emph{every} maximal chain $\hatzero \lessdot p_i \lessdot \hatone$ of $M_3$, and likewise for the rank-average $\bar{\mu}_k(M_3) = w_k^+(M_3)/W_k(M_3)$ (giving $(1/1, 3/3, 2/1)$), rank-minimum, and rank-maximum, the resulting sequence is
+\[
+  (a_0, a_1, a_2) \;=\; (1, 1, 2),
+\]
+which \textbf{violates log-concavity} at $k = 1$:
+\[
+  a_1^2 \;=\; 1^2 \;=\; 1 \;<\; 2 \;=\; 1 \cdot 2 \;=\; a_0\,a_2.
+\]
+\end{example}
+
+Theorem~\ref{thm:bool-char} upgrades Example~\ref{ex:m3} to a universal obstruction on \emph{every} non-Boolean geometric lattice.
+
+\begin{theorem}[Universal Failure of Elementwise and Rank-Averaged Log-Concavity]
+\label{thm:elem-universal}
+Let $L$ be a finite geometric lattice of rank $n = \mathrm{rank}(L)$, and let $s : \{0,\dots,n\} \to L$ be any rank-selector ($\rk(s(k)) = k$ for $0 \le k \le n$, including every maximal chain $\hatzero = s(0) \lessdot s(1) \lessdot \dots \lessdot s(n) = \hatone$). Set $a_k = |\mu(\hatzero, s(k))|$ and $\bar{\mu}_k = w_k^+(L)/W_k(L)$.
+\begin{enumerate}
+  \item If $L$ is Boolean, then $a_k = 1$ and $\bar{\mu}_k = 1$ for all $0 \le k \le n$; hence both sequences have first term $1$, are log-concave, and satisfy global equality for every $n \ge 0$.
+  \item If $L$ is \textbf{not} Boolean, then neither $(a_0,\dots,a_n)$ nor $(\bar{\mu}_0,\dots,\bar{\mu}_n)$ (nor the rank-minimum or rank-maximum sequence) is log-concave.
+  \item Consequently, $(a_0,\dots,a_n)$ is log-concave if and only if $L$ is a Boolean lattice, and Conjecture \texttt{00000008539} is \textbf{false} under Conventions IIA, IIB, and IIC.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(1) is immediate from Theorem~\ref{thm:bool-char} ($|\mu(\hatzero, y)| = 1$ for all $y \in L$). For~(2), suppose $L$ is not Boolean. By Lemma~\ref{lem:rk1-bool}, $n \ge 2$, and by Theorems~\ref{thm:rota} and~\ref{thm:bool-char}, $|\mu(\hatzero, \hatone)| \ge 2$. Since $\rk(s(0)) = 0$, $s(0) = \hatzero$ and $a_0 = |\mu(\hatzero, \hatzero)| = 1$. Since $\rk(s(1)) = 1$, $s(1)$ is an atom ($\hatzero \lessdot s(1)$), so $\mu(\hatzero, s(1)) = -1$ by Proposition~\ref{prop:mobius} and $a_1 = 1$; similarly, every rank-$1$ element has $|\mu| = 1$, so $\bar{\mu}_0 = \bar{\mu}_1 = 1$. Finally, $\rk(s(n)) = n = \rk(\hatone)$ forces $s(n) = \hatone$, so $a_n = \bar{\mu}_n = |\mu(\hatzero, \hatone)| \ge 2$.
+
+However, if any sequence $(c_0, c_1, \dots, c_n)$ of real numbers $\ge 1$ satisfies $c_0 = 1$, $c_1 = 1$, and $c_k^2 \ge c_{k-1} c_{k+1}$ for $1 \le k \le n - 1$, strong induction on $k$ yields $c_k = 1$ for all $0 \le k \le n$: assuming $c_{k-1} = c_k = 1$, the inequality $1 \cdot c_{k+1} = c_{k-1} c_{k+1} \le c_k^2 = 1$ combined with $c_{k+1} \ge 1$ forces $c_{k+1} = 1$. Applying this to $a_k$ and $\bar{\mu}_k$ (and rank-min/max, which also satisfy $c_0 = c_1 = 1$ and $c_n = |\mu(\hatzero,\hatone)| \ge 2$) contradicts $c_n \ge 2$.
+\end{proof}
+
+\begin{theorem}[Disproof of Convention III --- Binomial-Normalized Whitney Numbers]
+\label{thm:ulc}
+Let $U_{3,4}$ be the rank-$3$ uniform geometric lattice on $\{0,1,2,3\}$, whose $12$ flats consist of all subsets of cardinality $0, 1, 2$ together with $\{0,1,2,3\}$ at rank $3$. Then $U_{3,4}$ is a finite geometric lattice with unsigned Whitney sequence
+\[
+  \bigl(w_0^+(U_{3,4}),\, w_1^+(U_{3,4}),\, w_2^+(U_{3,4}),\, w_3^+(U_{3,4})\bigr) \;=\; (1, 4, 6, 3).
+\]
+Its binomial-normalized sequence $b_k(U_{3,4}) = w_k^+(U_{3,4}) / \binom{3}{k} = \bigl(1, \frac{4}{3}, 2, 3\bigr)$ \textbf{violates log-concavity} at $k = 1$:
+\[
+  b_1(U_{3,4})^2 \;=\; \left(\frac{4}{3}\right)^2 \;=\; \frac{16}{9} \;<\; 2 \;=\; 1 \cdot 2 \;=\; b_0(U_{3,4})\,b_2(U_{3,4}).
+\]
+\end{theorem}
+
+\begin{proof}
+For $k \in \{0,1,2\}$, every $k$-element subset $F \subseteq \{0,1,2,3\}$ has interval $[\emptyset, F] \cong B_k$, so $|\mu(\emptyset, F)| = 1$ and $w_k^+(U_{3,4}) = \binom{4}{k}$, giving $w_0^+ = 1$, $w_1^+ = 4$, $w_2^+ = 6$. Since $\sum_{x \in U_{3,4}} \mu(\emptyset, x) = 0$, we obtain $\mu(\emptyset, \{0,1,2,3\}) = -(1 - 4 + 6) = -3$, so $w_3^+(U_{3,4}) = 3$. Dividing by $(\binom{3}{0}, \binom{3}{1}, \binom{3}{2}, \binom{3}{3}) = (1, 3, 3, 1)$ gives $(1, 4/3, 2, 3)$, where $(4/3)^2 = 16/9 < 2$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4 and Independent Python Audit}
+
+All results in Sections~2--5 are formally proved in \texttt{lean/Main.lean} using self-contained Core Lean~4 (toolchain \texttt{leanprover/lean4:v4.19.0}, zero external dependencies, compiled with \texttt{-DwarningAsError=true}, zero \texttt{sorry}, zero \texttt{native\_decide}, and zero custom axioms). Table~\ref{tab:lean} maps the paper's definitions and theorems to their Lean declarations.
+
+In addition, \texttt{verify.py} independently constructs $14$ finite geometric lattices ($B_0$--$B_4$, $M_3$--$M_5$, $U_{3,4}$, $U_{3,5}$, $U_{4,5}$, the partition lattice $\Pi_4$, the Fano plane $\mathrm{PG}(2,2)$, and $M_3 \times B_1$) from flat closure systems and verifies all incidence-algebra, lattice, sign, log-concavity, and counterexample assertions.
+
+\newpage
+\begin{table}[!t]
+\centering
+\small
+\renewcommand{\arraystretch}{1.24}
+\begin{tabular}{@{}ll@{}}
+\hline
+\textbf{Mathematical Result} & \textbf{Lean 4 Declaration in \texttt{lean/Main.lean}} \\
+\hline
+Incidence algebra two-sided inverse $\mu * \zeta = \delta = \zeta * \mu$ & \texttt{IncidenceAlg.mobius\_is\_mobius} \\
+Uniqueness of $\mu$ in $I(P, \Z)$ & \texttt{IncidenceAlg.mobius\_unique} \\
+Uniqueness of geometric lattice rank $\rk$ & \texttt{GeometricLattice.rk\_unique} \\
+Weisner's identity (Theorem~\ref{thm:weisner}) & \texttt{weisner\_thm} \\
+Rota's strict sign theorem (Theorem~\ref{thm:rota}) & \texttt{rota\_sign\_thm} \\
+Boolean $\Leftrightarrow |\mu(\hatzero,\hatone)|=1$ (Theorem~\ref{thm:bool-char}) & \texttt{isBoolean\_iff\_natAbs\_mu\_top\_eq\_one} \\
+No global equality for $w_k^+$ when $\rk \ge 2$ (Theorem~\ref{thm:whitney-class}(1)) & \texttt{whitney1Abs\_no\_global\_eq\_of\_rank\_ge\_two} \\
+Global equality for $w_k^+ \Leftrightarrow \rk \le 1$ (Theorem~\ref{thm:whitney-class}(2)) & \texttt{whitney1Abs\_global\_eq\_iff\_rank\_le\_one} \\
+Disproof under Convention I on $B_2$ (Theorem~\ref{thm:whitney-class}(3)) & \texttt{disproof\_convention\_I\_whitney\_iff} \\
+Universal chain log-concavity failure (Theorem~\ref{thm:elem-universal}) & \texttt{nonBoolean\_rankSelector\_not\_logConcave} \\
+Chain log-concavity $\Leftrightarrow$ Boolean (Theorem~\ref{thm:elem-universal}(3)) & \texttt{rankSelector\_logConcave\_iff\_boolean} \\
+Universal rank-average failure (Theorem~\ref{thm:elem-universal}(2)) & \texttt{nonBoolean\_avg\_not\_logConcave} \\
+Disproofs under Conventions IIA \& IIB on $M_3$ & \texttt{disproof\_convention\_IIA\_chain}, \texttt{\_IIB\_avg} \\
+Disproof under Convention III on $U_{3,4}$ (Theorem~\ref{thm:ulc}) & \texttt{disproof\_convention\_III\_ultra} \\
+Non-vacuity witnesses ($B_2$, $M_3$, $U_{3,4}$) & \texttt{positive\_non\_vacuity\_witnesses} \\
+\hline
+\end{tabular}
+\caption{Correspondence between mathematical theorems and Core Lean 4 declarations.}
+\label{tab:lean}
+\end{table}
+
+\begin{thebibliography}{9}
+
+\bibitem{AHK2018}
+K.~Adiprasito, J.~Huh, and E.~Katz,
+\emph{Hodge theory for combinatorial geometries},
+Ann.\ of Math.\ (2) \textbf{188} (2018), no.~2, 381--452.
+
+\bibitem{Rota1964}
+G.-C.~Rota,
+\emph{On the foundations of combinatorial theory I. Theory of M\"obius functions},
+Z.\ Wahrscheinlichkeitstheorie und Verw.\ Gebiete \textbf{2} (1964), 340--368.
+
+\bibitem{StanleyEC1}
+R.~P.~Stanley,
+\emph{Enumerative Combinatorics, Volume 1}, 2nd ed.,
+Cambridge Studies in Advanced Mathematics, vol.~49, Cambridge Univ.\ Press, 2012.
+
+\end{thebibliography}
+
+\end{document}
