@@ -1,0 +1,450 @@
+\documentclass[11pt]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Eq}{\mathrm{Eq}}
+\newcommand{\Rel}{\mathrm{Rel}}
+\newcommand{\Con}{\mathrm{Con}}
+\newcommand{\Pow}{\mathcal{P}}
+\newcommand{\BoolTwo}{\mathbf{2}}
+\newcommand{\lessdotcov}{\lessdot}
+
+\title{\textbf{Binary-Relation and Set-Map Representations of Finite Lattices:\\
+Complete Representability, Sharp Upper Bounds, and Refutation\\
+of the Geometric-Lattice Equality in Conjecture 00000008555}}
+\author{Formal Mathematical Analysis and Lean~4 Verification}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000008555}, which defines a representation of a lattice $L$ as a family of maps to sets and conjectures that \emph{every finite lattice can be completely represented by binary relations, and the minimal number of relations of a representation is at most $|L|$, with equality for geometric lattices}. Because the phrasing bridges set-valued map families and relational lattice representations, we analyze all six standard mathematical models of the statement: (1)~families of complete lattice homomorphisms into equivalence-relation lattices $\Eq(X_i)$ (Whitman and Pudl\'ak--T\r{u}ma representations); (2)~families of homomorphisms into Boolean binary-relation algebras $(\Pow(X_i \times X_i), \cap, \cup)$; (3)~families of set-maps $f_i \colon L \to \Pow(U_i)$ viewed as binary relations $R_i \subseteq L \times U_i$, both for unrestricted $U_i$ (Galois/formal-context representations) and for singleton $U_i = \{\ast\}$ ($2$-valued meet-homomorphisms, join-homomorphisms, and monotone upset indicators); (4)~carrier-set binary relations $R_i \subseteq L \times L$ via Dushnik--Miller linear extensions (equivalently Bouchet Ferrers relations) and subdirect congruence decompositions; (5)~minimum generating sets of binary relations inside $\Eq(X)$; and (6)~the total image cardinality $|\varphi(L)|$ of a single faithful map $\varphi \colon L \hookrightarrow \Eq(X)$.
+
+We prove that the qualitative representability claim and the upper bound $\le |L|$ hold in Models~(1), (3), (4), and~(5)---sharpening universally to $\le 1$ in Model~(1) and unrestricted Model~(3), and to $\le |L|-1 < |L|$ across \emph{all} finite lattices in singleton Model~(3) and subdirect Model~(4)---whereas the equality $= |L|$ for geometric lattices \textbf{fails strictly} ($< |L|$) across every nontrivial family, dimension, congruence, and generator model on standard geometric lattices including $B_1$ ($|L|=2$), $B_2$ ($|L|=4$), $M_3$ ($|L|=5$), $M_4$ ($|L|=6$), $B_3$ ($|L|=8$), and the non-modular geometric lattice $L(U_{3,4})$ ($|L|=12$) (as well as $C_1$ when empty families are permitted). Moreover, Model~(2) fails already at representability on the non-distributive geometric lattice $M_3$, while the degenerate image-cardinality reading~(6) gives $|\varphi(L)| = |L|$ tautologically for \emph{every} finite lattice, including the non-geometric chain $C_3$ and pentagon $N_5$, refuting the geometric-lattice characterization. All main positive theorems and counterexamples---including a complete, quotient-free proof of Whitman's representation theorem from scratch---are formalized in self-contained Core Lean~4.19.0 with zero external dependencies and independently verified in Python across all $25$ unlabeled lattices of size $|L| \le 6$.
+\end{abstract}
+
+\section{Introduction and Analysis of the Problem Statement}
+
+Conjecture~\texttt{00000008555} is stated bilingually in \texttt{SOURCE.md} as follows:
+\begin{quote}
+\textbf{English.} \emph{Definition: A representation of a lattice is a family of maps to sets. Conjecture: A finite lattice can be completely represented by binary relations; the minimal number of relations of a representation is at most $|L|$, with equality for geometric lattices. (lattice representation relation count)}
+\end{quote}
+The accompanying Chinese formulation (\emph{``Definition: a representation of a lattice refers to a family of maps from it to sets. Conjecture: a finite lattice can be completely represented by binary relations; the minimal number of relations of a representation is $\le |L|$ and equality holds for [characterizes] geometric lattices''}) carries identical mathematical structure, with two classical linguistic nuances worth recording upfront:
+\begin{enumerate}
+\item[(a)] The phrase \emph{``completely represented''} corresponds both to a \emph{faithful} lattice representation (injective / order-reflecting, recovering the full algebraic structure of $L$) and to a \emph{complete-lattice embedding} (preserving arbitrary meets $\bigwedge S$ and joins $\bigvee S$). For a finite lattice $L$, any bounded $(\wedge,\vee,\hat{0},\hat{1})$-embedding automatically preserves arbitrary meets and joins of all subsets $S \subseteq L$ (including $\bigwedge \emptyset = \hat{1}$ and $\bigvee \emptyset = \hat{0}$), unifying both senses.
+\item[(b)] A family of maps $(f_i)_{i \in I}$ from $L$ to sets interfaces with binary relations in two canonical ways: either each target value $f_i(x) \subseteq X_i \times X_i$ is itself a binary relation on a base set $X_i$, or via the natural bijection $\Pow(U_i)^L \cong \Pow(L \times U_i)$ each set-valued map $f_i \colon L \to \Pow(U_i)$ \emph{is} a single binary relation $R_i = \{(x,u) \in L \times U_i : u \in f_i(x)\}$.
+\end{enumerate}
+
+To ensure an airtight mathematical resolution independent of convention, we formulate and analyze all six standard interpretations of representing a finite lattice $L$ by binary relations and counting the minimal number of relations:
+
+\begin{itemize}
+\item \textbf{Model $\mathcal{M}_1$ (Equivalence-Relation Family Size $m_{\Eq}(L)$).} A representation is a family $\Phi = (\varphi_i \colon L \to \Eq(X_i))_{i \in I}$ of bounded $(\wedge,\vee,\hat{0},\hat{1})$-lattice homomorphisms into equivalence-relation lattices $(\Eq(X_i), \cap, \vee_{\Eq}, \Delta_{X_i}, \nabla_{X_i})$ that is jointly injective ($\varphi_i(x) = \varphi_i(y)$ for all $i \in I$ implies $x = y$), and $m_{\Eq}(L) = \min |I|$. (We also examine the non-empty family variant $m_{\Eq}^+(L) = \min_{|I|\ge 1}|I|$, J\'onsson's commuting-relation types, and the minimum base-set cardinality $|X|$.)
+\item \textbf{Model $\mathcal{M}_2$ (Boolean Binary-Relation Family Size $m_{\mathrm{Bool}}(L)$).} A representation is a jointly injective family $\Phi = (\varphi_i \colon L \to \Pow(X_i \times X_i))_{i \in I}$ of $(\wedge,\vee)$-homomorphisms into $(\Pow(X_i \times X_i), \cap, \cup)$, minimizing $m_{\mathrm{Bool}}(L) = \min |I|$ ($\infty$ if none exists).
+\item \textbf{Model $\mathcal{M}_3$ (Set-Maps as Binary Relations $R_i \subseteq L \times U_i$).} Under $\Pow(U_i)^L \cong \Pow(L \times U_i)$, a family $(f_i \colon L \to \Pow(U_i))_{i \in I}$ consists of $|I|$ binary relations $R_i \subseteq L \times U_i$:
+  \begin{enumerate}
+  \item[(i)] \emph{Unrestricted codomain $U_i$ ($m_{\mathrm{Gal}}(L)$):} Galois-connection / Formal Concept Analysis contexts $(G,M,I)$ or meet-preserving maps $f_i \colon L \to \Pow(U_i)$ recovering the order $x \le y \iff \forall i,\, f_i(x) \subseteq f_i(y)$ (we also record $|I_{\mathrm{red}}|$, the number of pairs in the reduced formal context).
+  \item[(ii)] \emph{Singleton codomain $U_i = \{\ast\}$ ($2$-valued relations $R_i \subseteq L \times \{\ast\}$):} Minimal separating families of bounded $2$-valued meet-homomorphisms $m_{\wedge,\BoolTwo}(L)$, bounded $2$-valued join-homomorphisms $m_{\vee,\BoolTwo}(L)$, or monotone upset indicators $\dim_2(L)$ (poset $2$-dimension).
+  \end{enumerate}
+\item \textbf{Model $\mathcal{M}_4$ (Carrier-Set Binary Relations $R_i \subseteq L \times L$).}
+  \begin{enumerate}
+  \item[(i)] \emph{Order / Ferrers dimension $\dim(L)$:} Minimal number of linear extensions (or Ferrers biorder relations, i.e.\ nested set-maps $f_i \colon L \to \Pow(U_i)$) whose intersection is ${\le_L}$~\cite{DushnikMiller1941,Bouchet1971}.
+  \item[(ii)] \emph{Subdirect congruence count $\mathrm{sub}(L)$:} Minimal family of lattice homomorphisms $f_i \colon L \twoheadrightarrow L_i$ into subdirectly irreducible lattices whose congruence kernels $\theta_i = \ker(f_i) \subseteq L \times L$ satisfy $\bigcap_{i \in I} \theta_i = \Delta_L$~\cite{Birkhoff1944}.
+  \end{enumerate}
+\item \textbf{Model $\mathcal{M}_5$ (Generating Relations Inside $\Eq(X)$).} Given a complete embedding $\varphi \colon L \hookrightarrow \Eq(X)$, the minimum cardinality $g(L)$ (under $\cap$ and $\vee_{\Eq}$, non-empty) or $g_{01}(L)$ (under $\cap$, $\vee_{\Eq}$, $\Delta_X$, and $\nabla_X$) of a subset $\mathcal{G} \subseteq \varphi(L)$ generating $\varphi(L) \cong L$.
+\item \textbf{Model $\mathcal{M}_6$ (Image Cardinality $\mathrm{img}(L) = |\varphi(L)|$).} Counting all distinct binary relations $\{\varphi(x) : x \in L\}$ in the image of a single faithful representation $\varphi \colon L \hookrightarrow \Eq(X)$.
+\end{itemize}
+
+\paragraph{Summary of Main Results.}
+Conjecture~\texttt{00000008555} is \textbf{false}. Specifically:
+\begin{enumerate}
+\item \textbf{Positive theorems (Section~\ref{sec:positive}):} Every finite lattice $L$ embeds completely into $\Eq(X)$ via a single map ($m_{\Eq}(L) \le 1 \le |L|$ by Whitman's theorem, proved constructively from scratch in Theorem~\ref{thm:whitman}, and over a finite base set $X$ by Pudl\'ak--T\r{u}ma~\cite{PudlakTuma1980}), admits a single-relation principal-downset / Galois representation ($m_{\mathrm{Gal}}(L) \le 1$), and satisfies the universal strict inequalities
+\[
+  m_{\wedge,\BoolTwo}(L) = |J(L)| \le |L| - 1 < |L|, \qquad
+  m_{\vee,\BoolTwo}(L) = |M(L)| \le |L| - 1 < |L|,
+\]
+as well as $\dim_2(L) \le \min(|J(L)|,|M(L)|) \le |L|-1 < |L|$, $\mathrm{sub}(L) \le |L|-1 < |L|$, and $\dim(L) \le \max(1,\lfloor |L|/2 \rfloor) \le |L|$.
+\item \textbf{Refutation on geometric lattices (Section~\ref{sec:refutation}):} On the standard geometric lattices $B_1$ ($|L|=2$), $B_2$ ($|L|=4$), and $M_3$ ($|L|=5$)---as well as $M_4$ ($|L|=6$), $B_3$ ($|L|=8$), and the non-modular geometric lattice $L(U_{3,4})$ ($|L|=12$)---every invariant in Models $\mathcal{M}_1, \mathcal{M}_3, \mathcal{M}_4, \mathcal{M}_5$ is \textbf{strictly less than $|L|$} (except $g(B_1)=2$ when bounds $\hat{0},\hat{1}$ are excluded as constants, which already drops strictly to $g(B_2)=2<4$ and $g(M_3)=3<5$ for all geometric lattices of size $\ge 4$). Model~$\mathcal{M}_2$ fails even the first clause of the conjecture on $M_3$ by Birkhoff's distributivity obstruction (Theorem~\ref{thm:birkhoff}). Finally, in Model~$\mathcal{M}_6$, injectivity forces $|\varphi(L)| = |L|$ for \emph{every} finite lattice, including the non-geometric lattices $C_3$ and $N_5$, refuting the geometric-lattice characterization.
+\end{enumerate}
+
+\section{Preliminaries on Finite Lattices and Geometric Lattices}
+\label{sec:prelim}
+
+A \emph{lattice} $(L, \le, \wedge, \vee)$ is a non-empty poset in which every pair $x, y \in L$ possesses a greatest lower bound $x \wedge y$ (meet) and a least upper bound $x \vee y$ (join). Every finite lattice $L$ is automatically a \emph{complete} (and hence bounded) lattice with bottom $\hat{0} = \bigwedge L$ and top $\hat{1} = \bigvee L$, where for any subset $S \subseteq L$, $\bigwedge S$ and $\bigvee S$ are obtained by finite iteration starting from $\hat{1}$ and $\hat{0}$. Consequently, for a finite lattice $L$ and any complete lattice $K$, a map $\varphi \colon L \to K$ preserves arbitrary meets and joins of all subsets $S \subseteq L$ if and only if $\varphi$ is a bounded $(\wedge, \vee, \hat{0}, \hat{1})$-homomorphism:
+\[
+  \varphi(\hat{0}) = \hat{0}_K, \qquad
+  \varphi(\hat{1}) = \hat{1}_K, \qquad
+  \varphi(x \wedge y) = \varphi(x) \wedge_K \varphi(y), \qquad
+  \varphi(x \vee y) = \varphi(x) \vee_K \varphi(y).
+\]
+
+Given $x, y \in L$, we say that $y$ \emph{covers} $x$ (written $x \lessdotcov y$) if $x < y$ and there is no $z \in L$ with $x < z < y$. An \emph{atom} of $L$ is an element $a \in L$ satisfying $\hat{0} \lessdotcov a$; we write $A(L)$ for the set of atoms of $L$. An element $j \in L \setminus \{\hat{0}\}$ is \emph{join-irreducible} ($j \in J(L)$) if $j = x \vee y$ implies $j = x$ or $j = y$; dually, $m \in L \setminus \{\hat{1}\}$ is \emph{meet-irreducible} ($m \in M(L)$) if $m = x \wedge y$ implies $m = x$ or $m = y$.
+
+\begin{definition}[Geometric, Modular, and Distributive Lattices; see Birkhoff~\cite{Birkhoff1967}, Oxley~\cite{Oxley2011}]
+\label{def:geometric}
+Let $L$ be a finite lattice.
+\begin{enumerate}
+\item[(1)] $L$ is \emph{upper semimodular} if whenever $x, y \in L$ satisfy $x \wedge y \lessdotcov y$, we have $x \lessdotcov x \vee y$.
+\item[(2)] $L$ is \emph{atomistic} if every element $x \in L$ is the join of the atoms below it: $x = \bigvee \{a \in A(L) : a \le x\}$ (equivalently, for all $x, y \in L$, if every atom $a \le x$ satisfies $a \le y$, then $x \le y$).
+\item[(3)] $L$ is a \emph{geometric lattice} if $L$ is both upper semimodular and atomistic. Equivalently, $L$ is atomistic, graded by a rank function $r \colon L \to \mathbb{N}$ with $r(\hat{0})=0$ and $x \lessdotcov y \implies r(y)=r(x)+1$, and submodular: $r(x) + r(y) \ge r(x \wedge y) + r(x \vee y)$ for all $x, y \in L$. Geometric lattices are precisely the lattices of flats of finite matroids.
+\item[(4)] $L$ is \emph{modular} if $x \le z \implies x \vee (y \wedge z) = (x \vee y) \wedge z$, and \emph{distributive} if $x \wedge (y \vee z) = (x \wedge y) \vee (x \wedge z)$ for all $x, y, z \in L$. Every distributive lattice is modular, and every finite modular lattice is upper semimodular.
+\end{enumerate}
+\end{definition}
+
+Figure~\ref{fig:benchmark} displays five fundamental finite lattices used throughout our proofs: the geometric Boolean lattices $B_1$ ($|B_1|=2$) and $B_2$ ($|B_2|=4$), the non-distributive modular geometric diamond $M_3 \cong L(U_{2,3})$ ($|M_3|=5$), and the non-geometric lattices $C_3$ ($|C_3|=3$, distributive but not atomistic since $\bigvee A(C_3) = m < \hat{1}$) and $N_5$ ($|N_5|=5$, neither upper semimodular nor atomistic since $a \wedge c = \hat{0} \lessdotcov c$ yet $a < b < a \vee c = \hat{1}$).
+
+\begin{figure}[htbp]
+\centering
+\setlength{\unitlength}{1pt}
+\begin{picture}(430,86)(0,-22)
+  % B_1 (center x = 28)
+  \put(28,10){\circle*{4}}
+  \put(28,50){\circle*{4}}
+  \put(28,10){\line(0,1){40}}
+  \put(25,-2){\small $\hat{0}$}
+  \put(25,55){\small $\hat{1}$}
+  \put(2,-18){\small $B_1$ ($|L|=2$)}
+
+  % C_3 (center x = 105)
+  \put(105,6){\circle*{4}}
+  \put(105,30){\circle*{4}}
+  \put(105,54){\circle*{4}}
+  \put(105,6){\line(0,1){48}}
+  \put(102,-6){\small $\hat{0}$}
+  \put(111,27){\small $m$}
+  \put(102,59){\small $\hat{1}$}
+  \put(79,-18){\small $C_3$ ($|L|=3$)}
+
+  % B_2 (center x = 192)
+  \put(192,6){\circle*{4}}
+  \put(168,30){\circle*{4}}
+  \put(216,30){\circle*{4}}
+  \put(192,54){\circle*{4}}
+  \put(192,6){\line(-1,1){24}}
+  \put(192,6){\line(1,1){24}}
+  \put(168,30){\line(1,1){24}}
+  \put(216,30){\line(-1,1){24}}
+  \put(189,-6){\small $\hat{0}$}
+  \put(158,27){\small $a$}
+  \put(221,27){\small $b$}
+  \put(189,59){\small $\hat{1}$}
+  \put(166,-18){\small $B_2$ ($|L|=4$)}
+
+  % M_3 (center x = 292)
+  \put(292,6){\circle*{4}}
+  \put(268,30){\circle*{4}}
+  \put(292,30){\circle*{4}}
+  \put(316,30){\circle*{4}}
+  \put(292,54){\circle*{4}}
+  \put(292,6){\line(-1,1){24}}
+  \put(292,6){\line(0,1){48}}
+  \put(292,6){\line(1,1){24}}
+  \put(268,30){\line(1,1){24}}
+  \put(316,30){\line(-1,1){24}}
+  \put(289,-6){\small $\hat{0}$}
+  \put(258,27){\small $a$}
+  \put(296,27){\small $b$}
+  \put(321,27){\small $c$}
+  \put(289,59){\small $\hat{1}$}
+  \put(266,-18){\small $M_3$ ($|L|=5$)}
+
+  % N_5 (center x = 392)
+  \put(392,6){\circle*{4}}
+  \put(372,21){\circle*{4}}
+  \put(372,41){\circle*{4}}
+  \put(412,31){\circle*{4}}
+  \put(392,56){\circle*{4}}
+  \put(392,6){\line(-4,3){20}}
+  \put(372,21){\line(0,1){20}}
+  \put(372,41){\line(4,3){20}}
+  \put(392,6){\line(4,5){20}}
+  \put(412,31){\line(-4,5){20}}
+  \put(389,-6){\small $\hat{0}$}
+  \put(362,18){\small $a$}
+  \put(362,39){\small $b$}
+  \put(417,28){\small $c$}
+  \put(389,61){\small $\hat{1}$}
+  \put(366,-18){\small $N_5$ ($|L|=5$)}
+\end{picture}
+\caption{Hasse diagrams of benchmark geometric lattices ($B_1, B_2, M_3$) and non-geometric finite lattices ($C_3, N_5$).}
+\label{fig:benchmark}
+\end{figure}
+
+\section{Positive Representation Theorems and Universal Upper Bounds}
+\label{sec:positive}
+
+For any set $X$, let $\Eq(X)$ denote the set of equivalence relations on $X$. Ordered by inclusion $\subseteq$, $\Eq(X)$ is a complete lattice with bottom $\Delta_X = \{(x,x) : x \in X\}$, top $\nabla_X = X \times X$, meet $R \cap S$, and join $R \vee_{\Eq} S = (R \cup S)^{\mathrm{eq}}$ (the reflexive-symmetric-transitive closure of $R \cup S$).
+
+\begin{theorem}[Complete Equivalence-Relation Representation; cf.\ Whitman~\cite{Whitman1946}]
+\label{thm:whitman}
+Every bounded lattice $L$ admits an injective bounded $(\wedge, \vee, \hat{0}, \hat{1})$-lattice embedding $\varphi_\infty \colon L \hookrightarrow \Eq(X_\infty)$ into the equivalence-relation lattice on a single set $X_\infty$. In particular, every finite lattice $L$ is completely represented (preserving arbitrary meets and joins) by equivalence relations with family size $m_{\Eq}(L) \le 1 \le |L|$ (specifically $m_{\Eq}(C_1) = 0$ and $m_{\Eq}(L) = 1$ for $|L| \ge 2$).
+\end{theorem}
+
+\begin{proof}
+We give the canonical, choice-free simultaneous tower construction formalized in \texttt{Main.lean} (\texttt{whitman\_complete\_representation}).
+
+\emph{Stage~$0$.} Set $X_0 = L$ and define $\varphi_0 \colon L \to \Eq(X_0)$ for each $u \in L$ by
+\[
+  (x, y) \in \varphi_0(u) \iff x = y \;\lor\; (x \le u \text{ and } y \le u).
+\]
+Then $\varphi_0(u)$ is an equivalence relation whose sole possible non-singleton block is the principal ideal $L \downarrow u = \{x \in L : x \le u\}$. Since $L \downarrow \hat{0} = \{\hat{0}\}$ and $L \downarrow \hat{1} = L$, we have $\varphi_0(\hat{0}) = \Delta_{X_0}$ and $\varphi_0(\hat{1}) = \nabla_{X_0}$. For all $u, v \in L$, $(L \downarrow u) \cap (L \downarrow v) = L \downarrow (u \wedge v)$ yields $\varphi_0(u \wedge v) = \varphi_0(u) \cap \varphi_0(v)$. Moreover, $(\hat{0}, u) \in \varphi_0(u)$, so $\varphi_0(u) = \varphi_0(v)$ implies $u \le v$ and $v \le u$, hence $u = v$.
+
+\emph{Simultaneous 3-point extension step.} Given a set $X$ and a $(\wedge,\hat{0},\hat{1})$-preserving map $\varphi \colon L \to \Eq(X)$ (which is automatically monotone: $u \le w \implies \varphi(u) \subseteq \varphi(w)$), let
+\[
+  \mathcal{T}(X,\varphi) = \bigl\{\tau = (a,b,p,q) \in L^2 \times X^2 : a \not\le \hat{0},\; b \not\le \hat{0},\; (p,q) \in \varphi(a \vee b)\bigr\},
+\]
+and set $X' = X \sqcup \bigl(\mathcal{T}(X,\varphi) \times \{0,1,2\}\bigr)$. Define the $u$-independent base-point map $\beta \colon X' \to X$ by $\beta(x)=x$ for $x \in X$ and $\beta(\tau,0)=\beta(\tau,1)=p$, $\beta(\tau,2)=q$ for $\tau=(a,b,p,q)$. For each $u \in L$, define the activity predicate $\mathrm{act}_u(z)$ on $X'$ by $\mathrm{act}_u(x) \equiv \top$ ($x \in X$), $\mathrm{act}_u(\tau,0) \equiv (a \le u)$, $\mathrm{act}_u(\tau,1) \equiv (a \le u \land b \le u)$, and $\mathrm{act}_u(\tau,2) \equiv (b \le u)$, and define the local unhosted pairing $\mathrm{link}_u(z_1,z_2)$ to hold solely between $(\tau,0)$ and $(\tau,1)$ when $b \le u \land a \not\le u$, and between $(\tau,1)$ and $(\tau,2)$ when $a \le u \land b \not\le u$. Set
+\[
+  (z_1, z_2) \in \varphi'(u) \iff z_1 = z_2 \;\lor\;
+  \bigl(\mathrm{act}_u(z_1) \land \mathrm{act}_u(z_2) \land (\beta(z_1),\beta(z_2)) \in \varphi(u)\bigr)
+  \;\lor\; \mathrm{link}_u(z_1,z_2).
+\]
+Notice that $\mathrm{link}_u(z_1,z_2)$ forces $\neg\mathrm{act}_u(z_1) \land \neg\mathrm{act}_u(z_2)$, and two consecutive local links $\mathrm{link}_u(z_1,z_2)$, $\mathrm{link}_u(z_2,z_3)$ stay within the same 2-element unhosted pair and hence force $z_1 = z_3$. Thus $\varphi'(u) \in \Eq(X')$, with $\varphi'(u) \cap (X \times X) = \varphi(u)$. At $u = \hat{0}$, $a \not\le \hat{0}$ and $b \not\le \hat{0}$ make all new points inactive and unlinked, giving $\varphi'(\hat{0}) = \Delta_{X'}$; at $u = \hat{1}$, all points are active and $\varphi(\hat{1})=\nabla_X$ gives $\varphi'(\hat{1}) = \nabla_{X'}$. Furthermore:
+\begin{itemize}
+\item $((\tau,0),(\tau,1)) \in \varphi'(w) \iff b \le w$, because $b \le w$ splits on $a \le w$ into either active equivalence via $(p,p) \in \varphi(w)$ or $\mathrm{link}_w$;
+\item $((\tau,1),(\tau,2)) \in \varphi'(w) \iff a \le w$, because when $a \le w$ and $b \le w$ we have $a \vee b \le w$ and hence $(p,q) \in \varphi(a \vee b) \subseteq \varphi(w)$.
+\end{itemize}
+Consequently $\varphi'$ is monotone in $w$, so $\varphi'(u \wedge v) \subseteq \varphi'(u) \cap \varphi'(v)$. Conversely, if $(z_1,z_2) \in \varphi'(u) \cap \varphi'(v)$ with $z_1 \neq z_2$: if both witnesses come from the active branch, $\mathrm{act}_{u \wedge v}(z) \iff \mathrm{act}_u(z) \land \mathrm{act}_v(z)$ and $\varphi(u \wedge v) = \varphi(u) \cap \varphi(v)$ yield $(z_1,z_2) \in \varphi'(u \wedge v)$; if either witness uses $\mathrm{link}$, $\{z_1,z_2\}$ is $\{(\tau,0),(\tau,1)\}$ or $\{(\tau,1),(\tau,2)\}$, where the two equivalences above yield $b \le u \wedge v$ or $a \le u \wedge v$, hence $(z_1,z_2) \in \varphi'(u \wedge v)$. Finally, for every $(p,q) \in \varphi(a \vee b)$: if $a = \hat{0}$ or $b = \hat{0}$ then $a \vee b \in \{a,b\}$ already lies in $\varphi'(a) \vee_{\Eq} \varphi'(b)$; otherwise $\tau = (a,b,p,q) \in \mathcal{T}(X,\varphi)$ gives the 4-step chain
+\[
+  p \;\mathrel{\varphi'(a)}\; (\tau,0) \;\mathrel{\varphi'(b)}\; (\tau,1)
+    \;\mathrel{\varphi'(a)}\; (\tau,2) \;\mathrel{\varphi'(b)}\; q,
+\]
+proving $(p,q) \in \varphi'(a) \vee_{\Eq} \varphi'(b)$.
+
+\emph{Quotient-free colimit.} Iterating $(X_0,\varphi_0) \mapsto (X_{n+1},\varphi_{n+1})$ for $n \in \mathbb{N}$, every stage satisfies $X_{n+1} = X_n \sqcup \mathrm{New}_n$, so the colimit carrier is simply the disjoint union
+\[
+  X_\infty = X_0 \sqcup \bigsqcup_{n=0}^{\infty} \mathrm{New}_n,
+\]
+with canonical injections $\iota_n \colon X_n \hookrightarrow X_\infty$ satisfying $\iota_{n+1}|_{X_n} = \iota_n$ identically. Defining $(z_1,z_2) \in \varphi_\infty(u)$ iff $(z_1,z_2) = (\iota_k(x_1),\iota_k(x_2))$ with $(x_1,x_2) \in \varphi_k(u)$ for some $k \ge 0$, conservativity makes $\varphi_\infty(u) \in \Eq(X_\infty)$ well-defined and transfers injectivity, $\varphi_\infty(\hat{0}) = \Delta_{X_\infty}$, $\varphi_\infty(\hat{1}) = \nabla_{X_\infty}$, and $\varphi_\infty(u \wedge v) = \varphi_\infty(u) \cap \varphi_\infty(v)$. For joins, monotonicity gives $\varphi_\infty(a) \vee_{\Eq} \varphi_\infty(b) \subseteq \varphi_\infty(a \vee b)$, while any $(\iota_k(p),\iota_k(q)) \in \varphi_\infty(a \vee b)$ satisfies $(p,q) \in \varphi_k(a \vee b)$, hence $(p,q) \in \varphi_{k+1}(a) \vee_{\Eq} \varphi_{k+1}(b)$, which pushes via $\iota_{k+1}$ into $\varphi_\infty(a) \vee_{\Eq} \varphi_\infty(b)$. Finally, on $C_1 = \{\hat{0}\}$ the empty product ($\Phi = \emptyset$, $|I|=0$) is vacuously injective since $C_1$ is a singleton.
+\end{proof}
+
+\begin{remark}[Finite Base Sets via Pudl\'ak--T\r{u}ma]
+When $L$ is finite and one additionally restricts $\Eq(X_i)$ to \emph{finite} base sets $X_i$, Pudl\'ak and T\r{u}ma~\cite{PudlakTuma1980} proved that every finite lattice $L$ embeds into $\Eq(X)$ for a finite set $X$ (preserving $\hat{0},\hat{1},\wedge,\vee$), so $m_{\Eq}(L) \le 1$ continues to hold even over finite base sets. For all counterexamples in Section~\ref{sec:refutation}, we construct explicit finite embeddings on base sets of size $|X| \le 4$.
+\end{remark}
+
+In sharp contrast, if one equips binary relations with Boolean set operations $(\cap, \cup)$ instead of $(\cap, \vee_{\Eq})$, even the representability clause of Conjecture~\texttt{00000008555} fails:
+
+\begin{theorem}[Birkhoff Obstruction for Boolean Binary Relations]
+\label{thm:birkhoff}
+Let $L$ be a lattice. If there exist an index set $I$, sets $(X_i)_{i \in I}$, and a jointly injective family of $(\wedge,\vee)$-homomorphisms $\varphi_i \colon L \to (\Pow(X_i \times X_i), \cap, \cup)$, then $L$ is distributive. Conversely, every finite distributive lattice embeds into $(\Pow(X \times X), \cap, \cup)$ via a single map ($m_{\mathrm{Bool}}(L) \le 1$).
+\end{theorem}
+
+\begin{proof}
+For each $i \in I$ and $x, y, z \in L$, set-theoretic intersection distributes over union on $X_i \times X_i$:
+\[
+  \varphi_i\bigl(x \wedge (y \vee z)\bigr)
+  = \varphi_i(x) \cap \bigl(\varphi_i(y) \cup \varphi_i(z)\bigr)
+  = \bigl(\varphi_i(x) \cap \varphi_i(y)\bigr) \cup \bigl(\varphi_i(x) \cap \varphi_i(z)\bigr)
+  = \varphi_i\bigl((x \wedge y) \vee (x \wedge z)\bigr).
+\]
+Joint injectivity of $(\varphi_i)_{i \in I}$ yields $x \wedge (y \vee z) = (x \wedge y) \vee (x \wedge z)$. Conversely, if $L$ is finite and distributive, Birkhoff's representation theorem~\cite{Birkhoff1937} embeds $L$ (preserving $\hat{0},\hat{1},\wedge,\vee$) into $\Pow(J(L))$ via $x \mapsto \{j \in J(L) : j \le x\}$, and identifying $j \in J(L)$ with $(j,j) \in J(L) \times J(L)$ embeds $\Pow(J(L))$ into $(\Pow(J(L) \times J(L)), \cap, \cup)$ (replacing the top with $\nabla_{J(L)}$ by mapping $x \mapsto \{(j,k) : j \le x\}$ when $(0,1)$-preservation is desired).
+\end{proof}
+
+Next we establish exact formulas and universal strict upper bounds ($< |L|$) for set-map / binary-relation representations in Models $\mathcal{M}_3$ and $\mathcal{M}_4$.
+
+\begin{theorem}[Exact Counts and Universal Strict Upper Bounds $< |L|$ in Models $\mathcal{M}_3$ and $\mathcal{M}_4$]
+\label{thm:strict-bounds}
+Let $L$ be any finite lattice of cardinality $|L| = n \ge 1$.
+\begin{enumerate}
+\item[(1)] \textbf{Single-relation Galois / principal-downset representation:} The single binary relation $R_\le = \{(x,y) \in L \times L : y \le x\}$ (equivalently the single set-map $f \colon L \to \Pow(L)$, $f(x) = L \downarrow x$) satisfies $f(\hat{1}) = L$, $f(x \wedge y) = f(x) \cap f(y)$, and $x \le y \iff f(x) \subseteq f(y)$, and $(L, L, {\le_L})$ induces a complete lattice isomorphism $L \cong \mathfrak{B}(L,L,{\le_L})$. Thus $m_{\mathrm{Gal}}(L) \le 1$ ($0$ for $C_1$).
+\item[(2)] \textbf{$2$-valued meet- and join-representations:} Under $\Pow(\{\ast\})^L \cong \Pow(L \times \{\ast\}) \cong \BoolTwo^L$:
+  \begin{align*}
+    m_{\wedge,\BoolTwo}(L) &= |J(L)| \le |L| - 1 < |L|, \\
+    m_{\vee,\BoolTwo}(L) &= |M(L)| \le |L| - 1 < |L|, \\
+    \dim_2(L) &\le \min\bigl(|J(L)|, |M(L)|\bigr) \le |L| - 1 < |L|.
+  \end{align*}
+\item[(3)] \textbf{Subdirect and linear-extension representations:} $\mathrm{sub}(L) \le |M(\Con(L))| \le |L| - 1 < |L|$, and for $|L| \ge 2$, $\dim(L) \le \max(1, \lfloor |L|/2 \rfloor) < |L|$.
+\end{enumerate}
+In particular, \emph{no finite lattice whatsoever} (geometric or non-geometric) attains $|L|$ in $m_{\wedge,\BoolTwo}(L)$, $m_{\vee,\BoolTwo}(L)$, $\dim_2(L)$, or $\mathrm{sub}(L)$.
+\end{theorem}
+
+\begin{proof}
+Part~(1) is immediate: $f(x) \subseteq f(y)$ implies $x \in f(x) \subseteq f(y)$, so $x \le y$, and Dedekind--MacNeille / Formal Concept Analysis duality~\cite{GanterWille1999} identifies $L$ with the concept lattice $\mathfrak{B}(L,L,{\le_L})$.
+
+For Part~(2), a map $f \colon (L, \wedge, \hat{1}) \to (\BoolTwo, \wedge, 1)$ preserves $\hat{1}$ and binary meets iff $f^{-1}(1)$ is a non-empty meet-closed subset of $L$; since $L$ is finite, $f^{-1}(1) = \{x \in L : z \le x\}$ for $z = \bigwedge f^{-1}(1) \in L$, so $f = f_z$ with $f_z(x) = [z \le x]$. Already using $S = L \setminus \{\hat{0}\}$ ($|S| = |L|-1 < |L|$, formalized in \texttt{twoValuedMeetRep\_card\_pred}), if $\forall z \in L \setminus \{\hat{0}\},\, (z \le x \implies z \le y)$, then either $x = \hat{0} \le y$ or $x \in S$ gives $x \le y$. More sharply, a subset $S \subseteq L$ separates $\le_L$ via $(f_z)_{z \in S}$ iff $J(L) \subseteq S$:
+\begin{itemize}
+\item If $J(L) \subseteq S$ and $f_z(x) \le f_z(y)$ for all $z \in S$, then every $j \in J(L)$ with $j \le x$ satisfies $j \le y$; since every element of a finite lattice is the join of the join-irreducibles below it, $x = \bigvee \{j \in J(L) : j \le x\} \le y$.
+\item Conversely, if $j \in J(L) \setminus S$, set $j_\ast = \bigvee \{w \in L : w < j\}$. Because $j \neq \hat{0}$ is join-irreducible and $L$ is finite, $j_\ast < j$, so $j \not\le j_\ast$. Yet for every $z \in S$, $z \le j$ and $z \neq j$ force $z < j$ and hence $z \le j_\ast$, so $f_z(j) \le f_z(j_\ast)$ for all $z \in S$, failing to separate $(j, j_\ast)$.
+\end{itemize}
+Since $\hat{0} \notin J(L)$, $m_{\wedge,\BoolTwo}(L) = |J(L)| \le |L|-1 < |L|$. Order-duality gives $m_{\vee,\BoolTwo}(L) = |M(L)| \le |L|-1 < |L|$, and since both $(f_j)_{j \in J(L)}$ and $([x \not\le m])_{m \in M(L)}$ are monotone separating families, $\dim_2(L) \le \min(|J(L)|,|M(L)|) \le |L|-1 < |L|$.
+
+For Part~(3), $\Con(L)$ is a finite distributive lattice~\cite{FunayamaNakayama1942}. Along any strictly increasing chain $\Delta_L = \theta_0 \subsetneq \theta_1 \subsetneq \dots \subsetneq \theta_t = \nabla_L$ of equivalence relations on the $n$-element set $L$, the number of equivalence classes strictly decreases at each step from $n$ down to $1$, so $t \le n - 1$. Thus the length (height) of $\Con(L)$ is at most $n - 1$. By Birkhoff's duality for the finite distributive lattice $\Con(L)$, the number of meet-irreducible congruences $|M(\Con(L))|$ equals the length of $\Con(L)$, giving $\mathrm{sub}(L) \le |M(\Con(L))| \le n - 1 = |L| - 1 < |L|$ (and $\mathrm{sub}(C_1) = 0 < 1$). Finally, for $|L| \ge 4$, Hiraguchi's theorem~\cite{Hiraguchi1951} gives $\dim(L) \le \lfloor |L|/2 \rfloor < |L|$, while for $|L| \in \{2,3\}$ every lattice is a chain ($B_1, C_3$) with $\dim(L) = 1 < |L|$.
+\end{proof}
+
+\section{Refutation of the Geometric-Lattice Equality Across All Conventions}
+\label{sec:refutation}
+
+We now prove that the equality $= |L|$ for geometric lattices fails across all models and conventions, using explicit finite constructions that leave no edge-case ambiguity (whether $|L|=1$ is allowed or $\hat{0} \neq \hat{1}$ is required, whether empty families are allowed or $|I| \ge 1$ is required, and whether $L$ is Boolean/distributive, modular non-distributive, or non-modular geometric).
+
+\begin{theorem}[Explicit Refutation on Standard Geometric Lattices $B_1, B_2, M_3$]
+\label{thm:counterexamples}
+The lattices $B_1$ ($|B_1|=2$), $B_2$ ($|B_2|=4$), and $M_3$ ($|M_3|=5$) (as well as $C_1$ with $|C_1|=1$) are finite geometric lattices, yet:
+\begin{enumerate}
+\item[(1)] \textbf{Finite $\Eq(X)$ complete embeddings ($\mathcal{M}_1$):} Let $X_3 = \{0,1,2\}$, and let $R_{01}, R_{02}, R_{12} \in \Eq(X_3)$ denote the equivalence relations with single non-trivial blocks $\{0,1\}$, $\{0,2\}$, and $\{1,2\}$, respectively. Then $\Eq(X_3) = \{\Delta_{X_3}, R_{01}, R_{02}, R_{12}, \nabla_{X_3}\} \cong M_3$ via $\varphi_{M_3}(\hat{0})=\Delta_{X_3}$, $\varphi_{M_3}(a)=R_{01}$, $\varphi_{M_3}(b)=R_{02}$, $\varphi_{M_3}(c)=R_{12}$, $\varphi_{M_3}(\hat{1})=\nabla_{X_3}$, while restricting to $\{\Delta_{X_3}, R_{01}, R_{12}, \nabla_{X_3}\}$ embeds $B_2$ completely into $\Eq(X_3)$, and $\Eq(\{0,1\}) = \{\Delta_2, \nabla_2\} \cong B_1$. Hence
+\[
+  m_{\Eq}(C_1) = 0 < 1, \quad
+  m_{\Eq}(B_1) = 1 < 2, \quad
+  m_{\Eq}(B_2) = 1 < 4, \quad
+  m_{\Eq}(M_3) = 1 < 5
+\]
+(and for non-empty families, $m_{\Eq}^+(B_1)=1<2$, $m_{\Eq}^+(B_2)=1<4$, $m_{\Eq}^+(M_3)=1<5$; moreover the base-set size $|X_3|=3$ satisfies $3 < 4 = |B_2|$ and $3 < 5 = |M_3|$).
+\item[(2)] \textbf{Boolean binary relations ($\mathcal{M}_2$):} Because $M_3$ is geometric but non-distributive ($a \wedge (b \vee c) = a \wedge \hat{1} = a \neq \hat{0} = (a \wedge b) \vee (a \wedge c)$), Theorem~\ref{thm:birkhoff} shows that $M_3$ admits \textbf{no} representation into $\prod_{i \in I} (\Pow(X_i \times X_i), \cap, \cup)$ at all, while $m_{\mathrm{Bool}}(B_1) = 1 < 2$ and $m_{\mathrm{Bool}}(B_2) = 1 < 4$.
+\item[(3)] \textbf{Set-map / $2$-valued / Galois binary relations ($\mathcal{M}_3$):}
+  \begin{itemize}
+  \item $m_{\mathrm{Gal}}(C_1)=0<1$ and $m_{\mathrm{Gal}}(B_1) = m_{\mathrm{Gal}}(B_2) = m_{\mathrm{Gal}}(M_3) = 1 < |L|$ (even the reduced context incidence sizes are $|I_{\mathrm{red}}(B_1)|=0<2$, $|I_{\mathrm{red}}(B_2)|=2<4$, $|I_{\mathrm{red}}(M_3)|=3<5$).
+  \item $m_{\wedge,\BoolTwo}(B_1) = m_{\vee,\BoolTwo}(B_1) = \dim_2(B_1) = 1 < 2$; $m_{\wedge,\BoolTwo}(B_2) = m_{\vee,\BoolTwo}(B_2) = \dim_2(B_2) = 2 < 4$; and $m_{\wedge,\BoolTwo}(M_3) = m_{\vee,\BoolTwo}(M_3) = \dim_2(M_3) = 3 < 5$.
+  \end{itemize}
+\item[(4)] \textbf{Order dimension and subdirect congruences ($\mathcal{M}_4$):}
+  \begin{itemize}
+  \item $\dim(B_1) = 1 < 2$, $\dim(B_2) = 2 < 4$ (realized by $\hat{0} < a < b < \hat{1}$ and $\hat{0} < b < a < \hat{1}$), and $\dim(M_3) = 2 < 5$ (realized by $\hat{0} < a < b < c < \hat{1}$ and $\hat{0} < c < b < a < \hat{1}$).
+  \item $M_3$ is a \emph{simple} lattice ($\Con(M_3) = \{\Delta_{M_3}, \nabla_{M_3}\}$), so $\mathrm{sub}(M_3) = 1 < 5$, while $\mathrm{sub}(B_1) = 1 < 2$ and $\mathrm{sub}(B_2) = 2 < 4$.
+  \end{itemize}
+\item[(5)] \textbf{Generating binary relations ($\mathcal{M}_5$):} In $\Eq(X_3)$, the $2$ relations $\{R_{01}, R_{12}\}$ generate all $4$ relations of $\varphi_{B_2}(B_2)$ under $(\cap, \vee_{\Eq})$ since $R_{01} \cap R_{12} = \Delta_{X_3}$ and $R_{01} \vee_{\Eq} R_{12} = \nabla_{X_3}$, giving $g(B_2) = g_{01}(B_2) = 2 < 4$; similarly $\{R_{01}, R_{02}, R_{12}\}$ generates all $5$ relations of $\varphi_{M_3}(M_3)$, giving $g(M_3) = g_{01}(M_3) = 3 < 5$ (and $g_{01}(B_1) = 0 < 2$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Every statement in (1)--(5) is verified both directly below and formally in \texttt{Main.lean}. For $\Eq(X_3)$, distinct two-element blocks $\{i,j\}$ and $\{j,k\}$ on $X_3 = \{0,1,2\}$ intersect only on the diagonal ($R_{ij} \cap R_{jk} = \Delta_{X_3}$) while their union links $i \sim j \sim k$ ($R_{ij} \vee_{\Eq} R_{jk} = \nabla_{X_3}$), establishing both embeddings $\varphi_{B_2}$ and $\varphi_{M_3}$ and the generator counts $g(B_2) \le 2$ (cannot be $1$ since a single element generates $\{x\}$ of size $1 < 4$) and $g(M_3) \le 3$ (cannot be $\le 2$ since any $2$ atoms generate a $4$-element $B_2$ sublattice missing the third atom). Simplicity of $M_3$ follows because identifying $\hat{0} \sim a$ yields $b = \hat{0} \vee b \sim a \vee b = \hat{1}$, whence $c = \hat{1} \wedge c \sim b \wedge c = \hat{0}$, $a = a \vee \hat{0} \sim a \vee c = \hat{1}$, and transitivity gives $\hat{0} \sim \hat{1}$; identifying any two distinct atoms $x \sim y$ meets with $y$ to give $\hat{0} = x \wedge y \sim y \wedge y = y$, reducing to the previous case. For $\dim(M_3) = 2$, the reversal of $(a,b,c)$ between $\hat{0} < a < b < c < \hat{1}$ and $\hat{0} < c < b < a < \hat{1}$ makes $\{a,b,c\}$ an antichain in their intersection while keeping $\hat{0}$ below and $\hat{1}$ above all elements.
+\end{proof}
+
+\begin{proposition}[Non-Modular Witness $L(U_{3,4})$ and Model $\mathcal{M}_6$]
+\label{prop:u34-and-m6}
+\begin{enumerate}
+\item[(1)] Let $L(U_{3,4})$ be the lattice of flats of the uniform matroid $U_{3,4}$ ($\emptyset$, $4$ singleton points, $6$ two-point lines, and $\{0,1,2,3\}$; $|L|=12$). Then $L(U_{3,4})$ is a \textbf{non-modular, non-distributive geometric lattice} of rank~$3$, since
+\[
+  r(\{0,1\}) + r(\{2,3\}) = 2 + 2 = 4 > 3 = 0 + 3 = r(\emptyset) + r(\{0,1,2,3\}),
+\]
+and it satisfies $m_{\Eq}(L)=1<12$, $m_{\mathrm{Bool}}(L)=\infty$, $m_{\wedge,\BoolTwo}(L) = |J(L)| = 4 < 12$, $m_{\vee,\BoolTwo}(L) = |M(L)| = 6 < 12$, and $g(L) = g_{01}(L) = 4 < 12$.
+\item[(2)] In Model~$\mathcal{M}_6$, any injective representation $\varphi \colon L \hookrightarrow \Eq(X)$ satisfies $|\varphi(L)| = |L|$ tautologically for \emph{every} finite lattice $L$. Explicitly, the non-geometric chain $C_3$ embeds completely into $\Eq(X_3)$ via $\{\Delta_{X_3}, R_{01}, \nabla_{X_3}\}$ ($|\varphi(C_3)| = 3 = |C_3|$), and the non-geometric pentagon $N_5$ embeds completely into $\Eq(\{0,1,2,3\})$ via
+\[
+  \hat{0} \mapsto \Delta_4,\quad
+  a \mapsto (01)(2)(3),\quad
+  b \mapsto (01)(23),\quad
+  c \mapsto (02)(13),\quad
+  \hat{1} \mapsto \nabla_4
+\]
+($|\varphi(N_5)| = 5 = |N_5|$), refuting the characterization reading ``equality holds for geometric lattices'' (\emph{``equality is geometric lattices''}).
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+In $N_5 \hookrightarrow \Eq(\{0,1,2,3\})$, clearly $a \subseteq b$, $b \cap c = \Delta_4$ (so $a \cap c = \Delta_4$), and in $a \vee_{\Eq} c$ we have $2 \sim_c 0 \sim_a 1 \sim_c 3$, whence $a \vee_{\Eq} c = \nabla_4$ and $b \vee_{\Eq} c = \nabla_4$ (\texttt{n5\_finite\_eq\_embedding}).
+\end{proof}
+
+Table~\ref{tab:invariants} consolidates the exact invariants across our benchmark geometric and non-geometric finite lattices, computed independently by \texttt{verify.py}.
+
+\begin{table}[htbp]
+\centering
+\small
+\setlength{\tabcolsep}{4.3pt}
+\begin{tabular}{@{}lccccccccccccc@{}}
+\toprule
+$L$ & $|L|$ & Geom.? & $m_{\Eq}$ & $m_{\mathrm{Bool}}$ & $m_{\mathrm{Gal}}$ & $|I_{\mathrm{red}}|$ & $m_{\wedge,\BoolTwo}$ & $m_{\vee,\BoolTwo}$ & $\dim_2$ & $\dim$ & $\mathrm{sub}$ & $(g, g_{01})$ & $\mathrm{img}$ \\
+\midrule
+$C_1$          & $1$  & Yes & $0$ & $0$      & $0$ & $0$ & $0$ & $0$ & $0$ & $1^\ast$ & $0$ & $(1,0)$ & $1$ \\
+$B_1$          & $2$  & Yes & $1$ & $1$      & $1$ & $0$ & $1$ & $1$ & $1$ & $1$      & $1$ & $(2,0)$ & $2$ \\
+$C_3$          & $3$  & No  & $1$ & $1$      & $1$ & $1$ & $2$ & $2$ & $2$ & $1$      & $2$ & $(3,1)$ & $3$ \\
+$B_2$          & $4$  & Yes & $1$ & $1$      & $1$ & $2$ & $2$ & $2$ & $2$ & $2$      & $2$ & $(2,2)$ & $4$ \\
+$M_3$          & $5$  & Yes & $1$ & $\infty$ & $1$ & $3$ & $3$ & $3$ & $3$ & $2$      & $1$ & $(3,3)$ & $5$ \\
+$N_5$          & $5$  & No  & $1$ & $\infty$ & $1$ & $4$ & $3$ & $3$ & $3$ & $2$      & $1$ & $(3,3)$ & $5$ \\
+$M_4$          & $6$  & Yes & $1$ & $\infty$ & $1$ & $4$ & $4$ & $4$ & $4$ & $2$      & $1$ & $(4,4)$ & $6$ \\
+$B_3$          & $8$  & Yes & $1$ & $1$      & $1$ & $6$ & $3$ & $3$ & $3$ & $3$      & $3$ & $(3,3)$ & $8$ \\
+$L(U_{3,4})$   & $12$ & Yes & $1$ & $\infty$ & $1$ & $12$& $4$ & $6$ & $\le 4$ & $\le 4$ & $1$ & $(4,4)$ & $12$ \\
+\bottomrule
+\end{tabular}
+\caption{Exact minimal relation/map counts across all six models ($^\ast\dim(C_1)=0$ if empty intersections on $C_1$ are allowed). Every geometric lattice with $|L| \ge 4$ satisfies strict inequality $< |L|$ across all family, $2$-valued, dimension, congruence, and generator counts.}
+\label{tab:invariants}
+\end{table}
+
+\begin{remark}[Origin of the Misconception]
+Why might Conjecture~\texttt{00000008555} appear plausible at a glance? In the canonical Stage-$0$ construction (or Yoneda/Cayley-style relational representations), one assigns one map $f_z$ or relation $R_z$ per element $z \in L$, yielding a tautological upper bound of $|L|$. In a geometric lattice $L$, all join-irreducibles are atoms ($J(L) = A(L)$) and form an antichain in which no atom is redundant for generating the others ($g(L) = |A(L)| = |J(L)|$ for $|L| \ge 4$). Conflating irredundancy among the \emph{atoms} $A(L)$ with irredundancy among \emph{all elements} of $L$ overlooks $\hat{0} = \bigvee \emptyset$ and every higher-rank flat $x = \bigvee \{a \in A(L) : a \le x\}$, which force $|A(L)| \le |L| - 2 < |L|$ for every geometric lattice of rank $\ge 2$.
+\end{remark}
+
+\section{Formal Verification in Core Lean 4 and Computational Audit}
+\label{sec:lean}
+
+All core definitions, positive theorems, non-vacuity proofs, and counterexample constructions are formalized in \texttt{package/lean/Main.lean} using pure Core Lean~4.19.0 (zero external dependencies, compiled with \texttt{-DwarningAsError=true}, zero \texttt{sorry}, zero \texttt{native\_decide}, and zero custom axioms). Table~\ref{tab:lean-map} maps the mathematical results of this paper to their machine-checked Lean declarations.
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Mathematical Result & Lean~4 Declaration in \texttt{Main.lean} & Role \\
+\midrule
+Theorem~\ref{thm:whitman} ($\Eq(X_\infty)$ embedding) & \texttt{whitman\_complete\_representation} & Positive Theorem~1 \\
+Corollary ($m_{\Eq}(L) \le 1$) & \texttt{completeEqFamilyRep\_one} & Family size $\le 1$ \\
+Theorem~\ref{thm:birkhoff} (Boolean obstruction) & \texttt{boolRel\_family\_implies\_distributive} & Distributivity \\
+Theorem~\ref{thm:strict-bounds}(1) (single relation) & \texttt{principal\_downset\_single\_relation} & $m_{\mathrm{Gal}}(L) \le 1$ \\
+Theorem~\ref{thm:strict-bounds}(2) ($< |L|$ bound) & \texttt{twoValuedMeetRep\_card\_pred} & $m_{\wedge,\BoolTwo}(L) \le |L|-1$ \\
+Geometricity of $C_1, B_1, B_2, M_3$ & \texttt{c1/b1/b2/m3\_isGeometric} & Non-vacuity \\
+Non-geometricity of $C_3, N_5$ & \texttt{c3\_not\_geometric}, \texttt{n5\_not\_geometric} & Model~$\mathcal{M}_6$ \\
+Finite $\Eq(X)$ embeddings & \texttt{b1/b2/m3/c3/n5\_finite\_eq\_embedding} & Explicit finite $X$ \\
+Generator bounds $g(B_2)=2, g(M_3)=3$ & \texttt{b2\_generated\_by\_two\_relations}, etc. & Model~$\mathcal{M}_5$ ($< |L|$) \\
+Order dim.\ on $B_1, B_2, M_3$ & \texttt{b1/b2/m3\_orderDimRep\_*} & Model~$\mathcal{M}_4$ ($< |L|$) \\
+Simplicity \& $\mathcal{M}_2$ failure of $M_3$ & \texttt{m3\_isSimple}, \texttt{m3\_no\_boolRel\_family\_rep} & Models~$\mathcal{M}_4$, $\mathcal{M}_2$ \\
+Combined resolution package & \texttt{conjecture\_00000008555\_resolution} & Master theorem \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical results and verified declarations in \texttt{Main.lean}.}
+\label{tab:lean-map}
+\end{table}
+
+Executing \texttt{\#print axioms conjecture\_00000008555\_resolution} confirms dependence solely on Lean's three standard foundational axioms \texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}. Independently, \texttt{package/verify.py} enumerates from first principles all $25$ unlabeled finite lattices of sizes $1 \le |L| \le 6$ ($1, 1, 1, 2, 5, 15$ lattices, of which $1, 1, 0, 1, 1, 1$ are geometric: $C_1, B_1, B_2, M_3, M_4$), plus $B_3$ and $L(U_{3,4})$, verifying every inequality in Table~\ref{tab:invariants} and confirming our simultaneous Whitman extension step on $C_1, B_1, C_3, B_2, M_3, N_5$.
+
+\begin{thebibliography}{99}
+
+\bibitem{Birkhoff1937}
+G.~Birkhoff, Rings of sets, \emph{Duke Math.\ J.} \textbf{3} (1937), 443--454.
+
+\bibitem{Birkhoff1944}
+G.~Birkhoff, Subdirect unions in universal algebra, \emph{Bull.\ Amer.\ Math.\ Soc.} \textbf{50} (1944), 764--768.
+
+\bibitem{Birkhoff1967}
+G.~Birkhoff, \emph{Lattice Theory}, 3rd ed., Amer.\ Math.\ Soc.\ Colloq.\ Publ., Vol.~25, Providence, RI, 1967.
+
+\bibitem{Bouchet1971}
+A.~Bouchet, \emph{\'Etude combinatoire des ordonn\'es finis}, Th\`ese de Doctorat d'\'Etat, Universit\'e Scientifique et M\'edicale de Grenoble, 1971.
+
+\bibitem{DushnikMiller1941}
+B.~Dushnik and E.~W.~Miller, Partially ordered sets, \emph{Amer.\ J.\ Math.} \textbf{63} (1941), 600--610.
+
+\bibitem{FunayamaNakayama1942}
+N.~Funayama and T.~Nakayama, On the distributivity of a lattice of lattice-congruences, \emph{Proc.\ Imp.\ Acad.\ Tokyo} \textbf{18} (1942), 553--554.
+
+\bibitem{GanterWille1999}
+B.~Ganter and R.~Wille, \emph{Formal Concept Analysis: Mathematical Foundations}, Springer, Berlin, 1999.
+
+\bibitem{Hiraguchi1951}
+T.~Hiraguchi, On the dimension of partially ordered sets, \emph{Sci.\ Rep.\ Kanazawa Univ.} \textbf{1} (1951), 77--94.
+
+\bibitem{Oxley2011}
+J.~Oxley, \emph{Matroid Theory}, 2nd ed., Oxford Univ.\ Press, Oxford, 2011.
+
+\bibitem{PudlakTuma1980}
+P.~Pudl\'ak and J.~T\r{u}ma, Every finite lattice can be embedded in a finite partition lattice, \emph{Algebra Universalis} \textbf{10} (1980), 74--95.
+
+\bibitem{Whitman1946}
+P.~M.~Whitman, Lattices, equivalence relations, and subgroups, \emph{Bull.\ Amer.\ Math.\ Soc.} \textbf{52} (1946), 507--522.
+
+\end{thebibliography}
+
+\end{document}
