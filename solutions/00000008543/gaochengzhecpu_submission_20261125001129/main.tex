@@ -1,0 +1,412 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hypertexnames=false,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\setlength{\emergencystretch}{2em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Aut}{\operatorname{Aut}}
+\newcommand{\Sym}{\operatorname{Sym}}
+\newcommand{\Atoms}{\operatorname{Atoms}}
+\newcommand{\Fin}{\operatorname{Fin}}
+\newcommand{\supp}{\operatorname{supp}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\Ftwo}{\mathbb{F}_2}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Ldyad}{L_{\mathrm{dyad}}}
+\newcommand{\Lfc}{L_{\mathrm{fc}}}
+
+\title{\textbf{Disproof of Conjecture 00000008543:\\
+Automorphism Groups, Irreducible Automorphisms, and\\
+Dimensional Classification of Boolean Lattices}}
+\author{Formal Mathematical Disproof \& Core Lean 4.19.0 Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We disprove Conjecture~00000008543 (\emph{Boolean lattice automorphism type}), which asserts that for a Boolean lattice (Boole lattice), (I)~its automorphism group is the symmetric group, (II)~its irreducible automorphisms are of transposition type, and (III)~its isomorphism classification is uniquely determined by the dimension. We establish a two-level refutation that rules out the conjecture under every standard mathematical reading, whether over general Boolean lattices or restricted to finite Boolean lattices:
+\begin{enumerate}
+  \item \textbf{Finite Boolean lattices $B_n$ ($n \ge 3$):} While Clauses~(I) and~(III) hold for finite Boolean lattices $B_n = \mathcal{P}(\{0,\dots,n-1\})$ ($\Aut(B_n) \cong S_n$, and $B_m \cong B_n \iff m = n$) and Clause~(II) holds for $n \le 2$, Clause~(II) fails in \emph{every} finite dimension $n \ge 3$. Specifically, the cyclic shift $\sigma_n = (0\;1\;\dots\;n-1) \in \Aut(B_n)$ is irreducible under direct-factor indecomposability and disjoint-support cycle indecomposability---and on $B_3$, also under Boolean-sublattice simplicity and $\Ftwo$-linear irreducibility on the augmentation hyperplane---yet $\sigma_n^2 \neq \id$ (order $n \ge 3$), so $\sigma_n$ is not an involution and hence not of transposition type under any definition. Conversely, for $n \ge 3$, no atom transposition on $B_n$ is direct-factor irreducible.
+  \item \textbf{General (countably infinite) Boolean lattices:} Without a finiteness restriction, \emph{all three} clauses fail simultaneously. For Clause~(I), the countable Boolean lattice $L_* = \Ldyad \times B_2$ (product of the atomless dyadic periodic algebra on $\N$ with the $4$-element Boolean lattice) satisfies $|\Aut(L_*)| \ge 4$ and possesses a non-identity central automorphism, which makes $\Aut(L_*)$ non-isomorphic to $\Sym(X)$ for \emph{every} set $X$. For Clause~(III), the finite--cofinite Boolean lattice $\Lfc$ on $\N$ and its square $\Lfc \times \Lfc$ are both atomic Boolean lattices sharing identical atom-set cardinality $\aleph_0$, an explicit $\Ftwo$-linear isomorphism $(\Lfc, \triangle, \bot) \cong_{\Ftwo} (\Lfc \times \Lfc, \triangle, \bot)$, unbounded chain height $\infty$, and cardinality $\aleph_0$, yet $\Lfc \not\cong \Lfc \times \Lfc$ as Boolean lattices.
+\end{enumerate}
+All positive and negative theorems are formalized from scratch in self-contained Core Lean~4.19.0 without external libraries, \texttt{sorry}, \texttt{native\_decide}, or non-standard axioms, and are accompanied by an exhaustive Python~3.12 verification suite.
+\end{abstract}
+
+\section{Introduction and Official Problem Statement}
+
+Conjecture~00000008543 from \emph{The Last Math Competition} reads verbatim in English as follows (with exact semantic parity in the accompanying Chinese formulation):
+\begin{quote}
+\textbf{Definition:} A Boole lattice is a Boolean lattice.\\
+\textbf{Conjecture:} The automorphism group of a Boolean lattice is the symmetric group; its irreducible automorphisms are of transposition type; and the isomorphism classification is uniquely determined by the dimension. \emph{(Boolean lattice automorphism type)}
+\end{quote}
+
+In standard order theory and universal algebra (see Birkhoff~\cite{Birkhoff} and Halmos--Givant~\cite{HalmosGivant}), a \emph{Boolean lattice} (or \emph{Boole lattice}, \emph{Boolean algebra}) is a bounded distributive complemented lattice $(L, \le, \bot, \top, \wedge, \vee, (\cdot)^c)$. The conjecture is the logical conjunction of three structural assertions:
+\begin{itemize}
+  \item \textbf{Clause I (Automorphism Group):} For every Boolean lattice $L$, $\Aut(L)$ is isomorphic to a symmetric group $\Sym(X)$ (or specifically $\Sym(\Atoms(L))$).
+  \item \textbf{Clause II (Irreducible Automorphisms):} Every irreducible automorphism $f \in \Aut(L)$ is of transposition type.
+  \item \textbf{Clause III (Dimensional Classification):} Two Boolean lattices $L_1, L_2$ having the same dimension are isomorphic ($L_1 \cong L_2$).
+\end{itemize}
+
+A careful mathematical analysis reveals why this conjecture arises as a seductive over-generalization from low-dimensional finite intuition:
+\begin{enumerate}
+  \item Restricted to \emph{finite} Boolean lattices $B_n \cong \mathcal{P}(\{0,\dots,n-1\})$ of dimension $n \in \N$, Birkhoff--Stone duality identifies $B_n$ with the power set of its $n$ atoms, yielding $\Aut(B_n) \cong S_n$ (Clause~I holds) and $B_m \cong B_n \iff m = n$ (Clause~III holds). Moreover, for $n \in \{0, 1\}$, $\Aut(B_n)$ is trivial, and for $n = 2$, $\Aut(B_2) \cong S_2$ contains a unique non-identity element---the atom transposition $(0\;1)$---so Clause~II holds for $n \le 2$ as well.
+  \item Beginning at $n = 3$ ($|B_3| = 8$), however, Clause~II breaks down completely and irrecoverably: the $3$-cycle $\sigma_3 = (0\;1\;2) \in \Aut(B_3)$ has order $3$ ($\sigma_3^2 \neq \id$), fixes no elements outside $\{\bot, \top\}$, preserves no proper nontrivial Boolean sublattice of $B_3$, cannot be factored into commuting automorphisms of disjoint atom support, and acts $\Ftwo$-linearly irreducibly on the $2$-dimensional augmentation hyperplane of $(B_3, \triangle)$ with minimal polynomial $x^2 + x + 1$. Thus $\sigma_3$ (and more generally the $n$-cycle $\sigma_n$ for every $n \ge 3$) is irreducible under every mathematical notion of irreducibility while failing even the weakest possible notion of transposition type ($f^2 = \id$).
+  \item Furthermore, the official definition states simply that a Boole lattice is a Boolean lattice, without imposing finiteness. Over countably infinite Boolean lattices, Clauses~I and~III also fail under every standard interpretation of ``symmetric group'' and ``dimension.''
+\end{enumerate}
+
+Proving \emph{both} the finite refutation ($B_n$ for all $n \ge 3$) and the infinite refutations ($L_* = \Ldyad \times B_2$ for Clause~I, and $\Lfc$ vs.\ $\Lfc \times \Lfc$ for Clause~III) makes our disproof completely airtight against every conceivable reading of the conjecture.
+
+\section{Preliminaries on Boolean Lattices and Automorphisms}
+
+\begin{definition}[Boolean Lattice]
+\label{def:boolean-lattice}
+A \emph{Boolean lattice} is a tuple $(L, \le, \bot, \top, \wedge, \vee, (\cdot)^c)$ where $(L, \le)$ is a partially ordered set (reflexive, transitive, antisymmetric) equipped with least and greatest elements $\bot, \top \in L$ ($\bot \le x \le \top$ for all $x \in L$), greatest lower bounds $x \wedge y$, least upper bounds $x \vee y$, and unary complementation $(\cdot)^c : L \to L$ satisfying:
+\begin{align}
+  x \wedge (y \vee z) &= (x \wedge y) \vee (x \wedge z)
+  \quad\text{(distributivity)}, \label{eq:dist}\\
+  x \wedge x^c = \bot &\quad\text{and}\quad x \vee x^c = \top
+  \quad\text{(complementation)} \label{eq:compl}
+\end{align}
+for all $x, y, z \in L$.
+\end{definition}
+
+\begin{lemma}[Complement Uniqueness and Dual Distributivity]
+\label{lem:compl-unique}
+Let $L$ be a Boolean lattice.
+\begin{enumerate}
+  \item For all $x, y, z \in L$, $x \vee (y \wedge z) = (x \vee y) \wedge (x \vee z)$.
+  \item Complements are unique: if $x \wedge y = \bot$ and $x \vee y = \top$, then $y = x^c$. Consequently $(x^c)^c = x$.
+  \item For every $y, u \in L$, $y = (y \wedge u) \vee (y \wedge u^c)$.
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(1)~Using~\eqref{eq:dist}, absorption $(a \vee b) \wedge a = a$, commutativity, and associativity:
+\[
+  (x \vee y) \wedge (x \vee z)
+  = ((x \vee y) \wedge x) \vee ((x \vee y) \wedge z)
+  = x \vee (x \wedge z) \vee (y \wedge z)
+  = x \vee (y \wedge z).
+\]
+(2)~If $x \wedge y = \bot$ and $x \vee y = \top$, then
+\[
+  y = y \wedge (x \vee x^c) = (y \wedge x) \vee (y \wedge x^c) = y \wedge x^c
+  = x^c \wedge y = (x^c \wedge x) \vee (x^c \wedge y) = x^c \wedge (x \vee y) = x^c.
+\]
+Applying uniqueness to $x^c \wedge x = \bot$ and $x^c \vee x = \top$ gives $(x^c)^c = x$.
+
+(3)~$y = y \wedge \top = y \wedge (u \vee u^c) = (y \wedge u) \vee (y \wedge u^c)$.
+\end{proof}
+
+To preclude any ambiguity between order-theoretic lattice automorphisms and algebraic Boolean-algebra automorphisms, we record their exact equivalence.
+
+\begin{proposition}[Order vs.\ Algebraic Isomorphisms]
+\label{prop:iso-equiv}
+Let $L_1, L_2$ be Boolean lattices and $e : L_1 \to L_2$ a bijection. Then $e$ is an order isomorphism ($e(x) \le e(y) \iff x \le y$ for all $x, y \in L_1$) if and only if $e$ preserves $(\bot, \top, \wedge, \vee, (\cdot)^c)$.
+\end{proposition}
+\begin{proof}
+($\Rightarrow$) Since $e$ and $e^{-1}$ are monotone bijections, $e$ preserves least and greatest bounds, so $e(\bot) = \bot$, $e(\top) = \top$, $e(x \wedge y) = e(x) \wedge e(y)$, and $e(x \vee y) = e(x) \vee e(y)$. Then $e(x) \wedge e(x^c) = e(x \wedge x^c) = \bot$ and $e(x) \vee e(x^c) = e(x \vee x^c) = \top$, whence $e(x^c) = e(x)^c$ by Lemma~\ref{lem:compl-unique}(2).
+
+($\Leftarrow$) In any lattice, $x \le y \iff x \wedge y = x$. If $e$ is a bijection preserving $\wedge$, then $e(x) \le e(y) \iff e(x) \wedge e(y) = e(x) \iff e(x \wedge y) = e(x) \iff x \wedge y = x \iff x \le y$.
+\end{proof}
+
+We denote by $\Aut(L)$ the group of automorphisms of $L$ under composition $(f \cdot g)(x) = f(g(x))$. On any Boolean lattice $L$, the \emph{symmetric difference}
+\[
+  x \triangle y := (x \wedge y^c) \vee (x^c \wedge y)
+\]
+makes $(L, \triangle, \bot)$ an elementary abelian $2$-group, i.e., a vector space over $\Ftwo$. An element $a \in L$ is an \emph{atom} if $a \neq \bot$ and every $x \le a$ satisfies $x = \bot$ or $x = a$; we write $\Atoms(L)$ for the set of atoms of $L$. A Boolean lattice $L$ is \emph{atomic} if every $x \neq \bot$ satisfies $a \le x$ for some $a \in \Atoms(L)$, and \emph{atomless} if $\Atoms(L) = \emptyset$. Every isomorphism $f : L_1 \xrightarrow{\sim} L_2$ induces a bijection $\Atoms(L_1) \xrightarrow{\sim} \Atoms(L_2)$ and preserves $\triangle$. Finally, for Boolean lattices $L_1, L_2$, the Cartesian product $L_1 \times L_2$ with coordinatewise operations is again a Boolean lattice.
+
+\section{Level A: Finite Boolean Lattices and Refutation of Clause II}
+
+\subsection{Positive Structure Theorems and the Boundary \texorpdfstring{$n \le 2$}{n <= 2}}
+
+For each $n \in \N$, let $B_n := (\Fin n \to \{\mathtt{false}, \mathtt{true}\}) \cong \mathcal{P}(\{0, \dots, n-1\})$ be the standard finite Boolean lattice with coordinatewise operations. For each $i \in \Fin n$, let $e_i \in B_n$ denote the indicator vector $e_i(j) = \delta_{i,j}$.
+
+\begin{theorem}[Positive Finite Automorphism and Classification Theorem]
+\label{thm:finite-positive}
+For all $m, n \in \N$:
+\begin{enumerate}
+  \item $B_n$ is an atomic Boolean lattice whose atoms are precisely $\{e_0, \dots, e_{n-1}\}$, giving a canonical bijection $\Fin n \xrightarrow{\sim} \Atoms(B_n)$ (so the atom dimension, poset chain height, and $\Ftwo$-vector-space dimension $\dim_{\Ftwo}(B_n, \triangle)$ all equal $n$).
+  \item Every permutation $\pi \in \Sym(\Fin n) = S_n$ induces $\alpha_\pi \in \Aut(B_n)$ via $(\alpha_\pi(x))(j) = x(\pi^{-1}(j))$ (so $\alpha_\pi(e_i) = e_{\pi(i)}$), and $\pi \mapsto \alpha_\pi$ is a group isomorphism $S_n \xrightarrow{\sim} \Aut(B_n)$.
+  \item $B_m \cong B_n$ as Boolean lattices if and only if $m = n$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+(1)~Clearly $e_i \neq \bot$. If $x \le e_i$, then $x(j) = \mathtt{false}$ for all $j \neq i$, so $x = \bot$ or $x = e_i$ according to $x(i)$. Conversely, if $x \neq \bot$, choosing $i$ with $x(i) = \mathtt{true}$ gives $\bot < e_i \le x$, proving both atomicity and $\Atoms(B_n) = \{e_i : i \in \Fin n\}$.
+
+(2)~For any $x \in B_n$ and $j \in \Fin n$, $x(j) = \mathtt{true} \iff e_j \le x$. Given $f \in \Aut(B_n)$, restricting $f$ to $\Atoms(B_n)$ defines a unique $\pi \in S_n$ with $f(e_i) = e_{\pi(i)}$. Then $(f(x))(j) = \mathtt{true} \iff e_j \le f(x) \iff f^{-1}(e_j) \le x \iff e_{\pi^{-1}(j)} \le x \iff x(\pi^{-1}(j)) = \mathtt{true}$, so $f = \alpha_\pi$. Functoriality $\alpha_{\pi_1 \circ \pi_2} = \alpha_{\pi_1} \circ \alpha_{\pi_2}$ is immediate.
+
+(3)~If $f : B_m \xrightarrow{\sim} B_n$, then $\Fin m \simeq \Atoms(B_m) \simeq \Atoms(B_n) \simeq \Fin n$, whence $m = n$ by the finite pigeonhole principle. The converse is trivial.
+\end{proof}
+
+\subsection{Definitions of Transposition Type and Irreducible Automorphisms}
+
+To ensure that our refutation of Clause~II is independent of any convention, we formalize \emph{three} progressively broader notions of ``transposition type'' and \emph{four} distinct notions of ``irreducible automorphism.''
+
+\begin{definition}[Hierarchy of Transposition Type]
+\label{def:transposition-type}
+Let $L$ be a Boolean lattice and $f \in \Aut(L)$.
+\begin{enumerate}
+  \item[\textbf{(T1)}] \emph{Atom transposition:} There exist distinct atoms $a \neq b$ in $\Atoms(L)$ such that $f(a) = b$, $f(b) = a$, and $f(x) = x$ for every $x \le (a \vee b)^c$.
+  \item[\textbf{(T2)}] \emph{Conjugate to an atom transposition:} There exists $g \in \Aut(L)$ such that $g f g^{-1}$ satisfies~(T1).
+  \item[\textbf{(T3)}] \emph{Non-identity involution:} $f \neq \id_L$ and $f^2 = \id_L$ (encompassing single transpositions, their conjugates, and arbitrary products of disjoint transpositions).
+\end{enumerate}
+\end{definition}
+
+\begin{proposition}[Universal Implication Chain]
+\label{prop:trans-chain}
+On \emph{every} Boolean lattice $L$ and for every $f \in \Aut(L)$,
+\[
+  \text{(T1)} \implies \text{(T2)} \implies \text{(T3)}.
+\]
+Moreover, on $B_2$, every $f \neq \id_{B_2}$ satisfies~(T1).
+\end{proposition}
+\begin{proof}
+$\text{(T1)} \implies \text{(T2)}$ holds via $g = \id_L$. Next, assume $f$ satisfies~(T1) with distinct atoms $a \neq b$, and set $u = a \vee b$. Since $f(a) = b \neq a$, $f \neq \id_L$. For any $y \in L$, Lemma~\ref{lem:compl-unique}(3) and distributivity give
+\[
+  y = (y \wedge a) \vee (y \wedge b) \vee (y \wedge u^c).
+\]
+Because $a$ is an atom and $y \wedge a \le a$, either $y \wedge a = \bot$ or $y \wedge a = a$; in both cases $f(f(y \wedge a)) = y \wedge a$. Likewise $f(f(y \wedge b)) = y \wedge b$, while $y \wedge u^c \le u^c$ implies $f(y \wedge u^c) = y \wedge u^c$. Since $f$ preserves $\vee$, $f(f(y)) = y$, proving $f^2 = \id_L$. Since order $2$ is invariant under conjugation, $\text{(T2)} \implies \text{(T3)}$ follows immediately. Finally, on $B_2$, $\Atoms(B_2) = \{e_0, e_1\}$ with $(e_0 \vee e_1)^c = \bot$, so the unique non-identity automorphism swapping $e_0 \leftrightarrow e_1$ satisfies~(T1).
+\end{proof}
+
+\begin{definition}[Four Notions of Irreducible Automorphism]
+\label{def:irreducible}
+Let $L$ be a Boolean lattice and $f \in \Aut(L)$.
+\begin{enumerate}
+  \item[\textbf{(I1)}] \emph{Direct-factor irreducibility (indecomposability):} $\bot \neq \top$, and there is no proper nontrivial $f$-invariant element $x \in L \setminus \{\bot, \top\}$ with $f(x) = x$ (equivalently, $(L, f)$ admits no nontrivial invariant direct-product decomposition $L \cong [\bot, x] \times [\bot, x^c]$).
+  \item[\textbf{(I2)}] \emph{Boolean-sublattice simplicity:} $\bot \neq \top$, and every $f$-invariant Boolean sublattice $S \subseteq L$ ($\bot, \top \in S$, closed under $\wedge, \vee, (\cdot)^c$, and $f(S) \subseteq S$) equals either $\{\bot, \top\}$ or $L$.
+  \item[\textbf{(I3)}] \emph{Disjoint-support cycle irreducibility:} $f \neq \id_L$, and there do not exist $g, h \in \Aut(L) \setminus \{\id_L\}$ such that $f = g \circ h$ and $\supp_{\mathrm{atom}}(g) \cap \supp_{\mathrm{atom}}(h) = \emptyset$, where $\supp_{\mathrm{atom}}(g) = \{a \in \Atoms(L) : g(a) \neq a\}$.
+  \item[\textbf{(I4)}] \emph{$\Ftwo$-augmentation linear irreducibility (on $B_3$):} On the $2$-dimensional even-weight hyperplane $W_0 = \{x \in B_3 : x_0 \oplus x_1 \oplus x_2 = 0\} \subset (B_3, \triangle)$ complementary to the trivial invariant line $\Ftwo \cdot \top$, $f(W_0) \subseteq W_0$ and $W_0$ has no proper non-zero $f$-invariant $\Ftwo$-subspace.
+\end{enumerate}
+\end{definition}
+
+\subsection{Refutation of Clause II for Every \texorpdfstring{$d \ge 3$}{d >= 3}}
+
+For every $d \ge 1$, let $\pi_d \in S_d$ be the cyclic shift $\pi_d(i) = (i + 1) \bmod d$, and let $\sigma_d := \alpha_{\pi_d} \in \Aut(B_d)$ be the induced automorphism on $B_d$.
+
+\begin{theorem}[Refutation of Clause II in All Finite Dimensions $d \ge 3$]
+\label{thm:finite-refutation}
+For every integer $d = n + 3 \ge 3$:
+\begin{enumerate}
+  \item $\sigma_d \in \Aut(B_d)$ is both direct-factor irreducible~\textup{(I1)} and disjoint-support cycle-irreducible~\textup{(I3)}.
+  \item $\sigma_d \notin \text{\textup{(T3)}}$ ($\sigma_d^2 \neq \id_{B_d}$), hence $\sigma_d$ fails~\textup{(T2)} and~\textup{(T1)}.
+  \item Conversely, \emph{no} atom transposition $g \in \Aut(B_d)$ is direct-factor irreducible~\textup{(I1)}.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+(1)~Since $d \ge 3 > 0$, $\bot \neq \top$ in $B_d$. If $\sigma_d(x) = x$, then $x(\pi_d(i)) = x(i)$ for all $i \in \Fin d$. Because $\pi_d^k(0) = k \bmod d$ sweeps out all of $\Fin d$, $x$ is constant on $\Fin d$, so $x = \bot$ or $x = \top$; thus~(I1) holds.
+
+For~(I3), $\sigma_d(e_0) = e_1 \neq e_0$ gives $\sigma_d \neq \id$. Suppose $\sigma_d = g \circ h$ with $g, h \neq \id$ of disjoint atom support. Since $g \neq \id$ on the atomic finite lattice $B_d$, there exists $i_0 \in \Fin d$ with $g(e_{i_0}) \neq e_{i_0}$. For any $i \in \Fin d$ moved by $g$ ($g(e_i) \neq e_i$), disjointness gives $h(e_i) = e_i$, whence $e_{\pi_d(i)} = \sigma_d(e_i) = g(h(e_i)) = g(e_i)$. If $g$ fixed $e_{\pi_d(i)}$, then $g(g(e_i)) = g(e_{\pi_d(i)}) = e_{\pi_d(i)} = g(e_i)$, and injectivity of $g$ would yield $g(e_i) = e_i$, a contradiction. Thus $g$ also moves $e_{\pi_d(i)}$. By induction and transitivity of $\pi_d$, $g$ moves \emph{every} atom $e_j$ ($j \in \Fin d$). By disjointness, $h$ fixes every atom of $B_d$, forcing $h = \id$, a contradiction.
+
+(2)~Since $d \ge 3$, $\sigma_d^2(e_0) = \sigma_d(e_1) = e_2 \neq e_0$, so $\sigma_d^2 \neq \id_{B_d}$. By Proposition~\ref{prop:trans-chain}, $\sigma_d$ fails~(T3),~(T2), and~(T1).
+
+(3)~Suppose $g \in \Aut(B_d)$ swaps $e_{i_a}$ and $e_{i_b}$ and fixes all elements below $(e_{i_a} \vee e_{i_b})^c$. Among the three distinct indices $0, 1, 2 \in \Fin d$, at least one index $k$ satisfies $k \notin \{i_a, i_b\}$. Then $e_k \le (e_{i_a} \vee e_{i_b})^c$, so $g(e_k) = e_k$, while $e_k \notin \{\bot, \top\}$ (since $d \ge 3$ has indices distinct from $k$). Hence $g$ violates~(I1).
+\end{proof}
+
+\begin{theorem}[Fourfold Counterexample on $B_3$]
+\label{thm:b3-fourfold}
+On the $8$-element Boolean cube lattice $B_3$, the $3$-cycle $\sigma_3 = \alpha_{(0\;1\;2)} \in \Aut(B_3)$ simultaneously satisfies \emph{all four} irreducibility criteria~\textup{(I1)},~\textup{(I2)},~\textup{(I3)}, and~\textup{(I4)}, has exact order~$3$, and fails~\textup{(T1)},~\textup{(T2)}, and~\textup{(T3)}.
+\end{theorem}
+\begin{proof}
+Criteria~(I1),~(I3), and failure of~(T1)--(T3) are the $d = 3$ case of Theorem~\ref{thm:finite-refutation}, and $\sigma_3^3 = \id$ since $\pi_3^3 = \id_{\Fin 3}$.
+
+For~(I2), let $S \subseteq B_3$ be a $\sigma_3$-invariant Boolean sublattice containing an element $x \notin \{\bot, \top\}$. Since $|B_3| = 8$, any subset of $\{0,1,2\}$ of size $1$ or $2$ is either a singleton $\{i\}$ or the complement of $\{i\}$, so either $x = e_i$ or $x^c = e_i$ for some $i \in \Fin 3$. Closure under $(\cdot)^c$ gives $e_i \in S$; $\sigma_3$-invariance gives $e_0, e_1, e_2 \in S$; and closure under $\vee$ together with $\bot \in S$ yields $S = B_3$.
+
+For~(I4), $W_0 = \{\bot, e_0 \triangle e_1, e_1 \triangle e_2, e_0 \triangle e_2\}$ has four elements. Direct evaluation shows that $\sigma_3$ cycles the three non-zero vectors transitively:
+\[
+  e_0 \triangle e_1 \;\longmapsto\; e_1 \triangle e_2 \;\longmapsto\; e_0 \triangle e_2 \;\longmapsto\; e_0 \triangle e_1,
+\]
+satisfying $\id \oplus \sigma_3 \oplus \sigma_3^2 = 0$ on $W_0$ (minimal polynomial $x^2 + x + 1$, irreducible over $\Ftwo$). Hence any $\sigma_3$-invariant $\Ftwo$-subspace of $W_0$ containing a non-zero vector contains all of $W_0$.
+\end{proof}
+
+Table~\ref{tab:finite-sweep} summarizes the exact counts across $B_0, \dots, B_6$ verified by \texttt{verify.py}.
+
+\begin{table}[ht]
+\centering
+\caption{Exact census of $\Aut(B_n) \cong S_n$ for $0 \le n \le 6$: direct-factor irreducible automorphisms~(I1), cycle-irreducible automorphisms~(I3), atom transpositions~(T1)=(T2), involutions~(T3), and cycle-irreducible counterexamples failing~(T3).}
+\label{tab:finite-sweep}
+\medskip
+\begin{tabular}{@{}rrrrrrr@{}}
+\toprule
+$n$ & $|B_n|$ & $|\Aut(B_n)|$ & (I1) Direct-factor irr. & (I3) Cycle-irr. & (T1) Transpositions & (I3) $\setminus$ (T3) \\
+\midrule
+0 & 1  &   1 &   0 &   0 &  0 &   0 \\
+1 & 2  &   1 &   1 &   0 &  0 &   0 \\
+2 & 4  &   2 &   1 &   1 &  1 &   0 \\
+3 & 8  &   6 &   2 &   5 &  3 &   2 \\
+4 & 16 &  24 &   6 &  20 &  6 &  14 \\
+5 & 32 & 120 &  24 &  84 & 10 &  74 \\
+6 & 64 & 720 & 120 & 409 & 15 & 394 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Level B: Infinite Boolean Lattices and Refutation of Clauses I and III}
+
+\subsection{Refutation of Clause I: Universal Symmetric-Group Obstruction}
+
+We first record an elementary group-theoretic obstruction that requires no cardinality or set-theoretic machinery and applies to $\Sym(X)$ for \emph{every} set $X$.
+
+\begin{lemma}[Center Obstruction for Symmetric Groups]
+\label{lem:sym-center}
+Let $G$ be a group containing a central element $z \in Z(G)$ with $z \neq 1_G$ and another element $w \in G$ with $w \neq 1_G$ and $w \neq z$ (so $|G| \ge 3$ and $Z(G) \neq \{1_G\}$). Then for \emph{every} set $X$, $G \not\cong \Sym(X)$.
+\end{lemma}
+\begin{proof}
+Suppose $\psi : G \xrightarrow{\sim} \Sym(X)$ is a group isomorphism.
+\begin{itemize}
+  \item \emph{Case 1: $X$ contains three pairwise distinct elements $x_1, x_2, x_3$.} Let $\pi = \psi(z) \in Z(\Sym(X))$. If $\pi \neq \id_X$, choose $x \in X$ with $\pi(x) \neq x$. Among $x_1, x_2, x_3$, at least one element $y$ satisfies $y \neq x$ and $y \neq \pi(x)$. Let $\tau \in \Sym(X)$ be the transposition swapping $\pi(x)$ and $y$. Then $(\pi \circ \tau)(x) = \pi(x)$ whereas $(\tau \circ \pi)(x) = y \neq \pi(x)$, contradicting $\pi \in Z(\Sym(X))$. Thus $\psi(z) = \id_X = \psi(1_G)$, contradicting $z \neq 1_G$.
+  \item \emph{Case 2: No three elements of $X$ are pairwise distinct.} Then $|X| \le 2$, so $|\Sym(X)| \le 2$, contradicting the injectivity of $\psi$ on the three distinct elements $1_G, z, w \in G$. \qedhere
+\end{itemize}
+\end{proof}
+
+Now define the \emph{dyadic periodic Boolean lattice} $\Ldyad \subseteq \mathcal{P}(\N)$ by
+\[
+  \Ldyad := \bigl\{\, S \subseteq \N \;\big|\; \exists k \in \N,\; \forall n \in \N,\; n + 2^k \in S \iff n \in S \,\bigr\}.
+\]
+Since any $2^k$-periodic set is also $2^{k+d}$-periodic for every $d \in \N$ (as $2^{k+d}$ is a multiple of $2^k$), $\Ldyad$ contains $\emptyset$ and $\N$ ($k = 0$) and is closed under $\cap$, $\cup$ (using common period $2^{k_1 + k_2}$), and complementation $\N \setminus S$. Thus $\Ldyad$ is a countable Boolean sublattice of $\mathcal{P}(\N)$.
+
+\begin{lemma}[Atomlessness and Non-Rigidity of $\Ldyad$]
+\label{lem:dyadic}
+\begin{enumerate}
+  \item $\Ldyad$ is atomless: $\Atoms(\Ldyad) = \emptyset$.
+  \item The parity-flip involution $\mathrm{flip}_0 : \N \to \N$ exchanging $2m \leftrightarrow 2m+1$ induces an automorphism $\alpha \in \Aut(\Ldyad)$ via $\alpha(S) = \{n \in \N : \mathrm{flip}_0(n) \in S\}$ with $\alpha \neq \id_{\Ldyad}$.
+\end{enumerate}
+Consequently, $\Aut(\Ldyad) \not\cong \Sym(\Atoms(\Ldyad)) \cong \{\id\}$.
+\end{lemma}
+\begin{proof}
+(1)~Let $S \in \Ldyad$ be non-empty ($n_0 \in S$) with period $2^k$. Set $T = \{n \in S : \lfloor n / 2^k \rfloor \bmod 2 = 0\}$. Since $\lfloor (n + 2^{k+1}) / 2^k \rfloor = \lfloor n / 2^k \rfloor + 2$, $T$ is $2^{k+1}$-periodic, so $T \in \Ldyad$ and $T \subseteq S$. By $2^k$-periodicity of $S$, both $n_0$ and $n_0 + 2^k$ lie in $S$, and $\lfloor (n_0 + 2^k)/2^k \rfloor = \lfloor n_0 / 2^k \rfloor + 1$ has opposite parity to $\lfloor n_0 / 2^k \rfloor$. Thus one of $\{n_0, n_0 + 2^k\}$ belongs to $T$ (so $T \neq \emptyset$) and the other belongs to $S \setminus T$ (so $T \neq S$). Hence $S$ is not an atom.
+
+(2)~For any $k \in \N$, $2^{k+1} = 2 \cdot 2^k$ is even, so $\mathrm{flip}_0(n + 2^{k+1}) = \mathrm{flip}_0(n) + 2^{k+1}$. If $S$ is $2^k$-periodic, it is $2^{k+1}$-periodic, whence $\alpha(S)$ is $2^{k+1}$-periodic. Since $\mathrm{flip}_0^2 = \id_\N$, $\alpha \in \Aut(\Ldyad)$. On $E = \{n \in \N : n \bmod 2 = 0\} \in \Ldyad$, $0 \in E$ while $0 \notin \alpha(E)$, so $\alpha \neq \id_{\Ldyad}$.
+\end{proof}
+
+\begin{theorem}[Universal Refutation of Clause I]
+\label{thm:clause1-false}
+Let $L_* := \Ldyad \times B_2$. Then for \emph{every} set $X$,
+\[
+  \Aut(L_*) \not\cong \Sym(X).
+\]
+\end{theorem}
+\begin{proof}
+Let $a_0 = (\emptyset, e_0)$ and $a_1 = (\emptyset, e_1)$ in $L_* = \Ldyad \times B_2$. We claim $\Atoms(L_*) = \{a_0, a_1\}$. Clearly $a_0, a_1$ are distinct atoms. Conversely, if $(S, u) \in \Atoms(L_*)$ had $S \neq \emptyset$, then $(S, \bot) \le (S, u)$ and $(S, \bot) \neq (\emptyset, \bot)$ would force $u = \bot$, making $S$ an atom of $\Ldyad$ and contradicting Lemma~\ref{lem:dyadic}(1). Thus $S = \emptyset$ and $u \in \Atoms(B_2) = \{e_0, e_1\}$.
+
+Now let $\Phi \in \Aut(L_*)$ be \emph{any} automorphism. Since $\Phi$ permutes $\Atoms(L_*) = \{a_0, a_1\}$, $\Phi$ fixes their supremum $a_0 \vee a_1 = (\emptyset, \top_{B_2})$ and therefore also fixes its complement $(\N, \bot_{B_2})$. Define $\zeta, \omega \in \Aut(L_*)$ by
+\[
+  \zeta(S, u) = (S, \mathrm{swap}(u)), \qquad \omega(S, u) = (\alpha(S), u),
+\]
+where $\mathrm{swap}(u_0, u_1) = (u_1, u_0)$ on $B_2$ and $\alpha \in \Aut(\Ldyad)$ is the parity-flip automorphism of Lemma~\ref{lem:dyadic}(2). Clearly $\zeta \neq \id$ ($\zeta(a_0) = a_1$), $\omega \neq \id$ ($\omega(E, \bot) \neq (E, \bot)$), and $\omega \neq \zeta$ ($\omega(a_0) = a_0 \neq a_1 = \zeta(a_0)$).
+
+We claim $\zeta \in Z(\Aut(L_*))$. Take any $\Phi \in \Aut(L_*)$ and $(S, u) = (S, \bot) \vee (\emptyset, u) \in L_*$:
+\begin{enumerate}
+  \item Since $(S, \bot) \le (\N, \bot)$ and $\Phi(\N, \bot) = (\N, \bot)$, we have $\Phi(S, \bot) \le (\N, \bot)$, so the second coordinate of $\Phi(S, \bot)$ is $\bot_{B_2}$. Because $\mathrm{swap}(\bot_{B_2}) = \bot_{B_2}$, $\zeta(\Phi(S, \bot)) = \Phi(S, \bot) = \Phi(\zeta(S, \bot))$.
+  \item On $\{(\emptyset, u) : u \in B_2\} = \{(\emptyset, \bot), a_0, a_1, (\emptyset, \top)\}$, both $\Phi$ and $\zeta$ fix $(\emptyset, \bot)$ and $(\emptyset, \top)$, and $\Phi$ acts on $\{a_0, a_1\}$ either as the identity or by swapping $a_0 \leftrightarrow a_1$; in both cases $\zeta(\Phi(\emptyset, u)) = \Phi(\zeta(\emptyset, u))$.
+\end{enumerate}
+Preservation of $\vee$ yields $\zeta(\Phi(S, u)) = \Phi(\zeta(S, u))$. Applying Lemma~\ref{lem:sym-center} to $z = \zeta$ and $w = \omega$ proves $\Aut(L_*) \not\cong \Sym(X)$ for every set $X$.
+\end{proof}
+
+\subsection{Refutation of Clause III: Dimensional Non-Uniqueness}
+
+Define the \emph{finite--cofinite Boolean lattice} $\Lfc \subseteq \mathcal{P}(\N)$ by
+\[
+  \Lfc := \bigl\{\, A \subseteq \N \;\big|\; A \text{ is finite or } \N \setminus A \text{ is finite} \,\bigr\},
+\]
+where a subset $F \subseteq \N$ is finite if and only if it is bounded above ($\exists B \in \N,\; \forall n \in F,\; n < B$; equivalently, listed by a finite list over $\N$). Because $\N$ is unbounded ($B_1 + B_2$ cannot satisfy both $< B_1$ and $< B_2$), no subset $A \subseteq \N$ is simultaneously finite and cofinite. Elementary case analysis confirms that $\Lfc$ is a Boolean sublattice of $\mathcal{P}(\N)$. Consider $\Lfc$ alongside its direct square $\Lfc \times \Lfc$.
+
+\begin{proposition}[Agreement of All Standard Notions of Dimension]
+\label{prop:same-dim}
+Both $\Lfc$ and $\Lfc \times \Lfc$ are atomic Boolean lattices satisfying:
+\begin{enumerate}
+  \item \textbf{Atom-set dimension:} $\Atoms(\Lfc) = \{\{k\} : k \in \N\} \simeq \N$ and $\Atoms(\Lfc \times \Lfc) = \{(\{k\}, \emptyset), (\emptyset, \{k\}) : k \in \N\} \simeq \N$, yielding an explicit bijection $\Atoms(\Lfc) \xrightarrow{\sim} \Atoms(\Lfc \times \Lfc)$ of cardinality $\aleph_0$.
+  \item \textbf{$\Ftwo$-vector-space dimension:} Let $\Ftwo^{(\N)}$ denote finitely-supported sequences $g : \N \to \Ftwo$ under coordinatewise XOR. The map $\Psi : \Ftwo^{(\N)} \to \Lfc$ sending $g$ to $\{k \in \N : g(0) \oplus g(k+1) = 1\}$ is an $\Ftwo$-linear bijection $(\Ftwo^{(\N)}, \oplus, 0) \xrightarrow{\sim} (\Lfc, \triangle, \emptyset)$ (where $g(0) = 0$ encodes finite sets and $g(0) = 1$ encodes cofinite sets). Combining $\Psi$ with even/odd index interleaving $\Ftwo^{(\N)} \times \Ftwo^{(\N)} \xrightarrow{\sim} \Ftwo^{(\N)}$ yields an explicit $\Ftwo$-linear isomorphism
+  \[
+    (\Lfc, \triangle, \bot) \;\cong_{\Ftwo}\; (\Lfc \times \Lfc, \triangle, \bot),
+  \]
+  and in particular an explicit set bijection $|\Lfc| = |\Lfc \times \Lfc| = \aleph_0$.
+  \item \textbf{Poset chain height:} For every $m \in \N$, both $\Lfc$ and $\Lfc \times \Lfc$ admit strictly increasing chains $c_0 < c_1 < \dots < c_m$ of length $m$ (via $c_i = \{0, \dots, i-1\}$), so both have supremal chain length $\infty$.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+(1)~Every non-empty $A \in \Lfc$ contains some $k \in \N$, giving $\emptyset \subsetneq \{k\} \subseteq A$, so $\Lfc$ is atomic with $\Atoms(\Lfc) = \{\{k\} : k \in \N\}$. Similarly $\Lfc \times \Lfc$ is atomic with atoms $(\{k\}, \emptyset)$ (indexed by $2k$) and $(\emptyset, \{k\})$ (indexed by $2k+1$).
+
+(2)~If $g \in \Ftwo^{(\N)}$ vanishes for indices $\ge B$, then $\Psi(g) \subseteq [0, B)$ when $g(0) = 0$ (finite) and $\N \setminus \Psi(g) \subseteq [0, B)$ when $g(0) = 1$ (cofinite). Conversely, since no $A \in \Lfc$ is both finite and cofinite, setting $b = \mathbf{1}_{\text{$A$ cofinite}} \in \Ftwo$ and $g_A(0) = b$, $g_A(k+1) = b \oplus \mathbf{1}_{k \in A}$ yields $g_A \in \Ftwo^{(\N)}$ inverse to $\Psi$. Because $(g_1(0) \oplus g_2(0)) \oplus (g_1(k+1) \oplus g_2(k+1)) = (g_1(0) \oplus g_1(k+1)) \oplus (g_2(0) \oplus g_2(k+1))$, $\Psi$ is an $\Ftwo$-linear isomorphism. Even/odd interleaving $h(2k) = f(k)$, $h(2k+1) = g(k)$ gives $\Ftwo^{(\N)} \times \Ftwo^{(\N)} \cong_{\Ftwo} \Ftwo^{(\N)}$, and composition yields $(\Lfc, \triangle, \bot) \cong_{\Ftwo} (\Lfc \times \Lfc, \triangle, \bot)$.
+
+(3)~Immediate from $\{0,\dots,i-1\} \subsetneq \{0,\dots,i\}$.
+\end{proof}
+
+\begin{theorem}[Refutation of Clause III]
+\label{thm:clause3-false}
+The Boolean lattices $\Lfc$ and $\Lfc \times \Lfc$ are \emph{not} isomorphic: $\Lfc \not\cong \Lfc \times \Lfc$.
+\end{theorem}
+\begin{proof}
+For any Boolean lattice $L$, say that $x \in L$ \emph{dominates infinitely many atoms} if there exists an injective sequence $f : \N \to L$ of atoms of $L$ with $f(k) \le x$ for all $k \in \N$. This purely order-theoretic property is preserved by every Boolean-lattice isomorphism, as is complementation $(\cdot)^c$.
+
+In $\Lfc \times \Lfc$, consider $u = (\N, \emptyset)$ and $u^c = (\emptyset, \N)$. Then $u$ dominates the injective atom sequence $k \mapsto (\{k\}, \emptyset)$, and $u^c$ dominates the injective atom sequence $k \mapsto (\emptyset, \{k\})$.
+
+Suppose $\Phi : \Lfc \xrightarrow{\sim} \Lfc \times \Lfc$ were an isomorphism, and let $A = \Phi^{-1}(u) \in \Lfc$. Then both $A$ and $A^c = \N \setminus A$ would dominate infinitely many atoms of $\Lfc$. However, if a subset $F \in \Lfc$ is finite (bounded above by $B$), any injective sequence of atoms $\{g(k)\} \subseteq F$ yields an injective map $g : \N \to \N$ with $g(k) < B$ for all $k \in \N$, which is impossible by induction on $B$ (removing a preimage of $B-1$, if any, reduces to $B-1$, and $B = 0$ is vacuous). Since either $A$ or $\N \setminus A$ is finite by definition of $\Lfc$, we obtain a contradiction.
+\end{proof}
+
+\begin{remark}[Topological Perspective via Stone Duality]
+Geometrically, the Stone space of $\Lfc$ is the one-point compactification $\N \cup \{\infty\}$ (one non-isolated accumulation point), whereas the Stone space of $\Lfc \times \Lfc$ is $(\N \cup \{\infty_1\}) \sqcup (\N \cup \{\infty_2\})$ (two accumulation points). Theorem~\ref{thm:clause3-false} captures this distinction directly inside elementary first-order lattice theory without requiring ultrafilters or Stone's representation theorem.
+\end{remark}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Audit}
+
+The complete mathematical development is formalized in self-contained Core Lean~4.19.0 in \texttt{lean/Main.lean} ($\approx 3{,}000$ lines, compiled with \texttt{moreLeanArgs = ["-DwarningAsError=true"]} and zero external dependencies). Table~\ref{tab:lean-map} maps the theorems of this paper to their exact Lean declarations and verified axiom footprints.
+
+\begin{table}[ht]
+\centering
+\caption{Correspondence between mathematical theorems and Core Lean~4.19.0 declarations in \texttt{lean/Main.lean} (namespace \texttt{Conjecture00000008543}). Every declaration uses only Lean's standard foundational axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}), with zero \texttt{sorry} or \texttt{native\_decide}.}
+\label{tab:lean-map}
+\medskip
+{\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+Mathematical Result & Lean 4 Declaration & Axioms Used \\
+\midrule
+Proposition~\ref{prop:iso-equiv} & \texttt{blIso\_iff\_algHom} & \texttt{propext} \\
+Theorem~\ref{thm:finite-positive}(2) & \texttt{finBoolAutGroupIso} & Standard classical \\
+Theorem~\ref{thm:finite-positive}(3) & \texttt{finBool\_iso\_iff\_eq} & Standard classical \\
+Proposition~\ref{prop:trans-chain} ($n=2$) & \texttt{finBool2\_nonid\_isAtomTransposition} & Standard classical \\
+Theorem~\ref{thm:finite-refutation} & \texttt{conjecture\_00000008543\_finite\_disproved} & Standard classical \\
+Theorem~\ref{thm:b3-fourfold} (I2) & \texttt{cycleAut3\_isSublatticeIrreducible} & Standard classical \\
+Theorem~\ref{thm:b3-fourfold} (I4) & \texttt{cycleAut3\_isF2ReducedIrreducible} & Standard classical \\
+Theorem~\ref{thm:clause1-false} & \texttt{hybridBL\_aut\_not\_iso\_any\_perm} & Standard classical \\
+Proposition~\ref{prop:same-dim}(1) & \texttt{atomsEquiv\_finCofin\_prodFC} & Standard classical \\
+Proposition~\ref{prop:same-dim}(2) & \texttt{f2LinearIso\_finCofin\_prodFC} & Standard classical \\
+Theorem~\ref{thm:clause3-false} & \texttt{not\_blIso\_finCofin\_prodFC} & Standard classical \\
+Master General Disproof & \texttt{conjecture\_00000008543\_disproved} & Standard classical \\
+Master Triple Disproof & \texttt{conjecture\_00000008543\_all\_three\_clauses\_false} & Standard classical \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+In addition, the standalone Python~3.12 script \texttt{verify.py} independently verifies:
+\begin{itemize}
+  \item all Boolean lattice axioms and the equivalence of order and algebraic automorphisms across all $8! = 40{,}320$ bijections of $B_3$ (and all bijections of $B_0, B_1, B_2$);
+  \item all $5$ Boolean sublattices of $B_3$, the $2$-dimensional $\Ftwo$-module $W_0$ with minimal polynomial $x^2 + x + 1$, and the full automorphism census of $B_0, \dots, B_6$ (Table~\ref{tab:finite-sweep});
+  \item triviality of $Z(S_m)$ for $3 \le m \le 6$ and finite-stage periodicity/atomlessness of $\Ldyad$;
+  \item $144$ test pairs confirming exact round-trip invertibility and $\Ftwo$-linearity of the isomorphism $(\Lfc, \triangle, \bot) \cong_{\Ftwo} (\Lfc \times \Lfc, \triangle, \bot)$ alongside the infinite-atom partition invariant.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{Birkhoff}
+G.~Birkhoff, \emph{Lattice Theory}, 3rd ed., American Mathematical Society Colloquium Publications, Vol.~25, AMS, Providence, RI, 1967.
+
+\bibitem{HalmosGivant}
+S.~Givant and P.~Halmos, \emph{Introduction to Boolean Algebras}, Undergraduate Texts in Mathematics, Springer, New York, 2009.
+\end{thebibliography}
+
+\end{document}
