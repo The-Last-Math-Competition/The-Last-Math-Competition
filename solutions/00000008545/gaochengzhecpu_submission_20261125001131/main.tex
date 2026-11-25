@@ -1,0 +1,411 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\emergencystretch}{1.5em}
+\renewcommand{\arraystretch}{1.15}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\cov}{\lessdot}
+\newcommand{\rk}{\operatorname{rk}}
+\newcommand{\tr}{\operatorname{tr}}
+\newcommand{\op}{\mathrm{op}}
+
+\title{\textbf{Disproof of Conjecture 00000008545:\\
+Covering-Number Uniformity, Minimal Counterexamples, and\\
+Spectral Asymmetry in Finite Lattices}}
+\author{Formalized in Core Lean 4 (\texttt{v4.19.0}) and Verified Exhaustively for $|L| \le 7$}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture~00000008545 defines the \emph{uniformity} of a lattice as the evenness (constancy) of its element covering numbers and asserts a two-part conjunction: (1)~the spectra of upper and lower uniform lattices are symmetric, and (2)~the minimal example of failure of uniformity is the $5$-element nonmodular pentagon lattice $N_5$. We disprove Conjecture~00000008545 across every mathematically standard interpretation of covering-number uniformity and lattice spectrum. Under literal element-wise covering uniformity (constancy of the upper covering number $c^+$ on $L \setminus \{\hat{1}\}$ and of the lower covering number $c^-$ on $L \setminus \{\hat{0}\}$), every lattice of cardinality at most $3$ is uniform, whereas the $4$-element Boolean lattice $B_2 = C_2 \times C_2$ (which has cardinality $4 < 5$ and is distributive, hence modular) already fails both upper and lower uniformity, refuting Clause~(2). Under strict interior uniformity (constancy of $c^+$ and $c^-$ on $L \setminus \{\hat{0}, \hat{1}\}$), $N_5$ \emph{satisfies} uniformity ($c^+(x) = c^-(x) = 1$ for all interior elements), whereas the $5$-element distributive modular lattices $B_2 \oplus \mathbf{1}$ and $\mathbf{1} \oplus B_2$ fail it, again refuting Clause~(2). Finally, under graded rank-wise covering uniformity (Terwilliger's uniform posets/lattices---the canonical convention under which $N_5$ is indeed the unique minimal non-uniform lattice), Clause~(1) fails decisively under every notion of spectrum: the $5$-element distributive modular lattice $B_2 \oplus \mathbf{1}$ is both rank-upper-uniform and rank-lower-uniform yet has asymmetric Whitney rank spectrum $(1,2,1,1)$ and asymmetric rank-covering profile, while a $7$-element graded lattice $L_7$ is rank-upper-uniform yet fails rank-lower-uniformity and even exhibits unequal upper and lower covering-degree multisets $\{0,1,1,1,1,1,3\} \neq \{0,1,1,1,1,2,2\}$. All definitions, general structural lemmas, non-vacuity witnesses, and counterexamples are formally verified from first principles in Core Lean~4 (\texttt{v4.19.0}) without \texttt{sorry}, \texttt{native\_decide}, or external axioms, and cross-checked by exhaustive Python enumeration of all unlabeled lattices of size $\le 7$.
+\end{abstract}
+
+\section{Problem Statement and Semantic Taxonomy}
+
+We address Conjecture~\texttt{00000008545}, whose official bilingual formulation reads:
+\begin{quote}
+\textbf{English.} \emph{Definition: Uniformity of a lattice is the evenness of element covering numbers. Conjecture: The spectra of upper and lower uniform lattices are symmetric; and the minimal example of failure of uniformity is the 5-element nonmodular lattice. (minimal counterexample to uniformity)}
+\end{quote}
+In the accompanying official Mandarin text, ``uniformity (evenness of element covering numbers)'' is stated as ``\emph{junyunxing, zhi yuansu fugai shu de junyun}'' (uniformity/equidistribution of element covering numbers, confirming that ``evenness'' means \emph{constancy/uniformity} across elements rather than arithmetic parity, though we refute literal parity as well), ``the spectra of upper and lower uniform lattices are symmetric'' is stated as ``\emph{shang/xia junyun de ge de pu duichen}'' (an upper- or lower-uniform lattice has a symmetric spectrum), and the second clause states that the minimal failure of uniformity is the $5$-element nonmodular lattice $N_5$.
+
+Let $(L, \le, \wedge, \vee)$ be a finite nonempty lattice; since $L$ is finite, it is automatically bounded with minimum $\hat{0} = \bigwedge L$ and maximum $\hat{1} = \bigvee L$. For $x, y \in L$, $y$ \emph{covers} $x$ (written $x \cov y$) if $x < y$ and there exists no $z \in L$ with $x < z < y$. Each $x \in L$ carries three natural covering invariants:
+\[
+  c^+(x) = |\{y \in L : x \cov y\}|, \qquad
+  c^-(x) = |\{y \in L : y \cov x\}|, \qquad
+  c(x) = c^+(x) + c^-(x),
+\]
+called respectively its \emph{upper covering number}, \emph{lower covering number}, and \emph{total covering degree} (degree in the undirected Hasse graph). Note that $c^+(\hat{1}) = 0$ and $c^-(\hat{0}) = 0$ always.
+
+Because the conjecture is a logical conjunction $(\text{Clause 1}) \wedge (\text{Clause 2})$ whose key terms admit three standard mathematical regimes in order theory and algebraic combinatorics, a reviewer-proof disproof must examine \emph{all} regimes:
+\begin{itemize}
+  \item \textbf{Regime I (Global Non-Extremal Covering Uniformity):} $c^+$ is constant on $L \setminus \{\hat{1}\}$ (upper uniform) and $c^-$ is constant on $L \setminus \{\hat{0}\}$ (lower uniform), along with unrestricted constancy on $L$, undirected Hasse regularity ($c$ constant on $L$), and literal arithmetic parity ($2 \mid c^+$).
+  \item \textbf{Regime II (Strict Interior Covering Uniformity):} $c^+$ (resp.\ $c^-$) is constant on the strict interior $L^\circ = L \setminus \{\hat{0}, \hat{1}\}$.
+  \item \textbf{Regime III (Graded Rank-Wise and Layer-Wise Covering Uniformity):} Following Terwilliger~\cite{Terwilliger1990} and Stanley~\cite{StanleyEC1}, $L$ is graded with rank function $\rk : L \to \{0, \dots, h\}$ and $c^+(x)$ (resp.\ $c^-(x)$) depends only on $\rk(x)$ (or, without assuming gradedness, on shortest-chain height from $\hat{0}$ / depth from $\hat{1}$).
+\end{itemize}
+
+Similarly, we analyze all standard notions of the \emph{spectrum} of a finite (or graded) lattice:
+\begin{itemize}
+  \item \textbf{(S1)} the \emph{Whitney / rank-size spectrum} $(W_0, W_1, \dots, W_h)$ where $W_k = |\{x \in L : \rk(x) = k\}|$, symmetric when $W_k = W_{h-k}$ for all $0 \le k \le h$;
+  \item \textbf{(S2)} the \emph{rank covering-parameter profile} $(u_0, \dots, u_{h-1})$ vs.\ $(d_h, \dots, d_1)$, symmetric when $c^+(x) = c^-(y)$ whenever $\rk(x) + \rk(y) = h$;
+  \item \textbf{(S3)} the \emph{covering-degree multiset spectrum}, comparing the upper degree distribution $\{c^+(x) : x \in L\}$ and the lower degree distribution $\{c^-(x) : x \in L\}$;
+  \item \textbf{(S4)} the \emph{Hasse graph eigenvalue spectrum} $\sigma(A_L)$ of the undirected Hasse adjacency matrix $A_L$ (symmetric about $0$ when $\sigma(A_L) = -\sigma(A_L)$, which requires $\tr(A_L^{2m+1}) = 0$ for all $m \ge 0$), as well as comparability-graph, Laplacian, and M\"obius characteristic polynomial spectra.
+\end{itemize}
+
+We prove below that \textbf{under every combination of uniformity regime and spectrum convention, Conjecture~00000008545 is false}.
+
+\section{Preliminaries and Key Finite Lattices}
+
+Recall that a lattice $L$ is \emph{modular} if $x \le z \implies x \vee (y \wedge z) = (x \vee y) \wedge z$ for all $x, y, z \in L$, and \emph{distributive} if $x \wedge (y \vee z) = (x \wedge y) \vee (x \wedge z)$ for all $x, y, z \in L$.
+
+\begin{lemma}[Distributivity implies modularity]\label{lem:dist-mod}
+Every distributive lattice $L$ is modular.
+\end{lemma}
+\begin{proof}
+Suppose $L$ is distributive and $x \le z$ in $L$. Then $z \wedge x = x$, so
+\[
+  (x \vee y) \wedge z = z \wedge (x \vee y) = (z \wedge x) \vee (z \wedge y) = x \vee (y \wedge z). \qedhere
+\]
+\end{proof}
+
+Figure~\ref{fig:counterexamples} displays the six concrete finite lattices that serve as our principal witnesses: the $4$-element Boolean diamond $B_2 = C_2 \times C_2$; the $5$-element nonmodular pentagon $N_5$; the $5$-element mutually dual ordinal sums $B_2 \oplus \mathbf{1}$ and $\mathbf{1} \oplus B_2$; the $6$-element ordinal sum $N_5 \oplus \mathbf{1}$; and the $7$-element graded lattice $L_7$.
+
+\begin{figure}[htbp]
+\centering
+\setlength{\unitlength}{1.15pt}
+\begin{tabular}{ccc}
+% 1. B_2
+\begin{picture}(110,76)(-55,-14)
+  \put(0,0){\circle*{4}}
+  \put(-20,20){\circle*{4}}
+  \put(20,20){\circle*{4}}
+  \put(0,40){\circle*{4}}
+  \put(0,0){\line(-1,1){20}}
+  \put(0,0){\line(1,1){20}}
+  \put(-20,20){\line(1,1){20}}
+  \put(20,20){\line(-1,1){20}}
+  \put(4,-6){\footnotesize $\hat{0}\,(2,0)$}
+  \put(-52,18){\footnotesize $a\,(1,1)$}
+  \put(25,18){\footnotesize $b\,(1,1)$}
+  \put(4,42){\footnotesize $\hat{1}\,(0,2)$}
+\end{picture}
+&
+% 2. N_5
+\begin{picture}(115,76)(-55,-14)
+  \put(0,0){\circle*{4}}
+  \put(-20,20){\circle*{4}}
+  \put(20,10){\circle*{4}}
+  \put(20,30){\circle*{4}}
+  \put(0,40){\circle*{4}}
+  \put(0,0){\line(-1,1){20}}
+  \put(-20,20){\line(1,1){20}}
+  \put(0,0){\line(2,1){20}}
+  \put(20,10){\line(0,1){20}}
+  \put(20,30){\line(-2,1){20}}
+  \put(4,-6){\footnotesize $\hat{0}\,(2,0)$}
+  \put(-52,18){\footnotesize $a\,(1,1)$}
+  \put(25,7){\footnotesize $b\,(1,1)$}
+  \put(25,28){\footnotesize $c\,(1,1)$}
+  \put(4,42){\footnotesize $\hat{1}\,(0,2)$}
+\end{picture}
+&
+% 3. B_2 (+) 1
+\begin{picture}(110,76)(-55,-14)
+  \put(0,0){\circle*{4}}
+  \put(-16,16){\circle*{4}}
+  \put(16,16){\circle*{4}}
+  \put(0,32){\circle*{4}}
+  \put(0,48){\circle*{4}}
+  \put(0,0){\line(-1,1){16}}
+  \put(0,0){\line(1,1){16}}
+  \put(-16,16){\line(1,1){16}}
+  \put(16,16){\line(-1,1){16}}
+  \put(0,32){\line(0,1){16}}
+  \put(4,-6){\footnotesize $\hat{0}\,(2,0)$}
+  \put(-48,14){\footnotesize $a\,(1,1)$}
+  \put(21,14){\footnotesize $b\,(1,1)$}
+  \put(5,30){\footnotesize $u\,(1,2)$}
+  \put(5,47){\footnotesize $\hat{1}\,(0,1)$}
+\end{picture}
+\\[2pt]
+{\small \textbf{(a)} $B_2$ ($|L|=4$, dist.)} &
+{\small \textbf{(b)} $N_5$ ($|L|=5$, nonmod.)} &
+{\small \textbf{(c)} $B_2 \oplus \mathbf{1}$ ($|L|=5$, dist.)}
+\\[10pt]
+% 4. 1 (+) B_2
+\begin{picture}(110,76)(-55,-14)
+  \put(0,0){\circle*{4}}
+  \put(0,16){\circle*{4}}
+  \put(-16,32){\circle*{4}}
+  \put(16,32){\circle*{4}}
+  \put(0,48){\circle*{4}}
+  \put(0,0){\line(0,1){16}}
+  \put(0,16){\line(-1,1){16}}
+  \put(0,16){\line(1,1){16}}
+  \put(-16,32){\line(1,1){16}}
+  \put(16,32){\line(-1,1){16}}
+  \put(4,-6){\footnotesize $\hat{0}\,(1,0)$}
+  \put(5,13){\footnotesize $u\,(2,1)$}
+  \put(-48,30){\footnotesize $a\,(1,1)$}
+  \put(21,30){\footnotesize $b\,(1,1)$}
+  \put(4,49){\footnotesize $\hat{1}\,(0,2)$}
+\end{picture}
+&
+% 5. N_5 (+) 1
+\begin{picture}(115,76)(-55,-14)
+  \put(0,0){\circle*{4}}
+  \put(-16,16){\circle*{4}}
+  \put(16,8){\circle*{4}}
+  \put(16,24){\circle*{4}}
+  \put(0,32){\circle*{4}}
+  \put(0,48){\circle*{4}}
+  \put(0,0){\line(-1,1){16}}
+  \put(-16,16){\line(1,1){16}}
+  \put(0,0){\line(2,1){16}}
+  \put(16,8){\line(0,1){16}}
+  \put(16,24){\line(-2,1){16}}
+  \put(0,32){\line(0,1){16}}
+  \put(4,-6){\footnotesize $\hat{0}\,(2,0)$}
+  \put(-48,14){\footnotesize $a\,(1,1)$}
+  \put(21,5){\footnotesize $b\,(1,1)$}
+  \put(21,22){\footnotesize $c\,(1,1)$}
+  \put(5,31){\footnotesize $u\,(1,2)$}
+  \put(5,47){\footnotesize $\hat{1}\,(0,1)$}
+\end{picture}
+&
+% 6. L_7
+\begin{picture}(130,76)(-62,-14)
+  \put(0,0){\circle*{4}}
+  \put(-24,12){\circle*{4}}
+  \put(0,12){\circle*{4}}
+  \put(24,12){\circle*{4}}
+  \put(-12,24){\circle*{4}}
+  \put(24,24){\circle*{4}}
+  \put(12,36){\circle*{4}}
+  \put(0,0){\line(-2,1){24}}
+  \put(0,0){\line(0,1){12}}
+  \put(0,0){\line(2,1){24}}
+  \put(-24,12){\line(1,1){12}}
+  \put(0,12){\line(-1,1){12}}
+  \put(24,12){\line(0,1){12}}
+  \put(-12,24){\line(2,1){24}}
+  \put(24,24){\line(-1,1){12}}
+  \put(4,-6){\footnotesize $\hat{0}\,(3,0)$}
+  \put(-56,10){\footnotesize $p\,(1,1)$}
+  \put(3,10){\footnotesize $q\,(1,1)$}
+  \put(28,10){\footnotesize $r\,(1,1)$}
+  \put(-45,24){\footnotesize $u\,(1,2)$}
+  \put(28,23){\footnotesize $v\,(1,1)$}
+  \put(16,37){\footnotesize $\hat{1}\,(0,2)$}
+\end{picture}
+\\[2pt]
+{\small \textbf{(d)} $\mathbf{1} \oplus B_2$ ($|L|=5$, dist.)} &
+{\small \textbf{(e)} $N_5 \oplus \mathbf{1}$ ($|L|=6$)} &
+{\small \textbf{(f)} $L_7$ ($|L|=7$, graded)}
+\end{tabular}
+\caption{Hasse diagrams of the primary counterexample lattices, with each element $x$ labeled by $(c^+(x), c^-(x))$.}
+\label{fig:counterexamples}
+\end{figure}
+
+\section{Disproof under Regime I: Global Covering Uniformity}
+
+\begin{definition}[Global non-extremal covering uniformity]\label{def:global}
+A finite lattice $L$ is \emph{globally upper-uniform} if $c^+(x) = c^+(y)$ for all $x, y \in L \setminus \{\hat{1}\}$, \emph{globally lower-uniform} if $c^-(x) = c^-(y)$ for all $x, y \in L \setminus \{\hat{0}\}$, and \emph{globally uniform} if it is both globally upper-uniform and globally lower-uniform.
+\end{definition}
+
+\begin{proposition}[Characterization of globally uniform lattices and $|L| \le 3$]\label{prop:global-chains}
+Let $L$ be a finite lattice.
+\begin{enumerate}
+  \item[(a)] $L$ is globally upper-uniform if and only if $L$ is a chain (total order), if and only if $L$ is globally lower-uniform.
+  \item[(b)] Every finite lattice $L$ with $|L| \le 3$ is globally uniform.
+\end{enumerate}
+\end{proposition}
+\begin{proof}
+(a) Every finite chain $C_n = \{x_1 < x_2 < \dots < x_n\}$ trivially satisfies $c^+(x_i) = 1$ for all $i < n$ and $c^-(x_i) = 1$ for all $i > 1$. Conversely, suppose $L$ is globally upper-uniform and $|L| \ge 2$, so $\hat{0} < \hat{1}$. Since $L$ is finite, choosing a maximal element $q \in L \setminus \{\hat{1}\}$ yields a coatom $q \cov \hat{1}$ whose unique strict upper bound is $\hat{1}$; hence $c^+(q) = 1$. By global upper uniformity, $c^+(x) = 1$ for every $x \in L \setminus \{\hat{1}\}$. Starting at $x_1 = \hat{0}$ and repeatedly passing to the unique upper cover produces a chain $x_1 \cov x_2 \cov \dots \cov x_m = \hat{1}$ in $L$. If any $y \in L$ lay outside $\{x_1, \dots, x_m\}$, let $i$ be maximal with $x_i \le y$. Since $y \neq \hat{1}$, $i < m$, and choosing an upper cover $w$ of $x_i$ with $x_i \cov w \le y$ (minimal in $(x_i, y]$) gives $w \neq x_{i+1}$ (by maximality of $i$), contradicting $c^+(x_i) = 1$. Thus $L = \{x_1, \dots, x_m\}$ is a chain. The characterization of global lower uniformity holds by order duality $L \leftrightarrow L^\op$.
+
+(b) If $|L| = 1$, $L \setminus \{\hat{1}\} = \emptyset$. If $|L| = 2$, $L = \{\hat{0}, \hat{1}\}$ with $\hat{0} \cov \hat{1}$, which is $C_2$. If $|L| = 3$, $\hat{0} \neq \hat{1}$ (otherwise antisymmetry and boundedness force $x = \hat{0}$ for all $x \in L$, contradicting $|L| = 3$), so $L = \{\hat{0}, m, \hat{1}\}$ with $\hat{0} < m < \hat{1}$, which is $C_3$. By~(a), all such lattices are globally uniform.
+\end{proof}
+
+\begin{theorem}[Refutation of Clause 2 under Regime I]\label{thm:regime-I}
+Under global non-extremal covering uniformity (Definition~\ref{def:global}), the minimal counterexample to uniformity is \emph{not} the $5$-element nonmodular lattice $N_5$:
+\begin{enumerate}
+  \item[(1)] Every finite lattice of cardinality $\le 3$ is globally uniform, while the $4$-element Boolean lattice $B_2 = C_2 \times C_2 = \{\hat{0}, a, b, \hat{1}\}$ has cardinality $4 < 5$, is distributive (hence modular by Lemma~\ref{lem:dist-mod}), and fails \emph{both} global upper uniformity and global lower uniformity:
+  \[
+    c^+(\hat{0}) = |\{a, b\}| = 2 \neq 1 = |\{\hat{1}\}| = c^+(a), \qquad
+    c^-(\hat{1}) = |\{a, b\}| = 2 \neq 1 = |\{\hat{0}\}| = c^-(a).
+  \]
+  \item[(2)] Even at cardinality $5$, the three non-chain modular lattices $M_3$ (modular, non-distributive, with $c^+(\hat{0}) = 3 \neq 1 = c^+(a)$), $B_2 \oplus \mathbf{1}$, and $\mathbf{1} \oplus B_2$ all fail global uniformity; thus $N_5$ is neither minimal in size nor unique at size $5$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Immediate from Proposition~\ref{prop:global-chains}(b) and direct inspection of the covering relations in $B_2$ ($\hat{0} \cov a \cov \hat{1}$ and $\hat{0} \cov b \cov \hat{1}$, with $a \vee b = \hat{1}$ and $a \wedge b = \hat{0}$) and $M_3$ ($\hat{0} \cov a, b, c \cov \hat{1}$).
+\end{proof}
+
+\begin{remark}[Ancillary global variants]\label{rem:ancillary}
+Every alternative global reading of ``evenness of element covering numbers'' also refutes Clause~(2) at size $\le 3$ on modular chains:
+\begin{itemize}
+  \item \emph{Unrestricted constancy on all of $L$:} On $C_2$ ($|C_2| = 2 < 5$, modular), $c^+(\hat{0}) = 1 \neq 0 = c^+(\hat{1})$.
+  \item \emph{Undirected Hasse degree regularity ($c(x) = c^+(x) + c^-(x)$ constant on $L$):} On $C_3 = \{\hat{0} \cov m \cov \hat{1}\}$ ($|C_3| = 3 < 5$, modular), $c(\hat{0}) = 1 \neq 2 = c(m)$. Ironically, the Hasse diagram of $N_5$ is a $5$-cycle, so $c(x) = 2$ for every $x \in N_5$ ($N_5$ \emph{satisfies} Hasse regularity!).
+  \item \emph{Literal arithmetic parity ($2 \mid c^+(x)$ or $2 \mid c(x)$):} On $C_2$ ($|C_2| = 2 < 5$, modular), $c^+(\hat{0}) = c(\hat{0}) = 1$ is odd.
+\end{itemize}
+\end{remark}
+
+\section{Disproof under Regime II: Strict Interior Uniformity}
+
+To prevent $B_2$ from failing uniformity at $\hat{0}$ and $\hat{1}$, one may restrict covering-number constancy to the strict interior $L^\circ = L \setminus \{\hat{0}, \hat{1}\}$.
+
+\begin{definition}[Strict interior uniformity]\label{def:interior}
+A finite lattice $L$ is \emph{interior upper-uniform} if $c^+(x) = c^+(y)$ for all $x, y \in L^\circ$, \emph{interior lower-uniform} if $c^-(x) = c^-(y)$ for all $x, y \in L^\circ$, and \emph{interior uniform} if both hold.
+\end{definition}
+
+\begin{theorem}[Refutation under Regime II]\label{thm:regime-II}
+Under strict interior uniformity (Definition~\ref{def:interior}), Conjecture~00000008545 fails in both clauses:
+\begin{enumerate}
+  \item[(1)] \textbf{$N_5$ is not a counterexample:} In the $5$-element nonmodular pentagon $N_5 = \{\hat{0}, a, b, c, \hat{1}\}$ with covering chains $\hat{0} \cov a \cov \hat{1}$ and $\hat{0} \cov b \cov c \cov \hat{1}$ (nonmodular because $b \le c$ yet $b \vee (a \wedge c) = b \neq c = (b \vee a) \wedge c$), the interior $N_5^\circ = \{a, b, c\}$ satisfies
+  \[
+    c^+(a) = c^+(b) = c^+(c) = 1 \qquad \text{and} \qquad c^-(a) = c^-(b) = c^-(c) = 1.
+  \]
+  Hence $N_5$ \emph{satisfies} both interior upper uniformity and interior lower uniformity.
+  \item[(2)] \textbf{Minimal counterexamples are modular:} Every lattice of size $\le 4$ ($C_1, C_2, C_3, C_4, B_2$) is interior uniform, whereas at size $5$ the ordinal sums $B_2 \oplus \mathbf{1}$ ($\hat{0} \cov a, b \cov u \cov \hat{1}$) and $\mathbf{1} \oplus B_2$ ($\hat{0} \cov u \cov a, b \cov \hat{1}$) are \emph{distributive} (hence \emph{modular}), yet $B_2 \oplus \mathbf{1}$ fails interior lower uniformity ($c^-(u) = 2 \neq 1 = c^-(a)$ for $a, u \in (B_2 \oplus \mathbf{1})^\circ$) and $\mathbf{1} \oplus B_2$ fails interior upper uniformity ($c^+(u) = 2 \neq 1 = c^+(a)$). Thus Clause~(2) is false.
+  \item[(3)] \textbf{Spectral asymmetry (Clause 1):} $B_2 \oplus \mathbf{1}$ is interior upper-uniform ($c^+(a) = c^+(b) = c^+(u) = 1$) yet has asymmetric Whitney rank spectrum $(1,2,1,1)$; moreover, $N_5$ is both interior upper- and lower-uniform, yet its undirected Hasse graph is the odd cycle $C_5$, whose adjacency matrix $A_{N_5}$ has characteristic polynomial $p(t) = t^5 - 5t^3 + 5t - 2$ and $\tr(A_{N_5}^5) = 10 \neq 0$, so its eigenvalue spectrum $\{2, \frac{-1+\sqrt{5}}{2}, \frac{-1+\sqrt{5}}{2}, \frac{-1-\sqrt{5}}{2}, \frac{-1-\sqrt{5}}{2}\}$ is not symmetric about $0$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Items~(1) and~(2) follow directly from the covering numbers in Figure~\ref{fig:counterexamples}(b)--(d); distributivity of $B_2 \oplus \mathbf{1}$ and $\mathbf{1} \oplus B_2$ holds because adding a new top or bottom to a distributive lattice preserves $x \wedge (y \vee z) = (x \wedge y) \vee (x \wedge z)$. For~(3), if a real symmetric matrix $A$ had $0$-symmetric eigenvalue multiset $\{\lambda_i\} = \{-\lambda_i\}$, then $\tr(A^5) = \sum_{i=1}^5 \lambda_i^5 = 0$; however, in the $5$-cycle $A_{N_5}$ there are $2 \times 5 = 10$ closed walks of length $5$ (two traversal directions from each of the $5$ vertices, as a $5$-cycle has no closed $5$-walks using only $2$-steps), giving $\tr(A_{N_5}^5) = 10 \neq 0$.
+\end{proof}
+
+\section{Disproof under Regime III: Graded Rank-Wise Uniformity}
+
+In algebraic combinatorics (Terwilliger~\cite{Terwilliger1990}), a finite poset or lattice is called \emph{uniform} when it is graded and its upper and lower covering numbers are constant along each rank fiber.
+
+\begin{definition}[Gradings and Terwilliger rank-uniformity]\label{def:rank}
+A \emph{grading} on a finite lattice $L$ is a function $\rk : L \to \mathbb{N}$ such that $\rk(\hat{0}) = 0$ and $x \cov y \implies \rk(y) = \rk(x) + 1$; its \emph{height} is $h = \rk(\hat{1})$, and its \emph{Whitney (rank-size) spectrum} is $(W_0, W_1, \dots, W_h)$ with $W_k = |\{x \in L : \rk(x) = k\}|$. Given a grading $\rk$, $L$ is \emph{rank-upper-uniform} if $\rk(x) = \rk(y) \implies c^+(x) = c^+(y)$, \emph{rank-lower-uniform} if $\rk(x) = \rk(y) \implies c^-(x) = c^-(y)$, and \emph{rank-uniform} if both hold.
+\end{definition}
+
+\begin{lemma}[Uniqueness of grading and non-gradedness of $N_5$]\label{lem:grading}
+\leavevmode
+\begin{enumerate}
+  \item[(a)] Any two gradings $\rk_1, \rk_2$ on a finite lattice $L$ satisfy $\rk_1(x) = \rk_2(x)$ for all $x \in L$; hence $h$ and $(W_0, \dots, W_h)$ depend only on $L$.
+  \item[(b)] Every lattice of cardinality $\le 4$ ($C_1, C_2, C_3, C_4, B_2$) and all four modular $5$-element lattices ($C_5, M_3, B_2 \oplus \mathbf{1}, \mathbf{1} \oplus B_2$) are rank-uniform, whereas $N_5$ admits no grading (hence is the unique minimal non-rank-uniform lattice).
+\end{enumerate}
+\end{lemma}
+\begin{proof}
+(a) In a finite lattice $L$, every $x \in L$ is connected from $\hat{0}$ by a covering chain $\hat{0} = x_0 \cov x_1 \cov \dots \cov x_k = x$ (constructed inductively by choosing a lower cover when $x > \hat{0}$). Along this chain, $\rk_1(x_i) = i = \rk_2(x_i)$, so $\rk_1(x) = k = \rk_2(x)$.
+
+(b) In $N_5$, any grading $\rk$ would satisfy $\rk(\hat{1}) = \rk(\hat{0}) + 2 = 2$ along $\hat{0} \cov a \cov \hat{1}$ and $\rk(\hat{1}) = \rk(\hat{0}) + 3 = 3$ along $\hat{0} \cov b \cov c \cov \hat{1}$, a contradiction. Rank-uniformity of $C_1, \dots, C_5, B_2, M_3, B_2 \oplus \mathbf{1}, \mathbf{1} \oplus B_2$ is immediate from their rank fibers.
+\end{proof}
+
+Lemma~\ref{lem:grading}(b) explains the exact heuristic origin of Clause~(2): Regime~III is the unique standard convention under which $N_5$ is the minimal counterexample to uniformity. Yet under Regime~III, \textbf{Clause~(1) fails across every standard notion of lattice spectrum}:
+
+\begin{theorem}[Refutation of Clause 1 under Regime III across all spectrum conventions]\label{thm:regime-III}
+\leavevmode
+\begin{enumerate}
+  \item[(1)] \textbf{Whitney / rank-size spectrum (S1) and rank-covering profile (S2):} The $5$-element distributive (hence modular) lattice $B_2 \oplus \mathbf{1} = \{\hat{0}, a, b, u, \hat{1}\}$ has unique grading $\rk(\hat{0})=0$, $\rk(a)=\rk(b)=1$, $\rk(u)=2$, $\rk(\hat{1})=3$ ($h=3$). On each rank fiber $R_0=\{\hat{0}\}$, $R_1=\{a,b\}$, $R_2=\{u\}$, $R_3=\{\hat{1}\}$, both $c^+$ and $c^-$ are constant:
+  \[
+    (u_0, u_1, u_2, u_3) = (2, 1, 1, 0), \qquad (d_0, d_1, d_2, d_3) = (0, 1, 2, 1),
+  \]
+  so $B_2 \oplus \mathbf{1}$ is \emph{both} rank-upper-uniform and rank-lower-uniform. Nevertheless:
+  \begin{itemize}
+    \item its Whitney spectrum $(W_0, W_1, W_2, W_3) = (1, 2, 1, 1)$ is \emph{not} palindromic ($W_1 = 2 \neq 1 = W_2$);
+    \item its rank-covering parameters violate complementary symmetry: $\rk(\hat{0}) + \rk(\hat{1}) = 3 = h$, yet $c^+(\hat{0}) = 2 \neq 1 = c^-(\hat{1})$ (and $\rk(a) + \rk(u) = 3$, yet $c^+(a) = 1 \neq 2 = c^-(u)$).
+  \end{itemize}
+  Dually, $\mathbf{1} \oplus B_2$ is rank-uniform with asymmetric Whitney spectrum $(1, 1, 2, 1)$.
+
+  \item[(2)] \textbf{Covering-degree multiset spectrum (S3) and upper/lower asymmetry:} Define the $7$-element poset $L_7 = \{\hat{0}, p, q, r, u, v, \hat{1}\}$ by $\hat{0} < p, q < u < \hat{1}$ and $\hat{0} < r < v < \hat{1}$, with no other strict comparabilities (Figure~\ref{fig:counterexamples}(f)).
+  \begin{itemize}
+    \item \emph{$L_7$ is a bounded lattice:} $p \vee q = u$, while every other incomparable pair among $\{p,q,r,u,v\}$ has unique upper bound $\hat{1}$ and unique lower bound $\hat{0}$.
+    \item \emph{$L_7$ is graded of height $3$ and rank-upper-uniform:} Its maximal chains $\hat{0} \cov p \cov u \cov \hat{1}$, $\hat{0} \cov q \cov u \cov \hat{1}$, and $\hat{0} \cov r \cov v \cov \hat{1}$ all have length $3$, giving rank fibers $R_0 = \{\hat{0}\}$ ($c^+=3$), $R_1 = \{p,q,r\}$ ($c^+=1,1,1$), $R_2 = \{u,v\}$ ($c^+=1,1$), and $R_3 = \{\hat{1}\}$ ($c^+=0$). Thus $L_7$ is both rank-upper-uniform and interior-upper-uniform.
+    \item \emph{$L_7$ fails rank-lower-uniformity, Whitney symmetry, and covering-multiset symmetry:} On $R_2 = \{u,v\}$, $c^-(u) = |\{p,q\}| = 2 \neq 1 = |\{r\}| = c^-(v)$; its Whitney spectrum $(1,3,2,1)$ satisfies $W_1 = 3 \neq 2 = W_2$; and its upper and lower covering-degree multisets are \emph{unequal}:
+    \[
+      \{c^+(x) : x \in L_7\} = \{0, 1, 1, 1, 1, 1, 3\} \;\neq\; \{0, 1, 1, 1, 1, 2, 2\} = \{c^-(x) : x \in L_7\}.
+    \]
+  \end{itemize}
+  Dually, $L_7^\op$ is rank-lower-uniform yet fails rank-upper-uniformity and covering-multiset symmetry.
+
+  \item[(3)] \textbf{Non-graded shortest-chain height layer uniformity and Hasse graph spectrum (S4):} Even if one defines layer uniformity \emph{without} assuming gradedness---requiring $c^+(x)$ to depend only on the minimum covering-chain length $h_{\min}(x)$ from $\hat{0}$ (under which $N_5$ still fails at size $5$, since $h_{\min}(c) = h_{\min}(\hat{1}) = 2$ with $c^+(c) = 1 \neq 0 = c^+(\hat{1})$)---the $6$-element lattice $N_5 \oplus \mathbf{1} = \{\hat{0}, a, b, c, u, \hat{1}\}$ (Figure~\ref{fig:counterexamples}(e)) has layers $h_{\min}^{-1}(0) = \{\hat{0}\}$ ($c^+=2$), $h_{\min}^{-1}(1) = \{a,b\}$ ($c^+=1,1$), $h_{\min}^{-1}(2) = \{c,u\}$ ($c^+=1,1$), and $h_{\min}^{-1}(3) = \{\hat{1}\}$ ($c^+=0$), so it is layer-upper-uniform, yet its Hasse graph contains the $5$-cycle $\hat{0}\text{--}a\text{--}u\text{--}c\text{--}b\text{--}\hat{0}$ with characteristic polynomial $t^6 - 6t^4 + 8t^2 - 2t - 1$ and $\tr(A^5) = 10 \neq 0$, so its eigenvalue spectrum is not symmetric about $0$. (Similarly, comparability-graph, Laplacian, and M\"obius characteristic polynomial spectra already fail symmetry on $C_3$ and $B_2 \oplus \mathbf{1}$.)
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+All claims in~(1)--(3) were verified step by step above; in $N_5 \oplus \mathbf{1}$, the unique odd cycle of length $\le 5$ is the induced $5$-cycle on $\{\hat{0}, a, u, c, b\}$, contributing $2 \times 5 = 10$ closed $5$-walks, while $2$-step walks cannot have odd length $5$, so $\tr(A^5) = 10 \neq 0$.
+\end{proof}
+
+\section{Exhaustive Census (\texorpdfstring{$|L| \le 7$}{|L| <= 7}) and Formal Verification}
+
+Table~\ref{tab:census} summarizes our exhaustive Python enumeration (\texttt{verify.py}) over all unlabeled finite lattices of cardinalities $1 \le n \le 7$ (matching OEIS A006966: $1, 1, 1, 2, 5, 15, 53$), recording how many isomorphism classes satisfy each uniformity regime and where the first failure occurs. Notice in particular why extending the census to $n=7$ is essential: for $n \le 6$, every graded rank-upper-uniform lattice happens to be rank-lower-uniform as well ($8$ of $15$ at $n=6$), whereas at $n=7$ the lattice $L_7$ and its dual $L_7^\op$ separate rank-upper-uniformity ($16$ lattices) from two-sided rank-uniformity ($14$ lattices) and break equality between $\{c^+(x)\}$ and $\{c^-(x)\}$.
+
+\begin{table}[htbp]
+\centering
+\caption{Isomorphism classes of finite lattices of size $1 \le n \le 7$ across uniformity regimes.}
+\label{tab:census}
+\vspace{2pt}
+{\footnotesize
+\setlength{\tabcolsep}{4.2pt}
+\begin{tabular}{@{}lrrrrrrrl@{}}
+\toprule
+Uniformity Regime & $n{=}1$ & $2$ & $3$ & $4$ & $5$ & $6$ & $7$ & Minimal Counterexample \\
+\midrule
+All unlabeled lattices (OEIS A006966) & 1 & 1 & 1 & 2 & 5 & 15 & 53 & --- \\
+Global uniform ($L\setminus\{\hat{1}\}$, $L\setminus\{\hat{0}\}$) & 1 & 1 & 1 & 1 & 1 & 1 & 1 & $B_2$ ($n=4$, modular) \\
+Undirected Hasse regular ($c^+{+}c^-$ const.) & 1 & 1 & 0 & 1 & 1 & 2 & 2 & $C_3$ ($n=3$, modular) \\
+Strict interior uniform ($L\setminus\{\hat{0},\hat{1}\}$) & 1 & 1 & 1 & 2 & 3 & 5 & 7 & $B_2\oplus\mathbf{1},\,\mathbf{1}\oplus B_2$ ($n=5$, mod.) \\
+Graded rank-uniform (upper \& lower) & 1 & 1 & 1 & 2 & 4 & 8 & 14 & $N_5$ ($n=5$; Clause 1 fails) \\
+Graded rank-upper-uniform & 1 & 1 & 1 & 2 & 4 & 8 & 16 & $N_5$ ($n=5$; Clause 1 fails) \\
+Graded rank-lower-uniform & 1 & 1 & 1 & 2 & 4 & 8 & 16 & $N_5$ ($n=5$; Clause 1 fails) \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Every result in this paper is formalized in self-contained Core Lean~4 (\texttt{lean/Main.lean}, Lean toolchain \texttt{v4.19.0}) with \texttt{warningAsError = true}, zero external library dependencies, zero \texttt{sorry}, zero \texttt{native\_decide}, and zero custom axioms. Table~\ref{tab:lean} maps each mathematical result to its verified Lean~4 declaration.
+
+\begin{table}[htbp]
+\centering
+\caption{Correspondence between mathematical statements and verified Lean 4 declarations.}
+\label{tab:lean}
+\vspace{2pt}
+{\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Mathematical Statement & Declaration in \texttt{Conjecture00000008545} \\
+\midrule
+Bounded lattice \& covering equivalence & \texttt{FinLattice}, \texttt{FinLattice.Covers}, \texttt{FinLattice.coversB\_iff} \\
+Lemma~\ref{lem:dist-mod} (Distributive $\implies$ Modular) & \texttt{FinLattice.distributive\_implies\_modular} \\
+Lemma~\ref{lem:grading}(a) (Uniqueness of grading) & \texttt{FinLattice.grading\_unique} \\
+Prop.~\ref{prop:global-chains}(b) (All $|L|\le 3$ globally uniform) & \texttt{FinLattice.all\_card\_le\_3\_globally\_uniform} \\
+Non-vacuity witnesses ($C_3$, $B_2$) & \texttt{nonvacuous\_C3}, \texttt{nonvacuous\_B2\_rank\_uniform} \\
+Theorem~\ref{thm:regime-I} \& Remark~\ref{rem:ancillary} (Regime I) & \texttt{disproof\_global\_minimal\_counterexample}, \\
+ & \texttt{M3\_modular\_fails\_global\_uniformity}, \\
+ & \texttt{disproof\_ancillary\_global\_variants} \\
+Lemma~\ref{lem:grading}(b) ($N_5$ nonmodular \& non-graded) & \texttt{N5\_nonmodular\_and\_nongraded} \\
+Theorem~\ref{thm:regime-II} (Regime II: interior uniformity) & \texttt{disproof\_interior\_uniformity} \\
+Theorem~\ref{thm:regime-III}(1) ($B_2 \oplus \mathbf{1}$ Whitney \& profile) & \texttt{disproof\_rank\_uniform\_whitney\_and\_profile} \\
+Theorem~\ref{thm:regime-III}(2) ($L_7$ multiset \& rank asymmetry) & \texttt{disproof\_rank\_upper\_uniform\_multiset} \\
+Theorem~\ref{thm:regime-III}(3) ($N_5 \oplus \mathbf{1}$ height \& $\tr(A^5)$) & \texttt{disproof\_min\_height\_hasse\_spectrum} \\
+Master Disproof Synthesis & \texttt{conjecture\_00000008545\_false} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{thebibliography}{9}
+\bibitem{StanleyEC1}
+R.~P. Stanley, \emph{Enumerative Combinatorics, Volume~1}, 2nd ed., Cambridge Studies in Advanced Mathematics, vol.~49, Cambridge University Press, 2012.
+
+\bibitem{Terwilliger1990}
+P.~Terwilliger, ``The incidence algebra of a uniform poset,'' in \emph{Coding Theory and Design Theory, Part~I}, IMA Volumes in Mathematics and its Applications, vol.~20, Springer, New York, 1990, pp.~193--212.
+\end{thebibliography}
+
+\end{document}
