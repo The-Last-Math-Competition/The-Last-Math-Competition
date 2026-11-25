@@ -1,0 +1,577 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\coloneqq}{\mathrel{:=}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Homle}{\operatorname{Hom}_{\le}}
+\newcommand{\Endle}{\operatorname{End}_{\le}}
+\newcommand{\rk}{\operatorname{rk}}
+\newcommand{\BoxProd}{\operatorname{Box}}
+
+\title{\textbf{Disproof of Conjecture 00000008552:\\
+Non-Splitting and Prime-Factor Obstructions to MacMahon-Type\\
+Multinomial Formulas for Order Polynomials of Chain Product Lattices}}
+\author{Formal Mathematical Analysis and Lean~4 Verification}
+\date{November 24, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We disprove Conjecture~\texttt{00000008552}, which asserts that the number of order-preserving
+maps of a chain product lattice is an explicit product of multinomial coefficients of MacMahon type.
+While MacMahon's classical box theorem expresses the order polynomial $\Omega(C_a \times C_b, m)
+= |\Homle(C_a \times C_b, C_m)|$ of a product of at most two finite chains as a rational-linear
+product of binomial ratios, we prove that this structure fails completely in dimension $d \ge 3$
+under every standard interpretation. Specifically, for the $8$-element Boolean cube lattice
+$L = C_2 \times C_2 \times C_2$, we establish for all integers $m \ge 0$ the closed-form order
+polynomial
+\[
+  \Omega(C_2 \times C_2 \times C_2, m)
+  = \frac{m(m+1)(m+2)(m+3)\bigl(2m^4 + 12m^3 + 25m^2 + 21m + 10\bigr)}{1680}.
+\]
+Because $8(2m^4 + 12m^3 + 25m^2 + 21m + 10) = (4m^2 + 12m + 7)^2 + 31 \ge 31 > 0$ for all
+$m \in \mathbb{R}$, the quartic factor has no real or rational roots and is irreducible in
+$\mathbb{Q}[m]$. Since every polynomial multinomial coefficient splits into linear factors over
+$\mathbb{Q}[m]$, $\Omega(C_2^3, m)$ cannot equal any product of multinomial coefficients, any
+MacMahon-type quotient of products of multinomial coefficients, or even eventually any rational
+quotient of integer-linear products in $m$. Furthermore, at fixed parameters we prove that
+$\Omega(C_2^3, 4) = 887$ is prime---ruling out any nontrivial integer factorization, any product of
+genuine (non-edge) multinomial coefficients, and any quotient of multinomials with top entries
+$< 887$---that the naive $d$-dimensional MacMahon rank-box product fails even to be an integer at
+$(C_2^3, m=3)$ and $(C_2^4, m=2)$ ($\frac{500}{3} \ne 168$), and that the endomorphism monoid of
+$C_2 \times C_2 \times C_3$ has exact cardinality $|\Endle(C_2 \times C_2 \times C_3)| =
+2{,}217{,}500 = 2^2 \cdot 5^4 \cdot 887$. All theorems are formalized from first principles in Core
+Lean~4.19.0 without external libraries or extra axioms.
+\end{abstract}
+
+\section{Official Conjecture Statement and Overview}
+
+Conjecture~\texttt{00000008552} reads as follows (\texttt{SOURCE.md}):
+\begin{quote}
+\textbf{English.} \emph{Definition: Order polynomials count order-preserving maps. Conjecture: The
+number of order-preserving maps of a chain product lattice is an explicit product of multinomial
+coefficients; the product is of MacMahon type. (order-preserving map counting)}
+\end{quote}
+(The accompanying Chinese statement translates identically: defining order polynomials as counting
+order-preserving maps, and conjecturing that the number of order-preserving maps of a chain product
+lattice is an explicit product of multinomial coefficients of MacMahon type.)
+
+In poset combinatorics (Stanley~\cite{StanleyEC1}, \S3.15), for any finite partially ordered set
+$P$ and integer $m \ge 1$, the \emph{order polynomial} $\Omega(P, m)$ is defined by
+\[
+  \Omega(P, m) \coloneqq |\Homle(P, C_m)|,
+\]
+counting order-preserving maps $f : P \to C_m$ into the $m$-element chain
+$C_m = \{0 < 1 < \dots < m-1\}$. When $P = C_{a_1} \times \dots \times C_{a_d}$ ($d \ge 1$,
+$a_r \ge 1$) is a direct product of finite nonempty chains under componentwise order:
+\begin{itemize}
+  \item For $d = 1$, $\Omega(C_a, m) = \binom{m + a - 1}{a} = \binom{m+a-1}{a,\, m-1}$ is a single
+        binomial ($2$-part multinomial) coefficient.
+  \item For $d = 2$, order-preserving maps $C_a \times C_b \to C_m$ biject with plane partitions in
+        an $a \times b \times (m-1)$ box, and MacMahon's box formula~\cite{MacMahon1916} yields
+        \begin{equation}\label{eq:macmahon-2d}
+          \Omega(C_a \times C_b, m)
+          = \prod_{i=1}^a \prod_{j=1}^b \frac{m + i + j - 2}{i + j - 1}
+          = \prod_{i=1}^a \frac{\binom{m + b + i - 2}{b}}{\binom{b + i - 1}{b}},
+        \end{equation}
+        which splits completely into rational linear factors in $\mathbb{Q}[m]$.
+\end{itemize}
+
+To ensure that our disproof leaves no semantic ambiguity, we refute \textbf{every} mathematical
+reading of Conjecture~\texttt{00000008552}:
+\begin{enumerate}
+  \item[(I)] \textbf{Polynomial / MacMahon Formula Reading:} As a function of $m \ge 1$, $\Omega(L, m)$
+        is a pure product of polynomial multinomial coefficients, a MacMahon-type quotient of
+        products of polynomial multinomial coefficients (as in~\eqref{eq:macmahon-2d}), or a
+        rational quotient of products of linear factors in $m$. \emph{Refuted by
+        $L = C_2 \times C_2 \times C_2$ (Theorem~\ref{thm:poly-disproof}).}
+  \item[(II)] \textbf{Pointwise / Fixed-Parameter Multinomial Reading:} For individual $(L, m)$, the
+        integer $\Omega(L, m)$ is a product of genuine (non-edge) multinomial coefficients or a
+        quotient of multinomial coefficients with top arguments bounded by $< \Omega(L, m)$.
+        \emph{Refuted at $(C_2^3, m=4)$, where $\Omega(C_2^3, 4) = 887$ is prime
+        (Theorem~\ref{thm:pointwise-disproof}).}
+  \item[(III)] \textbf{Naive $d$-Dimensional MacMahon Rank-Box Generalization:} The natural rank product
+        $\prod_{x \in L} \frac{m + \rk(x)}{1 + \rk(x)}$ holds for $d \ge 3$. \emph{Refuted both on
+        $C_2^3$ at $m = 3$ and on $C_2^4$ at $m = 2$, where the product equals $\frac{500}{3} \notin
+        \mathbb{Z}$ while the true count is $168$ (Theorem~\ref{thm:naive-box}).}
+  \item[(IV)] \textbf{Order-Preserving Endomorphism Reading:} Interpreting ``order-preserving maps of a
+        chain product lattice'' as self-maps $\Endle(L) = \Homle(L, L)$. \emph{Refuted on the
+        $12$-element lattice $L = C_2 \times C_2 \times C_3$, where $|\Endle(L)| = 2{,}217{,}500 =
+        2^2 \cdot 5^4 \cdot 887$ carries the prime factor $887 \gg |L| = 12$
+        (Theorem~\ref{thm:endomorphism}).}
+\end{enumerate}
+
+\section{Preliminaries, Downset Recursion, and Box Duality}
+
+\begin{definition}[Chains, Chain Product Lattices, and Order-Preserving Maps]
+For $a \in \mathbb{N}$, let $C_a \coloneqq \{0, 1, \dots, a-1\}$ with the standard total order
+$\le$. Given chain lengths $\mathbf{a} = (a_1, \dots, a_d)$ with $d \ge 1$ and each $a_r \ge 1$, the
+\emph{chain product lattice} is the direct product
+\[
+  L(\mathbf{a}) \coloneqq C_{a_1} \times C_{a_2} \times \dots \times C_{a_d}
+\]
+ordered componentwise: $(x_1, \dots, x_d) \le (y_1, \dots, y_d) \iff \forall r,\, x_r \le y_r$.
+Meet and join are given coordinatewise by $(x \wedge y)_r = \min(x_r, y_r)$ and
+$(x \vee y)_r = \max(x_r, y_r)$, making $L(\mathbf{a})$ a finite distributive lattice of
+cardinality $\prod_{r=1}^d a_r$ and rank $\sum_{r=1}^d (a_r - 1)$. A map $f : P \to Q$ between
+posets is \emph{order-preserving} if $u \le_P v \implies f(u) \le_Q f(v)$; the set of such maps is
+denoted $\Homle(P, Q)$.
+\end{definition}
+
+\begin{definition}[Downsets and Subposet Order-Map Counts]
+A subset $I \subseteq P$ of a poset $P$ is a \emph{downset} (order ideal) if $u \le_P v$ and
+$v \in I$ imply $u \in I$. We write $J(P)$ for the lattice of downsets of $P$ ordered by inclusion,
+with minimum $\emptyset$ and maximum $P$.
+\end{definition}
+
+\begin{lemma}[Downset-Fiber Recursion]\label{lem:downset-rec}
+Let $P$ be a finite poset and $I \in J(P)$ a downset.
+\begin{enumerate}
+  \item[(a)] $|\Homle(I, C_1)| = 1$.
+  \item[(b)] For every integer $m \ge 1$, restriction to the preimage $I' = \{u \in I : f(u) < m\}$
+        defines a canonical bijection
+        \[
+          \Homle(I, C_{m+1}) \;\xrightarrow{\;\sim\;}\;
+          \bigsqcup_{\substack{I' \in J(P) \\ I' \subseteq I}} \Homle(I', C_m).
+        \]
+        Consequently, setting $D_I(r) \coloneqq |\Homle(I, C_{r+1})|$ for $r \ge 0$, we have
+        $D_I(0) = 1$, $D_I(r+1) = \sum_{I' \subseteq I} D_{I'}(r)$, and $\Omega(P, m+1) = D_P(m)$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+For (a), $C_1 = \{0\}$ has a unique element, so the constant zero map is the unique order-preserving
+map $I \to C_1$. For (b), let $f \in \Homle(I, C_{m+1})$ and set $I' = \{u \in I : f(u) < m\}$. If
+$u \le_P v$ with $v \in I'$, then $v \in I$ implies $u \in I$ (as $I \in J(P)$), and $f(u) \le f(v)
+< m$ implies $u \in I'$; thus $I' \in J(P)$ and $I' \subseteq I$. Moreover, $f|_{I'}$ maps into
+$C_m = \{0, \dots, m-1\}$ order-preservingly, while every $u \in I \setminus I'$ satisfies $m \le
+f(u) \le m$, forcing $f(u) = m$. Conversely, given $I' \in J(P)$ with $I' \subseteq I$ and $g \in
+\Homle(I', C_m)$, extending $g$ to $I$ by setting $f(u) = m$ for $u \in I \setminus I'$ produces an
+order-preserving map $f \in \Homle(I, C_{m+1})$: if $u \le_P v$ in $I$, either $v \in I'$ (forcing
+$u \in I'$ and $f(u) = g(u) \le g(v) = f(v)$) or $v \notin I'$ (forcing $f(u) \le m = f(v)$). The
+two constructions are mutually inverse.
+\end{proof}
+
+We also record the solid-partition box symmetry swapping a chain factor of the domain with the
+codomain chain length.
+
+\begin{proposition}[Chain-Codomain Conjugation Duality]\label{prop:box-duality}
+For every poset $P$ and all integers $c, d \ge 0$, there is an explicit bijection
+\[
+  \Phi_{c,d} : \Homle(C_c \times P,\, C_{d+1}) \;\xrightarrow{\;\sim\;}\;
+  \Homle(C_d \times P,\, C_{c+1}),
+\]
+defined for $f \in \Homle(C_c \times P, C_{d+1})$, $j \in C_d$, and $x \in P$ by
+\[
+  \Phi_{c,d}(f)(j, x) \coloneqq \bigl|\{i \in C_c : d - j \le f(i, x)\}\bigr| \in C_{c+1},
+\]
+with inverse $\Phi_{d,c}$.
+\end{proposition}
+
+\begin{proof}
+Clearly $0 \le \Phi_{c,d}(f)(j, x) \le c$. If $j \le j'$ in $C_d$ and $x \le_P x'$ in $P$, then
+$d - j' \le d - j$ and $f(i, x) \le f(i, x')$ for all $i \in C_c$, so $d - j \le f(i, x)$ implies
+$d - j' \le f(i, x')$, giving $\Phi_{c,d}(f)(j, x) \le \Phi_{c,d}(f)(j', x')$. To verify
+$\Phi_{d,c}(\Phi_{c,d}(f)) = f$, fix $x \in P$ and write $g(i) = f(i, x)$, which is monotone on
+$C_c$. For any $i_0 \in C_c$ and $j \in C_d$:
+\begin{itemize}
+  \item If $d - j \le g(i_0)$, monotonicity gives $d - j \le g(i)$ for all $i \in \{i_0, \dots,
+        c-1\}$ ($c - i_0$ elements), so $c - i_0 \le \Phi_{c,d}(f)(j, x)$.
+  \item If $g(i_0) < d - j$, monotonicity gives $g(i) < d - j$ for all $i \in \{0, \dots, i_0\}$
+        ($i_0 + 1$ elements), leaving at most $c - (i_0 + 1) < c - i_0$ indices with $d - j \le
+        g(i)$.
+\end{itemize}
+Hence $c - i_0 \le \Phi_{c,d}(f)(j, x) \iff d - g(i_0) \le j$. Since $0 \le g(i_0) \le d$, there are
+exactly $d - (d - g(i_0)) = g(i_0)$ indices $j \in C_d$ satisfying $d - g(i_0) \le j$, proving
+$\Phi_{d,c}(\Phi_{c,d}(f))(i_0, x) = g(i_0) = f(i_0, x)$. By symmetry, $\Phi_{c,d} \circ \Phi_{d,c}
+= \mathrm{id}$.
+\end{proof}
+
+\section{Positive Witnesses in Dimensions \texorpdfstring{$d = 1$ and $d = 2$}{d = 1 and d = 2}}
+
+To verify non-vacuity of our definitions, consider $L = C_2 \times C_2$. Its downset lattice
+$J(C_2 \times C_2)$ has $6$ downsets: $\emptyset$, $\{(0,0)\}$, $\{(0,0),(0,1)\}$,
+$\{(0,0),(1,0)\}$, $\{(0,0),(0,1),(1,0)\}$, and $C_2 \times C_2$. Applying
+Lemma~\ref{lem:downset-rec} in the binomial basis $\binom{r}{k}$ yields $D_{C_2 \times C_2}(r) =
+\binom{r}{0} + 5\binom{r}{1} + 9\binom{r}{2} + 7\binom{r}{3} + 2\binom{r}{4}$, whence for all
+$m \ge 0$:
+\[
+  \Omega(C_2 \times C_2, m)
+  = \binom{m}{1} + 4\binom{m}{2} + 5\binom{m}{3} + 2\binom{m}{4}
+  = \frac{m(m+1)^2(m+2)}{12}
+  = \frac{\binom{m+1}{2}\binom{m+2}{2}}{\binom{2}{2}\binom{3}{2}},
+\]
+matching MacMahon's formula~\eqref{eq:macmahon-2d} at $a = b = 2$. Likewise $\Omega(C_2, m) =
+\binom{m+1}{2}$ is a single binomial coefficient.
+
+\section{Exact Order Polynomial of \texorpdfstring{$C_2 \times C_2 \times C_2$}{C2 x C2 x C2} and Algebraic Disproof}
+
+\subsection{Exact Closed Form for All \texorpdfstring{$m \in \mathbb{N}$}{m in N}}
+
+Identify $C_2 \times C_2 \times C_2 = \{0,1\}^3$, encoding each subset $S \subseteq \{0,1\}^3$ by
+the $8$-bit integer $\mathrm{mask}(S) = \sum_{(x_1,x_2,x_3) \in S} 2^{4x_1 + 2x_2 + x_3}$. There are
+exactly $|J(C_2^3)| = M(3) = 20$ downsets, which fall into $9$ symmetry types under coordinate
+permutations (Table~\ref{tab:cube-ideals}).
+
+\begin{table}[ht]
+\centering
+\caption{The $20$ downsets of $C_2 \times C_2 \times C_2$ and binomial-basis coefficients
+$c_{I,k}$ of $D_I(r) = \sum_{k=0}^8 c_{I,k}\binom{r}{k}$.}\label{tab:cube-ideals}
+\smallskip
+\begin{tabular}{@{}lllr@{}}
+\toprule
+$|I|$ & Bitmasks $\mathrm{mask}(I)$ & Multiplicity & $(c_{I,0}, c_{I,1}, \dots, c_{I,8})$ \\
+\midrule
+$0$ & $0$              & $1$ & $(1, 0, 0, 0, 0, 0, 0, 0, 0)$ \\
+$1$ & $1$              & $1$ & $(1, 1, 0, 0, 0, 0, 0, 0, 0)$ \\
+$2$ & $3, 5, 17$       & $3$ & $(1, 2, 1, 0, 0, 0, 0, 0, 0)$ \\
+$3$ & $7, 19, 21$      & $3$ & $(1, 4, 5, 2, 0, 0, 0, 0, 0)$ \\
+$4$ (square) & $15, 51, 85$ & $3$ & $(1, 5, 9, 7, 2, 0, 0, 0, 0)$ \\
+$4$ (claw)   & $23$    & $1$ & $(1, 8, 19, 18, 6, 0, 0, 0, 0)$ \\
+$5$ & $31, 55, 87$     & $3$ & $(1, 10, 32, 46, 31, 8, 0, 0, 0)$ \\
+$6$ & $63, 95, 119$    & $3$ & $(1, 13, 57, 119, 130, 72, 16, 0, 0)$ \\
+$7$ & $127$            & $1$ & $(1, 18, 111, 331, 540, 495, 240, 48, 0)$ \\
+$8$ & $255$            & $1$ & $(1, 19, 129, 442, 871, 1035, 735, 288, 48)$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{proposition}[Order Polynomial of $C_2 \times C_2 \times C_2$]\label{prop:omega-cube}
+For every integer $m \ge 0$, the exact number of order-preserving maps $C_2 \times C_2 \times C_2
+\to C_m$ is
+\begin{align}
+  \Omega(C_2^3, m)
+  &= \binom{m}{1} + 18\binom{m}{2} + 111\binom{m}{3} + 331\binom{m}{4} \nonumber \\
+  &\quad + 540\binom{m}{5} + 495\binom{m}{6} + 240\binom{m}{7} + 48\binom{m}{8}
+     \label{eq:omega-cube-binom} \\
+  &= \frac{m(m+1)(m+2)(m+3)\bigl(2m^4 + 12m^3 + 25m^2 + 21m + 10\bigr)}{1680}.
+     \label{eq:omega-cube-factored}
+\end{align}
+\end{proposition}
+
+\begin{proof}
+For each of the $20$ downsets $I \in J(C_2^3)$, let $P_I(r) = \sum_{k=0}^8 c_{I,k}\binom{r}{k}$ with
+$c_{I,k}$ given by Table~\ref{tab:cube-ideals}. At $r = 0$, $P_I(0) = c_{I,0} = 1 = D_I(0)$. By
+Pascal's identity $\binom{r+1}{k} = \binom{r}{k} + \binom{r}{k-1}$ ($k \ge 1$), $P_I(r+1) =
+\sum_{k=0}^8 (c_{I,k} + c_{I,k+1})\binom{r}{k}$ (with $c_{I,9} = 0$). Direct inspection of the
+inclusion table of the $20$ masks verifies $c_{I,k} + c_{I,k+1} = \sum_{J \subseteq I} c_{J,k}$ for
+all $0 \le k \le 8$ and all $I \in J(C_2^3)$. Induction on $r$ via Lemma~\ref{lem:downset-rec}(b)
+therefore yields $D_I(r) = P_I(r)$ for all $r \ge 0$. At $m = 0$, $C_0 = \emptyset$ admits $0$ maps
+from $C_2^3$, matching~\eqref{eq:omega-cube-binom}. For $m = r + 1 \ge 1$, Lemma~\ref{lem:downset-rec}(b)
+gives $\Omega(C_2^3, r+1) = D_{255}(r)$, and applying $\binom{r+1}{k+1} = \binom{r}{k} +
+\binom{r}{k+1}$ to~\eqref{eq:omega-cube-binom} reproduces $(1, 1+18, 18+111, \dots, 240+48, 48) =
+(1, 19, 129, 442, 871, 1035, 735, 288, 48)$. Finally, expanding $k!\binom{m}{k} =
+\prod_{j=0}^{k-1}(m-j)$ after multiplying~\eqref{eq:omega-cube-binom} by $1680$ yields
+\[
+  1680\,\Omega(C_2^3, m)
+  = 2m^8 + 24m^7 + 119m^6 + 315m^5 + 483m^4 + 441m^3 + 236m^2 + 60m,
+\]
+which equals $m(m+1)(m+2)(m+3)(2m^4 + 12m^3 + 25m^2 + 21m + 10)$ identically in $\mathbb{Z}[m]$.
+\end{proof}
+
+\subsection{Sum-of-Squares Positivity, Irreducibility, and Non-Splitting Disproof}
+
+Let $Q(x) \coloneqq 2x^4 + 12x^3 + 25x^2 + 21x + 10 \in \mathbb{Z}[x]$ and define its homogenization
+\[
+  Q_{\mathrm{hom}}(\gamma, z)
+  \coloneqq 2z^4 + 12\gamma z^3 + 25\gamma^2 z^2 + 21\gamma^3 z + 10\gamma^4 \in \mathbb{Z}[\gamma, z].
+\]
+
+\begin{lemma}[Sum-of-Squares Positivity and Irreducibility of $Q$]\label{lem:quartic-irred}
+For all $\gamma, z \in \mathbb{Z}$,
+\begin{equation}\label{eq:sos}
+  8\,Q_{\mathrm{hom}}(\gamma, z)
+  = (4z^2 + 12\gamma z + 7\gamma^2)^2 + 31\gamma^4.
+\end{equation}
+In particular:
+\begin{enumerate}
+  \item[(a)] For every $\gamma \in \mathbb{Z} \setminus \{0\}$ and every $z \in \mathbb{Z}$,
+        $Q_{\mathrm{hom}}(\gamma, z) > 0$; equivalently, $Q(r) > 0$ for every $r \in \mathbb{R}$
+        (and hence $Q$ has no real or rational roots).
+  \item[(b)] $Q(x)$ is irreducible in $\mathbb{Q}[x]$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Expanding the right-hand side of~\eqref{eq:sos} gives
+\[
+  (16z^4 + 96\gamma z^3 + 200\gamma^2 z^2 + 168\gamma^3 z + 49\gamma^4) + 31\gamma^4
+  = 8(2z^4 + 12\gamma z^3 + 25\gamma^2 z^2 + 21\gamma^3 z + 10\gamma^4),
+\]
+proving~\eqref{eq:sos}. When $\gamma \ne 0$, $\gamma^4 \ge 1$, so $8\,Q_{\mathrm{hom}}(\gamma, z)
+\ge 31 > 0$, establishing~(a). For~(b), substitute $u = 2x + 3$; then $4x^2 + 12x + 7 = u^2 - 2$,
+so $8\,Q(x) = (u^2 - 2)^2 + 31 = u^4 - 4u^2 + 35$. Since $x \mapsto 2x + 3$ is a $\mathbb{Q}$-algebra
+automorphism of $\mathbb{Q}[x]$, $Q(x)$ is irreducible in $\mathbb{Q}[x]$ if and only if $R(u) =
+u^4 - 4u^2 + 35$ is irreducible in $\mathbb{Q}[u]$. By~(a), $R(u)$ has no linear factor over
+$\mathbb{R}$. By Gauss's lemma, any quadratic factorization in $\mathbb{Q}[u]$ would take the monic
+integer form $R(u) = (u^2 + au + b)(u^2 - au + c)$ with $a, b, c \in \mathbb{Z}$, requiring
+$a(c - b) = 0$, $b + c - a^2 = -4$, and $bc = 35$. If $a = 0$, then $(b+c)^2 - 4bc = 16 - 140 =
+-124 < 0$, impossible in $\mathbb{Z}$; if $a \ne 0$, then $b = c$ and $b^2 = 35$, impossible since
+$35$ is not a square. Thus $Q(x)$ is irreducible in $\mathbb{Q}[x]$.
+\end{proof}
+
+Now consider the nested hierarchy of polynomial multinomial / MacMahon representations of a function
+$f : \mathbb{N} \to \mathbb{N}$ (for all $m \ge M_0$):
+\begin{enumerate}
+  \item[(1)] \textbf{Pure Multinomial Polynomial Product:} $f(m) = \prod_{i=1}^s \binom{a_i m + b_i}{k_{i,1},
+        \dots, k_{i,r_i},\, a_i m + b_i - K_i}$ with $a_i, b_i \in \mathbb{N}$, fixed parts
+        $k_{i,j} \in \mathbb{N}$, and $K_i = \sum_{j=1}^{r_i} k_{i,j} \le a_i m + b_i$.
+  \item[(2)] \textbf{MacMahon Multinomial Quotient:} $f(m)$ equals a quotient of two finite products of
+        polynomial multinomial expressions $\frac{1}{\prod_j k_j!} \prod_{t=0}^{K-1}(\alpha m +
+        \beta - t)$ with $\alpha, \beta \in \mathbb{Z}$ and nonzero denominator (capturing
+        MacMahon's 2-chain formula~\eqref{eq:macmahon-2d}).
+  \item[(3)] \textbf{General Rational-Linear Ratio:} There exist $c_{\mathrm{num}}, c_{\mathrm{den}} \in
+        \mathbb{Z}$ ($c_{\mathrm{den}} \ne 0$) and finite lists of integer linear factors
+        $(\alpha_i, \beta_i), (\gamma_j, \delta_j) \in \mathbb{Z}^2$ (with denominator not
+        identically zero) such that for all $m \ge M_0$,
+        \begin{equation}\label{eq:rat-lin}
+          c_{\mathrm{den}} \Bigl(\prod_{j=1}^p (\gamma_j m + \delta_j)\Bigr) f(m)
+          = c_{\mathrm{num}} \prod_{i=1}^q (\alpha_i m + \beta_i).
+        \end{equation}
+\end{enumerate}
+Clearly $(1) \implies (2) \implies (3)$, since every polynomial multinomial factor expands as
+$(\prod_j k_j!)^{-1}\prod_{t=0}^{K-1}(\alpha m + \beta - t)$.
+
+\begin{theorem}[Universal Order-Polynomial Disproof]\label{thm:poly-disproof}
+The order polynomial $m \mapsto \Omega(C_2 \times C_2 \times C_2, m)$ does not satisfy~\eqref{eq:rat-lin}
+for any choice of threshold $M_0 \in \mathbb{N}$, constants $c_{\mathrm{num}}, c_{\mathrm{den}} \in
+\mathbb{Z}$ ($c_{\mathrm{den}} \ne 0$), and linear factor lists. Consequently, $\Omega(C_2^3, m)$ is
+neither a pure product of polynomial multinomial coefficients, nor a MacMahon-type multinomial
+quotient, nor any rational-linear product in $m$.
+\end{theorem}
+
+\begin{proof}
+Suppose toward a contradiction that~\eqref{eq:rat-lin} holds for $f(m) = \Omega(C_2^3, m)$ for all
+$m \ge M_0$. Because the denominator $\prod_{j=1}^p (\gamma_j m + \delta_j)$ is nonzero at some
+$m_1 \ge M_0$, every pair $(\gamma_j, \delta_j) \ne (0,0)$. Choosing $m_2 = M_0 + 1 + \sum_{j=1}^p
+|\delta_j| \ge 1$ ensures $\gamma_j m_2 + \delta_j \ne 0$ for all $j$ and $\Omega(C_2^3, m_2) \ge 1$,
+so the left-hand side of~\eqref{eq:rat-lin} at $m_2$ is nonzero; hence $c_{\mathrm{num}} \ne 0$ and
+every $(\alpha_i, \beta_i) \ne (0,0)$. Multiplying~\eqref{eq:rat-lin} by $1680$ and substituting
+Proposition~\ref{prop:omega-cube} yields an identity of the form
+\begin{equation}\label{eq:quartic-lin}
+  c_1 \Bigl(\prod_{j=1}^{p'} (\tilde{\gamma}_j m + \tilde{\delta}_j)\Bigr) Q(m)
+  = c_2 \prod_{i=1}^q (\alpha_i m + \beta_i)
+  \qquad (\forall m \ge M_0),
+\end{equation}
+with $c_1, c_2 \ne 0$ and all linear pairs nonzero (having adjoined $m, m+1, m+2, m+3$ to the left
+product and set $c_2 = 1680\,c_{\mathrm{num}}$).
+
+We prove~\eqref{eq:quartic-lin} impossible by induction on $q$:
+\begin{itemize}
+  \item \textbf{Base case $q = 0$:} The right-hand side is the nonzero constant $c_2$. If some
+        left-hand factor has $\tilde{\gamma}_j \ne 0$, set $g = |\tilde{\gamma}_j| \ge 1$. Two
+        polynomials in $\mathbb{Z}[z]$ agreeing at $z = g m$ for all $m \ge M_0$ are coefficientwise
+        equal; homogenizing~\eqref{eq:quartic-lin} by $z = g x$ and evaluating at $z_0 = \mp
+        \tilde{\delta}_j$ (where $\tilde{\gamma}_j z_0 + \tilde{\delta}_j g = 0$) makes the left
+        side $0$ and the right side $c_2 g^{p'+4} \ne 0$, a contradiction. Otherwise every
+        $\tilde{\gamma}_j = 0$, so the left product is a nonzero constant $C$, giving $c_1 C \cdot
+        Q(M_0) = c_2 = c_1 C \cdot Q(M_0 + 1)$, contradicting strict monotonicity $Q(M_0) < Q(M_0+1)$
+        on $M_0 \ge 0$.
+  \item \textbf{Inductive step $q \to q + 1$:} Consider $(\alpha_1, \beta_1)$. If $\alpha_1 = 0$,
+        then $\beta_1 \ne 0$ absorbs into $c_2$, reducing to $q$. If $\alpha_1 \ne 0$, set $g =
+        |\alpha_1| \ge 1$ and write $\alpha_1 x + \beta_1 = \pm(g x + \delta')$. Homogenizing
+        by $z = g x$ and evaluating the resulting polynomial identity at $z = -\delta'$ makes the
+        right side $0$. On the left side, $c_1 g^{q+1} \ne 0$ and $Q_{\mathrm{hom}}(g, -\delta') > 0$
+        by Lemma~\ref{lem:quartic-irred}(a), so some left factor $(\tilde{\gamma}_j,
+        \tilde{\delta}_j)$ satisfies $-\tilde{\gamma}_j \delta' + \tilde{\delta}_j g = 0$, forcing
+        $\tilde{\gamma}_j \ne 0$ and $g(\tilde{\gamma}_j x + \tilde{\delta}_j) = \tilde{\gamma}_j
+        (g x + \delta')$. For all $m \ge M_1 \coloneqq M_0 + |\delta'| + 1$, $g m + \delta' \ne 0$;
+        multiplying~\eqref{eq:quartic-lin} by $g$ and cancelling $g m + \delta'$ removes one factor
+        from each side, contradicting the induction hypothesis. \qedhere
+\end{itemize}
+\end{proof}
+
+\section{Pointwise Prime-Factor, Naive-Box, and Endomorphism Disproofs}
+
+\subsection{Pointwise Primality Obstruction at \texorpdfstring{$(C_2^3, m=4)$}{(C2\^3, m=4)}}
+
+Evaluating~\eqref{eq:omega-cube-factored} gives $\Omega(C_2^3, 1) = 1$, $\Omega(C_2^3, 2) = 20$,
+$\Omega(C_2^3, 3) = 168$, and
+\[
+  \Omega(C_2 \times C_2 \times C_2, 4)
+  = \frac{4 \cdot 5 \cdot 6 \cdot 7 \cdot (2\cdot 256 + 12\cdot 64 + 25\cdot 16 + 21\cdot 4 + 10)}{1680}
+  = \frac{840 \cdot 1774}{1680} = 887.
+\]
+Call a multinomial coefficient $\binom{k_1 + \dots + k_r}{k_1, \dots, k_r}$ (with all $k_i \ge 1$)
+\emph{genuine} if either $r \ge 3$ or ($r = 2$ and $k_1, k_2 \ge 2$), excluding only the unit $r=1$
+($\binom{N}{N} = 1$) and the tautological edge $\binom{N}{1, N-1} = N$ (which trivially represents
+every integer $N \ge 2$).
+
+\begin{theorem}[Pointwise Prime and Genuine-Multinomial Disproof]\label{thm:pointwise-disproof}
+The exact count $N = \Omega(C_2 \times C_2 \times C_2, 4) = 887$ is prime ($\sqrt{887} < 30$, and no
+integer $2 \le d \le 29$ divides $887$). Consequently:
+\begin{enumerate}
+  \item[(a)] $887$ admits no nontrivial product decomposition $887 = a \cdot b$ with $a, b > 1$.
+  \item[(b)] No finite product of genuine multinomial coefficients equals $887$.
+  \item[(c)] More generally, if $p$ is prime and $p \mid M$, then no quotient of multinomial products
+        $M \prod_j \binom{D_j}{\mathbf{d}_j} = \prod_i \binom{N_i}{\mathbf{n}_i}$ with nonzero
+        denominator and top entries $N_i < p$ can hold; in particular, $\Omega(C_2^3, 4) = 887$
+        cannot equal any quotient of multinomials with top entries $< 887$ (whereas $|C_2^3| = 8$
+        and $m = 4$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(a) is immediate from primality of $887$. For~(c), clearing denominator factorials turns
+$\prod_i \binom{N_i}{\mathbf{n}_i}$ into $\prod_i N_i!$; since $N_i < p$ and $p$ is prime, Euclid's
+lemma implies $p \nmid \prod_i N_i!$, whereas $p \mid M$ divides the left side after clearing the
+positive factorial denominators. For~(b), every genuine multinomial coefficient $C =
+\binom{N}{k_1,\dots,k_r}$ satisfies $C > N \ge 3$ (if $r = 2$ with $k_1, k_2 \ge 2$, $\binom{N}{k_1}
+> N$ by Pascal induction from $\binom{4}{2} = 6 > 4$; if $r \ge 3$ with $k_i \ge 1$,
+$\binom{N}{k_1,k_2,\dots,k_r} = \binom{N}{k_1}\binom{N-k_1}{k_2,\dots,k_r} \ge N \cdot 2 > N$). By
+primality of $887$, a product of integers $\ge 2$ equalling $887$ must have a single factor $C =
+887$; if $N < 887$ then~(c) gives a contradiction, while if $N \ge 887$ then $C > N \ge 887$.
+\end{proof}
+
+\subsection{Failure of the Naive \texorpdfstring{$d$}{d}-Dimensional MacMahon Box Formula}
+
+For any chain product lattice $L = C_{a_1} \times \dots \times C_{a_d}$, consider the naive
+rank-product generalization of MacMahon's formula~\eqref{eq:macmahon-2d}:
+\[
+  \BoxProd(L, m) \coloneqq \prod_{x \in L} \frac{m + \rk(x)}{1 + \rk(x)},
+  \qquad \rk(x_1, \dots, x_d) = x_1 + \dots + x_d.
+\]
+Table~\ref{tab:box-vs-omega} compares $\Omega(C_2^3, m)$ against $\BoxProd(C_2^3, m)$. Remarkably,
+they coincide for $m = 1$ and $m = 2$ (where $\Omega(C_2^3, 2) = 20$ counts plane partitions in a
+$2 \times 2 \times 2$ box), explaining why casual low-$m$ inspection can suggest the conjecture,
+before diverging at $m = 3$ (solid partitions in $2 \times 2 \times 2 \times 2$; cf.\
+Atkin--Bratley--Macdonald--McKay~\cite{ABMM1967} and Stanley~\cite{StanleyEC2}, \S7.21).
+
+\begin{table}[ht]
+\centering
+\caption{True order polynomial $\Omega(C_2^3, m)$, prime factorization, and naive MacMahon rank-box
+product $\BoxProd(C_2^3, m)$ for $1 \le m \le 8$.}\label{tab:box-vs-omega}
+\smallskip
+\begin{tabular}{@{}rrrr@{}}
+\toprule
+$m$ & $\Omega(C_2^3, m)$ & Prime factorization of $\Omega(C_2^3, m)$ & $\BoxProd(C_2^3, m)$ \\
+\midrule
+$1$ & $1$       & $1$                                & $1$ \\
+$2$ & $20$      & $2^2 \cdot 5$                      & $20$ \\
+$3$ & $168$     & $2^3 \cdot 3 \cdot 7$              & $500/3 \notin \mathbb{Z}$ \\
+$4$ & $887$     & $887$ (prime)                      & $875 = 5^3 \cdot 7$ \\
+$5$ & $3{,}490$ & $2 \cdot 5 \cdot 349$              & $3{,}430 = 2 \cdot 5 \cdot 7^3$ \\
+$6$ & $11{,}196$& $2^2 \cdot 3^2 \cdot 311$          & $32{,}928/3 = 10{,}976$ \\
+$7$ & $30{,}900$& $2^2 \cdot 3 \cdot 5^2 \cdot 103$  & $30{,}240 = 2^5 \cdot 3^3 \cdot 5 \cdot 7$ \\
+$8$ & $75{,}966$& $2 \cdot 3 \cdot 11 \cdot 1{,}151$ & $74{,}250 = 2 \cdot 3^3 \cdot 5^3 \cdot 11$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{theorem}[Failure of Naive MacMahon Rank-Box Formula]\label{thm:naive-box}
+Both on $C_2^3$ at $m = 3$ and on $C_2^4$ at $m = 2$ (Dedekind number $M(4)$), the true map count is
+$168$, whereas $\BoxProd(C_2^3, 3) = \BoxProd(C_2^4, 2) = \frac{500}{3} \notin \mathbb{Z}$.
+\end{theorem}
+
+\begin{proof}
+By Proposition~\ref{prop:box-duality} with $c = 2, d = 1$ and $P = C_2^3$, we have
+$\Homle(C_2^4, C_2) \cong \Homle(C_1 \times C_2^3, C_3) \cong \Homle(C_2^3, C_3)$, so
+$\Omega(C_2^4, 2) = \Omega(C_2^3, 3) = 168$. Direct arithmetic gives $\BoxProd(C_2^3, 3) =
+\frac{3 \cdot 4^3 \cdot 5^3 \cdot 6}{1 \cdot 2^3 \cdot 3^3 \cdot 4} = \frac{144{,}000}{864} =
+\frac{500}{3}$ and $\BoxProd(C_2^4, 2) = \frac{2 \cdot 3^4 \cdot 4^6 \cdot 5^4 \cdot 6}{1 \cdot 2^4
+\cdot 3^6 \cdot 4^4 \cdot 5} = \frac{500}{3}$.
+\end{proof}
+
+\subsection{Disproof for Order-Preserving Endomorphisms \texorpdfstring{$\Endle(L)$}{End\_<=(L)}}
+
+By the universal property of product posets, $\Homle(P, \prod_{r=1}^d C_{a_r}) \cong \prod_{r=1}^d
+\Homle(P, C_{a_r})$, so any chain product lattice $L = C_{a_1} \times \dots \times C_{a_d}$ has
+$|\Endle(L)| = \prod_{r=1}^d \Omega(L, a_r)$.
+
+\begin{theorem}[Endomorphism Monoid Disproof]\label{thm:endomorphism}
+For the $12$-element chain product lattice $L = C_2 \times C_2 \times C_3$, the exact number of
+order-preserving endomorphisms is
+\[
+  |\Endle(C_2 \times C_2 \times C_3)|
+  = \Omega(L, 2)^2 \cdot \Omega(L, 3)
+  = 50^2 \cdot 887 = 2{,}217{,}500 = 2^2 \cdot 5^4 \cdot 887.
+\]
+Since $887$ is prime and divides $|\Endle(L)|$, Theorem~\ref{thm:pointwise-disproof}(c) implies that
+$|\Endle(L)|$ cannot equal any product or quotient of multinomial coefficients whose top entries are
+$< 887$ (whereas $|L| = 12$ and $a_1 + a_2 + a_3 = 7$).
+\end{theorem}
+
+\begin{proof}
+Permuting coordinates identifies $L \cong C_3 \times C_2 \times C_2$. Applying
+Proposition~\ref{prop:box-duality} to $C_3 \times (C_2 \times C_2)$ gives
+$\Omega(L, 2) = \Omega(C_1 \times C_2 \times C_2, 4) = \Omega(C_2 \times C_2, 4) = 50$ and
+$\Omega(L, 3) = \Omega(C_2 \times C_2 \times C_2, 4) = 887$. Hence $|\Endle(L)| = 50 \cdot 50 \cdot
+887 = 2{,}217{,}500 = 2500 \cdot 887$, and Theorem~\ref{thm:pointwise-disproof}(c) applies with
+$p = 887$.
+\end{proof}
+
+\section{Formal Verification in Core Lean~4.19.0}
+
+All definitions and theorems in this paper are formalized in \texttt{lean/\allowbreak Main.lean}
+using Core Lean 4.19.0 (toolchain \texttt{leanprover/\allowbreak lean4:\allowbreak v4.19.0}),
+compiled with \texttt{-Dwarning\allowbreak AsError=\allowbreak true}, zero external dependencies,
+zero \texttt{sorry}, zero \texttt{native\_decide}, and zero custom axioms (relying solely on Lean's
+standard kernel axioms \texttt{propext}, \texttt{Classical.\allowbreak choice}, and
+\texttt{Quot.sound}). Table~\ref{tab:lean-map} summarizes the principal declarations; an independent
+Python script (\texttt{verify.py}) cross-checks all values by brute-force enumeration and symbolic
+polynomial algebra.
+
+\begin{table}[ht]
+\centering
+\caption{Principal Lean~4 declarations in \texttt{lean/Main.lean}.}\label{tab:lean-map}
+\smallskip
+{\footnotesize
+\begin{tabular}{@{}ll@{}}
+\toprule
+Mathematical result & Lean~4 declaration (\texttt{Conjecture00000008552.*}) \\
+\midrule
+Cardinality uniqueness & \texttt{HasCard.unique} \\
+Chain product lattice axioms & \texttt{chainProdLattice} \\
+Chain-codomain duality (Prop.~\ref{prop:box-duality}) & \texttt{orderHomChainSwapEquiv} \\
+Multinomial factorial identity & \texttt{multinomial\_spec} \\
+2-chain MacMahon witness ($C_2 \times C_2$) & \texttt{macmahon\_holds\_for\_two\_chains\_witness} \\
+Exact $\Omega(C_2^3, m)$ count (Prop.~\ref{prop:omega-cube}) & \texttt{omegaCube\_card} \\
+Factored $\Omega(C_2^3, m)$ identity (Prop.~\ref{prop:omega-cube}) & \texttt{omegaCube\_poly\_identity} \\
+Quartic sum-of-squares positivity (Lem.~\ref{lem:quartic-irred}) & \texttt{homQuartic\_sos\_identity}, \texttt{homQuartic\_pos} \\
+Master polynomial disproof (Thm.~\ref{thm:poly-disproof}) & \texttt{conjecture\_00000008552\_order\_polynomial\_disproved} \\
+Master pointwise prime disproof (Thm.~\ref{thm:pointwise-disproof}) & \texttt{conjecture\_00000008552\_pointwise\_disproved} \\
+Naive MacMahon box disproof (Thm.~\ref{thm:naive-box}) & \texttt{naive\_macmahon\_box\_disproved} \\
+Endomorphism disproof (Thm.~\ref{thm:endomorphism}) & \texttt{conjecture\_00000008552\_endomorphism\_disproved} \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{thebibliography}{9}
+\bibitem{ABMM1967}
+A.~O.~L. Atkin, P.~Bratley, I.~G. Macdonald, and J.~K.~S. McKay,
+\emph{Some computations for $m$-dimensional partitions},
+Proc.\ Cambridge Philos.\ Soc.\ \textbf{63} (1967), 1097--1100.
+
+\bibitem{MacMahon1916}
+P.~A. MacMahon,
+\emph{Combinatory Analysis}, Vol.~2,
+Cambridge University Press, Cambridge, 1916.
+
+\bibitem{StanleyEC1}
+R.~P. Stanley,
+\emph{Enumerative Combinatorics}, Vol.~1, 2nd ed.,
+Cambridge Studies in Advanced Mathematics, Vol.~49,
+Cambridge University Press, Cambridge, 2012.
+
+\bibitem{StanleyEC2}
+R.~P. Stanley,
+\emph{Enumerative Combinatorics}, Vol.~2,
+Cambridge Studies in Advanced Mathematics, Vol.~62,
+Cambridge University Press, Cambridge, 1999.
+\end{thebibliography}
+
+\end{document}
