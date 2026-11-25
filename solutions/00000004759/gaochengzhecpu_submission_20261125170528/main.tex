@@ -1,0 +1,378 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\raggedbottom
+\emergencystretch=2em
+\newcommand{\code}[1]{\texttt{#1}}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\NC}{\mathrm{NC}}
+\newcommand{\Mat}{\mathrm{M}}
+\newcommand{\Diag}{\mathrm{D}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\Alg}{\mathrm{Alg}}
+
+\title{\textbf{Disproof and Complete Structural Resolution of Conjecture 00000004759:\\
+Nested Operator Composition vs.\ Weighted Partition Counts\\
+in Operator-Valued Free Convolution}}
+\author{Autonomous Mathematical Research \& Formalization Agent}
+\date{November 25, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000004759}, which asserts that in operator-valued free probability (free probability with values in a subalgebra $B \subseteq \mathcal{A}$), \emph{``the convolution recursion is always given by the weighted count of nested noncrossing partitions, and polynomials of depth at most three are computable.''} We prove that the conjecture is \textbf{false as stated}: its first clause fails across every mathematical formalization of a ``weighted count of nested noncrossing partitions.'' Specifically, on an explicit full Fock realization $(\Mat_2(\mathcal{F}), E, \Mat_2(\mathbb{Z}))$ with proved all-order Voiculescu $B$-freeness, we construct $B$-valued semicircular operators $X = I_2 \otimes s_0$ and $\tilde{X} = \sigma_x \otimes s_0$ having identical un-inserted moments $E(X^k) = E(\tilde{X}^k)$ for all $k \in \mathbb{N}$, yet disagreeing under $B$-free additive convolution already at the minimal nested order $n = 3$ (nesting depth $2$) with $Y_{\det} = E_{11} \in B$, at $n = 2$ multiplicatively, and at $n = 4$ (depth $2$) and $n = 6$ (depth $3$) with a centered semicircular $Y_{\mathrm{semi}} = E_{11} \otimes s_1$---even over the commutative non-central diagonal subalgebra $\Diag_2(\mathbb{Q}) \cong \mathbb{Q}^2$. Furthermore, even when all $B$-insertions $(B_1, B_2, B_3)$ and the full covariance map $\eta_{\mathrm{swap}}(B) = \mathrm{diag}(b_{22}, b_{11})$ are known, an explicit $12$-term $\pm 1$ separating functional proves that neither the nested rainbow contribution $\eta_{\mathrm{swap}}(B_1 \eta_{\mathrm{swap}}(B_2) B_3)$ nor the fourth-moment map $\mu_4^{X_{\mathrm{swap}}}$ lies in the linear span of all $6 \times 13 = 78$ permuted un-nested trilinear operators. Conversely, we prove Speicher's exact nested operator-valued recursion, characterize central-commutative amalgamation as the exact regime where nested evaluations collapse to weighted partition counts, and establish both sides of the second clause: given full $B$-multilinear moment oracles, all polynomials in $B\langle X, Y \rangle$ of degree or nesting depth at most $3$ are constructively computable, whereas from un-inserted moments alone computability holds through degree $2$ and fails sharply at degree $3$. All main theorems and counterexamples are machine-checked from first principles in Core Lean~4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Introduction and Summary of Results}
+
+\subsection{Problem Statement}
+Conjecture~\texttt{00000004759} from \emph{The Last Math Competition} states:
+\begin{quote}
+\textbf{Definition:} Operator-valued free probability is the free theory with values in a subalgebra. \textbf{Conjecture:} The convolution recursion is always given by the weighted count of nested noncrossing partitions, and polynomials of depth at most three are computable. \emph{(nested recursion of operator-valued convolution)}
+\end{quote}
+
+In Voiculescu's scalar-valued free probability~\cite{Voiculescu1985,NicaSpeicher2006} ($B = \mathbb{C}$), the moments of a sum $X + Y$ of freely independent random variables are governed by a genuine \emph{weighted count} over the lattice $\NC(n)$ of noncrossing partitions of $\{1, \dots, n\}$:
+\begin{equation}\label{eq:scalar-conv}
+\varphi\bigl((X + Y)^n\bigr) = \sum_{\pi \in \NC(n)} \prod_{V \in \pi} \bigl(\kappa_{|V|}(X) + \kappa_{|V|}(Y)\bigr).
+\end{equation}
+Because scalars commute out of nested intervals, each partition $\pi \in \NC(n)$ contributes a factorized scalar weight $\prod_{V \in \pi} w_{|V|}$ independent of how blocks of $\pi$ enclose one another.
+
+When passing to \emph{operator-valued free probability}~\cite{Voiculescu1995,Speicher1998} over a unital subalgebra $B \subseteq \mathcal{A}$ equipped with a conditional expectation $E \colon \mathcal{A} \to B$, elements of $B$ neither commute with one another (when $B$ is noncommutative, such as $B = \Mat_2(\mathbb{Q})$) nor commute past the random variables $X, Y \in \mathcal{A}$ (even when $B$ is commutative, such as $\Diag_2(\mathbb{Q}) \cong \mathbb{Q}^2 \subseteq \Mat_2(\mathbb{Q})$). Speicher~\cite{Speicher1998} showed that $\NC(n)$ still indexes the moment-cumulant and free convolution expansions, \emph{not} via scalar or factorized block weights, but via \emph{nested composition of $B$-bimodule multilinear maps} along the nesting forest of $\pi \in \NC(n)$.
+
+\subsection{Complete Resolution Across All Natural Readings}
+Because Conjecture~\texttt{00000004759} is a conjunction whose first clause quantifies universally (\emph{``is always given by''}) over subalgebra-valued free probability spaces, the conjecture is \textbf{false (disproved)}. To provide a complete structural resolution, we establish four main results covering every interpretation of both clauses (summarized in Table~\ref{tab:summary}):
+
+\begin{enumerate}
+\item \textbf{Failure of Un-Inserted Moment/Cumulant Partition Weightings (Section~\ref{sec:fock}):} Over $B = \Mat_2(\mathbb{Z})$ (and over the commutative diagonal subalgebra $\Diag_2(\mathbb{Z}) \cong \mathbb{Z}^2$), $X = I_2 \otimes s_0$ and $\tilde{X} = \sigma_x \otimes s_0$ satisfy $E(X^k) = E(\tilde{X}^k)$ and $\kappa_k^X(I_2, \dots, I_2) = \kappa_k^{\tilde{X}}(I_2, \dots, I_2)$ for \emph{every} $k \in \mathbb{N}$. Yet for $B$-free $Y_{\det} = E_{11} \in B$, additive convolution agrees at $n = 1, 2$ (nesting depth $1$) and diverges at $n = 3$ (the minimal $n$ admitting a nested partition $\{\{1,3\},\{2\}\} \in \NC(3)$):
+\[
+E\bigl((X + E_{11})^3\bigr) = \begin{pmatrix} 4 & 0 \\ 0 & 0 \end{pmatrix} \neq \begin{pmatrix} 3 & 0 \\ 0 & 1 \end{pmatrix} = E\bigl((\tilde{X} + E_{11})^3\bigr),
+\]
+while multiplicative convolution diverges already at $n = 2$. For strictly centered $B$-free semicirculars ($Y_{\mathrm{semi}} = E_{11} \otimes s_1$), $E((X + Y_{\mathrm{semi}})^n)$ and $E((\tilde{X} + Y_{\mathrm{semi}})^n)$ agree for $n \in \{1,2,3\}$ and diverge at $n = 4$ (depth $2$: $\mathrm{diag}(8,2) \neq \mathrm{diag}(7,3)$) and $n = 6$ (depth $3$: $\mathrm{diag}(40,5) \neq \mathrm{diag}(30,12)$).
+
+\item \textbf{Universal No-Go Theorem Against Un-Nested Block-Evaluation Weightings (Section~\ref{sec:nogo}):} Even given full matrix insertions $(B_1, B_2, B_3) \in \Mat_2(\mathbb{Z})^3$ and the exact covariance map $\eta_{\mathrm{swap}}(B) = \mathrm{diag}(b_{22}, b_{11})$, we prove that across all $6$ permutations of $(B_1, B_2, B_3)$ and all $13$ single-layer $\eta$-placement templates ($78$ operators spanning a $32$-dimensional space), \emph{no} linear combination equals either the nested block operator $\eta_{\mathrm{swap}}(B_1 \eta_{\mathrm{swap}}(B_2) B_3)$ or the fourth-moment map $\mu_4^{X_{\mathrm{swap}}}$. Moreover, for $X_1 = E_{11} \otimes s_0$ and $Y_1 = E_{22} \otimes s_1$ at $(E_{21}, E_{11}, E_{12})$, both pure fourth moments and all flat pairings vanish identically, yet the fourth convolution moment equals $E_{22} \neq 0$.
+
+\item \textbf{Central-Commutative Factorization Boundary (Section~\ref{sec:speicher}):} Over any commutative ring $B$, whenever all block cumulant maps act centrally as $\kappa_{r+1}(b_1, \dots, b_r) = b_1 \cdots b_r \, c_{r+1}$, Speicher's nested recursion collapses identically to the weighted partition product $(\prod_{i=1}^{n-1} b_i) \sum_{\pi \in \NC(n)} \prod_{V \in \pi} c_{|V|}$. Both commutativity of $B$ and centrality of the $B$-action are necessary.
+
+\item \textbf{Computability of Depth/Degree $\le 3$ Polynomials (Sections~\ref{sec:lowdepth} and~\ref{sec:speicher}):} When $X$ and $Y$ are specified by their genuine $B$-multilinear moment maps $\mu_k^X, \mu_k^Y \colon B^{k-1} \to B$, every polynomial $P \in B\langle X, Y \rangle$ of degree $\le 3$---and every convolution or mixed polynomial of partition nesting depth $\le 3$ (extending through $n = 6$, $|\NC(6)| = 132$)---is constructively computable via Speicher's nested tree evaluation. Conversely, from un-inserted power moments $\{E(X^k), E(Y^k)\}_{k \ge 1}$ alone, polynomials of degree $\le 2$ (depth $1$) are computable while degree-$3$ (depth-$2$) polynomials are already underdetermined.
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}p{4.3cm}p{2.3cm}p{7.8cm}@{}}
+\toprule
+\textbf{Formulation / Clause} & \textbf{Status} & \textbf{Sharp Threshold / Structural Mechanism} \\
+\midrule
+Clause 1 (F1): Weighted count on $\NC(n)$ from $\{E(X^k), E(Y^k)\}$ & \textbf{False} & Holds for $n \le 2$ (depth $1$); fails at $n = 3$ ($\mathrm{diag}(4,0) \neq \mathrm{diag}(3,1)$) and centered $n = 4$ ($\mathrm{diag}(8,2) \neq \mathrm{diag}(7,3)$). \\
+Clause 1 (F2): Commutative non-central base $B = \Diag_2(\mathbb{Q})$ & \textbf{False} & Fails at $n = 3$ and $n = 4$: $\tilde{X} b \neq b \tilde{X}$ permutes diagonal coordinates inside nested blocks. \\
+Clause 1 (F3): Scalar-weighted un-nested $B$-inserted operators & \textbf{False} & All $78$ permuted depth-$1$ $\eta_{\mathrm{swap}}$-operators have rank $32$ and are annihilated by $\Phi$, whereas $\Phi(\mu_4^{X_{\mathrm{swap}}}) = 1$. \\
+Central commutative regime ($B$ commutative, $X b = b X$) & \textbf{True} & Inner blocks commute out: $\kappa_\pi(b_1,\dots,b_{n-1}) = (\prod b_i)\prod_{V\in\pi} c_{|V|}$ (Theorem~\ref{thm:central}). \\
+Clause 2 (R1): Depth/degree $\le 3$ from $B$-multilinear oracles & \textbf{True} & Constructive nested algorithm \texttt{computePolyDeg3} sound on every abstract $(A, B, \iota, E)$ (Theorem~\ref{thm:deg3-comp}); verified through $n = 6$. \\
+Clause 2 (R2): Degree $\le 3$ from un-inserted moments alone & \textbf{False} & Computable for degree $\le 2$; underdetermined at degree $3$ because $E(X Y X) = E(X \iota(E(Y)) X)$ probes $\mu_2^X$ off $1_B$. \\
+\bottomrule
+\end{tabular}
+\caption{Summary of all mathematical readings and exact structural boundaries for Conjecture~\texttt{00000004759}.}
+\label{tab:summary}
+\end{table}
+
+\section{Operator-Valued Probability Spaces and Low-Depth Identities}\label{sec:lowdepth}
+
+\begin{definition}[Operator-valued probability space and $B$-freeness~\cite{Voiculescu1995,Speicher1998}]
+Let $A$ and $B$ be unital associative rings. An \emph{operator-valued probability space} $(A, B, \iota, E)$ consists of a unital ring homomorphism $\iota \colon B \to A$ and an additive map $E \colon A \to B$ satisfying
+\[
+E(\iota(b)) = b \quad\text{and}\quad E(\iota(b_1)\, x\, \iota(b_2)) = b_1\, E(x)\, b_2 \qquad \forall\, b, b_1, b_2 \in B,\; x \in A.
+\]
+Two unital subrings $\mathcal{A}_0, \mathcal{A}_1 \subseteq A$ containing $\iota(B)$ are \emph{freely independent with amalgamation over $B$} (\emph{$B$-free}) if for every $m \ge 1$, every alternating sequence $(i_1, \dots, i_m) \in \{0, 1\}^m$ ($i_k \neq i_{k+1}$), and all $a_k \in \mathcal{A}_{i_k}$ satisfying $E(a_k) = 0$ ($1 \le k \le m$), one has $E(a_1 a_2 \cdots a_m) = 0$.
+\end{definition}
+
+\begin{lemma}[Universal $B$-freeness of the base subalgebra]\label{lem:iota-free}
+For every subalgebra $\mathcal{A}_0 \subseteq A$ containing $\iota(B)$, the pair $(\mathcal{A}_0, \iota(B))$ is $B$-free to all orders.
+\end{lemma}
+\begin{proof}
+Suppose $a_1, \dots, a_m$ alternates between $\mathcal{A}_0$ and $\iota(B)$ with $E(a_k) = 0$ for all $k$. If $m = 1$ and $a_1 \in \mathcal{A}_0$, then $E(a_1) = 0$ holds by hypothesis. Otherwise at least one factor satisfies $a_r = \iota(b)$ with $0 = E(a_r) = E(\iota(b)) = b$, whence $a_r = \iota(0) = 0$, $a_1 \cdots a_m = 0$, and $E(0) = 0$.
+\end{proof}
+
+\begin{proposition}[Universal depth-$1$ decoupling]\label{prop:deg2}
+Let $(\mathcal{A}_0, \mathcal{A}_1)$ be $B$-free in $(A, B, \iota, E)$, and let $X \in \mathcal{A}_0$, $Y \in \mathcal{A}_1$, $b \in B$. Then
+\[
+E(X\, \iota(b)\, Y) = E(X)\, b\, E(Y), \qquad
+E\bigl((X + Y)^2\bigr) = E(X^2) + E(X)E(Y) + E(Y)E(X) + E(Y^2).
+\]
+\end{proposition}
+\begin{proof}
+Set $X_0 = X - \iota(E(X)) \in \mathcal{A}_0$ and $Y_0 = \iota(b)\bigl(Y - \iota(E(Y))\bigr) \in \mathcal{A}_1$. By $B$-bimodule linearity, $E(X_0) = 0$ and $E(Y_0) = b(E(Y) - E(Y)) = 0$. Order-$2$ $B$-freeness gives $E(X_0 Y_0) = 0$. Expanding $X_0 Y_0$ and applying $B$-bimodule linearity yields
+\[
+0 = E(X \iota(b) Y) - E(X) b E(Y) - E(X) b E(Y) + E(X) b E(Y) = E(X \iota(b) Y) - E(X) b E(Y).
+\]
+Symmetry between $\mathcal{A}_0$ and $\mathcal{A}_1$ gives $E(Y \iota(b) X) = E(Y) b E(X)$; setting $b = 1$ in $(X + Y)^2 = X^2 + XY + YX + Y^2$ yields the second identity.
+\end{proof}
+
+\begin{theorem}[Universal degree-3 nested insertion]\label{thm:xyx}
+Let $(\mathcal{A}_0, \mathcal{A}_1)$ be $B$-free in $(A, B, \iota, E)$. For all $X \in \mathcal{A}_0$, $Y \in \mathcal{A}_1$, and $b_1, b_2 \in B$,
+\begin{equation}\label{eq:xyx}
+E\bigl(X\, \iota(b_1)\, Y\, \iota(b_2)\, X\bigr) = E\Bigl(X\, \iota\bigl(b_1\, E(Y)\, b_2\bigr)\, X\Bigr).
+\end{equation}
+\end{theorem}
+\begin{proof}
+Put $X_0 = X - \iota(E(X)) \in \mathcal{A}_0$ and $M_0 = \iota(b_1)\bigl(Y - \iota(E(Y))\bigr)\iota(b_2) \in \mathcal{A}_1$. Both $X_0$ and $M_0$ are centered: $E(X_0) = 0$ and $E(M_0) = b_1 (E(Y) - E(Y)) b_2 = 0$. By $B$-freeness of orders $3$ and $2$, we have $E(X_0 M_0 X_0) = 0$, $E(X_0 M_0) = 0$, and $E(M_0 X_0) = 0$. Writing $X = X_0 + \iota(E(X))$ and expanding,
+\[
+E(X M_0 X) = E(X_0 M_0 X_0) + E(X_0 M_0) E(X) + E(X) E(M_0 X_0) + E(X) E(M_0) E(X) = 0.
+\]
+Since $X M_0 X = X \iota(b_1) Y \iota(b_2) X - X \iota(b_1 E(Y) b_2) X$, additivity of $E$ gives~\eqref{eq:xyx}.
+\end{proof}
+
+Notice the combinatorial meaning of~\eqref{eq:xyx}: among the $|\NC(3)| = 5$ noncrossing partitions of $\{1, 2, 3\}$, the three partitions $\{\{1,2,3\}\}$, $\{\{1,2\},\{3\}\}$, $\{\{1\},\{2,3\}\}$ mix $X$ and $Y$ inside a single block and vanish, leaving only the singleton partition $\{\{1\},\{2\},\{3\}\}$ ($E(X) b_1 E(Y) b_2 E(X)$) and the \emph{nested} partition $\{\{1,3\},\{2\}\}$ ($\kappa_2^X(b_1 E(Y) b_2) = E(X \iota(b_1 E(Y) b_2) X) - E(X) b_1 E(Y) b_2 E(X)$), whose sum is~\eqref{eq:xyx}. Crucially, $E(Y) \in B$ sits \emph{inside} the argument of $\mu_2^X(b) = E(X \iota(b) X)$ rather than factoring outside.
+
+\section{Fock Realization Over \texorpdfstring{$\Mat_2(\mathbb{Z})$}{M\_2(Z)} and Counterexamples}\label{sec:fock}
+
+\subsection{Full Fock Space Construction and All-Order \texorpdfstring{$B$}{B}-Freeness}
+Let $\Sigma = \{0, 1\}$, let $\Sigma^*$ denote the set of finite words over $\Sigma$ (with empty word $\varepsilon$), and let $\mathcal{V} = \mathbb{Z}^{\Sigma^*}$ be the $\mathbb{Z}$-module of functions $v \colon \Sigma^* \to \mathbb{Z}$ with vacuum vector $\Omega(\varepsilon) = 1$ and $\Omega(w) = 0$ for $w \neq \varepsilon$. Let $\mathcal{F} = \mathrm{End}_{\mathbb{Z}}(\mathcal{V})$ be the unital associative ring of $\mathbb{Z}$-linear endomorphisms of $\mathcal{V}$ under composition, with vacuum functional $\varphi(T) = (T\Omega)(\varepsilon)$. For each color $c \in \{0, 1\}$, define the creation operator $\ell_c^*$, annihilation operator $\ell_c$, and semicircular operator $s_c = \ell_c + \ell_c^*$ in $\mathcal{F}$ by
+\[
+(\ell_c^* v)(\varepsilon) = 0, \quad (\ell_c^* v)(b w) = \delta_{b,c}\, v(w), \qquad (\ell_c v)(w) = v(c w).
+\]
+Notice that both $\ell_c^*$ and $\ell_c$ are pointwise single-term lookups requiring no infinite summation. Let $\mathcal{F}_c \subseteq \mathcal{F}$ be the unital subring generated by $\mathbb{Z}\cdot \id_{\mathcal{V}}$, $\ell_c^*$, and $\ell_c$.
+
+\begin{theorem}[Scalar and $\Mat_2(\mathbb{Z})$-valued Fock freeness]\label{thm:fock-free}
+\begin{enumerate}
+\item[(a)] In $(\mathcal{F}, \mathbb{Z}, \iota_0, \varphi)$, the subalgebras $\mathcal{F}_0$ and $\mathcal{F}_1$ are freely independent to all orders.
+\item[(b)] Let $A = \Mat_2(\mathcal{F})$ and $B = \Mat_2(\mathbb{Z})$, with entrywise embedding $\iota(B)_{ij} = b_{ij}\,\id_{\mathcal{V}}$ and entrywise expectation $E(M)_{ij} = \varphi(M_{ij})$. Then $(A, B, \iota, E)$ is an operator-valued probability space, and $\mathcal{A}_0 = \Mat_2(\mathcal{F}_0)$ and $\mathcal{A}_1 = \Mat_2(\mathcal{F}_1)$ are $B$-free to all orders.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Every word $w \in \Sigma^*$ decomposes uniquely as $w = c^{k_c(w)} r_c(w)$, where $k_c(w) \ge 0$ is the count of leading letters equal to $c$ and $r_c(w) \in \Sigma^*$ does not begin with $c$. Suppose $v \in \mathcal{V}$ satisfies $v(c u) = 0$ for all $u \in \Sigma^*$. Then $v(w) = \Omega(c^{k_c(w)})\, v(r_c(w))$ for all $w \in \Sigma^*$. Because $\ell_c^*$ increments $k_c$ while preserving $r_c$ (and vanishes when $k_c(w) = 0$), and $\ell_c$ decrements $k_c(c w) = k_c(w) + 1$ while preserving $r_c$, structural induction on $T \in \mathcal{F}_c$ yields
+\[
+(T v)(w) = (T\Omega)(c^{k_c(w)})\, v(r_c(w)) \qquad \forall\, w \in \Sigma^*.
+\]
+If $\varphi(T) = (T\Omega)(\varepsilon) = 0$, then whenever $k_c(w) = 0$---in particular for $w = \varepsilon$ and for $w = (1-c) u$---we obtain $(Tv)(w) = \varphi(T)\, v(r_c(w)) = 0$. Consequently, applying an alternating sequence $T_1 \cdots T_m$ of $\varphi$-centered elements $T_r \in \mathcal{F}_{c_r}$ ($c_r \neq c_{r+1}$) to $\Omega$ inductively preserves the invariant $(T_r \cdots T_m \Omega)(c_{r-1} u) = 0$ and $(T_r \cdots T_m \Omega)(\varepsilon) = 0$, proving~(a).
+
+For~(b), entrywise linearity gives $E(\iota(B_1) M \iota(B_2))_{ij} = \sum_{p,q} (B_1)_{ip} \varphi(M_{pq}) (B_2)_{qj} = (B_1 E(M) B_2)_{ij}$. If $M^{(1)}, \dots, M^{(m)}$ alternates between $\mathcal{A}_0$ and $\mathcal{A}_1$ with $E(M^{(r)}) = 0$, then every scalar entry $M^{(r)}_{pq} \in \mathcal{F}_{c_r}$ has $\varphi(M^{(r)}_{pq}) = 0$, so every entry of $M^{(1)} \cdots M^{(m)}$ is a sum of alternating centered products $M^{(1)}_{i p_1} \cdots M^{(m)}_{p_{m-1} j}$, each annihilated by $\varphi$ by~(a).
+\end{proof}
+
+\subsection{Indistinguishable Power Moments vs.\ Divergent Convolutions}
+Inside $A = \Mat_2(\mathcal{F})$, define the two operators in $\mathcal{A}_0$ and two $B$-free partners:
+\[
+X = \begin{pmatrix} s_0 & 0 \\ 0 & s_0 \end{pmatrix}, \quad
+\tilde{X} = \begin{pmatrix} 0 & s_0 \\ s_0 & 0 \end{pmatrix}, \quad
+Y_{\det} = \iota(E_{11}) = \begin{pmatrix} 1 & 0 \\ 0 & 0 \end{pmatrix}, \quad
+Y_{\mathrm{semi}} = \begin{pmatrix} s_1 & 0 \\ 0 & 0 \end{pmatrix} \in \mathcal{A}_1.
+\]
+
+\begin{proposition}[All-order power-moment indistinguishability]\label{prop:same-moments}
+For every integer $k \ge 0$, $E(X^k) = E(\tilde{X}^k)$ (equal to $C_{k/2} I_2$ for even $k$, where $C_m = \frac{1}{m+1}\binom{2m}{m}$, and $0$ for odd $k$), and all un-inserted cumulants coincide: $\kappa_k^X(I_2, \dots, I_2) = \kappa_k^{\tilde{X}}(I_2, \dots, I_2)$.
+\end{proposition}
+\begin{proof}
+Since $\sigma_x^2 = I_2$, $\tilde{X}^2 = \mathrm{diag}(s_0^2, s_0^2) = X^2$, so $X^{2m} = \tilde{X}^{2m}$ identically in $A$ for all $m \ge 0$. For odd $k = 2m + 1$, every application of $s_0 = \ell_0 + \ell_0^*$ changes word length by $\pm 1$, so $(s_0^{2m+1}\Omega)(\varepsilon) = 0$ by parity; hence $E(X^{2m+1}) = 0 = E(\tilde{X}^{2m+1})$. Un-inserted cumulants at $I_2$ are determined recursively by un-inserted moments, so they also coincide for all $k \ge 1$.
+\end{proof}
+
+\begin{theorem}[Disproof of moment/cumulant weighted-count convolutions]\label{thm:moment-disproof}
+In $(A, B, \iota, E)$ over $B = \Mat_2(\mathbb{Z})$:
+\begin{enumerate}
+\item $(X, Y_{\det})$ and $(\tilde{X}, Y_{\det})$ are $B$-free pairs with identical marginal power-moment sequences, and their additive convolutions agree at $n = 1, 2$ ($E(X + Y_{\det}) = E(\tilde{X} + Y_{\det}) = E_{11}$ and $E((X + Y_{\det})^2) = E((\tilde{X} + Y_{\det})^2) = \mathrm{diag}(2, 1)$), but disagree at $n = 3$:
+\[
+E\bigl((X + Y_{\det})^3\bigr) = \begin{pmatrix} 4 & 0 \\ 0 & 0 \end{pmatrix} \neq \begin{pmatrix} 3 & 0 \\ 0 & 1 \end{pmatrix} = E\bigl((\tilde{X} + Y_{\det})^3\bigr),
+\]
+while their multiplicative convolutions disagree already at $n = 2$: $E((X Y_{\det})^2) = E_{11} \neq 0 = E((\tilde{X} Y_{\det})^2)$.
+\item $(X, Y_{\mathrm{semi}})$ and $(\tilde{X}, Y_{\mathrm{semi}})$ are strictly centered $B$-free semicircular pairs ($E(X) = E(\tilde{X}) = E(Y_{\mathrm{semi}}) = 0$) whose additive convolutions agree for $n \in \{1, 2, 3, 5\}$, but disagree at $n = 4$ (nesting depth $2$) and $n = 6$ (nesting depth $3$):
+\[
+E\bigl((X + Y_{\mathrm{semi}})^4\bigr) = \begin{pmatrix} 8 & 0 \\ 0 & 2 \end{pmatrix} \neq \begin{pmatrix} 7 & 0 \\ 0 & 3 \end{pmatrix} = E\bigl((\tilde{X} + Y_{\mathrm{semi}})^4\bigr),
+\]
+\[
+E\bigl((X + Y_{\mathrm{semi}})^6\bigr) = \begin{pmatrix} 40 & 0 \\ 0 & 5 \end{pmatrix} \neq \begin{pmatrix} 30 & 0 \\ 0 & 12 \end{pmatrix} = E\bigl((\tilde{X} + Y_{\mathrm{semi}})^6\bigr).
+\]
+\end{enumerate}
+Consequently, no function $\Phi_n \colon B^{\mathbb{N}} \times B^{\mathbb{N}} \to B$ of the single-variable moment sequences---and hence no scalar-weighted or $B$-weighted count over $\NC(n)$ formed from single-variable moments or un-inserted cumulants---computes operator-valued free convolution for $n \ge 3$ (or $n \ge 4$ in the centered semicircular class).
+\end{theorem}
+\begin{proof}
+$B$-freeness holds by Lemma~\ref{lem:iota-free} for~(a) and Theorem~\ref{thm:fock-free}(b) for~(b). For~(a), expanding $(U + E_{11})^3$ for $E(U) = 0$, $E(U^3) = 0$, $E(U^2) = I_2$ leaves $E_{11}^3 + E_{11} E(U^2) + E(U^2) E_{11} + E(U E_{11} U) = 3 E_{11} + E(U E_{11} U)$. For $U = X$, $E(X E_{11} X) = E_{11}$, giving $4 E_{11} = \mathrm{diag}(4,0)$; for $U = \tilde{X}$, $E(\tilde{X} E_{11} \tilde{X}) = \sigma_x E_{11} \sigma_x = E_{22}$, giving $3 E_{11} + E_{22} = \mathrm{diag}(3,1)$. Similarly, $(X E_{11})^2 = s_0^2 E_{11}$ has expectation $E_{11}$, whereas $\tilde{X} E_{11} \tilde{X} E_{11} = (s_0 E_{21})(s_0 E_{21}) = 0$.
+
+For~(b), $Z = U + Y_{\mathrm{semi}}$ is centered semicircular with covariance $\eta_Z(B) = \eta_U(B) + E_{11} B E_{11}$, so $E(Z^2) = \eta_Z(I_2) = \mathrm{diag}(2, 1)$ in both cases, while $\NC_2(4) = \{\{\{1,2\},\{3,4\}\}, \{\{1,4\},\{2,3\}\}\}$ yields
+\[
+E(Z^4) = \eta_Z(I_2)^2 + \eta_Z\bigl(\eta_Z(I_2)\bigr).
+\]
+Here $\eta_Z(I_2)^2 = \mathrm{diag}(4, 1)$, whereas $\eta_{X + Y_{\mathrm{semi}}}(\mathrm{diag}(2, 1)) = \mathrm{diag}(2,1) + \mathrm{diag}(2,0) = \mathrm{diag}(4, 1)$ gives $\mathrm{diag}(8, 2)$, and $\eta_{\tilde{X} + Y_{\mathrm{semi}}}(\mathrm{diag}(2, 1)) = \mathrm{diag}(1,2) + \mathrm{diag}(2,0) = \mathrm{diag}(3, 2)$ gives $\mathrm{diag}(7, 3)$. Summing over the $|\NC_2(6)| = 5$ pair partitions at $n = 6$ similarly yields $\mathrm{diag}(40, 5)$ versus $\mathrm{diag}(30, 12)$.
+\end{proof}
+
+\begin{remark}[Finite-dimensional and commutative-base realizations]
+Part~(a) of Theorem~\ref{thm:moment-disproof} already occurs in the $8$-dimensional associative $\mathbb{Q}$-algebra $\Mat_2(\mathbb{Q}) \oplus \Mat_2(\mathbb{Q})$ with expectation $E(M_+, M_-) = \frac{1}{2}(M_+ + M_-)$, $X = (I_2, -I_2)$, and $\tilde{X} = (\sigma_x, -\sigma_x)$. Moreover, restricting the base algebra to the \emph{commutative} diagonal subalgebra $\Diag_2(\mathbb{Z}) = \{\mathrm{diag}(d_1, d_2) : d_1, d_2 \in \mathbb{Z}\} \cong \mathbb{Z}^2$ with diagonal conditional expectation $E_{\Diag}(M) = \mathrm{diag}(\varphi(M_{11}), \varphi(M_{22}))$ preserves $\Diag_2(\mathbb{Z})$-freeness of both $(X, Y_{\mathrm{semi}})$ and $(\tilde{X}, Y_{\mathrm{semi}})$ (since off-diagonal entries of $\Alg(\Diag_2(\mathbb{Z}), \tilde{X})$ have odd degree in $s_0$ and vanish under $\varphi$), proving that \emph{commutativity of $B$ without centrality still fails weighted-count reduction}.
+\end{remark}
+
+\section{No-Go Theorem Against Un-Nested Block Weightings}\label{sec:nogo}
+
+One might next ask whether, if one supplies \emph{all} matrix insertions $(B_1, \dots, B_{n-1}) \in B^{n-1}$ and the \emph{entire} $B$-bimodule covariance map $\eta \colon B \to B$, the convolution or moment recursion can be written as a scalar-weighted linear combination of un-nested block evaluations without feeding an inner output $\eta(\cdot)$ into an outer $\eta(\cdot)$. We refute this completely at $n = 4$ (nesting depth $2$).
+
+Define the self-adjoint element $X_{\mathrm{swap}} \in \Mat_2(\mathcal{F})$ by
+\[
+X_{\mathrm{swap}} = (E_{12} \otimes \ell_0 + E_{21} \otimes \ell_0^*) + (E_{21} \otimes \ell_1 + E_{12} \otimes \ell_1^*)
+= \begin{pmatrix} 0 & \ell_0 + \ell_1^* \\ \ell_0^* + \ell_1 & 0 \end{pmatrix}.
+\]
+Because $\varphi(\ell_c \ell_{c'}^*) = \delta_{c,c'}$ and $\varphi(\ell_c^* \ell_{c'}) = \varphi(\ell_c \ell_{c'}) = \varphi(\ell_c^* \ell_{c'}^*) = 0$, a direct calculation gives the unital completely positive covariance map
+\begin{equation}\label{eq:eta-swap}
+E\bigl(X_{\mathrm{swap}}\, \iota(B)\, X_{\mathrm{swap}}\bigr) = E_{12} B E_{21} + E_{21} B E_{12} = \begin{pmatrix} b_{22} & 0 \\ 0 & b_{11} \end{pmatrix} = \eta_{\mathrm{swap}}(B),
+\end{equation}
+and fourth-moment map $\mu_4^{X_{\mathrm{swap}}}(B_1, B_2, B_3) = \eta_{\mathrm{swap}}(B_1) B_2 \eta_{\mathrm{swap}}(B_3) + \eta_{\mathrm{swap}}\bigl(B_1 \eta_{\mathrm{swap}}(B_2) B_3\bigr)$.
+
+For any permutation $\sigma \in S_3$ setting $(x, y, z) = (B_{\sigma(1)}, B_{\sigma(2)}, B_{\sigma(3)})$, every multilinear monomial in $\{x, y, z, I_2\}$ and $\eta_{\mathrm{swap}}$ of $\eta$-nesting depth at most $1$ (since $\eta_{\mathrm{swap}}(I_2) = I_2$, any factor $\eta_{\mathrm{swap}}(I_2)$ is redundant) belongs to one of $13$ templates:
+\begin{align*}
+&xyz,\quad \eta(x)yz,\quad x\eta(y)z,\quad xy\eta(z),\quad \eta(x)\eta(y)z,\quad \eta(x)y\eta(z),\quad x\eta(y)\eta(z),\\
+&\eta(x)\eta(y)\eta(z),\quad \eta(xy)z,\quad \eta(xy)\eta(z),\quad x\eta(yz),\quad \eta(x)\eta(yz),\quad \eta(xyz).
+\end{align*}
+Denote these $6 \times 13 = 78$ un-nested trilinear operators on $\Mat_2(\mathbb{Q})^3$ by $\{U_{\sigma, p}\}_{\sigma \in S_3,\, 0 \le p \le 12}$.
+
+\begin{proposition}[Single-point obstruction for order-preserving templates]\label{prop:single-point}
+At $(B_1, B_2, B_3) = (E_{12}, E_{11}, E_{21})$, one has $B_1 B_2 B_3 = 0$ and $\eta_{\mathrm{swap}}(B_1) = \eta_{\mathrm{swap}}(B_3) = 0$. Twelve of the $13$ order-preserving templates $U_{\id, p}(E_{12}, E_{11}, E_{21})$ vanish identically and the remaining template $B_1 \eta_{\mathrm{swap}}(B_2) B_3 = E_{11}$ has $(2,2)$-entry $0$. By contrast,
+\[
+\mu_4^{X_{\mathrm{swap}}}(E_{12}, E_{11}, E_{21}) = \eta_{\mathrm{swap}}\bigl(E_{12} \eta_{\mathrm{swap}}(E_{11}) E_{21}\bigr) = \eta_{\mathrm{swap}}(E_{11}) = E_{22} \neq 0.
+\]
+\end{proposition}
+
+\begin{theorem}[$78$-operator linear-span impossibility theorem]\label{thm:nogo-78}
+Across all $6$ permutations $\sigma \in S_3$ and all $13$ single-layer templates $p$, the subspace $\mathcal{U} = \mathrm{Span}_{\mathbb{Q}}\{U_{\sigma, p}\} \subseteq \mathrm{Hom}\bigl(\Mat_2(\mathbb{Q})^{\otimes 3}, \Mat_2(\mathbb{Q})\bigr)$ has dimension $32$, and neither $T_{\mathrm{nest}}(B_1, B_2, B_3) = \eta_{\mathrm{swap}}(B_1 \eta_{\mathrm{swap}}(B_2) B_3)$ nor $\mu_4^{X_{\mathrm{swap}}}$ belongs to $\mathcal{U}$ (nor to the $\mathbb{Z}$-span over $\Mat_2(\mathbb{Z})$).
+\end{theorem}
+\begin{proof}
+Define the $12$-term $\pm 1$ linear functional $\Phi \colon \mathrm{Hom}(\Mat_2(\mathbb{Q})^3, \Mat_2(\mathbb{Q})) \to \mathbb{Q}$ by
+\begin{align*}
+\Phi(F) &= F(E_{11}, E_{11}, E_{12})_{12} + F(E_{11}, E_{11}, E_{21})_{21} + F(E_{11}, E_{11}, E_{22})_{11} - F(E_{11}, E_{11}, E_{22})_{22} \\
+&\quad - F(E_{11}, E_{12}, E_{11})_{12} - F(E_{11}, E_{12}, E_{22})_{12} - F(E_{11}, E_{21}, E_{11})_{21} - F(E_{11}, E_{21}, E_{22})_{21} \\
+&\quad - F(E_{11}, E_{22}, E_{11})_{11} + F(E_{11}, E_{22}, E_{11})_{22} + F(E_{11}, E_{22}, E_{12})_{12} + F(E_{11}, E_{22}, E_{21})_{21}.
+\end{align*}
+Direct finite evaluation (verified both in Core Lean~4.19.0 by kernel reduction and in \texttt{verify.py}) shows $\Phi(U_{\sigma, p}) = 0$ for every $(\sigma, p) \in S_3 \times \{0, \dots, 12\}$; by linearity, $\Phi(F) = 0$ for every $F \in \mathcal{U}$. Conversely, on the $8$ input triples appearing in $\Phi$, $T_{\mathrm{nest}}(B_1, B_2, B_3)$ vanishes on all except $(E_{11}, E_{22}, E_{11})$, where $T_{\mathrm{nest}}(E_{11}, E_{22}, E_{11}) = \eta_{\mathrm{swap}}(E_{11}^3) = E_{22}$. Hence $\Phi(T_{\mathrm{nest}}) = (E_{22})_{22} = 1 \neq 0$. Since $\mu_4^{X_{\mathrm{swap}}} = U_{\id, 5} + T_{\mathrm{nest}}$ with $U_{\id, 5} \in \mathcal{U}$, we also have $\Phi(\mu_4^{X_{\mathrm{swap}}}) = 0 + 1 = 1 \neq 0$. Exact Gaussian elimination over $\mathbb{Q}$ on the $78 \times 256$ evaluation matrix gives $\dim \mathcal{U} = 32$.
+\end{proof}
+
+\begin{proposition}[Pure-component vanishing in additive convolution]\label{prop:pure-vanish}
+Let $X_1 = E_{11} \otimes s_0 \in \mathcal{A}_0$ and $Y_1 = E_{22} \otimes s_1 \in \mathcal{A}_1$, and put $(B_1, B_2, B_3) = (E_{21}, E_{11}, E_{12})$. Then both pure fourth moments vanish ($E(X_1 B_1 X_1 B_2 X_1 B_3 X_1) = 0$ and $E(Y_1 B_1 Y_1 B_2 Y_1 B_3 Y_1) = 0$) and both flat second moments vanish ($E((X_1+Y_1) B_1 (X_1+Y_1)) = E((X_1+Y_1) B_3 (X_1+Y_1)) = 0$), yet
+\[
+E\bigl((X_1 + Y_1) B_1 (X_1 + Y_1) B_2 (X_1 + Y_1) B_3 (X_1 + Y_1)\bigr) = \eta_{Y_1}\bigl(B_1 \eta_{X_1}(B_2) B_3\bigr) = E_{22} \neq 0.
+\]
+\end{proposition}
+\begin{proof}
+Here $X_1 E_{21} = 0$ and $Y_1 E_{11} Y_1 = 0$ identically in $\Mat_2(\mathcal{F})$, killing both pure fourth moments, while $\eta_{X_1 + Y_1}(B) = \mathrm{diag}(b_{11}, b_{22})$ annihilates $E_{21}$ and $E_{12}$. In the nested term, $\eta_{X_1}(E_{11}) = E_{11}$, $E_{21} E_{11} E_{12} = E_{22}$, and $\eta_{Y_1}(E_{22}) = E_{22}$.
+\end{proof}
+
+\section{Speicher's Nested Recursion and Depth \texorpdfstring{$\le 3$}{<= 3} Computability}\label{sec:speicher}
+
+\subsection{First-Block Decomposition of \texorpdfstring{$\NC(n)$}{NC(n)} and Nesting Depth}
+Every nonempty partition $\pi \in \NC(n)$ has a unique block $V = \{1 = v_1 < v_2 < \dots < v_{r+1}\}$ containing $1$. Removing $V$ partitions $\{1, \dots, n\} \setminus V$ into $r$ contiguous inner sub-intervals $(v_j, v_{j+1})$ ($1 \le j \le r$) carrying noncrossing partitions $\pi_1, \dots, \pi_r$, plus a tail sub-interval $(v_{r+1}, n]$ carrying $\pi_{\mathrm{tail}}$. This yields an inductive bijection $\pi \leftrightarrow \mathsf{block}([\pi_1, \dots, \pi_r], \pi_{\mathrm{tail}})$ (with $\mathsf{nil}$ for $n = 0$), satisfying $G(z) = 1 + \frac{z G(z)}{1 - z G(z)}$, i.e., $z G(z)^2 - G(z) + 1 = 0$, so $|\NC(n)| = C_n$. The \emph{nesting depth} of $\pi$ (maximum length of an inclusion chain of block hulls) satisfies
+\[
+\mathrm{depth}(\mathsf{nil}) = 0, \qquad \mathrm{depth}\bigl(\mathsf{block}([\pi_1, \dots, \pi_r], \pi_{\mathrm{tail}})\bigr) = \max\Bigl(1 + \max_{1 \le j \le r} \mathrm{depth}(\pi_j),\; \mathrm{depth}(\pi_{\mathrm{tail}})\Bigr).
+\]
+Table~\ref{tab:nc-depths} records $|\NC(n)|$ and exact depth counts for $1 \le n \le 6$.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}cccccl@{}}
+\toprule
+$n$ & $|\NC(n)| = C_n$ & Depth $1$ ($2^{n-1}$) & Depth $2$ & Depth $3$ & Minimal Maximal-Depth Representative \\
+\midrule
+$1$ & $1$ & $1$ & $0$ & $0$ & $\{\{1\}\}$ \\
+$2$ & $2$ & $2$ & $0$ & $0$ & $\{\{1,2\}\},\; \{\{1\},\{2\}\}$ \\
+$3$ & $5$ & $4$ & $1$ & $0$ & $\{\{1,3\},\{2\}\}$ \\
+$4$ & $14$ & $8$ & $6$ & $0$ & $\{\{1,4\},\{2,3\}\}$ \\
+$5$ & $42$ & $16$ & $25$ & $1$ & $\{\{1,5\},\{2,4\},\{3\}\}$ \\
+$6$ & $132$ & $32$ & $90$ & $10$ & $\{\{1,6\},\{2,5\},\{3,4\}\}$ \\
+\bottomrule
+\end{tabular}
+\caption{Catalan counts and nesting-depth distributions of $\NC(n)$ for $1 \le n \le 6$.}
+\label{tab:nc-depths}
+\end{table}
+
+Given a family of $B$-multilinear block maps $\kappa = (\kappa_k \colon B^{k-1} \to B)_{k \ge 1}$ and separators $(b_1, \dots, b_{n-1}) \in B^{n-1}$, Speicher's nested operator evaluation $\kappa_\pi(b_1, \dots, b_{n-1}) \in B$ acts recursively on $\pi = \mathsf{block}([\pi_1, \dots, \pi_r], \pi_{\mathrm{tail}})$: each empty gap $\pi_j = \mathsf{nil}$ consumes one separator $u_j = b_{v_j}$, each nonempty gap $\pi_j$ consumes $(b_{v_j},\, \text{inner separators},\, b_{v_{j+1}-1})$ to form the nested argument $u_j = b_{v_j}\, \kappa_{\pi_j}(\cdots)\, b_{v_{j+1}-1}$, the outer block evaluates $v_{\mathrm{out}} = \kappa_{r+1}(u_1, \dots, u_r)$, and a nonempty tail multiplies on the right by $b_{v_{r+1}} \kappa_{\pi_{\mathrm{tail}}}(\cdots)$. By Speicher's additivity of free cumulants~\cite{Speicher1998}, for $B$-free $X, Y$,
+\begin{equation}\label{eq:speicher-conv}
+\mu_n^Z(b_1, \dots, b_{n-1}) = \sum_{\pi \in \NC(n)} \kappa_\pi^Z(b_1, \dots, b_{n-1}), \qquad
+\kappa_k^{X+Y} = \kappa_k^X + \kappa_k^Y,
+\end{equation}
+where $\kappa_n^Z(b_1, \dots, b_{n-1}) = \mu_n^Z(b_1, \dots, b_{n-1}) - \sum_{\pi \in \NC(n) \setminus \{1_n\}} \kappa_\pi^Z(b_1, \dots, b_{n-1})$.
+
+\subsection{Central-Commutative Factorization Theorem}
+\begin{theorem}[Central-commutative reduction to weighted counts]\label{thm:central}
+Let $B$ be a commutative unital associative ring, let $c \colon \mathbb{N}_{\ge 1} \to B$, and suppose every block map has the central form $\kappa_{r+1}(u_1, \dots, u_r) = \bigl(\prod_{j=1}^r u_j\bigr)\, c(r + 1)$. Then for every nonempty $\pi \in \NC(n)$ and all $(b_1, \dots, b_{n-1}) \in B^{n-1}$,
+\[
+\kappa_\pi(b_1, \dots, b_{n-1}) = \Bigl(\prod_{i=1}^{n-1} b_i\Bigr) \prod_{V \in \pi} c(|V|).
+\]
+\end{theorem}
+\begin{proof}
+We induct structurally on $\pi = \mathsf{block}([\pi_1, \dots, \pi_r], \pi_{\mathrm{tail}})$. For each gap $j$, if $\pi_j = \mathsf{nil}$ then $u_j = b_{v_j} \cdot 1$; if $\pi_j$ has size $m_j \ge 1$, the induction hypothesis yields
+\[
+\kappa_{\pi_j}(\text{inner}) = \Bigl(\prod_{s=v_j+1}^{v_{j+1}-2} b_s\Bigr) \prod_{W \in \pi_j} c(|W|), \quad\text{hence}\quad u_j = \Bigl(\prod_{s=v_j}^{v_{j+1}-1} b_s\Bigr) \prod_{W \in \pi_j} c(|W|)
+\]
+by commutativity of $B$. Multiplying $u_1 \cdots u_r \, c(r+1)$ (and $b_{v_{r+1}} \kappa_{\pi_{\mathrm{tail}}}(\cdots)$ when $\pi_{\mathrm{tail}} \neq \mathsf{nil}$) and commuting all $c(|W|)$ factors to the right collects all $n - 1$ separators into $\prod_{i=1}^{n-1} b_i$ and all block weights into $\prod_{V \in \pi} c(|V|)$.
+\end{proof}
+
+\subsection{Computability at Depth and Degree at Most Three}
+\begin{theorem}[Universal computability at degree and nesting depth $\le 3$]\label{thm:deg3-comp}
+Let $(A, B, \iota, E)$ be \emph{any} operator-valued probability space and let $(X, Y)$ be \emph{any} $B$-free pair with $B$-multilinear moment oracles $\mu_1^Z = E(Z) \in B$, $\mu_2^Z(b_1) = E(Z \iota(b_1) Z)$, and $\mu_3^Z(b_1, b_2) = E(Z \iota(b_1) Z \iota(b_2) Z)$ ($Z \in \{X, Y\}$).
+\begin{enumerate}
+\item[(a)] Every noncommutative polynomial $P(X, Y) \in B\langle X, Y \rangle$ of degree at most $3$ has expectation $E(P(X, Y)) \in B$ computed in closed form on each monomial $\iota(b_0) Z_{v_1} \iota(b_1) \cdots Z_{v_d} \iota(b_d)$ ($0 \le d \le 3$) via the explicit rules:
+\begin{align*}
+d = 0 &: b_0, \qquad
+d = 1 : b_0\, \mu_1^{Z_{v_1}}\, b_1, \qquad
+d = 2 : \begin{cases}
+b_0\, \mu_2^Z(b_1)\, b_2 & (v_1 = v_2),\\
+b_0\, \mu_1^{Z_{v_1}} b_1 \mu_1^{Z_{v_2}}\, b_2 & (v_1 \neq v_2),
+\end{cases}\\
+d = 3 &: \begin{cases}
+b_0\, \mu_3^Z(b_1, b_2)\, b_3 & (Z, Z, Z),\\
+b_0\, \mu_2^{Z}(b_1) b_2 \mu_1^{Z'}\, b_3 & (Z, Z, Z'),\; Z \neq Z',\\
+b_0\, \mu_1^{Z} b_1 \mu_2^{Z'}(b_2)\, b_3 & (Z, Z', Z'),\; Z \neq Z',\\
+b_0\, \mu_2^{Z}\bigl(b_1 \mu_1^{Z'} b_2\bigr)\, b_3 & (Z, Z', Z),\; Z \neq Z'.
+\end{cases}
+\end{align*}
+\item[(b)] More generally, given computable $B$-multilinear moment maps $(\mu_k^X, \mu_k^Y)_{1 \le k \le n}$, Speicher's recursion~\eqref{eq:speicher-conv} terminates in finitely many ring operations and oracle calls to compute every convolution and mixed polynomial moment of order $n$---including all partitions of nesting depth at most $3$ ($n \le 6$, where the unique depth-$3$ pairing $\{\{1,6\},\{2,5\},\{3,4\}\} \in \NC_2(6)$ evaluates to $\eta_Z\bigl(b_1\, \eta_Z(b_2\, \eta_Z(b_3)\, b_4)\, b_5\bigr)$).
+\item[(c)] Conversely, if only the un-inserted power moments $\{E(X^k), E(Y^k)\}_{k \ge 1}$ are given, every polynomial in $\{X + Y, XY, YX\}$ of degree at most $2$ is computable (Proposition~\ref{prop:deg2}), whereas $(X + Y)^3$ is already underdetermined by Theorem~\ref{thm:moment-disproof}(a).
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+Part~(a) follows on each of the $1 + 2 + 4 + 8 = 15$ monomial patterns from $B$-bimodule linearity, Proposition~\ref{prop:deg2}, Theorem~\ref{thm:xyx}, and the consequences $E(X \iota(b_1) X \iota(b_2) Y) = \mu_2^X(b_1) b_2 \mu_1^Y$ and $E(X \iota(b_1) Y \iota(b_2) Y) = \mu_1^X b_1 \mu_2^Y(b_2)$ (obtained by applying Proposition~\ref{prop:deg2} to $X \iota(b_1) X \in \mathcal{A}_0$ and $Y \iota(b_2) Y \in \mathcal{A}_1$). Part~(b) follows because each recursive call in~\eqref{eq:speicher-conv} strictly decreases block size $|V| < n$ when extracting $\kappa_n^Z$ and strictly decreases interval size when evaluating $\kappa_\pi^Z$. Part~(c) combines Proposition~\ref{prop:deg2} and Theorem~\ref{thm:moment-disproof}(a).
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Audit}
+
+All theorems and counterexamples in Sections~\ref{sec:lowdepth}--\ref{sec:speicher} have been formalized from first principles in Core Lean~\texttt{v4.19.0} (\texttt{package/lean/}, compiled with \texttt{-DwarningAsError=true}, zero external dependencies, zero \texttt{sorry}/\texttt{admit}/\texttt{native\_decide}, and zero custom axioms):
+{\raggedright
+\begin{itemize}
+\item \texttt{Basic.lean}: \texttt{AssocRing}, \texttt{CommAssocRing}, \texttt{OpValProbSpace}, \texttt{IsBFree}, \texttt{isBFree\_\allowbreak iotaSubalg} (Lemma~\ref{lem:iota-free}), \texttt{exp\_\allowbreak XY\_\allowbreak bfree}, \texttt{exp\_\allowbreak add\_\allowbreak sq\_\allowbreak bfree} (Proposition~\ref{prop:deg2}), and \texttt{exp\_\allowbreak XYX\_\allowbreak bfree} (Theorem~\ref{thm:xyx}).
+\item \texttt{FockModel.lean}: \texttt{Mat2}, \texttt{FockOp}, \texttt{scalar\_\allowbreak isBFree}, \texttt{mat2FockSpace}, and \texttt{mat2Fock\_\allowbreak isBFree} (Theorem~\ref{thm:fock-free}).
+\item \texttt{Counterexamples.lean}: \texttt{all\_\allowbreak power\_\allowbreak moments\_\allowbreak eq} (Proposition~\ref{prop:same-moments}), \texttt{conv\_\allowbreak det\_\allowbreak n3\_\allowbreak ne}, \texttt{mul\_\allowbreak conv\_\allowbreak det\_\allowbreak n2\_\allowbreak ne}, \texttt{conv\_\allowbreak semi\_\allowbreak n4\_\allowbreak ne}, \texttt{conv\_\allowbreak semi\_\allowbreak n6\_\allowbreak ne}, and \texttt{no\_\allowbreak uninserted\_\allowbreak moment\_\allowbreak convolution\_\allowbreak recursion} (Theorem~\ref{thm:moment-disproof}).
+\item \texttt{NoUnnestedWeightedCount.lean}: \texttt{opXswap\_\allowbreak covariance}, \texttt{phiOrd\_\allowbreak comb\_\allowbreak id\_\allowbreak zero} (Proposition~\ref{prop:single-point}), \texttt{no\_\allowbreak unnested\_\allowbreak weighted\_\allowbreak count\_\allowbreak all78} (Theorem~\ref{thm:nogo-78}), and \texttt{pure\_\allowbreak moments\_\allowbreak vanish\_\allowbreak yet\_\allowbreak conv\_\allowbreak nonzero} (Proposition~\ref{prop:pure-vanish}).
+\item \texttt{NestedRecursion.lean} \& \texttt{Conjecture00000004759.lean}: \texttt{nc\_\allowbreak catalan\_\allowbreak and\_\allowbreak depth\_\allowbreak counts}, \texttt{central\_\allowbreak commutative\_\allowbreak weighted\_\allowbreak count} (Theorem~\ref{thm:central}), \texttt{poly\_\allowbreak deg\_\allowbreak le\_\allowbreak 3\_\allowbreak universal\_\allowbreak soundness} (Theorem~\ref{thm:deg3-comp}), \texttt{speicher\_\allowbreak depth3\_\allowbreak n6\_\allowbreak verified}, and master theorem \texttt{conjecture\_\allowbreak 00000004759\_\allowbreak resolution}.
+\end{itemize}
+}
+An independent Python~3.12 script (\texttt{package/verify.py}) cross-checks all partition bijections ($1 \le n \le 7$), Fock and $8$-dimensional Rademacher models, the $78$-operator rank-$32$ linear system, and Speicher's general nested recursion on non-semicircular operators up to $n = 6$.
+
+\begin{thebibliography}{9}
+\bibitem{Voiculescu1985}
+D.~Voiculescu, \emph{Symmetries of some reduced free product $C^*$-algebras}, in \emph{Operator Algebras and their Connections with Topology and Ergodic Theory}, Lecture Notes in Math., vol.~1132, Springer, 1985, pp.~556--588.
+
+\bibitem{Voiculescu1995}
+D.~Voiculescu, \emph{Operations on certain non-commutative operator-valued random variables}, Ast\'erisque \textbf{232} (1995), 243--275.
+
+\bibitem{Speicher1998}
+R.~Speicher, \emph{Combinatorial Theory of the Free Product with Amalgamation and Operator-Valued Free Probability Theory}, Mem.\ Amer.\ Math.\ Soc.\ \textbf{132} (1998), no.~627.
+
+\bibitem{NicaSpeicher2006}
+A.~Nica and R.~Speicher, \emph{Lectures on the Combinatorics of Free Probability}, London Math.\ Soc.\ Lecture Note Ser., vol.~335, Cambridge Univ.\ Press, 2006.
+
+\bibitem{HeltonFarSpeicher2007}
+J.~W.~Helton, R.~Rashidi Far, and R.~Speicher, \emph{Operator-valued semicircular elements: solving a quadratic matrix equation with positivity constraints}, Int.\ Math.\ Res.\ Not.\ IMRN \textbf{2007} (2007), no.~22, Art.\ ID rnm086.
+\end{thebibliography}
+
+\end{document}
