@@ -1,0 +1,395 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{tt}
+
+\setlength{\emergencystretch}{1.5em}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\Irr}{\mathrm{Irr}}
+\newcommand{\Specrep}{\mathrm{Spec}_{\mathrm{rep}}}
+\newcommand{\Speccen}{\mathrm{Spec}_{\mathrm{cen}}}
+\newcommand{\Spec}{\mathrm{Spec}}
+\newcommand{\End}{\mathrm{End}}
+\newcommand{\Mat}{M}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+
+\title{\textbf{Resolution of Conjecture 00000007610:\\
+Same-Representation, Different-Center Extension Separation\\
+in Clifford Algebras}}
+\author{Formalized in Lean 4.19.0 with Exact Rational Verification}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007610} in the \textbf{affirmative} (\textbf{TRUE}).
+In the structure theory of Clifford algebras over a field $K$ ($\mathrm{char}(K) \neq 2$), the \emph{irreducible-representation spectrum} $\Specrep^K(A)$ (recording the cardinality of simple $A$-module isomorphism classes together with their $K$-dimensions) and the \emph{center spectrum} $\Speccen(A)$ (the isomorphism type of the commutative ring-theoretic center $Z(A)$, equivalently its affine scheme $\Spec(Z(A))$ with residue fields) form two distinct structural layers.
+We first establish an obstruction theorem explaining why field extensions are indispensable: over an algebraically closed base field such as $\C$ (and already for dimensions $n \in \{1,2\}$ over any quadratically closed field of characteristic $\neq 2$), $\Specrep^K(\Cl(V,Q))$ uniquely determines $Z(\Cl(V,Q))$ up to $K$-algebra isomorphism.
+Over any field admitting a quadratic extension---explicitly over $\Q$ with $\Q(i) = \Q[x]/(x^2+1)$ and $\Q(\sqrt{2}) = \Q[x]/(x^2-2)$ (and identically over $\R \subset \C$)---we prove unconditional separation across \emph{all three} canonical regimes:
+(I) over fixed base field $\Q$, $\Cl_{1,1}(\Q) \cong \Mat_2(\Q)$ and $\Cl_{0,1}(\Q) \cong \Q(i)$ share the identical irreducible $\Q$-representation spectrum $(1;[2])$ while their centers form the explicit quadratic extension pair $(\Q, \Q(i))$ ($Z(\Cl_{1,1}(\Q)) \not\simeq Z(\Cl_{0,1}(\Q))$ both as $\Q$-algebras and as abstract unital rings);
+(II) within fixed generator dimension $n=1$ (and noncommutative dimension $n=3$), $\Cl(\Q^1,(2)) \cong \Q(\sqrt{2})$ and $\Cl(\Q^1,(-1)) \cong \Q(i)$ share $\Specrep^\Q = (1;[2])$ and algebra dimension $2$ while having non-isomorphic field centers; and
+(III) across the base-field extension $\Q \hookrightarrow \Q(i)$ on the identical split form $Q(x_1,x_2)=x_1^2-x_2^2$, $\Cl_{1,1}(\Q)$ and $\Cl_{1,1}(\Q(i))$ share the identical integer spinor generator matrices and representation spectrum $(1;[2])$ over their respective base fields while having non-isomorphic ring centers $\Q \not\simeq \Q(i)$.
+All foundational definitions, the $2^n$-dimensional Clifford algebra and its universal property, simple-module uniqueness theorems, all three separation regimes, and the quadratically-closed obstruction theorem are formalized from first principles in pure Lean~4.19.0 with zero external dependencies and zero custom axioms.
+\end{abstract}
+
+\section{Introduction and Problem Statement}
+
+Problem \texttt{00000007610} from \emph{The Last Math Competition} reads verbatim as follows:
+
+\begin{quote}
+\textbf{English.} Definition: Representation spectra and center spectra are two layers. Conjecture: There exist two Clifford algebras with the same irreducible-representation spectrum but different center spectra, and the separation is realized by an explicit field-extension pair with the same representation but different center. (same representation-different center extension separation)
+\end{quote}
+
+In the accompanying Chinese formulation, the two-layer distinction (\emph{representation spectrum} vs.\ \emph{center spectrum}) and the target phenomenon (\emph{same-representation, different-center extension separation}) state the exact same existential separation question for Clifford algebras.
+
+\subsection{Verdict and Structural Overview}
+
+The conjecture is \textbf{TRUE}, and its reference to an \emph{explicit field-extension pair} captures a precise Artin--Wedderburn phenomenon in the periodicity of Clifford algebras:
+
+\begin{enumerate}
+  \item \textbf{Locking of the Two Layers Over Algebraically Closed Fields.}
+  Over $K = \C$, every nondegenerate Clifford algebra $\Cl_n(\C)$ ($n \ge 1$) is isomorphic either to $\Mat_{2^m}(\C)$ when $n = 2m$ (having $1$ simple module of dimension $2^m$ and $Z \cong \C$ of dimension $1$) or to $\Mat_{2^m}(\C) \times \Mat_{2^m}(\C)$ when $n = 2m+1$ (having $2$ simple modules of dimension $2^m$ and $Z \cong \C \times \C$ of dimension $2$). Over $\C$ alone, the number of simple modules equals $\dim_\C Z(\Cl_n(\C))$, so $\Specrep^\C$ completely determines $\Speccen$ up to $\C$-algebra isomorphism.
+
+  \item \textbf{Decoupling of the Two Layers via Explicit Quadratic Field Extensions.}
+  Over a non-quadratically-closed field $K$ ($\mathrm{char}(K) \neq 2$, such as $K = \Q$ or $K = \R$), an odd-dimensional Clifford algebra $\Cl(V,Q)$ with non-square signed discriminant $\delta \in K^\times \setminus (K^\times)^2$ does \emph{not} split into two summands: instead, its center becomes the quadratic field extension $L = K(\sqrt{\delta})$, and $\Cl(V,Q)$ remains a \emph{simple} $K$-algebra! Because $\Spec(Z(A)) = \Spec(L)$ consists of a \emph{single} closed point whose residue field $[L:K]=2$ has doubled in degree over $K$, the cardinality $|\Irr_K(A)| = 1$ stays equal to that of an even-dimensional split Clifford algebra $\Mat_{2^m}(K)$, while the factor of $2$ in $[L:K]$ trades off against matrix size in $\dim_K S = m \cdot \dim_K D$. Consequently, $\Specrep^K$ and $\Speccen$ decouple completely.
+\end{enumerate}
+
+To ensure complete mathematical generality under every standard convention in algebra and mathematical physics, we prove unconditional separation in \emph{three} distinct regimes:
+\begin{itemize}
+  \item \textbf{Regime I (Fixed base field $K = \Q$ or $\R$, center extension pair $(K, K(i))$):}
+  $A_1 = \Cl_{1,1}(K) \cong \Mat_2(K)$ vs.\ $A_2 = \Cl_{0,1}(K) \cong K(i)$, both having $\Specrep^K = (1;[2])$ on $K^2$, while $(Z(A_1), Z(A_2)) \cong (K, K(i))$ with $Z(A_1) \not\simeq Z(A_2)$ both as $K$-algebras and as abstract unital rings.
+  \item \textbf{Regime II (Fixed base field $K = \Q$ and equal generator dimension $n$):}
+  For $n=1$ ($\dim_\Q A = 2$), $C_1 = \Cl(\Q^1,(2)) \cong \Q(\sqrt{2})$ vs.\ $C_2 = \Cl(\Q^1,(-1)) \cong \Q(i)$, both having $\Specrep^\Q = (1;[2])$ and non-isomorphic field centers $\Q(\sqrt{2}) \not\simeq \Q(i)$; and for noncommutative $n=3$ ($\dim_\Q A = 8$), $\Cl(\Q^3,(1,-1,-1)) \cong \Mat_2(\Q(i))$ vs.\ $\Cl(\Q^3,(1,-1,-2)) \cong \Mat_2(\Q(\sqrt{-2}))$, both having $\Specrep^\Q = (1;[4])$ and non-isomorphic centers.
+  \item \textbf{Regime III (Base-field extension pair $K \hookrightarrow L$ on identical spinor matrices):}
+  Across $\Q \hookrightarrow \Q(i)$ (or $\R \hookrightarrow \C$), $B_\Q = \Cl_{1,1}(\Q)$ and $B_{\Q(i)} = \Cl_{1,1}(\Q(i))$ are defined by the identical quadratic form $Q(x_1,x_2) = x_1^2 - x_2^2$ and act irreducibly via the identical integer matrices $E_0 = \bigl(\begin{smallmatrix}1&0\\0&-1\end{smallmatrix}\bigr)$, $E_1 = \bigl(\begin{smallmatrix}0&1\\-1&0\end{smallmatrix}\bigr)$ with $\Specrep^\Q(B_\Q) = (1;[2]) = \Specrep^{\Q(i)}(B_{\Q(i)})$, while $Z(B_\Q) \cong \Q \not\simeq_{\mathrm{Ring}} \Q(i) \cong Z(B_{\Q(i)})$.
+\end{itemize}
+
+\section{Foundational Definitions: Clifford Algebras and the Two Spectral Layers}
+
+Throughout, let $K$ be a field. When discussing orthogonal diagonalizations of quadratic forms, we assume $\mathrm{char}(K) \neq 2$ (though our recursive Clifford construction and universal property hold over arbitrary fields).
+
+\subsection{The \texorpdfstring{$2^n$}{2\^{}n}-Dimensional Clifford Algebra and Its Universal Property}
+
+Let $d = (d_0, \dots, d_{n-1}) \in K^n$, and define the diagonal quadratic form $Q_d : K^n \to K$ by
+\begin{equation}\label{eq:quadform}
+  Q_d(v_0, \dots, v_{n-1}) \;=\; \sum_{k=0}^{n-1} d_k v_k^2.
+\end{equation}
+
+\begin{definition}[Chevalley $\Z/2\Z$-Graded Clifford Construction]\label{def:clifford}
+For $n \in \mathbb{N}$ and $d \in K^n$, we construct the unital $K$-algebra $\Cl(K^n, d)$ together with its grade involution $\alpha_n : \Cl(K^n, d) \to \Cl(K^n, d)$ recursively on $n$:
+\begin{enumerate}
+  \item For $n = 0$, $\Cl(K^0, ()) = K$ with field operations and $\alpha_0 = \mathrm{id}_K$.
+  \item For $n + 1$ with $d = (d', d_n)$ where $d' = (d_0, \dots, d_{n-1}) \in K^n$, the underlying $K$-vector space is $\Cl(K^{n+1}, d) = \Cl(K^n, d') \oplus \Cl(K^n, d') e_n$, written as pairs $(a, b)$ representing $a + b e_n$, with multiplicative identity $(1, 0)$, grade involution
+  \[
+    \alpha_{n+1}(a, b) \;=\; \bigl(\alpha_n(a),\, -\alpha_n(b)\bigr),
+  \]
+  and multiplication
+  \begin{equation}\label{eq:chevalley-mul}
+    (a_1, b_1) \cdot (a_2, b_2)
+    \;=\;
+    \bigl(a_1 a_2 + d_n\, b_1 \alpha_n(b_2),\; a_1 b_2 + b_1 \alpha_n(a_2)\bigr).
+  \end{equation}
+\end{enumerate}
+The canonical $K$-linear vector embedding $\iota_n : K^n \to \Cl(K^n, d)$ is defined recursively by $\iota_0() = 0$ and $\iota_{n+1}(v', v_n) = (\iota_n(v'),\, v_n \cdot 1)$.
+\end{definition}
+
+\begin{proposition}[Algebra Structure, Dimension, and Universal Property]\label{prop:universal}
+For every field $K$, every $n \in \mathbb{N}$, and every $d \in K^n$:
+\begin{enumerate}
+  \item $\Cl(K^n, d)$ is an associative unital $K$-algebra of exact $K$-dimension $\dim_K \Cl(K^n, d) = 2^n$, and $\alpha_n$ is a $K$-algebra involution ($\alpha_n(xy)=\alpha_n(x)\alpha_n(y)$, $\alpha_n(\alpha_n(x))=x$).
+  \item For every $v \in K^n$, $\alpha_n(\iota_n(v)) = -\iota_n(v)$ and $\iota_n(v)^2 = Q_d(v) \cdot 1$.
+  \item \textbf{Universal Property:} For every associative unital $K$-algebra $B$ and every $K$-linear map $f : K^n \to B$ satisfying $f(v)^2 = Q_d(v) \cdot 1_B$ for all $v \in K^n$, there exists a \emph{unique} unital $K$-algebra homomorphism $\Phi : \Cl(K^n, d) \to B$ such that $\Phi \circ \iota_n = f$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Items (1) and (2) follow by structural induction on $n$: using $\alpha_n^2 = \mathrm{id}$ and $\alpha_n(xy)=\alpha_n(x)\alpha_n(y)$, expanding $((a_1,b_1)(a_2,b_2))(a_3,b_3)$ and $(a_1,b_1)((a_2,b_2)(a_3,b_3))$ yields identical four-term sums in both coordinates, and for $\iota_{n+1}(v', v_n) = (\iota_n(v'), v_n \cdot 1)$ we obtain
+\[
+  (\iota_n(v'), v_n \cdot 1)^2
+  = \bigl(\iota_n(v')^2 + d_n v_n^2 \cdot 1,\; v_n \iota_n(v') + v_n \alpha_n(\iota_n(v'))\bigr)
+  = \bigl((Q_{d'}(v') + d_n v_n^2)\cdot 1,\; 0\bigr).
+\]
+For (3), let $u = (v', 0)$ and $e_n = (0,\dots,0,1)$ in $K^{n+1}$. Because $Q_d(u + e_n) = Q_{d'}(v') + d_n = Q_d(u) + Q_d(e_n)$ identically in every characteristic, expanding $(f(u) + f(e_n))^2 = f(u+e_n)^2 = f(u)^2 + f(e_n)^2$ cancels $f(u)^2$ and $f(e_n)^2$ to yield $f(e_n) f(u) = -f(u) f(e_n)$. Inducting on $n$, any element $w \in B$ that anticommutes with $f|_{K^n}$ satisfies $w \cdot \Phi_n(x) = \Phi_n(\alpha_n(x)) \cdot w$ for all $x \in \Cl(K^n,d')$. Defining $\Phi_{n+1}(a,b) = \Phi_n(a) + \Phi_n(b) f(e_n)$ then preserves multiplication because
+\[
+  (\Phi_n(b_1) f(e_n))(\Phi_n(b_2) f(e_n))
+  = \Phi_n(b_1) \Phi_n(\alpha_n(b_2)) f(e_n)^2
+  = d_n \Phi_n(b_1 \alpha_n(b_2)),
+\]
+and uniqueness follows immediately from $(a,b) = (a,0) + (b,0)(0,1)$ and the induction hypothesis.
+\end{proof}
+
+As standard notation, $\Cl_{p,q}(K)$ denotes $\Cl(K^{p+q}, (\underbrace{1,\dots,1}_{p}, \underbrace{-1,\dots,-1}_{q}))$.
+
+\subsection{Layer 1 (Irreducible-Representation Spectrum) and Layer 2 (Center Spectrum)}
+
+\begin{definition}[Simple Modules and Irreducible-Representation Spectrum]\label{def:rep-spec}
+Let $A$ be an associative unital $K$-algebra.
+\begin{enumerate}
+  \item A left $A$-module $M$ is \emph{simple} (or \emph{irreducible}) if $M \neq \{0\}$ and every $A$-submodule $N \subseteq M$ satisfies $N = \{0\}$ or $N = M$.
+  \item Let $\Irr_K(A)$ denote the set of $A$-linear isomorphism classes $[S]$ of simple left $A$-modules. When $\Irr_K(A)$ is finite and every simple left $A$-module is finite-dimensional over $K$ (which holds automatically for every finite-dimensional $K$-algebra), the \emph{irreducible-representation spectrum} of $A$ over $K$ is the pair
+  \begin{equation}\label{eq:spec-rep}
+    \Specrep^K(A) \;=\; \Bigl(|\Irr_K(A)|;\; \mathrm{sort}\bigl(\dim_K S : [S] \in \Irr_K(A)\bigr)\Bigr).
+  \end{equation}
+  In particular, $\Specrep^K(A) = (1;[m])$ means that $A$ possesses a simple left module $S_0$ with $\dim_K S_0 = m$ and \emph{every} simple left $A$-module $M$ is $A$-linearly isomorphic to $S_0$ (hence also satisfies $\dim_K M = m$).
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Ring-Theoretic Center and Center Spectrum]\label{def:cen-spec}
+For any associative unital ring $A$, its \emph{center} is the commutative unital subring
+\begin{equation}\label{eq:center}
+  Z(A) \;=\; \{z \in A \mid \forall x \in A,\; z x = x z\}.
+\end{equation}
+When $A$ is a $K$-algebra, $Z(A)$ is a commutative unital $K$-subalgebra of $A$. The \emph{center spectrum} $\Speccen(A)$ refers to the commutative algebra/ring structure of $Z(A)$---equivalently, in commutative algebra and algebraic geometry, the affine scheme $\Spec(Z(A))$ consisting of the prime ideals of $Z(A)$ together with their residue fields $\kappa(\mathfrak{p})$. Two algebras $A_1, A_2$ have \emph{different center spectra} at the $K$-algebra level if $Z(A_1) \not\simeq_{K\text{-}\mathrm{Alg}} Z(A_2)$, and at the even stronger ring-theoretic/scheme-theoretic level if $Z(A_1) \not\simeq_{\mathrm{Ring}} Z(A_2)$ (i.e.\ $\Spec(Z(A_1)) \not\simeq \Spec(Z(A_2))$ as schemes).
+\end{definition}
+
+\begin{lemma}[Invariance of Both Layers Under Algebra Isomorphism]\label{lem:invariance}
+Any $K$-algebra isomorphism $\Phi : A \xrightarrow{\sim} B$ restricts to a $K$-algebra (and unital ring) isomorphism $Z(A) \xrightarrow{\sim} Z(B)$, and pullback along $\Phi$ induces a bijection $\Irr_K(B) \xrightarrow{\sim} \Irr_K(A)$ preserving underlying $K$-vector spaces and $K$-dimensions, so $\Specrep^K(A) = \Specrep^K(B)$.
+\end{lemma}
+
+\section{Obstruction Over Quadratically and Algebraically Closed Fields}
+
+Before constructing our explicit separation witnesses, we prove why a nontrivial field extension is structurally required.
+
+\begin{theorem}[No-Go Theorem Over Algebraically and Quadratically Closed Fields]\label{thm:obstruction}
+\leavevmode
+\begin{enumerate}
+  \item Let $K$ be an algebraically closed field with $\mathrm{char}(K) \neq 2$ (e.g.\ $K = \C$). For every $n \ge 1$ and every nondegenerate diagonal form $d = (d_0,\dots,d_{n-1}) \in (K^\times)^n$:
+  \begin{itemize}
+    \item If $n = 2m$ is even, $\Cl(K^{2m}, d) \cong \Mat_{2^m}(K)$, with $\Specrep^K = (1;[2^m])$ and $Z \cong K$.
+    \item If $n = 2m+1$ is odd, $\Cl(K^{2m+1}, d) \cong \Mat_{2^m}(K) \times \Mat_{2^m}(K)$, with $\Specrep^K = (2;[2^m, 2^m])$ and $Z \cong K \times K$.
+  \end{itemize}
+  Consequently, for any two nondegenerate Clifford algebras $A_1, A_2$ over $K$, $\Specrep^K(A_1) = \Specrep^K(A_2)$ implies $Z(A_1) \cong_K Z(A_2)$ (indeed $A_1 \cong_K A_2$).
+  \item More specifically, let $K$ be \emph{any} quadratically closed field ($\forall c \in K,\, \exists u \in K,\, u^2 = c$) with $\mathrm{char}(K) \neq 2$. Then for every $d_2 \in K^\times$, $\Cl(K^1, (d_2))$ admits a $1$-dimensional simple $K$-module and hence \emph{never} satisfies $\Specrep^K = (1;[2])$, whereas for all $d_0, d_1 \in K^\times$, $\Cl(K^2, (d_0, d_1)) \cong_K \Mat_2(K)$ satisfies $\Specrep^K = (1;[2])$ and $Z \cong_K K$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For (2), let $d_2 \in K^\times$ and choose $u \in K$ with $u^2 = d_2$. Define $\chi_+ : \Cl(K^1, (d_2)) \to K$ by $\chi_+(a,b) = a + u b$. Since
+\[
+  \chi_+\bigl((a_1,b_1)(a_2,b_2)\bigr)
+  = (a_1 a_2 + u^2 b_1 b_2) + u(a_1 b_2 + b_1 a_2)
+  = (a_1 + u b_1)(a_2 + u b_2),
+\]
+$\chi_+$ is a surjective unital $K$-algebra homomorphism. Pulling the $1$-dimensional simple $K$-module $K$ back along $\chi_+$ produces a simple $\Cl(K^1, (d_2))$-module of $K$-dimension $1$. Since $\dim_K K = 1 \neq 2 = \dim_K K^2$, $\Cl(K^1,(d_2))$ cannot have $\Specrep^K = (1;[2])$. Conversely, for $d_0, d_1 \in K^\times$, pick $u_0, u_1 \in K^\times$ with $u_0^2 = d_0$ and $u_1^2 = -d_1$. By Proposition~\ref{prop:universal}(3), rescaling $(v_0, v_1) \mapsto (u_0 v_0, u_1 v_1)$ induces an isomorphism $\Cl(K^2,(d_0,d_1)) \xrightarrow{\sim} \Cl_{1,1}(K) \cong \Mat_2(K)$, which has $\Specrep^K = (1;[2])$ and $Z \cong_K K$ by Lemma~\ref{lem:mat2} below. Part~(1) is the standard induction by $\Cl_{2m}(K) \cong \Cl_{1,1}(K)^{\otimes m} \cong \Mat_{2^m}(K)$ and $\Cl_{2m+1}(K) \cong \Mat_{2^m}(K) \otimes_K (K \times K)$.
+\end{proof}
+
+\section{First-Principles Classification of Centers and Simple Modules}
+
+To avoid relying on external Artin--Wedderburn black boxes, we prove the exact center and simple-module uniqueness theorems directly from the module axioms.
+
+\begin{lemma}[Simple Modules and Center of a Field Extension]\label{lem:field-mod}
+Let $K$ be a field and $L$ be a field carrying a $K$-algebra structure of finite $K$-dimension $[L:K] = m$. Then:
+\begin{enumerate}
+  \item $Z(L) = L$, so $\dim_K Z(L) = m$.
+  \item The regular left $L$-module $L$ is simple, and \emph{every} simple left $L$-module $M$ is $L$-linearly isomorphic to $L$. Hence $\Specrep^K(L) = (1;[m])$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Since $L$ is commutative, $Z(L)=L$. Because $1 \neq 0$ in $L$ and any $z_0 \neq 0$ in $L$ satisfies $(x z_0^{-1}) z_0 = x$ for all $x \in L$, every nonzero element generates $L$, so $L$ is simple. Next, let $M$ be any simple left $L$-module and pick $0 \neq m_0 \in M$. Define $\varphi : L \to M$ by $\varphi(z) = z \cdot m_0$. Then $\varphi$ is an $L$-module homomorphism whose image $\mathrm{im}(\varphi)$ is a nonzero $L$-submodule of $M$ (containing $\varphi(1) = m_0 \neq 0$), so $\mathrm{im}(\varphi) = M$ by simplicity of $M$. If $\varphi(z_1) = \varphi(z_2)$ with $z_1 - z_2 \neq 0$, then $m_0 = (z_1-z_2)^{-1}(z_1-z_2)\cdot m_0 = 0$, a contradiction. Thus $\varphi : L \xrightarrow{\sim} M$ is a bijective $L$-module isomorphism, which is automatically $K$-linear, yielding $\dim_K M = \dim_K L = m$.
+\end{proof}
+
+\begin{lemma}[Simple Modules and Center of $\Mat_2(K)$]\label{lem:mat2}
+Let $K$ be any field. For the $2 \times 2$ matrix algebra $\Mat_2(K)$ with matrix units $E_{11}, E_{12}, E_{21}, E_{22}$:
+\begin{enumerate}
+  \item $Z(\Mat_2(K)) = K \cdot I_2 \cong_K K$, so $\dim_K Z(\Mat_2(K)) = 1$.
+  \item Standard column space $S = K^2$ is a simple left $\Mat_2(K)$-module of $K$-dimension $2$, and \emph{every} simple left $\Mat_2(K)$-module $M$ (without even assuming $\dim_K M < \infty$ a priori) is $\Mat_2(K)$-linearly isomorphic to $K^2$. Hence $\Specrep^K(\Mat_2(K)) = (1;[2])$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) If $Z = \bigl(\begin{smallmatrix}z_{11}&z_{12}\\z_{21}&z_{22}\end{smallmatrix}\bigr) \in Z(\Mat_2(K))$, then $Z E_{11} = E_{11} Z$ gives $z_{12} = z_{21} = 0$, and $Z E_{12} = E_{12} Z$ gives $z_{11} = z_{22}$, so $Z = z_{11} I_2$.
+
+(2) For any $0 \neq u = (x,y)^\top \in K^2$ and any $w = (w_1,w_2)^\top \in K^2$, if $x \neq 0$ then $\bigl(\begin{smallmatrix}w_1 x^{-1} & 0\\ w_2 x^{-1} & 0\end{smallmatrix}\bigr) u = w$, while if $x = 0$ then $y \neq 0$ and $\bigl(\begin{smallmatrix}0 & w_1 y^{-1}\\ 0 & w_2 y^{-1}\end{smallmatrix}\bigr) u = w$; thus $K^2$ is simple.
+
+Now let $M$ be \emph{any} simple left $\Mat_2(K)$-module, and choose $0 \neq m_0 \in M$. Since $(E_{11} + E_{22}) m_0 = I_2 m_0 = m_0 \neq 0$:
+\begin{itemize}
+  \item If $E_{11} m_0 \neq 0$, set $v_1 = E_{11} m_0$; then $E_{11} v_1 = E_{11}^2 m_0 = v_1$.
+  \item If $E_{11} m_0 = 0$, then $E_{22} m_0 = m_0 \neq 0$. Set $v_1 = E_{12} m_0$; then $E_{21} v_1 = E_{21} E_{12} m_0 = E_{22} m_0 = m_0 \neq 0$, so $v_1 \neq 0$, and $E_{11} v_1 = E_{11} E_{12} m_0 = E_{12} m_0 = v_1$.
+\end{itemize}
+In both cases we obtain $v_1 \in M \setminus \{0\}$ with $E_{11} v_1 = v_1$. For $u = (x,y)^\top \in K^2$, set $\mathrm{col}(u) = \bigl(\begin{smallmatrix}x & 0\\ y & 0\end{smallmatrix}\bigr) \in \Mat_2(K)$ and define $\Psi : K^2 \to M$ by $\Psi(u) = \mathrm{col}(u) \cdot v_1$. Because $A \cdot \mathrm{col}(u) = \mathrm{col}(A u)$ holds identically in $\Mat_2(K)$ for all $A \in \Mat_2(K)$, $\Psi$ is a $\Mat_2(K)$-module homomorphism:
+\[
+  \Psi(A u) \;=\; \mathrm{col}(A u)\cdot v_1 \;=\; (A \cdot \mathrm{col}(u)) \cdot v_1 \;=\; A \cdot \Psi(u).
+\]
+Since $\Psi(1,0) = E_{11} v_1 = v_1 \neq 0$ and $M$ is simple, $\mathrm{im}(\Psi) = M$. Finally, if $\Psi(x,y) = 0$, acting by $E_{11}$ yields $0 = \Psi(x,0) = (x E_{11}) v_1 = x v_1$ (forcing $x=0$ since $v_1 \neq 0$: if $x \neq 0$, $\bigl(\begin{smallmatrix}x^{-1}&0\\0&0\end{smallmatrix}\bigr)(x E_{11}) v_1 = E_{11} v_1 = v_1$), and acting by $E_{12}$ yields $0 = \Psi(y,0) = y v_1$ (forcing $y=0$). Hence $\Psi : K^2 \xrightarrow{\sim} M$ is a bijective $\Mat_2(K)$-module isomorphism.
+\end{proof}
+
+\begin{lemma}[Explicit Spinor Isomorphism $\Cl_{1,1}(K) \cong \Mat_2(K)$]\label{lem:cl11}
+For every field $K$ with $\mathrm{char}(K) \neq 2$, the $K$-linear map $f : K^2 \to \Mat_2(K)$ given by
+\begin{equation}\label{eq:spinor-map}
+  f(v_0, v_1) \;=\; \begin{pmatrix} v_0 & v_1 \\ -v_1 & -v_0 \end{pmatrix}
+\end{equation}
+satisfies $f(v_0, v_1)^2 = (v_0^2 - v_1^2) I_2$ and extends via Proposition~\ref{prop:universal}(3) to a $K$-algebra isomorphism $\Phi : \Cl_{1,1}(K) \xrightarrow{\sim} \Mat_2(K)$, explicitly
+\[
+  \Phi(a + b e_0 + c e_1 + d e_0 e_1)
+  \;=\;
+  \begin{pmatrix} a + b & c + d \\ -c + d & a - b \end{pmatrix},
+\]
+with two-sided inverse $\Phi^{-1}\bigl(\begin{smallmatrix}m_{11}&m_{12}\\m_{21}&m_{22}\end{smallmatrix}\bigr) = \frac{1}{2}(m_{11}+m_{22}) + \frac{1}{2}(m_{11}-m_{22}) e_0 + \frac{1}{2}(m_{12}-m_{21}) e_1 + \frac{1}{2}(m_{12}+m_{21}) e_0 e_1$.
+\end{lemma}
+
+\section{Main Separation Theorems Across All Three Regimes}
+
+We now prove all three explicit field-extension separation realizations.
+
+\subsection{Regime I: Fixed Base Field \texorpdfstring{$K$}{K}, Center Extension Pair \texorpdfstring{$(K, K(i))$}{(K, K(i))}}
+
+\begin{theorem}[Main Theorem I --- Fixed-Base-Field Separation]\label{thm:regime-I}
+Let $K = \Q$ (or $K = \R$), and consider the two Clifford algebras
+\[
+  A_1 \;=\; \Cl_{1,1}(K) \;=\; \Cl\bigl(K^2, (1,-1)\bigr),
+  \qquad
+  A_2 \;=\; \Cl_{0,1}(K) \;=\; \Cl\bigl(K^1, (-1)\bigr).
+\]
+Then:
+\begin{enumerate}
+  \item \textbf{Identical Irreducible-Representation Spectrum:} Both $A_1$ and $A_2$ have a unique isomorphism class of simple left modules, of exact $K$-dimension $2$:
+  \[
+    \Specrep^K(A_1) \;=\; (1;[2]) \;=\; \Specrep^K(A_2).
+  \]
+  \item \textbf{Explicit Field-Extension Center Pair:} Their centers satisfy
+  \begin{align*}
+    Z(A_1) &\;\cong_K\; K \quad (\dim_K Z(A_1) = 1), \\
+    Z(A_2) &\;\cong_K\; K(i) = K[x]/(x^2+1) \quad (\dim_K Z(A_2) = 2),
+  \end{align*}
+  forming the explicit quadratic field extension $K \hookrightarrow K(i)$.
+  \item \textbf{Strong Center Separation:} Neither a $K$-algebra isomorphism nor even an abstract unital ring homomorphism $Z(A_2) \to Z(A_1)$ exists; in particular,
+  \[
+    Z(A_1) \;\not\simeq_{K\text{-}\mathrm{Alg}}\; Z(A_2)
+    \qquad\text{and}\qquad
+    Z(A_1) \;\not\simeq_{\mathrm{Ring}}\; Z(A_2).
+  \]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+By Lemma~\ref{lem:cl11} and Lemma~\ref{lem:mat2} (together with Lemma~\ref{lem:invariance}), $A_1 \cong_K \Mat_2(K)$ satisfies $\Specrep^K(A_1) = (1;[2])$ and $Z(A_1) \cong_K K$ ($\dim_K Z(A_1) = 1$). For $A_2 = \Cl(K^1,(-1))$, Definition~\ref{def:clifford} gives $A_2 \cong_K K[x]/(x^2+1) = K(i)$ directly. Because $q^2 + 1 \ge 1 > 0$ for every $q \in K$ ($K = \Q$ or $\R$), $-1$ is not a square in $K$, so the norm $a^2 + b^2$ is nonzero for all $(a,b) \in K^2 \setminus \{(0,0)\}$ and $(a+bi)^{-1} = \frac{a}{a^2+b^2} - \frac{b}{a^2+b^2} i$ makes $A_2 \cong_K K(i)$ a commutative field of $K$-dimension $2$. By Lemma~\ref{lem:field-mod}, $\Specrep^K(A_2) = (1;[2])$ and $Z(A_2) = A_2 \cong_K K(i)$ ($\dim_K Z(A_2) = 2$). Finally, $e_0 \in Z(A_2)$ satisfies $e_0^2 + 1 = 0$. If $\varphi : Z(A_2) \to K$ were any unital ring homomorphism, then $\varphi(e_0)^2 + 1 = \varphi(e_0^2 + 1) = \varphi(0) = 0$ in $K$, contradicting $q^2 + 1 > 0$ on $K$. Thus $\mathrm{Hom}_{\mathrm{Ring}}(Z(A_2), Z(A_1)) = \emptyset$, implying $Z(A_1) \not\simeq_{\mathrm{Ring}} Z(A_2)$ and $Z(A_1) \not\simeq_{K\text{-}\mathrm{Alg}} Z(A_2)$.
+\end{proof}
+
+\subsection{Regime II: Fixed Generator Dimension \texorpdfstring{$n$}{n} Over \texorpdfstring{$K = \Q$}{K = Q}}
+
+One may further ask whether separation persists when both Clifford algebras are defined on the \emph{same} underlying vector space $\Q^n$ (hence also have the same algebra dimension $2^n$). The answer is again \textbf{affirmative}, both for $n = 1$ (commutative) and for $n = 3$ (noncommutative).
+
+\begin{theorem}[Main Theorem II --- Same-Dimension Separation]\label{thm:regime-II}
+Consider the two $1$-generator, $2$-dimensional Clifford algebras over $\Q$:
+\[
+  C_1 \;=\; \Cl\bigl(\Q^1, (2)\bigr) \;\cong_\Q\; \Q(\sqrt{2}),
+  \qquad
+  C_2 \;=\; \Cl\bigl(\Q^1, (-1)\bigr) \;\cong_\Q\; \Q(i).
+\]
+Then $\dim_\Q C_1 = \dim_\Q C_2 = 2$, both have $\Specrep^\Q(C_1) = \Specrep^\Q(C_2) = (1;[2])$, and their centers $Z(C_1) \cong_\Q \Q(\sqrt{2})$ and $Z(C_2) \cong_\Q \Q(i)$ satisfy
+\[
+  Z(C_1) \;\not\simeq_{\Q\text{-}\mathrm{Alg}}\; Z(C_2)
+  \qquad\text{and}\qquad
+  Z(C_1) \;\not\simeq_{\mathrm{Ring}}\; Z(C_2).
+\]
+\end{theorem}
+
+\begin{proof}
+By classical parity descent on $\mathbb{N}$, $a^2 \neq 2b^2$ for all integers $a, b$ with $b > 0$, so $2 \notin (\Q^\times)^2$; likewise $-1 \notin (\Q^\times)^2$. Hence $C_1 \cong_\Q \Q(\sqrt{2})$ and $C_2 \cong_\Q \Q(i)$ are both quadratic field extensions of $\Q$, so Lemma~\ref{lem:field-mod} gives $\Specrep^\Q(C_1) = \Specrep^\Q(C_2) = (1;[2])$ and $Z(C_1) \cong_\Q \Q(\sqrt{2})$, $Z(C_2) \cong_\Q \Q(i)$. For any $z = a + b\sqrt{2} \in \Q(\sqrt{2})$ ($a,b \in \Q$), the $\Q$-component of $z^2 + 1 = (a^2 + 2b^2 + 1) + 2ab\sqrt{2}$ satisfies $a^2 + 2b^2 + 1 \ge 1 > 0$, so $z^2 + 1 \neq 0$ in $\Q(\sqrt{2})$. Since $e_0^2 + 1 = 0$ in $Z(C_2) \cong \Q(i)$, no unital ring homomorphism $Z(C_2) \to Z(C_1)$ exists.
+\end{proof}
+
+\begin{remark}[Noncommutative Same-Dimension Separation at $n = 3$]
+Taking tensor products with $\Cl_{1,1}(\Q) \cong \Mat_2(\Q)$ lifts Theorem~\ref{thm:regime-II} to noncommutative $8$-dimensional Clifford algebras: $D_1 = \Cl(\Q^3, (1,-1,-1)) \cong \Mat_2(\Q(i))$ and $D_2 = \Cl(\Q^3, (1,-1,-2)) \cong \Mat_2(\Q(\sqrt{-2}))$ both have $\dim_\Q D_j = 8$ and $\Specrep^\Q(D_j) = (1;[4])$, while their centers are generated by the volume elements $\omega_j = e_0 e_1 e_2$ satisfying $\omega_1^2 = -1$ and $\omega_2^2 = -2$, yielding $Z(D_1) \cong \Q(i) \not\simeq_{\mathrm{Ring}} \Q(\sqrt{-2}) \cong Z(D_2)$.
+\end{remark}
+
+\subsection{Regime III: Base-Field Extension Pair \texorpdfstring{$K \hookrightarrow L$}{K -> L} on Identical Spinor Matrices}
+
+\begin{theorem}[Main Theorem III --- Base-Field Extension Separation]\label{thm:regime-III}
+Along the explicit quadratic field extension $\Q \hookrightarrow \Q(i)$ (and identically $\R \hookrightarrow \C$), consider the split $(1,1)$-Clifford algebras
+\[
+  B_\Q \;=\; \Cl_{1,1}(\Q) \;=\; \Cl\bigl(\Q^2, (1,-1)\bigr),
+  \qquad
+  B_{\Q(i)} \;=\; \Cl_{1,1}(\Q(i)) \;=\; \Cl\bigl(\Q(i)^2, (1,-1)\bigr).
+\]
+Then:
+\begin{enumerate}
+  \item The field embedding $\Q \hookrightarrow \Q(i)$ induces an injective unital ring homomorphism $B_\Q \hookrightarrow B_{\Q(i)}$ intertwining the identical integer spinor generator matrices
+  \[
+    E_0 \;=\; \begin{pmatrix} 1 & 0 \\ 0 & -1 \end{pmatrix},
+    \qquad
+    E_1 \;=\; \begin{pmatrix} 0 & 1 \\ -1 & 0 \end{pmatrix}.
+  \]
+  \item Over their respective base fields, both algebras have the identical irreducible-representation spectrum:
+  \[
+    \Specrep^\Q(B_\Q) \;=\; (1;[2]) \;=\; \Specrep^{\Q(i)}(B_{\Q(i)}).
+  \]
+  \item Their centers satisfy $Z(B_\Q) \cong_{\mathrm{Ring}} \Q$ and $Z(B_{\Q(i)}) \cong_{\mathrm{Ring}} \Q(i)$, with $Z(B_\Q) \not\simeq_{\mathrm{Ring}} Z(B_{\Q(i)})$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Because $\Q \hookrightarrow \Q(i)$ preserves $0, 1, -1$, componentwise application defines an injective unital ring homomorphism $B_\Q \hookrightarrow B_{\Q(i)}$. Since $\mathrm{char}(\Q) = \mathrm{char}(\Q(i)) = 0 \neq 2$, Lemma~\ref{lem:cl11} and Lemma~\ref{lem:mat2} apply uniformly over $K = \Q$ and over $K = \Q(i)$ via the exact same formula \eqref{eq:spinor-map}, yielding $\Specrep^\Q(B_\Q) = (1;[2]) = \Specrep^{\Q(i)}(B_{\Q(i)})$ alongside $Z(B_\Q) \cong \Q$ and $Z(B_{\Q(i)}) \cong \Q(i)$. As shown in Theorem~\ref{thm:regime-I}, $\Q \not\simeq_{\mathrm{Ring}} \Q(i)$.
+\end{proof}
+
+\begin{table}[htbp]
+\centering
+\caption{Summary of verified Clifford separation witnesses across all regimes.}
+\label{tab:witnesses}
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Regime} & \textbf{Clifford Pair} & \textbf{Irr.-Rep.\ Spectrum} & \textbf{Center $Z(A)$} \\
+\midrule
+Obstruction ($\C$) & $\Cl_{2m}(\C)$ vs.\ $\Cl_{2m+1}(\C)$ & $(1;[2^m])$ vs.\ $(2;[2^m,2^m])$ & $\C$ vs.\ $\C \times \C$ (locked) \\
+Regime I ($\Q$) & $\Cl_{1,1}(\Q)$ vs.\ $\Cl_{0,1}(\Q)$ & $(1;[2])$ vs.\ $(1;[2])$ over $\Q$ & $\Q$ vs.\ $\Q(i)$ ($\dim_\Q 1 \neq 2$) \\
+Regime IIa ($n=1$) & $\Cl(\Q^1,(2))$ vs.\ $\Cl(\Q^1,(-1))$ & $(1;[2])$ vs.\ $(1;[2])$ over $\Q$ & $\Q(\sqrt{2})$ vs.\ $\Q(i)$ ($z^2=-1$) \\
+Regime IIb ($n=3$) & $\Cl(\Q^3,(1,-1,-1))$ vs.\ $(1,-1,-2)$ & $(1;[4])$ vs.\ $(1;[4])$ over $\Q$ & $\Q(i)$ vs.\ $\Q(\sqrt{-2})$ \\
+Regime III (ext.) & $\Cl_{1,1}(\Q)$ vs.\ $\Cl_{1,1}(\Q(i))$ & $(1;[2])_{\Q}$ vs.\ $(1;[2])_{\Q(i)}$ & $\Q$ vs.\ $\Q(i)$ (non-iso.\ rings) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Formalization in Lean 4.19.0 and Exact Verification}
+
+{\raggedright
+The entire proof is formalized from scratch in pure Lean~4.19.0 (\path{lean/}) with \texttt{warningAsError = true}, zero external libraries, zero \texttt{sorry}, and zero custom axioms:
+\begin{itemize}
+  \item \path{Conjecture00000007610/Algebra.lean}: Unital rings, fields, $K$-vector spaces, $K$-algebras, ring and algebra isomorphisms, $\dim_K K^1 \neq \dim_K K^2$ (\path{not_kLinearIso_fin1_fin2}), and the genuine ring-theoretic center \texttt{Center A} with invariance under \path{RingIso} and \path{AlgIso}.
+  \item \path{Conjecture00000007610/Fields.lean}: Exact quotient construction of $\Q$ (\path{RatQ}) with full field axioms, non-square proofs $-1, 2 \notin (\Q^\times)^2$ (\path{ratQ_nonSquare_neg_one}, \path{ratQ_nonSquare_two}), general quadratic field extensions \texttt{QuadExt K d} (\path{Qi}, \path{Qsqrt2}), and ring non-homomorphism theorems \path{no_ringHom_qi_to_ratQ} and \path{no_ringHom_qi_to_qsqrt2}.
+  \item \path{Conjecture00000007610/Clifford.lean}: Genuine $2^n$-dimensional Clifford algebra \texttt{Clifford K n d} for arbitrary $n \in \mathbb{N}$, exact $K$-dimension $2^n$ (\path{clifford_hasKDim}), fundamental relation \path{Clifford.iota_sq}, and the Universal Property (\path{Clifford.lift}, \path{Clifford.lift_iota}, \path{Clifford.lift_unique}).
+  \item \path{Conjecture00000007610/Modules.lean}: Genuine left $A$-modules, submodules, \path{IsSimpleModule}, \path{ModuleIso}, \path{HasUniqueSimpleModuleOfDim}, transport along \path{AlgIso}, field simple-module uniqueness (\path{field_simple_module_unique}), and $\Mat_2(K)$ center and simple-module uniqueness (\path{mat2CenterAlgIso}, \path{mat2_hasUniqueSimpleModuleOfDim}).
+  \item \path{Conjecture00000007610/Separation.lean}: Spinor isomorphism \path{cl11IsoMat2}, Main Theorem~I (\path{regime_I_separation}), Main Theorem~II (\path{regime_II_same_dim_separation}), Main Theorem~III (\path{regime_III_base_extension_separation}), the obstruction theorem (\path{quadratically_closed_obstruction}), and the master existential theorem \path{conjecture_00000007610_true}.
+\end{itemize}
+Independently, \path{verify.py} verifies all multiplication tables, commutator-nullspace centers, matrix algebra isomorphisms, and $n \in \{0,1,2,3,4\}$ witnesses in exact Python \path{fractions.Fraction} arithmetic.\par
+}
+
+\begin{thebibliography}{9}
+\bibitem{ABS1964}
+M.~F. Atiyah, R.~Bott, and A.~Shapiro,
+\emph{Clifford modules}, Topology \textbf{3} (1964), Suppl.~1, 3--38.
+
+\bibitem{Chevalley1954}
+C.~Chevalley,
+\emph{The Algebraic Theory of Spinors}, Columbia University Press, New York, 1954.
+
+\bibitem{Lam2005}
+T.~Y. Lam,
+\emph{Introduction to Quadratic Forms over Fields}, Graduate Studies in Mathematics, vol.~67, American Mathematical Society, Providence, RI, 2005.
+\end{thebibliography}
+
+\end{document}
