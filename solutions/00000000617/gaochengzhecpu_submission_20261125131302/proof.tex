@@ -1,0 +1,93 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{The determinant does not determine mean Lee grading\\[2pt]
+  \large Disproof of Conjecture 00000000617}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+Over $\mathbb Q$, Lee's theorem gives dimension $2^c$ for a link with
+$c$ components, with a canonical generator for each orientation
+of the components~\cite[Theorem~4.2 and \S4.4.3]{lee}. The proposed mean
+formula fails for the quantum filtration and for the homological grading.
+
+\section*{The quantum filtration on the canonical basis}
+
+Let $K$ be the positive trefoil, the closure of $\sigma_1^3$ on two
+strands, and let $\overline K$ be its mirror. The positive diagram has
+three crossings. Its oriented smoothings replace the crossings by two
+parallel strands, which close to two Seifert circles. Rasmussen's formula
+for a positive diagram~\cite[\S5.2]{rasmussen} gives
+\[
+  s(K)=3-2+1=2,
+  \qquad s(\overline K)=-s(K)=-2,
+\]
+where the mirror identity is Proposition~3.9 of the same paper. By
+Corollary~3.6, each of the two canonical orientation generators of a knot
+has filtration level $s_{\min}=s-1$. Their mean levels are therefore $1$
+on $K$ and $-3$ on $\overline K$. The two associated-graded levels are
+$s-1$ and $s+1$ by Proposition~3.3, so their means under that convention
+are $2$ and $-2$, respectively.
+
+The trefoil Alexander polynomial is $t^2-t+1$ up to multiplication by
+$\pm t^a$~\cite[Example~B.1]{nicolaescu}. Mirroring replaces $t$ by
+$t^{-1}$, up to the same units. Thus both determinants, defined as the
+absolute Alexander value at $-1$, are $3$. The equal determinants and
+unequal means refute a determinant-only formula in either filtration
+convention.
+
+\section*{The homological grading}
+
+Let $H$ be the positive Hopf link, the closure of $\sigma_1^2$ with the
+braid orientation, and give its mirror $\overline H$ the reflected
+orientation. Each diagram has two intercomponent crossings, both positive
+for $H$ and both negative for $\overline H$. In the usual normalized
+grading, the canonical generator for an orientation has degree $r-n_-$,
+where $r$ counts the $1$-resolutions in its oriented smoothing and $n_-$
+counts negative crossings of the reference diagram. The oriented
+smoothing is a $1$-resolution at a negative crossing and a $0$-resolution
+at a positive crossing. This is the resolution calculation in the proof
+of Lee's homological-degree formula~\cite[Proposition~4.3]{lee}.
+
+Reversing neither component or both components leaves all crossing signs
+unchanged. Reversing exactly one component changes both signs. Thus the
+four canonical degrees are $0,0,2,2$ for $H$ and $0,0,-2,-2$ for
+$\overline H$, with means $1$ and $-1$. A Hopf link bounds a once-twisted
+annulus. In a core basis its Seifert matrix is $[1]$ or $[-1]$, with the
+sign reversed by mirroring, because the linking number of a core and a
+push-off is the signed full twist. The determinant
+$\lvert\det(V+V^{\mathsf T})\rvert$ is consequently $2$ for both links.
+These equal determinants also preclude a formula for the homological mean.
+
+\section*{Lean verification}
+
+The Lean 4 project computes the crossing and orientation data of these
+two-strand closures, the resulting grading levels from the formulas
+above, and the determinant evaluations. It checks the different means
+and rules out a function of the determinant for each of the three
+conventions. Run \texttt{lake build} in the \texttt{lean} directory to
+verify the computations.
+
+\begin{thebibliography}{3}
+\bibitem{lee}
+E.~S. Lee, \emph{An endomorphism of the Khovanov invariant},
+Advances in Mathematics \textbf{197} (2005), 554--586.
+\href{https://arxiv.org/abs/math/0210213}{arXiv:math/0210213}.
+
+\bibitem{rasmussen}
+J.~Rasmussen, \emph{Khovanov homology and the slice genus},
+Inventiones Mathematicae \textbf{182} (2010), 419--447.
+\href{https://arxiv.org/abs/math/0402131}{arXiv:math/0402131}.
+
+\bibitem{nicolaescu}
+L.~I. Nicolaescu, \emph{The Reidemeister Torsion of 3-Manifolds},
+de Gruyter, 2003, \S B.1.
+\href{https://www3.nd.edu/~lnicolae/Torsion.pdf}{Author's copy}.
+\end{thebibliography}
+
+\end{document}
