@@ -1,0 +1,22 @@
+import CliffordNormConjecture
+
+#print axioms CliffordNormConjecture.conjecture_00000007603_positive_domain
+#print axioms CliffordNormConjecture.conjecture_00000007603_refuted
+#print axioms CliffordNormConjecture.conjecture_00000007603_int_nonvacuous
+#print axioms CliffordNormConjecture.Cl.ofVec_sq_eq_quadForm
+#print axioms CliffordNormConjecture.Cl.euc_revNorm_eq_l2NormSq
+#print axioms CliffordNormConjecture.Cl.spin_conjNorm_eq_l2NormSq
+#print axioms CliffordNormConjecture.Cl.euc_vec_pair_l2NormSq
+#print axioms CliffordNormConjecture.Cl.euc_versor_l2NormSq_mul
+#print axioms CliffordNormConjecture.Cl.hurwitz_cl00_l2NormSq_mul
+#print axioms CliffordNormConjecture.Cl.hurwitz_cl01_l2NormSq_mul
+#print axioms CliffordNormConjecture.Cl.hurwitz_cl02_l2NormSq_mul
+#print axioms CliffordNormConjecture.Cl.l2NormSq_mul_cons_le
+#print axioms CliffordNormConjecture.Cl.refutation_euc_all_pos_dim
+#print axioms CliffordNormConjecture.Cl.refutation_spin_all_ge_three
+#print axioms CliffordNormConjecture.Cl.refutation_spin_revNorm_all_pos_dim
+#print axioms CliffordNormConjecture.Cl.refutation_euc_even_triple_norm_ge_four
+#print axioms CliffordNormConjecture.Cl.refutation_indefinite_vector_pairs
+#print axioms CliffordNormConjecture.Cl.refutation_double_cover_kernel
+#print axioms CliffordNormConjecture.Cl.refutation_cl01_isometry_mismatch
+#print axioms CliffordNormConjecture.Cl.refutation_cl30_algebraic_unit_not_pin

@@ -1,0 +1,363 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\Pin}{\mathrm{Pin}}
+\newcommand{\Spin}{\mathrm{Spin}}
+\newcommand{\Orth}{\mathrm{O}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\HH}{\mathbb{H}}
+\newcommand{\Nrev}{N_{\mathrm{rev}}}
+\newcommand{\Nconj}{N_{\mathrm{conj}}}
+
+\title{\textbf{Refutation and Sharp Structural Classification of the\\Norm-Type Geometric-Product Conversion Conjecture}}
+\author{Conjecture Resolution Package \texttt{00000007603}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000007603} concerning the geometric product on a Clifford algebra $\Cl(V,Q)$ as a purported norm-type product structure whose conversion constant equals $1$ (with the product norm always equaling the quadratic-form product bound), whose unit spectrum equals the orthogonal isometry group $\Orth(V,Q)$, and whose tight case of equality is given by vector pairs. We prove that the conjecture is \textbf{false in general} across every standard Clifford-algebra norm convention---including the Euclidean $L^2$-blade norm $\|\cdot\|_2^2$, the Hestenes scalar reversal quadratic form $\Nrev(X)=\langle\widetilde{X}X\rangle_0$, the Spin-geometry scalar Clifford-conjugation form $\Nconj(X)=\langle\overline{X}X\rangle_0$, and the algebraic spinor norms $\widetilde{X}X$ and $\overline{X}X$.
+
+First, to establish non-vacuity and isolate the exact geometric origin of the conjecture, we prove that $\Nrev(uv)=Q(u)Q(v)$ holds universally for grade-$1$ vectors $u,v\in V$, yielding $\|uv\|_2^2=(u\cdot v)^2+\|u\wedge v\|_2^2=Q(u)Q(v)$ and versor multiplicativity $\|WY\|_2^2=\|W\|_2^2\|Y\|_2^2$ on Euclidean $\Cl_{n,0}$ for all $n\ge 0$, as well as full multivector multiplicativity $\|XY\|_2^2=\|X\|_2^2\|Y\|_2^2$ on the three Hurwitz division Clifford algebras $\Cl_{0,0}\cong\R$, $\Cl_{0,1}\cong\C$, and $\Cl_{0,2}\cong\HH$. Second, we construct explicit integer and rational counterexamples refuting all three clauses of the conjecture: (i)~in $\Cl_{n,0}$ for every $n\ge 1$ ($X_\pm=1\pm e_1$), in $\Cl_{0,n}$ for every $n\ge 3$ ($X_\pm=1\pm e_1e_2e_3$), and simultaneously across $\|\cdot\|_2^2$, $\Nrev$, and $\Nconj$ on the even subalgebra $\Cl_{n,0}^+$ for every $n\ge 4$ ($X_\pm=1\pm e_1e_2e_3e_4$), the squared product norm both exceeds the quadratic-form product by a factor of $2$ ($8>4$) and collapses to $0$ on nonzero zero-divisors ($0<4$), rendering grade-$1$ vector pairs strictly suboptimal for the conversion bound; (ii)~in indefinite $\Cl_{1,1}$, isotropic grade-$1$ vector pairs $u=e_1+e_2$, $v=e_1-e_2$ violate norm multiplicativity and witness the degeneracy of $\Nrev$; and (iii)~neither the conversion-ratio spectrum, the algebraic unit group, nor $\Pin(V,Q)$ coincides with $\Orth(V,Q)$ due to the universal $\{\pm 1\}$ double-cover kernel, cardinality/dimension mismatches already in $\Cl_{0,1}$ and $\Cl_{0,2}$, and explicit rational non-Pin algebraic units such as $\frac{3}{5}+\frac{4}{5}e_1e_2e_3\in\Cl_{3,0}$ whose twisted adjoint action maps grade-$1$ vectors outside $V$. Finally, we establish the sharp salvage theorem: via Bott periodicity and primitive idempotents, the optimal Euclidean multivector conversion constant on $\Cl_{p,q}$ is $C(p,q)=2^{(p+q+\delta(p-q\bmod 8))/2}$, which equals $1$ if and only if $(p,q)\in\{(0,0),(0,1),(0,2)\}$. All core algebraic laws, positive theorems, and refutations are formalized and verified in Core Lean~4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Introduction and Problem Formulation}
+
+Conjecture~\texttt{00000007603} is stated in \texttt{SOURCE.md} (in English and Chinese) as follows:
+
+\begin{quote}
+\textbf{Definition:} The geometric product as the norm-type product structure.\\
+\textbf{Conjecture:} The conversion constant is the norm law of the product, the norm always equaling the bound of the quadratic-form product; the spectrum is explicit and is the isometry group; and the tight example of equality is vector pairs. (\emph{norm-type geometric-product conversion})
+\end{quote}
+
+The companion Chinese statement in \texttt{SOURCE.md} expresses the identical three-part mathematical claim---defining the geometric product (\emph{jihe ji}) as a norm-type product structure (\emph{fanshu-xing ji jiegou}), asserting that the conversion constant (\emph{huansuan changshu}) is the norm law of the product with the norm identically equal to the quadratic-form product bound, that the spectrum (\emph{pu}) is explicit and equals the isometry group (\emph{dengju qun}), and that the tight case of equality is vector pairs (\emph{xiangliang dui}):
+\begin{itemize}
+  \item[(I)] \textbf{Norm-law / conversion-constant-$1$ claim:} Equipping the Clifford algebra of a quadratic space $(V,Q)$ with its geometric product $XY$ and canonical quadratic norm $N(\cdot)$ (or $\|\cdot\|^2$), the optimal product conversion constant equals $1$, and in fact the product norm obeys the exact multiplicative law $N(XY)=N(X)N(Y)$ (``the norm always equaling the bound of the quadratic-form product''), or at least the sharp bound $N(XY)\le N(X)N(Y)$.
+  \item[(II)] \textbf{Spectrum / isometry-group claim:} The associated spectrum---interpreted either as the scalar conversion-ratio spectrum or, in geometric-algebra terminology, as the multiplicative locus of unit-norm elements / versors---is explicit and coincides with the orthogonal isometry group $\Orth(V,Q)$.
+  \item[(III)] \textbf{Vector-pair tightness claim:} Pairs of grade-$1$ vectors $(u,v)\in V\times V$ furnish the tight case attaining equality in the quadratic-form product bound.
+\end{itemize}
+
+To ensure that our resolution leaves no ambiguity across differing literature conventions, we analyze every standard Clifford-algebra signature and norm convention simultaneously.
+
+\subsection{Clifford Algebras, Involutions, and Norm Conventions}
+
+Let $p,q\ge 0$ be integers with $n=p+q$, and let $\R^{p,q}$ carry the standard orthogonal basis $e_1,\dots,e_n$ and quadratic form
+\begin{equation}\label{eq:quadform}
+  Q(v) = \sum_{i=1}^{p} v_i^2 - \sum_{j=p+1}^{p+q} v_j^2, \qquad v = \sum_{i=1}^{n} v_i e_i \in \R^{p,q},
+\end{equation}
+with associated symmetric bilinear form $B(u,v)=\frac{1}{2}(Q(u+v)-Q(u)-Q(v))$. The real Clifford algebra $\Cl_{p,q}=\Cl(\R^{p,q},Q)$ is the associative unital $\R$-algebra of dimension $2^n$ generated by $\R^{p,q}$ subject to the Clifford contraction relation
+\begin{equation}\label{eq:contraction}
+  v^2 = Q(v)\cdot 1 \qquad \forall v\in\R^{p,q},
+\end{equation}
+equivalently $e_i^2=+1$ for $1\le i\le p$, $e_j^2=-1$ for $p<j\le n$, and $e_ie_j=-e_je_i$ for $i\ne j$. Notice that both standard positive-definite conventions in the literature belong to this family:
+\begin{itemize}
+  \item \textbf{Geometric-algebra Euclidean convention ($\Cl_{n,0}$):} $v^2=+Q_{\mathrm{Euc}}(v)\cdot 1$ where $Q_{\mathrm{Euc}}(v)=\sum_{i=1}^n v_i^2$.
+  \item \textbf{Spin-geometry convention ($\Cl_{0,n}$):} $v^2=-Q_{\mathrm{Euc}}(v)\cdot 1$, i.e., $Q=-Q_{\mathrm{Euc}}$ in~\eqref{eq:quadform}.
+\end{itemize}
+
+For each subset $A=\{i_1<\dots<i_k\}\subseteq\{1,\dots,n\}$ of cardinality $|A|=k$, write $e_A=e_{i_1}\cdots e_{i_k}$ ($e_\emptyset=1$). Every multivector $X\in\Cl_{p,q}$ expands uniquely as $X=\sum_A x_A e_A$ ($x_A\in\R$), with grade-$0$ scalar part $\langle X\rangle_0=x_\emptyset$. The three canonical $\R$-linear involutions on $\Cl_{p,q}$ act on a grade-$k$ basis blade $e_A$ by
+\begin{equation}\label{eq:involutions}
+  \widehat{e_A} = (-1)^k e_A, \qquad
+  \widetilde{e_A} = e_{i_k}\cdots e_{i_1} = (-1)^{k(k-1)/2} e_A, \qquad
+  \overline{e_A} = \widetilde{\widehat{e_A}} = (-1)^{k(k+1)/2} e_A.
+\end{equation}
+Grade involution $X\mapsto\widehat{X}$ is an algebra automorphism ($\widehat{XY}=\widehat{X}\widehat{Y}$), whereas reversal $X\mapsto\widetilde{X}$ and Clifford conjugation $X\mapsto\overline{X}$ are algebra anti-automorphisms ($\widetilde{XY}=\widetilde{Y}\widetilde{X}$ and $\overline{XY}=\overline{Y}\overline{X}$).
+
+Four standard quadratic norm structures are used on $\Cl_{p,q}$:
+\begin{enumerate}
+  \item \textbf{Euclidean $L^2$-blade squared norm:} $\|X\|_2^2 := \sum_{A\subseteq\{1,\dots,n\}} x_A^2 \ge 0$, which is a genuine positive-definite inner-product norm for every signature $(p,q)$.
+  \item \textbf{Scalar reversal form:} $\Nrev(X) := \langle\widetilde{X}X\rangle_0$, given by $\sum_A (\prod_{i\in A} e_i^2)\,x_A^2$.
+  \item \textbf{Scalar conjugation form:} $\Nconj(X) := \langle\overline{X}X\rangle_0$, expanding as $\sum_A (-1)^{|A|}(\prod_{i\in A} e_i^2)\,x_A^2$.
+  \item \textbf{Algebraic spinor norms:} the multivector-valued products $\nu_{\mathrm{rev}}(X):=\widetilde{X}X\in\Cl_{p,q}$ and $\nu_{\mathrm{conj}}(X):=\overline{X}X\in\Cl_{p,q}$.
+\end{enumerate}
+
+\section{Positive Domain and Non-Vacuity}
+
+Before refuting the conjecture in general, we establish the exact positive results that make the framework non-vacuous and explain why grade-$1$ vector pairs motivated the conjecture.
+
+\begin{lemma}[Positive-definite norm coincidences]\label{lem:coincidence}
+For every integer $n\ge 0$:
+\begin{itemize}
+  \item[(a)] On $\Cl_{n,0}$, $\Nrev(X)=\langle\widetilde{X}X\rangle_0=\|X\|_2^2$ for all $X\in\Cl_{n,0}$.
+  \item[(b)] On $\Cl_{0,n}$, $\Nconj(X)=\langle\overline{X}X\rangle_0=\|X\|_2^2$ for all $X\in\Cl_{0,n}$.
+\end{itemize}
+\end{lemma}
+\begin{proof}
+For distinct subsets $A\ne B$, $e_A e_B=\pm e_{A\triangle B}$ with $A\triangle B\ne\emptyset$, so $\langle\widetilde{e_A}e_B\rangle_0=\langle\overline{e_A}e_B\rangle_0=0$. For $A=B$ of size $k$, $\widetilde{e_A}e_A=e_{i_k}\cdots e_{i_1}e_{i_1}\cdots e_{i_k}=\prod_{i\in A}e_i^2$, which equals $+1$ on $\Cl_{n,0}$, while $\overline{e_A}e_A=(-1)^k\prod_{i\in A}e_i^2=(-1)^k(-1)^k=+1$ on $\Cl_{0,n}$.
+\end{proof}
+
+\begin{theorem}[Grade-$1$ vector pairs and versor multiplicativity]\label{thm:vectors}
+Let $(V,Q)$ be a quadratic space over any commutative ring $R$.
+\begin{itemize}
+  \item[(a)] For all grade-$1$ vectors $u,v\in V\subset\Cl(V,Q)$, $\widetilde{(uv)}(uv)=Q(u)Q(v)\cdot 1$ and $\Nrev(uv)=Q(u)Q(v)$.
+  \item[(b)] In Euclidean $\Cl_{n,0}$ ($n\ge 0$), decomposing $uv=(u\cdot v)+u\wedge v$ into grade-$0$ and grade-$2$ components yields Lagrange's identity
+  \begin{equation}\label{eq:lagrange}
+    \|uv\|_2^2 = (u\cdot v)^2 + \|u\wedge v\|_2^2 = \|u\|_2^2\,\|v\|_2^2 = Q(u)Q(v).
+  \end{equation}
+  More generally, for every versor $W=v_1\cdots v_k$ ($v_i\in\R^n$) and every multivector $Y\in\Cl_{n,0}$,
+  \begin{equation}\label{eq:versor}
+    \|WY\|_2^2 = \Bigl(\prod_{i=1}^k Q(v_i)\Bigr)\|Y\|_2^2 = \|W\|_2^2\,\|Y\|_2^2.
+  \end{equation}
+\end{itemize}
+\end{theorem}
+\begin{proof}
+Since $\widetilde{u}=u$ and $u^2=Q(u)\cdot 1$ is central and scalar, any element $W\in\Cl(V,Q)$ satisfying $\widetilde{W}W=s\cdot 1$ ($s\in R$) satisfies
+\[
+  \widetilde{(WY)}(WY) = \widetilde{Y}(\widetilde{W}W)Y = s\,\widetilde{Y}Y \implies \Nrev(WY) = s\,\Nrev(Y).
+\]
+Induction on $k$ gives $\widetilde{W}W=(\prod_{i=1}^k Q(v_i))\cdot 1$ for $W=v_1\cdots v_k$, proving~(a) and (via Lemma~\ref{lem:coincidence}(a) and $Y=1$) equation~\eqref{eq:versor}. In $\Cl_{n,0}$, $uv=(u\cdot v)+\sum_{i<j}(u_iv_j-u_jv_i)e_ie_j$ has orthogonal grade-$0$ and grade-$2$ blades, giving~\eqref{eq:lagrange}.
+\end{proof}
+
+\begin{remark}[Geometric origin of the conjecture]
+Whereas Cauchy--Schwarz gives $(u\cdot v)^2\le Q(u)Q(v)$ (tight for collinear vectors) and Hadamard's inequality gives $\|u\wedge v\|_2^2\le Q(u)Q(v)$ (tight for orthogonal vectors), the geometric product $uv=u\cdot v+u\wedge v$ combines both orthogonal grades so that equality~\eqref{eq:lagrange} holds identically for Euclidean vector pairs. Conjecture~\texttt{00000007603} extrapolates this phenomenon to the full algebra $\Cl(V,Q)$; as shown below, this extrapolation breaks down as soon as mixed-grade idempotents and zero-divisors appear.
+\end{remark}
+
+\begin{theorem}[Hurwitz low-dimensional Clifford algebras]\label{thm:hurwitz}
+Let $R$ be any commutative ring.
+\begin{itemize}
+  \item[(a)] Whenever $\dim V\le 2$ (signatures $[]$, $[c_1]$, or $[c_1,c_2]$), $\overline{X}X=\Nconj(X)\cdot 1$ is purely scalar for every multivector $X$, and hence $\Nconj(XY)=\Nconj(X)\Nconj(Y)$ for all $X,Y$.
+  \item[(b)] In particular, on $\Cl_{0,0}\cong\R$, $\Cl_{0,1}\cong\C$, and $\Cl_{0,2}\cong\HH$, exact Euclidean norm multiplicativity $\|XY\|_2^2=\|X\|_2^2\|Y\|_2^2$ holds for \textbf{all} multivectors $X,Y$.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+For any multivector $X$, Clifford conjugation satisfies $\overline{\overline{X}X}=\overline{X}\,\overline{\overline{X}}=\overline{X}X$, so $\overline{X}X$ lies in the $+1$-eigenspace of $Z\mapsto\overline{Z}$. By~\eqref{eq:involutions}, $\overline{e_A}=(-1)^{k(k+1)/2}e_A=+e_A$ holds if and only if $k=|A|\equiv 0,3\pmod 4$. When $n=\dim V\le 2$, the only grade $k\in\{0,\dots,n\}$ satisfying $k\equiv 0,3\pmod 4$ is $k=0$, forcing $\overline{X}X=\langle\overline{X}X\rangle_0\cdot 1=\Nconj(X)\cdot 1$. Therefore
+\[
+  \Nconj(XY)\cdot 1 = \overline{XY}(XY) = \overline{Y}(\overline{X}X)Y = \Nconj(X)\,\overline{Y}Y = \Nconj(X)\Nconj(Y)\cdot 1,
+\]
+proving~(a). Combining~(a) with Lemma~\ref{lem:coincidence}(b) yields~(b).
+\end{proof}
+
+\section{Refutation of Clauses I and III: Norm Law and Tightness}
+
+We now show that outside the Hurwitz cases $(p,q)\in\{(0,0),(0,1),(0,2)\}$, the product norm law fails both by exceeding the quadratic-form product bound and by collapsing to zero on nonzero zero-divisors.
+
+\begin{theorem}[Refutation in Euclidean $\Cl_{n,0}$ for all $n\ge 1$]\label{thm:ref-euc}
+For every integer $n\ge 1$, consider $X_+=1+e_1$ and $X_-=1-e_1$ in positive-definite Euclidean $\Cl_{n,0}$ ($e_i^2=+1$, where $\Nrev(X)=\|X\|_2^2$). Then:
+\begin{itemize}
+  \item[(a)] $\|X_+\|_2^2=\Nrev(X_+)=2$ and $\|X_-\|_2^2=\Nrev(X_-)=2$, so the quadratic-form product is $\|X_\pm\|_2^2\|X_\pm\|_2^2=4$.
+  \item[(b)] $X_+^2=2+2e_1$, so $\|X_+^2\|_2^2=\Nrev(X_+^2)=2^2+2^2=8=2\|X_+\|_2^4>4$, refuting both the exact norm law $\|XY\|_2^2=\|X\|_2^2\|Y\|_2^2$ and the submultiplicative bound $\|XY\|_2^2\le\|X\|_2^2\|Y\|_2^2$ with conversion constant~$1$.
+  \item[(c)] $X_+X_-=1-e_1^2=0$, so $\|X_+X_-\|_2^2=\Nrev(X_+X_-)=0<4$.
+  \item[(d)] Every nonzero grade-$1$ vector pair $(u,v)\in\R^n\times\R^n$ has ratio $\|uv\|_2^2 / (\|u\|_2^2\|v\|_2^2) = 1$ by Theorem~\ref{thm:vectors}(b), whereas $(X_+,X_+)$ achieves ratio $8/4=2>1$; hence vector pairs are \textbf{not} tight for the multivector conversion bound.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+In $\Cl_{n,0}$, $e_1^2=1$ gives $(1+e_1)^2=1+2e_1+e_1^2=2+2e_1$ and $(1+e_1)(1-e_1)=1-e_1^2=0$. Since $1$ and $e_1$ are distinct orthonormal basis blades, $\|1\pm e_1\|_2^2=1^2+(\pm 1)^2=2$ and $\|2+2e_1\|_2^2=2^2+2^2=8$, while $\Nrev=\|\cdot\|_2^2$ by Lemma~\ref{lem:coincidence}(a).
+\end{proof}
+
+\begin{theorem}[Refutation in Spin-Euclidean $\Cl_{0,n}$ for all $n\ge 3$]\label{thm:ref-spin}
+For every integer $n\ge 3$, consider $X_+=1+e_1e_2e_3$ and $X_-=1-e_1e_2e_3$ in $\Cl_{0,n}$ ($e_i^2=-1$, where $\Nconj(X)=\|X\|_2^2$). Then:
+\begin{itemize}
+  \item[(a)] $(e_1e_2e_3)^2=(-1)^{3\cdot 2/2}e_1^2e_2^2e_3^2=(-1)(-1)^3=+1$ and $\overline{e_1e_2e_3}=(-1)^{3\cdot 4/2}e_1e_2e_3=+e_1e_2e_3$.
+  \item[(b)] $\|X_\pm\|_2^2=\Nconj(X_\pm)=2$, whereas $X_+^2=2(1+e_1e_2e_3)$ satisfies $\|X_+^2\|_2^2=\Nconj(X_+^2)=8>4$, and $X_+X_-=1-(e_1e_2e_3)^2=0$ satisfies $\|X_+X_-\|_2^2=\Nconj(X_+X_-)=0<4$.
+  \item[(c)] Moreover, the reversal form $\Nrev$ on $\Cl_{0,n}$ fails multiplicativity already for all $n\ge 1$: $W=1+e_1$ satisfies $\Nrev(W)=1+e_1^2=0$, yet $W^2=2e_1$ satisfies $\Nrev(W^2)=4e_1^2=-4\ne 0=\Nrev(W)^2$. Dually, in $\Cl_{3,0}$, $Z=1+e_1e_2e_3$ satisfies $\Nconj(Z)=0$ while $\Nconj(Z^2)=-4\ne 0$.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+Direct calculation from~\eqref{eq:involutions}: for $e_{123}=e_1e_2e_3$ in $\Cl_{0,n}$, $e_{123}^2=-e_1^2e_2^2e_3^2=+1$, so $(1+e_{123})^2=2+2e_{123}$ and $(1+e_{123})(1-e_{123})=0$. Lemma~\ref{lem:coincidence}(b) gives $\Nconj(X_\pm)=\|X_\pm\|_2^2=2$ and $\Nconj(X_+^2)=\|X_+^2\|_2^2=8$. For $W=1+e_1\in\Cl_{0,n}$, $\widetilde{W}=W$ and $W^2=1+2e_1+e_1^2=2e_1$, so $\Nrev(W)=\langle 2e_1\rangle_0=0$ whereas $\Nrev(W^2)=\langle 4e_1^2\rangle_0=-4$. Likewise in $\Cl_{3,0}$, $e_{123}^2=-1$ and $\overline{e_{123}}=+e_{123}$, so $\overline{Z}=Z$, $Z^2=2e_{123}$, $\Nconj(Z)=\langle 2e_{123}\rangle_0=0$, and $\Nconj(Z^2)=\langle 4e_{123}^2\rangle_0=-4$.
+\end{proof}
+
+One might still ask whether restricting to the \emph{even (rotor) subalgebra} $\Cl_{n,0}^+$ rescues the conjecture, since $\Cl_{1,0}^+\cong\R$, $\Cl_{2,0}^+\cong\C$, and $\Cl_{3,0}^+\cong\HH$ are normed division algebras. At $n=4$, a single pair of even multivectors defeats all three scalar norms simultaneously:
+
+\begin{theorem}[Simultaneous triple-norm failure on $\Cl_{n,0}^+$ for all $n\ge 4$]\label{thm:ref-even4}
+For every $n\ge 4$, let $\omega_4=e_1e_2e_3e_4\in\Cl_{n,0}^+$ and set $X_\pm=1\pm\omega_4\in\Cl_{n,0}^+$. Then $\widehat{X_\pm}=X_\pm$, $\widetilde{X_\pm}=X_\pm$, $\overline{X_\pm}=X_\pm$, and $\omega_4^2=+1$. Consequently, for every norm $N\in\{\|\cdot\|_2^2,\Nrev,\Nconj\}$:
+\[
+  N(X_+)=N(X_-)=2, \qquad N(X_+^2)=8 > 4 = N(X_+)^2, \qquad N(X_+X_-)=0 < 4 = N(X_+)N(X_-).
+\]
+\end{theorem}
+\begin{proof}
+For grade $k=4$ in $\Cl_{n,0}$, $(-1)^4=(-1)^{4\cdot 3/2}=(-1)^{4\cdot 5/2}=+1$, so $\widehat{\omega_4}=\widetilde{\omega_4}=\overline{\omega_4}=\omega_4$ and $\omega_4^2=\widetilde{\omega_4}\omega_4=+1$. Hence $X_+^2=2X_+$, $X_+X_-=0$, and $\widetilde{X}X=\overline{X}X$ on $\mathrm{span}\{1,\omega_4\}$, so $\Nconj=\Nrev=\|\cdot\|_2^2$ on $X_\pm$, $X_+^2$, and $X_+X_-$.
+\end{proof}
+
+\begin{theorem}[Indefinite failure on grade-$1$ vector pairs in $\Cl_{p,q}$, $p,q\ge 1$]\label{thm:ref-indef}
+In $\Cl_{1,1}$ ($e_1^2=+1$, $e_2^2=-1$, embedding into every $\Cl_{p,q}$ with $p,q\ge 1$), let $u=e_1+e_2$ and $v=e_1-e_2\in\R^{1,1}$. Then:
+\begin{itemize}
+  \item[(a)] $Q(u)=1-1=0$ and $Q(v)=1-1=0$, so the quadratic-form product is $Q(u)Q(v)=0$.
+  \item[(b)] Nevertheless, $uv=(e_1+e_2)(e_1-e_2)=2-2e_1e_2\ne 0$. Thus no genuine norm $\|\cdot\|$ on $\Cl_{1,1}$ (satisfying $\|Z\|=0\iff Z=0$) can satisfy $\|uv\|^2=|Q(u)Q(v)|$.
+  \item[(c)] For the Euclidean norm, $\|u\|_2^2=\|v\|_2^2=2$, yet $\|uv\|_2^2=2^2+(-2)^2=8=2\|u\|_2^2\|v\|_2^2>4$ while $u^2=0$ gives $\|u^2\|_2^2=0<4$. Meanwhile $\Nrev(uv)=0$ for the nonzero element $uv=2-2e_1e_2$ and $\Nrev(e_2)=-1<0$, so $\Nrev$ is neither positive-definite nor nondegenerate on $\Cl_{1,1}$.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+Since $e_1e_2=-e_2e_1$, $(e_1+e_2)(e_1-e_2)=e_1^2-e_2^2-e_1e_2+e_2e_1=1-(-1)-2e_1e_2=2-2e_1e_2\ne 0$, and $(e_1+e_2)^2=e_1^2+e_2^2+e_1e_2+e_2e_1=0$. Finally, $\Nrev(uv)=Q(u)Q(v)=0$ by Theorem~\ref{thm:vectors}(a), while $\Nrev(e_2)=\langle e_2^2\rangle_0=-1$.
+\end{proof}
+
+\begin{table}[htbp]
+\centering
+\caption{Summary of explicit counterexamples refuting Clauses~I and~III across all norm conventions.}
+\label{tab:counterexamples}
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}llllll@{}}
+\toprule
+Algebra & Witness(es) & Norm(s) & Factors & Product norm(s) & Discrepancy \\
+\midrule
+$\Cl_{n,0}$ ($n\ge 1$) & $X_\pm = 1\pm e_1$ & $\|\cdot\|_2^2 = \Nrev$ & $2,\,2$ & $N(X_+^2)=8,\;N(X_+X_-)=0$ & $8>4,\;0<4$ \\
+$\Cl_{0,n}$ ($n\ge 3$) & $X_\pm = 1\pm e_{123}$ & $\|\cdot\|_2^2 = \Nconj$ & $2,\,2$ & $N(X_+^2)=8,\;N(X_+X_-)=0$ & $8>4,\;0<4$ \\
+$\Cl_{0,n}$ ($n\ge 1$) & $W = 1+e_1$ & $\Nrev$ & $0$ & $\Nrev(W^2)=-4$ & $-4\ne 0^2$ \\
+$\Cl_{3,0}$ & $Z = 1+e_{123}$ & $\Nconj$ & $0$ & $\Nconj(Z^2)=-4$ & $-4\ne 0^2$ \\
+$\Cl_{n,0}^+$ ($n\ge 4$) & $X_\pm = 1\pm e_{1234}$ & $\|\cdot\|_2^2,\Nrev,\Nconj$ & $2,\,2$ & $N(X_+^2)=8,\;N(X_+X_-)=0$ & All 3 fail \\
+$\Cl_{1,1}$ (vectors) & $u,v = e_1\pm e_2$ & $\|\cdot\|_2^2$ and $Q$ & $2$ ($Q=0$) & $\|uv\|_2^2=8,\;\|u^2\|_2^2=0$ & Fails on $V\times V$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Refutation of Clause II: Spectrum vs.\ the Isometry Group}
+
+We next examine every mathematical reading of the claim that ``the spectrum is explicit and is the isometry group'' $\Orth(V,Q)=\Orth(p,q)$, and show that each reading fails. Let $\mathcal{H}:=\{(0,0),(0,1),(0,2)\}$ denote the set of Hurwitz division signatures.
+
+\begin{proposition}[Scalar conversion-ratio spectrum]\label{prop:ratio-spec}
+Define the scalar conversion-ratio spectrum
+\[
+  \Sigma(p,q) := \Bigl\{\frac{\|XY\|_2^2}{\|X\|_2^2\,\|Y\|_2^2} : X,Y\in\Cl_{p,q}\setminus\{0\}\Bigr\} \subseteq [0,\infty).
+\]
+Then $\Sigma(p,q)=\{1\}$ for $(p,q)\in\mathcal{H}$, and $\Sigma(p,q)=[0,C(p,q)]$ for all $(p,q)\notin\mathcal{H}$, where $C(p,q)\ge 2$ is given in Theorem~\ref{thm:bott}. In no case is $\Sigma(p,q)$ (nor any operator eigenvalue spectrum $\sigma(L_X)\subseteq\C$) equal or isomorphic to $\Orth(p,q)$.
+\end{proposition}
+\begin{proof}
+For $(p,q)\in\mathcal{H}$, Theorem~\ref{thm:hurwitz}(b) gives $\Sigma(p,q)=\{1\}$. For $(p,q)\notin\mathcal{H}$, $\dim_\R\Cl_{p,q}=2^{p+q}\ge 2$, so $(\Cl_{p,q}\setminus\{0\})^2$ is path-connected; by Theorem~\ref{thm:bott} below, the continuous ratio map attains its maximum $C(p,q)\ge 2$ at a primitive idempotent $P^2=P$ and attains $0$ at orthogonal zero-divisors $P(1-P)=0$, so the intermediate value theorem yields $\Sigma(p,q)=[0,C(p,q)]$.
+\end{proof}
+
+Even under the geometric-algebra reading that identifies ``spectrum'' with the unit-norm locus or the Lipschitz/Pin group acting on $V$ via the twisted adjoint representation $\rho(U)(x)=\widehat{U}xU^{-1}$, the group in $\Cl_{p,q}$ never equals $\Orth(p,q)$:
+
+\begin{theorem}[Unit-norm and Pin groups never coincide with $\Orth(p,q)$]\label{thm:ref-isom}
+\leavevmode
+\begin{itemize}
+  \item[(a)] \textbf{Universal double-cover non-injectivity:} For every signature $(p,q)$, the distinct elements $+1\ne -1$ in $\Cl_{p,q}$ both satisfy $\|{\pm 1}\|_2^2=1$ and $\widetilde{(\pm 1)}(\pm 1)=\overline{(\pm 1)}(\pm 1)=1$, yet induce the identical trivial action $\widehat{(\pm 1)}X(\pm 1)=X$ for all $X\in\Cl_{p,q}$. For $p+q\ge 1$, the canonical surjection $\rho:\Pin(p,q)\to\Orth(p,q)$ has kernel $\{\pm 1\}\cong\Z/2\Z$ and is a $2$-to-$1$ cover, not a bijection.
+  \item[(b)] \textbf{Low-dimensional cardinality and dimension mismatches:} Even where Hurwitz norm multiplicativity holds ($n\le 2$), the unit-norm group disagrees with $\Orth(n)$:
+  \begin{itemize}
+    \item For $n=1$ ($\Cl_{0,1}\cong\C$, $\Orth(0,1)=\Orth(1)=\{\pm\mathrm{id}\}$ of order~$2$): the full unit-norm group $\{X\in\Cl_{0,1}:\|X\|_2^2=\overline{X}X=1\}\cong\mathrm{U}(1)\cong S^1$ is infinite (containing the infinite rational Pythagorean family $\frac{k^2-1}{k^2+1}+\frac{2k}{k^2+1}e_1$ for $k\ge 1$), and even the discrete group $\Pin(0,1)=\{\pm 1,\pm e_1\}\cong\Z/4\Z$ has cardinality $4\ne 2$.
+    \item For $n=2$ ($\Cl_{0,2}\cong\HH$): the unit-norm group $\{X\in\Cl_{0,2}:\|X\|_2^2=\overline{X}X=1\}\cong\mathrm{Sp}(1)\cong S^3$ is $3$-dimensional and connected, whereas $\Orth(2)$ is $1$-dimensional and disconnected.
+  \end{itemize}
+  \item[(c)] \textbf{Unit sphere non-closure and non-Pin algebraic units leaving $V$:} In $\Cl_{n,0}$ ($n\ge 1$), the Euclidean unit sphere $\{X:\|X\|_2^2=1\}$ is not even closed under multiplication: $U=\frac{1}{\sqrt{2}}(1+e_1)$ has $\|U\|_2^2=1$ while $\|U^2\|_2^2=2\ne 1$. Even the algebraic orthogonal-left-multiplication group $\mathcal{G}_{\mathrm{rev}}(\Cl_{3,0}):=\{U\in\Cl_{3,0}:\widetilde{U}U=1\}$ strictly exceeds $\Pin(3,0)$: the rational element
+  \begin{equation}\label{eq:unit30}
+    U = \frac{3}{5} + \frac{4}{5}e_1e_2e_3 \in \Cl_{3,0}
+  \end{equation}
+  satisfies $\widetilde{U}U=1$ and $\|U\|_2^2=1$, fixes every vector $v\in\R^3$ under untwisted conjugation ($Uv\widetilde{U}=v$), and maps the basis vector $e_1\in\R^3$ under twisted conjugation to
+  \begin{equation}\label{eq:twisted30}
+    \widehat{U}e_1\widetilde{U} = -\frac{7}{25}e_1 - \frac{24}{25}e_2e_3 \notin \R^3,
+  \end{equation}
+  leaving the grade-$1$ subspace $V=\R^3$ entirely.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+Part~(a) follows from $\widehat{-1}=-1$ and $(-1)X(-1)=X$. In~(b), any linear map $f:\R\to\R$ preserving $x^2$ satisfies $f(x)=cx$ with $c^2=1$, so $c=\pm 1$ and $|\Orth(1)|=2$, whereas $(\pm e_1)^2=-1$ gives $|\{\pm 1,\pm e_1\}|=4$, and for $1\le k_1<k_2$, $(k_1^2-1)(k_2^2+1)-(k_2^2-1)(k_1^2+1)=2(k_1^2-k_2^2)<0$, so all rational points $\frac{k^2-1}{k^2+1}+\frac{2k}{k^2+1}e_1$ on $S^1$ are distinct. In~(c), $e_{123}=e_1e_2e_3\in\Cl_{3,0}$ is central with $e_{123}^2=-1$, $\widetilde{e_{123}}=-e_{123}$, and $\widehat{e_{123}}=-e_{123}$. Thus $\widetilde{U}U=\frac{1}{25}(3-4e_{123})(3+4e_{123})=\frac{9+16}{25}=1$, $Uv\widetilde{U}=U\widetilde{U}v=v$ for all $v\in\R^3$, and $\widehat{U}e_1\widetilde{U}=\widetilde{U}^2 e_1=\frac{1}{25}(9-16-24e_{123})e_1=-\frac{7}{25}e_1-\frac{24}{25}e_2e_3\notin\R^3$.
+\end{proof}
+
+\section{Sharp Salvage: Conversion Constants via Bott Periodicity}
+
+Although the conjectured constant $C=1$ fails outside $\R,\C,\HH$, the Euclidean multivector norm on $\Cl_{p,q}$ obeys an exact closed-form submultiplicative law governed by Bott periodicity.
+
+\begin{lemma}[Parallelogram doubling bound]\label{lem:doubling}
+Let $R$ be an ordered commutative ring. If $\Cl_R(\sigma)$ satisfies $\|AB\|_2^2\le K\|A\|_2^2\|B\|_2^2$ for all $A,B$ and $c\in R$ satisfies $c^2=1$, then $\Cl_R(c::\sigma)$ satisfies $\|XY\|_2^2\le(2K)\|X\|_2^2\|Y\|_2^2$ for all $X,Y$.
+\end{lemma}
+\begin{proof}
+Write $X=(x_0,x_1)$ and $Y=(y_0,y_1)$ in $\Cl_R(c::\sigma)=\Cl_R(\sigma)\times\Cl_R(\sigma)$, so $XY=(x_0y_0+c\,x_1\widehat{y_1},\,x_0y_1+x_1\widehat{y_0})$. Since $\|U+V\|_2^2+\|U-V\|_2^2=2(\|U\|_2^2+\|V\|_2^2)$ and $\|U-V\|_2^2\ge 0$, we have $\|U+V\|_2^2\le 2(\|U\|_2^2+\|V\|_2^2)$. Using $c^2=1$ and $\|\widehat{Z}\|_2^2=\|Z\|_2^2$,
+\begin{align*}
+  \|XY\|_2^2 &\le 2\bigl(\|x_0y_0\|_2^2+\|x_1\widehat{y_1}\|_2^2\bigr) + 2\bigl(\|x_0y_1\|_2^2+\|x_1\widehat{y_0}\|_2^2\bigr) \\
+  &\le 2K\bigl(\|x_0\|_2^2\|y_0\|_2^2+\|x_1\|_2^2\|y_1\|_2^2+\|x_0\|_2^2\|y_1\|_2^2+\|x_1\|_2^2\|y_0\|_2^2\bigr) = 2K\,\|X\|_2^2\|Y\|_2^2.\qedhere
+\end{align*}
+\end{proof}
+
+\begin{theorem}[Exact Euclidean conversion constant $C(p,q)$]\label{thm:bott}
+For every signature $(p,q)$, let $\Cl_{p,q}\cong\bigoplus_{r=1}^{b} M_m(\mathbb{D})$ be its Artin--Wedderburn decomposition, where $b\in\{1,2\}$ and $\mathbb{D}\in\{\R,\C,\HH\}$. Then the sharp conversion constant
+\[
+  C(p,q) := \sup_{X,Y\in\Cl_{p,q}\setminus\{0\}} \frac{\|XY\|_2^2}{\|X\|_2^2\,\|Y\|_2^2}
+\]
+is given explicitly by
+\begin{equation}\label{eq:bott}
+  C(p,q) = b\,m = 2^{(p+q+\delta(p-q\bmod 8))/2},
+\end{equation}
+where $\delta(s)$ for $s=(p-q)\bmod 8\in\{0,1,2,3,4,5,6,7\}$ is given by Table~\ref{tab:bott}. In particular, $C(p,q)=1$ if and only if $(p,q)\in\{(0,0),(0,1),(0,2)\}$, and $C(p,q)\ge 2$ for all other $(p,q)$, with equality $\|P^2\|_2^2=C(p,q)\|P\|_2^4$ attained at any primitive idempotent $P^2=P$ of minimal rank.
+\end{theorem}
+\begin{proof}
+Under the standard faithful representation $\Phi:\Cl_{p,q}\xrightarrow{\sim}\mathcal{A}=\bigoplus_{r=1}^b M_m(\mathbb{D})$, each generator $e_i$ maps to a unitary signed-permutation matrix ($\Phi(e_i)^*\Phi(e_i)=I$ in each block). For every nonempty blade $e_A$ ($A\ne\emptyset$), either $e_A$ anticommutes with some $e_j$ (so $\mathrm{Re}\,\mathrm{Tr}_{\mathbb{D}}(\Phi(e_A))=0$ by similarity invariance of real trace), or $A=\{1,\dots,n\}$ with $p-q\equiv 1\pmod 4$ ($b=2$), in which case $\Phi(e_A)=(I_m,-I_m)$ has total trace $m-m=0$. Hence the images $\{\Phi(e_A)\}_A$ are pairwise orthogonal in the total $\mathbb{D}$-Frobenius inner product $\langle M,N\rangle_F=\sum_{r=1}^b \mathrm{Re}\,\mathrm{Tr}_{\mathbb{D}}(M_r^*N_r)$, and each satisfies $\|\Phi(e_A)\|_F^2=bm$. Thus $\|\Phi(X)\|_F^2=bm\|X\|_2^2$ for all $X\in\Cl_{p,q}$.
+
+Since $|ab|_{\mathbb{D}}=|a|_{\mathbb{D}}|b|_{\mathbb{D}}$ on $\mathbb{D}\in\{\R,\C,\HH\}$, Cauchy--Schwarz on matrix entries yields $\|M_rN_r\|_F^2\le\|M_r\|_F^2\|N_r\|_F^2$, so $\|\Phi(XY)\|_F^2\le\|\Phi(X)\|_F^2\|\Phi(Y)\|_F^2$, which translates via $\|\Phi(\cdot)\|_F^2=bm\|\cdot\|_2^2$ into $\|XY\|_2^2\le(bm)\|X\|_2^2\|Y\|_2^2$. Conversely, choosing $P=\Phi^{-1}(E_{11},0)$ gives $P^2=P$ and $\|P\|_2^2=\frac{1}{bm}\|E_{11}\|_F^2=\frac{1}{bm}$, whence $\|P^2\|_2^2/\|P\|_2^4=(1/bm)/(1/bm)^2=bm$. Finally, since $2^{p+q}=\dim_\R\Cl_{p,q}=b\,m^2\dim_\R\mathbb{D}$, we have $bm=\sqrt{(b/\dim_\R\mathbb{D})\,2^{p+q}}=2^{(p+q+\delta(p-q\bmod 8))/2}$.
+\end{proof}
+
+\begin{table}[htbp]
+\centering
+\caption{Bott-periodicity classification of $\Cl_{p,q}$ and exact shift $\delta(s)$ in $C(p,q)=2^{(p+q+\delta(s))/2}$.}
+\label{tab:bott}
+\small
+\begin{tabular}{@{}ccccccccc@{}}
+\toprule
+$s=(p-q)\bmod 8$ & $0$ & $1$ & $2$ & $3$ & $4$ & $5$ & $6$ & $7$ \\
+\midrule
+$\Cl_{p,q}$ structure & $M_m(\R)$ & $M_m(\R)^2$ & $M_m(\R)$ & $M_m(\C)$ & $M_m(\HH)$ & $M_m(\HH)^2$ & $M_m(\HH)$ & $M_m(\C)$ \\
+$(b,\,\dim_\R\mathbb{D})$ & $(1,1)$ & $(2,1)$ & $(1,1)$ & $(1,2)$ & $(1,4)$ & $(2,4)$ & $(1,4)$ & $(1,2)$ \\
+Shift $\delta(s)$ & $0$ & $+1$ & $0$ & $-1$ & $-2$ & $-1$ & $-2$ & $-1$ \\
+Low-dim example & $\Cl_{1,1}:2$ & $\Cl_{1,0}:2$ & $\Cl_{2,0}:2$ & $\Cl_{3,0}:2$ & $\Cl_{4,0}:2$ & $\Cl_{0,3}:2$ & $\Cl_{0,2}:1$ & $\Cl_{0,1}:1$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Formal Verification in Core Lean 4.19.0 and Python}
+
+We formalized the recursive Clifford algebra $\Cl_R(\sigma)$ over an arbitrary commutative or ordered commutative ring $R$ (instantiated concretely on \texttt{Int}) in Core Lean~4.19.0 (toolchain \texttt{v4.19.0}, built with \texttt{-DwarningAsError=true} and zero external dependencies). Since the \texttt{OrderedCommRing} typeclass is satisfied simultaneously by $\Z$, $\Q$, and $\R$, all polymorphic theorems apply over $\Z$, $\Q$, and $\R$ alike, while concrete \texttt{Int} specializations confirm non-vacuity inside Lean's kernel. Table~\ref{tab:lean} maps the paper's results to Lean declarations.
+
+\begin{table}[htbp]
+\centering
+\caption{Correspondence between mathematical results and Core Lean~4.19.0 declarations.}
+\label{tab:lean}
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Mathematical Result & Module & Lean~4 Declaration \\
+\midrule
+Associativity \& involutions & \texttt{Algebra.lean} & \texttt{Cl.mul\_assoc\_cl}, \texttt{Cl.rev\_mul} \\
+Contraction $v^2=Q(v)\cdot 1$ & \texttt{Positive.lean} & \texttt{Cl.ofVec\_sq\_eq\_quadForm} \\
+Lemma~\ref{lem:coincidence}(a) ($\Nrev=\|\cdot\|_2^2$) & \texttt{Positive.lean} & \texttt{Cl.euc\_revNorm\_eq\_l2NormSq} \\
+Lemma~\ref{lem:coincidence}(b) ($\Nconj=\|\cdot\|_2^2$) & \texttt{Positive.lean} & \texttt{Cl.spin\_conjNorm\_eq\_l2NormSq} \\
+Theorem~\ref{thm:vectors} (vectors) & \texttt{Positive.lean} & \texttt{Cl.euc\_vec\_pair\_l2NormSq} \\
+Theorem~\ref{thm:vectors} (versors) & \texttt{Positive.lean} & \texttt{Cl.euc\_versor\_l2NormSq\_mul} \\
+Theorem~\ref{thm:hurwitz} (Hurwitz $n\le 2$) & \texttt{Positive.lean} & \texttt{Cl.hurwitz\_cl02\_l2NormSq\_mul} \\
+Lemma~\ref{lem:doubling} (doubling bound) & \texttt{Positive.lean} & \texttt{Cl.l2NormSq\_mul\_cons\_le} \\
+Theorem~\ref{thm:ref-euc} ($\Cl_{n,0}$, $n\ge 1$) & \texttt{Counterexamples.lean} & \texttt{Cl.refutation\_euc\_all\_pos\_dim} \\
+Theorem~\ref{thm:ref-spin} ($\Cl_{0,n}$, $n\ge 3$) & \texttt{Counterexamples.lean} & \texttt{Cl.refutation\_spin\_all\_ge\_three} \\
+Theorem~\ref{thm:ref-even4} ($\Cl_{n,0}^+$, $n\ge 4$) & \texttt{Counterexamples.lean} & \texttt{Cl.refutation\_euc\_even\_triple\_norm\_ge\_four} \\
+Theorem~\ref{thm:ref-indef} ($\Cl_{1,1}$ vectors) & \texttt{Counterexamples.lean} & \texttt{Cl.refutation\_indefinite\_vector\_pairs} \\
+Theorem~\ref{thm:ref-isom}(a) ($\{\pm 1\}$ kernel) & \texttt{Counterexamples.lean} & \texttt{Cl.refutation\_double\_cover\_kernel} \\
+Theorem~\ref{thm:ref-isom}(b) ($\Cl_{0,1}$ vs.\ $\Orth(1)$) & \texttt{Counterexamples.lean} & \texttt{Cl.refutation\_cl01\_isometry\_mismatch} \\
+Theorem~\ref{thm:ref-isom}(c) ($\Cl_{3,0}$ non-Pin) & \texttt{Counterexamples.lean} & \texttt{Cl.refutation\_cl30\_algebraic\_unit\_not\_pin} \\
+Master positive theorem & \texttt{CliffordNormConjecture.lean} & \texttt{conjecture\_00000007603\_positive\_domain} \\
+Master refutation theorem & \texttt{CliffordNormConjecture.lean} & \texttt{conjecture\_00000007603\_refuted} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+An axiom audit via \texttt{\#print axioms} confirms that all polymorphic positive and refutation theorems depend solely on \texttt{propext} (with \texttt{hurwitz\_cl00\_l2NormSq\_mul} depending on zero axioms), and the concrete \texttt{Int} theorems using \texttt{omega} depend only on Lean's standard core axioms \texttt{[propext, Classical.choice, Quot.sound]}---with zero \texttt{sorry}, zero \texttt{native\_decide}, and zero custom axioms. Complementing the formal proof, \texttt{verify.py} independently verifies the equivalence between the recursive Lean construction and bitmask $\Cl_{p,q}$, all exact rational counterexamples, and all $21$ Bott-periodicity conversion constants $C(p,q)$ for $0\le p+q\le 5$.
+
+\begin{thebibliography}{9}
+\bibitem{ABS1964}
+M.~F.~Atiyah, R.~Bott, and A.~Shapiro, \emph{Clifford modules}, Topology \textbf{3} (1964), Suppl.~1, 3--38.
+
+\bibitem{Chevalley1954}
+C.~Chevalley, \emph{The Algebraic Theory of Spinors}, Columbia University Press, New York, 1954.
+
+\bibitem{HestenesSobczyk1984}
+D.~Hestenes and G.~Sobczyk, \emph{Clifford Algebra to Geometric Calculus}, D.~Reidel, Dordrecht, 1984.
+
+\bibitem{LawsonMichelsohn1989}
+H.~B.~Lawson and M.-L.~Michelsohn, \emph{Spin Geometry}, Princeton University Press, Princeton, NJ, 1989.
+\end{thebibliography}
+
+\end{document}
