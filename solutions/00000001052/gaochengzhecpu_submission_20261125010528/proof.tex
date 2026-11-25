@@ -1,0 +1,86 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Disproof of Conjecture 00000001052\\
+\large A maximal genus-one curve over \(\mathbb F_9\)}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+Use the square-field parameter \(q=3\), so maximality is over
+\(\mathbb F_{q^2}=\mathbb F_9\). The conjecture asserts that every
+maximal curve of genus \((q-1)^2/4=1\) is isomorphic to its specified
+Hermitian curve \(H_3\). The smooth projective cubic
+\[
+  E:\quad Y^2Z=X^3-XZ^2
+\]
+is a counterexample.
+
+\section*{Smoothness and genera}
+
+In characteristic three, the \(X\)-derivative of
+\(Y^2Z-X^3+XZ^2\) is \(Z^2\), so \(E\) is smooth on \(Z\ne0\).
+At \(Z=0\) its only point is \([0:1:0]\), where the \(Z\)-derivative
+is \(Y^2\ne0\). These calculations hold over the algebraic closure.
+For \(H_3\), the homogeneous equation is
+\[
+  Y^3Z+YZ^3-X^4=0 .
+\]
+Its gradient in characteristic three is \((-X^3,Z^3,Y^3)\), which
+cannot vanish at a projective point. Both curves are geometrically
+integral. Distinct components of a reducible plane curve would meet
+over the algebraic closure and give a singular point, and a repeated
+component would also give singular points. The smooth plane curve
+genus formula \cite[\S\,53.9]{stacks} now gives \(g(E)=1\) and
+\(g(H_3)=3\).
+
+\section*{Point counts and maximality}
+
+Write \(k=\mathbb F_3[i]\) with \(i^2=-1\). This is a field of
+nine elements because \(T^2+1\) has no root in \(\mathbb F_3\).
+For \(x=a+bi\) with \(a,b\in\mathbb F_3\), one has \(x^3=a-bi\),
+and hence \(x^3-x=bi\). For \(b=0\) the only solution of \(y^2=bi\)
+is \(y=0\). For \(b\ne0\), the two possible right-hand sides are
+\(i\) and \(-i\), both nonzero squares since
+\((1-i)^2=i\) and \((1+i)^2=-i\). Each then has exactly two square
+roots. The affine point count on \(E\) is \(3+6\cdot2=15\), and
+the point at infinity gives \(\#E(k)=16\). This equals the
+Hasse--Weil upper bound \(q^2+1+2qg(E)\), proving maximality.
+
+For \(H_3\), \(x^4=x x^3=a^2+b^2\in\mathbb F_3\). The map
+\(y\mapsto y^3+y\) is twice the real coordinate and has three
+elements over every value in \(\mathbb F_3\). Thus \(H_3\) has
+\(9\cdot3=27\) affine points and the same single point \([0:1:0]\)
+at infinity, giving \(\#H_3(k)=28\). The two curves have different
+genera and different \(k\)-point counts. In particular
+\(E\not\cong H_3\), contrary to the conjecture.
+
+The exponent in the known classification at genus \((q-1)^2/4\)
+is \((q+1)/2\) \cite{fgt}. In this example \(x=iv\) and
+\(y=(1+i)u\) identify the affine equation for \(E\) with
+\(v^3+v=u^2\).
+
+\section*{Lean verification}
+
+The Lean~4.19.0 project implements arithmetic in \(k\) and proves
+that its enumeration of the normalized projective charts
+\([x:y:1]\), \([1:y:0]\), and \([0:1:0]\) is complete and has no
+duplicate entries. It checks the two point counts and the numerical
+Hasse--Weil equality. The geometric hypotheses for using that bound
+and the genus formula are checked above. Run \verb|lake build| in
+\verb|lean/| to verify the certificate.
+
+\begin{thebibliography}{2}
+\bibitem{stacks}
+The Stacks Project, \emph{Plane curves},
+\href{https://stacks.math.columbia.edu/tag/0BYA}{Tag 0BYA}.
+\bibitem{fgt}
+R.~Fuhrmann, A.~Garcia, and F.~Torres, \emph{On maximal curves},
+\href{https://arxiv.org/abs/alg-geom/9610023}{arXiv:alg-geom/9610023}.
+\end{thebibliography}
+
+\end{document}
