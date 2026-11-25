@@ -1,0 +1,311 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array}
+\usepackage[colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Alt}{\mathrm{Alt}}
+\newcommand{\Sym}{\mathrm{Sym}}
+\newcommand{\Cl}{\mathrm{Cl}}
+\newcommand{\Sh}{\mathrm{Sh}}
+\newcommand{\sgn}{\mathrm{sgn}}
+\newcommand{\id}{\mathrm{id}}
+\newcommand{\im}{\mathrm{Im}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+
+\sloppy
+
+\title{\textbf{Binomial-Zero Vanishing Thresholds and Full Antisymmetrization\\for the Outer Product: Characteristic-Zero Realization\\and Structural Counterexamples}\\[6pt]
+\large Resolution of Conjecture 00000007602}
+\author{Formalized in Core Lean 4.19.0 with Exact Computational Verification}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~00000007602, which defines the outer product as the fully antisymmetric part structure and asserts that (i) its dimension-vanishing threshold is exact and given by binomial zeros, and (ii) the realization of the threshold is full antisymmetrization. We establish a sharp dichotomy. First, in the classical setting of $k$-fold outer products of grade-$1$ vectors on an $n$-dimensional vector space $V$ over a field $K$ of characteristic~$0$ (or whenever $k! \in K^\times$), with binomial zeros taken as the roots of the rational polynomial $\binom{x}{k} = x(x-1)\cdots(x-k+1)/k!$, the statement holds unconditionally: the normalized antisymmetrizer $\Pi_k = \frac{1}{k!}\Alt_k$ is an idempotent projection onto the $S_k$-antisymmetric subspace $A^k_{\sgn}(V) \cong \Lambda^k(V)$ of exact dimension $\binom{n}{k}$, which vanishes if and only if $k > n$. Second, as an unqualified general conjecture, the statement is \emph{false} across three independent structural obstructions: (1) over $\F_2$, $+1 = -1$ forces $A^k_{\sgn}(\F_2^n) = ((\F_2^n)^{\otimes k})^{S_k}$ of dimension $\binom{n+k-1}{k} \ge 1$ for all $n \ge 1$ and all $k > n$, so no finite vanishing threshold exists; (2) in positive characteristic $0 < p \le k \le n$, $k! = 0$ destroys $\frac{1}{k!}\Alt_k$, makes unnormalized $\Alt_k$ nilpotent ($\Alt_k^2 = 0$), causes iterated full antisymmetrization $\Alt_{r+s}(\omega \otimes \eta)$ of alternating forms to vanish prematurely below/at the threshold ($k = n = 3$ over $\F_2$), and decouples modular Lucas zeros of $\binom{n}{k} \bmod p$ from $\dim_K \Lambda^k(V)$; and (3) even over $\Q$, for multivectors of grade $\ge 2$ in $\Lambda(\Q^n)$ and $\Cl_{n,0}(\Q)$, factor antisymmetrization vanishes prematurely at $n = 4$ ($A = e_0 \wedge e_1$, $B = e_2 \wedge e_3$) while failing to vanish above the binomial threshold at $n = 3$ ($A = e_0 e_1$, $B = e_1 e_2$). All positive theorems (for arbitrary $n, k \in \N$) and all counterexample families are formally verified from first principles in Core Lean~4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Problem Statement and Summary of Resolution}
+
+Conjecture~00000007602 states verbatim in English:
+\begin{quote}
+\textbf{English.} Definition: The outer product as the fully antisymmetric part structure. Conjecture: The dimension-vanishing threshold of the outer product is exact and given by binomial zeros; and the realization of the threshold is full antisymmetrization. (binomial-zero outer-product vanishing threshold)
+\end{quote}
+The accompanying Chinese formulation states symmetrically that the outer product (\emph{w\`aij\=\i}) is defined as the fully antisymmetric part structure (\emph{qu\'an f\v{a}ndu\`ich\`en b\`uf\`en ji\'eg\`ou}), and conjectures that its dimension-vanishing threshold (\emph{w\'eish\`u xi\=aom\`o y\`u}) is exact and given by binomial zeros (\emph{\`erxi\`angsh\`\i\ l\'ingdi\v{a}n}), with the threshold realized by full antisymmetrization (\emph{m\v{a}nf\v{a}nch\=eng}).
+
+\subsection{Algebraic Objects Potentially Conflated by the Statement}
+
+Let $K$ be a field (or commutative ring with $1 \neq 0$) and let $V \cong K^n$ be a free $K$-module of finite rank $n \in \N$ with standard basis $\{e_0, \dots, e_{n-1}\}$. In multilinear and geometric algebra, four distinct constructions are routinely identified in elementary characteristic-$0$ treatments of $1$-vectors, yet diverge sharply as soon as the field characteristic or input grades vary:
+\begin{enumerate}
+\item[(1)] \textbf{Intrinsic exterior power $\Lambda^k(V)$:} the quotient $T^k(V)/I_k(V)$ of $T^k(V) = V^{\otimes k}$ by the subspace $I_k(V)$ generated by pure tensors $v_1 \otimes \dots \otimes v_k$ with $v_p = v_q$ for some $p \neq q$. Over \emph{every} field $K$, $\Lambda^k(V)$ has basis $\{e_{i_1} \wedge \dots \wedge e_{i_k} : 0 \le i_1 < \dots < i_k < n\}$ and $\N$-dimension $\dim_K \Lambda^k(V) = \binom{n}{k}$.
+\item[(2)] \textbf{Fully antisymmetric ($S_k$-sign-equivariant) subspace $A^k_{\sgn}(V) \subseteq T^k(V)$:} under the left slot-permutation action $(\sigma \cdot T)(i_1, \dots, i_k) = T(i_{\sigma(1)}, \dots, i_{\sigma(k)})$ for $\sigma \in S_k$,
+\[
+  A^k_{\sgn}(V) \;=\; \bigl\{ T \in T^k(V) : \sigma \cdot T = \sgn(\sigma)\,T \text{ for all } \sigma \in S_k \bigr\}.
+\]
+Inside $A^k_{\sgn}(V)$ sits the \emph{strictly alternating} tensor subspace $A^k_{\mathrm{alt}}(V)$, consisting of $T \in A^k_{\sgn}(V)$ satisfying $T(i_1, \dots, i_k) = 0$ whenever $i_p = i_q$ for some $p \neq q$.
+\item[(3)] \textbf{Full antisymmetrization operators $\Alt_k$ and $\Pi_k$:} the unnormalized operator
+\[
+  \Alt_k : T^k(V) \longrightarrow T^k(V), \qquad \Alt_k(T) \;=\; \sum_{\sigma \in S_k} \sgn(\sigma)\,(\sigma \cdot T),
+\]
+defined over every commutative ring, and---when $k! \cdot 1_K \in K^\times$---the normalized projection $\Pi_k = \frac{1}{k!}\Alt_k$.
+\item[(4)] \textbf{Multivector outer product vs.\ factor antisymmetrization:} for homogeneous multivectors $A \in \Lambda^r(V)$ and $B \in \Lambda^s(V)$ inside $\Lambda(V)$ or a Clifford algebra $\Cl(V, Q)$, the true outer product is the maximal-grade projection $A \wedge B = \langle A B \rangle_{r+s}$, whereas naive factor antisymmetrization forms $\frac{1}{2}(A B - B A)$ (or $\frac{1}{m!}\sum_{\sigma \in S_m}\sgn(\sigma)\,A_{\sigma(1)}\cdots A_{\sigma(m)}$).
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.21\textwidth}>{\raggedright\arraybackslash}p{0.22\textwidth}>{\raggedright\arraybackslash}p{0.21\textwidth}>{\raggedright\arraybackslash}p{0.27\textwidth}@{}}
+\hline
+\textbf{Regime} & \textbf{Structure / Dim.} & \textbf{Threshold Status} & \textbf{Full Antisymmetrization} \\
+\hline
+$1$-vectors, $\mathrm{char}(K)=0$ (or $k! \in K^\times$), $\Z$-binomial zeros &
+$\Lambda^k(V) \cong A^k_{\sgn}(V)$, $\dim = \binom{n}{k}$ &
+\textbf{Exact:} $\dim = 0 \iff k > n \iff \binom{n}{k} = 0$ &
+\textbf{Holds:} $\Pi_k = \frac{1}{k!}\Alt_k$ is idempotent onto $A^k_{\sgn}(V)$ \\
+\hline
+$1$-vectors, $\mathrm{char}(K)=2$ ($K = \F_2$), literal $A^k_{\sgn}(V)$ &
+$A^k_{\sgn}(\F_2^n) = (V^{\otimes k})^{S_k}$, $\dim = \binom{n+k-1}{k}$ &
+\textbf{Fails globally:} $\dim \ge 1$ for \emph{all} $k > n \ge 1$ &
+$e_0^{\otimes k} \in A^k_{\sgn}(\F_2^n) \setminus \{0\}$ for every $k > n$ \\
+\hline
+$1$-vectors, $0 < \mathrm{char}(K)=p \le k \le n$ &
+$\dim \Lambda^k(V) = \binom{n}{k} \ge 1$, $k! = 0$ in $K$ &
+Modular $\binom{n}{k} \equiv 0 \pmod p$ fails ($n=2,k=1$) &
+\textbf{Fails:} $\frac{1}{k!}\Alt_k$ undefined; $\Alt_k^2 = 0$; $\Alt_3(\omega_{01} \otimes e_2) = 0$ \\
+\hline
+Multivectors ($r,s \ge 2$), $\mathrm{char}(K)=0$ ($K = \Q$) &
+$A \wedge B = \langle AB \rangle_{r+s}$, Koszul sign $(-1)^{rs}$ &
+\textbf{Fails both ways} ($n=4$ at $k=4$; $n=3$ at $k=4>3$) &
+\textbf{Fails:} $\frac{1}{2}[A,B] = 0 \neq A \wedge B$ ($n=4$); $\frac{1}{2}[A,B] \neq 0 = A \wedge B$ ($n=3$) \\
+\hline
+\end{tabular}
+\caption{Complete classification of Conjecture~00000007602 across algebraic regimes.}
+\label{tab:summary}
+\end{table}
+
+\subsection{Verdict}
+
+Conjecture~00000007602 is \textbf{conditionally true} in the classical vector-level characteristic-$0$ (or invertible-$k!$) setting with rational/integer binomial polynomial zeros (Theorem~\ref{thm:positive-master}), and \textbf{strictly false} as an unqualified general statement (Theorems~\ref{thm:char2-nonvanishing}, \ref{thm:charp-realization}, and~\ref{thm:char0-multivectors}; summarized in Table~\ref{tab:summary}).
+
+\section{Combinatorial and Polynomial Binomial Zeros}
+
+We first isolate the exact arithmetic of the binomial threshold independently of linear algebra.
+
+\begin{proposition}[Binomial Polynomial Roots and Strictly Monotone Basis Count]\label{prop:binomial-zeros}
+For all $n, k \in \N$, define the falling factorial $n^{\underline{k}} = \prod_{j=0}^{k-1}(n - j)$ on $\N$ (with $n^{\underline{0}} = 1$ and $n^{\underline{k}} = 0$ for $k > n$) and the polynomial $F_k(x) = \prod_{j=0}^{k-1}(x - j) \in \Z[x]$. Then:
+\begin{enumerate}
+\item[(a)] $\binom{n}{k}\,k! = n^{\underline{k}}$, and for every $x \in \Z$, $F_k(x) = 0 \iff x \in \{0, 1, \dots, k-1\}$.
+\item[(b)] On $\N$, $\binom{n}{k} = 0 \iff n < k$ (equivalently $\binom{n}{k} \ge 1 \iff k \le n$), with boundary value $\binom{n}{n} = 1$.
+\item[(c)] Let $\mathcal{M}(n, k) = \{(i_0, \dots, i_{k-1}) \in \{0, \dots, n-1\}^k : i_0 < i_1 < \dots < i_{k-1}\}$. Then $|\mathcal{M}(n, k)| = \binom{n}{k}$, so $\mathcal{M}(n, k) = \emptyset \iff n < k$.
+\item[(d)] \textbf{(Finite Pigeonhole Principle)} Whenever $n < k$, every multi-index $I : \{0, \dots, k-1\} \to \{0, \dots, n-1\}$ admits distinct positions $p \neq q$ such that $I(p) = I(q)$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Part~(a) follows by induction on $n$ and $k$ from Pascal's identity $\binom{n+1}{k+1} = \binom{n}{k} + \binom{n}{k+1}$:
+\[
+  \binom{n+1}{k+1}(k+1)! = (k+1)\binom{n}{k}k! + \binom{n}{k+1}(k+1)! = \bigl((k+1) + (n - k)\bigr) n^{\underline{k}} = (n+1)^{\underline{k+1}}
+\]
+for $k \le n$ (and $0 = 0$ for $n < k$). Since $\Z$ is an integral domain, $F_k(x) = \prod_{j=0}^{k-1}(x-j) = 0$ holds if and only if $x = j$ for some $0 \le j < k$. Part~(b) follows immediately because $k! \ge 1$ and $F_k(n) = n^{\underline{k}}$ for $n \in \N$. For~(c), partitioning $\mathcal{M}(n+1, k+1)$ according to whether $i_k = n$ yields $|\mathcal{M}(n+1, k+1)| = |\mathcal{M}(n, k+1)| + |\mathcal{M}(n, k)|$, matching Pascal's recurrence with identical base cases $|\mathcal{M}(n, 0)| = 1$ and $|\mathcal{M}(0, k+1)| = 0$. Part~(d) holds by induction on $n$: for $n = 0$ and $0 < k$ the codomain is empty; for $n+1 < k$, if $I$ were injective, either $n \notin \im(I)$ (giving an injection $\{0,\dots,k-1\} \to \{0,\dots,n-1\}$) or $I(r_0) = n$ for a unique $r_0$ (restricting off $r_0$ gives an injection $\{0,\dots,k-2\} \to \{0,\dots,n-1\}$ with $n < k-1$), contradicting the induction hypothesis in both cases.
+\end{proof}
+
+\section{Conditional Positive Theorem in Characteristic Zero}
+
+Let $R$ be any commutative ring with unity, and identify $T^k(R^n)$ with the coordinate space of functions $T : (\mathrm{Fin}\,k \to \mathrm{Fin}\,n) \to R$, written $T(I)$ for $I : \mathrm{Fin}\,k \to \mathrm{Fin}\,n$, with standard basis tensors $E_I(J) = \delta_{J,I}$. For $\sigma \in S_k$, set $(\sigma \cdot T)(I) = T(I \circ \sigma)$, so $(\sigma \cdot (\tau \cdot T))(I) = (\tau \cdot T)(I \circ \sigma) = T(I \circ \sigma \circ \tau) = ((\sigma\tau) \cdot T)(I)$.
+
+\begin{lemma}[Inversion Parity and Universal Identities of $\Alt_k$]\label{lem:alt-identities}
+Let $R$ be an arbitrary commutative ring and $n, k \in \N$.
+\begin{enumerate}
+\item[(a)] The inversion sign $\sgn(\sigma) = (-1)^{|\{(i,j) : 0 \le i < j < k,\; \sigma(j) < \sigma(i)\}|} \in \{\pm 1\}$ satisfies $\sgn(\sigma\tau) = \sgn(\sigma)\,\sgn(\tau)$ for all $\sigma, \tau \in S_k$, and $\sgn((p\;q)) = -1$ for every transposition $(p\;q)$ with $p \neq q$.
+\item[(b)] For every $T \in T^k(R^n)$ and $\tau \in S_k$, $\tau \cdot \Alt_k(T) = \sgn(\tau)\,\Alt_k(T)$; hence $\im(\Alt_k) \subseteq A^k_{\sgn}(R^n)$.
+\item[(c)] If $T \in A^k_{\sgn}(R^n)$, then $\Alt_k(T) = k! \cdot T$. Consequently, for \emph{every} $T \in T^k(R^n)$,
+\begin{equation}\label{eq:alt-scaling}
+  \Alt_k\bigl(\Alt_k(T)\bigr) \;=\; k! \cdot \Alt_k(T).
+\end{equation}
+\item[(d)] \textbf{(Universal Repeated-Index Cancellation)} If $I : \mathrm{Fin}\,k \to \mathrm{Fin}\,n$ satisfies $I(p) = I(q)$ for some $p \neq q$, then $\Alt_k(T)(I) = 0_R$ over \emph{every} commutative ring $R$ (including characteristic~$2$).
+\item[(e)] \textbf{(Coordinate Duality on Strictly Monotone Multi-Indices)} For any strictly monotone multi-indices $I, J \in \mathcal{M}(n, k)$,
+\begin{equation}\label{eq:duality}
+  \Alt_k(E_I)(J) \;=\; \delta_{J, I} \;=\;
+  \begin{cases}
+    1_R & \text{if } J = I,\\
+    0_R & \text{if } J \neq I.
+  \end{cases}
+\end{equation}
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(a) For each ordered pair $i < j$, let $(a, b) = (\min(\tau(i),\tau(j)), \max(\tau(i),\tau(j)))$. Whether $\tau(i) < \tau(j)$ or $\tau(j) < \tau(i)$, injectivity of $\sigma$ gives $[\sigma(\tau(j)) < \sigma(\tau(i))] \equiv [\sigma(b) < \sigma(a)] + [\tau(j) < \tau(i)] \pmod 2$. Since $(i, j) \mapsto (a, b)$ is a bijection on ordered pairs, summing modulo~$2$ yields $\sgn(\sigma\tau) = \sgn(\sigma)\,\sgn(\tau)$. An adjacent swap $(m\;\;m+1)$ inverts solely the pair $(m, m+1)$, giving $\sgn((m\;\;m+1)) = -1$; for $p < r$, $(p\;\;r+1) = (r\;\;r+1)(p\;\;r)(r\;\;r+1)$ yields $\sgn((p\;q)) = -1$ by induction on $q - p$.
+
+(b) For $\tau \in S_k$, $(\tau \cdot \Alt_k(T))(I) = \sum_{\sigma \in S_k} \sgn(\sigma)\,T(I \circ \tau \circ \sigma)$. Reindexing via the bijection $\rho = \tau\sigma$ and using $\sgn(\tau^{-1}\rho) = \sgn(\tau)\,\sgn(\rho)$ gives $\sgn(\tau)\,\Alt_k(T)(I)$.
+
+(c) If $T \in A^k_{\sgn}(R^n)$, then $T(I \circ \sigma) = (\sigma \cdot T)(I) = \sgn(\sigma)\,T(I)$, so $\Alt_k(T)(I) = \sum_{\sigma \in S_k} \sgn(\sigma)^2 T(I) = |S_k|\,T(I) = k!\,T(I)$. Applying this to $\Alt_k(T) \in A^k_{\sgn}(R^n)$ yields~\eqref{eq:alt-scaling}.
+
+(d) Let $\tau = (p\;q)$ with $p \neq q$ and $I(p) = I(q)$, so $I \circ \tau = I$. Partition $S_k = S_k^+ \sqcup S_k^-$ into even and odd permutations. Since $\sgn(\tau) = -1$, left multiplication $\sigma \mapsto \tau\sigma$ maps $S_k^+$ bijectively onto $S_k^-$. Hence
+\[
+  \Alt_k(T)(I) = \sum_{\sigma \in S_k^+} T(I \circ \sigma) - \sum_{\rho \in S_k^-} T(I \circ \rho) = \sum_{\sigma \in S_k^+} T(I \circ \sigma) - \sum_{\sigma \in S_k^+} T(I \circ \tau \circ \sigma) = 0_R,
+\]
+using only additive inverses in $R$ without dividing by $2$.
+
+(e) Suppose $I, J \in \mathcal{M}(n, k)$ and $J \circ \sigma = I$ for some $\sigma \in S_k$. For $a < b$, $I(a) < I(b)$ implies $J(\sigma(a)) < J(\sigma(b))$, which forces $\sigma(a) < \sigma(b)$ because $J$ is strictly monotone. Any strictly monotone map $\sigma : \mathrm{Fin}\,k \to \mathrm{Fin}\,k$ satisfies $m \le \sigma(m) \le m$ by upward and downward induction, so $\sigma = \id$ and $J = I$. Thus $E_I(J \circ \sigma) = \delta_{J \circ \sigma, I}$ is $1_R$ exclusively when $J = I$ and $\sigma = \id$ (where $\sgn(\id) = +1$), and $0_R$ otherwise.
+\end{proof}
+
+\begin{theorem}[Conditional Positive Theorem for $1$-Vectors]\label{thm:positive-master}
+Let $R$ be a non-trivial commutative ring ($1_R \neq 0_R$) and $n, k \in \N$ such that $k! \cdot 1_R$ admits a multiplicative inverse $u = (k!)^{-1} \in R$ (in particular, any field $K$ of characteristic~$0$, such as $\Q$ or $\R$, for all $k \in \N$, or any field of characteristic $p > k$). Define the normalized antisymmetrizer $\Pi_k = u \cdot \Alt_k : T^k(R^n) \to T^k(R^n)$. Then:
+\begin{enumerate}
+\item[(a)] \textbf{(Idempotent Projection onto the Fully Antisymmetric Part)} $\Pi_k \circ \Pi_k = \Pi_k$, $\im(\Pi_k) = A^k_{\sgn}(R^n) = A^k_{\mathrm{alt}}(R^n)$, and $T \in A^k_{\sgn}(R^n) \iff \Pi_k(T) = T$.
+\item[(b)] \textbf{(Free Basis of Rank $\binom{n}{k}$)} When $R = K$ is a field with $k! \in K^\times$, the family $\{\Pi_k(E_I) : I \in \mathcal{M}(n, k)\}$ is a $K$-basis of $A^k_{\sgn}(K^n) \cong \Lambda^k(K^n)$, so
+\[
+  \dim_K \Lambda^k(K^n) \;=\; \dim_K A^k_{\sgn}(K^n) \;=\; \mathrm{rank}_K(\Pi_k) \;=\; \binom{n}{k}.
+\]
+\item[(c)] \textbf{(Exact Binomial-Zero Threshold Realized by $\Pi_k$)} The following are equivalent:
+\[
+  \Pi_k = 0 \;\iff\; A^k_{\sgn}(R^n) = \{0\} \;\iff\; \binom{n}{k} = 0 \;\iff\; n < k.
+\]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) By Lemma~\ref{lem:alt-identities}(c), $\Pi_k(\Pi_k(T)) = u^2 \Alt_k^2(T) = u(u \cdot k!)\Alt_k(T) = u \Alt_k(T) = \Pi_k(T)$. For $T \in A^k_{\sgn}(R^n)$, $\Pi_k(T) = u \cdot k! \cdot T = T$; conversely $\Pi_k(T) = T$ implies $T \in \im(\Pi_k) \subseteq A^k_{\sgn}(R^n)$ by Lemma~\ref{lem:alt-identities}(b). Moreover, by Lemma~\ref{lem:alt-identities}(d), every $T = \Pi_k(T) \in A^k_{\sgn}(R^n)$ vanishes on repeated indices, so $A^k_{\sgn}(R^n) = A^k_{\mathrm{alt}}(R^n)$.
+
+(b) Let $W_I = \Pi_k(E_I)$ for $I \in \mathcal{M}(n, k)$. By~\eqref{eq:duality}, $W_I(J) = u\,\delta_{J, I}$ for $J \in \mathcal{M}(n, k)$. If $\sum_{I \in \mathcal{M}(n,k)} c_I W_I = 0$, evaluating at $J \in \mathcal{M}(n, k)$ gives $c_J u = 0$, hence $c_J = c_J u \cdot k! = 0$ (linear independence). Conversely, for any $T \in A^k_{\sgn}(K^n) = A^k_{\mathrm{alt}}(K^n)$, set $\widetilde{T} = T - k! \sum_{I \in \mathcal{M}(n,k)} T(I)\,W_I \in A^k_{\mathrm{alt}}(K^n)$. Then $\widetilde{T}(J) = 0$ for all $J \in \mathcal{M}(n, k)$. Any injective $J' : \mathrm{Fin}\,k \to \mathrm{Fin}\,n$ has the form $J' = J \circ \sigma$ for a unique $J \in \mathcal{M}(n, k)$ and $\sigma \in S_k$, so $\widetilde{T}(J') = \sgn(\sigma)\,\widetilde{T}(J) = 0$; and on non-injective $J'$, $\widetilde{T}(J') = 0$ because $\widetilde{T} \in A^k_{\mathrm{alt}}(K^n)$. Thus $\widetilde{T} = 0$, proving spanning and $\dim_K A^k_{\sgn}(K^n) = |\mathcal{M}(n, k)| = \binom{n}{k}$ by Proposition~\ref{prop:binomial-zeros}(c), matching $\Lambda^k(K^n) = T^k(K^n)/\ker(\Pi_k)$.
+
+(c) If $n < k$, Proposition~\ref{prop:binomial-zeros}(d) and Lemma~\ref{lem:alt-identities}(d) imply $\Alt_k(T)(I) = 0$ for every $T$ and $I$, so $\Pi_k = 0$ and $A^k_{\sgn}(R^n) = \im(\Pi_k) = \{0\}$. Conversely, if $k \le n$, let $I_0(r) = r$ ($0 \le r < k$), which lies in $\mathcal{M}(n, k)$. By~\eqref{eq:duality}, $\Pi_k(E_{I_0})(I_0) = u \cdot 1_R = u$. Since $u \cdot (k!\,1_R) = 1_R \neq 0_R$, $u \neq 0_R$, so $\Pi_k(E_{I_0}) \in A^k_{\sgn}(R^n)$ is non-zero. Combine with Proposition~\ref{prop:binomial-zeros}(b).
+\end{proof}
+
+\section{Structural Refutations of the Unqualified Conjecture}
+
+We now prove that removing any of the three implicit hypotheses in Theorem~\ref{thm:positive-master} breaks Conjecture~00000007602.
+
+\subsection{Characteristic \texorpdfstring{$2$}{2}: Complete Loss of Any Vanishing Threshold for \texorpdfstring{$A^k_{\sgn}(V)$}{A\^k\_sgn(V)}}
+
+Under the problem's literal definition---``the outer product as the fully antisymmetric part structure'' $A^k_{\sgn}(V)$---characteristic~$2$ destroys the vanishing threshold altogether.
+
+\begin{theorem}[Non-Vanishing of $A^k_{\sgn}(\F_2^n)$ for All $k > n \ge 1$]\label{thm:char2-nonvanishing}
+Over $K = \F_2$, for every dimension $n \ge 1$ and every tensor degree $k \in \N$:
+\begin{enumerate}
+\item[(a)] $A^k_{\sgn}(\F_2^n) = \bigl((\F_2^n)^{\otimes k}\bigr)^{S_k}$ coincides with the full space of $S_k$-invariant (symmetric) tensors, and has vector-space dimension
+\[
+  \dim_{\F_2} A^k_{\sgn}(\F_2^n) \;=\; \binom{n + k - 1}{k} \;\ge\; 1.
+\]
+\item[(b)] In particular, for \emph{every} $k > n \ge 1$, the binomial coefficient vanishes ($\binom{n}{k} = 0$), yet $e_0^{\otimes k} \in A^k_{\sgn}(\F_2^n)$ is non-zero and $\dim_{\F_2} A^k_{\sgn}(\F_2^n) \ge 1$. Thus $A^k_{\sgn}(\F_2^n)$ has \textbf{no finite vanishing threshold}.
+\item[(c)] Even at the threshold $n = k = 2$, $\dim_{\F_2} A^2_{\sgn}(\F_2^2) = 3 \neq \binom{2}{2} = 1$, spanned by $e_0 \otimes e_0$, $e_1 \otimes e_1$, and $e_0 \otimes e_1 + e_1 \otimes e_0$; at $(n, k) = (2, 3)$, $\binom{2}{3} = 0$ while $\dim_{\F_2} A^3_{\sgn}(\F_2^2) = 4$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+In $\F_2$, $-1 = +1$, so $\sgn(\sigma) \cdot 1_{\F_2} = 1_{\F_2}$ for every $\sigma \in S_k$. Hence $T \in A^k_{\sgn}(\F_2^n)$ holds if and only if $T(I \circ \sigma) = T(I)$ for all $\sigma \in S_k$, meaning $T$ is constant on each $S_k$-orbit of $\mathrm{Fin}\,k \to \mathrm{Fin}\,n$. Orbits of $S_k$ on $\{0,\dots,n-1\}^k$ are parameterized by multisets of size $k$ chosen from $n$ elements, of which there are $\binom{n+k-1}{k} \ge 1$ (since $n \ge 1$). Explicitly, the diagonal basis tensor $E_{(0,\dots,0)} = e_0^{\otimes k}$ satisfies $(0,\dots,0) \circ \sigma = (0,\dots,0)$ for all $\sigma \in S_k$ and evaluates to $1_{\F_2} \neq 0_{\F_2}$ at $(0,\dots,0)$, giving a non-zero element of $A^k_{\sgn}(\F_2^n)$ for every $k > n$. At $(n, k) = (2, 2)$, the three orbit sums $e_0 \otimes e_0$, $e_1 \otimes e_1$, and $e_0 \otimes e_1 + e_1 \otimes e_0$ take $(1,0,0)$, $(0,1,0)$, and $(0,0,1)$ on indices $(0,0)$, $(1,1)$, and $(0,1)$, proving linear independence over $\F_2$.
+\end{proof}
+
+\subsection{Positive Characteristic \texorpdfstring{$p \le k \le n$}{p <= k <= n}: Failure of Full Antisymmetrization and Modular Binomial Zeros}
+
+Even if one abandons $A^k_{\sgn}(V)$ in favor of the intrinsic exterior power $\Lambda^k(V)$ (or $A^k_{\mathrm{alt}}(V)$), the second clause of Conjecture~00000007602---that the realization is \emph{full antisymmetrization}---fails in positive characteristic $p \le k \le n$, as does any interpretation of ``binomial zeros'' inside the base field $K$.
+
+\begin{theorem}[Breakdown of Full Antisymmetrization in Characteristic $p > 0$]\label{thm:charp-realization}
+Let $K$ be a field of prime characteristic $p > 0$.
+\begin{enumerate}
+\item[(a)] \textbf{(Non-Existence of $\Pi_k$ and Nilpotence of $\Alt_k$)} Whenever $p \le k$, $k! \cdot 1_K = 0_K$: the normalized operator $\frac{1}{k!}\Alt_k$ does not exist, and the unnormalized operator satisfies $\Alt_k \circ \Alt_k = 0$ identically on $T^k(K^n)$. For $p \le k \le n$ (minimal example: $p = n = k = 2$ on $\F_2^2$, where $\binom{2}{2} = 1$), $\omega_{01} = \Alt_2(e_0 \otimes e_1) = e_0 \otimes e_1 + e_1 \otimes e_0 \neq 0$, yet $\Alt_2(\omega_{01}) = 0$, so $\Alt_k$ annihilates every already-alternating tensor and is never a projection.
+\item[(b)] \textbf{(Premature Vanishing of Iterated Outer Products Below/At the Threshold)} Let $\Sh(r, s) \subset S_{r+s}$ be the set of $(r,s)$-shuffles ($\sigma(0) < \dots < \sigma(r-1)$ and $\sigma(r) < \dots < \sigma(r+s-1)$). For any $\omega \in A^r_{\sgn}(K^n)$ and $\eta \in A^s_{\sgn}(K^n)$,
+\begin{equation}\label{eq:shuffle-factor}
+  \Alt_{r+s}(\omega \otimes \eta) \;=\; (r!\,s!) \sum_{\sigma \in \Sh(r,s)} \sgn(\sigma)\,\sigma \cdot (\omega \otimes \eta).
+\end{equation}
+Consequently, whenever $r \ge p$ and $r + s \le n$, $\Alt_{r+s}(\omega \otimes \eta) = 0$ vanishes \emph{below/at} the threshold $n$ even though $\binom{n}{r+s} \ge 1$. Concretely, for $K = \F_2$, $n = 3$, $r = 2$, $s = 1$ ($k = 3 = n$, $\binom{3}{3} = 1$), $\omega_{01} = \Alt_2(e_0 \otimes e_1) \neq 0$ and $\Alt_3(e_0 \otimes e_1 \otimes e_2) \neq 0$, yet $\Alt_3(\omega_{01} \otimes e_2) = 0$.
+\item[(c)] \textbf{(Modular Binomial Zeros vs.\ Exterior Dimension)} Evaluating $\binom{n}{k} \cdot 1_K$ inside $K$ produces Lucas zeros strictly below the vanishing threshold: for $K = \F_2$ at $(n, k) = (2, 1)$ and $(4, 2)$, $\binom{2}{1} \cdot 1_{\F_2} = 2 \cdot 1_{\F_2} = 0$ and $\binom{4}{2} \cdot 1_{\F_2} = 6 \cdot 1_{\F_2} = 0$, while $\dim_{\F_2} \Lambda^1(\F_2^2) = 2 \neq 0$ and $\dim_{\F_2} \Lambda^2(\F_2^4) = 6 \neq 0$ (with $\Alt_k \neq 0$ in both cases).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) Since $p \le k$, $p$ divides $k!$, so $k! \cdot 1_K = 0_K$ and no $u \in K$ satisfies $u \cdot (k! \cdot 1_K) = 1_K$. Equation~\eqref{eq:alt-scaling} immediately gives $\Alt_k^2 = k!\,\Alt_k = 0$. On $\F_2^2$, $\Alt_2(E_{(0,1)})(0,1) = 1 \neq 0$ by~\eqref{eq:duality}, while $\Alt_2(\Alt_2(E_{(0,1)})) = 0$.
+
+(b) Every permutation $\pi \in S_{r+s}$ factors uniquely as $\pi = \sigma \circ (\alpha \times \beta)$ with $\alpha \in S_r$, $\beta \in S_s$, and $\sigma \in \Sh(r,s)$, satisfying $\sgn(\pi) = \sgn(\sigma)\,\sgn(\alpha)\,\sgn(\beta)$. Since $(\alpha \times \beta) \cdot (\omega \otimes \eta) = \sgn(\alpha)\,\sgn(\beta)\,(\omega \otimes \eta)$ for $\omega \in A^r_{\sgn}$ and $\eta \in A^s_{\sgn}$, summing over $(\alpha, \beta) \in S_r \times S_s$ multiplies each shuffle term by $|S_r|\,|S_s| = r!\,s!$, yielding~\eqref{eq:shuffle-factor}. When $r \ge p$, $r! \cdot 1_K = 0$, so $\Alt_{r+s}(\omega \otimes \eta) = 0$ identically; in positive characteristic the exterior product on alternating tensors must be realized by the \emph{unscaled shuffle sum}, not full $S_{r+s}$-antisymmetrization.
+
+(c) Directly, $\binom{2}{1} = 2 \equiv 0 \pmod 2$ and $\binom{4}{2} = 6 \equiv 0 \pmod 2$, whereas $|\mathcal{M}(2,1)| = 2$, $|\mathcal{M}(4,2)| = 6$, and $\Alt_k(E_{I_0})(I_0) = 1_{\F_2} \neq 0_{\F_2}$ by~\eqref{eq:duality}.
+\end{proof}
+
+\subsection{Characteristic \texorpdfstring{$0$}{0}: Higher-Grade Multivectors in \texorpdfstring{$\Lambda(\Q^n)$}{Lambda(Q\^n)} and \texorpdfstring{$\Cl_{n,0}(\Q)$}{Cl\_\{n,0\}(Q)}}
+
+Finally, even over $K = \Q$ (characteristic~$0$), the identification of the outer product with full factor antisymmetrization holds only when every factor has grade~$1$. In $\Lambda(\Q^n)$ and the Euclidean Clifford algebra $\Cl_{n,0}(\Q)$ (generated by $e_0, \dots, e_{n-1}$ with $e_i^2 = +1$ and $e_i e_j = -e_j e_i$ for $i \neq j$), homogeneous blades $A$ of grade~$r$ and $B$ of grade~$s$ have true outer product $A \wedge B = \langle A B \rangle_{r+s}$ obeying Koszul graded-commutativity $A \wedge B = (-1)^{rs} B \wedge A$.
+
+\begin{theorem}[Characteristic-$0$ Multivector Counterexamples]\label{thm:char0-multivectors}
+Over $K = \Q$:
+\begin{enumerate}
+\item[(a)] \textbf{(Premature Vanishing at the Threshold, $n = 4$)} In $\Lambda(\Q^4)$ and $\Cl_{4,0}(\Q)$, let $A = e_0 \wedge e_1 = e_0 e_1$ (grade~$2$) and $B = e_2 \wedge e_3 = e_2 e_3$ (grade~$2$). At total grade $k = 2 + 2 = 4 = n$, $\binom{4}{4} = 1 \neq 0$ and the true outer product is the non-zero volume element $A \wedge B = \langle A B \rangle_4 = e_0 \wedge e_1 \wedge e_2 \wedge e_3 \neq 0$. Yet factor antisymmetrization vanishes identically:
+\[
+  \frac{1}{2}(A \wedge B - B \wedge A) \;=\; 0 \qquad \text{and} \qquad \frac{1}{2}(A B - B A) \;=\; 0.
+\]
+\item[(b)] \textbf{(Failure to Vanish Above the Threshold, $n = 3$)} In $\Cl_{3,0}(\Q)$, let $A = e_0 e_1$ (grade~$2$) and $B = e_1 e_2$ (grade~$2$). At total grade $k = 2 + 2 = 4 > 3 = n$, $\binom{3}{4} = 0$ and the true outer product vanishes: $A \wedge B = \langle A B \rangle_4 = 0$. Yet the antisymmetrized Clifford product fails to vanish:
+\[
+  \frac{1}{2}(A B - B A) \;=\; e_0 e_2 \;\neq\; 0.
+\]
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(a) Since $\{0,1\} \cap \{2,3\} = \emptyset$ and commuting $e_2 e_3$ past $e_0 e_1$ requires $2 \times 2 = 4$ anticommuting swaps, $B A = (-1)^4 A B = +A B = e_0 e_1 e_2 e_3$ in $\Cl_{4,0}(\Q)$ (and $B \wedge A = +A \wedge B$ in $\Lambda(\Q^4)$). Hence $\langle A B \rangle_4 = A \wedge B = e_0 \wedge e_1 \wedge e_2 \wedge e_3 \neq 0$, while $A B - B A = 0$ and $A \wedge B - B \wedge A = 0$.
+
+(b) In $\Cl_{3,0}(\Q)$, $\Lambda^4(\Q^3) = 0$ so $A \wedge B = \langle A B \rangle_4 = 0$. However, contracting the shared factor $e_1^2 = +1$ gives $A B = (e_0 e_1)(e_1 e_2) = e_0 e_2$, whereas $B A = (e_1 e_2)(e_0 e_1) = -e_1 e_0 e_2 e_1 = +e_1 e_0 e_1 e_2 = -e_0 (e_1^2) e_2 = -e_0 e_2$. Therefore $\frac{1}{2}(A B - B A) = \frac{1}{2}(2\,e_0 e_2) = e_0 e_2 \neq 0$ in grade~$2$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Suite}
+
+Every result in this paper is formalized from first principles in Core Lean~4.19.0 (zero external dependencies, compiled with \texttt{-DwarningAsError=true}, zero \texttt{sorry}, zero \texttt{native\_decide}, and zero custom axioms) inside \texttt{lean/Conjecture00000007602/}, and independently cross-checked in \texttt{verify.py} using exact rational (\texttt{fractions.Fraction}) and modular ($\F_p$) linear algebra. Table~\ref{tab:lean-map} records the correspondence between paper statements and formal Lean declarations.
+
+\begin{table}[ht]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.32}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.23\textwidth}>{\raggedright\arraybackslash}p{0.45\textwidth}>{\raggedright\arraybackslash}p{0.26\textwidth}@{}}
+\hline
+\textbf{Mathematical Result} & \textbf{Lean 4.19.0 Declaration} & \textbf{Module} \\
+\hline
+Prop.~\ref{prop:binomial-zeros}(a)--(b) & \texttt{choose\_mul\_factorial}, \texttt{fallingPoly\_eq\_zero\_iff}, \texttt{choose\_eq\_zero\_iff} & \texttt{BinomialThreshold.lean} \\
+Prop.~\ref{prop:binomial-zeros}(c)--(d) & \texttt{strictIncLists\_length}, \texttt{pigeonhole\_fin} & \texttt{BinomialThreshold.lean} \\
+Lemma~\ref{lem:alt-identities}(a)--(c) & \texttt{parity\_comp}, \texttt{parity\_swap}, \texttt{alt\_isAntisym}, \texttt{alt\_idem\_scaled} & \texttt{Antisymmetrization.lean} \\
+Lemma~\ref{lem:alt-identities}(d)--(e) & \texttt{alt\_apply\_of\_repeat}, \texttt{alt\_basis\_duality} & \texttt{Antisymmetrization.lean} \\
+Thm.~\ref{thm:positive-master} (all $n,k \in \N$) & \texttt{normAlt\_idem}, \texttt{positive\_\allowbreak binomial\_\allowbreak threshold\_\allowbreak master}, \texttt{char0\_rat\_positive\_theorem} & \texttt{Antisymmetrization.lean}, \texttt{Refutations.lean} \\
+Thm.~\ref{thm:char2-nonvanishing} ($\F_2$, all $k > n$) & \texttt{f2\_isAntisym\_iff\_sym}, \texttt{refutation\_\allowbreak char2\_\allowbreak nonvanishing\_\allowbreak above\_\allowbreak threshold}, \texttt{f2\_dim\_mismatch\_n2\_k2} & \texttt{Refutations.lean} \\
+Thm.~\ref{thm:charp-realization} (nilpotence, shuffle, Lucas) & \texttt{refutation\_\allowbreak char2\_\allowbreak nilpotent\_\allowbreak and\_no\_inv}, \texttt{refutation\_\allowbreak char2\_\allowbreak iterated\_alt\_\allowbreak vanishes\_at\_n3}, \texttt{refutation\_\allowbreak modular\_\allowbreak binomial\_\allowbreak zeros\_f2} & \texttt{Refutations.lean} \\
+Thm.~\ref{thm:char0-multivectors} ($\Cl_{4,0}(\Q)$, $\Cl_{3,0}(\Q)$) & \texttt{refutation\_\allowbreak char0\_\allowbreak bivector\_\allowbreak premature\_\allowbreak vanishing\_n4}, \texttt{refutation\_\allowbreak char0\_\allowbreak bivector\_\allowbreak nonvanishing\_\allowbreak above\_n3} & \texttt{Refutations.lean} \\
+Master Resolution Bundle & \texttt{conjecture\_\allowbreak 00000007602\_\allowbreak complete\_\allowbreak resolution} & \texttt{Conjecture00000007602.lean} \\
+\hline
+\end{tabular}
+\caption{Traceability map from mathematical statements to Core Lean~4.19.0 declarations.}
+\label{tab:lean-map}
+\end{table}
+
+\begin{thebibliography}{9}
+\bibitem{BourbakiAlgebra}
+N.~Bourbaki, \emph{Algebra I: Chapters 1--3}, Elements of Mathematics, Springer, 1989, Chapter~III (\S7, Exterior Algebras).
+
+\bibitem{Chevalley1954}
+C.~Chevalley, \emph{The Algebraic Theory of Spinors and Clifford Algebras}, Collected Works, Vol.~2, Springer, 1997.
+
+\bibitem{FultonHarris}
+W.~Fulton and J.~Harris, \emph{Representation Theory: A First Course}, Graduate Texts in Mathematics, Vol.~129, Springer, 1991, Appendix~B (Multilinear Algebra).
+
+\bibitem{Lucas1878}
+E.~Lucas, Th\'eorie des fonctions num\'eriques simplement p\'eriodiques, \emph{Amer.\ J.\ Math.} \textbf{1} (1878), 184--240.
+\end{thebibliography}
+
+\end{document}
