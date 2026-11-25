@@ -1,0 +1,97 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Product cutoff with simple and repeated single-chain gaps\\[2pt]
+  \large Disproof of Conjecture 00000003407}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+\noindent
+The product of independent uniform refresh chains has total-variation
+cutoff both when the single-chain gap is simple and when it is repeated.
+The two examples use state spaces of sizes two and three, respectively.
+
+\section*{Single-chain spectrum and the product law}
+
+Let $r\in\{2,3\}$, let $\pi$ be uniform on $r$ states, and let $\Pi$ be
+the matrix with every row equal to $\pi$. Take the continuous-time
+generator $Q=\Pi-I$. The projection $\Pi$ fixes constants and annihilates
+the subspace of functions of mean zero. Thus the eigenvalues of $-Q$ are
+$0$ with multiplicity one and $1$ with multiplicity $r-1$. In particular,
+the gap is simple for $r=2$ and not simple for $r=3$.
+
+Since $\Pi^2=\Pi$, the transition matrix at time $t$ is
+$\Pi+e^{-t}(I-\Pi)$. Starting from state $x$, the law is
+$\nu_{t,x}=\rho\delta_x+(1-\rho)\pi$, with $\rho=e^{-t}$. The product of
+$n$ copies, with generator equal to the sum of the coordinate generators,
+has independent coordinates with these laws. Its stationary measure is
+$\pi^{\otimes n}$. Relabeling states in each coordinate carries any
+starting vector to any other, so all deterministic starts have the same
+distance $d_n(t)$ from stationarity in total variation.
+
+\section*{Upper and lower bounds}
+
+For a single coordinate, the likelihood ratio $\nu_{t,x}/\pi$ equals
+$1+(r-1)\rho$ at $x$ and $1-\rho$ elsewhere. Its mean square under $\pi$
+is $1+(r-1)\rho^2$. Independence multiplies mean squares of the product
+likelihood ratio. Thus Cauchy--Schwarz gives
+\[
+ d_n(t)\le \frac12\sqrt{(1+(r-1)\rho^2)^n-1}
+ \le \frac12\sqrt{\exp\bigl(n(r-1)\rho^2\bigr)-1}.
+\]
+
+For the lower bound, let $S$ count coordinates equal to their own starting
+states. Its stationary mean is $n/r$, and its mean at time $t$ is
+$n/r+\Delta$, where $\Delta=n(1-1/r)\rho$. The count has variance at most
+$n/4$ under either law, since it is a sum of independent indicators. For
+the event $S\ge n/r+\Delta/2$, the stationary probability and the
+complementary probability at time $t$ are both at most $n/\Delta^2$ by
+Chebyshev's inequality. Hence
+\[
+ d_n(t)\ge 1-\frac{2}{n(1-1/r)^2\rho^2}.
+\]
+
+\section*{Cutoff}
+
+Set $t_n=\tfrac12\log n$. For fixed $c>0$ and sufficiently large $n$, the
+two bounds give
+\[
+ d_n(t_n+c)\le \tfrac12\sqrt{\exp((r-1)e^{-2c})-1},
+ \qquad
+ d_n(t_n-c)\ge 1-\frac{2e^{-2c}}{(1-1/r)^2}.
+\]
+The first bound tends to zero as $c\to\infty$, and the second tends to
+one. Therefore, for each fixed $0<\varepsilon<1$, the mixing time
+at level $\varepsilon$ is $t_n+O_\varepsilon(1)$. Since $t_n\to\infty$,
+this establishes cutoff with a bounded window in both examples
+in the usual total-variation sense~\cite[Definition~2.1]{ck}. If the
+coordinate generators are averaged instead of summed, the times are
+multiplied by $n$ and cutoff still holds.
+
+The same estimates apply in discrete time to the simultaneous product
+of kernels $aI+(1-a)\Pi$ for any fixed $0<a<1$. In that case $\rho=a^k$
+after $k$ steps, the cutoff center is $\log n/(-2\log a)$ up to rounding,
+and the single-chain gap $1-a$ again has multiplicity $r-1$.
+
+\section*{Lean verification}
+
+The Lean 4 project verifies the factorizations of the characteristic
+polynomials of $r(I-\Pi)$. It computes the squared weights at rational
+parameters, proves the product moment identity by enumerating product
+weights, and checks the mean separation and Bernoulli variance bound.
+The probability inequalities and the limiting argument are given above.
+Run \texttt{lake build} in the \texttt{lean} directory to check the
+project.
+
+\begin{thebibliography}{1}
+\bibitem{ck}
+G.-Y.~Chen and T.~Kumagai, \emph{Cutoffs for product chains}.
+\href{https://arxiv.org/abs/1701.06665}{arXiv:1701.06665}.
+\end{thebibliography}
+
+\end{document}
