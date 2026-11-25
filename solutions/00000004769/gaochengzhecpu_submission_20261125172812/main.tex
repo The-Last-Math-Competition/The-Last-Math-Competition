@@ -1,0 +1,386 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hypertexnames=false,colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue]{hyperref}
+
+\setlength{\emergencystretch}{1.5em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\NCA}{\mathrm{NC}_A}
+\newcommand{\SNCA}{S\text{-}\mathrm{NC}_A}
+\newcommand{\NC}{\mathrm{NC}}
+\newcommand{\orb}{\mathrm{orb}}
+\newcommand{\qbinom}[2]{\begin{bmatrix} #1 \\ #2 \end{bmatrix}_q}
+
+\title{\textbf{Resolution of Conjecture 00000004769:\\
+Non-Cyclotomic Structure of Annular Noncrossing Partition\\
+$q$-Analogues at Thickness Two}}
+\author{Autonomous Mathematical Research \& Formalization}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000004769}, which defines annular noncrossing partitions as noncrossing structures on the torus and asserts that at thickness two the $q$-analogue of their count is an explicit product of cyclotomic polynomials indexed by the annular thickness and specializing to the classical values. We prove that the conjecture is \textbf{false} across every standard interpretation, while identifying the exact positive sub-phenomena that explain its origin. First, the definition conflates two non-homeomorphic surfaces sharing Euler characteristic zero: the annulus $S^1 \times [0,1]$ (genus $g = 0$, $b = 2$ boundary components), on which Mingo--Nica's annular noncrossing partitions $\NCA(p,r)$ are defined, and the closed torus $T^2 = S^1 \times S^1$ ($g = 1$, $b = 0$). Second, at thickness $r = 2$, the closed-form count is
+\[
+  |\NCA(p,2)| = \frac{7p^2 + 9p + 14}{2(p+1)(p+2)}\binom{2p}{p}
+  = 5,\, 15,\, 52,\, 189,\, 702,\, \dots \quad (p \ge 1).
+\]
+Although each of the three Mingo--Nica through-block strata ($k = 0,1,2$), the connected annular permutation count $|\SNCA^{\mathrm{conn}}(p,2)|$, and the restricted pair-matching count $|\NCA^{(2\text{-pair})}(2m,2)| = \binom{2m+1}{m}$ individually admits a cyclotomic product $q$-analogue, the full partition count fails every clause of the conjecture: (i)~fixing thickness $r = 2$ cannot index an unbounded sequence, and cyclotomic factors of order $d \le 2$ only yield $0$ or powers of $2$ at $q = 1$; (ii)~the poset rank and co-rank polynomials $R_{p,2}(q) = \sum_{\pi \in \NCA(p,2)} q^{|\pi|-1}$ fail at $p = 1$ ($1 + 3q + q^2$) and are strictly non-palindromic for all $p \ge 2$ since $[q^1]R_{p,2} - [q^p]R_{p,2} = \frac{(p-1)(3p-4)}{2} > 0$; (iii)~all Mingo--Nica $q$-strata sums and monomial shifts $q^a Q^{(0)}_{p,2}(q) + q^b Q^{(1)}_{p,2}(q) + q^c Q^{(2)}_{p,2}(q)$ ($p = 1,2,3$) fail cyclotomic factorization; and (iv)~large primes dividing the irreducible quadratic $7p^2 + 9p + 14$ (such as $13 \mid 52$ at $p = 3$, $89 \mid 38181$ at $p = 8$, and $331 \mid 146302$ at $p = 9$) force any cyclotomic product specializing to $|\NCA(p,2)|$ to exceed all standard combinatorial degrees $\binom{p+2}{2}$ and $p^2 + 2$ and to require cyclotomic orders $d > 2(p+2)$. All main results are formally verified from first principles in Core Lean~4.19.0 with zero external dependencies.
+\end{abstract}
+
+\section{Introduction and Statement of Results}
+
+Conjecture~\texttt{00000004769} is stated in English and Chinese as follows:
+\begin{quote}
+\textbf{English.} Definition: Annular noncrossing partitions are the noncrossing structures on the torus. Conjecture: The $q$-analogue of its count is an explicit product of cyclotomic polynomials at thickness two, indexed by the annular thickness and specializing to the classical values. (cyclotomic product of the annular $q$-analogue)
+
+\smallskip
+\textbf{Chinese.} \emph{Definition / Conjecture:} Annular noncrossing partitions refer to noncrossing structures on the torus; the $q$-analogue of their count in the thickness-two case is an explicit product of cyclotomic polynomials whose indices are given by the annular thickness and which specializes to the classical values.
+\end{quote}
+
+In algebraic combinatorics, classical disk noncrossing partitions $\NC(n)$~\cite{Kreweras1972} of size $C_n = \frac{1}{n+1}\binom{2n}{n}$, Type-$B$ centrally symmetric noncrossing partitions $\NC_B(n)$~\cite{Reiner1997} of size $\binom{2n}{n}$, and general Coxeter noncrossing partitions~\cite{BessisReiner2011} admit celebrated rational $q$-Catalan analogues---such as MacMahon's $C_n(q) = \frac{1}{[n+1]_q}\qbinom{2n}{n}$ and $\qbinom{2n}{n}$---that factor explicitly into cyclotomic polynomials $\Phi_d(q)$ with orders $d \le 2n$. Annular noncrossing permutations and partitions $\NCA(p,r)$ were introduced by Mingo and Nica~\cite{MingoNica2004} to govern second-order fluctuations of random matrices and free probability~\cite{NicaSpeicher2006,GouldenNicaOancea2011,Kim2011}.
+
+We prove that Conjecture~\texttt{00000004769} is \textbf{false}, and we give a complete structural classification explaining both what fails and which sub-families do factor into cyclotomic polynomials:
+
+\begin{enumerate}
+  \item[\textbf{(1)}] \textbf{Topological and Combinatorial Divergence (Proposition~\ref{prop:topology}):} Annular noncrossing partitions live on the compact annulus $A = S^1 \times [0,1]$ (genus $g = 0$, $b = 2$ boundary circles), not the closed torus $T^2 = S^1 \times S^1$ ($g = 1$, $b = 0$). Although $\chi(A) = \chi(T^2) = 0$, their ribbon-graph enumerations diverge: already on $5$ marked points, $|\NCA(4,1)| = 49 \neq 52 = |\NC_{g \le 1}(5)|$, and on $6$ points $|\NCA(4,2)| = 189 \neq 203 = |\NC_{g \le 1}(6)|$.
+  \item[\textbf{(2)}] \textbf{Positive Stratum Dichotomy at Thickness Two (Theorem~\ref{thm:positive-strata} and Proposition~\ref{prop:pair-matchings}):} Decomposing $\NCA(p,2) = \bigsqcup_{k=0}^2 \NCA^{(k)}(p,2)$ by the number $k \in \{0,1,2\}$ of \emph{through-blocks} connecting the outer circle $[p]$ to the inner circle $\{p+1,p+2\}$, each individual stratum $q$-count $Q^{(0)}_{p,2}(q)$, $Q^{(1)}_{p,2}(q)$, $Q^{(2)}_{p,2}(q)$, as well as the connected permutation $q$-count $S^{\mathrm{conn}}_{p,2}(q) = \frac{[p]_q}{[p+2]_q}\qbinom{2p}{p}\qbinom{4}{2}$ and the pair-matching $q$-count $\qbinom{2m+1}{m}$ for $\NCA^{(2\text{-pair})}(2m,2)$, \emph{is} an explicit product of cyclotomic polynomials in $\mathbb{Z}[q]$ for all $p \ge 1$.
+  \item[\textbf{(3)}] \textbf{Parameter-Indexing Contradiction (Proposition~\ref{prop:indexing}):} At fixed thickness $r = 2$, no single polynomial indexed solely by the thickness can specialize at $q = 1$ to the strictly increasing counts $|\NCA(p,2)| = 5, 15, 52, 189, \dots$; moreover, any cyclotomic product with orders $d \le 2$ takes values in $\{0\} \cup \{2^k : k \ge 0\}$ at $q = 1$, missing $|\NCA(p,2)|$.
+  \item[\textbf{(4)}] \textbf{Universal Failure of Poset Rank / Block-Number $q$-Analogues (Theorem~\ref{thm:rank-disproof}):} For every $p \ge 1$, neither $R_{p,2}(q) = \sum_{\pi \in \NCA(p,2)} q^{|\pi|-1}$ nor its co-rank reversal $\tilde{R}_{p,2}(q) = \sum_{\pi \in \NCA(p,2)} q^{p+2-|\pi|}$ is a product of cyclotomic polynomials: $R_{1,2}(q) = 1 + 3q + q^2$ has degree $2 < \varphi(5) = 4$ and real roots $\frac{-3 \pm \sqrt{5}}{2}$ off $|z| = 1$, while for every $p \ge 2$, $[q^1]R_{p,2} - [q^p]R_{p,2} = \frac{(p-1)(3p-4)}{2} > 0$, violating palindromicity.
+  \item[\textbf{(5)}] \textbf{Failure of $q$-Strata Sums, Shifts, and Bounded-Degree $q$-Analogues (Theorems~\ref{thm:shifts} and~\ref{thm:degree-obstruction}):} No monomial-shifted sum $q^a Q^{(0)}_{p,2}(q) + q^b Q^{(1)}_{p,2}(q) + q^c Q^{(2)}_{p,2}(q)$ ($a,b,c \in \mathbb{N}$) is a product of cyclotomic polynomials for $p \in \{1,2,3\}$. Globally, because $|\NCA(p,2)| = \frac{7p^2 + 9p + 14}{2(p+1)(p+2)}\binom{2p}{p}$ carries the irreducible quadratic factor $7p^2 + 9p + 14$, large prime divisors force any cyclotomic product $F(q)$ with $F(1) = |\NCA(p,2)|$ to satisfy $\deg F \ge 14$ and $\max d_j \ge 13$ at $p = 3$ (exceeding $\binom{5}{2} = 10$ and $p^2 + 2 = 11$), $\deg F \ge 112$ and $\max d_j \ge 89$ at $p = 8$ (exceeding $p^2 + 2 = 66$), and $\deg F \ge 359$ and $\max d_j \ge 331$ at $p = 9$ (exceeding $p^2 + 2 = 83$).
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\small
+\caption{Exact thickness-two counts $|\NCA(p,2)|$, through-block strata $(|\NCA^{(0)}|, |\NCA^{(1)}|, |\NCA^{(2)}|)$, prime factorizations, minimal cyclotomic product degree $D_{\min}(N) = \sum_{\ell^a \parallel N} a(\ell-1)$, and standard degree benchmarks $\deg R_{p,2} = p+1$, $\binom{p+2}{2}$, and $p^2+2$.}
+\label{tab:counts}
+\begin{tabular}{@{}rrrrrrccc@{}}
+\toprule
+$p$ & $|\NCA(p,2)|$ & $(|\NCA^{(0)}|,|\NCA^{(1)}|,|\NCA^{(2)}|)$ & Prime factorization & $D_{\min}$ & $p+1$ & $\binom{p+2}{2}$ & $p^2+2$ \\
+\midrule
+$1$ & $5$ & $(2, 3, 0)$ & $5$ & $4$ & $2$ & $3$ & $3$ \\
+$2$ & $15$ & $(4, 9, 2)$ & $3 \cdot 5$ & $6$ & $3$ & $6$ & $6$ \\
+$3$ & $52$ & $(10, 30, 12)$ & $2^2 \cdot 13$ & $\mathbf{14}$ & $4$ & $10$ & $11$ \\
+$4$ & $189$ & $(28, 105, 56)$ & $3^3 \cdot 7$ & $12$ & $5$ & $15$ & $18$ \\
+$5$ & $702$ & $(84, 378, 240)$ & $2 \cdot 3^3 \cdot 13$ & $19$ & $6$ & $21$ & $27$ \\
+$6$ & $2640$ & $(264, 1386, 990)$ & $2^4 \cdot 3 \cdot 5 \cdot 11$ & $20$ & $7$ & $28$ & $38$ \\
+$7$ & $10010$ & $(858, 5148, 4004)$ & $2 \cdot 5 \cdot 7 \cdot 11 \cdot 13$ & $33$ & $8$ & $36$ & $51$ \\
+$8$ & $38181$ & $(2860, 19305, 16016)$ & $3 \cdot 11 \cdot 13 \cdot 89$ & $\mathbf{112}$ & $9$ & $45$ & $66$ \\
+$9$ & $146302$ & $(9724, 72930, 63648)$ & $2 \cdot 13 \cdot 17 \cdot 331$ & $\mathbf{359}$ & $10$ & $55$ & $83$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Surface Topology and Mingo--Nica Annular Combinatorics}
+
+\subsection{Annulus versus Closed Torus}
+
+Recall the classification of compact connected orientable surfaces $\Sigma_{g,b}$ by genus $g \ge 0$ and number of boundary circles $b \ge 0$, with Euler characteristic $\chi(\Sigma_{g,b}) = 2 - 2g - b$.
+
+\begin{proposition}[Topological and Combinatorial Divergence]\label{prop:topology}
+The compact annulus $A = S^1 \times [0,1] \cong \Sigma_{0,2}$ has genus $g = 0$ and $b = 2$ boundary components, whereas the closed torus $T^2 = S^1 \times S^1 \cong \Sigma_{1,0}$ has genus $g = 1$ and $b = 0$ boundary components. Although $\chi(A) = \chi(T^2) = 0$, $A$ and $T^2$ are not homeomorphic. Combinatorially, for $p, r \ge 1$ let $\gamma_{p,r} = (1,\dots,p)(p+1,\dots,p+r) \in S_{p+r}$, and for $n \ge 1$ let $\gamma_n = (1,\dots,n) \in S_n$.
+\begin{enumerate}
+  \item[(a)] A permutation $\alpha \in S_{p+r}$ embeds without crossings on the annulus $A$ ($\alpha \in \SNCA(p,r)$) if and only if its ribbon graph wrt $\gamma_{p,r}$ has genus $0$:
+  \begin{equation}\label{eq:annular-genus0}
+    c(\alpha) + c(\alpha^{-1}\gamma_{p,r}) = p + r + 2\,\orb(\alpha,\gamma_{p,r}) - 2,
+  \end{equation}
+  where $c(\cdot)$ denotes cycle count and $\orb(\alpha,\gamma_{p,r}) \in \{1,2\}$ is the number of orbits of $\langle \alpha, \gamma_{p,r}\rangle$. The set $\NCA(p,r)$ of annular noncrossing partitions consists of all cycle partitions of $\alpha \in \SNCA(p,r)$.
+  \item[(b)] By contrast, partitions of $[n]$ admitting an embedding of genus $g \le 1$ wrt the single cycle $\gamma_n$ ($c(\alpha) + c(\alpha^{-1}\gamma_n) \in \{n+1, n-1\}$) satisfy $|\NC_{g \le 1}(5)| = 52 \neq 49 = |\NCA(4,1)|$ and $|\NC_{g \le 1}(6)| = 203 \neq 189 = |\NCA(4,2)|$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+For any $\alpha \in S_{p+r}$, the ribbon graph with vertex permutations $\alpha$, edge count $E = p+r$, face permutation $\alpha^{-1}\gamma_{p,r}$, and $c(\gamma_{p,r}) = 2$ boundary faces has $\orb(\alpha,\gamma_{p,r})$ connected components; Euler's formula $c(\alpha) - (p+r) + (c(\alpha^{-1}\gamma_{p,r}) + 2) = 2\,\orb(\alpha,\gamma_{p,r}) - 2g$ gives $g = 0$ if and only if~\eqref{eq:annular-genus0} holds~\cite{Biane1997,MingoNica2004}. On $[5]$ with $\gamma_{4,1} = (1,2,3,4)(5)$, a partition of $[5]$ fails to lie in $\NCA(4,1)$ precisely when $1,3$ lie in one block and $2,4$ lie in a distinct block (since at most one of those two blocks can contain the single inner point $5$, trapping $2$ or $4$ in a disk region); the excluded partitions are $\{\{1,3\},\{2,4\},\{5\}\}$, $\{\{1,3,5\},\{2,4\}\}$, and $\{\{1,3\},\{2,4,5\}\}$, giving $|\NCA(4,1)| = B_5 - 3 = 52 - 3 = 49$. Meanwhile every partition of $[5]$ embeds on the torus ($|\NC_{g \le 1}(5)| = B_5 = 52$; e.g.\ $\alpha = (1,3)(2,4)(5)$ has $c(\alpha) + c(\alpha^{-1}\gamma_5) = 3 + 1 = 4 = 5 - 1$, genus $g = 1$). Similarly, exhaustive evaluation (verified in \texttt{verify.py}) gives $|\NCA(4,2)| = 189$ versus $|\NC_{g \le 1}(6)| = B_6 = 203$.
+\end{proof}
+
+\subsection{Exact Closed-Form Enumeration at Thickness Two}
+
+We recall Mingo and Nica's structural decomposition~\cite[Sections~4 and~6]{MingoNica2004} specialized to $r = 2$ (outer boundary $[p]$, inner boundary $\{p+1,p+2\}$; by symmetry $|\NCA(p,2)| = |\NCA(2,p)|$).
+
+\begin{theorem}[Mingo--Nica Decomposition and Thickness-Two Closed Forms]\label{thm:mingo-nica-counts}
+For every integer $p \ge 1$, partition $\NCA(p,2) = \NCA^{(0)}(p,2) \sqcup \NCA^{(1)}(p,2) \sqcup \NCA^{(2)}(p,2)$ according to the number $k \in \{0,1,2\}$ of through-blocks meeting both $[p]$ and $\{p+1,p+2\}$. Then:
+\begin{align}
+  |\NCA^{(0)}(p,2)| &= C_2 C_p = \frac{2}{p+1}\binom{2p}{p}, \label{eq:strata0}\\
+  |\NCA^{(1)}(p,2)| &= \binom{3}{1}\binom{2p-1}{p-1} = \frac{3}{2}\binom{2p}{p}, \label{eq:strata1}\\
+  |\NCA^{(2)}(p,2)| &= \frac{6p}{p+2}\binom{2p}{p} - 4p C_p = \frac{2p(p-1)}{(p+1)(p+2)}\binom{2p}{p}. \label{eq:strata2}
+\end{align}
+Consequently, the connected partition count, full partition count, and permutation count are:
+\begin{align}
+  |\NCA^{\mathrm{conn}}(p,2)| &= \frac{7p^2 + 5p + 6}{2(p+1)(p+2)}\binom{2p}{p}, \label{eq:conn-count}\\
+  |\NCA(p,2)| &= \frac{7p^2 + 9p + 14}{2(p+1)(p+2)}\binom{2p}{p}, \label{eq:total-count}\\
+  |\SNCA(p,2)| &= \frac{2(3p^2 + 4p + 2)}{(p+1)(p+2)}\binom{2p}{p}. \label{eq:perm-count}
+\end{align}
+\end{theorem}
+
+\begin{proof}
+Since $|\{p+1,p+2\}| = 2$, any $\pi \in \NCA(p,2)$ has at most $2$ through-blocks.
+\begin{itemize}
+  \item For $k = 0$ ($\orb(\alpha,\gamma_{p,2}) = 2$), $\pi = \pi_1 \sqcup \pi_2$ with $\pi_1 \in \NC(p)$ and $\pi_2 \in \NC(2)$, giving $|\NCA^{(0)}(p,2)| = C_p C_2 = 2 C_p$.
+  \item For $k = 1$, a $1$-through-block partition is uniquely obtained by choosing $(\pi_1, B_1)$ with $\pi_1 \in \NC(p)$, $B_1 \in \pi_1$ and $(\pi_2, B_2)$ with $\pi_2 \in \NC(2)$, $B_2 \in \pi_2$, and merging $B_1 \cup B_2$~\cite[Proposition~6.2]{MingoNica2004}. Since $\sum_{\pi_1 \in \NC(p)} |\pi_1| = \binom{2p-1}{p-1}$ and $\sum_{\pi_2 \in \NC(2)} |\pi_2| = \binom{3}{1} = 3$, $|\NCA^{(1)}(p,2)| = 3\binom{2p-1}{p-1} = \frac{3}{2}\binom{2p}{p}$.
+  \item By~\cite[Corollary~4.5]{MingoNica2004}, $|\SNCA^{\mathrm{conn}}(p,r)| = \frac{pr}{2(p+r)}\binom{2p}{p}\binom{2r}{r}$, so at $r = 2$, $|\SNCA^{\mathrm{conn}}(p,2)| = \frac{6p}{p+2}\binom{2p}{p}$. A $1$-through-block partition with $|B_1| = a$ and $|B_2| = b$ admits exactly $ab$ cyclic orientations in $\SNCA^{\mathrm{conn}}(p,2)$ (contiguous outer arc and contiguous inner arc), whereas every $2$-through-block partition in $\NCA^{(2)}(p,2)$ admits a unique cyclic orientation in $\SNCA^{\mathrm{conn}}(p,2)$~\cite[Proposition~6.3]{MingoNica2004}. Since $\sum_{\pi_1 \in \NC(p)} \sum_{B_1 \in \pi_1} |B_1| = p C_p$ and $2 C_2 = 4$, there are $4p C_p = \frac{4p}{p+1}\binom{2p}{p}$ connected permutations with $1$ through-block, leaving
+  \[
+    |\NCA^{(2)}(p,2)| = \left(\frac{6p}{p+2} - \frac{4p}{p+1}\right)\binom{2p}{p}
+    = \frac{2p(p-1)}{(p+1)(p+2)}\binom{2p}{p}.
+  \]
+\end{itemize}
+Summing~\eqref{eq:strata1}--\eqref{eq:strata2} yields $\frac{3(p+1)(p+2) + 4p(p-1)}{2(p+1)(p+2)}\binom{2p}{p} = \frac{7p^2 + 5p + 6}{2(p+1)(p+2)}\binom{2p}{p}$, adding~\eqref{eq:strata0} adds $\frac{4(p+2)}{2(p+1)(p+2)}\binom{2p}{p}$ to give~\eqref{eq:total-count}, and $|\SNCA(p,2)| = 2 C_p + \frac{6p}{p+2}\binom{2p}{p}$ simplifies to~\eqref{eq:perm-count}.
+\end{proof}
+
+\section{Algebraic Obstructions for Cyclotomic Products}
+
+Let $\Phi_d(q) \in \mathbb{Z}[q]$ ($d \ge 1$) denote the $d$-th cyclotomic polynomial, uniquely recursively defined in $\mathbb{Z}[q]$ by $q^n - 1 = \prod_{d \mid n} \Phi_d(q)$ for all $n \ge 1$. Throughout this paper, a polynomial $F(q) \in \mathbb{Z}[q]$ is called a \emph{product of cyclotomic polynomials} if $F(q) = \prod_{j=1}^s \Phi_{d_j}(q)$ for some finite list of positive integers $(d_1,\dots,d_s)$ ($d_j \ge 1$).
+
+\begin{lemma}[Palindromicity and Value at $q = 1$]\label{lem:cyclotomic-basic}
+For every integer $d \ge 1$, let $\varphi(d) = \deg \Phi_d(q)$.
+\begin{enumerate}
+  \item[(a)] $\Phi_1(q) = q - 1$ satisfies $\Phi_1(1) = 0$. For every $d \ge 2$, $\Phi_d(q) \in \mathbb{Z}[q]$ is monic of degree $\varphi(d)$, has constant term $\Phi_d(0) = 1$, and is \emph{palindromic} (self-reciprocal): $[q^k]\Phi_d(q) = [q^{\varphi(d)-k}]\Phi_d(q)$ for all $0 \le k \le \varphi(d)$.
+  \item[(b)] For every $d \ge 2$,
+  \[
+    \Phi_d(1) = \begin{cases}
+      \ell & \text{if } d = \ell^k \text{ for a prime } \ell \text{ and } k \ge 1,\\
+      1 & \text{if } d \text{ is not a prime power.}
+    \end{cases}
+  \]
+  In the prime-power case $d = \ell^k$, $\Phi_{\ell^k}(q) = \sum_{j=0}^{\ell-1} q^{j \ell^{k-1}}$ has degree $\varphi(\ell^k) = (\ell-1)\ell^{k-1} \ge \ell - 1$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Cancelling $\Phi_1(q) = q - 1$ from $q^n - 1 = \prod_{m \mid n} \Phi_m(q)$ yields
+\begin{equation}\label{eq:geom-prod}
+  1 + q + q^2 + \dots + q^{n-1} = \prod_{\substack{m \mid n \\ m \ge 2}} \Phi_m(q) \qquad (n \ge 1).
+\end{equation}
+For~(a), $1 + q + \dots + q^{d-1}$ ($d \ge 2$) is monic, constant-$1$, and palindromic of degree $d - 1$. By strong induction on $d \ge 2$, the product $P(q)$ of $\Phi_m(q)$ over proper divisors $2 \le m < d$ of $d$ is monic, constant-$1$, and palindromic of degree $d_P$; writing $q^{d-1} P(1/q) = P(q)$ in $P(q)\Phi_d(q) = \sum_{i=0}^{d-1} q^i$ and cancelling the monic factor $P(q)$ shows that $\Phi_d(q)$ is also monic, constant-$1$, and palindromic.
+
+For~(b), if $d = \ell^k$ ($\ell$ prime, $k \ge 1$), the proper divisors of $\ell^k$ are precisely the divisors of $\ell^{k-1}$, so $q^{\ell^k} - 1 = (q^{\ell^{k-1}} - 1)\Phi_{\ell^k}(q)$, giving $\Phi_{\ell^k}(q) = \sum_{j=0}^{\ell-1} q^{j \ell^{k-1}}$, $\deg \Phi_{\ell^k} = (\ell-1)\ell^{k-1}$, and $\Phi_{\ell^k}(1) = \ell$. Evaluating~\eqref{eq:geom-prod} at $q = 1$ gives $d = \prod_{m \mid d,\, m \ge 2} \Phi_m(1)$; strong induction on $d \ge 2$ shows $\Phi_d(1) \ge 1$ for all $d \ge 2$. If $d \ge 2$ is not a prime power and $\Phi_d(1) > 1$, let $\ell$ be a prime dividing $\Phi_d(1) \mid d$, and write $d = \ell^k u$ with $k \ge 1$, $\ell \nmid u$, and $u \ge 2$. Then $\ell^1, \ell^2, \dots, \ell^k, d$ are $k+1$ distinct divisors of $d$ in~\eqref{eq:geom-prod}, each contributing a factor divisible by $\ell$ to $\prod_{m \mid d,\, m \ge 2} \Phi_m(1) = d$, whence $\ell^{k+1} \mid \ell^k u$, contradicting $\ell \nmid u$. Thus $\Phi_d(1) = 1$.
+\end{proof}
+
+\begin{theorem}[Universal Obstructions for Cyclotomic Products]\label{thm:cyclotomic-obstructions}
+Let $F(q) = \prod_{j=1}^s \Phi_{d_j}(q)$ ($d_j \ge 1$) satisfy $N := F(1) \ge 1$. Then $d_j \ge 2$ for every $1 \le j \le s$, and:
+\begin{enumerate}
+  \item[(a)] \textbf{Monic Constant-$1$ Palindromicity:} $F(q)$ is monic of degree $D = \sum_{j=1}^s \varphi(d_j)$, satisfies $F(0) = 1$, and is palindromic: $[q^k]F(q) = [q^{D-k}]F(q)$ for all $0 \le k \le D$.
+  \item[(b)] \textbf{Thickness-Two Order Restriction:} If $d_j \le 2$ for all $j$, then $N = 2^s$ is a power of two.
+  \item[(c)] \textbf{Prime-Power Degree and Order Lower Bounds:} If $N = \prod_{i=1}^t \ell_i^{e_i}$ is the prime factorization of $N$, then for each $i$ there are at least $e_i$ indices $j$ of the form $d_j = \ell_i^{k}$ ($k \ge 1$). In particular,
+  \begin{equation}\label{eq:deg-lower-bound}
+    \deg F(q) \ge \sum_{i=1}^t e_i (\ell_i - 1) \qquad \text{and} \qquad \max_{1 \le j \le s} d_j \ge \max_{1 \le i \le t} \ell_i.
+  \end{equation}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Since $\Phi_1(1) = 0$ and $F(1) \ge 1$, no $d_j$ equals $1$, so $d_j \ge 2$. Claim~(a) follows because products of monic, constant-$1$, palindromic polynomials remain monic, constant-$1$, and palindromic of summed degree. If $d_j \le 2$ for all $j$, then $d_j = 2$ for all $j$, so $F(1) = \Phi_2(1)^s = 2^s$, proving~(b). For~(c), by Lemma~\ref{lem:cyclotomic-basic}(b), $\Phi_{d_j}(1)$ is divisible by a prime $\ell_i$ if and only if $d_j = \ell_i^k$ ($k \ge 1$), in which case $\Phi_{d_j}(1) = \ell_i$ contributes exact $\ell_i$-adic valuation $1$ to $F(1) = \prod_{j=1}^s \Phi_{d_j}(1)$, satisfies $d_j \ge \ell_i$, and has degree $\varphi(\ell_i^k) = (\ell_i - 1)\ell_i^{k-1} \ge \ell_i - 1$. Since distinct primes have disjoint prime-power sets, summing over $i = 1,\dots,t$ gives~\eqref{eq:deg-lower-bound}.
+\end{proof}
+
+\section{Positive Diagnostic Regimes: Why Sub-Structures Factor}
+
+Before proving the disproof, we establish two genuine cyclotomic-product theorems at thickness two that pinpoint why individual annular components factor even though $|\NCA(p,2)|$ does not. Recall $[n]_q = 1 + q + \dots + q^{n-1} = \prod_{d \mid n,\, d \ge 2} \Phi_d(q)$, $[n]!_q = \prod_{m=1}^n [m]_q$, $\qbinom{n}{k} = \frac{[n]!_q}{[k]!_q [n-k]!_q} = \prod_{d \ge 2} \Phi_d(q)^{\lfloor n/d \rfloor - \lfloor k/d \rfloor - \lfloor (n-k)/d \rfloor}$, and $C_p(q) = \frac{1}{[p+1]_q}\qbinom{2p}{p}$.
+
+\begin{theorem}[Cyclotomic Factorization of Individual Strata and Connected Permutations]\label{thm:positive-strata}
+For every integer $p \ge 1$, define the $q$-analogues of the three Mingo--Nica strata~\eqref{eq:strata0}--\eqref{eq:strata2} and of connected annular permutations $|\SNCA^{\mathrm{conn}}(p,2)|$ by
+\begin{align*}
+  Q^{(0)}_{p,2}(q) &= C_2(q) C_p(q) = \frac{\Phi_4(q)}{[p+1]_q}\qbinom{2p}{p}, &
+  Q^{(1)}_{p,2}(q) &= [3]_q \qbinom{2p-1}{p-1} = \Phi_3(q)\qbinom{2p-1}{p-1},\\
+  Q^{(2)}_{p,2}(q) &= \Phi_4(q)\frac{[p]_q [p-1]_q}{[p+1]_q [p+2]_q}\qbinom{2p}{p} \quad (p \ge 2), &
+  S^{\mathrm{conn}}_{p,2}(q) &= \frac{[p]_q}{[p+2]_q}\qbinom{2p}{p}\qbinom{4}{2}.
+\end{align*}
+Then $Q^{(0)}_{p,2}(q)$, $Q^{(1)}_{p,2}(q)$, $Q^{(2)}_{p,2}(q)$ ($p \ge 2$), and $S^{\mathrm{conn}}_{p,2}(q)$ all lie in $\mathbb{Z}[q]$, are explicit products of cyclotomic polynomials with orders $d \le 2p$ (or $d \le 4$ for $p=1$), specialize at $q = 1$ to $|\NCA^{(0)}(p,2)|$, $|\NCA^{(1)}(p,2)|$, $|\NCA^{(2)}(p,2)|$, and $|\SNCA^{\mathrm{conn}}(p,2)|$, and satisfy the exact $q$-Mingo--Nica identity
+\begin{equation}\label{eq:q-mingo-nica-identity}
+  S^{\mathrm{conn}}_{p,2}(q) - [2]_q C_2(q) [p]_q C_p(q) = q^2 Q^{(2)}_{p,2}(q) \qquad (p \ge 2).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Since $C_p(q)$ and $\qbinom{2p-1}{p-1}$ are standard products of cyclotomic polynomials and $C_2(q) = 1 + q^2 = \Phi_4(q)$, $[3]_q = \Phi_3(q)$, $\qbinom{4}{2} = \Phi_3(q)\Phi_4(q)$, both $Q^{(0)}_{p,2}(q)$ and $Q^{(1)}_{p,2}(q)$ are cyclotomic products. For $S^{\mathrm{conn}}_{p,2}(q)$, every divisor $d \ge 2$ of $p + 2$ satisfies: if $d = 2$, then $2 \mid p$ so $\Phi_2 \mid [p]_q$; if $d \in \{3,4\}$, then $\Phi_d \mid \qbinom{4}{2} = \Phi_3\Phi_4$; and if $d \ge 5$, then $p \equiv d - 2 \pmod{d}$ with $2(d-2) = 2d - 4 > d$, so $\lfloor 2p/d \rfloor - 2\lfloor p/d \rfloor = 1$ and $\Phi_d \mid \qbinom{2p}{p}$. Hence $[p+2]_q$ divides $[p]_q \qbinom{2p}{p}\qbinom{4}{2}$ in $\mathbb{Z}[q]$, making $S^{\mathrm{conn}}_{p,2}(q)$ a cyclotomic product.
+
+Similarly, for $Q^{(2)}_{p,2}(q)$ ($p \ge 2$), $\gcd(p+1,p+2) = 1$ implies no $\Phi_d$ ($d \ge 2$) divides both $[p+1]_q$ and $[p+2]_q$. Every $\Phi_d \mid [p+1]_q$ divides $\qbinom{2p}{p}$ (since $C_p(q) \in \mathbb{Z}[q]$). For $d \mid (p+2)$ ($d \ge 2$): if $d = 2$, $\Phi_2 \mid [p]_q$; if $d = 3$, $p \equiv 1 \pmod 3$ so $\Phi_3 \mid [p-1]_q$; if $d = 4$, $\Phi_4$ appears explicitly; and if $d \ge 5$, $\Phi_d \mid \qbinom{2p}{p}$ as above. Finally, $[3]_q [p+1]_q - [2]_q [p+2]_q = \frac{(1-q^3)(1-q^{p+1}) - (1-q^2)(1-q^{p+2})}{(1-q)^2} = q^2 [p-1]_q$; multiplying by $\frac{\Phi_4(q)[p]_q}{[p+1]_q [p+2]_q}\qbinom{2p}{p}$ yields~\eqref{eq:q-mingo-nica-identity}.
+\end{proof}
+
+\begin{proposition}[Annular Pair Matchings at Thickness Two]\label{prop:pair-matchings}
+Let $\NCA^{(2\text{-pair})}(p,2) \subseteq \NCA(p,2)$ be the subset of annular noncrossing \emph{pair partitions} (every block has size~$2$). Then $|\NCA^{(2\text{-pair})}(2m+1,2)| = 0$, whereas for $p = 2m$ ($m \ge 1$),
+\[
+  |\NCA^{(2\text{-pair})}(2m,2)| = C_m + 2\binom{2m}{m-1} = \binom{2m+1}{m},
+\]
+whose Gaussian $q$-analogue $\qbinom{2m+1}{m}$ is a product of cyclotomic polynomials. However, at thickness $r = 4$, $|\NCA^{(2\text{-pair})}(10,4)| = 2244 = 2^2 \cdot 3 \cdot 11 \cdot 17$ already acquires the prime factor $17 > 10 + 4$.
+\end{proposition}
+
+\begin{proof}
+A pair partition requires $p + 2$ to be even, so $p = 2m$. Disconnected pair partitions have $C_m C_1 = C_m$ elements. Connected pair partitions must have $k = 2$ through-pairs $\{x_1, 2m+1\}, \{x_2, 2m+2\}$ (since $2m - k$ and $2 - k$ must be even and $k \ge 1$). Choosing a noncrossing matching on $2m - 2$ points of $[2m]$ with $2$ outer-face singletons $x_1, x_2$ has $\binom{2m}{m-1}$ choices, and matching $\{x_1,x_2\}$ to $\{2m+1,2m+2\}$ has $2$ choices; thus $C_m + 2\binom{2m}{m-1} = \frac{2m+1}{m+1}\binom{2m}{m} = \binom{2m+1}{m}$. At $(10,4)$, the analogous sum over $k \in \{0,2,4\}$ gives $C_5 C_2 + 2\binom{10}{4}\binom{4}{1} + 4\binom{10}{3}\binom{4}{0} = 84 + 1680 + 480 = 2244 = 2^2 \cdot 3 \cdot 11 \cdot 17$.
+\end{proof}
+
+\section{Complete Disproof of Conjecture 00000004769}
+
+We now show that for annular noncrossing partitions $\NCA(p,2)$ (as well as connected partitions $\NCA^{\mathrm{conn}}(p,2)$ and total permutations $\SNCA(p,2)$), the conjecture fails under every standard interpretation.
+
+\subsection{Parameter-Indexing Contradiction}
+
+\begin{proposition}[Failure of Pure Thickness Indexing]\label{prop:indexing}
+At fixed thickness $r = 2$:
+\begin{enumerate}
+  \item[(a)] No single polynomial $F(q) \in \mathbb{Z}[q]$ indexed solely by the thickness $r = 2$ specializes at $q = 1$ to the classical counts $|\NCA(p,2)|$, since $|\NCA(1,2)| = 5 \neq 15 = |\NCA(2,2)|$.
+  \item[(b)] No product of cyclotomic polynomials $F(q) = \prod_{j=1}^s \Phi_{d_j}(q)$ with orders bounded by thickness two ($1 \le d_j \le 2$) specializes at $q = 1$ to $|\NCA(1,2)| = 5$, $|\NCA(2,2)| = 15$, or $|\NCA(3,2)| = 52$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Part~(a) is immediate from $5 \neq 15$. For~(b), if $F(1) \ge 1$ and $1 \le d_j \le 2$ for all $j$, Theorem~\ref{thm:cyclotomic-obstructions}(b) gives $F(1) = 2^s$, whereas $5$, $15$, and $52$ are not powers of $2$.
+\end{proof}
+
+\subsection{Universal Failure of Poset Rank and Co-Rank \texorpdfstring{$q$}{q}-Analogues}
+
+The canonical poset/lattice $q$-analogue of a family of partitions is its block-number (or rank) generating polynomial
+\[
+  R_{p,2}(q) = \sum_{\pi \in \NCA(p,2)} q^{|\pi|-1}, \qquad
+  \tilde{R}_{p,2}(q) = q^{p+1} R_{p,2}(1/q) = \sum_{\pi \in \NCA(p,2)} q^{p+2-|\pi|}.
+\]
+
+\begin{theorem}[Universal Disproof of Rank and Co-Rank $q$-Analogues]\label{thm:rank-disproof}
+For every integer $p \ge 1$, neither $R_{p,2}(q)$ nor $\tilde{R}_{p,2}(q)$ is a product of cyclotomic polynomials:
+\begin{enumerate}
+  \item[(a)] At $p = 1$, $R_{1,2}(q) = \tilde{R}_{1,2}(q) = 1 + 3q + q^2$ has $R_{1,2}(1) = 5$ and $\deg R_{1,2} = 2 < 4$, violating Theorem~\ref{thm:cyclotomic-obstructions}(c) (and its roots $\frac{-3 \pm \sqrt{5}}{2}$ do not lie on $|z| = 1$).
+  \item[(b)] For every $p \ge 2$, $\deg R_{p,2} = p + 1$, $[q^0]R_{p,2} = [q^{p+1}]R_{p,2} = 1$, and
+  \begin{equation}\label{eq:rank-coeffs}
+    [q^1]R_{p,2}(q) = 2p^2 - 2p + 3, \qquad [q^p]R_{p,2}(q) = \binom{p+2}{2},
+  \end{equation}
+  so $[q^1]R_{p,2}(q) - [q^p]R_{p,2}(q) = \frac{(p-1)(3p-4)}{2} > 0$. Thus neither $R_{p,2}(q)$ nor $\tilde{R}_{p,2}(q)$ is palindromic, violating Theorem~\ref{thm:cyclotomic-obstructions}(a).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+At $p = 1$, all $B_3 = 5$ set partitions of $[3]$ belong to $\NCA(1,2)$, giving $R_{1,2}(q) = 1 + 3q + q^2$. By Theorem~\ref{thm:cyclotomic-obstructions}(c), any cyclotomic product evaluating to $5$ at $q = 1$ has degree $\ge 5 - 1 = 4 > 2$.
+
+Now let $p \ge 2$. Both the $1$-block partition $\{[p+2]\}$ and the $(p+2)$-block singleton partition lie in $\NCA(p,2)$, so $R_{p,2}$ and $\tilde{R}_{p,2}$ are monic and constant-$1$ of degree $p+1$. A $(p+1)$-block partition of $[p+2]$ consists of a single pair $\{x,y\}$ and $p$ singletons; since singletons cannot cross any block, all $\binom{p+2}{2}$ such partitions belong to $\NCA(p,2)$, giving $[q^p]R_{p,2} = \binom{p+2}{2}$.
+
+To count $2$-block partitions $\pi = \{B_1, B_2\} \in \NCA(p,2)$, split by through-block count $k \in \{0,1,2\}$:
+\begin{itemize}
+  \item $k = 0$: Only $\{[p], \{p+1,p+2\}\}$ has $2$ blocks ($1$ partition).
+  \item $k = 1$: Either $\pi_1 \in \NC(p)$ has $2$ blocks and $\pi_2 = \{\{p+1,p+2\}\}$ has $1$ block, or $\pi_1 = \{[p]\}$ has $1$ block and $\pi_2 = \{\{p+1\},\{p+2\}\}$ has $2$ blocks. A $2$-block partition of $[p]$ lies in $\NC(p)$ if and only if one block is a proper contiguous cyclic arc of $[p]$; choosing the $2$ cut edges on the $p$-cycle gives $\binom{p}{2}$ partitions $\pi_1$, each having $2$ choices of block to merge with $\{p+1,p+2\}$ ($2\binom{p}{2} = p(p-1)$ partitions). The second subcase gives $2$ partitions ($\{[p] \cup \{p+1\}, \{p+2\}\}$ and $\{[p] \cup \{p+2\}, \{p+1\}\}$), for $p(p-1) + 2$ in total.
+  \item $k = 2$: Here $B_1 = A_1 \cup \{p+1\}$ and $B_2 = A_2 \cup \{p+2\}$ where $\{A_1,A_2\}$ partitions $[p]$ into two non-empty contiguous cyclic arcs ($\binom{p}{2}$ choices of $\{A_1,A_2\}$ times $2$ assignments to $\{p+1,p+2\}$, giving $2\binom{p}{2} = p(p-1)$ partitions).
+\end{itemize}
+Summing yields $[q^1]R_{p,2} = 1 + (p(p-1)+2) + p(p-1) = 2p^2 - 2p + 3$. Therefore
+\[
+  [q^1]R_{p,2} - [q^p]R_{p,2} = (2p^2 - 2p + 3) - \frac{(p+2)(p+1)}{2} = \frac{3p^2 - 7p + 4}{2} = \frac{(p-1)(3p-4)}{2} > 0
+\]
+for every integer $p \ge 2$. By Theorem~\ref{thm:cyclotomic-obstructions}(a), neither $R_{p,2}(q)$ nor $\tilde{R}_{p,2}(q)$ is a cyclotomic product.
+\end{proof}
+
+\subsection{Failure of Mingo--Nica \texorpdfstring{$q$}{q}-Strata Sums, Shifts, and Rational Substitutions}
+
+\begin{theorem}[Failure of $q$-Strata Combinations and Rational $q$-Substitutions]\label{thm:shifts}
+\leavevmode
+\begin{enumerate}
+  \item[(a)] Neither the unshifted Mingo--Nica $q$-sum $Q^{\mathrm{un}}_{p,2}(q) = Q^{(0)}_{p,2}(q) + Q^{(1)}_{p,2}(q) + Q^{(2)}_{p,2}(q)$ nor the $q^2$-weighted sum $Q_{p,2}(q) = Q^{(0)}_{p,2}(q) + Q^{(1)}_{p,2}(q) + q^2 Q^{(2)}_{p,2}(q)$ from~\eqref{eq:q-mingo-nica-identity} is a product of cyclotomic polynomials for any $p \ge 1$ (their constant term is $Q_{p,2}(0) = 1 + 1 + 0 = 2 \neq 1$).
+  \item[(b)] More strongly, for \emph{every} pair of nonnegative integers $(a,b) \in \mathbb{N}^2$, the monomial-shifted sum at $p = 1$,
+  \[
+    W_{a,b}(q) = q^a Q^{(0)}_{1,2}(q) + q^b Q^{(1)}_{1,2}(q) = q^a(1 + q^2) + q^b(1 + q + q^2),
+  \]
+  is never a product of cyclotomic polynomials; likewise no triple $(a,b,c) \in \mathbb{N}^3$ makes $q^a Q^{(0)}_{p,2}(q) + q^b Q^{(1)}_{p,2}(q) + q^c Q^{(2)}_{p,2}(q)$ a product of cyclotomic polynomials at $p = 2$ or $p = 3$.
+  \item[(c)] Direct rational $q$-integer substitution $\frac{[7p^2+9p+14]_q}{[2]_q [p+1]_q [p+2]_q}\qbinom{2p}{p}$ fails even to lie in $\mathbb{Z}[q]$ already at $p = 2$ (symmetric thickness two $(2,2)$, where it equals $\frac{[60]_q}{(1+q)^2} \notin \mathbb{Z}[q]$) and $p = 4$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(a) follows from Theorem~\ref{thm:cyclotomic-obstructions}(a) since $Q^{(0)}_{p,2}(0) = Q^{(1)}_{p,2}(0) = 1$, giving constant term $2$ (or $3$ for $Q^{\mathrm{un}}_{p,2}(0)$ when $p \ge 2$). For~(b) at $p = 1$, suppose $W_{a,b}(q)$ is a cyclotomic product. Since $W_{a,b}(1) = 5$, Theorem~\ref{thm:cyclotomic-obstructions}(a,c) implies $W_{a,b}(q)$ is monic, constant-$1$, and palindromic of degree $D \ge 4$. Having $W_{a,b}(0) = 1$ rules out $a = b = 0$ ($W_{0,0}(0) = 2$) and $\min(a,b) \ge 1$ ($W_{a,b}(0) = 0$). If $a = 0$ and $b \ge 1$, then $D = b + 2 \ge 4 \implies b \ge 2$, whereupon $[q^1]W_{0,b} = 0 \neq 1 = [q^{b+1}]W_{0,b}$, contradicting palindromicity. Symmetrically, if $b = 0$ and $a \ge 1$, then $D = a + 2 \ge 4 \implies a \ge 2$, whereupon $[q^1]W_{a,0} = 1 \neq 0 = [q^{a+1}]W_{a,0}$, again a contradiction. For $p \in \{2,3\}$, if $\max(a + \deg Q^{(0)}, b + \deg Q^{(1)}, c + \deg Q^{(2)}) > \deg Q^{(0)} + \deg Q^{(1)} + \deg Q^{(2)}$, an internal zero gap separates the pieces; checking the finite box in \texttt{verify.py} leaves at $p = 2$ only $(0,1,4)$ and $(2,1,0)$, both yielding $\Phi_3(q)(1 + 3q^2 + q^4)$ (with non-cyclotomic factor $1 + 3q^2 + q^4$), and zero palindromic monic candidates at $p = 3$. Finally, for~(c) at $p = 2$, $\frac{[60]_q}{[2]_q [3]_q [4]_q}\qbinom{4}{2} = \frac{[60]_q}{[2]_q^2}$, and $v_{\Phi_2}([60]_q) = 1 < 2$.
+\end{proof}
+
+\subsection{Prime-Divisor Degree and Cyclotomic-Order Obstructions}
+
+Finally, we show why \emph{no} statistic generating polynomial or $q$-binomial formula of standard combinatorial degree can make $|\NCA(p,2)|$ (or $|\NCA^{\mathrm{conn}}(p,2)|$, or $|\SNCA(p,2)|$) a product of cyclotomic polynomials.
+
+\begin{theorem}[Degree and Cyclotomic-Order Obstructions]\label{thm:degree-obstruction}
+Let $F(q) = \prod_{j=1}^s \Phi_{d_j}(q)$ be any product of cyclotomic polynomials.
+\begin{enumerate}
+  \item[(a)] If $F(1) = |\NCA(3,2)| = 52 = 2^2 \cdot 13$, then $\deg F(q) \ge 14$ and $\max_j d_j \ge 13$. In particular, no polynomial of degree $\le 13$---including any statistic bounded by $\binom{3+2}{2} = 10$ or $3^2 + 2 = 11$---and no cyclotomic product with indices $d_j \le 2(3+2) = 10$ can equal $F(q)$.
+  \item[(b)] If $F(1) = |\NCA(8,2)| = 38181 = 3 \cdot 11 \cdot 13 \cdot 89$, then $\deg F(q) \ge 112$ and $\max_j d_j \ge 89$ (whereas $\binom{10}{2} = 45$ and $8^2 + 2 = 66$).
+  \item[(c)] If $F(1) = |\NCA(9,2)| = 146302 = 2 \cdot 13 \cdot 17 \cdot 331$, then $\deg F(q) \ge 359$ and $\max_j d_j \ge 331$ (whereas $\binom{11}{2} = 55$ and $9^2 + 2 = 83$).
+  \item[(d)] For connected partitions and total permutations, $F(1) = |\NCA^{\mathrm{conn}}(2,2)| = 11$ forces $\deg F \ge 10$ and $\max_j d_j \ge 11$ (exceeding $2^2 + 2 = 6$), while $F(1) = |\SNCA(3,2)| = 82 = 2 \cdot 41$ forces $\deg F \ge 41$ and $\max_j d_j \ge 41$ (exceeding $3^2 + 2 = 11$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Apply Theorem~\ref{thm:cyclotomic-obstructions}(c) directly to each prime factorization:
+\begin{itemize}
+  \item $52 = 2^2 \cdot 13$: $\deg F \ge 2(2-1) + (13-1) = 14$ and $\max_j d_j \ge 13$.
+  \item $38181 = 3 \cdot 11 \cdot 13 \cdot 89$: $\deg F \ge (3-1) + (11-1) + (13-1) + (89-1) = 2 + 10 + 12 + 88 = 112$ and $\max_j d_j \ge 89$.
+  \item $146302 = 2 \cdot 13 \cdot 17 \cdot 331$: $\deg F \ge 1 + 12 + 16 + 330 = 359$ and $\max_j d_j \ge 331$.
+  \item $11$ is prime ($\deg F \ge 10$, $\max_j d_j \ge 11$), and $82 = 2 \cdot 41$ has $41$ prime ($\deg F \ge 1 + 40 = 41$, $\max_j d_j \ge 41$). \qedhere
+\end{itemize}
+\end{proof}
+
+\begin{remark}
+The arithmetic root of Theorem~\ref{thm:degree-obstruction} is that in~\eqref{eq:total-count}, $\binom{2p}{p}$, $(p+1)$, and $(p+2)$ are composed solely of primes $\le 2p$, whereas the quadratic polynomial $7p^2 + 9p + 14$ ($\Delta = -311$) is irreducible over $\mathbb{Q}$ and repeatedly introduces prime factors $\ell \gg 2p$ ($7(3)^2 + 9(3) + 14 = 8 \cdot 13$; $7(8)^2 + 9(8) + 14 = 6 \cdot 89$; $7(9)^2 + 9(9) + 14 = 2 \cdot 331$). No product of $q$-factorials or $q$-integers of linear arguments $[ap+b]_q$ can absorb such primes.
+\end{remark}
+
+\section{Formal Verification in Core Lean 4.19.0}
+
+All main positive and negative theorems are formally mechanized from scratch in \textbf{Core Lean~4.19.0} (\texttt{package/lean/}), with zero external dependencies, \texttt{-DwarningAsError=true}, zero \texttt{sorry}, zero \texttt{native\_decide}, and only the standard Lean kernel axioms:
+{\sloppy
+\begin{itemize}
+  \item \texttt{Conjecture00000004769/\allowbreak Polynomial.lean}: Univariate polynomial ring $\mathbb{Z}[q]$, two-dimensional convolution identities, evaluation homomorphism, coefficient reversal, palindromicity preservation, and exact monic Euclidean division with integer-scaled divisor cancellation (\texttt{dvd\_\allowbreak of\_\allowbreak scale\_\allowbreak dvd}).
+  \item \texttt{Conjecture00000004769/\allowbreak Cyclotomic.lean}: Constructive recursive definition of $\Phi_n(q)$ for all $n \ge 1$; integer Pseudo-Bezout proof of $q^n - 1 = \prod_{d \mid n} \Phi_d(q)$ (\texttt{cyclotomic\_\allowbreak spec}); palindromicity for all $d \ge 2$ (\texttt{cyclotomic\_\allowbreak palindromic}); exact value $\Phi_d(1)$ (\texttt{cyclotomic\_\allowbreak prime\_\allowbreak pow}, \texttt{eval\_\allowbreak cyclotomic\_\allowbreak one\_\allowbreak non\_\allowbreak prime\_\allowbreak pow}); and Theorem~\ref{thm:cyclotomic-obstructions} (\texttt{cyclotomicProd\_\allowbreak palindromic}, \texttt{cyclotomicProd\_\allowbreak orders\_\allowbreak le\_\allowbreak two}, \texttt{cyclotomicProd\_\allowbreak prime\_\allowbreak order\_\allowbreak bound}, \texttt{cyclotomicProd\_\allowbreak prime\_\allowbreak pow\_\allowbreak deg\_\allowbreak bound}).
+  \item \texttt{Conjecture00000004769/\allowbreak Annular.lean}: Surface invariants (\texttt{annulus\_\allowbreak vs\_\allowbreak torus\_\allowbreak topology}); kernel-evaluated ribbon-graph enumeration (\texttt{exact\_\allowbreak enumeration\_\allowbreak thickness\_\allowbreak two}, \texttt{annular\_\allowbreak vs\_\allowbreak torus\_\allowbreak enumeration\_\allowbreak divergence}); universal rank non-palindromicity for all $p \ge 2$ (\texttt{not\_\allowbreak cyclotomic\_\allowbreak of\_\allowbreak rank\_\allowbreak asymmetry}) and $p = 1$ (\texttt{not\_\allowbreak cyclotomic\_\allowbreak rank\_\allowbreak 1\_\allowbreak 2}); and the universal monomial-shift disproof (\texttt{not\_\allowbreak cyclotomic\_\allowbreak shiftedStrataP1}).
+  \item \texttt{Conjecture00000004769.lean}: Positive stratum and pair-matching non-vacuity theorem (\texttt{positive\_\allowbreak strata\_\allowbreak and\_\allowbreak pair\_\allowbreak cyclotomic}) and master disproof theorem (\texttt{conjecture\_\allowbreak 00000004769\_\allowbreak disproved}).
+\end{itemize}
+}
+An independent Python~3 script (\texttt{package/verify.py}, standard library only) cross-checks all enumerations for $p + r \le 8$, thickness-two formulas for $1 \le p \le 15$, cyclotomic factorizations, monomial shifts for $p \in \{1,2,3\}$, and prime-divisor degree bounds.
+
+\begin{thebibliography}{9}
+
+\bibitem{BessisReiner2011}
+D.~Bessis and V.~Reiner,
+\emph{Cyclic sieving of noncrossing partitions for complex reflection groups},
+Ann.\ Comb.\ \textbf{15} (2011), 197--222.
+
+\bibitem{Biane1997}
+P.~Biane,
+\emph{Some properties of crossings and partitions},
+Discrete Math.\ \textbf{175} (1997), 41--53.
+
+\bibitem{GouldenNicaOancea2011}
+I.~P.~Goulden, A.~Nica, and I.~Oancea,
+\emph{Enumerative properties of $\NCA(p,q)$},
+Ann.\ Comb.\ \textbf{15} (2011), 277--303.
+
+\bibitem{Kim2011}
+J.~S.~Kim,
+\emph{New interpretations for noncrossing partitions of classical types},
+J.~Combin.\ Theory Ser.~A \textbf{118} (2011), 1168--1189.
+
+\bibitem{Kreweras1972}
+G.~Kreweras,
+\emph{Sur les partitions non crois\'ees d'un cycle},
+Discrete Math.\ \textbf{1} (1972), 333--350.
+
+\bibitem{MingoNica2004}
+J.~A.~Mingo and A.~Nica,
+\emph{Annular noncrossing permutations and partitions, and second-order asymptotics for random matrices},
+Electron.\ J.~Combin.\ \textbf{11} (2004), Research Paper~R8, 42~pp.
+
+\bibitem{NicaSpeicher2006}
+A.~Nica and R.~Speicher,
+\emph{Lectures on the Combinatorics of Free Probability},
+London Math.\ Soc.\ Lecture Note Ser., vol.~335, Cambridge Univ.\ Press, 2006.
+
+\bibitem{Reiner1997}
+V.~Reiner,
+\emph{Non-crossing partitions for classical reflection groups},
+Discrete Math.\ \textbf{177} (1997), 195--222.
+
+\end{thebibliography}
+
+\end{document}
