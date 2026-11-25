@@ -1,0 +1,719 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\CatC}{\mathcal{C}}
+\newcommand{\LatOrd}{\mathbf{Lat}_{\mathrm{ord}}}
+\newcommand{\FinLatOrd}{\mathbf{Lat}_{\mathrm{fin}}^{\mathrm{ord}}}
+\newcommand{\FinLatHom}{\mathbf{Lat}_{\mathrm{fin}}^{\mathrm{hom}}}
+\newcommand{\Id}{\mathrm{Id}}
+\newcommand{\op}{\mathrm{op}}
+\newcommand{\Aut}{\operatorname{Aut}}
+\newcommand{\Iso}{\operatorname{Iso}}
+\newcommand{\Hom}{\operatorname{Hom}}
+
+\title{\textbf{Disproof and Complete Categorical Analysis of Conjecture 00000008560:\\
+Lattice Categories, Order Duality, and the Pentagon Lattice}}
+\author{Formal Verification \& Mathematical Analysis Report}
+\date{November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We give a complete mathematical analysis and formal Lean~4.19.0 disproof of
+Conjecture~\texttt{00000008560}. The conjecture defines the category of lattices
+as lattices equipped with order-preserving maps and asserts a conjunction of two
+claims: (1)~two finite lattice categories are equivalent if and only if the
+underlying lattices are isomorphic; and (2)~the smallest nontrivial
+self-equivalence of the category is the duality equivalence, whose smallest
+example is the pentagon lattice at $n = 3$.
+
+We prove positively that Clause~(1) holds for thin poset categories
+$\CatC(L_1) \simeq \CatC(L_2) \iff L_1 \cong L_2$, and furthermore that on the
+global category $\FinLatOrd$ of finite lattices with order-preserving maps,
+every covariant self-equivalence is naturally isomorphic either to the identity
+functor $\Id$ or to the order-duality functor $(-)^{\op}$, making $(-)^{\op}$
+the unique nontrivial self-equivalence up to natural isomorphism. However, the
+final assertion---that the smallest example is the pentagon lattice at
+$n = 3$---is \textbf{false under every faithful mathematical reading}:
+\begin{itemize}
+  \item At cardinality $|L| = 3$, the unique lattice up to isomorphism is the
+  $3$-element chain $C_3$, which is distributive, modular, and self-dual; no
+  pentagon lattice of cardinality $3$ exists.
+  \item The pentagon lattice $N_5$ (which has cardinality $|N_5| = 5$, height
+  $3$, and $3$ proper interior elements) \emph{is self-dual}
+  ($N_5^{\op} \cong N_5$), so $(-)^{\op}$ fixes $N_5$ up to isomorphism at every
+  parameter $n$; moreover, $\CatC(N_5)$ is rigid ($\Aut(N_5) = \{\mathrm{id}\}$).
+  \item Every finite lattice with $|L| \le 4$ (and every finite lattice of
+  height $\le 2$) is self-dual, and the unique smallest non-self-dual lattices
+  ($L^{\op} \not\cong L$, occurring at $|L| = 5$ and height $3$) are the
+  mutually dual planar \emph{distributive} lattices $\mathbf{1} \oplus B_2$ and
+  $B_2 \oplus \mathbf{1}$, not the non-modular pentagon lattice $N_5$.
+  \item On individual lattice poset categories $\CatC(L)$, nontrivial covariant
+  self-equivalences first appear on $B_2$ ($|B_2| = 4$, height $2$), while
+  nontrivial contravariant self-dualities first appear on $C_2$ ($|C_2| = 2$,
+  height $1$), and naturality of $\Id \Rightarrow (-)^{\op}$ on $\FinLatOrd$
+  already fails on $\{C_1, C_2\}$ ($|L| \le 2$).
+\end{itemize}
+Hence Conjecture~\texttt{00000008560} is \textbf{false} (disproved). All
+positive theorems and all refutations are machine-checked in self-contained Core
+Lean~4.19.0 using only the standard kernel axioms \texttt{propext} and
+\texttt{Quot.sound}, and independently verified by exhaustive enumeration in
+Python.
+\end{abstract}
+
+\section{Official Statement and Verdict}
+
+Conjecture~\texttt{00000008560} states (verbatim from \texttt{SOURCE.md}):
+
+\begin{quote}
+\textbf{English.} \emph{Definition: The category of lattices is the category of
+lattices with order-preserving maps. Conjecture: Two finite lattice categories
+are equivalent if and only if the lattices are isomorphic; and the smallest
+nontrivial self-equivalence of the category is the duality equivalence, whose
+smallest example is the pentagon lattice at n = 3. (lattice category duality
+equivalence)}
+\end{quote}
+
+The accompanying Chinese formulation translates word-for-word identically: it
+defines the category of lattices as lattices with order-preserving maps, states
+that two finite lattice categories are equivalent iff the lattices are
+isomorphic, and asserts that the smallest nontrivial self-equivalence is the
+duality equivalence whose smallest example is the pentagon lattice at $n = 3$.
+
+\medskip
+\noindent\textbf{Verdict: DISPROVED (FALSE).}
+Conjecture~\texttt{00000008560} is a logical conjunction
+$\mathcal{P}_1 \wedge \mathcal{P}_{2\mathrm{a}} \wedge \mathcal{P}_{2\mathrm{b}}$.
+While $\mathcal{P}_1$ (equivalence of thin lattice categories iff lattice
+isomorphism) and $\mathcal{P}_{2\mathrm{a}}$ on the global category $\FinLatOrd$
+(order duality $(-)^{\op}$ is the unique nontrivial self-equivalence) are
+genuine theorems, the witness claim $\mathcal{P}_{2\mathrm{b}}$ (``whose
+smallest example is the pentagon lattice at $n = 3$'') is false under every
+possible interpretation of ``the category,'' ``self-equivalence,'' ``smallest
+example,'' and ``$n = 3$.'' Table~\ref{tab:summary} summarizes the exact truth
+value and minimal example under every reading.
+
+\begin{table}[ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{4.4cm}>{\raggedright\arraybackslash}p{4.1cm}c@{}}
+\toprule
+\textbf{Mathematical Reading} & \textbf{True Minimal Example} & \textbf{Status of Pentagon $N_5$} & \textbf{Claim} \\
+\midrule
+Global $\FinLatOrd$: non-self-dual object $D(L) = L^{\op} \not\cong L$, by size $|L| = n$ &
+$\mathbf{1} \oplus B_2$ and $B_2 \oplus \mathbf{1}$ at $|L| = 5$ (distributive; all $|L| \le 4$ self-dual) &
+$|N_5| = 5 \ne 3$, and $N_5^{\op} \cong N_5$ is \emph{self-dual} (fixed by $D$) &
+\textbf{False} \\
+Global $\FinLatOrd$: non-self-dual object $L^{\op} \not\cong L$, by height $h(L) = n$ or $|L \setminus \{\hat{0},\hat{1}\}| = n$ &
+$\mathbf{1} \oplus B_2$ and $B_2 \oplus \mathbf{1}$ at $n = 3$ (distributive; all $h \le 2$ self-dual) &
+$N_5$ has $h(N_5) = 3$, $|N_5 \setminus \{\hat{0},\hat{1}\}| = 3$, yet $N_5^{\op} \cong N_5$ is \emph{self-dual} &
+\textbf{False} \\
+Global $\FinLatOrd$ (or $\FinLatHom$): naturality failure $D \not\cong \Id$ &
+$\{C_1, C_2\}$ at $|L| \le 2$, height $\le 1$ (constant maps $C_1 \to C_2$) &
+Obstructed strictly below $|L| = 3$ and $|N_5| = 5$ &
+\textbf{False} \\
+Thin category $\CatC(L)$: nontrivial covariant autoequivalence ($\Aut(L) \ne \{\mathrm{id}\}$) &
+Boolean diamond $B_2$ at $|B_2| = 4$, height $2$ ($|\Aut(B_2)| = 2$) &
+$\CatC(N_5)$ is \emph{rigid}: $\Aut(N_5) = \{\mathrm{id}\}$ (no nontrivial self-equiv.) &
+\textbf{False} \\
+Thin category $\CatC(L)$: nontrivial contravariant self-duality $\CatC(L) \simeq \CatC(L)^{\op}$ &
+Chain $C_2$ at $|C_2| = 2$, height $1$ ($C_3$ at $|L| = 3$; $C_4$ at height $3$) &
+Strictly smaller chains $C_2, C_3, C_4$ and diamond $B_2$ precede $N_5$ &
+\textbf{False} \\
+\bottomrule
+\end{tabular}
+\caption{Exhaustive evaluation of Clause~2b across all interpretations.}
+\label{tab:summary}
+\end{table}
+
+\section{Preliminaries: Lattices and Lattice Categories}
+
+\begin{definition}[Lattice, Dual, Modularity, Distributivity]
+\label{def:lattice}
+A \emph{lattice} is a nonempty set $L$ equipped with a partial order $\le$
+(reflexive, transitive, and antisymmetric) and binary operations $\vee$ (join)
+and $\wedge$ (meet) such that for all $x, y, z \in L$:
+\[
+  x \le x \vee y, \quad y \le x \vee y, \quad
+  (x \le z \wedge y \le z) \implies x \vee y \le z,
+\]
+\[
+  x \wedge y \le x, \quad x \wedge y \le y, \quad
+  (z \le x \wedge z \le y) \implies z \le x \wedge y.
+\]
+Equivalently, $\vee$ and $\wedge$ satisfy idempotence, commutativity,
+associativity, and the absorption laws $x \vee (x \wedge y) = x$ and
+$x \wedge (x \vee y) = x$, with $x \le y \iff x \vee y = y$.
+\begin{enumerate}
+  \item The \emph{order dual} of $L = (L, \le, \vee, \wedge)$ is the lattice
+  $L^{\op} = (L, \le^{\op}, \wedge, \vee)$, where $x \le^{\op} y \iff y \le x$.
+  \item A \emph{lattice isomorphism} $\varphi : L_1 \xrightarrow{\sim} L_2$ is a
+  bijection satisfying $\varphi(x \vee y) = \varphi(x) \vee \varphi(y)$ and
+  $\varphi(x \wedge y) = \varphi(x) \wedge \varphi(y)$. A lattice $L$ is
+  \emph{self-dual} if $L \cong L^{\op}$.
+  \item $L$ is \emph{modular} if $x \le z \implies x \vee (y \wedge z) =
+  (x \vee y) \wedge z$ for all $x, y, z \in L$, and \emph{distributive} if
+  $x \wedge (y \vee z) = (x \wedge y) \vee (x \wedge z)$ for all $x, y, z \in L$.
+\end{enumerate}
+\end{definition}
+
+\begin{lemma}[Order-Isomorphisms Are Lattice Isomorphisms]
+\label{lem:order-iso}
+Let $L_1, L_2$ be lattices and let $f : L_1 \to L_2$ be a bijection with inverse
+$g : L_2 \to L_1$. Then $f$ is a lattice isomorphism if and only if both $f$ and
+$g$ are order-preserving ($x \le y \implies f(x) \le f(y)$ and
+$u \le v \implies g(u) \le g(v)$).
+\end{lemma}
+
+\begin{proof}
+($\Rightarrow$) If $f$ preserves $\vee$, then injectivity of $f$ gives
+\[
+  x \le y \iff x \vee y = y \iff f(x \vee y) = f(y) \iff f(x) \vee f(y) = f(y) \iff f(x) \le f(y);
+\]
+substituting $x = g(u)$ and $y = g(v)$ gives monotonicity of $g$.
+
+($\Leftarrow$) Suppose $f$ and $g$ are monotone. For any $x, y \in L_1$,
+monotonicity of $f$ applied to $x \le x \vee y$ and $y \le x \vee y$ yields
+$f(x) \vee f(y) \le f(x \vee y)$. Conversely, let $s = f(x) \vee f(y)$. Applying
+$g$ to $f(x) \le s$ and $f(y) \le s$ yields $x = g(f(x)) \le g(s)$ and
+$y = g(f(y)) \le g(s)$, whence $x \vee y \le g(s)$. Applying $f$ gives
+$f(x \vee y) \le f(g(s)) = s = f(x) \vee f(y)$. By antisymmetry,
+$f(x \vee y) = f(x) \vee f(y)$; the dual argument gives
+$f(x \wedge y) = f(x) \wedge f(y)$.
+\end{proof}
+
+The wording of Conjecture \texttt{00000008560} involves two categorical constructions:
+
+\begin{definition}[Individual Thin Lattice Category and Global Category of Lattices]
+\label{def:cats}
+\leavevmode
+\begin{enumerate}
+  \item \textbf{Thin poset category $\CatC(L)$ of a lattice $L$:} Objects of
+  $\CatC(L)$ are the elements of $L$; for $x, y \in L$, $\Hom_{\CatC(L)}(x, y)$
+  consists of a single morphism when $x \le y$ and is empty otherwise, with
+  identities from reflexivity and composition from transitivity. Functors
+  $\CatC(L_1) \to \CatC(L_2)$ correspond bijectively to order-preserving maps
+  $L_1 \to L_2$.
+  \item \textbf{Global category $\LatOrd$ and finite full subcategory
+  $\FinLatOrd$:} Following the conjecture's opening definition verbatim, the
+  objects of $\LatOrd$ (resp.\ $\FinLatOrd$) are small lattices (resp.\ finite
+  nonempty lattices), and morphisms $f : L_1 \to L_2$ are order-preserving maps
+  ($x \le_1 y \implies f(x) \le_2 f(y)$) under ordinary function composition.
+  By Lemma~\ref{lem:order-iso}, two lattices $L_1, L_2$ are isomorphic in
+  $\LatOrd$ (or $\FinLatOrd$) if and only if they are isomorphic as lattices.
+\end{enumerate}
+\end{definition}
+
+Recall that an \emph{equivalence of categories} between $\mathcal{A}$ and
+$\mathcal{B}$ consists of functors $F : \mathcal{A} \to \mathcal{B}$ and
+$G : \mathcal{B} \to \mathcal{A}$ together with natural isomorphisms
+$\eta : \Id_{\mathcal{A}} \xrightarrow{\sim} G \circ F$ and
+$\varepsilon : F \circ G \xrightarrow{\sim} \Id_{\mathcal{B}}$. A
+\emph{self-equivalence} (autoequivalence) of $\mathcal{A}$ is an equivalence of
+$\mathcal{A}$ with itself; it is \emph{trivial} if $F \cong \Id_{\mathcal{A}}$
+via a natural isomorphism, and \emph{nontrivial} otherwise.
+
+\section{Positive Proof of Clause 1}
+
+\begin{theorem}[Clause 1: Thin Lattice Category Equivalence $\iff$ Lattice Isomorphism]
+\label{thm:clause1}
+Let $L_1$ and $L_2$ be lattices (in particular, any two finite lattices). Their
+lattice categories $\CatC(L_1)$ and $\CatC(L_2)$ are equivalent as categories if
+and only if $L_1$ and $L_2$ are isomorphic as lattices:
+\[
+  \CatC(L_1) \simeq \CatC(L_2) \iff L_1 \cong L_2.
+\]
+\end{theorem}
+
+\begin{proof}
+First observe that $\CatC(L)$ is \emph{skeletal}: for any category $\mathcal{A}$
+and any two functors $H_1, H_2 : \mathcal{A} \to \CatC(L)$, a natural
+isomorphism $\alpha : H_1 \xrightarrow{\sim} H_2$ supplies for each object $X$
+of $\mathcal{A}$ morphisms $\alpha_X : H_1(X) \to H_2(X)$ and
+$\alpha_X^{-1} : H_2(X) \to H_1(X)$ in $\CatC(L)$, meaning $H_1(X) \le H_2(X)$
+and $H_2(X) \le H_1(X)$. By antisymmetry in $L$, $H_1(X) = H_2(X)$ for all $X$;
+since each hom-set of $\CatC(L)$ has at most one element, $H_1 = H_2$.
+
+($\Rightarrow$) Given an equivalence $(F, G, \eta, \varepsilon)$ between
+$\CatC(L_1)$ and $\CatC(L_2)$, skeletalness forces $G \circ F = \Id_{\CatC(L_1)}$
+and $F \circ G = \Id_{\CatC(L_2)}$. Thus $F$ and $G$ induce mutually inverse
+bijections on objects, and functoriality means both are order-preserving. By
+Lemma~\ref{lem:order-iso}, $F$ is a lattice isomorphism $L_1 \xrightarrow{\sim} L_2$.
+
+($\Leftarrow$) Conversely, by Lemma~\ref{lem:order-iso}, any lattice isomorphism
+$\varphi : L_1 \xrightarrow{\sim} L_2$ has monotone forward and inverse maps,
+inducing mutually inverse functors $\CatC(L_1) \rightleftarrows \CatC(L_2)$ with
+identity unit and counit.
+\end{proof}
+
+\begin{remark}[Alternative Slice-Category Reading of Clause 1]
+If ``finite lattice category'' associated to $L$ were instead interpreted as the
+slice category $\FinLatOrd / L$, then even Clause~1 would fail: because
+$(-)^{\op} : \FinLatOrd \xrightarrow{\sim} \FinLatOrd$ is an isomorphism of
+categories (Section~\ref{sec:global}), we have
+$\FinLatOrd / L \cong \FinLatOrd / L^{\op}$ for every finite lattice $L$,
+including $L = \mathbf{1} \oplus B_2$ where $L \not\cong L^{\op}$
+(Theorem~\ref{thm:minimal-nsd}). Hence Reading~1 in Definition~\ref{def:cats}
+is the unique standard interpretation under which Clause~1 holds.
+\end{remark}
+
+\section{Autoequivalences of \texorpdfstring{$\FinLatOrd$}{FinLatOrd} (Analysis of Clause 2a)}
+\label{sec:global}
+
+For any order-preserving map $f : L_1 \to L_2$, if $x \le_1^{\op} y$ then
+$y \le_1 x$, whence $f(y) \le_2 f(x)$, i.e., $f(x) \le_2^{\op} f(y)$. Thus the
+assignment
+\[
+  D : \FinLatOrd \to \FinLatOrd, \qquad D(L) = L^{\op}, \quad D(f) = f
+\]
+(and likewise on $\LatOrd$ and on $\FinLatHom$, since $f$ preserving $\vee,
+\wedge$ also preserves $\wedge, \vee$) defines a strict involutive covariant
+functor satisfying $D \circ D = \Id$, hence a self-equivalence of $\FinLatOrd$
+and $\LatOrd$.
+
+\begin{proposition}[Nontriviality of Order Duality]
+\label{prop:duality-nontrivial}
+There exists no natural transformation $\alpha : D \Rightarrow \Id_{\FinLatOrd}$
+(nor on $\LatOrd$ or $\FinLatHom$). In particular, $D$ is a nontrivial
+self-equivalence ($D \not\cong \Id$).
+\end{proposition}
+
+\begin{proof}
+Let $C_1 = \{0\}$ and $C_2 = \{0 < 1\}$ be the $1$- and $2$-element chains, and
+let $c_0, c_1 : C_1 \to C_2$ be the constant monotone maps $c_0(0) = 0$ and
+$c_1(0) = 1$ (note $c_0, c_1$ are also lattice homomorphisms). Suppose
+$\alpha : D \Rightarrow \Id$ were a natural transformation, and write
+$s = \alpha_{C_2} : C_2^{\op} \to C_2$. Since $\alpha_{C_1}(0) = 0$ is forced on
+$C_1$, naturality $c_i \circ \alpha_{C_1} = \alpha_{C_2} \circ D(c_i)$ evaluated
+at $0 \in C_1$ yields
+\[
+  0 = c_0(\alpha_{C_1}(0)) = s(c_0(0)) = s(0), \qquad
+  1 = c_1(\alpha_{C_1}(0)) = s(c_1(0)) = s(1).
+\]
+However, $1 \le^{\op} 0$ in $C_2^{\op}$ because $0 \le 1$ in $C_2$; monotonicity
+of $s : C_2^{\op} \to C_2$ therefore forces $1 = s(1) \le s(0) = 0$ in $C_2$, a
+contradiction.
+\end{proof}
+
+\begin{theorem}[Complete Classification of Self-Equivalences of $\FinLatOrd$]
+\label{thm:autoequiv-class}
+Every covariant self-equivalence $E = (F, G, \eta, \varepsilon)$ of $\FinLatOrd$
+satisfies either $F \cong \Id_{\FinLatOrd}$ or $F \cong D = (-)^{\op}$. Hence
+$\operatorname{AutEq}(\FinLatOrd)/{\cong} \cong \mathbb{Z}/2\mathbb{Z}$, and
+order duality $(-)^{\op}$ is the unique (and therefore vacuously smallest)
+nontrivial self-equivalence of $\FinLatOrd$.
+\end{theorem}
+
+\begin{proof}
+Because $(F, G, \eta, \varepsilon)$ is an equivalence of categories, both $F$ and
+$G$ are faithful and $F$ is full: for any $g : F(X) \to F(Y)$, setting
+$f = \eta_Y^{-1} \circ G(g) \circ \eta_X : X \to Y$, naturality of $\eta$ gives
+$G(F(f)) \circ \eta_X = \eta_Y \circ f = G(g) \circ \eta_X$, whence
+$G(F(f)) = G(g)$ and faithfulness of $G$ gives $F(f) = g$.
+
+\emph{Step 1: $F(C_1)$ is a singleton lattice.} In $\FinLatOrd$, $C_1$ is
+terminal ($|\Hom(X, C_1)| = 1$ for all $X$). For any $a, b \in F(C_1)$, let
+$k_a, k_b : F(C_1) \to F(C_1)$ be the constant maps with values $a$ and $b$.
+Their preimages under full and faithful $F$ lie in $\Hom(C_1, C_1)$ and are
+therefore equal, so $k_a = k_b$ and $a = k_a(a) = k_b(a) = b$. Since every
+object of $\FinLatOrd$ is nonempty, $F(C_1) = \{\star\}$ has a unique element
+$\star$.
+
+\emph{Step 2: Natural underlying bijections.} For each finite lattice $L$ and
+$x \in L$, let $p_{L,x} : C_1 \to L$ be the constant map $0 \mapsto x$, and
+define $\phi_L : L \to F(L)$ by $\phi_L(x) = F(p_{L,x})(\star)$. Conversely, for
+$y \in F(L)$, let $q_{L,y} : F(C_1) \to F(L)$ be the constant map $\star \mapsto y$
+and set $\psi_L(y) = (F^{-1}(q_{L,y}))(0)$, where $F^{-1}$ denotes the unique
+morphism preimage under full and faithful $F$. Since $F(C_1) = \{\star\}$ and
+$C_1 = \{0\}$, we have $q_{L,\phi_L(x)} = F(p_{L,x})$ and
+$p_{L,\psi_L(y)} = F^{-1}(q_{L,y})$, yielding $\psi_L(\phi_L(x)) = x$ and
+$\phi_L(\psi_L(y)) = y$. Moreover, for any morphism $f : L_1 \to L_2$ and
+$x \in L_1$, $f \circ p_{L_1,x} = p_{L_2,f(x)}$ implies
+\begin{equation}
+\label{eq:phi-nat}
+  F(f)(\phi_{L_1}(x)) = F(f)(F(p_{L_1,x})(\star)) = F(p_{L_2,f(x)})(\star) = \phi_{L_2}(f(x)).
+\end{equation}
+
+\emph{Step 3: Dichotomy via $C_2$.} Set $u = \phi_{C_2}(0)$ and
+$v = \phi_{C_2}(1)$ in $F(C_2)$. Since $\phi_{C_2} : \{0, 1\} \to F(C_2)$ is a
+bijection, $u \ne v$ and $F(C_2) = \{u, v\}$. Thus the join $u \vee v \in F(C_2)$
+equals either $v$ (so $u <_F v$) or $u$ (so $v <_F u$).
+\begin{itemize}
+  \item \textbf{Case 1 ($u <_F v$):} For any $L$ and $x \le_L y$, define
+  $h : C_2 \to L$ by $h(0) = x, h(1) = y$. By~\eqref{eq:phi-nat} and
+  monotonicity of $F(h)$, $\phi_L(x) = F(h)(u) \le_{F(L)} F(h)(v) = \phi_L(y)$.
+  Conversely, if $a \le_{F(L)} b$ in $F(L)$, defining $h' : F(C_2) \to F(L)$ by
+  $h'(u) = a, h'(v) = b$ (monotone since $u <_F v$) and setting
+  $h = F^{-1}(h') : C_2 \to L$, monotonicity on $0 \le 1$ and~\eqref{eq:phi-nat}
+  give $\psi_L(a) = h(0) \le_L h(1) = \psi_L(b)$. By~\eqref{eq:phi-nat}, $\psi$
+  and $\phi$ assemble into a natural isomorphism $F \cong \Id_{\FinLatOrd}$.
+  \item \textbf{Case 2 ($v <_F u$):} Replacing $(0, 1)$ by $(1, 0)$ in the exact
+  same argument shows $y \le_L x \iff \phi_L(x) \le_{F(L)} \phi_L(y)$ and
+  $a \le_{F(L)} b \iff \psi_L(b) \le_L \psi_L(a)$, so $\psi$ and $\phi$ form a
+  natural isomorphism $F \cong D$. \qedhere
+\end{itemize}
+\end{proof}
+
+\section{Complete Refutation of Clause 2b}
+
+We now prove that the final assertion of Conjecture~\texttt{00000008560}---``whose
+smallest example is the pentagon lattice at $n = 3$''---fails on multiple
+independent counts under every reading.
+
+\subsection{Failure at Cardinality \texorpdfstring{$n = 3$}{n = 3}}
+
+Recall that the \emph{pentagon lattice} $N_5$ is the canonical $5$-element
+non-modular lattice (Definition~\ref{def:n5} below); by Dedekind's modularity
+theorem, a lattice is non-modular if and only if it contains a sublattice
+isomorphic to $N_5$.
+
+\begin{theorem}[Uniqueness of the $3$-Element Lattice]
+\label{thm:size3}
+Every lattice $L$ of cardinality $|L| = 3$ is isomorphic to the $3$-element
+chain $C_3 = \{0 < 1 < 2\}$. Consequently, every $3$-element lattice is
+distributive, modular, and self-dual ($C_3 \cong C_3^{\op}$ via $i \mapsto 2 - i$),
+and no pentagon lattice (nor any non-modular lattice) of cardinality $3$ exists.
+\end{theorem}
+
+\begin{proof}
+Let $L = \{e_0, e_1, e_2\}$ have three distinct elements, and set
+$b = (e_0 \wedge e_1) \wedge e_2$ and $t = (e_0 \vee e_1) \vee e_2$. By the meet
+and join axioms, $b \le x \le t$ for every $x \in L$. If $b = t$, antisymmetry
+would force $e_0 = b = e_1$, contradicting $|L| = 3$; hence $b \ne t$. Let
+$m \in L$ be the unique element distinct from both $b$ and $t$. Then
+$b \le m \le t$ with $b, m, t$ pairwise distinct, so the map $0 \mapsto b$,
+$1 \mapsto m$, $2 \mapsto t$ is an order-isomorphism $C_3 \xrightarrow{\sim} L$,
+hence a lattice isomorphism by Lemma~\ref{lem:order-iso}. Since $C_3$ is a
+linear order, it is distributive and modular, and $i \mapsto 2 - i$ is an
+order-isomorphism $C_3 \xrightarrow{\sim} C_3^{\op}$.
+\end{proof}
+
+\subsection{Self-Duality and Rigidity of the Pentagon Lattice \texorpdfstring{$N_5$}{N5}}
+
+Even if ``at $n = 3$'' is read not as $|L| = 3$ but as height $h(L) = 3$ (length
+of a longest chain) or as $n = 3$ proper interior elements $|L \setminus
+\{\hat{0}, \hat{1}\}| = 3$---both of which equal $3$ for the $5$-element
+pentagon lattice $N_5$---the pentagon claim still fails fundamentally because
+\textbf{$N_5$ is self-dual}!
+
+\begin{definition}[The Pentagon Lattice $N_5$]
+\label{def:n5}
+The \emph{pentagon lattice} is $N_5 = \{\hat{0}, a, b, c, \hat{1}\}$ with partial
+order generated by $\hat{0} < a < b < \hat{1}$ and $\hat{0} < c < \hat{1}$, with
+$c$ incomparable to both $a$ and $b$ ($a \vee c = b \vee c = \hat{1}$ and
+$a \wedge c = b \wedge c = \hat{0}$). A lattice $L$ is a \emph{pentagon lattice}
+if $L \cong N_5$. Note $|N_5| = 5$, height $h(N_5) = 3$, and $N_5$ is
+non-modular because $a \le b$ while
+$a \vee (c \wedge b) = a \vee \hat{0} = a \ne b = \hat{1} \wedge b = (a \vee c) \wedge b$.
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\setlength{\unitlength}{0.9pt}
+\begin{tabular}{@{}c@{\hspace{10pt}}c@{\hspace{10pt}}c@{\hspace{10pt}}c@{}}
+% C_3
+\begin{picture}(64,86)(0,0)
+  \put(30,12){\circle*{4}}
+  \put(30,42){\circle*{4}}
+  \put(30,72){\circle*{4}}
+  \put(30,12){\line(0,1){60}}
+  \put(37,8){\small $0$}
+  \put(37,39){\small $1$}
+  \put(37,69){\small $2$}
+\end{picture}
+&
+% N_5
+\begin{picture}(88,86)(0,0)
+  \put(42,12){\circle*{4}}
+  \put(12,42){\circle*{4}}
+  \put(62,32){\circle*{4}}
+  \put(62,52){\circle*{4}}
+  \put(42,72){\circle*{4}}
+  \put(42,12){\line(-1,1){30}}
+  \put(12,42){\line(1,1){30}}
+  \put(42,12){\line(1,1){20}}
+  \put(62,32){\line(0,1){20}}
+  \put(62,52){\line(-1,1){20}}
+  \put(39,0){\small $\hat{0}$}
+  \put(2,39){\small $c$}
+  \put(68,29){\small $a$}
+  \put(68,49){\small $b$}
+  \put(39,76){\small $\hat{1}$}
+\end{picture}
+&
+% 1 (+) B_2
+\begin{picture}(88,86)(0,0)
+  \put(42,12){\circle*{4}}
+  \put(42,32){\circle*{4}}
+  \put(22,52){\circle*{4}}
+  \put(62,52){\circle*{4}}
+  \put(42,72){\circle*{4}}
+  \put(42,12){\line(0,1){20}}
+  \put(42,32){\line(-1,1){20}}
+  \put(42,32){\line(1,1){20}}
+  \put(22,52){\line(1,1){20}}
+  \put(62,52){\line(-1,1){20}}
+  \put(39,0){\small $\hat{0}$}
+  \put(49,28){\small $u$}
+  \put(10,49){\small $x$}
+  \put(68,49){\small $y$}
+  \put(39,76){\small $\hat{1}$}
+\end{picture}
+&
+% B_2 (+) 1
+\begin{picture}(88,86)(0,0)
+  \put(42,12){\circle*{4}}
+  \put(22,32){\circle*{4}}
+  \put(62,32){\circle*{4}}
+  \put(42,52){\circle*{4}}
+  \put(42,72){\circle*{4}}
+  \put(42,12){\line(-1,1){20}}
+  \put(42,12){\line(1,1){20}}
+  \put(22,32){\line(1,1){20}}
+  \put(62,32){\line(-1,1){20}}
+  \put(42,52){\line(0,1){20}}
+  \put(39,0){\small $\hat{0}$}
+  \put(10,29){\small $x$}
+  \put(68,29){\small $y$}
+  \put(49,50){\small $v$}
+  \put(39,76){\small $\hat{1}$}
+\end{picture}
+\\[4pt]
+\footnotesize (a) $C_3$ ($|C_3|=3$, self-dual) &
+\footnotesize (b) $N_5$ ($|N_5|=5$, \textbf{self-dual}) &
+\footnotesize (c) $\mathbf{1} \oplus B_2$ (non-self-dual) &
+\footnotesize (d) $B_2 \oplus \mathbf{1} \cong (\mathbf{1} \oplus B_2)^{\op}$
+\end{tabular}
+\caption{Hasse diagrams of (a)~the unique $3$-element lattice $C_3$; (b)~the
+pentagon lattice $N_5$, which is symmetric under vertical reflection
+$\hat{0} \leftrightarrow \hat{1}, a \leftrightarrow b, c \leftrightarrow c$ and
+hence \emph{self-dual}; and (c)--(d)~the true minimal non-self-dual pair
+$\mathbf{1} \oplus B_2 \not\cong B_2 \oplus \mathbf{1}$ ($|L| = 5$, height $3$).}
+\label{fig:hasse}
+\end{figure}
+
+\begin{theorem}[Self-Duality and Categorical Rigidity of $N_5$]
+\label{thm:n5}
+\leavevmode
+\begin{enumerate}
+  \item \textbf{Self-duality:} The involution $\delta : N_5 \to N_5$ defined by
+  \[
+    \delta(\hat{0}) = \hat{1}, \quad \delta(a) = b, \quad \delta(b) = a, \quad
+    \delta(c) = c, \quad \delta(\hat{1}) = \hat{0}
+  \]
+  is a lattice isomorphism $N_5 \xrightarrow{\sim} N_5^{\op}$. Consequently, for
+  every pentagon lattice $L \cong N_5$, the global duality functor $(-)^{\op}$ on
+  $\FinLatOrd$ (and $\LatOrd$) satisfies $D(L) = L^{\op} \cong L$.
+  \item \textbf{Rigidity:} The automorphism group $\Aut(N_5) = \{\mathrm{id}\}$
+  is trivial. Consequently, every covariant self-equivalence of the thin lattice
+  category $\CatC(N_5)$ is equal to the identity functor $\Id_{\CatC(N_5)}$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1) Obviously $\delta \circ \delta = \mathrm{id}_{N_5}$. The strict covering
+relations in $N_5$ are $\hat{0} \prec a \prec b \prec \hat{1}$ and
+$\hat{0} \prec c \prec \hat{1}$; applying $\delta$ yields
+$\hat{1} \succ b \succ a \succ \hat{0}$ and $\hat{1} \succ c \succ \hat{0}$,
+which are precisely the strict covering relations of $N_5^{\op}$. Thus
+$x \le y \iff \delta(y) \le \delta(x)$ for all $x, y \in N_5$, so $\delta$ is a
+lattice isomorphism $N_5 \xrightarrow{\sim} N_5^{\op}$ by
+Lemma~\ref{lem:order-iso}.
+
+(2) Let $E$ be a covariant self-equivalence of $\CatC(N_5)$. By the proof of
+Theorem~\ref{thm:clause1}, the object map $f$ of the forward functor of $E$ is an
+order-automorphism of $N_5$. Any order-automorphism preserves the minimum and
+maximum elements, so $f(\hat{0}) = \hat{0}$ and $f(\hat{1}) = \hat{1}$, and $f$
+permutes $\{a, b, c\}$. Since $a < b$, monotonicity and injectivity require
+$f(a) < f(b)$ within $\{a, b, c\}$. Because $c$ is incomparable with both $a$
+and $b$, the only strict comparability inside $\{a, b, c\}$ is $a < b$; thus
+$f(a) = a$ and $f(b) = b$, forcing $f(c) = c$. Hence $f = \mathrm{id}_{N_5}$, so
+the forward functor of $E$ equals $\Id_{\CatC(N_5)}$.
+\end{proof}
+
+\subsection{True Minimal Non-Self-Dual Lattices (\texorpdfstring{$|L| = 5$}{|L| = 5}, Height \texorpdfstring{$3$}{3})}
+
+\begin{theorem}[Minimality of Non-Self-Dual Finite Lattices]
+\label{thm:minimal-nsd}
+\leavevmode
+\begin{enumerate}
+  \item Every finite lattice $L$ of cardinality $|L| \le 4$ is self-dual
+  ($L \cong L^{\op}$). Likewise, every finite lattice of height $h(L) \le 2$ is
+  self-dual.
+  \item Let $\mathbf{1} \oplus B_2 = \{\hat{0}, u, x, y, \hat{1}\}$ be the
+  $5$-element lattice of height $3$ with order $\hat{0} < u < x, y < \hat{1}$
+  and $x \parallel y$ (Figure~\ref{fig:hasse}c). Then $\mathbf{1} \oplus B_2$ is
+  distributive and modular, is \emph{not} isomorphic to $N_5$, and is
+  \emph{not} self-dual ($(\mathbf{1} \oplus B_2)^{\op} \cong B_2 \oplus \mathbf{1}
+  \not\cong \mathbf{1} \oplus B_2$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1) Let $L$ be a finite lattice with $1 \le |L| \le 4$.
+\begin{itemize}
+  \item If $|L| = 1$, $\mathrm{id}_L : L \xrightarrow{\sim} L^{\op}$.
+  \item If $|L| = 2$ with $L = \{e_0, e_1\}$, the transposition $\delta$ swapping
+  $e_0 \leftrightarrow e_1$ satisfies $e_0 \le e_1 \iff \delta(e_1) \le
+  \delta(e_0)$ tautologically, hence $\delta : L \xrightarrow{\sim} L^{\op}$.
+  \item If $|L| = 3$, $L$ is self-dual by Theorem~\ref{thm:size3}.
+  \item If $|L| = 4$, let $b = \bigwedge L$ and $t = \bigvee L$ be the minimum
+  and maximum of $L$; as in Theorem~\ref{thm:size3}, $b \ne t$. Let $p, q$ be the
+  remaining two distinct elements of $L \setminus \{b, t\}$, and define the
+  involution $\delta : L \to L$ uniformly (covering both $C_4$ and $B_2$ at once)
+  by $\delta(b) = t$, $\delta(t) = b$, $\delta(p) = q$, and $\delta(q) = p$. For
+  any $w_1 \le w_2$ in $L$: if $w_1 = w_2$, $\delta(w_2) \le \delta(w_1)$ holds
+  by reflexivity; if $w_1 = b$, $\delta(w_2) \le t = \delta(b)$; if $w_2 = t$,
+  $b = \delta(t) \le \delta(w_1)$; if $w_2 = b$ or $w_1 = t$, antisymmetry
+  reduces to $w_1 = w_2$; and on the only remaining cases $\{w_1, w_2\} = \{p, q\}$,
+  $\delta(w_2) = w_1 \le w_2 = \delta(w_1)$ holds identically! Thus
+  $\delta : L \xrightarrow{\sim} L^{\op}$.
+\end{itemize}
+Similarly, if $h(L) \le 2$ and $|L| \ge 3$, every element of
+$A = L \setminus \{\hat{0}, \hat{1}\}$ has maximal chain length $\le 2$, so $A$
+is an antichain ($M_k$ for $k = |A| \ge 1$); swapping $\hat{0} \leftrightarrow
+\hat{1}$ and fixing every $a \in A$ gives $L \xrightarrow{\sim} L^{\op}$.
+
+(2) Distributivity and modularity of $\mathbf{1} \oplus B_2$ hold by finite
+inspection (or because $\mathbf{1} \oplus B_2$ embeds into $C_3 \times C_2$ via
+$\hat{0} \mapsto (0,0)$, $u \mapsto (1,0)$, $x \mapsto (2,0)$, $y \mapsto (1,1)$,
+$\hat{1} \mapsto (2,1)$); since $N_5$ is non-modular, $\mathbf{1} \oplus B_2
+\not\cong N_5$. Suppose toward a contradiction that $\varphi : \mathbf{1} \oplus
+B_2 \xrightarrow{\sim} (\mathbf{1} \oplus B_2)^{\op}$ were a lattice isomorphism.
+Because $\hat{0}$ is the least element of $\mathbf{1} \oplus B_2$,
+$\varphi(\hat{0})$ must be the greatest element $\hat{1}$. Since $u \ne \hat{0}$,
+injectivity gives $\varphi(u) \ne \hat{1}$. Moreover, neither $\varphi^{-1}(x)$
+nor $\varphi^{-1}(y)$ can equal $\hat{0}$ (else applying $\varphi$ would give
+$x = \hat{1}$ or $y = \hat{1}$). In $\mathbf{1} \oplus B_2$, every element
+$z \ne \hat{0}$ satisfies $u \le z$; hence $u \le \varphi^{-1}(x)$ and
+$u \le \varphi^{-1}(y)$. Applying order-reversing $\varphi$ yields
+$x \le \varphi(u)$ and $y \le \varphi(u)$, so $\hat{1} = x \vee y \le \varphi(u)$
+and $\varphi(u) = \hat{1}$, contradicting $\varphi(u) \ne \hat{1}$.
+\end{proof}
+
+\subsection{Failure Under Individual Poset-Category Readings}
+
+For completeness, we also record the exact thresholds on individual thin lattice
+categories $\CatC(L)$:
+
+\begin{proposition}[Thresholds for Self-Equivalences of $\CatC(L)$]
+\label{prop:thin-readings}
+\leavevmode
+\begin{enumerate}
+  \item \textbf{Covariant self-equivalences $\CatC(L) \simeq \CatC(L)$:} By
+  skeletalness, autoequivalences of $\CatC(L)$ correspond bijectively to lattice
+  automorphisms $\Aut(L)$. Chains $C_1, C_2, C_3$ have $|\Aut(C_k)| = 1$; the
+  unique smallest lattice with a nontrivial covariant self-equivalence of
+  $\CatC(L)$ is the $4$-element diamond $B_2 = \{\hat{0}, a, b, \hat{1}\}$
+  ($|B_2| = 4$, height $2$), via swapping $a \leftrightarrow b$. By contrast,
+  $\CatC(N_5)$ has \emph{no} nontrivial covariant self-equivalence at all
+  (Theorem~\ref{thm:n5}(2)).
+  \item \textbf{Contravariant duality equivalences $\CatC(L) \simeq \CatC(L)^{\op}$:}
+  The $2$-element chain $C_2 = \{0 < 1\}$ ($|C_2| = 2$, height $1$) already
+  possesses a non-identity contravariant self-equivalence swapping
+  $0 \leftrightarrow 1$ (and at $|L| = 3$ and height $3$, the chains $C_3$ and
+  $C_4$ precede $N_5$ as well).
+\end{enumerate}
+\end{proposition}
+
+\begin{remark}[Diagnostic Origin of the Conjecture's Error]
+Figure~\ref{fig:hasse}(b) illuminates why this misconception arises naturally:
+in its standard Hasse diagram, the pentagon lattice $N_5$ has $3$ interior
+elements and height $3$, and lacks \emph{horizontal} symmetry
+($\Aut(N_5) = \{\mathrm{id}\}$), tempting one to mistake $N_5$ for an asymmetric
+witness to order duality. Yet order duality corresponds to \emph{vertical}
+reflection, under which $N_5$ is symmetric ($N_5^{\op} \cong N_5$), whereas the
+horizontally symmetric distributive lattice $\mathbf{1} \oplus B_2$
+(Figure~\ref{fig:hasse}c) is vertically asymmetric and provides the true minimal
+non-self-dual example.
+\end{remark}
+
+\section{Formal Lean 4.19.0 Verification and Computational Audit}
+
+All definitions, positive theorems, and disproofs in this paper are formalized in
+self-contained Core Lean~4.19.0 (\texttt{lean/Main.lean}), compiled with
+\texttt{-DwarningAsError=true} and zero external dependencies. Every exported
+theorem depends solely on Lean's standard propositional and quotient kernel
+axioms (\texttt{propext} and \texttt{Quot.sound}, without even
+\texttt{Classical.choice}). Table~\ref{tab:lean-map} records the exact alignment
+between the paper and \texttt{lean/Main.lean}.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.22}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{3.8cm}>{\raggedright\arraybackslash}p{9.1cm}l@{}}
+\toprule
+\textbf{Paper Result} & \textbf{Lean~4 Declaration (\texttt{Conjecture00000008560.*})} & \textbf{Role} \\
+\midrule
+Definition~\ref{def:lattice}, Lemma~\ref{lem:order-iso} &
+\texttt{LatticeStr}, \texttt{FinLattice}, \texttt{LatticeIso.ofOrderIso} & Foundations \\
+Definition~\ref{def:cats} &
+\texttt{LatticePosetCat}, \texttt{LatOrdCat}, \texttt{FinLatOrdCat} & Categories \\
+Theorem~\ref{thm:clause1} (Clause 1) &
+\texttt{latticePosetCat\_equiv\_iff\_iso}, \texttt{clause1\_holds} & Positive proof \\
+Proposition~\ref{prop:duality-nontrivial} &
+\texttt{no\_natTrans\_duality\_to\_id}, \texttt{dualityAutoEquiv\_nontrivial} & Duality $\not\cong \Id$ \\
+Theorem~\ref{thm:autoequiv-class} (Clause 2a) &
+\texttt{finLatOrdCat\_autoEquiv\_classification}, \texttt{clause2a\_global\_holds} & Positive proof \\
+Theorem~\ref{thm:size3} ($|L| = 3$) &
+\texttt{card\_three\_iso\_C3}, \texttt{no\_pentagon\_at\_card\_3} & Disproof ($n=3$) \\
+Theorem~\ref{thm:n5} ($N_5$ self-dual, rigid) &
+\texttt{N5\_is\_self\_dual}, \texttt{N5\_not\_movedByDuality}, \texttt{N5\_poset\_cat\_rigid} & Disproof ($N_5$) \\
+Theorem~\ref{thm:minimal-nsd} ($|L| \le 4$, $\mathbf{1}\oplus B_2$) &
+\texttt{all\_card\_le\_4\_self\_dual}, \texttt{OneSumB2\_not\_self\_dual}, \texttt{min\_card\_movedByDuality} & Exact minimum \\
+Proposition~\ref{prop:thin-readings} &
+\texttt{B2\_has\_nontrivial\_poset\_autoEquiv}, \texttt{C2\_contravariant\_nontrivial} & Poset readings \\
+Full Conjecture Refutations (all 4 formal readings) &
+\texttt{conjecture\_00000008560\_false\_global\_card}, \texttt{conjecture\_00000008560\_false\_global\_any\_param}, \texttt{conjecture\_00000008560\_false\_poset\_covariant}, \texttt{conjecture\_00000008560\_false\_poset\_contravariant}, \texttt{conjecture\_00000008560\_complete\_resolution} & Master disproof \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical statements and Lean~4.19.0 theorems.}
+\label{tab:lean-map}
+\end{table}
+
+In addition, the standalone script \texttt{verify.py} (Python~3.12 standard
+library) exhaustively enumerates all unlabeled finite lattices for $1 \le |L|
+\le 6$ (recovering the OEIS~A006966 sequence $1, 1, 1, 2, 5, 15$, of which
+$1, 1, 1, 2, 3, 7$ are self-dual and $0, 0, 0, 0, 2, 8$ are non-self-dual),
+explicitly verifies $\CatC(L_1) \simeq \CatC(L_2) \iff L_1 \cong L_2$ across all
+$100$ ordered pairs with $|L_i| \le 5$, checks the naturality obstruction on
+$\{C_1, C_2\}$, and confirms every structural invariant of $C_3$, $B_2$, $M_3$,
+$N_5$, $\mathbf{1} \oplus B_2$, and $B_2 \oplus \mathbf{1}$.
+
+\begin{thebibliography}{9}
+
+\bibitem{Birkhoff1967}
+G.~Birkhoff, \emph{Lattice Theory}, 3rd~ed., American Mathematical Society
+Colloquium Publications, vol.~25, AMS, Providence, RI, 1967.
+
+\bibitem{DaveyPriestley2002}
+B.~A.~Davey and H.~A.~Priestley, \emph{Introduction to Lattices and Order},
+2nd~ed., Cambridge University Press, Cambridge, 2002.
+
+\bibitem{Gratzer2011}
+G.~Gr\"atzer, \emph{Lattice Theory: Foundation}, Birkh\"auser/Springer, Basel,
+2011.
+
+\bibitem{MacLane1998}
+S.~Mac~Lane, \emph{Categories for the Working Mathematician}, 2nd~ed., Graduate
+Texts in Mathematics, vol.~5, Springer, New York, 1998.
+
+\end{thebibliography}
+
+\end{document}
