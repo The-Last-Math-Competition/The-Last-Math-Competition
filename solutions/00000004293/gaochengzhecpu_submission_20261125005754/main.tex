@@ -1,0 +1,324 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{1.5em}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Sub}{\mathrm{Sub}}
+\newcommand{\UT}{\mathrm{UT}}
+\newcommand{\GL}{\mathrm{GL}}
+\newcommand{\Aut}{\mathrm{Aut}}
+\newcommand{\Hom}{\mathrm{Hom}}
+\newcommand{\Fp}{\mathbb{F}_p}
+\newcommand{\Leg}[2]{\left(\frac{#1}{#2}\right)}
+
+\title{\textbf{Disproof and Complete Period Analysis of Conjecture 00000004293:\\
+Quasi-Polynomial Periods of Maximal Chains in $p$-Group Subgroup Lattices}}
+\author{Formal Mathematical Resolution Package}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Conjecture \texttt{00000004293} asserts that for a finite $p$-group $G$, the number $c(G)$ of maximal chains in its subgroup lattice $\mathcal{L}(G)$ is a quasi-polynomial in $p$ whose irreducible period (stated as ``period modulo $p$'' / ``quasi-polynomial period'') equals $\log_p |G|$ and cannot be shortened further. We \textbf{disprove} this conjecture for every group order $|G| = p^k$ with $k = \log_p |G| \ge 2$ under every natural mathematical interpretation of the statement, while establishing $k = 1$ ($G \cong \mathbb{Z}/p\mathbb{Z}$) as the unique non-vacuous positive case where $\log_p |G| = 1$ coincides with the minimal period $1$.
+
+Specifically:
+(1) Under the standard quasi-polynomial / PORC reading in the prime parameter $p$, cyclic $p$-groups $\mathbb{Z}/p^k\mathbb{Z}$ have $c(\mathbb{Z}/p^k\mathbb{Z}) = 1$, elementary abelian $p$-groups $(\mathbb{Z}/p\mathbb{Z})^k$ have $c((\mathbb{Z}/p\mathbb{Z})^k) = \prod_{j=1}^k (1 + p + \dots + p^{j-1}) \in \mathbb{Z}[p]$, and more generally every abelian $p$-group $G_\lambda(p)$ ($\lambda \vdash k$) as well as every $p$-group of order $p^2$ or $p^3$ ($p \ge 3$) has $c(G(p))$ given by a single integer polynomial of minimal quasi-period $1 < k$.
+(2) Under the literal residue reading $p \mapsto c(G(p)) \bmod p$, we prove a \textbf{Universal Modulo-$p$ Congruence Theorem}: $c(G) \equiv 1 \pmod p$ for \emph{every} finite $p$-group $G$ without exception, so even for an arbitrary non-uniform choice of groups $G(p)$ of order $p^k$ ($k \ge 2$), the residue sequence modulo $p$ is identically $1$ of minimal period $1 < k$.
+(3) Even among non-abelian uniform $p$-group families whose maximal chain count has minimal quasi-period strictly greater than $1$, we construct an explicit semidirect family $G_d(p) = (\mathbb{Z}/p^2\mathbb{Z})^2 \rtimes_{I + p A_d} (\mathbb{Z}/p\mathbb{Z})$ of fixed order $p^5$ ($k = 5$) and prove that for all $d \in \mathbb{Z}$ and all odd primes $p \ge 3$,
+\[
+  c\bigl(G_d(p)\bigr) = 3p^4 + 10p^3 + 9p^2 + 4p + 1 + \Leg{d}{p} p^2(2p + 1).
+\]
+Consequently, at fixed log-order $k = 5$, the minimal quasi-polynomial period can be $4$ ($d = -1$, where $5$ is not even a valid quasi-period) or \emph{any} odd prime $\ell \in \{3, 5, 7, 11, 13, \dots\}$ ($d = (-1)^{(\ell-1)/2}\ell$), demonstrating that the minimal period can be smaller than, coprime to, or arbitrarily larger than $\log_p |G|$. Core results and counterexamples are mechanized from first principles in Core Lean~4.19.0 with zero external dependencies and independently checked in Python.
+\end{abstract}
+
+\section{Problem Statement and Taxonomic Analysis of Interpretations}
+
+The source statement (\texttt{SOURCE.md}) reads in English and Chinese:
+\begin{quote}
+\textbf{English.} Definition: The subgroup lattice is the lattice of all subgroups under inclusion. Conjecture: The maximal chain count of the subgroup lattice of a $p$-group is a quasi-polynomial in $p$, its period modulo $p$ equals the logarithm of the order of the group and cannot be shortened further. (quasi-polynomial period of subgroup maximal chains)
+
+\medskip
+\noindent\textbf{Chinese (transliterated gloss).} \emph{Subgroup lattice}: the lattice formed by all subgroups under inclusion. \emph{Conjecture}: the maximal chain count of the subgroup lattice of a $p$-group is a quasi-polynomial in $p$, its modulus-$p$ period (\emph{m\'o $p$ zh\=ouq\=\i}) equals the logarithm of the order of the group and cannot be shortened further (\emph{quasi-polynomial period of subgroup maximal chains}).
+\end{quote}
+
+For a finite $p$-group $G$ of order $|G| = p^k$ ($k \in \mathbb{Z}_{\ge 0}$), let $\mathcal{L}(G) = (\Sub(G), \subseteq)$ denote its subgroup lattice and $c(G)$ the number of maximal chains in $\mathcal{L}(G)$. Note first that ``the logarithm of the order of the group'' unambiguously means the base-$p$ logarithm $k = \log_p |G| \in \mathbb{Z}_{\ge 0}$ (the natural logarithm $\ln(p^k) = k \ln p$ is irrational for $k \ge 1$ and cannot serve as a discrete period).
+
+Because $c(G)$ is styled as ``a quasi-polynomial in $p$,'' $G = G(p)$ varies across primes $p$ within a uniform family of $p$-groups of fixed log-order $k = \log_p |G(p)|$. Recall (Stanley, \emph{Enumerative Combinatorics}, Vol.~1, \S4.4) that $f : \mathbb{Z}_{\ge 0} \to \mathbb{Z}$ is a \emph{quasi-polynomial of period $N \ge 1$} if there exist polynomials $P_0, P_1, \dots, P_{N-1} \in \mathbb{Q}[X]$ (here in $\mathbb{Z}[X]$) such that
+\begin{equation}\label{eq:quasipoly}
+  f(n) = P_{n \bmod N}(n) \qquad (\forall n \in \mathbb{Z}_{\ge 0}).
+\end{equation}
+On prime inputs $p$, one distinguishes \emph{strict prime quasi-polynomials} ($f(p) = P_{p \bmod N}(p)$ for all primes $p$) and Higman's \emph{PORC} functions (\emph{Polynomial On Residue Classes}, $f(p) = P_{p \bmod N}(p)$ for all primes $p \ge p_0$).
+
+The bilingual phrasing ``period modulo $p$'' (\emph{m\'o $p$ zh\=ouq\=\i}) paired with the parenthetical title ``(quasi-polynomial period of subgroup maximal chains)'' admits two linguistic readings, and ``cannot be shortened further'' admits two minimality readings:
+\begin{enumerate}
+  \item \textbf{Reading I (Quasi-polynomial / PORC modulus period in $p$):} In \eqref{eq:quasipoly}, $N$ is the modulus applied to the variable $p$ ($p \bmod N$). The conjecture claims that $N = k = \log_p |G(p)|$ is a valid quasi-period and cannot be shortened to any smaller positive period $1 \le m < k$ (\emph{strict minimality}) or any proper divisor $1 \le m \mid k$, $m < k$ (\emph{divisor irreducibility}).
+  \item \textbf{Reading II (Literal modulo-$p$ residue periodicity):} One reduces the count itself modulo $p$, forming $r(p) = c(G(p)) \bmod p \in \{0, \dots, p-1\}$, and asks whether $p \mapsto r(p)$ is periodic in $p$ with minimal period $k = \log_p |G(p)|$.
+  \item \textbf{Quantification Scope:} One may read ``a $p$-group'' universally over all uniform families $\{G(p)\}_p$ of order $p^k$, restricted to non-cyclic or non-abelian families, summed over all isomorphism classes of order $p^k$, or existentially.
+\end{enumerate}
+
+Table~\ref{tab:verdict} summarizes our complete resolution across all readings. Every reading for $k \ge 2$ is \textbf{false}; $k = 1$ ($G(p) = \mathbb{Z}/p\mathbb{Z}$, $c = 1$, period $1 = \log_p |G|$) is the unique degenerate case where the statement holds.
+
+\begin{table}[ht]
+\centering
+\footnotesize
+\begin{tabular}{@{}llll@{}}
+\hline
+\textbf{Family / Reading ($|G(p)| = p^k$)} & \textbf{Chain Count $c(G(p))$} & \textbf{Min.\ Period} & \textbf{Status ($k \ge 2$)} \\
+\hline
+Degenerate rank $k = 1$: $\mathbb{Z}/p\mathbb{Z}$ & $1$ & $1 = k$ & Holds ($k = 1$) \\
+Cyclic: $\mathbb{Z}/p^k\mathbb{Z}$ & $1$ & $1 \mid k,\; 1 < k$ & \textbf{False} ($\forall k \ge 2$) \\
+Elementary abelian: $(\mathbb{Z}/p\mathbb{Z})^k$ & $[k]_p! \in \mathbb{Z}[p]$ & $1 \mid k,\; 1 < k$ & \textbf{False} ($\forall k \ge 2$) \\
+Arbitrary abelian: $G_\lambda(p)$ ($\lambda \vdash k$) & $P_\lambda(p) \in \mathbb{Z}[p]$ & $1 < k$ & \textbf{False} ($\forall k \ge 2$) \\
+Heisenberg ($k = 3$, $p \ge 3$): $\UT_3(\Fp)$ & $(p + 1)^2$ & $1 < 3$ & \textbf{False} \\
+Metacyclic ($k = 3$, $p \ge 3$): $M(p^3)$ & $2p + 1$ & $1 < 3$ & \textbf{False} \\
+Sum over $|G| = p^2$ / $p^3$ ($p \ge 3$) & $p+2$ / $p^3+3p^2+8p+5$ & $1 < k$ & \textbf{False} \\
+Literal $c(G(p)) \bmod p$ (\emph{any} $G(p)$) & $c(G) \equiv 1 \pmod p$ & $1 < k$ & \textbf{False} ($\forall,\exists$) \\
+Semidirect $G_{-1}(p)$ ($k = 5$, $p \ge 3$) & $B(p) + \Leg{-1}{p}p^2(2p+1)$ & $4 \ne 5$ & \textbf{False} ($5$ not period) \\
+Semidirect $G_{d_\ell}(p)$ ($k = 5$, odd $\ell$) & $B(p) + \Leg{p}{\ell}p^2(2p+1)$ & $\ell$ (arbitrary) & \textbf{False} ($\ell \ne 5$) \\
+\hline
+\end{tabular}
+\caption{Summary of maximal chain counts and minimal periods across $p$-group families.}
+\label{tab:verdict}
+\end{table}
+
+\section{Subgroup Lattices of $p$-Groups and Universal Modulo-$p$ Congruence}
+
+We begin by establishing the recursive structure of maximal chains in $\mathcal{L}(G)$ and proving that $c(G) \equiv 1 \pmod p$ holds universally for every finite $p$-group.
+
+\begin{lemma}[Maximal Subgroups and Chain Recursion in Finite $p$-Groups]\label{lem:max-sub}
+Let $G$ be a finite $p$-group of order $p^k$ with $k \ge 1$, and let $\mathcal{M}(G)$ denote the set of maximal proper subgroups of $G$ (coatoms of $\mathcal{L}(G)$). Then:
+\begin{enumerate}
+  \item Every $M \in \mathcal{M}(G)$ is normal in $G$ of index $[G : M] = p$ (so $|M| = p^{k-1}$).
+  \item There is an integer $d \ge 1$ (namely $d = \dim_{\Fp}(G/\Phi(G))$, where $\Phi(G) = [G,G]G^p$ is the Frattini subgroup) such that
+  \[
+    |\mathcal{M}(G)| = \frac{p^d - 1}{p - 1} = 1 + p + p^2 + \dots + p^{d-1} \equiv 1 \pmod p.
+  \]
+  \item The maximal chain count satisfies the exact recurrence
+  \begin{equation}\label{eq:chain-rec}
+    c(G) = \sum_{M \in \mathcal{M}(G)} c(M),
+  \end{equation}
+  and every maximal chain in $\mathcal{L}(G)$ has length $k$: $\{1\} = H_0 < H_1 < \dots < H_k = G$ with $|H_i| = p^i$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+(1) We induct on $k \ge 1$. Since $G$ is a nontrivial finite $p$-group, its center $Z(G)$ is nontrivial, so $Z(G)$ contains a subgroup $Z \trianglelefteq G$ of order $p$. Let $M \in \mathcal{M}(G)$. If $Z \le M$, then $M/Z$ is a maximal proper subgroup of $G/Z$ (order $p^{k-1}$, with $k \ge 2$ since $M < G$ implies $Z < G$), so by the inductive hypothesis $M/Z \trianglelefteq G/Z$ has index $p$, whence $M \trianglelefteq G$ and $[G:M] = p$. If $Z \not\le M$, then $MZ$ is a subgroup strictly containing $M$ (as $Z \trianglelefteq G$), so $MZ = G$ by maximality of $M$, and $M \cap Z = \{1\}$ since $|Z| = p$ is prime. Thus $[G : M] = |Z| = p$. Moreover, any subgroup of smallest prime index $p$ in $G$ is normal (the action of $G$ on $G/M$ maps into $S_p$, whose order $p!$ is divisible by $p$ only once).
+
+(2) By (1), a subgroup $M \le G$ belongs to $\mathcal{M}(G)$ if and only if $M \trianglelefteq G$ and $G/M \cong \mathbb{Z}/p\mathbb{Z}$ (since any group of prime order $p$ has no nontrivial proper subgroups). Every homomorphism $\varphi : G \to \mathbb{Z}/p\mathbb{Z}$ factors through the elementary abelian quotient $V = G/[G,G]G^p$. Since $G$ has at least one subgroup of index $p$ (as $\mathcal{L}(G)$ is finite and $\{1\} < G$, some maximal proper subgroup exists), $V \ne \{0\}$, so $V \cong \Fp^d$ for some $d \ge 1$. Nonzero linear functionals $\varphi \in \Hom_{\Fp}(\Fp^d, \Fp) \setminus \{0\}$ (of which there are $p^d - 1$) are surjective onto $\Fp$, and two functionals have the same kernel $M$ if and only if they differ by a scalar in $\Fp^\times$ (size $p - 1$). Hence $|\mathcal{M}(G)| = (p^d - 1)/(p - 1) = 1 + p + \dots + p^{d-1} \equiv 1 \pmod p$.
+
+(3) Since $\{1\} < G$, any maximal chain $C$ in $\mathcal{L}(G)$ must contain the minimum $\{1\}$ and maximum $G$, and its second-largest element $M = \max(C \setminus \{G\})$ must satisfy $M \lessdot G$ (otherwise inserting $K$ with $M < K < G$ strictly refines $C$). Since $\mathcal{L}(M) = [\{1\}, M] \subseteq \mathcal{L}(G)$, $C \mapsto (M, C \setminus \{G\})$ is a bijection between maximal chains of $\mathcal{L}(G)$ and $\bigsqcup_{M \in \mathcal{M}(G)} \{\text{maximal chains of } \mathcal{L}(M)\}$, yielding \eqref{eq:chain-rec} and, by induction on $k$, chain length $k$.
+\end{proof}
+
+\begin{theorem}[Universal Modulo-$p$ Maximal Chain Congruence]\label{thm:mod-p}
+For every prime $p$ and every finite $p$-group $G$ of order $p^k$ ($k \ge 0$),
+\[
+  c(G) \equiv 1 \pmod p.
+\]
+\end{theorem}
+
+\begin{proof}
+We induct on $k \ge 0$. For $k = 0$, $|G| = 1$, $\mathcal{L}(G) = \{\{1\}\}$ has $c(G) = 1 \equiv 1 \pmod p$. For $k \ge 1$, every $M \in \mathcal{M}(G)$ has order $p^{k-1}$ by Lemma~\ref{lem:max-sub}(1), so $c(M) \equiv 1 \pmod p$ by the inductive hypothesis. Applying Lemma~\ref{lem:max-sub}(2)--(3) gives
+\[
+  c(G) = \sum_{M \in \mathcal{M}(G)} c(M) \equiv \sum_{M \in \mathcal{M}(G)} 1 = |\mathcal{M}(G)| \equiv 1 \pmod p. \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[Refutation of Reading II Across All Families]\label{cor:mod-p-refute}
+Let $k \ge 2$, and let $\{G(p)\}_p$ be \emph{any} collection of groups indexed by primes $p$ with $|G(p)| = p^k$ (not even required to vary uniformly with $p$). Then $c(G(p)) \bmod p = 1$ for every prime $p \ge 2$. Consequently, the residue function $p \mapsto c(G(p)) \bmod p$ is constant with minimal period $1 < k$ (and $1 \mid k$), refuting both universal and existential readings of modulo-$p$ residue period $k$.
+\end{corollary}
+
+\section{Exact Polynomial Families and Complete Small-Order Census}
+
+We now show that under Reading~I (quasi-polynomial / PORC period in $p$), all standard abelian families and all $p$-groups of order $p^2$ and $p^3$ have minimal quasi-period $1$.
+
+\begin{theorem}[Cyclic $p$-Groups $\mathbb{Z}/p^k\mathbb{Z}$]\label{thm:cyclic}
+Let $k \ge 1$ and let $p$ be any prime. The subgroups of $\mathbb{Z}/p^k\mathbb{Z}$ are precisely $H_i = p^i(\mathbb{Z}/p^k\mathbb{Z})$ for $0 \le i \le k$, ordered strictly by
+\[
+  \{0\} = H_k < H_{k-1} < \dots < H_1 < H_0 = \mathbb{Z}/p^k\mathbb{Z}.
+\]
+Hence $c(\mathbb{Z}/p^k\mathbb{Z}) = 1$ for every prime $p$.
+\begin{enumerate}
+  \item For $k = 1$ ($|G| = p$, $\log_p |G| = 1$), $c(\mathbb{Z}/p\mathbb{Z}) = 1$ is a quasi-polynomial of minimal period $1 = \log_p |G|$ that cannot be shortened further.
+  \item For every $k \ge 2$ ($|G| = p^k$, $\log_p |G| = k$), $c(\mathbb{Z}/p^k\mathbb{Z}) = 1$ is an exact polynomial of period $1 \mid k$ with $1 < k$, refuting Conjecture~\texttt{00000004293} under both strict minimality and divisor irreducibility.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Every subgroup of $\mathbb{Z}/p^k\mathbb{Z}$ corresponds via the canonical projection $\mathbb{Z} \to \mathbb{Z}/p^k\mathbb{Z}$ to an additive subgroup of $\mathbb{Z}$ containing $p^k\mathbb{Z}$, hence to $d\mathbb{Z}/p^k\mathbb{Z}$ for a unique positive divisor $d \mid p^k$. Since $p$ is prime, the positive divisors of $p^k$ are uniquely $d = p^i$ ($0 \le i \le k$), with $p^j \mathbb{Z} \subseteq p^i \mathbb{Z} \iff i \le j$ and $[H_i : H_{i+1}] = p$. Thus $\mathcal{L}(\mathbb{Z}/p^k\mathbb{Z})$ is a single chain of $k + 1$ elements, so $c(\mathbb{Z}/p^k\mathbb{Z}) = 1$. Since $P_0(X) = 1 \in \mathbb{Z}[X]$ gives quasi-period $1$, $k = 1$ is minimal (no positive integer satisfies $1 \le m < 1$), whereas for every $k \ge 2$, $1 \mid k$ and $1 < k$ shortens period $k$ to $1$.
+\end{proof}
+
+\begin{theorem}[Elementary Abelian $p$-Groups $(\mathbb{Z}/p\mathbb{Z})^k$]\label{thm:elem-ab}
+For every $k \ge 1$ and every prime $p$, the maximal chain count of $E_k(p) = (\mathbb{Z}/p\mathbb{Z})^k$ is the $p$-factorial
+\begin{equation}\label{eq:flag-poly}
+  c\bigl(E_k(p)\bigr) = [k]_p! = \prod_{j=1}^k \frac{p^j - 1}{p - 1} = \prod_{j=1}^k \bigl(1 + p + p^2 + \dots + p^{j-1}\bigr) \in \mathbb{Z}[p].
+\end{equation}
+For every $k \ge 2$, $[k]_p!$ is a non-constant monic integer polynomial of degree $\binom{k}{2}$, so its minimal quasi-polynomial period (on $\mathbb{Z}_{\ge 0}$, on all primes, and in the PORC sense) is $1 < k$, while $[k]_p! \equiv 1 \pmod p$.
+\end{theorem}
+
+\begin{proof}
+Every subgroup of $E_k(p) \cong \Fp^k$ is an $\Fp$-linear subspace (since $x \mapsto a x$ for $a \in \{0, \dots, p-1\}$ is repeated group addition). Maximal chains $\{0\} = V_0 < V_1 < \dots < V_k = \Fp^k$ are complete flags in $\Fp^k$. By Lemma~\ref{lem:max-sub}(2), $\Fp^k$ has $(p^k - 1)/(p - 1) = 1 + p + \dots + p^{k-1}$ maximal subspaces $V_{k-1} \cong \Fp^{k-1}$, so \eqref{eq:chain-rec} gives $c(E_k(p)) = (1 + p + \dots + p^{k-1}) c(E_{k-1}(p))$, and induction yields \eqref{eq:flag-poly}. As a product of polynomials in $\mathbb{Z}[p]$ of degrees $0, 1, \dots, k-1$, $[k]_p!$ is a single polynomial in $\mathbb{Z}[p]$ of degree $\sum_{j=1}^k (j - 1) = \binom{k}{2} \ge 1$ (for $k \ge 2$), hence has minimal quasi-period $1 < k$.
+\end{proof}
+
+\begin{proposition}[All Finite Abelian $p$-Groups and Complete Census for $k = 2, 3$]\label{prop:abelian-and-p3}
+\begin{enumerate}
+  \item For every partition $\lambda = (\lambda_1, \dots, \lambda_r) \vdash k$, set $G_\lambda(p) = \bigoplus_{i=1}^r \mathbb{Z}/p^{\lambda_i}\mathbb{Z}$. Then $c(G_\lambda(p)) = P_\lambda(p)$ for a single integer polynomial $P_\lambda(X) \in \mathbb{Z}[X]$ valid for \emph{all} primes $p \ge 2$ (minimal quasi-period $1$).
+  \item For $k = 2$, the only groups of order $p^2$ ($p \ge 2$) are $\mathbb{Z}/p^2\mathbb{Z}$ ($c = 1$) and $(\mathbb{Z}/p\mathbb{Z})^2$ ($c = p + 1$), with total sum $p + 2$.
+  \item For $k = 3$ and odd primes $p \ge 3$, the five isomorphism classes of groups of order $p^3$ have exact polynomial chain counts:
+  \begin{align*}
+    c(\mathbb{Z}/p^3\mathbb{Z}) &= 1, &
+    c(\mathbb{Z}/p^2\mathbb{Z} \times \mathbb{Z}/p\mathbb{Z}) &= 2p + 1, \\
+    c\bigl((\mathbb{Z}/p\mathbb{Z})^3\bigr) &= p^3 + 2p^2 + 2p + 1, &
+    c\bigl(\UT_3(\Fp)\bigr) &= (p + 1)^2 = p^2 + 2p + 1, \\
+    c\bigl(M(p^3)\bigr) &= 2p + 1, &
+    \sum_{|G|=p^3} c(G) &= p^3 + 3p^2 + 8p + 5,
+  \end{align*}
+  where $\UT_3(\Fp)$ is the Heisenberg group of exponent $p$ and $M(p^3) = \mathbb{Z}/p^2\mathbb{Z} \rtimes \mathbb{Z}/p\mathbb{Z}$ is the non-abelian metacyclic group of exponent $p^2$. (At $p = 2$, $c(D_8) = 7$ and $c(Q_8) = 3$.) Thus \emph{no} group family of order $p^2$ or $p^3$ has minimal PORC period $k$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(1) We induct on $k = |\lambda|$. For $k = 0$, $P_\emptyset(X) = 1$. For $k \ge 1$, every maximal subgroup $M \lessdot G_\lambda(p)$ contains $\Phi(G_\lambda(p)) = p G_\lambda(p)$ and has abelian type $\mu \vdash (k - 1)$ obtained by decrementing one part of $\lambda$ (a corner box of the Young diagram of $\lambda$). Suppose $\lambda$ has $m_j$ parts equal to $j$ and $s_{>j} = \sum_{t > j} m_t$ parts strictly larger than $j$. By Pontryagin duality ($G_\lambda(p)$ is self-dual, mapping maximal subgroups $M$ of type $\mu$ to order-$p$ subgroups $K \le \Omega_1(G_\lambda(p)) \cong \Fp^r$ with quotient $G_\lambda(p)/K$ of type $\mu$), an element $x = (x_1, \dots, x_r) \in \Omega_1(G_\lambda(p)) \setminus \{0\}$ satisfies $G_\lambda(p)/\langle x \rangle \cong G_\mu(p)$ (where $\mu$ decrements a part of size $j$) if and only if $x$ vanishes on all coordinates with $\lambda_i < j$ and does not vanish on all coordinates with $\lambda_i = j$. The number of such vectors is $p^{s_{>j}}(p^{m_j} - 1)$, yielding $N_{\lambda \to \mu}(p) = p^{s_{>j}}(p^{m_j} - 1)/(p - 1) \in \mathbb{Z}[p]$ subgroups of order $p$ (and hence $N_{\lambda \to \mu}(p)$ maximal subgroups of type $\mu$). By \eqref{eq:chain-rec}, $P_\lambda(p) = \sum_{\mu \lessdot \lambda} N_{\lambda \to \mu}(p) P_\mu(p) \in \mathbb{Z}[p]$.
+
+(2) Immediate from Theorems~\ref{thm:cyclic} and \ref{thm:elem-ab} for $k = 2$.
+
+(3) For $\lambda = (2, 1)$, part~(1) yields $N_{(2,1)\to(1,1)}(p) = 1$ with $P_{(1,1)}(p) = p + 1$, and $N_{(2,1)\to(2)}(p) = p$ with $P_{(2)}(p) = 1$, whence $P_{(2,1)}(p) = (p + 1) + p = 2p + 1$. For odd primes $p \ge 3$:
+\begin{itemize}
+  \item In $\UT_3(\Fp)$, $\Phi(\UT_3(\Fp)) = Z(\UT_3(\Fp)) \cong \mathbb{Z}/p\mathbb{Z}$, so $|\mathcal{M}(\UT_3(\Fp))| = p + 1$. Since $\UT_3(\Fp)$ has exponent $p$, every maximal subgroup has order $p^2$ and exponent $p$, hence is isomorphic to $(\mathbb{Z}/p\mathbb{Z})^2$ ($c = p + 1$), giving $c(\UT_3(\Fp)) = (p + 1)^2$.
+  \item In $M(p^3) = \langle a, b \mid a^{p^2} = b^p = 1,\, b a b^{-1} = a^{1+p} \rangle$, $\Phi(M(p^3)) = \langle a^p \rangle \cong \mathbb{Z}/p\mathbb{Z}$, so $|\mathcal{M}(M(p^3))| = p + 1$. Since $M(p^3)$ has class $2 < p$, it is regular: $(a^x b^y)^p = a^{px}$, so $\Omega_1(M(p^3)) = \langle a^p, b \rangle \cong (\mathbb{Z}/p\mathbb{Z})^2$ is the unique maximal subgroup of exponent $p$ ($c = p + 1$), while the remaining $p$ maximal subgroups have exponent $p^2$, hence are cyclic $\mathbb{Z}/p^2\mathbb{Z}$ ($c = 1$). Thus $c(M(p^3)) = (p + 1) + p \cdot 1 = 2p + 1$.
+\end{itemize}
+At $p = 2$: $D_8$ has one $C_4$ ($c = 1$) and two $V_4$ ($c = 3$), so $c(D_8) = 7$; $Q_8$ has three $C_4$ ($c = 1$), so $c(Q_8) = 3$. Note also that no polynomial $P_2(X) \in \mathbb{Q}[X]$ can satisfy $P_2(2) = 7$ while $P_2(p) = (p+1)^2$ for all primes $p \equiv 2 \pmod 3$ ($p = 5, 11, 17, \dots$), since $P_2(X) - (X+1)^2$ would have infinitely many roots and yet equal $-2$ at $X = 2$; thus $\UT_3(\Fp)$ has PORC period $1$ for $p \ge 3$ and is not a strict quasi-polynomial of period $3$ on all primes $p \ge 2$.
+\end{proof}
+
+\section{Non-Abelian Semidirect Family of Order $p^5$: Arbitrary Prime Periods}
+
+One might still ask whether, whenever a uniform family of $p$-groups has a \emph{genuine} quasi-polynomial chain count of minimal period $N > 1$, that minimal period must equal $k = \log_p |G|$. We refute even this conditional refinement by constructing a uniform $\mathbb{Z}$-defined semidirect family of fixed order $p^5$ ($k = 5$) whose minimal quasi-period is controlled by quadratic reciprocity and can be $4$ or any odd prime $\ell$.
+
+\begin{definition}[Quadratic Semidirect Family $G_d(p)$ of Order $p^5$]\label{def:Gd}
+Fix $d \in \mathbb{Z}$. For each prime $p$, let $N_p = (\mathbb{Z}/p^2\mathbb{Z})^2$, and define $\varphi_d \in \Aut(N_p)$ by
+\[
+  \varphi_d(u, v) = (u + p d v,\; v + p u) \pmod{p^2}.
+\]
+Since $p^2 \equiv 0 \pmod{p^2}$, induction on $b \ge 0$ gives $\varphi_d^b(u, v) = (u + b p d v,\; v + b p u) \pmod{p^2}$, so $\varphi_d^p = \mathrm{id}_{N_p}$ and $\varphi_d$ preserves addition on $N_p$. Define the semidirect product
+\[
+  G_d(p) = N_p \rtimes_{\varphi_d} (\mathbb{Z}/p\mathbb{Z}), \qquad |G_d(p)| = p^4 \cdot p = p^5 \quad (\log_p |G_d(p)| = 5),
+\]
+with multiplication $((u_1, v_1), b_1) \cdot ((u_2, v_2), b_2) = \bigl((u_1 + u_2 + b_1 p d v_2,\; v_1 + v_2 + b_1 p u_2) \bmod p^2,\; (b_1 + b_2) \bmod p\bigr)$.
+\end{definition}
+
+\begin{theorem}[Exact Closed-Form Quasi-Polynomial of $G_d(p)$]\label{thm:Gd-formula}
+For every integer $d \in \mathbb{Z}$ and every odd prime $p \ge 3$, let $\Leg{d}{p} \in \{-1, 0, +1\}$ denote the Legendre symbol (with $\Leg{d}{p} = 0$ if $p \mid d$). Then
+\begin{equation}\label{eq:Gd}
+  c\bigl(G_d(p)\bigr) = 3p^4 + 10p^3 + 9p^2 + 4p + 1 + \Leg{d}{p} p^2(2p + 1).
+\end{equation}
+\end{theorem}
+
+\begin{proof}
+Fix an odd prime $p \ge 3$ and write $G = G_d(p)$, $N = N_p$. First compute $p$-th powers and commutators in $G$. For any $g = ((u, v), b) \in G$, iterating the multiplication rule $p$ times gives
+\begin{align*}
+  g^p &= \left(\sum_{j=0}^{p-1} (u + j b p d v),\; \sum_{j=0}^{p-1} (v + j b p u),\; p b\right) \\
+      &= \left(p u + b \binom{p}{2} p d v,\; p v + b \binom{p}{2} p u,\; 0\right) = \bigl((p u, p v),\, 0\bigr),
+\end{align*}
+because $p$ is odd so $p \mid \binom{p}{2}$ and $\binom{p}{2} p \equiv 0 \pmod{p^2}$. In particular:
+(i) $G^p = pN \cong \Fp^2$ regardless of $d$;
+(ii) an element $((u, v), b) \in G$ has order dividing $p$ if and only if $(u, v) \in pN$; and
+(iii) for $h = ((u', v'), 1)$ and $w = ((u, v), 0)$, the commutator $[h, w]$ equals $((p d v, p u), 0) \in pN$, while $[N, N] = \{0\}$.
+Hence $[G, G] \subseteq pN = G^p$, so $\Phi(G) = [G, G]G^p = pN$ has order $p^2$ and $G/\Phi(G) \cong \Fp^3$ (with coordinates $(\bar{u}, \bar{v}, b) \in \Fp^3$).
+
+Before summing over the $|\mathcal{M}(G)| = p^2 + p + 1$ maximal subgroups $M \in \mathcal{M}(G)$ (order $p^4$, each containing $pN$), we record two auxiliary order-$p^4$ counts:
+\begin{itemize}
+  \item For $N = (\mathbb{Z}/p^2\mathbb{Z})^2$: $\Phi(N) = pN \cong \Fp^2$, so $|\mathcal{M}(N)| = p + 1$, and every maximal subgroup of $N$ is isomorphic to $\mathbb{Z}/p^2\mathbb{Z} \times \mathbb{Z}/p\mathbb{Z}$ ($c = 2p + 1$ by Proposition~\ref{prop:abelian-and-p3}), giving $c(N) = (p + 1)(2p + 1) = 2p^2 + 3p + 1$.
+  \item For any group $M \le G$ of order $p^4$ with $|\Phi(M)| = p$ and $\Omega_1(M) = \{g \in M : g^p = 1\}$ of order $p^3$: since $g^p = ((pu, pv), 0)$ is a group homomorphism from $G$ onto $pN$ (as $pN$ is central and $g_1 g_2 \equiv (u_1+u_2, v_1+v_2, b_1+b_2) \pmod{pN}$), $\Omega_1(M) = \ker(g \mapsto g^p|_M)$ is an actual subgroup of $M$ of order $p^3$ and exponent $p$. Moreover, $\Omega_1(G) = pN \rtimes_{\mathrm{id}} (\mathbb{Z}/p\mathbb{Z}) \cong (\mathbb{Z}/p\mathbb{Z})^3$ is abelian! Hence $\Omega_1(M) \cong (\mathbb{Z}/p\mathbb{Z})^3$ ($c = [3]_p! = p^3 + 2p^2 + 2p + 1$). Meanwhile, since $|\Phi(M)| = p$, $|\mathcal{M}(M)| = p^2 + p + 1$; each of the remaining $p^2 + p$ maximal subgroups $K \in \mathcal{M}(M) \setminus \{\Omega_1(M)\}$ has order $p^3$ and exponent $p^2$ (not cyclic, as $K$ cannot equal $\mathbb{Z}/p^3\mathbb{Z}$ in $G$ of exponent $p^2$), so $K$ is isomorphic either to $\mathbb{Z}/p^2\mathbb{Z} \times \mathbb{Z}/p\mathbb{Z}$ or to $M(p^3)$. By Proposition~\ref{prop:abelian-and-p3}(3), \emph{both} have $c(K) = 2p + 1$. Thus
+  \[
+    c(M) = (p^3 + 2p^2 + 2p + 1) + (p^2 + p)(2p + 1) = 3p^3 + 5p^2 + 3p + 1.
+  \]
+\end{itemize}
+
+Now classify the $p^2 + p + 1$ hyperplanes $M/pN \subset G/pN \cong \Fp^3$:
+\begin{enumerate}
+  \item \textbf{Unique hyperplane $b = 0$ ($M = N$):} Gives $1$ subgroup with $c(N) = 2p^2 + 3p + 1$.
+  \item \textbf{The $p^2 + p$ hyperplanes projecting surjectively onto $b \in \Fp$:} Each is uniquely specified by a projective line $L = \Fp(\bar{u}, \bar{v}) \subset \Fp^2$ ($p + 1$ lines) and a coset representative $h = ((\bar{u}', \bar{v}'), 1)$ with $(\bar{u}', \bar{v}') \in \Fp^2 / L$ ($p$ lifts per line). Identifying $pN \cong \Fp^2$ via $((px, py), 0) \leftrightarrow (x, y)$, $\Phi(M) = [M, M]M^p \subseteq \Fp^2$ is spanned by the three vectors
+  \[
+    v_1 = (\bar{u}, \bar{v}) \ne (0, 0), \qquad v_2 = (\bar{u}', \bar{v}'), \qquad v_3 = (d\bar{v}, \bar{u}).
+  \]
+  We partition these $p^2 + p$ hyperplanes into three disjoint classes:
+  \begin{itemize}
+    \item \textbf{Class 2a ($(\bar{u}', \bar{v}') \notin L$, $(p + 1)(p - 1) = p^2 - 1$ hyperplanes):} Here $v_1$ and $v_2$ already span $\Fp^2$, so $M^p = \Phi(M) = pN$ ($|\Phi(M)| = p^2$, $|\mathcal{M}(M)| = p + 1$) and $|\Omega_1(M)| = |pN| = p^2$. Every $K \in \mathcal{M}(M)$ contains $pN$ with $|K/pN| = p$, so $K = \langle g, pN \rangle$ is abelian of order $p^3$ and exponent $p^2$ (since $K \supsetneq pN = \Omega_1(M)$), i.e., $K \cong \mathbb{Z}/p^2\mathbb{Z} \times \mathbb{Z}/p\mathbb{Z}$ ($c = 2p + 1$). Thus $c(M) = (p + 1)(2p + 1) = 2p^2 + 3p + 1$.
+    \item \textbf{Class 2b ($(\bar{u}', \bar{v}') \in L$, i.e.\ $v_2 = (0,0)$, and $\bar{u}^2 - d\bar{v}^2 \equiv 0 \pmod p$):} A nonzero vector $(\bar{u}, \bar{v})$ with $\bar{u}^2 \equiv d\bar{v}^2 \pmod p$ must have $\bar{v} \not\equiv 0 \pmod p$ (else $\bar{u} \equiv 0$), so normalizing $\bar{v} = 1$ gives $\bar{u}^2 \equiv d \pmod p$, which has \emph{exact} solution count $1 + \Leg{d}{p} \in \{0, 1, 2\}$ in $\Fp$ (including $1 + 0 = 1$ solution $\bar{u} = 0$ when $p \mid d$). For each such line, $v_3 = (d, \bar{u}) = \bar{u}(\bar{u}, 1) = \bar{u} v_1 \in L$ and $v_2 = (0, 0)$, so $\Phi(M) = \Fp v_1$ has order $p$, while $|M^p| = p$ gives $|\Omega_1(M)| = p^3$. By our auxiliary calculation above, $c(M) = 3p^3 + 5p^2 + 3p + 1$.
+    \item \textbf{Class 2c ($v_2 = (0, 0)$ and $\bar{u}^2 - d\bar{v}^2 \not\equiv 0 \pmod p$, $(p + 1) - (1 + \Leg{d}{p}) = p - \Leg{d}{p}$ hyperplanes):} Here $v_1$ and $v_3$ are linearly independent, so $\Phi(M) = pN$ ($|\Phi(M)| = p^2$, $|\mathcal{M}(M)| = p + 1$), while $v_2 = (0, 0)$ means $|M^p| = p$ and $\Omega_1(M) = pN \times \langle ((0,0), 1) \rangle \cong (\mathbb{Z}/p\mathbb{Z})^3$ is one of the $p + 1$ maximal subgroups of $M$ ($c = p^3 + 2p^2 + 2p + 1$). The other $p$ subgroups $K \in \mathcal{M}(M)$ contain $pN$ centrally and have exponent $p^2$, so $K \cong \mathbb{Z}/p^2\mathbb{Z} \times \mathbb{Z}/p\mathbb{Z}$ ($c = 2p + 1$). Thus $c(M) = (p^3 + 2p^2 + 2p + 1) + p(2p + 1) = p^3 + 4p^2 + 3p + 1$.
+  \end{itemize}
+\end{enumerate}
+
+Summing all four contributions via \eqref{eq:chain-rec}:
+\begin{align*}
+  c\bigl(G_d(p)\bigr)
+  &= \bigl(1 + (p^2 - 1)\bigr)(2p^2 + 3p + 1)
+     + \Bigl(1 + \Leg{d}{p}\Bigr)(3p^3 + 5p^2 + 3p + 1) \\
+  &\quad + \Bigl(p - \Leg{d}{p}\Bigr)(p^3 + 4p^2 + 3p + 1) \\
+  &= p^2(2p^2 + 3p + 1) + (p + 1)(p^3 + 4p^2 + 3p + 1) + \Bigl(1 + \Leg{d}{p}\Bigr)(2p^3 + p^2) \\
+  &= 3p^4 + 10p^3 + 9p^2 + 4p + 1 + \Leg{d}{p} p^2(2p + 1). \qedhere
+\end{align*}
+\end{proof}
+
+\begin{corollary}[Arbitrary Prime Quasi-Periods at Fixed Log-Order $k = 5$]\label{cor:Gd-periods}
+\begin{enumerate}
+  \item \textbf{Period $4 \ne 5$ ($d = -1$):} For all odd primes $p \ge 3$, $\Leg{-1}{p} = (-1)^{(p-1)/2}$, so
+  \[
+    c\bigl(G_{-1}(p)\bigr) = \begin{cases}
+      3p^4 + 12p^3 + 10p^2 + 4p + 1 & \text{if } p \equiv 1 \pmod 4, \\
+      3p^4 + 8p^3 + 8p^2 + 4p + 1 & \text{if } p \equiv 3 \pmod 4.
+    \end{cases}
+  \]
+  Extending this rule naturally to $f_{-1} : \mathbb{Z}_{\ge 0} \to \mathbb{Z}$ via $P_{n \bmod 4}(n)$, $f_{-1}$ is a quasi-polynomial of period $N$ if and only if $4 \mid N$; in particular, its minimal quasi-period is $4 \ne 5 = \log_p |G_{-1}(p)|$, and $5$ is not even a valid quasi-period (NOR a PORC period: in the single residue class $p \equiv 1 \pmod 5$, primes $p \equiv 1 \pmod{20}$ such as $41, 61, 101, \dots$ follow $P_1$ while primes $p \equiv 11 \pmod{20}$ such as $11, 31, 71, \dots$ follow $P_3 \ne P_1$).
+  \item \textbf{Arbitrary odd prime period $\ell$ ($d_\ell = (-1)^{(\ell-1)/2}\ell$):} Let $\ell$ be any odd prime. Since $d_\ell \equiv 1 \pmod 4$, Quadratic Reciprocity gives $\Leg{d_\ell}{p} = \Leg{p}{\ell}$ for every odd prime $p$. Thus for $p > \ell$, $c(G_{d_\ell}(p))$ is a PORC function of minimal period $\ell$ while $\log_p |G_{d_\ell}(p)| = 5$ remains fixed: taking $\ell = 3$ gives minimal period $3 < 5$, whereas taking $\ell = 7, 11, 13, \dots$ gives minimal periods arbitrarily larger than $\log_p |G| = 5$.
+\end{enumerate}
+\end{corollary}
+
+\begin{remark}[Failure of Quasi-Polynomiality Itself for Non-Abelian Galois Families]
+Replacing the $2 \times 2$ companion matrix $A_d$ of $t^2 - d$ by the $3 \times 3$ companion matrix $A_f \in \GL_3(\mathbb{Z})$ of $f(t) = t^3 - t - 1$ ($\mathrm{disc}(f) = -23$, $\mathrm{Gal}(f/\mathbb{Q}) \cong S_3$) acting as $I_3 + p A_f$ on $(\mathbb{Z}/p^2\mathbb{Z})^3$ produces a uniform semidirect $p$-group family $G_f(p) = (\mathbb{Z}/p^2\mathbb{Z})^3 \rtimes_{I_3 + p A_f} (\mathbb{Z}/p\mathbb{Z})$ of order $p^7$ whose subgroup lattice detects the number $r_f(p) \in \{0, 1, 3\}$ of $\Fp$-eigenlines/eigenplanes of $A_f \bmod p$ ($p \ne 23$). Because $\mathrm{Gal}(f/\mathbb{Q}) \cong S_3$ is non-abelian, the Kronecker--Weber theorem and Chebotarev density theorem imply that for \emph{every} modulus $N \ge 1$, the single residue class $p \equiv 1 \pmod N$ contains both infinitely many primes with $r_f(p) = 3$ and infinitely many primes with $r_f(p) = 0$. This mirrors the classical non-PORC phenomenon in subgroup growth of nilpotent groups (du~Sautoy; Vaughan-Lee).
+\end{remark}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Checks}
+
+To eliminate any possibility of logical gap or edge-case oversight, all core algebraic structures and refutation theorems are formalized from first principles in \texttt{lean/Main.lean} using self-contained Core Lean~4.19.0 (\texttt{leanprover/lean4:v4.19.0}, compiled with \texttt{-DwarningAsError=true}, zero external dependencies, zero \texttt{sorry}, zero \texttt{native\_decide}, and zero custom axioms):
+\begin{itemize}\sloppy
+  \item \textbf{Subgroup Complete Lattice \& Maximal Chains:} \texttt{GroupStruct}, \texttt{Subgroup}, \texttt{sInfSub}, \texttt{infSub}, \texttt{supSub}, \texttt{SubCovers}, \texttt{IsMaximal\allowbreak ChainList}, and \texttt{HasExact\allowbreak Maximal\allowbreak Chains}.
+  \item \textbf{Cyclic $p$-Groups $\mathbb{Z}/p^k\mathbb{Z}$:} Theorem \texttt{cyclic\_\allowbreak hasExact\allowbreak Maximal\allowbreak Chains} proves via positive B\'ezout identity, Euclid's lemma, and prime-power divisor classification (\texttt{dvd\_\allowbreak prime\_\allowbreak pow}) that $\mathbb{Z}/p^k\mathbb{Z}$ has a unique maximal chain ($c = 1$) for \emph{every} prime $p$ and \emph{every} $k \ge 0$.
+  \item \textbf{Elementary Abelian $(\mathbb{Z}/p\mathbb{Z})^2$ \& $[k]_p!$:} Theorems \texttt{ea2\_\allowbreak hasExact\allowbreak Maximal\allowbreak Chains} and \texttt{flagCount\_\allowbreak mod\_\allowbreak p} classify all $p + 3$ subgroups ($\bot$, $\top$, \texttt{vertSub}, and $p$ slope subgroups \texttt{slopeSub m}) of $(\mathbb{Z}/p\mathbb{Z})^2$ for every prime $p$, proving $c((\mathbb{Z}/p\mathbb{Z})^2) = p + 1$, and establish the integer polynomial representation and modulo-$p$ congruence $[k]_p! \equiv 1 \pmod p$ for all $k \ge 0$.
+  \item \textbf{Universal Modulo-$p$ Congruence:} Theorems \texttt{tree\allowbreak Maximal\allowbreak Chains\_\allowbreak mod\_\allowbreak p} and \texttt{universal\_\allowbreak mod\_\allowbreak p\_\allowbreak period\_\allowbreak impos\allowbreak sibility} prove $c(T) \bmod p = 1$ for arbitrary graded $p$-group subgroup trees with Burnside--Frattini branching counts $\sum_{i=0}^{d-1} p^i$, refuting modulo-$p$ period $k \ge 2$ for arbitrary group assignments.
+  \item \textbf{Positive Non-Vacuity \& Refutations:} Theorems \texttt{non\allowbreak vacuous\_\allowbreak witness\_\allowbreak k\_\allowbreak eq\_\allowbreak 1}, \texttt{cyclic\_\allowbreak refutes\_\allowbreak con\allowbreak jecture\_\allowbreak all\_\allowbreak k\_\allowbreak ge\_\allowbreak 2}, \texttt{elem\_\allowbreak abelian\_\allowbreak refutes\_\allowbreak con\allowbreak jecture}, \texttt{gMinus1\_\allowbreak quasi\allowbreak Poly\_\allowbreak iff\_\allowbreak four\_\allowbreak dvd}, and \texttt{non\allowbreak abelian\_\allowbreak order\_\allowbreak p5\_\allowbreak period\_\allowbreak 4\_\allowbreak ne\_\allowbreak 5} establish positive non-vacuity at $k = 1$, refute all period variants for all $k \ge 2$, and prove for $G_{-1}(p)$ ($k = 5$) the exact divisibility criterion
+  \[
+    \texttt{IsQuasiPoly}\; N\; f_{-1} \iff (1 \le N \land 4 \mid N).
+  \]
+\end{itemize}
+
+In addition, the standalone script \texttt{verify.py} constructs explicit multiplication tables and Frattini-hyperplane subgroup lattices across primes $p \in \{2, 3, 5, 7\}$, confirming exact agreement with Theorems~\ref{thm:mod-p}, \ref{thm:cyclic}, \ref{thm:elem-ab}, \ref{thm:Gd-formula} (e.g.\ $c(G_{-1}(3)) = 544$, $c(G_1(3)) = 670$, $c(G_0(3)) = 607$, $c(G_{-1}(5)) = 3646$, $c(G_2(5)) = 3096$, $c(G_5(5)) = 3371$) and Proposition~\ref{prop:abelian-and-p3}.
+
+\begin{thebibliography}{9}
+\bibitem{Burnside}
+W.~Burnside, \emph{Theory of Groups of Finite Order}, 2nd ed., Cambridge University Press, 1911.
+
+\bibitem{Higman}
+G.~Higman, Enumerating $p$-groups. I: Inequalities, \emph{Proc.\ London Math.\ Soc.\ (3)} \textbf{10} (1960), 24--30.
+
+\bibitem{Schmidt}
+R.~Schmidt, \emph{Subgroup Lattices of Groups}, De Gruyter Expositions in Mathematics, Vol.~14, Walter de Gruyter, Berlin, 1994.
+
+\bibitem{Stanley}
+R.~P.~Stanley, \emph{Enumerative Combinatorics}, Vol.~1, 2nd ed., Cambridge University Press, 2012.
+
+\bibitem{duSautoy}
+M.~du~Sautoy, Counting $p$-groups and nilpotent groups, \emph{Inst.\ Hautes \'Etudes Sci.\ Publ.\ Math.} \textbf{92} (2000), 63--112.
+\end{thebibliography}
+
+\end{document}
