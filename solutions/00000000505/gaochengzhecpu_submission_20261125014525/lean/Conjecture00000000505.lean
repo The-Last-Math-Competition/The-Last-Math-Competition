@@ -1,0 +1,10 @@
+import Conjecture00000000505.Ring
+import Conjecture00000000505.Module
+import Conjecture00000000505.Poly
+import Conjecture00000000505.DimensionDepth
+import Conjecture00000000505.EdgeIdeal
+
+#print axioms Conjecture00000000505.disproof_conjecture505_quotientPD_nonEmpty
+#print axioms Conjecture00000000505.disproof_conjecture505_quotientPD
+#print axioms Conjecture00000000505.disproof_conjecture505_idealPD
+#print axioms Conjecture00000000505.disproof_over_F2
