@@ -1,0 +1,106 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\Sha}{\operatorname{Sha}}
+\title{Disproof of Conjecture 00000000255\\
+\large An elliptic curve with negative root number and a square-order obstruction}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+Consider the elliptic curve
+\[
+  E/\mathbb Q:\quad y^2+y=x^3-x.
+\]
+Its global root number is \(-1\). If its Tate--Shafarevich group
+is finite, the Cassels--Tate pairing forces its order to be a
+positive square. The two assertions about \(\Sha(E)\) in the
+conjecture therefore cannot hold together.
+
+\section*{The root number}
+
+The integral Weierstrass coefficients are
+\((a_1,a_2,a_3,a_4,a_6)=(0,0,1,-1,0)\), giving
+\((b_2,b_4,b_6,b_8)=(0,-2,1,-1)\). In particular
+\[
+  \Delta=-8(-2)^3-27=37,\qquad c_4=-24(-2)=48.
+\]
+This model is minimal at \(37\) because the discriminant valuation
+is one and changes between Weierstrass models occur in multiples
+of twelve. It has good reduction at every other prime.
+At \(37\), completing the square with \(Y=2y+1\) gives
+\[
+  Y^2=4x^3-4x+1=4(x-5)^2(x+10)\quad\text{over }\mathbb F_{37}.
+\]
+The double root \(5\) is distinct from the simple root \(-10\).
+Writing \(u=x-5\), the tangent cone of the node at \((5,0)\)
+is \(Y^2-23u^2\), since \(4(5+10)\equiv23\pmod{37}\).
+The residue \(23\) is not a square. In fact successive squaring
+gives \(23^2\equiv11\), \(23^4\equiv10\),
+\(23^8\equiv26\), and \(23^{16}\equiv10\pmod{37}\),
+so \(23^{18}\equiv-1\pmod{37}\). A nonzero square would have
+eighteenth power \(1\) by Fermat's little theorem.
+Thus the two tangents are distinct but are not defined over
+\(\mathbb F_{37}\), giving nonsplit multiplicative reduction.
+
+The good and nonsplit multiplicative finite places have local
+root number \(+1\). The real place has local root number \(-1\).
+Multiplying the local signs gives \(w(E/\mathbb Q)=-1\)
+\cite[Example~3.22 and Section~8.1]{dokchitser}.
+
+\section*{The order constraint on \(\Sha(E)\)}
+
+For an elliptic curve, the Cassels--Tate pairing is alternating
+and is nondegenerate after quotienting by the maximal divisible
+subgroup \cite[Introduction]{poonen-stoll}. A finite group has
+zero divisible subgroup. Thus, if \(G=\Sha(E)\) is finite,
+the pairing on \(G\) is perfect and alternating.
+
+For completeness, a finite abelian group with such a pairing
+has square order. Choose \(x\in G\) of maximal order \(n\).
+If \(n=1\) the assertion is immediate. Otherwise perfection
+implies that the character \(\langle x,-\rangle\) has order \(n\).
+Its image in \(\mathbb Q/\mathbb Z\) is cyclic of order \(n\),
+so one can choose \(y\) with \(\langle x,y\rangle\) of order
+\(n\). Then \(y\) also has order \(n\), by maximality of \(n\).
+Pairing a relation between \(x\) and \(y\) with each of them
+shows that both coefficients are divisible by \(n\). Consequently
+\(H=\langle x,y\rangle\) has order \(n^2\), and its pairing is
+nondegenerate. Every character on \(H\) is represented by an element
+of \(H\), so each element of \(G\) differs from an element of \(H\)
+by an element of \(H^\perp\). Hence \(G=H\oplus H^\perp\), and the
+pairing on \(H^\perp\) is again perfect and alternating. Induction
+on group order proves the square-order assertion.
+
+An equality \(a^2=2b^2>0\) would force both \(a\) and \(b\) to
+be even, producing a smaller positive solution after division.
+Thus if \(\Sha(E)\) is finite, its positive square order cannot
+be twice a square as asserted for root number \(-1\).
+If \(\Sha(E)\) is infinite, the finiteness assertion already fails.
+
+\section*{Lean verification}
+
+The Lean~4.19.0 project checks the Weierstrass invariants, the
+factorization and tangent computation modulo \(37\), and the
+product of local signs under the stated reduction rules. It
+proves by descent that a positive square cannot be twice a square
+and derives the contradiction from the finite Cassels--Tate
+square-order theorem. Run \verb|lake build| in \verb|lean/| to
+verify the formal results.
+
+\begin{thebibliography}{2}
+\bibitem{dokchitser}
+T.~Dokchitser, \emph{Notes on the parity conjecture},
+\href{https://arxiv.org/abs/1009.5389}{arXiv:1009.5389}.
+\bibitem{poonen-stoll}
+B.~Poonen and M.~Stoll,
+\emph{The Cassels--Tate pairing on polarized abelian varieties},
+Annals of Mathematics \textbf{150} (1999), 1109--1149.
+\href{https://math.mit.edu/~poonen/papers/sha.pdf}{Author's copy}.
+\end{thebibliography}
+
+\end{document}
