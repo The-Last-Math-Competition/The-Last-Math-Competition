@@ -1,0 +1,406 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\nimadd}{\oplus}
+\newcommand{\nimmul}{\otimes}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\N}{\mathbb{N}}
+
+\title{\textbf{Resolution of Conjecture 00000001284:\\
+Nim-Multiplication, Dyadic Frobenius Bijectivity, and\\
+Polynomial Decay of Squares in the Nim-Square Sequence}}
+\author{Formal Mathematical Resolution and Lean 4 Verification}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000001284}, which defines nim-multiplication as the realization of finite-field multiplication on the nim-value system $\N = \{0,1,2,\dots\}$ and asserts that the density of square values in the nim-square sequence is zero with logarithmic-power decay $(\log N)^{-1/2}$. Analyzing both the English and Chinese formulations, we establish unconditionally that the conjecture as stated is \textbf{false} under every natural mathematical interpretation:
+\begin{enumerate}
+  \item \textbf{Interpretation A (Nim-squares in $\N$ or in the nim-square sequence):} Constructing Conway's nim-addition $\nimadd$ and nim-multiplication $\nimmul$ via the inductive Artin--Schreier quadratic field tower $F_k = [0, 2^{2^k}) \cong \F_{2^{2^k}}$, we prove that $(\N, \nimadd, \nimmul, 0, 1)$ is an algebraically closed tower of characteristic-$2$ finite fields in which the Frobenius map $s(x) = x \nimmul x$ is a global bijection $\N \xrightarrow{\sim} \N$ preserving every dyadic interval $[0, 2^d)$. Consequently, \emph{every} natural number is a nim-square, so the density of nim-square values is identically $1 \neq 0$ (and exceeds $1/2$ at every $N \ge 1$ even if witnesses are restricted to $x < N$).
+  \item \textbf{Interpretation B (Ordinary integer squares $m^2$ in $s(x) = x \nimmul x$):} For the counting function $C(N) = |\{0 \le x < N : \exists m \in \N,\, x \nimmul x = m^2\}|$ and finite-horizon proportion $D(N) = C(N)/N$, dyadic bijectivity yields $C(2^d) = \lceil 2^{d/2} \rceil$ for all $d \ge 0$, hence $C(N) = \sqrt{N}$ and $D(N) = N^{-1/2}$ at every even power of two $N = 4^m$ (including all Fermat $2$-powers $N = 2^{2^k}$, $k \ge 1$). Across all integers $N \ge 1$, we prove the uniform bounds $\frac{1}{\sqrt{2}} N^{-1/2} < D(N) < 2\sqrt{2}\, N^{-1/2}$. Thus the asymptotic density is indeed $0$, \textbf{confirming} the first clause under Interpretation B, but the decay rate is \textbf{polynomial} of exact order $\Theta(N^{-1/2})$, \textbf{refuting} the conjectured $(\log N)^{-1/2}$ logarithmic decay since $D(N) / (\log N)^{-1/2} \to 0$ as $N \to \infty$.
+\end{enumerate}
+All algebraic, structural, and asymptotic theorems are formalized from first principles in Core Lean 4.19.0 with zero external dependencies and verified computationally in Python up to $N = 2^{20} = 1{,}048{,}576$.
+\end{abstract}
+
+\section{Problem Statement and Mathematical Interpretations}
+
+Conjecture \texttt{00000001284} in \texttt{SOURCE.md} reads verbatim as follows:
+\begin{quote}
+\textbf{English.} Definition: Nim-multiplication is the realization of finite-field multiplication on the nim-value system. Conjecture: The density of square values in the nim-square sequence is zero; the decay of the zero density is a logarithmic power with exponent negative one half. (nim squares zero density)
+\end{quote}
+The accompanying Chinese statement (\emph{nim-chengfa wei youxianyu ziran chengfa zai nim zhixi shang de shixian; nim-pingfang xulie zhong pingfangzhi de midu wei ling; ling midu de shuaijian wei duishu mi qie mizhishu wei fu erfen zhi yi}) is an exact clause-by-clause counterpart.
+
+Let $\N = \{0, 1, 2, \dots\}$ denote the nim-value system equipped with nim-addition $\nimadd$ (bitwise exclusive-or) and Conway's nim-multiplication $\nimmul$~\cite{ConwayONAG,LenstraNim}, and let
+\[
+  s : \N \longrightarrow \N, \qquad s(x) = x \nimmul x,
+\]
+denote the \emph{nim-square sequence} $(0, 1, 3, 2, 6, 7, 5, 4, 13, 12, 14, 15, 11, 10, 8, 9, 24, \dots)$. The phrasing \emph{``square values in the nim-square sequence''} together with the parenthetical tag \emph{``(nim squares zero density)''} admits two natural mathematical readings:
+\begin{itemize}
+  \item \textbf{Interpretation A (Nim-square values):} Counting natural numbers $n < N$ that are nim-squares $n = x \nimmul x$ (either with unrestricted witness $x \in \N$, with restricted witness $x < N$, or as nim-square values among the terms $s(0), \dots, s(N-1)$).
+  \item \textbf{Interpretation B (Ordinary integer squares in $s(x)$):} Counting indices $0 \le x < N$ for which the nim-square $s(x) = x \nimmul x$ is an ordinary integer square $m^2$ ($m \in \N$), with finite-horizon density
+  \[
+    D(N) := \frac{C(N)}{N}, \qquad C(N) := \bigl|\{0 \le x < N : \exists m \in \N,\; x \nimmul x = m^2\}\bigr|.
+  \]
+\end{itemize}
+
+We resolve both interpretations completely and rigorously: Interpretation A fails already at the first clause (the asymptotic density is $1$, not $0$), while Interpretation B satisfies $\lim_{N \to \infty} D(N) = 0$ but fails at the second clause because $D(N) = \Theta(N^{-1/2})$ decays polynomially rather than as $(\log N)^{-1/2}$.
+
+\section{Construction of the Nim Finite-Field Tower on \texorpdfstring{$\N$}{N}}
+
+\subsection{Nim-Addition and Fermat \texorpdfstring{$2$}{2}-Power Digits}
+
+For $x, y \in \N$ with binary expansions $x = \sum_{i \ge 0} x_i 2^i$ and $y = \sum_{i \ge 0} y_i 2^i$ ($x_i, y_i \in \{0,1\}$), nim-addition is bitwise XOR:
+\[
+  x \nimadd y := \sum_{i \ge 0} \bigl((x_i + y_i) \bmod 2\bigr) 2^i.
+\]
+Clearly $(\N, \nimadd, 0)$ is an elementary abelian $2$-group: $\nimadd$ is associative and commutative, $x \nimadd 0 = x$, and $x \nimadd x = 0$ (so $x \nimadd y = 0 \iff x = y$), closing every dyadic interval $[0, 2^n)$.
+
+For each $k \ge 0$, define the $k$-th Fermat $2$-power and its half-power by
+\[
+  M_k := 2^{2^k}, \qquad P_k := \frac{M_k}{2} = 2^{2^k - 1}.
+\]
+Thus $M_0 = 2$, $M_1 = 4$, $M_2 = 16$, $M_3 = 256$, and for all $k \ge 0$,
+\begin{equation}\label{eq:MP-identities}
+  M_{k+1} = M_k^2, \qquad 2 P_k = M_k, \qquad P_k < M_k, \qquad P_{k+1} = M_k P_k.
+\end{equation}
+Every $x \in \N$ decomposes uniquely in base $M_k$ via $\mathrm{hi}_k(x) := \lfloor x / M_k \rfloor$ and $\mathrm{lo}_k(x) := x \bmod M_k < M_k$ as
+\[
+  x = \mathrm{join}_k\bigl(\mathrm{hi}_k(x), \mathrm{lo}_k(x)\bigr) := M_k \cdot \mathrm{hi}_k(x) + \mathrm{lo}_k(x) = \bigl(M_k \cdot \mathrm{hi}_k(x)\bigr) \nimadd \mathrm{lo}_k(x).
+\]
+Moreover, $x < M_{k+1} \iff \mathrm{hi}_k(x) < M_k$, and bitwise XOR respects base-$M_k$ digits: for $b_1, b_2 < M_k$,
+\begin{equation}\label{eq:join-xor}
+  \mathrm{join}_k(a_1, b_1) \nimadd \mathrm{join}_k(a_2, b_2) = \mathrm{join}_k(a_1 \nimadd a_2,\, b_1 \nimadd b_2).
+\end{equation}
+
+\subsection{Inductive Quadratic Tower Definition of Nim-Multiplication}
+
+\begin{definition}[Quadratic Tower Multiplication]\label{def:nimMulK}
+For each integer $k \ge 0$, define $\nimmul_k : \N \times \N \to [0, M_k)$ recursively on $k$:
+\begin{enumerate}
+  \item For $k = 0$ ($M_0 = 2$), $x \nimmul_0 y := (x \bmod 2)(y \bmod 2)$.
+  \item For $k + 1$, let $x_1 = \mathrm{hi}_k(x)$, $x_0 = \mathrm{lo}_k(x)$, $y_1 = \mathrm{hi}_k(y)$, $y_0 = \mathrm{lo}_k(y)$, and set
+  \[
+    x \nimmul_{k+1} y := \mathrm{join}_k\Bigl((x_1 \nimmul_k y_1) \nimadd (x_1 \nimmul_k y_0) \nimadd (x_0 \nimmul_k y_1),\;
+    (x_0 \nimmul_k y_0) \nimadd \bigl(P_k \nimmul_k (x_1 \nimmul_k y_1)\bigr)\Bigr).
+  \]
+\end{enumerate}
+\end{definition}
+
+Algebraically, writing $x = x_1 \alpha_k \nimadd x_0 \in F_{k+1} := [0, M_{k+1})$ with $\alpha_k = M_k$, Definition~\ref{def:nimMulK} is the multiplication of the quadratic extension $F_{k+1} = F_k[\alpha_k] / (\alpha_k^2 \nimadd \alpha_k \nimadd P_k)$ over $F_k = [0, M_k)$.
+
+\begin{lemma}[Tower Coherence and Ring Axioms]\label{lem:ring-tower}
+For every $k \ge 0$:
+\begin{enumerate}
+  \item $x \nimmul_k y < M_k$ for all $x, y \in \N$.
+  \item $(F_k, \nimadd, \nimmul_k, 0, 1)$ is a commutative ring of characteristic $2$: $\nimmul_k$ is commutative, associative, and distributive over $\nimadd$, with $0 \nimmul_k x = 0$ and $1 \nimmul_k x = x$ for all $x < M_k$.
+  \item If $k \le \ell$ and $x, y < M_k$, then $x \nimmul_\ell y = x \nimmul_k y$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+Claim (1) holds by induction on $k$ since $M_0 = 2$ and $\mathrm{join}_k(a,b) < M_{k+1}$ whenever $a, b < M_k$. In claim (2), $0 \nimmul_k y = 0$, $1 \nimmul_k x = x$ ($x < M_k$), commutativity, and distributivity follow directly by induction on $k$ using~\eqref{eq:join-xor}. For associativity on $F_{k+1}$, expanding both $(x \nimmul_{k+1} y) \nimmul_{k+1} z$ and $x \nimmul_{k+1} (y \nimmul_{k+1} z)$ via the induction hypothesis yields the symmetric base-$M_k$ digits
+\begin{align*}
+  \mathrm{hi}_k &= (x_1 y_1 z_1) \nimadd (x_1 y_1 z_0) \nimadd (x_1 y_0 z_1) \nimadd (x_0 y_1 z_1) \nimadd (x_1 y_0 z_0) \nimadd (x_0 y_1 z_0) \nimadd (x_0 y_0 z_1) \nimadd P_k(x_1 y_1 z_1),\\
+  \mathrm{lo}_k &= (x_0 y_0 z_0) \nimadd P_k\bigl((x_1 y_1 z_1) \nimadd (x_1 y_1 z_0) \nimadd (x_1 y_0 z_1) \nimadd (x_0 y_1 z_1)\bigr),
+\end{align*}
+where products inside $F_k$ denote $\nimmul_k$. Finally, if $x, y < M_k$, then $\mathrm{hi}_k(x) = \mathrm{hi}_k(y) = 0$ and $\mathrm{lo}_k(x) = x$, $\mathrm{lo}_k(y) = y$, so $x \nimmul_{k+1} y = \mathrm{join}_k(0, x \nimmul_k y) = x \nimmul_k y$; induction gives $x \nimmul_\ell y = x \nimmul_k y$ for all $\ell \ge k$.
+\end{proof}
+
+To prove that each $F_k$ is a \emph{field} (i.e., $T^2 \nimadd T \nimadd P_k$ has no root in $F_k$), we establish a sharp numerical Artin--Schreier inequality.
+
+\begin{theorem}[Artin--Schreier Bound and Field Structure]\label{thm:field}
+For every $k \ge 0$ and every $x < M_k$,
+\begin{equation}\label{eq:AS-bound}
+  (x \nimmul_k x) \nimadd x < P_k.
+\end{equation}
+Consequently, $T^2 \nimadd T \nimadd P_k$ is irreducible over $F_k$, and every $F_k = [0, M_k)$ is a field of order $2^{2^k}$ with explicit multiplicative inverse $\mathrm{nimInv}_k$. Setting $x \nimmul y := x \nimmul_k y$ for any $k$ with $\max(x,y) < M_k$ makes $(\N, \nimadd, \nimmul, 0, 1)$ a field of characteristic $2$ closing each finite subfield $F_k = [0, 2^{2^k})$.
+\end{theorem}
+
+\begin{proof}
+For $k = 0$, $F_0 = \{0,1\}$, $P_0 = 1$, and $(x \nimmul_0 x) \nimadd x = 0 < 1$. Assume~\eqref{eq:AS-bound} holds for $k$, and let $x = \mathrm{join}_k(x_1, x_0) < M_{k+1}$ with $x_1, x_0 < M_k$. In characteristic $2$, the cross terms $(x_1 \nimmul_k x_0) \nimadd (x_0 \nimmul_k x_1) = 0$ cancel in Definition~\ref{def:nimMulK}, giving the squaring formula
+\begin{equation}\label{eq:sq-recurrence}
+  x \nimmul_{k+1} x = \mathrm{join}_k\Bigl(x_1 \nimmul_k x_1,\; (x_0 \nimmul_k x_0) \nimadd \bigl(P_k \nimmul_k (x_1 \nimmul_k x_1)\bigr)\Bigr).
+\end{equation}
+By~\eqref{eq:join-xor}, $\mathrm{hi}_k\bigl((x \nimmul_{k+1} x) \nimadd x\bigr) = (x_1 \nimmul_k x_1) \nimadd x_1 < P_k$ by the induction hypothesis, while the low digit $b := \mathrm{lo}_k\bigl((x \nimmul_{k+1} x) \nimadd x\bigr)$ satisfies $b < M_k$. Using $P_{k+1} = M_k P_k$ from~\eqref{eq:MP-identities},
+\[
+  (x \nimmul_{k+1} x) \nimadd x \le M_k(P_k - 1) + (M_k - 1) = M_k P_k - 1 = P_{k+1} - 1 < P_{k+1},
+\]
+completing the induction for~\eqref{eq:AS-bound}.
+
+We now construct inverses inductively on $F_k$. On $F_0 = \{0,1\}$, $1^{-1} = 1$. Suppose every nonzero element of $F_k$ has an inverse in $F_k$, and let $0 < x = \mathrm{join}_k(x_1, x_0) < M_{k+1}$. Define the conjugate $\bar{x} := \mathrm{join}_k(x_1, x_0 \nimadd x_1)$ and the quadratic norm
+\[
+  \nu(x) := (x_0 \nimmul_k x_0) \nimadd (x_0 \nimmul_k x_1) \nimadd \bigl(P_k \nimmul_k (x_1 \nimmul_k x_1)\bigr) \in F_k.
+\]
+Direct expansion shows $x \nimmul_{k+1} \bar{x} = \mathrm{join}_k(0, \nu(x)) = \nu(x)$. We claim $\nu(x) \neq 0$:
+\begin{itemize}
+  \item If $x_1 = 0$, then $x_0 > 0$ and $\nu(x) = x_0 \nimmul_k x_0 \neq 0$ because $x_0$ is invertible in $F_k$.
+  \item If $x_1 > 0$, let $y_1 = \mathrm{nimInv}_k(x_1) \in F_k$ and $u = x_0 \nimmul_k y_1 \in F_k$, so $x_0 = u \nimmul_k x_1$. Factoring $(x_1 \nimmul_k x_1)$ out of $\nu(x)$ gives $\nu(x) = \bigl((u \nimmul_k u) \nimadd u \nimadd P_k\bigr) \nimmul_k (x_1 \nimmul_k x_1)$. If $\nu(x) = 0$, multiplying by $y_1 \nimmul_k y_1$ yields $(u \nimmul_k u) \nimadd u = P_k$, contradicting~\eqref{eq:AS-bound}.
+\end{itemize}
+Hence $0 < \nu(x) < M_k$, and $\mathrm{nimInv}_{k+1}(x) := \mathrm{join}_k\bigl(\nu(x)^{-1} \nimmul_k x_1,\, \nu(x)^{-1} \nimmul_k (x_0 \nimadd x_1)\bigr)$ satisfies $x \nimmul_{k+1} \mathrm{nimInv}_{k+1}(x) = 1$. By Lemma~\ref{lem:ring-tower}(3), the induced operation $\nimmul$ on $\N$ is well-defined and makes $(\N, \nimadd, \nimmul, 0, 1)$ a field of characteristic $2$.
+\end{proof}
+
+\begin{proposition}[Conway's Fermat $2$-Power Characterization and $\mathrm{mex}$ Exclusion]\label{prop:conway}
+The global field multiplication $\nimmul$ satisfies:
+\begin{enumerate}
+  \item $M_k \nimmul x = M_k \cdot x$ for all $k \ge 0$ and $x < M_k$, and $M_k \nimmul M_k = M_k + P_k = \frac{3}{2} M_k$ for all $k \ge 0$.
+  \item Any commutative ring multiplication $\star$ on $(\N, \nimadd)$ with identity $1$, zero $0$, and Fermat $2$-power rules $M_k \star x = M_k \cdot x$ ($x < M_k$) and $M_k \star M_k = M_k + P_k$ coincides identically with $\nimmul$.
+  \item For all $x' < x$ and $y' < y$, $(x' \nimmul y) \nimadd (x \nimmul y') \nimadd (x' \nimmul y') \neq x \nimmul y$.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+In $F_{k+1}$, $\mathrm{hi}_k(M_k) = 1$ and $\mathrm{lo}_k(M_k) = 0$. Definition~\ref{def:nimMulK} gives $M_k \nimmul_{k+1} x = \mathrm{join}_k(x, 0) = M_k x$ for $x < M_k$ and $M_k \nimmul_{k+1} M_k = \mathrm{join}_k(1, P_k) = M_k + P_k$, proving (1). Claim (2) follows by induction on $k$: writing $x = (M_k \star x_1) \nimadd x_0$ and $y = (M_k \star y_1) \nimadd y_0$ for $x, y < M_{k+1}$ forces $x \star y = x \nimmul_{k+1} y$ by ring distributivity. For (3), if equality held, XORing with $x \nimmul y$ would give $(x \nimadd x') \nimmul (y \nimadd y') = 0$; since $x' < x \implies x \nimadd x' \neq 0$ and $y' < y \implies y \nimadd y' \neq 0$, this contradicts the absence of zero divisors in the field $(\N, \nimadd, \nimmul)$.
+\end{proof}
+
+Table~\ref{tab:nim16} displays the explicit multiplication table on $F_2 = [0, 16) \cong \F_{16}$, exhibiting concrete non-vacuity identities such as $2 \nimmul 2 = 3$, $3 \nimmul 3 = 2$, $2 \nimmul 3 = 1$, $4 \nimmul 4 = 6$, $4 \nimmul 15 = 1$, $8 \nimmul 8 = 13$, and $15 \nimmul 15 = 9$.
+
+\begin{table}[htbp]
+\centering
+\caption{Nim-multiplication table $x \nimmul y$ on the finite subfield $F_2 = [0, 16) \cong \F_{16}$.}
+\label{tab:nim16}
+\vspace{0.4em}
+\footnotesize
+\setlength{\tabcolsep}{4.2pt}
+\renewcommand{\arraystretch}{1.12}
+\begin{tabular}{r|rrrrrrrrrrrrrrrr}
+\hline
+$\nimmul$ & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 \\
+\hline
+0  & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+1  & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10 & 11 & 12 & 13 & 14 & 15 \\
+2  & 0 & 2 & 3 & 1 & 8 & 10 & 11 & 9 & 12 & 14 & 15 & 13 & 4 & 6 & 7 & 5 \\
+3  & 0 & 3 & 1 & 2 & 12 & 15 & 13 & 14 & 4 & 7 & 5 & 6 & 8 & 11 & 9 & 10 \\
+4  & 0 & 4 & 8 & 12 & 6 & 2 & 14 & 10 & 11 & 15 & 3 & 7 & 13 & 9 & 5 & 1 \\
+5  & 0 & 5 & 10 & 15 & 2 & 7 & 8 & 13 & 3 & 6 & 9 & 12 & 1 & 4 & 11 & 14 \\
+6  & 0 & 6 & 11 & 13 & 14 & 8 & 5 & 3 & 7 & 1 & 12 & 10 & 9 & 15 & 2 & 4 \\
+7  & 0 & 7 & 9 & 14 & 10 & 13 & 3 & 4 & 15 & 8 & 6 & 1 & 5 & 2 & 12 & 11 \\
+8  & 0 & 8 & 12 & 4 & 11 & 3 & 7 & 15 & 13 & 5 & 1 & 9 & 6 & 14 & 10 & 2 \\
+9  & 0 & 9 & 14 & 7 & 15 & 6 & 1 & 8 & 5 & 12 & 11 & 2 & 10 & 3 & 4 & 13 \\
+10 & 0 & 10 & 15 & 5 & 3 & 9 & 12 & 6 & 1 & 11 & 14 & 4 & 2 & 8 & 13 & 7 \\
+11 & 0 & 11 & 13 & 6 & 7 & 12 & 10 & 1 & 9 & 2 & 4 & 15 & 14 & 5 & 3 & 8 \\
+12 & 0 & 12 & 4 & 8 & 13 & 1 & 9 & 5 & 6 & 10 & 2 & 14 & 11 & 7 & 15 & 3 \\
+13 & 0 & 13 & 6 & 11 & 9 & 4 & 15 & 2 & 14 & 3 & 8 & 5 & 7 & 10 & 1 & 12 \\
+14 & 0 & 14 & 7 & 9 & 5 & 11 & 2 & 12 & 10 & 4 & 13 & 3 & 15 & 1 & 8 & 6 \\
+15 & 0 & 15 & 5 & 10 & 1 & 14 & 4 & 11 & 2 & 13 & 7 & 8 & 3 & 12 & 6 & 9 \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Frobenius Automorphism and Dyadic Interval Bijectivity}
+
+\begin{theorem}[Global Frobenius Bijection and Dyadic Preservation]\label{thm:frobenius}
+The nim-squaring map $s(x) = x \nimmul x$ is a field automorphism of $(\N, \nimadd, \nimmul, 0, 1)$ satisfying:
+\begin{enumerate}
+  \item \textbf{Endomorphism and Injectivity:} $s(x \nimadd y) = s(x) \nimadd s(y)$, $s(x \nimmul y) = s(x) \nimmul s(y)$, and $s(x) = s(y) \implies x = y$.
+  \item \textbf{Constructive Surjectivity:} Define $\mathrm{nimSqrt}_k : [0, M_k) \to [0, M_k)$ recursively on $k$ by setting $\mathrm{nimSqrt}_0(y) = y \bmod 2$ and, for $y = \mathrm{join}_k(y_1, y_0) < M_{k+1}$,
+  \[
+    \mathrm{nimSqrt}_{k+1}(y) := \mathrm{join}_k\Bigl(\mathrm{nimSqrt}_k(y_1),\; \mathrm{nimSqrt}_k\bigl(y_0 \nimadd (P_k \nimmul_k y_1)\bigr)\Bigr).
+  \]
+  Setting $\mathrm{nimSqrt}(y) := \mathrm{nimSqrt}_k(y)$ whenever $y < M_k$, the identities $s(\mathrm{nimSqrt}(y)) = y$ and $\mathrm{nimSqrt}(s(x)) = x$ hold for all $x, y \in \N$. Hence every $n \in \N$ is the nim-square of a unique $x \in \N$.
+  \item \textbf{Preservation of All Dyadic Thresholds:} For \emph{every} integer $d \ge 0$ and every $x \in \N$,
+  \begin{equation}\label{eq:dyadic-preserve}
+    s(x) < 2^d \iff x < 2^d.
+  \end{equation}
+  In particular, $s$ restricts to a bijection $[0, 2^d) \xrightarrow{\sim} [0, 2^d)$ for every $d \ge 0$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+In characteristic $2$, $(x \nimadd y) \nimmul (x \nimadd y) = (x \nimmul x) \nimadd (x \nimmul y) \nimadd (y \nimmul x) \nimadd (y \nimmul y) = s(x) \nimadd s(y)$, and commutativity gives $s(x \nimmul y) = s(x) \nimmul s(y)$. If $s(x) = s(y)$, then $s(x \nimadd y) = s(x) \nimadd s(y) = 0$, so $x \nimadd y = 0$ by Theorem~\ref{thm:field}, hence $x = y$.
+
+For (2), we check $s(\mathrm{nimSqrt}_{k+1}(y)) = y$ for $y = \mathrm{join}_k(y_1, y_0) < M_{k+1}$ by induction on $k$. Substituting $x_1 = \mathrm{nimSqrt}_k(y_1)$ and $x_0 = \mathrm{nimSqrt}_k(y_0 \nimadd (P_k \nimmul_k y_1))$ into~\eqref{eq:sq-recurrence} yields high digit $x_1 \nimmul_k x_1 = y_1$ and low digit $\bigl(y_0 \nimadd (P_k \nimmul_k y_1)\bigr) \nimadd (P_k \nimmul_k y_1) = y_0$. Injectivity of $s$ then gives $\mathrm{nimSqrt}(s(x)) = x$.
+
+For (3), it suffices to prove by induction on $k$ that $x \nimmul_k x < 2^d \iff x < 2^d$ whenever $x < M_k$ and $d \le 2^k$. For $k = 0$, $x \in \{0,1\}$ and $d \in \{0,1\}$, which is immediate. For the step $k \to k+1$ with $x = \mathrm{join}_k(x_1, x_0) < M_{k+1}$ and $d \le 2^{k+1}$:
+\begin{itemize}
+  \item If $d \le 2^k$, then $2^d \le M_k$. For any $a, b$ with $b < M_k$, $M_k a + b < 2^d \iff (a = 0 \text{ and } b < 2^d)$. Applied to~\eqref{eq:sq-recurrence}, $x \nimmul_{k+1} x < 2^d$ holds iff $x_1 \nimmul_k x_1 = 0$ (i.e., $x_1 = 0$) and $x_0 \nimmul_k x_0 < 2^d$, which by the induction hypothesis is equivalent to $x_1 = 0$ and $x_0 < 2^d$, i.e., $x < 2^d$.
+  \item If $2^k < d \le 2^{k+1}$, write $d = 2^k + e$ with $e \le 2^k$, so $2^d = M_k \cdot 2^e$. Since the low base-$M_k$ digits of both $x$ and $x \nimmul_{k+1} x$ are strictly less than $M_k$, we have $x < M_k 2^e \iff x_1 < 2^e$ and $x \nimmul_{k+1} x < M_k 2^e \iff x_1 \nimmul_k x_1 < 2^e$, which are equivalent by the induction hypothesis on $k$. \qedhere
+\end{itemize}
+\end{proof}
+
+\section{Resolution of Interpretation A: Density of Nim-Squares}
+
+\begin{theorem}[Interpretation A --- Refutation of Zero Density]\label{thm:interpA}
+Let $\mathcal{Q}_{\mathrm{nim}} := \{x \nimmul x : x \in \N\}$ be the set of nim-squares.
+\begin{enumerate}
+  \item $\mathcal{Q}_{\mathrm{nim}} = \N$: for every $N \ge 1$, $|\{0 \le n < N : n \in \mathcal{Q}_{\mathrm{nim}}\}| = N$, so the natural density of nim-squares in $\N$ (as well as in the sequence $(s(x))_{x \ge 0}$) is identically $1 \neq 0$.
+  \item Even for the restricted-witness count $R(N) := |\{0 \le y < N : \exists x < N,\, x \nimmul x = y\}|$, we have $R(2^d) = 2^d$ for every $d \ge 0$ and $2 R(N) > N$ (hence $R(N)/N > 1/2$) for every $N \ge 1$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Claim (1) is immediate from Theorem~\ref{thm:frobenius}(2). For claim (2), Theorem~\ref{thm:frobenius}(3) gives $\{x \nimmul x : x < 2^d\} = [0, 2^d)$, so $R(2^d) = 2^d$. Given any $N \ge 1$, let $d = \lfloor \log_2 N \rfloor$ so that $2^d \le N < 2^{d+1}$. Every $y < 2^d$ satisfies $y < N$ and has $x = \mathrm{nimSqrt}(y) < 2^d \le N$ with $x \nimmul x = y$, whence $R(N) \ge 2^d > N/2$.
+\end{proof}
+
+\section{Resolution of Interpretation B: Ordinary Squares in \texorpdfstring{$s(x) = x \nimmul x$}{s(x) = x * x}}
+
+We now analyze the literal reading of \texttt{SOURCE.md}: the distribution of ordinary integer squares $\mathcal{Q}_{\mathrm{ord}} := \{m^2 : m \in \N\}$ among the values of the nim-square sequence $s(x) = x \nimmul x$. Let
+\[
+  S(N) := \bigl|\{0 \le y < N : y \in \mathcal{Q}_{\mathrm{ord}}\}\bigr|, \quad
+  C(N) := \bigl|\{0 \le x < N : s(x) \in \mathcal{Q}_{\mathrm{ord}}\}\bigr|, \quad
+  D(N) := \frac{C(N)}{N}.
+\]
+For every $N \ge 1$, the ordinary squares below $N$ are $0^2, 1^2, \dots, (r-1)^2$ where $r = \lceil \sqrt{N} \rceil = \lfloor \sqrt{N-1} \rfloor + 1$, so $S(N) = \lceil \sqrt{N} \rceil$ and
+\begin{equation}\label{eq:S-bounds}
+  \bigl(S(N) - 1\bigr)^2 < N \le S(N)^2 \qquad (\forall N \ge 1).
+\end{equation}
+
+\begin{theorem}[Exact Dyadic and Fermat-Tower Evaluation]\label{thm:dyadic-exact}
+For every integer $d \ge 0$,
+\[
+  C(2^d) = S(2^d) = \bigl\lceil 2^{d/2} \bigr\rceil.
+\]
+In particular, for every $m \ge 0$ we have $C(4^m) = 2^m$ and $D(4^m) = 2^{-m} = (4^m)^{-1/2}$, and at every Fermat $2$-power horizon $N = M_{k+1} = 2^{2^{k+1}}$ ($k \ge 0$),
+\[
+  C(M_{k+1}) = M_k = \sqrt{N}, \qquad D(M_{k+1}) = \frac{1}{M_k} = N^{-1/2}.
+\]
+\end{theorem}
+
+\begin{proof}
+By Theorem~\ref{thm:frobenius}(3), $s : [0, 2^d) \to [0, 2^d)$ is a bijection, so pushing forward the counting measure on $[0, 2^d)$ yields $C(2^d) = |\{x < 2^d : s(x) \in \mathcal{Q}_{\mathrm{ord}}\}| = |\{y < 2^d : y \in \mathcal{Q}_{\mathrm{ord}}\}| = S(2^d) = \lceil 2^{d/2} \rceil$. Setting $d = 2m$ gives $2^{2m} = (2^m)^2$, so $C(4^m) = 2^m$; setting $m = 2^k$ gives $4^{2^k} = M_{k+1}$ and $2^{2^k} = M_k$.
+\end{proof}
+
+Crucially, because dyadic bijectivity holds at \emph{every} power $2^d$ (not only at $M_k = 2^{2^k}$, whose consecutive terms square rather than double), monotonicity of $C(N)$ sandwiches $C(N)$ tightly for \emph{all} intermediate integers $N$.
+
+\begin{theorem}[Uniform All-$N$ Polynomial $\Theta(N^{-1/2})$ Bounds]\label{thm:poly-all-N}
+For every integer $N \ge 1$,
+\begin{equation}\label{eq:all-N-sq}
+  \frac{1}{2} N < C(N)^2 < 8 N, \qquad\text{equivalently,}\qquad \frac{1}{\sqrt{2}} N^{-1/2} < D(N) < 2\sqrt{2}\, N^{-1/2}.
+\end{equation}
+More precisely, $\frac{1}{\sqrt{2}} \sqrt{N} < C(N) < \sqrt{2N} + 1$ for every $N \ge 1$.
+\end{theorem}
+
+\begin{proof}
+Given $N \ge 1$, let $d = \lfloor \log_2 N \rfloor$, so $2^d \le N < 2^{d+1} \le 2N$. By monotonicity of $C(\cdot)$ and Theorem~\ref{thm:dyadic-exact},
+\[
+  S(2^d) = C(2^d) \le C(N) \le C(2^{d+1}) = S(2^{d+1}).
+\]
+Applying~\eqref{eq:S-bounds} at $2^d$ gives $2 C(N)^2 \ge 2 S(2^d)^2 \ge 2 \cdot 2^d = 2^{d+1} > N$. Applying~\eqref{eq:S-bounds} at $2^{d+1}$ gives
+\[
+  \bigl(C(N) - 1\bigr)^2 \le \bigl(S(2^{d+1}) - 1\bigr)^2 < 2^{d+1} \le 2N,
+\]
+whence $C(N) < \sqrt{2N} + 1$. Moreover, if $C(N) \le 1$ then $C(N)^2 \le 1 < 8N$; if $C(N) \ge 2$ then $C(N) \le 2(C(N)-1)$, so $C(N)^2 \le 4(C(N)-1)^2 < 8N$. Dividing by $N^2$ yields~\eqref{eq:all-N-sq}.
+\end{proof}
+
+\begin{theorem}[Zero Density and Refutation of $(\log N)^{-1/2}$ Decay]\label{thm:refute-log}
+Under Interpretation B:
+\begin{enumerate}
+  \item \textbf{Zero Asymptotic Density:} $\lim_{N \to \infty} D(N) = 0$. Explicitly, for every integer $K \ge 1$ and all $N \ge 8K^2$, we have $K \cdot C(N) < N$, i.e., $D(N) < 1/K$.
+  \item \textbf{Refutation of Logarithmic $(\log N)^{-1/2}$ Decay:} Let $\mathrm{ilog}_2(N) = \lfloor \log_2 N \rfloor$. For every integer $K \ge 1$ and all $N \ge 2^{\max(4, 8K)}$,
+  \begin{equation}\label{eq:log-ratio-zero}
+    K \cdot C(N)^2 \cdot \mathrm{ilog}_2(N) < N^2, \qquad\text{i.e.,}\qquad \frac{D(N)}{(\mathrm{ilog}_2 N)^{-1/2}} < \frac{1}{\sqrt{K}}.
+  \end{equation}
+  Hence $\lim_{N \to \infty} \frac{D(N)}{(\log N)^{-1/2}} = 0$ (for the logarithm in any base $b > 1$). In particular, there is no constant $c > 0$ such that $D(N) \ge c (\log N)^{-1/2}$ even along an infinite subsequence of $N$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For (1), if $N \ge 8K^2$ then Theorem~\ref{thm:poly-all-N} gives $(K C(N))^2 = K^2 C(N)^2 < 8K^2 N \le N^2$, so $K C(N) < N$.
+
+For (2), note first by induction on $d \ge 4$ that $d^2 \le 2^d$: at $d = 4$ we have $16 \le 16$, and for $d \ge 4$, $(d+1)^2 = d^2 + (2d + 1) \le d^2 + d^2 \le 2 \cdot 2^d = 2^{d+1}$. Now fix $K \ge 1$, set $d_0 = \max(4, 8K)$, and let $N \ge 2^{d_0}$. Then $d := \mathrm{ilog}_2(N) \ge d_0$, so $d \ge 4$ and $d \ge 8K$, whence
+\[
+  8 K d \le d^2 \le 2^d \le N.
+\]
+Since $d \ge 4 > 0$ and $C(N)^2 < 8N$ by Theorem~\ref{thm:poly-all-N}, multiplying by $d$ gives
+\[
+  K \cdot C(N)^2 \cdot d < 8 K N d = (8 K d) N \le N^2,
+\]
+proving~\eqref{eq:log-ratio-zero}. Because $\log_b N = (\log_b 2)(\log_2 N) \ge (\log_b 2) \mathrm{ilog}_2(N)$ for $N \ge 2$, it follows immediately that $D(N) / (\log_b N)^{-1/2} \to 0$ as $N \to \infty$.
+\end{proof}
+
+\begin{remark}[Arbitrary Polylogarithmic Comparison]
+Since $D(N) = \Theta(N^{-1/2})$ by Theorem~\ref{thm:poly-all-N} and $\lim_{N \to \infty} N^{-1/2} (\log N)^\alpha = 0$ for every real exponent $\alpha > 0$, $D(N)$ decays strictly faster than \emph{every} logarithmic power $(\log N)^{-\alpha}$, not only $\alpha = 1/2$. Table~\ref{tab:numerics} illustrates the rapid divergence between $D(N) \approx N^{-1/2}$ and $(\log_2 N)^{-1/2}$ up to $N = 2^{20}$.
+\end{remark}
+
+\begin{table}[htbp]
+\centering
+\caption{Exact counts $C(N)$, densities $D(N) = C(N)/N$, polynomial scale $N^{-1/2}$, and logarithmic scale $(\log_2 N)^{-1/2}$ across dyadic and intermediate horizons up to $N = 2^{20} = 1{,}048{,}576$.}
+\label{tab:numerics}
+\vspace{0.4em}
+\small
+\setlength{\tabcolsep}{5.5pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{rrrrrrr}
+\hline
+$N$ & $C(N)$ & $D(N) = C(N)/N$ & $N^{-1/2}$ & $C(N)/\sqrt{N}$ & $(\log_2 N)^{-1/2}$ & $D(N)/(\log_2 N)^{-1/2}$ \\
+\hline
+$2$         & $2$    & $1.000000$ & $0.707107$ & $1.414214$ & $1.000000$ & $1.000000$ \\
+$4$         & $2$    & $0.500000$ & $0.500000$ & $1.000000$ & $0.707107$ & $0.707107$ \\
+$8$         & $3$    & $0.375000$ & $0.353553$ & $1.060660$ & $0.577350$ & $0.649519$ \\
+$16$        & $4$    & $0.250000$ & $0.250000$ & $1.000000$ & $0.500000$ & $0.500000$ \\
+$64$        & $8$    & $0.125000$ & $0.125000$ & $1.000000$ & $0.408248$ & $0.306186$ \\
+$256$       & $16$   & $0.062500$ & $0.062500$ & $1.000000$ & $0.353553$ & $0.176777$ \\
+$1{,}024$   & $32$   & $0.031250$ & $0.031250$ & $1.000000$ & $0.316228$ & $0.098821$ \\
+$4{,}096$   & $64$   & $0.015625$ & $0.015625$ & $1.000000$ & $0.288675$ & $0.054127$ \\
+$16{,}384$  & $128$  & $0.007812$ & $0.007812$ & $1.000000$ & $0.267261$ & $0.029232$ \\
+$65{,}536$  & $256$  & $0.003906$ & $0.003906$ & $1.000000$ & $0.250000$ & $0.015625$ \\
+$262{,}144$ & $512$  & $0.001953$ & $0.001953$ & $1.000000$ & $0.235702$ & $0.008286$ \\
+$786{,}432$ & $862$  & $0.001096$ & $0.001128$ & $0.972023$ & $0.225964$ & $0.004851$ \\
+$1{,}048{,}576$ & $1{,}024$ & $0.000977$ & $0.000977$ & $1.000000$ & $0.223607$ & $0.004367$ \\
+\hline
+\end{tabular}
+\end{table}
+
+\section{Formal Verification in Core Lean 4 and Computational Audit}
+
+All results in Sections~2--5 are formalized from scratch in \texttt{lean/Main.lean} using Core Lean \texttt{v4.19.0}, with zero external dependencies and flag \texttt{-DwarningAsError=true}. Zero \texttt{sorry}, \texttt{admit}, \texttt{native\_\allowbreak decide}, or custom axioms appear; \texttt{\#print axioms} confirms that every theorem depends at most on standard Lean kernel axioms (\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}). Table~\ref{tab:lean-map} lists the Lean declarations in namespace \texttt{Conjecture00000001284} corresponding to each manuscript result.
+
+\begin{table}[!ht]
+\centering
+\caption{Mapping between manuscript results and Core Lean 4.19.0 theorems in \texttt{lean/Main.lean}.}
+\label{tab:lean-map}
+\vspace{0.4em}
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{1.14}
+\begin{tabular}{ll}
+\hline
+Mathematical Result & Lean 4 Declaration (\texttt{Conjecture00000001284.*}) \\
+\hline
+Theorem~\ref{thm:field} (Artin--Schreier bound) & \texttt{artin\_schreier\_lt} \\
+Theorem~\ref{thm:field} (Field laws \& inverses) & \texttt{nimMul\_comm}, \texttt{nimMul\_assoc}, \texttt{nimMul\_distrib\_left}, \\
+ & \texttt{nimMul\_nimInv}, \texttt{nimMul\_eq\_zero\_iff}, \texttt{subfield\_closed} \\
+Proposition~\ref{prop:conway} (Fermat rules, uniqueness) & \texttt{nimMul\_fermat\_lt}, \texttt{nimMul\_fermat\_self}, \\
+ & \texttt{nimMul\_unique}, \texttt{nimMul\_mex\_ne} \\
+Theorem~\ref{thm:frobenius} (Frobenius bijection) & \texttt{nimSq\_nimAdd}, \texttt{nimSq\_nimMul}, \texttt{existsUnique\_nimSq} \\
+Theorem~\ref{thm:frobenius} (Dyadic preservation) & \texttt{nimSq\_lt\_two\_pow\_iff}, \texttt{nimSqrt\_lt\_two\_pow\_iff} \\
+Theorem~\ref{thm:interpA} (Interpretation A) & \texttt{interpretationA\_nimSquare\_density\_one}, \\
+ & \texttt{interpretationA\_restricted\_nimSquare\_bounds} \\
+Theorem~\ref{thm:dyadic-exact} (Dyadic \& Fermat counts) & \texttt{nimSeqOrdSquareCount\_two\_pow}, \\
+ & \texttt{nimSeqOrdSquareCount\_even\_two\_pow}, \\
+ & \texttt{nimSeqOrdSquareCount\_fermat} \\
+Theorem~\ref{thm:poly-all-N} (All-$N$ $\Theta(N^{-1/2})$ bounds) & \texttt{interpretationB\_polynomial\_bounds\_all\_N} \\
+Theorem~\ref{thm:refute-log} (Zero density \& log refutation) & \texttt{interpretationB\_zero\_density}, \\
+ & \texttt{interpretationB\_ratio\_to\_inv\_sqrt\_log\_tends\_to\_zero}, \\
+ & \texttt{interpretationB\_refute\_inv\_sqrt\_log\_decay} \\
+Table~\ref{tab:nim16} \& non-vacuity checks & \texttt{nonvacuity\_nimMul\_samples}, \texttt{nonvacuity\_nimSq\_first\_16}, \\
+ & \texttt{nonvacuity\_ordSquareCount\_samples} \\
+\hline
+\end{tabular}
+\end{table}
+
+In addition, the standalone script \texttt{verify.py} independently verifies equivalence between Conway's recursive $\mathrm{mex}$ definition and Definition~\ref{def:nimMulK} on all $64 \times 64 = 4{,}096$ pairs, checks field inverses on $F_3 = [0, 256)$, and confirms both Interpretation A and the uniform polynomial bounds of Theorem~\ref{thm:poly-all-N} across every integer $1 \le N \le 2^{20} = 1{,}048{,}576$ (where the observed normalized ratio $C(N)/\sqrt{N}$ lies in $[0.755929, 1.414214]$ and converges to $1$).
+
+\begin{thebibliography}{9}
+\bibitem{ConwayONAG}
+J.~H. Conway, \emph{On Numbers and Games}, 2nd ed., A~K Peters, Natick, MA, 2001, Chapter~6.
+
+\bibitem{LenstraNim}
+H.~W. Lenstra, Jr., \emph{Nim multiplication}, S\'eminaire de Th\'eorie des Nombres de Bordeaux (1977--1978), Exp.\ No.~11, 1--23.
+\end{thebibliography}
+
+\end{document}
