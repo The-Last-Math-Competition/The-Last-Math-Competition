@@ -1,0 +1,599 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\emergencystretch}{1.5em}
+\renewcommand{\arraystretch}{1.28}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Pn}{\mathcal{P}_n}
+\newcommand{\Ptwo}{\mathcal{P}_2}
+\newcommand{\On}{O(n)}
+\newcommand{\Un}{U(n)}
+\newcommand{\diag}{\mathrm{diag}}
+\newcommand{\tr}{\mathrm{tr}}
+\newcommand{\Ones}{\mathbf{1}}
+
+\title{\textbf{Disproof of Conjecture 00000007173:\\
+Majorization Endpoints, Ordered Spectra, and Permutation Similarity}}
+\author{Formal Mathematical Analysis and Lean 4 Verification}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000007173}, which asserts within the framework of
+\emph{majorization with the poset of spectra} that \emph{``the endpoints of the
+majorization chain are the ordered spectra, and the realization of the endpoints
+is permutation similarity.''} Analyzing both the English formulation and its
+Chinese counterpart verbatim, we show that the conjecture is \textbf{false} under
+every standard mathematical interpretation in matrix analysis and spectral theory:
+\begin{enumerate}
+  \item \textbf{Schur--Horn diagonal majorization ($\diag(A) \prec \lambda(A)$):}
+  For any non-scalar real spectrum $\lambda \in \R_\downarrow^n$ ($\lambda_1 > \lambda_n$),
+  the lower endpoint of the majorization interval is the uniform mean vector
+  $\bar{\lambda}\Ones$, which is strictly majorized by $\lambda^\downarrow$ (hence
+  not an ordered rearrangement of $\lambda$); symmetric matrices realizing
+  $\diag(A) = \bar{\lambda}\Ones$ are never permutation-similar to $\diag(\lambda^\downarrow)$
+  and need not even be permutation-similar to one another. Furthermore, for
+  non-Hermitian matrices with real spectrum, even attaining the upper endpoint
+  $\diag(B) = \lambda^\downarrow(B)$ fails to imply permutation similarity.
+  \item \textbf{Lidskii--Wielandt eigenvalue sum majorization ($\lambda(A+B)$):}
+  In the spectral chain $(\lambda^\downarrow(A)+\lambda^\uparrow(B))^\downarrow
+  \prec \lambda^\downarrow(A + U B U^*) \prec \lambda^\downarrow(A)+\lambda^\downarrow(B)$,
+  realizing the two endpoints requires general unitary or orthogonal similarity
+  $U B U^*$, not permutation similarity $P B P^\top$. We exhibit an exact
+  all-integer $2\times 2$ real symmetric pair $(A,B)$ whose Lidskii endpoints
+  $(50,0)$ and $(25,25)$ are realized over $O(2,\Q)$, whereas every permutation
+  similarity $A + P B P^\top$ yields spectra $(40,10)$ or $(45,5)$ strictly
+  interior to the chain.
+  \item \textbf{Fixed-trace and positive-semidefinite spectral posets:}
+  On fixed-trace Hermitian spectral slices $\mathcal{S}_{n,\tau}$ ($n \ge 2$),
+  majorization chains have no upper endpoint; on positive-semidefinite slices
+  $\mathcal{S}_{n,\tau}^+$ ($\tau > 0, n \ge 2$), the endpoints $\frac{\tau}{n}\Ones$
+  and $(\tau,0,\dots,0)$ have distinct ranks ($n$ vs.\ $1$), precluding
+  permutation similarity between or within endpoint realizations.
+\end{enumerate}
+Alongside these refutations, we establish the genuine positive special cases
+(Hermitian Schur equality at the upper endpoint and Lidskii sums of already-diagonal
+matrices) that explain the geometric intuition behind the statement. All core
+theorems and counterexamples are machine-checked from first principles in Core
+Lean~4.19.0 with zero external dependencies and independently verified in Python.
+\end{abstract}
+
+\section{Introduction and Interpretive Analysis}
+
+Conjecture \texttt{00000007173} reads as follows in its bilingual source text:
+\begin{quote}
+\textbf{English.} \emph{Definition: Majorization with the poset of spectra.
+Conjecture: The endpoints of the majorization chain are the ordered spectra, and
+the realization of the endpoints is permutation similarity. (permutation-similar
+majorization endpoints)}
+
+\medskip
+\noindent\textbf{Chinese gloss.} \emph{Definition: Majorization (\textnormal{y\=ouch\=ao}):
+the partial order of spectra (\textnormal{p\v{u} de pi\=anx\`u}). Conjecture:
+Extremal elements of majorization (\textnormal{y\=ouch\=ao de j\'{\i}zh\={\i}
+yu\'ans\`u}): the endpoints of a majorization chain (\textnormal{y\=ouch\=ao
+li\`an de du\=andi\v{a}n}) are the ordered spectra (\textnormal{p\'aix\`u p\v{u}}),
+and the realization of the endpoints is permutation similarity (\textnormal{di\v{a}n
+de sh\'{\i}xi\`an w\'ei zh\`{\i}hu\`an xi\=angs\`{\i}}).}
+\end{quote}
+
+\subsection{Notation and Preliminaries}
+
+Let $n \ge 2$ be an integer. For any vector $x = (x_1,\dots,x_n) \in \R^n$, write
+$x^\downarrow = (x_1^\downarrow,\dots,x_n^\downarrow)$ for its non-increasing
+rearrangement ($x_1^\downarrow \ge x_2^\downarrow \ge \dots \ge x_n^\downarrow$)
+and $x^\uparrow = (x_1^\uparrow,\dots,x_n^\uparrow) = (x_n^\downarrow,\dots,x_1^\downarrow)$
+for its non-decreasing rearrangement. Let
+\[
+  \R_\downarrow^n = \bigl\{ \lambda \in \R^n : \lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_n \bigr\}
+\]
+denote the cone of non-increasingly ordered real $n$-tuples, which parameterizes
+the spectra $\lambda^\downarrow(A)$ of $n \times n$ Hermitian (or real symmetric)
+matrices $A$.
+
+\begin{definition}[Majorization and the Poset of Spectra]
+\label{def:majorization}
+Given $x, y \in \R^n$, we say that $x$ is \emph{majorized} by $y$, written
+$x \prec y$, if
+\begin{equation}
+  \label{eq:maj}
+  \sum_{i=1}^k x_i^\downarrow \le \sum_{i=1}^k y_i^\downarrow
+  \quad (1 \le k \le n-1)
+  \qquad\text{and}\qquad
+  \sum_{i=1}^n x_i = \sum_{i=1}^n y_i.
+\end{equation}
+We write $x \precneqq y$ if $x \prec y$ and $y \not\prec x$. On $\R^n$, the
+relation $\prec$ is a preorder whose equivalence classes are the coordinate
+permutation orbits $\mathfrak{S}_n \cdot x$; restricting $\prec$ to representative
+ordered tuples $\R_\downarrow^n$ yields a genuine partial order (poset) on real
+spectra \cite{MOA2011,Bhatia1997}.
+\end{definition}
+
+\begin{definition}[Permutation Similarity]
+\label{def:perm-sim}
+Let $\Pn \subset O(n)$ denote the group of $n \times n$ permutation matrices,
+with $(P_\sigma)_{ij} = \delta_{j,\sigma(i)}$ for $\sigma \in \mathfrak{S}_n$.
+Two matrices $A, B \in M_n(\C)$ are \emph{permutation-similar}, written
+$A \sim_{\mathcal{P}} B$, if there exists $P \in \Pn$ such that $A = P B P^\top$.
+Equivalently, $A_{ij} = B_{\sigma(i),\sigma(j)}$ for all $1 \le i, j \le n$.
+\end{definition}
+
+\subsection{Three Canonical Readings in Matrix Theory}
+
+Because the source text states the conjecture tersely in terms of ``majorization
+with the poset of spectra,'' ``endpoints / extremal elements of the majorization
+chain,'' ``ordered spectra,'' and ``realization via permutation similarity,'' a
+complete resolution must evaluate every standard matrix-theoretic setting to which
+these phrases apply:
+\begin{itemize}
+  \item \textbf{Reading I (Schur--Horn Diagonal-to-Spectrum Majorization):}
+  Fix an ordered spectrum $\lambda \in \R_\downarrow^n$ and consider matrices $A$
+  with spectrum $\lambda$, where Schur's theorem \cite{Schur1923} and Horn's
+  converse \cite{Horn1954} yield the majorization interval
+  $\bar{\lambda}\Ones \prec \diag(A) \prec \lambda^\downarrow$ with
+  $\bar{\lambda} = \frac{1}{n}\sum_{i=1}^n \lambda_i$. Here one examines both
+  endpoints of the chain ($\bar{\lambda}\Ones$ and $\lambda^\downarrow$, as well
+  as opposite coordinate orderings $\lambda^\downarrow$ vs.\ $\lambda^\uparrow$)
+  and asks whether the endpoints are ordered spectra realized by permutation
+  similarity ($A \sim_{\mathcal{P}} \diag(\lambda^\downarrow)$ or mutual
+  permutation similarity among realizations).
+  \item \textbf{Reading II (Lidskii--Wielandt Eigenvalue Majorization of Sums):}
+  Fix two Hermitian (or real symmetric) matrices $A, B$ with ordered spectra
+  $\lambda^\downarrow(A)$ and $\lambda^\downarrow(B)$. By the Lidskii--Wielandt
+  theorem \cite{Lidskii1950,Wielandt1955}, as $B'$ ranges over matrices unitarily
+  (or orthogonally) similar to $B$, the spectrum of $A + B'$ lies in the
+  majorization chain
+  \begin{equation}
+    \label{eq:lidskii-chain}
+    \bigl(\lambda^\downarrow(A) + \lambda^\uparrow(B)\bigr)^\downarrow
+    \;\prec\; \lambda^\downarrow(A + B')
+    \;\prec\; \lambda^\downarrow(A) + \lambda^\downarrow(B),
+  \end{equation}
+  whose two endpoints literally combine the identically ordered and oppositely
+  ordered spectra. The conjecture asserts that these endpoints are realized by
+  taking $B'$ permutation-similar to $B$ ($B' = P B P^\top$, $P \in \Pn$).
+  \item \textbf{Reading III (Fixed-Trace Slices of the Poset of Spectra):}
+  Consider the poset of ordered spectra itself on a trace slice
+  $\mathcal{S}_{n,\tau} = \{ \lambda \in \R_\downarrow^n : \sum_i \lambda_i = \tau \}$
+  or its positive-semidefinite (PSD) subposet
+  $\mathcal{S}_{n,\tau}^+ = \{ \lambda \in \R_\downarrow^n : \lambda_n \ge 0,\,
+  \sum_i \lambda_i = \tau \}$, and test whether maximal chains have ordered-spectrum
+  endpoints realized via permutation similarity.
+\end{itemize}
+
+Table~\ref{tab:summary} summarizes the outcome across all readings: every
+interpretation is \textbf{false}.
+
+\begin{table}[ht]
+\centering
+\caption{Summary of endpoints and permutation-similarity failures across all readings.}
+\label{tab:summary}
+\vspace{4pt}
+{\small
+\begin{tabular}{p{1.38in}p{1.28in}p{1.50in}p{1.48in}}
+\hline
+\textbf{Reading} & \textbf{Chain Endpoints} & \textbf{Failure Mechanism} & \textbf{Minimal Witness} \tabularnewline
+\hline
+\raggedright I-A: Schur--Horn (lower) &
+  \raggedright $\bar{\lambda}\Ones$ vs.\ $\lambda^\downarrow$ &
+  \raggedright $\bar{\lambda}\Ones \precneqq \lambda^\downarrow$; non-diagonal $A$ &
+  \raggedright $A_\pm = \bigl(\begin{smallmatrix}1 & \pm 1\\ \pm 1 & 1\end{smallmatrix}\bigr)$ \tabularnewline
+\raggedright I-B: Schur--Horn (upper, gen.) &
+  \raggedright $\diag(B) = \lambda^\downarrow$ &
+  \raggedright Off-diagonal entries survive &
+  \raggedright $B_1 = \bigl(\begin{smallmatrix}1 & 1\\ 0 & 0\end{smallmatrix}\bigr)$ \tabularnewline
+\raggedright II: Lidskii--Wielandt sum &
+  \raggedright $(\alpha^\downarrow+\beta^\uparrow)^\downarrow$, $\alpha^\downarrow+\beta^\downarrow$ &
+  \raggedright Needs $\On/\Un$, not $\Pn$ &
+  \raggedright $A=\diag(25,0)$, $B=\bigl(\begin{smallmatrix}9&12\\12&16\end{smallmatrix}\bigr)$ \tabularnewline
+\raggedright III: Spectral poset slices &
+  \raggedright Unbounded; or $\frac{\tau}{n}\Ones$, $(\tau,0)$ &
+  \raggedright No max on $\mathcal{S}_{n,\tau}$; rank mismatch on $\mathcal{S}_{n,\tau}^+$ &
+  \raggedright $I_2$ vs.\ $\diag(2,0)$ vs.\ $A_+$ \tabularnewline
+\hline
+\end{tabular}
+}
+\end{table}
+
+\section{Structural Invariants and Positive Non-Vacuity Results}
+\label{sec:nonvacuity}
+
+Before proving the refutations, we record four structural results that clarify
+two common confusions behind the conjecture and establish non-vacuity of our
+formal definitions.
+
+\begin{proposition}[Collapse of Opposite Orderings in the Majorization Preorder]
+\label{prop:collapse}
+For every $x \in \R^n$ and every permutation matrix $P \in \Pn$, one has both
+$P x \prec x$ and $x \prec P x$. In particular, $x^\downarrow \prec x^\uparrow$
+and $x^\uparrow \prec x^\downarrow$.
+\end{proposition}
+\begin{proof}
+Since $(Px)^\downarrow = x^\downarrow$, every partial sum in~\eqref{eq:maj} agrees
+identically for $P x$ and $x$. Thus $x^\downarrow$ and $x^\uparrow$ represent the
+\emph{same} element in the quotient poset $\R^n/\mathfrak{S}_n \cong \R_\downarrow^n$;
+for non-constant $x$, they are extreme points of the permutahedron
+$\mathrm{conv}\{Px : P\in\Pn\}$ as an affine polytope, not opposite endpoints of
+a majorization chain.
+\end{proof}
+
+\begin{lemma}[Diagonal Invariance under Permutation Similarity]
+\label{lem:diag-inv}
+Let $A, B \in M_n(\C)$. If $A \sim_{\mathcal{P}} B$ and $B$ is diagonal, then $A$
+is diagonal.
+\end{lemma}
+\begin{proof}
+Write $A = P_\sigma B P_\sigma^\top$ for $\sigma \in \mathfrak{S}_n$, so
+$A_{ij} = B_{\sigma(i),\sigma(j)}$. Whenever $i \neq j$, bijectivity of $\sigma$
+implies $\sigma(i) \neq \sigma(j)$, whence $A_{ij} = B_{\sigma(i),\sigma(j)} = 0$.
+\end{proof}
+
+\begin{theorem}[Hermitian Schur Upper-Endpoint Characterization --- Non-Vacuity]
+\label{thm:schur-upper}
+Let $A \in M_n(\C)$ be Hermitian (or, more generally, normal with real spectrum)
+with ordered spectrum $\lambda = \lambda^\downarrow(A) \in \R_\downarrow^n$. Then
+$\diag(A)$ attains the upper majorization endpoint---meaning $\lambda \prec \diag(A)$,
+or equivalently $\diag(A) = P\lambda$ for some $P \in \Pn$---if and only if
+$A \sim_{\mathcal{P}} \diag(\lambda)$.
+\end{theorem}
+\begin{proof}
+If $A = P_\sigma \diag(\lambda) P_\sigma^\top$, then $\diag(A)_i = \lambda_{\sigma(i)}$,
+so $\diag(A)^\downarrow = \lambda$ and $\lambda \prec \diag(A)$. Conversely,
+unitary diagonalizability $A = U \diag(\lambda) U^*$ implies the Frobenius norm
+identity
+\[
+  \sum_{i=1}^n |A_{ii}|^2 + \sum_{i \neq j} |A_{ij}|^2
+  = \|A\|_F^2 = \|\diag(\lambda)\|_F^2 = \sum_{k=1}^n \lambda_k^2.
+\]
+If $\diag(A)$ is a permutation of $\lambda$ (which holds whenever
+$\diag(A) \prec \lambda$ and $\lambda \prec \diag(A)$), then
+$\sum_{i=1}^n |A_{ii}|^2 = \sum_{k=1}^n \lambda_k^2$, forcing
+$\sum_{i \neq j} |A_{ij}|^2 = 0$ and hence $A_{ij} = 0$ for all $i \neq j$. Writing
+$A_{ii} = \lambda_{\sigma(i)}$ with $\sigma \in \mathfrak{S}_n$ yields
+$A = P_\sigma \diag(\lambda) P_\sigma^\top$.
+\end{proof}
+
+\begin{proposition}[Already-Diagonal Lidskii Realization --- Non-Vacuity]
+\label{prop:lidskii-diag}
+If $A = \diag(\alpha^\downarrow)$ and $B = \diag(\beta^\downarrow)$ are diagonal
+matrices with $\alpha^\downarrow, \beta^\downarrow \in \R_\downarrow^n$, then both
+endpoints of~\eqref{eq:lidskii-chain} are realized by permutation similarities of
+$B$: $P = I_n \in \Pn$ gives $\lambda^\downarrow(A + I_n B I_n^\top) =
+\alpha^\downarrow + \beta^\downarrow$, while the reversal matrix
+$(P_{\mathrm{rev}})_{ij} = \delta_{j, n+1-i} \in \Pn$ gives
+$\lambda^\downarrow(A + P_{\mathrm{rev}} B P_{\mathrm{rev}}^\top) =
+(\alpha^\downarrow + \beta^\uparrow)^\downarrow$.
+\end{proposition}
+\begin{proof}
+Direct evaluation gives $I_n B I_n^\top = \diag(\beta_1^\downarrow,\dots,\beta_n^\downarrow)$
+and $P_{\mathrm{rev}} B P_{\mathrm{rev}}^\top = \diag(\beta_n^\downarrow,\dots,\beta_1^\downarrow)
+= \diag(\beta^\uparrow)$, whose sums with $\diag(\alpha^\downarrow)$ are diagonal
+with the stated eigenvalues.
+\end{proof}
+
+Theorem~\ref{thm:schur-upper} and Proposition~\ref{prop:lidskii-diag} show why
+the conjecture looks deceptively plausible when one restricts attention either to
+the upper Schur--Horn endpoint of Hermitian matrices or to simultaneously diagonal
+pairs. We now prove that it fails in every general setting.
+
+\section{Refutation of Reading I: Schur--Horn Diagonal Majorization}
+\label{sec:reading-i}
+
+\begin{theorem}[Failure at the Schur--Horn Lower Endpoint]
+\label{thm:reading-i-lower}
+Let $n \ge 2$ and let $\lambda \in \R_\downarrow^n$ be any non-scalar spectrum
+($\lambda_1 > \lambda_n$), with mean $\bar{\lambda} = \frac{1}{n}\sum_{i=1}^n \lambda_i$.
+In the poset of ordered diagonals $\{ d \in \R_\downarrow^n : d \prec \lambda \}$
+realized by real symmetric matrices with spectrum $\lambda$:
+\begin{enumerate}
+  \item The unique minimum element (lower endpoint) is the constant vector
+  $\bar{\lambda}\Ones = (\bar{\lambda},\dots,\bar{\lambda})$, which satisfies
+  $\bar{\lambda}\Ones \precneqq \lambda$ and is therefore \emph{not} a permutation
+  or ordering of $\lambda$.
+  \item Every matrix $A$ with spectrum $\lambda$ and $\diag(A) = \bar{\lambda}\Ones$
+  fails to be permutation-similar to $\diag(\lambda)$.
+  \item Realizations of the lower endpoint among real symmetric matrices with
+  spectrum $\lambda$ are not even unique up to permutation similarity: for $n = 2$
+  and $\lambda = (2,0)$, the integer symmetric matrices
+  \[
+    A_+ = \begin{pmatrix} 1 & 1 \\ 1 & 1 \end{pmatrix},
+    \qquad
+    A_- = \begin{pmatrix} 1 & -1 \\ -1 & 1 \end{pmatrix}
+  \]
+  both satisfy $\lambda^\downarrow(A_\pm) = (2,0)$ and $\diag(A_\pm) = (1,1) =
+  \bar{\lambda}\Ones$, yet $A_+ \not\sim_{\mathcal{P}} \diag(2,0)$,
+  $A_- \not\sim_{\mathcal{P}} \diag(2,0)$, and $A_+ \not\sim_{\mathcal{P}} A_-$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+For any $d \in \R_\downarrow^n$ with $\sum_{i=1}^n d_i = n\bar{\lambda}$, monotonicity
+$d_1 \ge \dots \ge d_n$ implies $\frac{1}{k}\sum_{i=1}^k d_i \ge
+\frac{1}{n}\sum_{i=1}^n d_i = \bar{\lambda}$, so $\sum_{i=1}^k \bar{\lambda} =
+k\bar{\lambda} \le \sum_{i=1}^k d_i$ for all $1 \le k \le n$. Thus
+$\bar{\lambda}\Ones \prec d$. Since $\lambda_1 > \lambda_n$, we have
+$\lambda_1 > \bar{\lambda}$, so $\lambda \not\prec \bar{\lambda}\Ones$ and hence
+$\bar{\lambda}\Ones \precneqq \lambda$. By Horn's theorem \cite{Horn1954}, there
+exists a real symmetric matrix $A$ with spectrum $\lambda$ and
+$\diag(A) = \bar{\lambda}\Ones$. If $A$ were diagonal, its eigenvalues would be
+its diagonal entries $(\bar{\lambda},\dots,\bar{\lambda})$, contradicting
+$\lambda_1 > \lambda_n$; therefore $A$ is non-diagonal, and Lemma~\ref{lem:diag-inv}
+yields $A \not\sim_{\mathcal{P}} \diag(\lambda)$.
+
+For the explicit $2 \times 2$ witnesses $A_+$ and $A_-$, both have trace $2$ and
+determinant $1 - (\pm 1)^2 = 0$, so their characteristic polynomial is
+$t^2 - 2t = t(t-2)$ and $\lambda^\downarrow(A_\pm) = (2,0)$, while
+$\diag(A_\pm) = (1,1)$. Neither is diagonal, so neither is permutation-similar
+to $\diag(2,0)$. Moreover, $\Ptwo = \{ I_2, J_2 \}$ with
+$J_2 = \bigl(\begin{smallmatrix} 0 & 1 \\ 1 & 0 \end{smallmatrix}\bigr)$, and
+$I_2 A_+ I_2^\top = J_2 A_+ J_2^\top = A_+ \neq A_-$, proving
+$A_+ \not\sim_{\mathcal{P}} A_-$.
+\end{proof}
+
+\begin{theorem}[Failure at the Upper Endpoint Without Hermiticity]
+\label{thm:reading-i-upper}
+Over general real $n \times n$ matrices ($n \ge 2$) with real spectrum, attaining
+the exact ordered-spectrum upper endpoint $\diag(B) = \lambda^\downarrow(B)$ does
+not imply $B \sim_{\mathcal{P}} \diag(\lambda^\downarrow(B))$, even when $B$ has
+distinct eigenvalues and is diagonalizable over $\Z$. Specifically,
+\[
+  B_1 = \begin{pmatrix} 1 & 1 \\ 0 & 0 \end{pmatrix},
+  \qquad
+  B_2 = \begin{pmatrix} 1 & 1 \\ 0 & 1 \end{pmatrix}
+\]
+satisfy $\diag(B_1) = \lambda^\downarrow(B_1) = (1,0)$ and
+$\diag(B_2) = \lambda^\downarrow(B_2) = (1,1)$, with
+$B_1 = S\,\diag(1,0)\,S^{-1}$ for
+$S = \bigl(\begin{smallmatrix} 1 & -1 \\ 0 & 1 \end{smallmatrix}\bigr) \in GL_2(\Z)$,
+yet $B_1 \not\sim_{\mathcal{P}} \diag(1,0)$ and
+$B_2 \not\sim_{\mathcal{P}} \diag(1,1)$.
+\end{theorem}
+\begin{proof}
+Because $B_1$ and $B_2$ are upper-triangular, their eigenvalues are their diagonal
+entries $(1,0)$ and $(1,1)$, respectively. Direct multiplication verifies
+$S\,\diag(1,0)\,S^{-1} = B_1$ with $S^{-1} =
+\bigl(\begin{smallmatrix} 1 & 1 \\ 0 & 1 \end{smallmatrix}\bigr)$. Since
+$(B_1)_{12} = (B_2)_{12} = 1 \neq 0$, neither matrix is diagonal, so
+Lemma~\ref{lem:diag-inv} precludes permutation similarity to any diagonal matrix.
+\end{proof}
+
+\section{Refutation of Reading II: Lidskii--Wielandt Sum Majorization}
+\label{sec:reading-ii}
+
+We next examine Reading II, in which the endpoints of the majorization chain
+\eqref{eq:lidskii-chain} genuinely are constructed from the ordered spectra
+$\lambda^\downarrow$ and $\lambda^\uparrow$. Even here, the realization claim
+fails completely for real symmetric matrices because aligning the eigenbases of
+$A$ and $B$ requires the continuous orthogonal group $\On$ (or $\Un$), not the
+finite subgroup $\Pn$.
+
+\begin{theorem}[Failure of Permutation Similarity for Lidskii Sum Endpoints]
+\label{thm:reading-ii}
+Consider the real symmetric $2 \times 2$ integer matrices
+\[
+  A = \begin{pmatrix} 25 & 0 \\ 0 & 0 \end{pmatrix},
+  \qquad
+  B = \begin{pmatrix} 9 & 12 \\ 12 & 16 \end{pmatrix}.
+\]
+Then:
+\begin{enumerate}
+  \item Both $A$ and $B$ have ordered spectrum $(25,0)$ (and non-decreasing
+  spectrum $(0,25)$), so the Lidskii--Wielandt chain~\eqref{eq:lidskii-chain} for
+  $\{ \lambda^\downarrow(A + U B U^\top) : U \in O(2) \}$ has lower endpoint
+  $(25,25)$ and upper endpoint $(50,0)$.
+  \item Both endpoints are realized over $O(2,\Q)$: setting
+  \[
+    U_{\mathrm{up}} = \frac{1}{5}\begin{pmatrix} 3 & 4 \\ -4 & 3 \end{pmatrix} \in O(2,\Q),
+    \qquad
+    U_{\mathrm{low}} = \frac{1}{5}\begin{pmatrix} -4 & 3 \\ 3 & 4 \end{pmatrix} \in O(2,\Q),
+  \]
+  we have $U_{\mathrm{up}} B U_{\mathrm{up}}^\top = \diag(25,0)$ and
+  $U_{\mathrm{low}} B U_{\mathrm{low}}^\top = \diag(0,25)$, whence
+  $\lambda^\downarrow(A + U_{\mathrm{up}} B U_{\mathrm{up}}^\top) = (50,0)$ and
+  $\lambda^\downarrow(A + U_{\mathrm{low}} B U_{\mathrm{low}}^\top) = (25,25)$.
+  \item Across \emph{all} permutation matrices $P \in \Ptwo = \{I_2, J_2\}$, the
+  sum $A + P B P^\top$ has ordered spectrum either $(40,10)$ (for $P = I_2$) or
+  $(45,5)$ (for $P = J_2$). These satisfy the strict majorization chain
+  \begin{equation}
+    \label{eq:strict-chain}
+    (25,25) \;\precneqq\; (40,10) \;\precneqq\; (45,5) \;\precneqq\; (50,0).
+  \end{equation}
+  Consequently, \emph{no} matrix $B'$ permutation-similar to $B$ realizes either
+  endpoint of the Lidskii--Wielandt majorization chain.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+First, $A$ is diagonal with eigenvalues $(25,0)$, while $B$ is symmetric with
+$\tr(B) = 9 + 16 = 25$ and $\det(B) = 9\cdot 16 - 12^2 = 0$, giving
+$\lambda^\downarrow(B) = (25,0)$ and $\lambda^\uparrow(B) = (0,25)$. Next, since
+$3^2 + 4^2 = 5^2$, both $U_{\mathrm{up}}$ and $U_{\mathrm{low}}$ satisfy
+$U U^\top = I_2$. Writing $B = v v^\top$ with $v = (3,4)^\top$, we compute
+$U_{\mathrm{up}} v = (5,0)^\top$ and $U_{\mathrm{low}} v = (0,5)^\top$, which
+immediately gives $U_{\mathrm{up}} B U_{\mathrm{up}}^\top = \diag(25,0)$ and
+$U_{\mathrm{low}} B U_{\mathrm{low}}^\top = \diag(0,25)$, realizing $(50,0)$ and
+$(25,25)$.
+
+Finally, $\Ptwo = \{I_2, J_2\}$. Evaluating both conjugates:
+\begin{itemize}
+  \item For $P = I_2$: $A + I_2 B I_2^\top =
+  \bigl(\begin{smallmatrix} 34 & 12 \\ 12 & 16 \end{smallmatrix}\bigr)$ has trace
+  $50$ and determinant $34 \cdot 16 - 144 = 400$, with characteristic polynomial
+  $t^2 - 50 t + 400 = (t - 40)(t - 10)$, so $\lambda^\downarrow = (40,10)$.
+  \item For $P = J_2$: $A + J_2 B J_2^\top =
+  \bigl(\begin{smallmatrix} 41 & 12 \\ 12 & 9 \end{smallmatrix}\bigr)$ has trace
+  $50$ and determinant $41 \cdot 9 - 144 = 225$, with characteristic polynomial
+  $t^2 - 50 t + 225 = (t - 45)(t - 5)$, so $\lambda^\downarrow = (45,5)$.
+\end{itemize}
+All four vectors in~\eqref{eq:strict-chain} have total sum $50$, and their leading
+coordinates satisfy $25 < 40 < 45 < 50$, establishing all three strict
+majorizations in~\eqref{eq:strict-chain}. Neither $(50,0)$ nor $(25,25)$ is
+attained.
+\end{proof}
+
+\begin{remark}[Higher Dimensions]
+Embedding Theorem~\ref{thm:reading-ii} block-diagonally into $M_n(\R)$ for any
+$n \ge 3$---for instance, $A_3 = \diag(25,10,0)$ and
+$B_3 = \bigl(\begin{smallmatrix} 9 & 12 & 0 \\ 12 & 16 & 0 \\ 0 & 0 & 5 \end{smallmatrix}\bigr)$---produces
+real symmetric matrices in every dimension $n \ge 2$ for which none of the $n!$
+permutation conjugates $P B_n P^\top$ realizes either Lidskii endpoint.
+\end{remark}
+
+\section{Refutation of Reading III: Poset of Spectra on Trace Slices}
+\label{sec:reading-iii}
+
+Finally, we check the intrinsic poset of ordered spectra itself on fixed-trace
+hyperplanes.
+
+\begin{theorem}[Failure on Fixed-Trace and PSD Spectral Posets]
+\label{thm:reading-iii}
+Let $n \ge 2$ and $\tau \in \R$.
+\begin{enumerate}
+  \item \textbf{Unboundedness on $\mathcal{S}_{n,\tau}$:} The poset
+  $\mathcal{S}_{n,\tau} = \{ \lambda \in \R_\downarrow^n : \sum_{i=1}^n \lambda_i = \tau \}$
+  has minimum element $\frac{\tau}{n}\Ones$ and \emph{no} maximal elements: for
+  every $\lambda \in \mathcal{S}_{n,\tau}$, the vector
+  $\lambda' = (\lambda_1 + 1, \lambda_2, \dots, \lambda_{n-1}, \lambda_n - 1) \in
+  \mathcal{S}_{n,\tau}$ satisfies $\lambda \precneqq \lambda'$.
+  \item \textbf{Rank obstruction and non-uniqueness on $\mathcal{S}_{n,\tau}^+$:}
+  For $\tau > 0$, the PSD slice
+  $\mathcal{S}_{n,\tau}^+ = \{ \lambda \in \R_\downarrow^n : \lambda_n \ge 0,\,
+  \sum_{i=1}^n \lambda_i = \tau \}$ has minimum element
+  $\lambda_{\min} = \frac{\tau}{n}\Ones$ (rank $n$) and maximum element
+  $\lambda_{\max} = (\tau,0,\dots,0)$ (rank $1$). Because permutation similarity
+  preserves spectrum and rank, no matrix realizing $\lambda_{\min}$ is
+  permutation-similar to any matrix realizing $\lambda_{\max}$; moreover, at
+  $\lambda_{\max}$ itself (e.g., $n = 2, \tau = 2$), the real symmetric PSD
+  realizations $\diag(2,0)$ and $A_+ = \bigl(\begin{smallmatrix} 1 & 1 \\ 1 & 1 \end{smallmatrix}\bigr)$
+  satisfy $A_+ \not\sim_{\mathcal{P}} \diag(2,0)$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+For (1), $\lambda_1 \ge \dots \ge \lambda_n$ implies
+$\lambda_1 + 1 > \lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_{n-1} > \lambda_n - 1$,
+so $\lambda'$ is already sorted non-increasingly, has sum $\tau$, and satisfies
+$\sum_{i=1}^k \lambda'_i = 1 + \sum_{i=1}^k \lambda_i > \sum_{i=1}^k \lambda_i$
+for $1 \le k \le n-1$, giving $\lambda \precneqq \lambda'$.
+
+For (2), every $\lambda \in \mathcal{S}_{n,\tau}^+$ satisfies
+$\frac{\tau}{n}\Ones \prec \lambda$ (as in Theorem~\ref{thm:reading-i-lower}) and
+$\sum_{i=1}^k \lambda_i \le \sum_{i=1}^n \lambda_i = \tau = \sum_{i=1}^k (\lambda_{\max})_i$
+because $\lambda_j \ge 0$, so $\lambda \prec \lambda_{\max}$. Any matrices $M_1, M_2$
+with spectra $\lambda_{\min}$ and $\lambda_{\max}$ have $\det(M_1) = (\tau/n)^n > 0
+\neq 0 = \det(M_2)$, so $M_1 \not\sim_{\mathcal{P}} M_2$. Non-permutation-similarity
+of $A_+$ and $\diag(2,0)$ was proved in Theorem~\ref{thm:reading-i-lower}.
+\end{proof}
+
+\section{Formal Verification in Lean 4 and Computational Audit}
+\label{sec:lean}
+
+All definitions, positive non-vacuity results, and refutation theorems have been
+formalized from first principles in Core Lean~4.19.0 (\texttt{lean/Main.lean}),
+compiled with \texttt{-DwarningAsError=true} and zero external library
+dependencies. The formalization contains zero \texttt{sorry}, \texttt{admit},
+\texttt{native\_decide}, or custom axioms; \texttt{\#print axioms} confirms that
+every theorem depends solely on Lean's standard foundational axioms
+(\texttt{propext}, \texttt{Classical.choice}, \texttt{Quot.sound}).
+Table~\ref{tab:lean-map} records the correspondence between this paper and
+\texttt{Main.lean}.
+
+\begin{table}[ht]
+\centering
+\caption{Correspondence between mathematical results and Lean 4.19.0 declarations.}
+\label{tab:lean-map}
+\vspace{4pt}
+{\small
+\begin{tabular}{p{2.25in}p{3.65in}}
+\hline
+\textbf{Mathematical Result} & \textbf{Lean 4 Declaration in \texttt{Main.lean}} \\
+\hline
+Definition~\ref{def:majorization} ($\prec$, $\precneqq$) &
+  \texttt{Majorizes}, \texttt{StrictMajorizes}, \texttt{majorizes\_pair\_iff} \\
+Definition~\ref{def:perm-sim} ($\sim_{\mathcal{P}}$ on $M_n$) &
+  \texttt{PermSimilar}, \texttt{conj\_permMat\_apply}, \texttt{permSimilar2\_iff} \\
+Proposition~\ref{prop:collapse} &
+  \texttt{nonvacuity\_ordering\_equivalence} \\
+Lemma~\ref{lem:diag-inv} ($n \times n$ diagonal invariance) &
+  \texttt{permSimilar\_preserves\_isDiag} \\
+Theorem~\ref{thm:schur-upper} ($n \times n$ and $2 \times 2$ Schur) &
+  \texttt{nonvacuity\_schur\_upper\_endpoint\_dim\_n}, \texttt{\_symm2} \\
+Proposition~\ref{prop:lidskii-diag} &
+  \texttt{nonvacuity\_lidskii\_diagonal\_case} \\
+Theorem~\ref{thm:reading-i-lower} (Reading I-A) &
+  \texttt{refutation\_schur\_horn\_lower\_endpoint} \\
+Theorem~\ref{thm:reading-i-upper} (Reading I-B) &
+  \texttt{refutation\_schur\_horn\_upper\_nonhermitian} \\
+Theorem~\ref{thm:reading-ii} (Reading II) &
+  \texttt{refutation\_lidskii\_sum\_endpoints} \\
+Theorem~\ref{thm:reading-iii} (Reading III) &
+  \texttt{refutation\_spectra\_poset\_slices} \\
+Master Disproof Theorem &
+  \texttt{conjecture\_00000007173\_false\_all\_readings} \\
+\hline
+\end{tabular}
+}
+\end{table}
+
+In addition, the standalone script \texttt{verify.py} (using only the Python~3.12
+standard library) independently verifies all exact rational matrix identities,
+characteristic polynomials, exhaustive symmetric-group checks ($\mathfrak{S}_2$,
+$\mathfrak{S}_3$, $\mathfrak{S}_4$), and $400$ randomized trials across dimensions
+$n \in \{2,3,4,5\}$ via a Jacobi symmetric eigensolver.
+
+\begin{thebibliography}{9}
+
+\bibitem{Bhatia1997}
+R.~Bhatia,
+\emph{Matrix Analysis},
+Graduate Texts in Mathematics, vol.~169, Springer, New York, 1997.
+
+\bibitem{HLP1934}
+G.~H.~Hardy, J.~E.~Littlewood, and G.~P\'olya,
+\emph{Inequalities},
+Cambridge University Press, Cambridge, 1934.
+
+\bibitem{Horn1954}
+A.~Horn,
+Doubly stochastic matrices and the diagonal of a rotation matrix,
+\emph{Amer.\ J.\ Math.} \textbf{76} (1954), 620--630.
+
+\bibitem{Lidskii1950}
+V.~B.~Lidskii,
+The proper values of the sum and product of symmetric matrices,
+\emph{Dokl.\ Akad.\ Nauk SSSR} \textbf{75} (1950), 769--772.
+
+\bibitem{MOA2011}
+A.~W.~Marshall, I.~Olkin, and B.~C.~Arnold,
+\emph{Inequalities: Theory of Majorization and Its Applications},
+2nd ed., Springer, New York, 2011.
+
+\bibitem{Schur1923}
+I.~Schur,
+\"Uber eine Klasse von Mittelbildungen mit Anwendungen auf die Determinantentheorie,
+\emph{Sitzungsber.\ Berl.\ Math.\ Ges.} \textbf{22} (1923), 9--20.
+
+\bibitem{Wielandt1955}
+H.~Wielandt,
+An extremum property of sums of eigenvalues,
+\emph{Proc.\ Amer.\ Math.\ Soc.} \textbf{6} (1955), 106--110.
+
+\end{thebibliography}
+
+\end{document}
