@@ -1,0 +1,362 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\emergencystretch=2em
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\DeclareMathOperator{\tr}{tr}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\RePart}{Re}
+
+\title{\textbf{Disproof of Conjecture 00000007163:\\
+Extremal Spectral Gaps, Reducibility, and Positivity Moduli\\
+in Perron--Frobenius Theory}}
+\author{Autonomous Mathematical Formalization Package}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000007163}, which asserts within Perron--Frobenius theory that (i)~a strict gap between the spectral radius and the next eigenvalue requires almost-irreducible primitivity, and (ii)~the bound of this spectral gap is given by the positivity modulus. We prove that \textbf{both clauses are false} across all standard matrix classes (nonnegative, primitive, strictly positive, symmetric, and row-stochastic), both standard spectral-gap conventions (modulus gap $\gamma_{\mathrm{mod}}(A) = \rho(A) - \max_{\lambda \neq \rho(A)} |\lambda|$ and real gap $\gamma_{\mathrm{re}}(A) = \rho(A) - \max_{\lambda \neq \rho(A)} \RePart(\lambda)$), both inequality directions (upper bound, lower bound, and sharp infimum), and all three canonical definitions of positivity modulus (entrywise minimum $m(A) = \min_{i,j} a_{ij}$, Markov--Doeblin column-minimum sum $\delta(A) = \sum_j \min_i a_{ij}$, and scale-invariant entry/Birkhoff--Hopf ratios). Alongside explicit integer-spectrum counterexamples and infinite parametric families, we establish the sharp positive boundary theorems that explain the failure: the exact Frobenius normal form characterization of $\gamma_{\mathrm{mod}}(A) > 0$, the Markov--Doeblin lower bound $\gamma_{\mathrm{mod}}(A) \ge \delta(A)$ for constant-row-sum matrices, the universal strict separation $\gamma_{\mathrm{mod}}(A) > m(A)$ for all strictly positive $n \times n$ matrices ($n \ge 2$) via Perron diagonal similarity and Deutsch--Zenger contraction, and the sharp $2 \times 2$ bound $\gamma_{\mathrm{mod}}(A) \ge 2 m(A)$. All main positive and negative theorems are formalized from first principles in Core Lean~4.19.0 without external dependencies.
+\end{abstract}
+
+\section{Introduction and Problem Formulation}
+
+Conjecture~\texttt{00000007163} reads as follows:
+\begin{quote}
+\emph{Definition: Perron-Frobenius with the extremal spectra of positive matrices. Conjecture: The gap between the spectral radius and the next eigenvalue requires almost irreducible primitivity, and the bound of the gap is the positivity modulus. (positivity-modulus PF spectral gap)}
+\end{quote}
+The companion Chinese formulation similarly pairs a structural necessity claim---that the extremal Perron--Frobenius gap between the spectral radius and the second eigenvalue requires primitivity and almost irreducibility---with a quantitative claim that the bound of the spectral gap is the positivity modulus.
+
+Because concise Perron--Frobenius statements in the literature vary in whether ``positive'' allows nonnegative entries ($A \ge 0$) or strictly positive entries ($A > 0$), whether the spectral gap is measured in modulus or real part, whether ``bound'' means an upper bound or a (sharp) lower bound, and which functional represents the positivity modulus, a definitive resolution must test every standard convention. We show that the conjecture fails under all of them.
+
+\subsection{Definitions and Notation}
+
+Let $n \ge 2$ be an integer, and let $A = (a_{ij}) \in \R^{n \times n}$. Write $\sigma(A) = \{\lambda_1, \dots, \lambda_n\} \subset \C$ for the spectrum of $A$ listed with algebraic multiplicity, and $\rho(A) := \max_{1 \le k \le n} |\lambda_k|$ for the spectral radius. When $A$ is entrywise nonnegative ($a_{ij} \ge 0$), the classical Perron--Frobenius theorem ensures $\rho(A) \in \sigma(A)$; ordering the eigenvalues so that $\lambda_1 = \rho(A)$, the two canonical spectral gaps are:
+\begin{align}
+  \gamma_{\mathrm{mod}}(A) &:= \rho(A) - \max_{2 \le k \le n} |\lambda_k|
+  \qquad \text{(modulus / peripheral spectral gap)}, \label{eq:gap-mod}\\
+  \gamma_{\mathrm{re}}(A) &:= \rho(A) - \max_{2 \le k \le n} \RePart(\lambda_k)
+  \qquad \text{(real / algebraic spectral gap)}. \label{eq:gap-re}
+\end{align}
+Since $\RePart(\lambda_k) \le |\lambda_k| \le \rho(A)$ for every $k$, one always has $0 \le \gamma_{\mathrm{mod}}(A) \le \gamma_{\mathrm{re}}(A)$, and $\gamma_{\mathrm{mod}}(A) > 0$ holds if and only if $\rho(A)$ is an algebraically simple eigenvalue strictly dominating every other eigenvalue in modulus.
+
+\begin{definition}[Structural Perron--Frobenius Classes]
+Let $A \in \R^{n \times n}_{\ge 0}$.
+\begin{enumerate}
+  \item[(i)] $A$ is \emph{irreducible} if for every $i, j \in \{1, \dots, n\}$ there exists an integer $k \ge 1$ with $(A^k)_{ij} > 0$.
+  \item[(ii)] $A$ is \emph{primitive} if there exists $k \ge 1$ such that $(A^k)_{ij} > 0$ for all $i, j \in \{1, \dots, n\}$.
+  \item[(iii)] $A$ has a \emph{single essential class} (\emph{almost irreducible} in the general Frobenius sense) if any two indices $i, j$ possessing positive self-return walks ($\exists k_1, k_2 \ge 1$ with $(A^{k_1})_{ii} > 0$ and $(A^{k_2})_{jj} > 0$) communicate ($\exists r \ge 1$ with $(A^r)_{ij} > 0$). Equivalently, at most one Frobenius diagonal block of $A$ is non-nilpotent.
+  \item[(iv)] $A$ is \emph{block-supported primitive} (\emph{almost irreducible primitive} up to zero rows/columns) if there exists a nonempty subset $S \subseteq \{1, \dots, n\}$ such that $a_{ij} = 0$ whenever $(i, j) \notin S \times S$ and the principal submatrix $A[S, S]$ is primitive.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Canonical Positivity Moduli]
+For $A = (a_{ij}) \in \R^{n \times n}$, the three standard positivity functionals in Perron--Frobenius and Markov-chain theory are:
+\begin{enumerate}
+  \item[(a)] \textbf{Entrywise positivity floor:} $m(A) := \min_{1 \le i,j \le n} a_{ij}$.
+  \item[(b)] \textbf{Markov--Doeblin column-minimum modulus:} $\delta(A) := \sum_{j=1}^n \min_{1 \le i \le n} a_{ij}$ (satisfying $\delta(A) \ge n\,m(A)$).
+  \item[(c)] \textbf{Scale-invariant positivity moduli} (for $A > 0$): the entry ratio $\mu_{\mathrm{ratio}}(A) := \frac{\min_{i,j} a_{ij}}{\max_{i,j} a_{ij}} \in (0, 1]$ and the Birkhoff--Hopf contraction gap $\kappa_{\mathrm{BH}}(A) := 1 - \tanh(\Delta(A)/4) = \frac{2}{\sqrt{K(A)} + 1} \in (0, 1]$, where $K(A) := \max_{i,j,k,\ell} \frac{a_{ij} a_{k\ell}}{a_{i\ell} a_{kj}} \ge 1$.
+\end{enumerate}
+\end{definition}
+
+Table~\ref{tab:summary} summarizes our disproofs and sharp boundary results across all regimes.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}p{0.27\textwidth}p{0.11\textwidth}p{0.56\textwidth}@{}}
+\toprule
+\textbf{Claim / Interpretation} & \textbf{Status} & \textbf{Counterexample or Sharp Boundary Theorem} \\
+\midrule
+Clause~1: $\gamma_{\mathrm{mod}}(A) > 0$ requires almost-irreducibility or primitivity & \textbf{False} & $A_{\mathrm{diag}} = \diag(3,1)$ and $A_{\mathrm{per}} = \diag(3, P_2)$ have two nonzero blocks (and a period-$2$ block), fail all four irreducibility/primitivity predicates, yet have $\gamma_{\mathrm{mod}} = \gamma_{\mathrm{re}} = 2 > 0$ (Theorem~\ref{thm:clause1}). \\
+\addlinespace[3pt]
+Clause~1 (real gap): $\gamma_{\mathrm{re}}(A) > 0$ requires primitivity & \textbf{False} & $A_{\mathrm{cyc}} = \bigl(\begin{smallmatrix}0&2\\2&0\end{smallmatrix}\bigr)$ is irreducible of period~$2$ (not primitive), with $\sigma = \{2,-2\}$ and $\gamma_{\mathrm{re}} = 4 > 0$ (Theorem~\ref{thm:clause1}). \\
+\addlinespace[3pt]
+Clause~2: $m(A)$ bounds $\gamma(A)$ on primitive $A \ge 0$ & \textbf{False} & Primitive $A_{\mathrm{prim}} = \bigl(\begin{smallmatrix}2&3\\1&0\end{smallmatrix}\bigr)$ ($A_{\mathrm{prim}}^2 > 0$) has $m(A_{\mathrm{prim}}) = 0$, $\delta(A_{\mathrm{prim}}) = 1$, and $\gamma_{\mathrm{mod}} = 2$ (Proposition~\ref{prop:prim-zero}). \\
+\addlinespace[3pt]
+Clause~2: Upper bound $\gamma(A) \le m(A)$ or $\gamma(A) \le \delta(A)$ & \textbf{False} & $S_K = \bigl(\begin{smallmatrix}K^2&K\\K&1\end{smallmatrix}\bigr)$ ($m=1$) has $\gamma = K^2+1 \to \infty$; $A_K = \bigl(\begin{smallmatrix}K&K\\1&1\end{smallmatrix}\bigr)$ ($m=1,\delta=2$) has $\gamma = K+1 \to \infty$; doubly stochastic $P_{\mathrm{stoch}}$ has $m = \frac{1}{10} < \delta = \frac{2}{5} < \gamma = \frac{4}{5}$ (Theorem~\ref{thm:upper}). \\
+\addlinespace[3pt]
+Clause~2: Sharp lower bound $\inf \gamma_{\mathrm{mod}}(A) = m(A)$ ($A > 0$) & \textbf{False} & Universal strict separation $\gamma_{\mathrm{mod}}(A) > m(A)$ holds for all $n \ge 2$ (Theorem~\ref{thm:strict-floor}); for $n=2$, $\inf_{m(A)=m} \gamma_{\mathrm{mod}}(A) = 2m > m$ (Theorem~\ref{thm:sharp-2x2}). \\
+\addlinespace[3pt]
+Clause~2: Lower bound $\gamma(A) \ge \delta(A)$ or $n\,m(A)$ ($A > 0$) & \textbf{False} & True for constant-row-sum $A$ (Theorem~\ref{thm:doeblin}), but false on general $A > 0$: $A_{\mathrm{low},3}$ has $\gamma = 5 < 6 = \delta$, $A_{\mathrm{low},4}$ has $\gamma = 3 < 4 = \delta$, and $\inf \gamma/\delta \le 2/n \to 0$ (Theorem~\ref{thm:doeblin-fail}). \\
+\addlinespace[3pt]
+Clause~2: Scale-invariant moduli $\mu_{\mathrm{ratio}}, \kappa_{\mathrm{BH}}$ & \textbf{False} & Violates scaling $\gamma(cA) = c\gamma(A)$; even for relative gap $\gamma/\rho$, $A_{\mathrm{rat}}(p)$ has $\gamma/\rho \to 1$ while $\mu_{\mathrm{ratio}}, \kappa_{\mathrm{BH}} \to 0$ (Theorem~\ref{thm:ratio}). \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the status of Conjecture~\texttt{00000007163} under every standard interpretation.}
+\label{tab:summary}
+\end{table}
+
+\section{Refutation of Clause 1 and Frobenius Characterization}
+
+\begin{theorem}[Counterexamples to Clause 1]\label{thm:clause1}
+A strict spectral gap ($\gamma_{\mathrm{mod}}(A) > 0$ or $\gamma_{\mathrm{re}}(A) > 0$) does not require irreducibility, primitivity, a single essential Frobenius class, or block-supported primitivity:
+\begin{enumerate}
+  \item[(a)] The diagonal nonnegative matrix
+    \[
+      A_{\mathrm{diag}} = \begin{pmatrix} 3 & 0 \\ 0 & 1 \end{pmatrix}
+    \]
+    satisfies $\det(x I - A_{\mathrm{diag}}) = (x - 3)(x - 1)$, $\rho(A_{\mathrm{diag}}) = 3$, and $\gamma_{\mathrm{mod}}(A_{\mathrm{diag}}) = \gamma_{\mathrm{re}}(A_{\mathrm{diag}}) = 2 > 0$. Yet for every $k \ge 1$, $A_{\mathrm{diag}}^k = \diag(3^k, 1)$, so indices $1$ and $2$ both have positive self-return walks while $(A_{\mathrm{diag}}^k)_{12} = (A_{\mathrm{diag}}^k)_{21} = 0$. Hence $A_{\mathrm{diag}}$ is neither irreducible, nor primitive, nor single-essential-class, nor block-supported primitive.
+  \item[(b)] Let $P_2 = \bigl(\begin{smallmatrix} 0 & 1 \\ 1 & 0 \end{smallmatrix}\bigr)$ and define the $3 \times 3$ reducible matrix
+    \[
+      A_{\mathrm{per}} = \begin{pmatrix} 3 & 0 & 0 \\ 0 & 0 & 1 \\ 0 & 1 & 0 \end{pmatrix}.
+    \]
+    Then $\det(x I - A_{\mathrm{per}}) = (x - 3)(x - 1)(x + 1)$, with eigenpairs $(3, (1,0,0)^\top)$, $(1, (0,1,1)^\top)$, and $(-1, (0,1,-1)^\top)$, giving $\gamma_{\mathrm{mod}}(A_{\mathrm{per}}) = 3 - |-1| = 2 > 0$ and $\gamma_{\mathrm{re}}(A_{\mathrm{per}}) = 3 - 1 = 2 > 0$, even though $A_{\mathrm{per}}$ is reducible with two nonzero blocks and its second block $P_2$ is imprimitive of period~$2$.
+  \item[(c)] For the real spectral gap $\gamma_{\mathrm{re}}(A)$, not even the Perron component needs to be primitive: the irreducible period-$2$ matrix $A_{\mathrm{cyc}} = \bigl(\begin{smallmatrix} 0 & 2 \\ 2 & 0 \end{smallmatrix}\bigr)$ satisfies $(A_{\mathrm{cyc}}^{2k})_{12} = 0$ and $(A_{\mathrm{cyc}}^{2k-1})_{11} = 0$ for all $k \ge 1$ (hence is not primitive), yet $\sigma(A_{\mathrm{cyc}}) = \{2, -2\}$ gives $\gamma_{\mathrm{re}}(A_{\mathrm{cyc}}) = 2 - (-2) = 4 > 0$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+In~(a), induction on $k \ge 0$ gives $A_{\mathrm{diag}}^k = \diag(3^k, 1)$. Thus $(A_{\mathrm{diag}}^1)_{11} = 3 > 0$ and $(A_{\mathrm{diag}}^1)_{22} = 1 > 0$, whereas $(A_{\mathrm{diag}}^k)_{12} = 0$ for all $k \ge 1$, violating irreducibility, primitivity, and the single-essential-class property. If $S \subseteq \{1, 2\}$ supports $A_{\mathrm{diag}}$, then $a_{11} = 3 \neq 0$ forces $1 \in S$ and $a_{22} = 1 \neq 0$ forces $2 \in S$, so $S = \{1, 2\}$, where primitivity again fails.
+
+In~(b), $\det(x I - A_{\mathrm{per}}) = (x - 3)[x^2 - 1] = (x - 3)(x - 1)(x + 1)$. By induction on $k$, the first row of $A_{\mathrm{per}}^k$ is $(3^k, 0, 0)$, while $(A_{\mathrm{per}}^2)_{22} = 1 > 0$. Thus indices $1$ and $2$ both lie in essential classes that never communicate, and any supporting subset $S$ must contain $1$ (since $a_{11} = 3 \neq 0$) and $2$ (since $a_{23} = 1 \neq 0$), contradicting $(A_{\mathrm{per}}^k)_{12} = 0$.
+
+In~(c), $\det(x I - A_{\mathrm{cyc}}) = x^2 - 4 = (x - 2)(x + 2)$, and induction on $k$ yields $A_{\mathrm{cyc}}^{2k} = 4^k I_2$ and $A_{\mathrm{cyc}}^{2k+1} = 2 \cdot 4^k P_2$, so $A_{\mathrm{cyc}}$ is irreducible ($A_{\mathrm{cyc}} + A_{\mathrm{cyc}}^2 > 0$) while every single power $A_{\mathrm{cyc}}^k$ retains two zero entries.
+\end{proof}
+
+To clarify why Clause~1 fails, we record the exact Frobenius normal form criterion for $\gamma_{\mathrm{mod}}(A) > 0$.
+
+\begin{theorem}[Exact Frobenius Criterion for a Strict Modulus Gap]\label{thm:frobenius-criterion}
+Let $A \in \R^{n \times n}_{\ge 0}$ satisfy $\rho(A) > 0$, and let $B_1, \dots, B_s$ be the diagonal blocks of a Frobenius normal form of $A$ (obtained by simultaneous row/column permutation so that $A$ is block upper-triangular with each $B_r$ either $1 \times 1$ zero or irreducible). Then $\gamma_{\mathrm{mod}}(A) > 0$ if and only if:
+\begin{enumerate}
+  \item[(i)] there is a unique index $r_0 \in \{1, \dots, s\}$ with $\rho(B_{r_0}) = \rho(A)$;
+  \item[(ii)] $B_{r_0}$ is primitive; and
+  \item[(iii)] $\rho(B_r) < \rho(A)$ for every $r \neq r_0$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Because $\sigma(A) = \bigsqcup_{r=1}^s \sigma(B_r)$ with algebraic multiplicities, $\rho(A) = \max_{1 \le r \le s} \rho(B_r) > 0$. If~(i)--(iii) hold, Perron--Frobenius applied to the primitive block $B_{r_0}$ shows that $\rho(B_{r_0}) = \rho(A)$ is a simple root of $\det(x I - B_{r_0})$ and every other $\mu \in \sigma(B_{r_0})$ satisfies $|\mu| < \rho(A)$, while for every $r \neq r_0$ and $\mu \in \sigma(B_r)$, $|\mu| \le \rho(B_r) < \rho(A)$; hence $\gamma_{\mathrm{mod}}(A) > 0$. Conversely, suppose $\gamma_{\mathrm{mod}}(A) > 0$. Since $\rho(B_r) \in \sigma(B_r) \subseteq \sigma(A)$ for every $r$, if two distinct blocks attained $\rho(A)$ then $\rho(A)$ would have algebraic multiplicity at least~$2$ in $\sigma(A)$, forcing $\gamma_{\mathrm{mod}}(A) = 0$. Thus~(i) and~(iii) hold. Since $\rho(B_{r_0}) = \rho(A) > 0$, $B_{r_0}$ cannot be a $1 \times 1$ zero block, so $B_{r_0}$ is irreducible; if $B_{r_0}$ were imprimitive of period $h \ge 2$, Frobenius's theorem on cyclic irreducible matrices would yield $h$ distinct eigenvalues $\rho(A) e^{2\pi i \ell / h} \in \sigma(B_{r_0}) \subseteq \sigma(A)$ of modulus $\rho(A)$, again forcing $\gamma_{\mathrm{mod}}(A) = 0$. Hence $B_{r_0}$ is primitive.
+\end{proof}
+
+\begin{remark}
+Theorem~\ref{thm:frobenius-criterion} pinpoints the exact conceptual error behind Clause~1: almost-irreducible primitivity demands $\rho(B_r) = 0$ for all $r \neq r_0$, whereas $\gamma_{\mathrm{mod}}(A) > 0$ only requires the strictly weaker dominance $\rho(B_r) < \rho(A)$, allowing arbitrarily many positive or periodic sub-blocks with $0 < \rho(B_r) < \rho(A)$. Meanwhile, if one restricts $A$ from the outset to strictly positive matrices ($A > 0$), then $A^1 = A > 0$ makes primitivity automatic for every matrix in the domain, rendering Clause~1 redundant rather than a characterization.
+\end{remark}
+
+\section{Refutation of Clause 2 Across All Positivity Moduli}
+
+We now show that Clause~2 fails under all three positivity moduli and under both upper-bound and lower-bound interpretations.
+
+\begin{proposition}[Vanishing Floor on Primitive Nonnegative Matrices]\label{prop:prim-zero}
+The nonnegative matrix
+\[
+  A_{\mathrm{prim}} = \begin{pmatrix} 2 & 3 \\ 1 & 0 \end{pmatrix}
+\]
+is irreducible and primitive ($A_{\mathrm{prim}}^2 = \bigl(\begin{smallmatrix} 7 & 6 \\ 2 & 3 \end{smallmatrix}\bigr) > 0$), with $\det(x I - A_{\mathrm{prim}}) = (x - 3)(x + 1)$, eigenpairs $(3, (3, 1)^\top)$ and $(-1, (-1, 1)^\top)$, $\gamma_{\mathrm{mod}}(A_{\mathrm{prim}}) = 2$, and $\gamma_{\mathrm{re}}(A_{\mathrm{prim}}) = 4$. However, $m(A_{\mathrm{prim}}) = 0$ and $\delta(A_{\mathrm{prim}}) = 1 + 0 = 1 < \gamma_{\mathrm{mod}}(A_{\mathrm{prim}})$.
+\end{proposition}
+
+\begin{proof}
+Direct computation gives $A_{\mathrm{prim}}^2 = \bigl(\begin{smallmatrix} 7 & 6 \\ 2 & 3 \end{smallmatrix}\bigr) > 0$, $\det(x I - A_{\mathrm{prim}}) = x(x - 2) - 3 = (x - 3)(x + 1)$, $m(A_{\mathrm{prim}}) = a_{22} = 0$, and $\delta(A_{\mathrm{prim}}) = \min(2,1) + \min(3,0) = 1$.
+\end{proof}
+
+\begin{theorem}[Failure of Upper Bounds via $m(A)$ and $\delta(A)$]\label{thm:upper}
+No function of $m(A)$ and $\delta(A)$ can bound $\gamma_{\mathrm{mod}}(A)$ or $\gamma_{\mathrm{re}}(A)$ from above, even on symmetric strictly positive matrices or doubly stochastic strictly positive matrices:
+\begin{enumerate}
+  \item[(a)] For every integer $K \ge 1$, the symmetric strictly positive matrix
+    \[
+      S_K := \begin{pmatrix} K^2 & K \\ K & 1 \end{pmatrix}
+    \]
+    satisfies $m(S_K) = 1$ and $\det(x I - S_K) = x(x - (K^2 + 1))$, so that $\gamma_{\mathrm{mod}}(S_K) = \gamma_{\mathrm{re}}(S_K) = K^2 + 1 \to +\infty$ as $K \to \infty$.
+  \item[(b)] For every integer $K \ge 1$, the strictly positive matrix
+    \[
+      A_K = \begin{pmatrix} K & K \\ 1 & 1 \end{pmatrix}
+    \]
+    satisfies $m(A_K) = 1$, $\delta(A_K) = 1 + 1 = 2$, and $\det(x I - A_K) = x(x - (K + 1))$, so $\gamma_{\mathrm{mod}}(A_K) = \gamma_{\mathrm{re}}(A_K) = K + 1 \to +\infty$ while both $m(A_K)$ and $\delta(A_K)$ remain constant.
+  \item[(c)] Even on strictly positive symmetric doubly stochastic matrices ($\rho(P) = 1$), the $4 \times 4$ matrix
+    \[
+      P_{\mathrm{stoch}} = \frac{1}{10}\begin{pmatrix}
+        3 & 3 & 3 & 1 \\
+        3 & 3 & 1 & 3 \\
+        3 & 1 & 3 & 3 \\
+        1 & 3 & 3 & 3
+      \end{pmatrix}
+    \]
+    has exact spectrum $\sigma(P_{\mathrm{stoch}}) = \bigl\{1, \tfrac{1}{5}, \tfrac{1}{5}, -\tfrac{1}{5}\bigr\}$, $m(P_{\mathrm{stoch}}) = \tfrac{1}{10}$, and $\delta(P_{\mathrm{stoch}}) = \tfrac{2}{5}$, whereas $\gamma_{\mathrm{mod}}(P_{\mathrm{stoch}}) = \gamma_{\mathrm{re}}(P_{\mathrm{stoch}}) = \tfrac{4}{5} > \delta(P_{\mathrm{stoch}}) > m(P_{\mathrm{stoch}})$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Parts~(a) and~(b) follow immediately from $\det(S_K) = \det(A_K) = 0$ together with $\tr(S_K) = K^2 + 1$ and $\tr(A_K) = K + 1$. For~(c), write $10 P_{\mathrm{stoch}} = 3 J_4 - 2 R_4$, where $J_4$ is the all-ones matrix and $R_4$ is the anti-diagonal reversal permutation $(x_1,x_2,x_3,x_4)^\top \mapsto (x_4,x_3,x_2,x_1)^\top$. Evaluating $3 J_4 - 2 R_4$ on the orthogonal basis $v_1 = (1,1,1,1)^\top$, $v_2 = (1,1,-1,-1)^\top$, $v_3 = (1,-1,1,-1)^\top$, $v_4 = (1,-1,-1,1)^\top$ gives eigenvalues $12 - 2 = 10$, $0 - 2(-1) = 2$, $0 - 2(-1) = 2$, and $0 - 2(1) = -2$. Dividing by~$10$ yields $\sigma(P_{\mathrm{stoch}}) = \{1, \tfrac{1}{5}, \tfrac{1}{5}, -\tfrac{1}{5}\}$ and $\gamma_{\mathrm{mod}}(P_{\mathrm{stoch}}) = 1 - \tfrac{1}{5} = \tfrac{4}{5} > \tfrac{2}{5} = \delta(P_{\mathrm{stoch}})$.
+\end{proof}
+
+\begin{theorem}[Failure of Doeblin and $n\,m(A)$ Lower Bounds on Positive Matrices]\label{thm:doeblin-fail}
+Although $\gamma_{\mathrm{mod}}(P) \ge \delta(P) \ge n\,m(P)$ holds for row-stochastic matrices (Theorem~\ref{thm:doeblin}), both $\gamma_{\mathrm{mod}}(A) \ge \delta(A)$ and $\gamma_{\mathrm{mod}}(A) \ge n\,m(A)$ fail on symmetric strictly positive matrices for every $n \ge 3$:
+\begin{enumerate}
+  \item[(a)] For $n = 3$, the symmetric positive integer matrix
+    \[
+      A_{\mathrm{low},3} = \begin{pmatrix} 7 & 2 & 2 \\ 2 & 7 & 2 \\ 2 & 2 & 2 \end{pmatrix}
+    \]
+    has orthogonal integer eigenpairs $(10, (2,2,1)^\top)$, $(5, (1,-1,0)^\top)$, and $(1, (1,1,-4)^\top)$, so $\sigma(A_{\mathrm{low},3}) = \{10, 5, 1\}$, $m(A_{\mathrm{low},3}) = 2$, $\delta(A_{\mathrm{low},3}) = 3 m(A_{\mathrm{low},3}) = 6$, and
+    \[
+      m(A_{\mathrm{low},3}) = 2 < \gamma_{\mathrm{mod}}(A_{\mathrm{low},3}) = \gamma_{\mathrm{re}}(A_{\mathrm{low},3}) = 5 < 6 = \delta(A_{\mathrm{low},3}).
+    \]
+  \item[(b)] For $n = 4$ at unit floor $m = 1$, $A_{\mathrm{low},4} = J_4 + 3(E_{11} + E_{22})$ has orthogonal eigenpairs $(6, (2,2,1,1)^\top)$, $(3, (1,-1,0,0)^\top)$, $(1, (1,1,-2,-2)^\top)$, and $(0, (0,0,1,-1)^\top)$, so $m(A_{\mathrm{low},4}) = 1$, $\delta(A_{\mathrm{low},4}) = 4$, and $\gamma_{\mathrm{mod}}(A_{\mathrm{low},4}) = 6 - 3 = 3 < 4 = \delta(A_{\mathrm{low},4})$.
+  \item[(c)] More generally, for every $n \ge 3$ and $a > 0$, let $A_n(a) := J_n + a(E_{11} + E_{22})$. Then $m(A_n(a)) = 1$, $\delta(A_n(a)) = n$, and as $a \to +\infty$,
+    \begin{align*}
+      \gamma_{\mathrm{mod}}(A_n(a)) = \gamma_{\mathrm{re}}(A_n(a))
+      &= \frac{a + n + \sqrt{(a - n + 4)^2 + 8(n - 2)}}{2} - a \\
+      &= 2 + \frac{2(n - 2)}{a} + O(a^{-2}) \longrightarrow 2.
+    \end{align*}
+    Consequently, $\inf_{A \in \R^{n \times n}_{>0}} \frac{\gamma_{\mathrm{mod}}(A)}{\delta(A)} \le \frac{2}{n} \to 0$ as $n \to \infty$, refuting even any dimension-independent linear lower bound $\gamma_{\mathrm{mod}}(A) \ge c\,\delta(A)$ ($c > 0$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Parts~(a) and~(b) follow immediately by multiplying $A_{\mathrm{low},3}$ and $A_{\mathrm{low},4}$ against the displayed orthogonal eigenvectors. For~(c), $A_n(a)$ annihilates the $(n - 3)$-dimensional subspace $\{x : x_1 = x_2 = 0,\ \sum_{j=3}^n x_j = 0\}$, sends $e_1 - e_2$ to $a(e_1 - e_2)$, and preserves $\mathrm{span}\{u, w\}$ where $u = e_1 + e_2$ and $w = \sum_{j=3}^n e_j$. On $\{u, w\}$, $A_n(a)$ has matrix $\bigl(\begin{smallmatrix} a+2 & n-2 \\ 2 & n-2 \end{smallmatrix}\bigr)$, whose characteristic polynomial is $x^2 - (a + n)x + a(n - 2)$ with discriminant $(a + n)^2 - 4a(n - 2) = (a - n + 4)^2 + 8(n - 2)$. For $a > n$, the smaller root satisfies $0 < \lambda_3 < n - 2 < a$, so $\lambda_2 = a$ and $\rho(A_n(a)) - a = \frac{1}{2}[\sqrt{(a - n + 4)^2 + 8(n - 2)} - (a - n)] \to \frac{1}{2}[(a - n + 4) - (a - n)] = 2$ as $a \to \infty$.
+\end{proof}
+
+\begin{theorem}[Scale-Invariant Moduli and Relative-Gap Arbitrage]\label{thm:ratio}
+Let $\mu(A)$ denote either $\mu_{\mathrm{ratio}}(A) = m(A)/M(A)$ or $\kappa_{\mathrm{BH}}(A) = 2/(\sqrt{K(A)} + 1)$.
+\begin{enumerate}
+  \item[(a)] For any $A > 0$ with $\gamma_{\mathrm{mod}}(A) > 0$ and any scalar $c > 0$, $\mu(cA) = \mu(A)$ whereas $\gamma_{\mathrm{mod}}(cA) = c\,\gamma_{\mathrm{mod}}(A)$ and $\gamma_{\mathrm{re}}(cA) = c\,\gamma_{\mathrm{re}}(A)$. Choosing $c < \mu(A)/\gamma_{\mathrm{re}}(A)$ gives $\gamma_{\mathrm{mod}}(cA) \le \gamma_{\mathrm{re}}(cA) < \mu(cA)$, and choosing $c > \mu(A)/\gamma_{\mathrm{mod}}(A)$ gives $\gamma_{\mathrm{re}}(cA) \ge \gamma_{\mathrm{mod}}(cA) > \mu(cA)$.
+  \item[(b)] Even for the scale-invariant relative spectral gap $\widetilde{\gamma}(A) := \gamma_{\mathrm{mod}}(A)/\rho(A)$, define for every integer $p \ge 2$ the symmetric strictly positive integer matrix
+    \[
+      A_{\mathrm{rat}}(p) := \begin{pmatrix} p^2 + 2p - 3 & 2p \\ 2p & 2p + 1 \end{pmatrix}.
+    \]
+    Then $\det(x I - A_{\mathrm{rat}}(p)) = (x - (p + 1)^2)(x - (2p - 3))$ with orthogonal integer eigenpairs $((p + 1)^2, (p, 2)^\top)$ and $(2p - 3, (2, -p)^\top)$. As $p \to +\infty$,
+    \begin{align*}
+      \widetilde{\gamma}(A_{\mathrm{rat}}(p)) &= \frac{p^2 + 4}{(p + 1)^2} \longrightarrow 1, \\
+      \mu_{\mathrm{ratio}}(A_{\mathrm{rat}}(p)) &= \frac{2p}{p^2 + 2p - 3} \longrightarrow 0,
+      \qquad
+      \kappa_{\mathrm{BH}}(A_{\mathrm{rat}}(p)) \sim \frac{2\sqrt{2}}{\sqrt{p}} \longrightarrow 0.
+    \end{align*}
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(a) is immediate from homogeneity of degree~$1$ of eigenvalues versus degree~$0$ of $\mu$. In~(b), for $p \ge 2$ we have $p^2 + 2p - 3 \ge 5 > 0$ and $2p \ge 4 > 0$, while
+\begin{align*}
+  \tr(A_{\mathrm{rat}}(p)) &= p^2 + 4p - 2 = (p + 1)^2 + (2p - 3), \\
+  \det(A_{\mathrm{rat}}(p)) &= (p^2 + 2p - 3)(2p + 1) - 4p^2 = (p + 1)^2 (2p - 3).
+\end{align*}
+For $p \ge 3$, $m(A_{\mathrm{rat}}(p)) = 2p$ and $M(A_{\mathrm{rat}}(p)) = p^2 + 2p - 3$, while $K(A_{\mathrm{rat}}(p)) = \frac{(p^2 + 2p - 3)(2p + 1)}{4p^2} \sim \frac{p}{2} \to +\infty$, giving $\kappa_{\mathrm{BH}}(A_{\mathrm{rat}}(p)) = \frac{2}{\sqrt{K(A_{\mathrm{rat}}(p))} + 1} \to 0$ whereas $\widetilde{\gamma}(A_{\mathrm{rat}}(p)) = \frac{(p+1)^2 - (2p-3)}{(p+1)^2} = \frac{p^2+4}{(p+1)^2} \to 1$.
+\end{proof}
+
+\section{Positive Boundary Theorems and Sharp Floor Separation}
+
+One subtlety remains: on strictly positive matrices $A > 0$, could $m(A) = \min_{i,j} a_{ij}$ at least serve as the \emph{sharp lower bound} $\inf_{m(A) = m} \gamma_{\mathrm{mod}}(A) = m$? We now prove that even this interpretation fails: for every $n \ge 2$ and every $A \in \R^{n \times n}_{>0}$, $\gamma_{\mathrm{mod}}(A)$ is \emph{strictly greater} than $m(A)$, and for $n = 2$ the sharp lower bound is $2 m(A)$. Both the Markov--Doeblin bound for constant-row-sum matrices and universal strict floor separation follow cleanly from a single convex-combination contraction principle (cf.\ Deutsch--Zenger~\cite{DeutschZenger1971} and Seneta~\cite{Seneta1981}).
+
+\begin{lemma}[Pairwise Weight Contraction]\label{lem:contraction}
+Let $n \ge 2$, let $p^+, p^- \in \R^n_{\ge 0}$ satisfy $\sum_{j=1}^n p^+_j = \sum_{j=1}^n p^-_j = M \ge 0$, and define $w_j := \min(p^+_j, p^-_j) \ge 0$ and $T := M - \sum_{j=1}^n w_j \ge 0$. Then for every $y = (y_1, \dots, y_n)^\top \in \C^n$,
+\[
+  \left|\sum_{j=1}^n (p^+_j - p^-_j) y_j\right| \le T \max_{1 \le a, b \le n} |y_a - y_b|.
+\]
+\end{lemma}
+
+\begin{proof}
+Set $r^+_j := p^+_j - w_j \ge 0$ and $r^-_j := p^-_j - w_j \ge 0$. Then $p^+_j - p^-_j = r^+_j - r^-_j$ and $\sum_{j=1}^n r^+_j = \sum_{j=1}^n r^-_j = M - \sum_{j=1}^n w_j = T \ge 0$. If $T = 0$, then $r^+_j = r^-_j = 0$ for all $j$ and both sides vanish. If $T > 0$, then
+\[
+  T \sum_{j=1}^n (p^+_j - p^-_j) y_j
+  = T \sum_{j=1}^n r^+_j y_j - T \sum_{\ell=1}^n r^-_\ell y_\ell
+  = \sum_{j=1}^n \sum_{\ell=1}^n r^+_j r^-_\ell (y_j - y_\ell).
+\]
+Since $r^+_j r^-_\ell \ge 0$ and $\sum_{j,\ell} r^+_j r^-_\ell = T^2$, the triangle inequality yields $T \bigl|\sum_j (p^+_j - p^-_j) y_j\bigr| \le T^2 \max_{a,b} |y_a - y_b|$, and dividing by $T > 0$ completes the proof.
+\end{proof}
+
+\begin{theorem}[Markov--Doeblin Spectral Gap Bound for Constant-Row-Sum Matrices]\label{thm:doeblin}
+Let $n \ge 2$ and let $A \in \R^{n \times n}_{\ge 0}$ have constant row sum $\sum_{j=1}^n a_{ij} = R$ for all $i \in \{1, \dots, n\}$. Then $\rho(A) = R$, and every eigenvalue $\lambda \in \sigma(A) \setminus \{R\}$ satisfies
+\[
+  |\lambda| \le R - \delta(A) \le R - n\,m(A),
+  \qquad\text{hence}\qquad
+  \gamma_{\mathrm{mod}}(A) \ge \delta(A) \ge n\,m(A).
+\]
+\end{theorem}
+
+\begin{proof}
+Let $A v = \lambda v$ with $v \in \C^n \setminus \{0\}$ and $\lambda \neq R$. Choose $i_0$ with $v_{i_0} \neq 0$. If $v_j = v_{i_0}$ for all $j$, then $\lambda v_{i_0} = (Av)_{i_0} = R v_{i_0}$, contradicting $\lambda \neq R$. Hence $d := \max_{a,b} |v_a - v_b| > 0$, attained at some pair $(i, k)$ with $i \neq k$. Applying Lemma~\ref{lem:contraction} to rows $p^+_j = a_{ij}$ and $p^-_j = a_{kj}$ ($M = R$) gives
+\[
+  |\lambda| d = |\lambda (v_i - v_k)| = \left|\sum_{j=1}^n (a_{ij} - a_{kj}) v_j\right|
+  \le \Bigl(R - \sum_{j=1}^n \min(a_{ij}, a_{kj})\Bigr) d.
+\]
+Dividing by $d > 0$ and noting $\min_{1 \le r \le n} a_{rj} \le \min(a_{ij}, a_{kj})$ for every $j$ yields $|\lambda| \le R - \delta(A) \le R - n\,m(A)$.
+\end{proof}
+
+\begin{theorem}[Universal Strict Positivity-Modulus Separation]\label{thm:strict-floor}
+For every integer $n \ge 2$, every strictly positive matrix $A = (a_{ij}) \in \R^{n \times n}_{>0}$ with positivity floor $m(A) = \min_{i,j} a_{ij} > 0$, and every eigenvalue $\lambda \in \sigma(A) \setminus \{\rho(A)\}$,
+\[
+  \rho(A) - |\lambda| > m(A),
+  \qquad\text{and thus}\qquad
+  \gamma_{\mathrm{re}}(A) \ge \gamma_{\mathrm{mod}}(A) > m(A).
+\]
+\end{theorem}
+
+\begin{proof}
+By Perron's theorem, there exists a strictly positive right eigenvector $u = (u_1, \dots, u_n)^\top \in \R^n_{>0}$ such that $A u = \rho u$, where $\rho := \rho(A) > 0$. Let $A x = \lambda x$ with $x \in \C^n \setminus \{0\}$ and $\lambda \neq \rho$, and define $y_j := x_j / u_j \in \C$ for $1 \le j \le n$. If $y$ were constant ($y_j \equiv c \neq 0$), then $\lambda c u_1 = \lambda x_1 = (Ax)_1 = c (Au)_1 = c \rho u_1$, contradicting $\lambda \neq \rho$. Hence $d := \max_{a,b} |y_a - y_b| > 0$. Choose $i \neq k$ attaining $|y_i - y_k| = d$; since $|y_i - y_k| = |y_k - y_i|$, we may order $(i, k)$ so that $u_i \ge u_k > 0$.
+
+Define $p^+_j := u_k a_{ij} u_j > 0$ and $p^-_j := u_i a_{kj} u_j > 0$. Then
+\[
+  \sum_{j=1}^n p^+_j = u_k (Au)_i = \rho u_i u_k,
+  \qquad
+  \sum_{j=1}^n p^-_j = u_i (Au)_k = \rho u_i u_k,
+\]
+and $\sum_{j=1}^n (p^+_j - p^-_j) y_j = u_k (Ax)_i - u_i (Ax)_k = \lambda u_i u_k (y_i - y_k)$. By Lemma~\ref{lem:contraction} with $M = \rho u_i u_k$ and $w_j = \min(p^+_j, p^-_j)$, dividing by $d = |y_i - y_k| > 0$ gives
+\[
+  |\lambda| u_i u_k \le \rho u_i u_k - \sum_{j=1}^n w_j.
+\]
+Because $u_i \ge u_k > 0$ and $a_{rs} \ge m(A) > 0$, at $j = i$ we have $p^+_i = a_{ii} u_i u_k \ge m(A) u_i u_k$ and $p^-_i = a_{ki} u_i^2 \ge m(A) u_i u_k$, so $w_i \ge m(A) u_i u_k$. Since $k \neq i$, the distinct term $j = k$ satisfies $w_k = \min(u_k^2 a_{ik}, u_i u_k a_{kk}) > 0$. Therefore $\sum_{j=1}^n w_j \ge w_i + w_k > m(A) u_i u_k$, whence $|\lambda| u_i u_k < (\rho - m(A)) u_i u_k$. Dividing by $u_i u_k > 0$ yields $\rho - |\lambda| > m(A)$.
+\end{proof}
+
+\begin{theorem}[Sharp $2 \times 2$ Positivity-Modulus Bound]\label{thm:sharp-2x2}
+For every $2 \times 2$ strictly positive matrix $A = \bigl(\begin{smallmatrix} a & b \\ c & d \end{smallmatrix}\bigr)$ with $m(A) = \min\{a, b, c, d\} > 0$,
+\[
+  \gamma_{\mathrm{mod}}(A) \ge 2 m(A),
+\]
+with equality on both $\bigl(\begin{smallmatrix} K & m \\ m & K \end{smallmatrix}\bigr)$ ($\lambda_2 = K - m \ge 0$) and $\bigl(\begin{smallmatrix} m & K \\ K & m \end{smallmatrix}\bigr)$ ($\lambda_2 = -(K - m) \le 0$) for every $K \ge m > 0$. Consequently, $\inf_{A \in \R^{2 \times 2}_{>0},\, m(A) = m} \gamma_{\mathrm{mod}}(A) = 2m \neq m$, and combined with Theorem~\ref{thm:doeblin-fail}(c), every dimension $n \ge 2$ satisfies $m \le \inf_{A \in \R^{n \times n}_{>0},\, m(A)=m} \gamma_{\mathrm{mod}}(A) \le 2m$ with strict inequality $\gamma_{\mathrm{mod}}(A) > m$ for every individual matrix $A > 0$.
+\end{theorem}
+
+\begin{proof}
+The eigenvalues of $A$ are real and given by $\lambda_{1,2} = \frac{1}{2}[(a + d) \pm \sqrt{(a - d)^2 + 4bc}]$, with $\rho(A) = \lambda_1 > |\lambda_2|$. If $\lambda_2 \ge 0$, then $\gamma_{\mathrm{mod}}(A) = \lambda_1 - \lambda_2 = \sqrt{(a - d)^2 + 4bc} \ge 2\sqrt{bc} \ge 2m(A)$. If $\lambda_2 < 0$, then $\gamma_{\mathrm{mod}}(A) = \lambda_1 - |\lambda_2| = \lambda_1 + \lambda_2 = a + d \ge 2m(A)$. Both displayed symmetric families satisfy $\lambda_1 = K + m$ and $|\lambda_2| = K - m$, giving $\gamma_{\mathrm{mod}}(A) = 2m$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0 and Computational Audit}
+
+{\sloppy
+To guarantee absolute mathematical rigor, all definitions, counterexamples, parametric families, and positive boundary theorems have been formalized from first principles in \textbf{Core Lean~4.19.0} (\texttt{leanprover/lean4:v4.19.0}) with \texttt{-DwarningAsError=true}, zero external library dependencies, zero \texttt{sorry}/\texttt{admit}, zero \texttt{native\_decide}, and zero custom axioms:
+\begin{itemize}
+  \item \texttt{PFMatrix.lean} (in \texttt{Conjecture00000007163/}): Constructs Gaussian integers \texttt{GaussInt} ($\Z[i]$) with squared modulus \texttt{normSq} and proves the $n$-term weighted convex-combination inequality \texttt{normSq\_\allowbreak weighted\_\allowbreak sum\_\allowbreak le} via Lagrange's identity without division or square roots; defines \texttt{IMat n}, \texttt{matPow}, recursive Laplace cofactor determinants \texttt{det}, \texttt{charPolyEval}, structural predicates (\texttt{IsIrreducible}, \texttt{IsPrimitive}, \texttt{HasSingleEssentialClass}, \texttt{IsBlockSupportedPrimitive}), and positivity moduli (\texttt{posModulusMin}, \texttt{doeblinModulus}, \texttt{entryMax}).
+  \item \texttt{PositiveBounds.lean}: Formalizes Lemma~\ref{lem:contraction} (\texttt{pairwise\_\allowbreak weight\_\allowbreak contraction}), Theorem~\ref{thm:doeblin} (\texttt{constantRowSum\_\allowbreak gap\_\allowbreak ge\_\allowbreak doeblin}), Theorem~\ref{thm:strict-floor} (\texttt{strictlyPositive\_\allowbreak gap\_\allowbreak gt\_\allowbreak posModulus} and \texttt{strictlyPositive\_\allowbreak real\_\allowbreak gap\_\allowbreak gt\_\allowbreak posModulus}, clearing Perron eigenvector denominators via \texttt{prodExcept}), and Theorem~\ref{thm:sharp-2x2} (\texttt{twoByTwo\_\allowbreak gap\_\allowbreak ge\_\allowbreak two\_\allowbreak posModulus} and \texttt{twoByTwo\_\allowbreak gap\_\allowbreak sharp\_\allowbreak families}).
+  \item \texttt{Counterexamples.lean} \& \texttt{Conjecture00000007163.lean}: Formalizes all counterexamples and infinite parametric families (\texttt{diag31}, \texttt{periodicBlock3}, \texttt{cycle2}, \texttt{primZeroMod}, \texttt{symRank1Family}, \texttt{constDeltaFamily}, \texttt{doeblinFail3}, \texttt{doeblinFail4}, \texttt{stochasticScaled4}, and \texttt{ratioGapFamily}), culminating in \texttt{disproof\_\allowbreak clause1\_\allowbreak almost\_\allowbreak irreducible\_\allowbreak primitivity} and the master theorem \texttt{conjecture\_\allowbreak 00000007163\_\allowbreak disproved}.
+\end{itemize}
+In addition, the standalone pure-Python script \texttt{verify.py} independently cross-checks Faddeev--Leverrier characteristic polynomials against Laplace cofactor determinants over \texttt{fractions.\allowbreak Fraction}, verifies reachability and Wielandt primitivity bounds, and stress-tests Theorems~\ref{thm:doeblin}--\ref{thm:sharp-2x2} across $2{,}000$ random stochastic and heavy-tailed strictly positive matrices.
+\par}
+
+\begin{thebibliography}{9}
+\bibitem{BermanPlemmons1994}
+A.~Berman and R.~J.~Plemmons,
+\emph{Nonnegative Matrices in the Mathematical Sciences},
+Classics in Applied Mathematics, vol.~9, SIAM, Philadelphia, 1994.
+
+\bibitem{DeutschZenger1971}
+E.~Deutsch and C.~Zenger,
+Inclusion domains for the eigenvalues of stochastic matrices,
+\emph{Numer.\ Math.} \textbf{18} (1971), 182--192.
+
+\bibitem{Hopf1963}
+E.~Hopf,
+An inequality for positive linear integral operators,
+\emph{J.\ Math.\ Mech.} \textbf{12} (1963), 683--692.
+
+\bibitem{Seneta1981}
+E.~Seneta,
+\emph{Non-negative Matrices and Markov Chains},
+2nd ed., Springer, New York, 1981.
+\end{thebibliography}
+
+\end{document}
