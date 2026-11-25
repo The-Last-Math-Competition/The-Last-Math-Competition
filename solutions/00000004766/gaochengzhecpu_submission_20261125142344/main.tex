@@ -1,0 +1,350 @@
+\documentclass[11pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{array,booktabs}
+
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+\newcommand{\NC}{\mathrm{NC}}
+\newcommand{\BNC}{\mathrm{BNC}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\conv}{\mathrm{conv}}
+
+\title{\textbf{Disproof of the Two-Dimensional Noncrossing Narayana Conjecture Across Grid, Poset, Bi-Free, and Coupled-Partition Models}}
+\author{Formal Mathematical Analysis and Lean 4 Verification \\ \small Conjecture \texttt{00000004766}}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We resolve Conjecture \texttt{00000004766}, which defines \emph{two-dimensional noncrossing} as the joint structure of two noncrossing conditions and conjectures that its low-dimensional counts are explicit, closed two-dimensional Narayana-type polynomials given by symmetric combinations of the two-dimensional parameters. We prove that the conjecture is \textbf{false} across all four canonical mathematical readings of joint two-dimensional noncrossing structures in algebraic combinatorics and free probability:
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item[(I)] \textbf{Cartesian grid noncrossing on $[m] \times [n]$:} Under bi-lexicographic joint noncrossing, $\NC_2(m, n) := \NC(<_{\mathrm{row}}) \cap \NC(<_{\mathrm{col}})$, the minimal genuine two-dimensional grid $[2] \times [2]$ has $13$ partitions with block polynomial $t + 5t^2 + 6t^3 + t^4$, breaking Narayana palindromicity ($c_2 = 5 \ne 6 = c_3$). Furthermore, we prove universally for all $m, n \ge 2$ that the $2$-block count satisfies $c_2(m, n) = mn + 1$, whereas $c_2(m, 1) = \binom{m}{2}$ and $c_2(1, n) = \binom{n}{2}$; consequently, no bivariate polynomial $Q(x, y) \in \Q[x, y]$ agrees with $c_2(m, n)$ for all $m, n \ge 1$. Slice-wise, coordinate-projection, and planar convex-hull variants likewise fail Narayana self-duality or parameter symmetry.
+  \item[(II)] \textbf{Bi-ordered ($2$-poset) joint noncrossing $\NC(<_1) \cap \NC(<_2)$ on $[n]$:} While $n \le 3$ yields classical Narayana polynomials for every pair of linear orders, at $n = 4$ the polynomial is not determined by $n$ alone ($t + 6t^2 + 6t^3 + t^4$ vs.\ $t + 5t^2 + 6t^3 + t^4$) and violates Narayana palindromicity for every non-dihedral relative permutation.
+  \item[(III)] \textbf{Voiculescu's bi-free $\BNC(\chi)$ and untwisted two-channel $\NC_2(\chi)$ on $[m] \sqcup [n]$:} Bivariate Left/Right block-generating polynomials $P(u, v)$ fail $(u, v)$-symmetry whenever $m \ne n$ (already at $\chi = LLR$, $P(u, v) = 2uv + 3u^2v$), fail Narayana biduality even at $m = n = 2$ ($[uv] = 2 \ne 6 = [u^2v^2]$), and for untwisted $\NC_2(\chi)$ depend on the interleaving word ($LLRR$ vs.\ $LRLR$) at $m = n = 2$.
+  \item[(IV)] \textbf{Coupled pairs $(\pi_1, \pi_2) \in \NC(n) \times \NC(n)$:} Join-compatible pairs ($\pi_1 \vee_{\Pi(n)} \pi_2 \in \NC(n)$) and mutually block-noncrossing pairs match the symmetric Narayana product $N_n(u) N_n(v)$ for $n \in \{1, 2, 3\}$, explaining the small-order mirage, but break both product structure and Narayana biduality at $n = 4$ (totals $194$ and $165$), while refinement $2$-chains $\pi_1 \le \pi_2$ fail $(u, v)$-symmetry already at $n = 2$.
+\end{itemize}
+All positive low-order theorems, universal $2$-block classifications, algebraic non-polynomiality proofs, and counterexamples are formalized from first principles in Core Lean 4.19.0 without external dependencies or custom axioms.
+\end{abstract}
+
+\section{Introduction and Problem Formulation}
+
+\subsection{Original Conjecture Statement}
+Conjecture \texttt{00000004766} reads verbatim in English (paired with an equivalent Chinese formulation in \texttt{SOURCE.md}) as follows:
+\begin{quote}\sloppy
+\textbf{Definition:} Two-dimensional noncrossing is the joint structure of two noncrossing conditions. \textbf{Conjecture:} Its low-dimensional counts are explicit two-dimensional Narayana-type polynomials, given by symmetric combinations of the two-dimensional parameters and closed. (\emph{two-dimensional Narayana polynomials})
+\end{quote}
+
+Recall that on a totally ordered set $[n] = \{0, 1, \dots, n-1\}$, a set partition $\pi \in \Pi(n)$ is \emph{noncrossing} ($\pi \in \NC(n)$) if there do not exist four elements $a < b < c < d$ and two distinct blocks $B_1 \ne B_2$ of $\pi$ such that $a, c \in B_1$ and $b, d \in B_2$. Counting $\NC(n)$ by the number of blocks $|\pi| = k$ produces the classical \emph{Narayana polynomial}
+\begin{equation}\label{eq:narayana-1d}
+  N_n(t) = \sum_{\pi \in \NC(n)} t^{|\pi|} = \sum_{k=1}^{n} N(n, k) t^k, \qquad
+  N(n, k) = \frac{1}{n}\binom{n}{k}\binom{n}{k-1} \quad (1 \le k \le n),
+\end{equation}
+whose coefficients sum to the Catalan number $C_n = \frac{1}{n+1}\binom{2n}{n}$ and satisfy two hallmark properties:
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item[(a)] \textbf{Kreweras self-duality (palindromicity):} Via the order-reversing Kreweras complement bijection $K : \NC(n) \to \NC(n)$, $|K(\pi)| = n + 1 - |\pi|$, so $N(n, k) = N(n, n + 1 - k)$ for all $1 \le k \le n$.
+  \item[(b)] \textbf{Closed polynomiality in fixed rank:} For each fixed $k \ge 1$, $n \mapsto N(n, k)$ is a single closed polynomial in $n \ge 1$ of degree $2k - 2$ (e.g.\ $N(n, 1) = 1$, $N(n, 2) = \frac{n(n-1)}{2}$).
+\end{itemize}
+
+Because the conjecture defines two-dimensional noncrossing concisely as ``the joint structure of two noncrossing conditions'' and refers both to ``low-dimensional counts'' and to ``symmetric combinations of the two-dimensional parameters,'' a complete resolution must examine every standard realization of two simultaneous noncrossing conditions---whether the two-dimensional parameters are integer grid/channel sizes $(m, n)$ or bivariate formal block variables $(u, v)$.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.25\textwidth}>{\raggedright\arraybackslash}p{0.28\textwidth}>{\raggedright\arraybackslash}p{0.41\textwidth}@{}}
+\toprule
+\textbf{Canonical Reading} & \textbf{Low-Order Mirage} & \textbf{Minimal Refutation} \\
+\midrule
+\textbf{I. Grid $[m] \times [n]$} \newline $\NC(<_{\mathrm{row}}) \cap \NC(<_{\mathrm{col}})$ & Boundary $1 \times n$ and $m \times 1$ equal classical $N_n(t)$, $N_m(t)$ & $(2,2)$: $t + 5t^2 + 6t^3 + t^4$ ($5 \ne 6$); $c_2(m,n) = mn + 1$ ($m,n \ge 2$) vs.\ $\binom{m}{2}$ ($n=1$), not in $\Q[m,n]$ \\
+\addlinespace[4pt]
+\textbf{II. $2$-Poset on $[n]$} \newline $\NC(\mathrm{id}) \cap \NC(\sigma)$ & $n \in \{1,2,3\}$: equals $N_n(t)$ for every $\sigma \in S_n$ & $n = 4$: $\sigma$-dependent ($14$ vs.\ $13$); non-palindromic $t + 5t^2 + 6t^3 + t^4$ for $\sigma = (0,1,3,2)$ \\
+\addlinespace[4pt]
+\textbf{III. Bi-Free \& $2$-Channel} \newline $\BNC(\chi)$, $\NC_2(\chi)$ & CNS word-invariance holds on $\BNC(\chi)$ for fixed $(m,n)$ & $m \ne n$ ($\chi = LLR$): $2uv + 3u^2v$ asymmetric in $(u,v)$; $m=n=2$: $[uv]=2 \ne 6=[u^2v^2]$; $\NC_2(\chi)$ word-dependent ($LLRR \ne LRLR$) \\
+\addlinespace[4pt]
+\textbf{IV. Coupled $\NC(n)^2$} \newline Join, Mutual, $2$-Chain & Join \& Mutual equal $N_n(u)N_n(v)$ for all $n \in \{1,2,3\}$ & $n = 4$: Join drops to $194$ ($[u^3v^3]=34 \ne 36=[u^2v^2]$), Mutual to $165$; $2$-chain asymmetric at $n=2$ ($uv + u^2v + u^2v^2$) \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the four canonical readings, their small-order mirages, and sharp obstructions.}
+\label{tab:overview}
+\end{table}
+
+Table~\ref{tab:overview} summarizes our findings: every canonical reading exhibits a clean small-order or boundary phenomenon that makes the conjecture appear plausible on initial inspection, yet every reading fails decisively at $n = 2$, $(2, 1)$, $(2, 2)$, or $n = 4$.
+
+\section{Combinatorial Preliminaries and Low-Order Mirages}
+
+Let $\Pi(V)$ denote the lattice of set partitions of a finite nonempty set $V$, ordered by refinement ($\pi_1 \le \pi_2$ if every block of $\pi_1$ is contained in a block of $\pi_2$), with meet $\pi_1 \wedge \pi_2$ (block intersections) and join $\pi_1 \vee_{\Pi(V)} \pi_2$ (transitive closure of block unions). Given any strict linear order $<$ on $V$, write $\NC(V, <) \subseteq \Pi(V)$ for the subset of partitions without alternating quadruples $a < b < c < d$ in two distinct blocks.
+
+\begin{proposition}[Degenerate Boundary Grids and the Four-Point Threshold]\label{prop:mirage}
+\leavevmode
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item[(1)] On $G_{m,n} = \{0, \dots, m-1\} \times \{0, \dots, n-1\}$, row-major order $<_{\mathrm{row}}$ and column-major order $<_{\mathrm{col}}$ coincide whenever $\min(m, n) = 1$. Hence $\NC(G_{1,n}, <_{\mathrm{row}}) \cap \NC(G_{1,n}, <_{\mathrm{col}}) \cong \NC(n)$ and $\NC(G_{m,1}, <_{\mathrm{row}}) \cap \NC(G_{m,1}, <_{\mathrm{col}}) \cong \NC(m)$, with exact Narayana polynomials $N_n(t)$ and $N_m(t)$.
+  \item[(2)] Because a crossing $a < b < c < d$ requires at least four distinct elements, $\NC(V, <) = \Pi(V)$ whenever $1 \le |V| \le 3$. Consequently, for $n \in \{1, 2, 3\}$:
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item[(a)] $\NC([n], <_{\mathrm{id}}) \cap \NC([n], <_\sigma) = \NC(n)$ for every permutation $\sigma \in S_n$.
+    \item[(b)] Both the join-compatible pair set $\{(\pi_1, \pi_2) \in \NC(n)^2 : \pi_1 \vee_{\Pi(n)} \pi_2 \in \NC(n)\}$ and the mutually block-noncrossing pair set coincide with all of $\NC(n) \times \NC(n)$. Their bivariate block-generating polynomial equals the closed symmetric Narayana product
+    \[
+      P_n(u, v) = N_n(u) N_n(v), \qquad n \in \{1, 2, 3\},
+    \]
+    which is a polynomial in the elementary symmetric combinations $e_1 = u + v$ and $e_2 = uv$: explicitly, $P_1 = e_2$, $P_2 = e_2(1 + e_1 + e_2)$, and $P_3 = e_2(1 + 3e_1 + e_1^2 + 7e_2 + 3e_1 e_2 + e_2^2)$.
+  \end{itemize}
+\end{itemize}
+\end{proposition}
+\begin{proof}
+For (1), if $m = 1$, every point has first coordinate $0$, so both $(0, j) <_{\mathrm{row}} (0, j')$ and $(0, j) <_{\mathrm{col}} (0, j')$ reduce to $j < j'$; the case $n = 1$ is symmetric. For (2), any strict chain $a < b < c < d$ in $V$ has cardinality $4$, which is impossible for $|V| \le 3$. Thus no crossing exists under any linear order, so $\NC([n], <_\sigma) = \Pi(n) = \NC(n)$, every join $\pi_1 \vee_{\Pi(n)} \pi_2$ lies in $\NC(n)$, and no block of $\pi_1$ can strictly alternate with a block of $\pi_2$. Factoring $\sum_{(\pi_1,\pi_2) \in \NC(n)^2} u^{|\pi_1|} v^{|\pi_2|} = N_n(u) N_n(v)$ and expanding in $e_1 = u + v$, $e_2 = uv$ using $u^2 + v^2 = e_1^2 - 2e_2$ yields the stated symmetric formulas.
+\end{proof}
+
+\section{Refutation of Reading I: Cartesian Grid Noncrossing}
+
+Let $G_{m,n} = \{0, \dots, m-1\} \times \{0, \dots, n-1\}$ ($m, n \ge 1$) carry the two canonical coordinate lexicographic orders:
+\begin{align*}
+  (i_1, j_1) <_{\mathrm{row}} (i_2, j_2) &\iff i_1 < i_2 \;\text{ or }\; (i_1 = i_2 \text{ and } j_1 < j_2), \\
+  (i_1, j_1) <_{\mathrm{col}} (i_2, j_2) &\iff j_1 < j_2 \;\text{ or }\; (j_1 = j_2 \text{ and } i_1 < i_2).
+\end{align*}
+Define the \emph{bi-lexicographic two-dimensional noncrossing partitions} and their block polynomial by
+\[
+  \NC_2(m, n) := \NC(G_{m,n}, <_{\mathrm{row}}) \cap \NC(G_{m,n}, <_{\mathrm{col}}), \qquad
+  P_{m,n}(t) := \sum_{\pi \in \NC_2(m, n)} t^{|\pi|}.
+\]
+Grid transposition $(i, j) \mapsto (j, i)$ is an isomorphism $(G_{m,n}, <_{\mathrm{row}}, <_{\mathrm{col}}) \xrightarrow{\sim} (G_{n,m}, <_{\mathrm{col}}, <_{\mathrm{row}})$, so $P_{m,n}(t) = P_{n,m}(t)$. Nevertheless, both Narayana self-duality and closed polynomiality in $(m, n)$ fail as soon as $m, n \ge 2$.
+
+\subsection{Failure of Narayana Self-Duality on Small Grids}
+
+\begin{theorem}[Breakdown of Palindromicity at $(2, 2)$]\label{thm:grid-22}
+On $G_{2,2}$ ($N = 4$), $|\NC_2(2, 2)| = 13$ and
+\[
+  P_{2,2}(t) = t + 5t^2 + 6t^3 + t^4.
+\]
+In particular, $[t^2] P_{2,2}(t) = 5 \ne 6 = [t^3] P_{2,2}(t)$, violating Narayana palindromicity $c_k = c_{N+1-k}$.
+\end{theorem}
+\begin{proof}
+Label $G_{2,2}$ in row-major order as $0 = (0,0)$, $1 = (0,1)$, $2 = (1,0)$, $3 = (1,1)$. Then $<_{\mathrm{row}}$ is $0 < 1 < 2 < 3$, while $<_{\mathrm{col}}$ is $0 < 2 < 1 < 3$. Out of the $B_4 = 15$ set partitions of a $4$-element set, a crossing requires two blocks of size at least $2$, hence forces $|\pi| = 2$ of type $2 + 2$. Under $0 < 1 < 2 < 3$, the unique crossing partition is $\{\{0, 2\}, \{1, 3\}\}$; under $0 < 2 < 1 < 3$, the unique crossing partition is $\{\{0, 1\}, \{2, 3\}\}$. Since these two $2$-block partitions are distinct, removing both from $\Pi(4)$ leaves $15 - 2 = 13$ partitions, reducing the $2$-block Stirling count $S(4, 2) = 7$ to $7 - 2 = 5$ while leaving $S(4, 3) = \binom{4}{2} = 6$ untouched.
+\end{proof}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}lccl@{}}
+\toprule
+Grid $(m, n)$ & $N = mn$ & $|\NC_2(m, n)|$ & Block Polynomial $P_{m,n}(t)$ \\
+\midrule
+$(1, 4)$ & $4$ & $14$ & $t + 6t^2 + 6t^3 + t^4$ \quad (classical Narayana $N_4(t)$, palindromic) \\
+$(2, 2)$ & $4$ & $13$ & $t + 5t^2 + 6t^3 + t^4$ \\
+$(2, 3), (3, 2)$ & $6$ & $88$ & $t + 7t^2 + 26t^3 + 38t^4 + 15t^5 + t^6$ \\
+$(2, 4), (4, 2)$ & $8$ & $596$ & $t + 9t^2 + 43t^3 + 138t^4 + 230t^5 + 146t^6 + 28t^7 + t^8$ \\
+$(3, 3)$ & $9$ & $1329$ & $t + 10t^2 + 43t^3 + 147t^4 + 368t^5 + 480t^6 + 243t^7 + 36t^8 + t^9$ \\
+\bottomrule
+\end{tabular}
+\caption{Exact block polynomials $P_{m,n}(t)$ of $\NC_2(m, n)$ for $mn \le 9$. Every grid with $m, n \ge 2$ fails palindromicity because $c_{mn-1} = \binom{mn}{2}$ whereas $c_2 = mn + 1 < \binom{mn}{2}$ for $mn \ge 4$.}
+\label{tab:grid-polys}
+\end{table}
+
+\subsection{Universal Classification of $2$-Block Grid Partitions and Non-Polynomiality}
+
+Let $c_2(m, n) := [t^2] P_{m,n}(t)$ denote the number of $2$-block partitions in $\NC_2(m, n)$. Table~\ref{tab:grid-polys} reveals the striking values $c_2(2, 2) = 5$, $c_2(2, 3) = 7$, $c_2(2, 4) = 9$, and $c_2(3, 3) = 10$. We prove that $c_2(m, n) = mn + 1$ holds universally for all $m, n \ge 2$.
+
+\begin{lemma}[Order-Convexity Characterization of $2$-Block Noncrossing Partitions]\label{lem:convex-2block}
+Let $(V, <)$ be a finite linearly ordered set with minimum element $p_0 \in V$. Unordered $2$-block partitions $\{A, B\}$ of $V$ correspond bijectively to nonempty subsets $T \subseteq V \setminus \{p_0\}$ via $T = B$ where $p_0 \in A$. Moreover, $\{V \setminus T, T\} \in \NC(V, <)$ if and only if $T$ is order-convex in $(V, <)$ (that is, $a < b < c$ with $a, c \in T$ implies $b \in T$).
+\end{lemma}
+\begin{proof}
+Each unordered $2$-partition $\{A, B\}$ has $p_0$ in exactly one block, fixing a unique nonempty block $T \subseteq V \setminus \{p_0\}$. If $a < b < c$ with $a, c \in T$ and $b \notin T$, then since $a \in T$ implies $a \ne p_0$ and $p_0$ is the minimum of $<$, we have $p_0 < a < b < c$ with $p_0, b \in V \setminus T$ and $a, c \in T$, which is a crossing. Conversely, if $x < y < z < w$ is a crossing of $\{V \setminus T, T\}$, then either $x, z \in T$ and $y \notin T$ (violating convexity on $x < y < z$) or $y, w \in T$ and $z \notin T$ (violating convexity on $y < z < w$).
+\end{proof}
+
+\begin{theorem}[Universal $2$-Block Formula on $G_{m,n}$]\label{thm:c2-universal}
+For all integers $m, n \ge 1$, the number $c_2(m, n)$ of $2$-block partitions in $\NC_2(m, n)$ is
+\begin{equation}\label{eq:c2-formula}
+  c_2(m, n) = \begin{cases}
+    \binom{n}{2} = \frac{n(n-1)}{2}, & \text{if } m = 1, \\[3pt]
+    \binom{m}{2} = \frac{m(m-1)}{2}, & \text{if } n = 1, \\[3pt]
+    mn + 1, & \text{if } m \ge 2 \text{ and } n \ge 2.
+  \end{cases}
+\end{equation}
+Specifically, when $m \ge 2$ and $n \ge 2$, the $mn + 1$ bi-noncrossing $2$-block partitions consist of the $mn$ singleton-complement splits $\{\{p\}, G_{m,n} \setminus \{p\}\}$ ($p \in G_{m,n}$) together with the unique antipodal-corner split $\{\{(0,0), (m-1, n-1)\}, G_{m,n} \setminus \{(0,0), (m-1, n-1)\}\}$.
+\end{theorem}
+\begin{proof}
+When $m = 1$ or $n = 1$, Proposition~\ref{prop:mirage}(1) gives $c_2(1, n) = N(n, 2) = \binom{n}{2}$ and $c_2(m, 1) = \binom{m}{2}$. Assume now that $m \ge 2$ and $n \ge 2$. Since $(0,0)$ is the minimum element of both $<_{\mathrm{row}}$ and $<_{\mathrm{col}}$, Lemma~\ref{lem:convex-2block} identifies $2$-block partitions in $\NC_2(m, n)$ with nonempty subsets $T \subseteq G_{m,n}^* := G_{m,n} \setminus \{(0,0)\}$ that are order-convex in both $<_{\mathrm{row}}$ and $<_{\mathrm{col}}$.
+
+First, the following $mn + 1$ nonempty subsets $T \subseteq G_{m,n}^*$ are visibly convex in both orders:
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item[(i)] the $mn - 1$ singletons $T = \{p\}$ for $p \in G_{m,n}^*$ (cardinality $1$),
+  \item[(ii)] the doubly punctured grid $T = G_{m,n}^* \setminus \{(m-1, n-1)\}$ (cardinality $mn - 2 \ge 2$, convex because $(0,0)$ is the minimum and $(m-1, n-1)$ is the maximum of both $<_{\mathrm{row}}$ and $<_{\mathrm{col}}$), and
+  \item[(iii)] the punctured grid $T = G_{m,n}^*$ itself (cardinality $mn - 1 \ge 3$).
+\end{itemize}
+Since $mn \ge 4$, we have $1 < mn - 2 < mn - 1$, so all $(mn - 1) + 1 + 1 = mn + 1$ subsets are pairwise distinct.
+
+Conversely, let $T \subseteq G_{m,n}^*$ have $|T| \ge 2$ and be convex in both $<_{\mathrm{row}}$ and $<_{\mathrm{col}}$, and choose $p \ne q$ in $T$. We first prove $(0, 1) \in T$. Suppose toward a contradiction that $(0, 1) \notin T$:
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item \emph{No mixing of column $0$ and columns $\ge 1$:} If $u = (i_1, 0) \in T$ ($i_1 \ge 1$) and $v = (i_2, j_2) \in T$ with $j_2 \ge 1$, then $v \ne (0, 1)$, so $(i_1, 0) <_{\mathrm{col}} (0, 1) <_{\mathrm{col}} (i_2, j_2)$, forcing $(0, 1) \in T$ by $<_{\mathrm{col}}$-convexity.
+  \item \emph{Not contained in column $0$:} If $p = (i_1, 0)$ and $q = (i_2, 0)$ with $1 \le i_1 < i_2 < m$, then since $n \ge 2$, $(i_1, 0) <_{\mathrm{row}} (i_1, 1) <_{\mathrm{row}} (i_2, 0)$, forcing $(i_1, 1) \in T$ and contradicting column-$0$ containment.
+  \item Thus every $u \in T$ has $u_2 \ge 1$; in particular $(1, 0) \notin T$. Now $T$ cannot mix row $0$ and rows $\ge 1$: if $(0, j_1) \in T$ and $(i_2, j_2) \in T$ with $i_2 \ge 1$ (and $j_2 \ge 1$), then $(0, j_1) <_{\mathrm{row}} (1, 0) <_{\mathrm{row}} (i_2, j_2)$, forcing $(1, 0) \in T$. Nor can $T$ lie inside row $0$, since $(0, j_1) <_{\mathrm{col}} (1, j_1) <_{\mathrm{col}} (0, j_2)$ for $1 \le j_1 < j_2 < n$ would force $(1, j_1) \in T$. Hence every $u \in T$ satisfies $u_1 \ge 1$ and $u_2 \ge 1$.
+  \item Finally, for $p \ne q$ in $T$ with $p_1, q_1, p_2, q_2 \ge 1$: if $p_1 < q_1$, then $p <_{\mathrm{row}} (q_1, 0) <_{\mathrm{row}} q$ forces $(q_1, 0) \in T$ (contradicting $u_2 \ge 1$); if $p_1 = q_1$ and $p_2 < q_2$, then $p <_{\mathrm{col}} (0, q_2) <_{\mathrm{col}} q$ forces $(0, q_2) \in T$ (contradicting $u_1 \ge 1$).
+\end{itemize}
+This contradiction proves $(0, 1) \in T$. Applying the same argument to the transposed grid $G_{n,m}$ swaps $<_{\mathrm{row}}$ and $<_{\mathrm{col}}$, yielding $(1, 0) \in T$. Next, $(0, 1) \le_{\mathrm{row}} (0, n-1) <_{\mathrm{row}} (1, 0)$ gives $(0, n-1) \in T$, and $(1, 0) \le_{\mathrm{col}} (m-1, 0) <_{\mathrm{col}} (0, 1)$ gives $(m-1, 0) \in T$. Now take any $(i, j) \in G_{m,n}^* \setminus \{(m-1, n-1)\}$:
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item If $i < m - 1$, then $(0, 1) \le_{\mathrm{row}} (i, j) <_{\mathrm{row}} (m-1, 0)$, so $(i, j) \in T$ by $<_{\mathrm{row}}$-convexity.
+  \item If $i = m - 1$, then $j < n - 1$, so $(1, 0) \le_{\mathrm{col}} (m-1, j) <_{\mathrm{col}} (0, n-1)$, and $(m-1, j) \in T$ by $<_{\mathrm{col}}$-convexity.
+\end{itemize}
+Hence $G_{m,n}^* \setminus \{(m-1, n-1)\} \subseteq T \subseteq G_{m,n}^*$, leaving only subsets (ii) and (iii).
+\end{proof}
+
+\begin{corollary}[Algebraic Non-Polynomiality of $c_2(m, n)$]\label{cor:non-poly}
+There does not exist any bivariate polynomial $Q(x, y) \in \Q[x, y]$ such that $Q(m, n) = c_2(m, n)$ for all integers $m, n \ge 1$.
+\end{corollary}
+\begin{proof}
+Suppose $Q(x, y) \in \Q[x, y]$ satisfies $Q(m, n) = c_2(m, n)$ for all $m, n \ge 1$. Fixing $x = 2$, the univariate polynomial $h(y) := Q(2, y) - (2y + 1) \in \Q[y]$ vanishes at every integer $n \ge 2$ by Theorem~\ref{thm:c2-universal}. Because a nonzero polynomial in $\Q[y]$ has only finitely many roots, $h(y)$ is identically zero. Evaluating at $y = 1$ gives $Q(2, 1) = 2(1) + 1 = 3$, contradicting $c_2(2, 1) = \binom{2}{2} = 1$.
+\end{proof}
+
+\subsection{Slice-Wise, Coordinate-Projection, and Planar Convex-Hull Variants}
+
+\begin{proposition}[Failure of Alternative Grid Models]\label{prop:grid-variants}
+\leavevmode
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item[(1)] \textbf{Slice-wise and coordinate-projection noncrossing:} Requiring every horizontal row of $G_{m,n}$ to lie in $\NC(n)$ and every vertical column to lie in $\NC(m)$ (or requiring block projections onto $[m]$ and $[n]$ to be noncrossing) imposes no restriction on $G_{2,2}$, yielding all $B_4 = 15$ partitions with Stirling polynomial $t + 7t^2 + 6t^3 + t^4$ ($c_2 = 7 \ne 6 = c_3$). Refining $G_{2,3}$ by induced $(x, y)$-projection block counts $(k_x, k_y)$ gives $114uv + 57uv^2 + 7uv^3 + 15u^2v + 9u^2v^2 + u^2v^3$, which is asymmetric in $(u, v)$.
+  \item[(2)] \textbf{Planar convex-hull noncrossing in $\R^2$:} Requiring $\conv(B_1) \cap \conv(B_2) = \emptyset$ in $\R^2$ for distinct blocks on $G_{3,3}$ yields $2915$ partitions with block polynomial
+  \[
+    P_{3,3}^{\conv}(t) = t + 28t^2 + 226t^3 + 708t^4 + 1009t^5 + 692t^6 + 222t^7 + 28t^8 + t^9,
+  \]
+  violating Narayana self-duality ($c_3 = 226 \ne 222 = c_7$ and $c_4 = 708 \ne 692 = c_6$).
+\end{itemize}
+\end{proposition}
+\begin{proof}
+Part (1) follows from Proposition~\ref{prop:mirage}(2) since every row and column of $G_{2,2}$ has size $2 \le 3$; on $G_{2,3}$, $k_x \le 2$ whereas $k_y$ reaches $3$, forcing $[uv^3] = 7 \ne 0 = [u^3v]$. Part (2) is verified by exact orientation-predicate enumeration over all $B_9 = 21147$ partitions of $G_{3,3}$: at $k = 8$, the $8$ collinear endpoint pairs whose segment contains an interior grid point are excluded from $\binom{9}{2} = 36$ pairs (leaving $28$), and at $k = 7$ vs.\ $k = 3$ one obtains $222$ vs.\ $226$.
+\end{proof}
+
+\section{Refutation of Reading II: Bi-Ordered ($2$-Poset) Noncrossing}
+
+By Dushnik--Miller dimension theory, a finite poset of order dimension at most $2$ on $[n]$ is the intersection of two linear orders $<_{\mathrm{id}}$ ($0 < 1 < \dots < n-1$) and $<_\sigma$ ($\sigma(0) < \sigma(1) < \dots < \sigma(n-1)$) for $\sigma \in S_n$. Its joint noncrossing block polynomial is
+\[
+  P_{n,\sigma}(t) := \sum_{\pi \in \NC([n], <_{\mathrm{id}}) \cap \NC([n], <_\sigma)} t^{|\pi|}.
+\]
+
+\begin{theorem}[Order Dependence and Non-Palindromicity in Reading II]\label{thm:poset-disproof}
+At $n = 4$, $P_{4,\sigma}(t)$ is not a function of $n$ alone and fails Narayana palindromicity outside the dihedral group:
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item[(1)] For $\sigma_1 = (0, 1, 2, 3)$, $P_{4,\sigma_1}(t) = t + 6t^2 + 6t^3 + t^4$ (total $14$, palindromic).
+  \item[(2)] For $\sigma_2 = (0, 1, 3, 2)$, $P_{4,\sigma_2}(t) = t + 5t^2 + 6t^3 + t^4$ (total $13$, $[t^2] = 5 \ne 6 = [t^3]$).
+\end{itemize}
+At $n = 5$, ranging $\sigma$ over $S_5$ produces four distinct polynomials with totals $32, 35, 37, 42$, of which three are non-palindromic ($t + 5t^2 + 15t^3 + 10t^4 + t^5$, $t + 7t^2 + 16t^3 + 10t^4 + t^5$, and $t + 8t^2 + 17t^3 + 10t^4 + t^5$).
+\end{theorem}
+\begin{proof}
+For $\sigma_1 = \mathrm{id}$, $\NC([4], <_{\mathrm{id}}) \cap \NC([4], <_{\sigma_1}) = \NC(4)$ gives $N_4(t)$. For $\sigma_2 = (0, 1, 3, 2)$, $<_{\mathrm{id}}$ forbids $\{\{0, 2\}, \{1, 3\}\}$ while $<_{\sigma_2}$ forbids $\{\{0, 3\}, \{1, 2\}\}$; both have $2$ blocks and are distinct, giving $P_{4,\sigma_2}(t) = t + 5t^2 + 6t^3 + t^4$. Exhaustive enumeration over all $5! = 120$ permutations of $[5]$ yields the four stated polynomials. (Likewise, for geodesic noncrossing permutations $S_{\NC}(\gamma) \cap S_{\NC}(\gamma^{-1})$ wrt $\gamma = (0\,1\,\cdots\,n-1)$ and $\gamma^{-1}$, cycle-count polynomials fail palindromicity already at $n = 3$, giving $3t^2 + t^3$ with $[t^1] = 0 \ne 1 = [t^3]$.)
+\end{proof}
+
+\section{Refutation of Reading III: Bi-Free and Two-Channel Noncrossing}
+
+In Voiculescu's bi-free probability, a channel signature $\chi = (\chi_0, \dots, \chi_{N-1}) \in \{L, R\}^N$ with $m$ Left nodes $I_L = \{i_1 < \dots < i_m\}$ and $n$ Right nodes $I_R = \{j_1 < \dots < j_n\}$ ($m + n = N$) defines the bi-free reading order $s_\chi = (i_1, \dots, i_m, j_n, \dots, j_1)$ and the bi-noncrossing partition set $\BNC(\chi) := \NC([N], <_{s_\chi})$ (Charlesworth--Nelson--Skoufranis, 2015). For any $\pi \in \Pi(N)$, let $b_L(\pi)$ (resp.\ $b_R(\pi)$) be the number of blocks intersecting $I_L$ (resp.\ $I_R$), and define the bivariate channel-block polynomials
+\[
+  P_{\BNC(\chi)}(u, v) := \sum_{\pi \in \BNC(\chi)} u^{b_L(\pi)} v^{b_R(\pi)}, \qquad
+  P_{\NC_2(\chi)}(u, v) := \sum_{\pi \in \NC(N)} u^{b_L(\pi)} v^{b_R(\pi)}.
+\]
+
+\begin{theorem}[Asymmetry, Non-Biduality, and Word Dependence in Reading III]\label{thm:bifree-disproof}
+\leavevmode
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item[(1)] \textbf{CNS word-invariance on $\BNC(\chi)$:} Because $s_\chi$ maps $I_L$ to the first $m$ positions and $I_R$ to the last $n$ positions, $P_{\BNC(\chi)}(u, v)$ depends on $\chi$ only through $(m, n)$.
+  \item[(2)] \textbf{Failure of $(u, v)$-symmetry for $m \ne n$:} For $\chi = (L, L, R)$ ($m = 2, n = 1$),
+  \[
+    P_{\BNC(LLR)}(u, v) = 2uv + 3u^2v \ne 2uv + 3uv^2 = P_{\BNC(LLR)}(v, u).
+  \]
+  \item[(3)] \textbf{Failure of Narayana biduality at $m = n = 2$:} For $\chi \in \{LLRR, LRLR, LRRL\}$,
+  \[
+    P_{\BNC(\chi)}(u, v) = 2uv + 3uv^2 + 3u^2v + 6u^2v^2,
+  \]
+  for which $[u^1 v^1] = 2 \ne 6 = [u^2 v^2]$.
+  \item[(4)] \textbf{Word-order obstruction for untwisted $\NC_2(\chi)$ at $m = n = 2$:}
+  \[
+    P_{\NC_2(LLRR)}(u, v) = 2uv + 3uv^2 + 3u^2v + 6u^2v^2 \;\ne\;
+    uv + 3uv^2 + 3u^2v + 7u^2v^2 = P_{\NC_2(LRLR)}(u, v).
+  \]
+\end{itemize}
+\end{theorem}
+\begin{proof}
+Relabeling along $s_\chi$ identifies $(\BNC(\chi), I_L, I_R)$ with $(\NC(m+n), \{0,\dots,m-1\}, \{m,\dots,m+n-1\})$, proving (1). For $(m, n) = (2, 1)$, all $5$ partitions of $\{0, 1, 2\}$ are noncrossing: $\{012\}$ and $\{02|1\}$ have $(b_L, b_R) = (1, 1)$, while $\{01|2\}$, $\{0|12\}$, and $\{0|1|2\}$ have $(b_L, b_R) = (2, 1)$, giving $2uv + 3u^2v$ and proving (2). For $N = 4$ in standard order $0 < 1 < 2 < 3$, the unique forbidden partition is $\pi_* = \{\{0, 2\}, \{1, 3\}\}$. Under $\chi_1 = LLRR$ ($I_L = \{0, 1\}, I_R = \{2, 3\}$), both blocks of $\pi_*$ are mixed, so $\pi_*$ has $(b_L, b_R) = (2, 2)$; subtracting $u^2v^2$ from the $\Pi(4)$ sum $2uv + 3uv^2 + 3u^2v + 7u^2v^2$ yields $2uv + 3uv^2 + 3u^2v + 6u^2v^2$, proving (3) (since $s_{LLRR} = (0, 1, 3, 2)$ also has mixed crossing $\{\{0,3\},\{1,2\}\}$). Under $\chi_2 = LRLR$ ($I_L = \{0, 2\}, I_R = \{1, 3\}$), $\pi_*$ consists of one pure-$L$ block $\{0, 2\}$ and one pure-$R$ block $\{1, 3\}$, so $\pi_*$ has $(b_L, b_R) = (1, 1)$; subtracting $uv$ instead yields $uv + 3uv^2 + 3u^2v + 7u^2v^2$, proving (4).
+\end{proof}
+
+\section{Refutation of Reading IV: Coupled Pairs of Noncrossing Partitions}
+
+Finally, consider pairs $(\pi_1, \pi_2) \in \NC(n) \times \NC(n)$ coupled by a joint condition and enumerated by $P(u, v) = \sum u^{|\pi_1|} v^{|\pi_2|}$. We examine all four standard couplings in partition-lattice combinatorics:
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item[(a)] \textbf{Lattice-join compatibility:} $P_n^{\vee}(u, v) = \sum_{\pi_1, \pi_2 \in \NC(n), \, \pi_1 \vee_{\Pi(n)} \pi_2 \in \NC(n)} u^{|\pi_1|} v^{|\pi_2|}$.
+  \item[(b)] \textbf{Mutual block noncrossing:} $P_n^{\mathrm{mut}}(u, v) = \sum_{(\pi_1, \pi_2)} u^{|\pi_1|} v^{|\pi_2|}$ over pairs where no block of $\pi_1$ and block of $\pi_2$ strictly alternate $a < b < c < d$.
+  \item[(c)] \textbf{Refinement $2$-chains:} $P_n^{\le}(u, v) = \sum_{\pi_1 \le \pi_2 \in \NC(n)} u^{|\pi_1|} v^{|\pi_2|}$.
+  \item[(d)] \textbf{Bicolored circle interleaving:} For $\chi \in \{L, R\}^{m+n}$, define $P_\chi^{\sqcup}(u, v) = \sum u^{|\pi|} v^{|\sigma|}$ over pairs $\pi \in \NC(I_L)$ and $\sigma \in \NC(I_R)$ whose union satisfies $\pi \sqcup \sigma \in \NC(m+n)$.
+\end{itemize}
+
+\begin{theorem}[Complete Disproof of Reading IV]\label{thm:coupled-disproof}
+\leavevmode
+\begin{itemize}\setlength{\itemsep}{2pt}
+  \item[(1)] \textbf{Join compatibility breaks at $n = 4, 5$:} While $P_n^{\vee}(u, v) = N_n(u) N_n(v)$ for $n \in \{1, 2, 3\}$ (Proposition~\ref{prop:mirage}), at $n = 4$ we have
+  \[
+    P_4^{\vee}(u, v) = N_4(u) N_4(v) - 2 u^3 v^3, \qquad P_4^{\vee}(1, 1) = 194 \ne 196 = C_4^2,
+  \]
+  so $[u^3 v^3] P_4^{\vee} = 34 \ne 36 = [u^2 v^2] P_4^{\vee}$, breaking both product factorization and Narayana biduality $(i, j) \leftrightarrow (5 - i, 5 - j)$. At $n = 5$, $P_5^{\vee}(1, 1) = 1714 = 2 \times 857$ (prime factor $857$).
+  \item[(2)] \textbf{Mutual block noncrossing breaks at $n = 4$:} $P_4^{\mathrm{mut}}(1, 1) = 165$, with $[u^1 v^1] P_4^{\mathrm{mut}} = 0 \ne 1 = [u^4 v^4] P_4^{\mathrm{mut}}$.
+  \item[(3)] \textbf{Refinement $2$-chains fail $(u, v)$-symmetry at $n = 2$:} $P_2^{\le}(u, v) = uv + u^2v + u^2v^2$, with $[u^2 v] = 1 \ne 0 = [u v^2]$.
+  \item[(4)] \textbf{Bicolored circle interleaving:} $P_{LLR}^{\sqcup}(u, v) = uv + u^2v$ fails $(u, v)$-symmetry at $(m, n) = (2, 1)$; at $m = n = 2$, $P_{LLRR}^{\sqcup}(1, 1) = 4 \ne 3 = P_{LRLR}^{\sqcup}(1, 1)$ fails word-independence; and even on the alternating word $(LR)^n$ (which imposes a single $1$D circle noncrossing condition on $2n$ points rather than two noncrossing conditions, yielding the Kreweras--Edelman polynomial $\sum_{i,j} \frac{1}{n}\binom{n}{n-i}\binom{n}{n-j}\binom{n}{i+j-n-1} u^i v^j$), Narayana biduality fails already at $n = 2$: $P_{LRLR}^{\sqcup}(u, v) = uv^2 + u^2v + u^2v^2$ has $[u^1 v^1] = 0 \ne 1 = [u^2 v^2]$.
+\end{itemize}
+\end{theorem}
+\begin{proof}
+At $n = 4$, $\pi_1 \vee_{\Pi(4)} \pi_2 \notin \NC(4)$ holds if and only if $\pi_1 \vee_{\Pi(4)} \pi_2 = \{\{0, 2\}, \{1, 3\}\}$. Since $\pi_1, \pi_2 \in \NC(4)$ cannot themselves equal $\{\{0, 2\}, \{1, 3\}\}$ and cannot be the discrete partition $0|1|2|3$ on both sides, the only solutions in $\NC(4)^2$ are $(\{0, 2\}|\{1\}|\{3\}, \{0\}|\{1, 3\}|\{2\})$ and its transpose, both having $(|\pi_1|, |\pi_2|) = (3, 3)$. Subtracting $2u^3v^3$ from $N_4(u) N_4(v)$ proves (1) at $n = 4$; $n = 5$ follows by exhaustive enumeration of the $42^2 = 1764$ pairs. For (2), $\pi_1 = \pi_2 = \{\{0, 1, 2, 3\}\}$ has $0 < 1 < 2 < 3$ in both single blocks, giving $[uv] P_4^{\mathrm{mut}} = 0$ whereas $(0|1|2|3, 0|1|2|3)$ gives $[u^4v^4] P_4^{\mathrm{mut}} = 1$. For (3), $\pi_1 \le \pi_2$ forces $|\pi_1| \ge |\pi_2|$, so $(0|1, 01)$ contributes $u^2v$ while no pair contributes $uv^2$. For (4), on $LRLR$, $(\{0, 2\}, \{1, 3\})$ crosses on $(0, 1, 2, 3)$, killing $uv$ while $(0|2, 1|3)$ contributes $u^2v^2$.
+\end{proof}
+
+\section{Formal Verification in Core Lean 4.19.0}
+
+The entire proof is formalized in the self-contained Core Lean 4.19.0 library \texttt{TwoDimNarayana} (built under \texttt{-DwarningAsError=true} with zero external dependencies, zero \texttt{sorry}, \texttt{admit}, or \texttt{native\_decide}, and zero custom axioms) alongside the standalone Python 3.12 verification suite \texttt{verify.py}. Table~\ref{tab:lean-map} maps the mathematical results of this paper to their machine-checked Lean declarations.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\textwidth}>{\raggedright\arraybackslash}p{0.21\textwidth}>{\raggedright\arraybackslash}p{0.39\textwidth}@{}}
+\toprule
+\textbf{Paper Result} & \textbf{Lean Module} & \textbf{Declaration Name} \\
+\midrule
+RGS completeness \& duplicate-freeness & \texttt{Partitions.lean} & \texttt{mem\_allRGS\_iff}, \texttt{nodup\_allRGS} \\
+Root-vanishing \& slice obstruction & \texttt{Basic.lean} & \texttt{evalPoly1\_eq\_zero\_of\_forall\_ge}, \texttt{no\_biv\_poly\_grid\_slice} \\
+Prop.~\ref{prop:mirage} (Mirages, $n \le 3$ \& $1 \times 4$) & \texttt{Grid2D}, \texttt{MainTheorems} & \texttt{gridBiNCPoly\_1\_4}, \texttt{poset2D\_mirage\_le3}, \texttt{coupled\_pairs\_mirage\_le3} \\
+Thm.~\ref{thm:grid-22} \& Prop.~\ref{prop:grid-variants}(1) & \texttt{Grid2D.lean} & \texttt{gridBiNCPoly\_2\_2\_disproof}, \texttt{gridSliceNCPoly\_2\_2\_disproof} \\
+Lemma~\ref{lem:convex-2block} ($2$-block convexity) & \texttt{Grid2D.lean} & \texttt{noCrossing2\_iff\_convex} \\
+Thm.~\ref{thm:c2-universal} ($\forall m,n \ge 2,\; c_2 = mn+1$) & \texttt{Grid2D.lean} & \texttt{c2Grid\_eq\_mul\_add\_one} \\
+Cor.~\ref{cor:non-poly} (Non-polynomiality in $\Q[m,n]$) & \texttt{Grid2D.lean} & \texttt{grid2D\_twoBlock\_not\_polynomial} \\
+Thm.~\ref{thm:poset-disproof} (Reading II disproof) & \texttt{MainTheorems.lean} & \texttt{reading2\_poset2D\_disproof} \\
+Thm.~\ref{thm:bifree-disproof} (Reading III disproof) & \texttt{MainTheorems.lean} & \texttt{bnc\_word\_invariance\_2\_2}, \texttt{reading3\_bifree\_twochannel\_disproof} \\
+Thm.~\ref{thm:coupled-disproof} (Reading IV disproof) & \texttt{MainTheorems.lean} & \texttt{reading4\_coupled\_pairs\_disproof} \\
+Master Disproof Theorem & \texttt{MainTheorems.lean} & \texttt{conjecture\_00000004766\_false} \\
+\bottomrule
+\end{tabular}
+\caption{Correspondence between mathematical results and Lean 4.19.0 formalization.}
+\label{tab:lean-map}
+\end{table}
+
+\begin{thebibliography}{9}
+\bibitem{CNS2015}
+I.~Charlesworth, B.~Nelson, and P.~Skoufranis, \emph{Combinatorics of bi-free probability with amalgamation}, Comm.\ Math.\ Phys.\ \textbf{338} (2015), 801--847.
+
+\bibitem{Edelman1980}
+P.~H.~Edelman, \emph{Chain enumeration and non-crossing partitions}, Discrete Math.\ \textbf{31} (1980), 171--180.
+
+\bibitem{Kreweras1972}
+G.~Kreweras, \emph{Sur les partitions non crois\'ees d'un cycle}, Discrete Math.\ \textbf{1} (1972), 333--350.
+
+\bibitem{NicaSpeicher2006}
+A.~Nica and R.~Speicher, \emph{Lectures on the Combinatorics of Free Probability}, London Math.\ Soc.\ Lecture Note Ser., vol.~335, Cambridge Univ.\ Press, 2006.
+
+\bibitem{Voiculescu2014}
+D.-V.~Voiculescu, \emph{Free probability for pairs of faces I}, Comm.\ Math.\ Phys.\ \textbf{332} (2014), 955--980.
+\end{thebibliography}
+
+\end{document}
