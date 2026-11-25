@@ -1,0 +1,84 @@
+\documentclass[10pt]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+\begin{center}
+  {\Large\bfseries The fundamental group of a \(2\)-knot complement\par}
+  \smallskip
+  Disproof of Conjecture 00000000656
+\end{center}
+
+Let \(K\) be an embedded \(2\)-sphere in the interior of \(B^4\),
+as for a closed \(2\)-knot or a spun knot placed in a ball. All
+homology and cohomology groups below have integer coefficients.
+We show that the fundamental group of \(B^4\setminus K\) surjects
+onto \(\mathbb Z\).
+
+\section*{The capped complement}
+
+Glue a second \(4\)-ball to \(B^4\) along their boundary to view
+\(K\) as a subset of \(S^4\). Set \(X=S^4\setminus K\).
+Alexander duality applies because \(K\) is compact, nonempty,
+locally contractible, and proper in \(S^4\)
+\cite[Corollary~3.45]{hatcher}. It gives
+\[
+  \widetilde H_1(X)\cong \widetilde H^2(K)\cong\mathbb Z,
+  \qquad
+  \widetilde H_0(X)\cong \widetilde H^3(K)=0 .
+\]
+Here \(K\cong S^2\) has a CW structure with one \(0\)-cell and
+one \(2\)-cell. In degree two its cellular cochain group is
+\(\mathbb Z\), with neither incoming coboundaries nor outgoing
+differential. Its degree-three cochain group is zero.
+
+\section*{Removing the cap}
+
+Choose an open collar \(A\) of the gluing \(S^3\) in \(S^4\)
+disjoint from \(K\). Cover \(X\) by the open sets \(U\) and \(V\)
+obtained by adjoining \(A\) to the respective ball interiors, with
+\(K\) removed from the first. Their intersection is \(A\), which
+retracts onto \(S^3\). Collapsing the extra half-collars gives
+deformation retractions of \(U\) to \(B^4\setminus K\) and \(V\)
+to the cap ball. In the reduced Mayer--Vietoris sequence the segment
+\[
+  0=\widetilde H_1(A)\ \longrightarrow\
+  \widetilde H_1(U)\oplus\widetilde H_1(V)\
+  \longrightarrow\ \widetilde H_1(X)\
+  \longrightarrow\ \widetilde H_0(A)=0
+\]
+shows that \(H_1(B^4\setminus K)\cong H_1(X)\cong\mathbb Z\),
+since \(V\) is contractible. The segment from
+\(\widetilde H_0(A)=0\) to \(\widetilde H_0(X)=0\)
+also gives \(\widetilde H_0(U)=0\), so \(B^4\setminus K\)
+is path connected.
+
+Degree-one Hurewicz identifies \(H_1\) of a path-connected space
+with the abelianization of its fundamental group
+\cite[Theorem~2A.1]{hatcher}. Therefore
+\[
+   \pi_1(B^4\setminus K)\twoheadrightarrow \mathbb Z .
+\]
+The group is nontrivial for every such \(2\)-knot, including every
+spun knot. This rules out the proposed family.
+
+\section*{Lean verification}
+
+The Lean~4.19.0 project computes the degree-two cellular cohomology
+of the two-cell sphere as cocycles modulo coboundaries. It proves
+evaluation on the \(2\)-cell has a two-sided inverse and preserves
+addition.
+Given the maps and exactness from the topological results above,
+it derives surjectivity through the Mayer--Vietoris cap step and
+constructs distinct fundamental-group elements over the classes
+of \(0\) and \(1\). Run \verb|lake build| in \verb|lean/|
+to verify the formal argument.
+
+\begin{thebibliography}{1}
+\bibitem{hatcher}
+A.~Hatcher, \emph{Algebraic Topology}, Cambridge University Press, 2002,
+\href{https://pi.math.cornell.edu/~hatcher/AT/AT.pdf}{author's online edition}.
+\end{thebibliography}
+
+\end{document}
