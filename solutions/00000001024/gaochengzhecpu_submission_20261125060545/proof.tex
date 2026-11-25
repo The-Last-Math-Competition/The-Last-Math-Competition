@@ -1,0 +1,103 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Disproof of Conjecture 00000001024\\
+\large When the prescribed BCH distance is attained infinitely often}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+
+Let \(N=2^m-1\) and let \(\alpha\) generate
+\(\mathbb F_{2^m}^{\times}\). In the primitive narrow-sense binary
+BCH convention \cite{brc}, prescribing zeros
+\(\{1,\ldots,\delta\}\) means imposing
+\[
+  C_{m,\delta}
+  =\{c(X)\in\mathbb F_2[X]:\deg c<N,\quad
+                       c(\alpha^k)=0\quad(1\le k\le\delta)\}.
+\]
+The actual root set includes the Frobenius closure of these prescribed
+zeros. Write \(d=\delta+1\) for the proposed minimum distance. Since
+this is a linear code, its minimum distance is the minimum nonzero
+Hamming weight.
+
+\section*{Odd \(\delta\) always forces a larger distance}
+
+When \(\delta\) is odd, \(d\) is even and \(1\le d/2\le\delta\).
+For every word \(c\in C_{m,\delta}\), its binary coefficients give
+\[
+  c(\alpha^d)=c(\alpha^{d/2})^2=0.
+\]
+Thus \(1,\ldots,d\) are root exponents, including the next exponent
+after the prescribed interval.
+
+To see the distance implication, suppose a nonzero word of weight
+\(t\) vanishes at each of \(\alpha,\ldots,\alpha^t\). Its support
+positions \(j_1,\ldots,j_t\) are distinct in \(\{0,\ldots,N-1\}\).
+With \(x_i=\alpha^{j_i}\), the syndrome equations are
+\(\sum_{i=1}^t x_i^k=0\) for \(k=1,\ldots,t\). This matrix is
+Vandermonde after factoring \(x_i\) from column \(i\); its determinant
+is nonzero because the \(x_i\) are distinct and nonzero. It cannot
+annihilate the vector of all ones. This is the BCH lower bound for
+consecutive zeros starting at \(1\).
+
+For each fixed odd \(\delta\ge1\) and every sufficiently large \(m\),
+applying this argument to the forced roots excludes every nonzero
+word of weight at most \(d\). The code has a nonzero word for such
+\(m\), since the least common multiple of the minimal polynomials
+of the prescribed roots has degree at most \(m\delta<N\).
+In particular the distance cannot be
+\(\delta+1\) for infinitely many \(m\).
+
+For a concrete family, take \(\delta=1\). A codeword has zero sum of
+its locators. A single nonzero locator cannot sum to zero, and two
+distinct locators cannot sum to zero in characteristic two. For
+every \(m\ge2\), take distinct nonzero \(a,b\) in the field. The
+three locators \(a,b,a+b\) are distinct and nonzero, and they sum
+to zero. Each is a power of \(\alpha\), so they give a word of
+weight three. The exact distance is therefore three for every
+\(m\ge2\), whereas the conjecture gives two.
+
+\section*{Even \(\delta\) does attain equality infinitely often}
+
+For even \(\delta\ge2\), \(d=\delta+1\) is odd. Since \(2\) is a unit
+modulo \(d\), the relation \(d\mid 2^m-1\) holds for all positive
+multiples of the order of \(2\) modulo \(d\). For any sufficiently
+large such \(m\), take
+\[
+  c(X)=\sum_{j=0}^{d-1} X^{jN/d}.
+\]
+It has weight \(d\), with all exponents distinct and less than \(N\).
+The element \(\zeta=\alpha^{N/d}\) has order \(d\). For
+\(1\le k\le d-1\), the ratio \(\zeta^k\) is different from one
+but has \(d\)-th power one, so the geometric sum gives
+\(c(\alpha^k)=\sum_{j=0}^{d-1}(\zeta^k)^j=0\).
+This word belongs to \(C_{m,\delta}\), and the Vandermonde argument
+for its prescribed roots gives distance at least \(d\). Thus the
+distance is \(d\) for all these \(m\).
+
+\section*{Lean verification}
+
+The Lean~4.19.0 project models binary support words by lists of
+distinct locators. It proves the exact distance-three result for
+every \(m\ge2\) from the characteristic-two additive laws and a
+complete enumeration of \(2^m-1\) nonzero locators. It also checks the
+Frobenius doubling identity on arbitrary supports and shows that
+every odd cutoff forces the next syndrome to vanish. The primitive
+field interpretation, Vandermonde step, and odd-design-distance
+construction are proved above. Run \verb|lake build| in \verb|lean/|
+to verify the formal results.
+
+\begin{thebibliography}{1}
+\bibitem{brc}
+R.~C. Bose and D.~K. Ray-Chaudhuri,
+\emph{On a class of error correcting binary group codes},
+Information and Control \textbf{3} (1960), 68--79.
+\href{https://doi.org/10.1016/S0019-9958(60)90287-4}{DOI}.
+\end{thebibliography}
+
+\end{document}
