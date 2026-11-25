@@ -1,0 +1,384 @@
+\documentclass[11pt]{amsart}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[margin=1.05in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\Npos}{\mathcal{N}}
+\newcommand{\Ppos}{\mathcal{P}}
+\newcommand{\Mlayer}{\mathcal{M}}
+\newcommand{\Glayer}{\mathcal{G}}
+\DeclareMathOperator{\mex}{mex}
+\DeclareMathOperator{\lh}{lh}
+\DeclareMathOperator{\height}{height}
+
+\title[Normalization Partial Order Height of Mis\`ere Grundy Values]{Disproof and Structural Dichotomy for the Normalization Partial Order Height of Mis\`ere Grundy Values}
+\author{Autonomous Mathematical Formalization Suite}
+\date{November 2026}
+
+\begin{document}
+
+\begin{abstract}
+We resolve Conjecture~\texttt{00000001291}, which asserts that under mis\`ere play, the height of the normalization partial order of Grundy values is at most the mis\`ere layer height~$n$. Under normal play, the Sprague--Grundy theorem collapses impartial games of layer height (tree height / birthday) at most~$n$ to the canonical Nim-heaps $\{*0, *1, \dots, *n\}$, so both the canonical option-inclusion poset and the equivalence-preserving option-normalization poset have height at most~$n$ for every $n \ge 0$. Under mis\`ere play, the cardinalities $|\Mlayer_0|=1$, $|\Mlayer_1|=2$, and $|\Mlayer_2|=3$ coincide with normal play on the first three layers, making the bound $\height \le n$ hold on all small test cases ($n \le 3$, and $n \le 4$ for pre-normalized option reduction). Nevertheless, we prove that the conjecture is \textbf{false} once mis\`ere canonical proliferation begins:
+\begin{enumerate}
+  \item \textbf{Canonical Option-Inclusion Order on Mis\`ere Grundy Values $(\Mlayer_n,\subsetneq)$:} The exact poset heights for $n=0,1,2,3$ are $0,1,2,3$, but at \textbf{$n=4$} the height jumps to \textbf{$5 > 4$}, witnessed by an explicit $6$-element chain $C_0 \subsetneq C_1 \subsetneq C_2 \subsetneq C_3 \subsetneq C_4 \subsetneq C_5$ of irreducible mis\`ere canonical forms of layer height at most~$4$.
+  \item \textbf{Conway Normalization Partial Order $(\mathcal{P}(\Mlayer_{n-1}), \prec_{\mathrm{norm}})$:} Ordering layer-$n$ games over canonical options $\Mlayer_{n-1}$ by equivalence-preserving option deletion gives exact heights $0,1,2,3 = n-1 \le n$ for $n=1,2,3,4$, but at \textbf{$n=5$} the height reaches \textbf{at least $10 > 5$}. Via a general \emph{Universal Zero-Normalization Theorem}, we construct $11$ layer-$\le 5$ games $H_0 \prec_{\mathrm{norm}} H_1 \prec_{\mathrm{norm}} \dots \prec_{\mathrm{norm}} H_{10}$ over $U_4 = \{u \in \Mlayer_4 : 0 \in u\}$ ($|U_4|=10$), all semantically mis\`ere-equivalent to~$0$.
+\end{enumerate}
+To delineate the exact scope of the phenomenon, we also establish three positive contrast theorems where height $\le n$ holds universally: normal-play Sprague--Grundy values, Conway's scalar mis\`ere $\mex$ function $\Glayer^-(G)$, and the global syntactic outcome preorder over the full universe of impartial games (which collapses to an antichain, in contrast to finite non-tame Plambeck--Siegel mis\`ere quotients such as $\mathcal{R}_8$). All main results are mechanized from first principles in Core Lean~4.19.0 without \texttt{sorry}, \texttt{native\_decide}, or custom axioms, and independently verified in Python.
+\end{abstract}
+
+\maketitle
+
+\section{Introduction and Problem Formulation}
+
+Conjecture~\texttt{00000001291} poses the following question in impartial combinatorial game theory:
+\begin{quote}
+\textbf{Conjecture (\texttt{00000001291}).} \emph{Under mis\`ere play, the height of the normalization partial order of Grundy values is at most~$n$ (mis\`ere layer height).}
+\end{quote}
+
+In standard combinatorial game theory (Conway~\cite{ConwayONAG}, Berlekamp--Conway--Guy~\cite{WinningWays}, Siegel~\cite{SiegelCGT}), finite short impartial games are hereditarily finite rooted trees stratified by their \emph{layer height} (also called \emph{birthday} or \emph{rank}) $\lh(G) \in \mathbb{N}$, with $\lh(\emptyset)=0$ and $\lh(G) = 1 + \max_{G' \in G}\lh(G')$ for $G \neq \emptyset$. Under \emph{normal play} (last player to move wins), the Sprague--Grundy theorem normalizes every impartial game $G$ with $\lh(G) \le n$ to a unique canonical Nim-heap (Grundy value) $*k = \{*0, *1, \dots, *(k-1)\}$ with $0 \le k \le n$. Consequently:
+\begin{itemize}
+  \item Under canonical option inclusion $*0 \subsetneq *1 \subsetneq \dots \subsetneq *n$, the poset of normalized Grundy values up to layer~$n$ is a chain of $n+1$ elements, hence of poset height (chain length) \textbf{exactly~$n$}.
+  \item Under one-step canonical normalization (deleting redundant/reversible options from a subset $G \subseteq \{*0,\dots,*(n-1)\}$ while preserving equivalence to $*k$), $*k \subseteq G \subseteq \{*0,\dots,*(n-1)\} \setminus \{*k\}$ forces $|G \setminus *k| \le n - 1 - k \le n - 1$, so the normalization partial order has height $\max(0, n-1) \le n$ for every $n \ge 0$.
+\end{itemize}
+
+Under \emph{mis\`ere play} (last player to move loses), the Sprague--Grundy theorem fails, and integer Grundy values are replaced in Conway--Siegel canonical theory~\cite[Ch.~V]{SiegelCGT} by \emph{mis\`ere canonical forms} (normalized mis\`ere game values) $\Mlayer_n$ at layer height $\le n$, or by elements of Plambeck--Siegel \emph{mis\`ere quotients}~\cite{Plambeck2005,PlambeckSiegel2008}. Strikingly, Conway's enumeration of $|\Mlayer_n|$ (OEIS~A005130) begins
+\[
+  |\Mlayer_0| = 1,\qquad |\Mlayer_1| = 2,\qquad |\Mlayer_2| = 3,\qquad |\Mlayer_3| = 5,\qquad |\Mlayer_4| = 22,\qquad |\Mlayer_5| = 4{,}171{,}780.
+\]
+Because $|\Mlayer_{n-1}| = n$ holds for $n = 1, 2, 3$, small-case inspection up to layer $n = 3$ (and even $n = 4$ for equivalence-preserving option deletion on $\mathcal{P}(\Mlayer_{n-1})$) exhibits exact agreement with the normal-play bound $\height \le n$.
+
+\subsection*{Summary of Main Results}
+We analyze every standard mathematical formalization of ``the normalization partial order of Grundy values'' at mis\`ere layer height~$n$ and establish a sharp structural dichotomy:
+\begin{enumerate}
+  \item \textbf{Disproof under Convention~A (Canonical Option-Inclusion Order on $\Mlayer_n$, Theorem~\ref{thm:convA}):} Ordering the normalized mis\`ere Grundy values $\Mlayer_n$ by strict option inclusion $G \subsetneq H$ yields exact heights $0, 1, 2, 3$ for $n = 0, 1, 2, 3$, but at \textbf{$n = 4$} the height is \textbf{$5 > 4$} (and vertex cardinality is $6 > 4$).
+  \item \textbf{Disproof under Convention~B (Conway Normalization Partial Order on Layer-$n$ Games, Theorem~\ref{thm:convB}):} Ordering pre-normalized layer-$n$ games $G \subseteq \Mlayer_{n-1}$ by equivalence-preserving option deletion ($H \prec_{\mathrm{norm}} G \iff H \subsetneq G \text{ and } H \equiv^- G$) yields exact heights $0, 1, 2, 3$ for $n = 1, 2, 3, 4$, but at \textbf{$n = 5$} the height is \textbf{$\ge 10 > 5$} (11 elements, all semantically mis\`ere-equivalent to~$0$). On raw hereditary trees without pre-normalizing options, height $\le n$ holds for $n \le 3$ and fails already at $n = 4$ ($\height \ge 12 > 4$).
+  \item \textbf{Positive Contrast Regimes (Section~\ref{sec:contrast}):} We prove that poset height $\le n$ \emph{does} hold for all $n \ge 0$ for (i) normal-play Grundy values (Theorem~\ref{thm:normal}), (ii) Conway's scalar mis\`ere Grundy numbers $\Glayer^-(G) \in \mathbb{N}$ under~$<$ (Theorem~\ref{thm:scalar}), and (iii) the global syntactic outcome partial order over the full universe of impartial games, which collapses to an antichain of height~$0$ (Theorem~\ref{thm:antichain}), whereas finite non-tame mis\`ere quotients such as $\mathcal{R}_8$ exhibit strict syntactic comparabilities (Remark~\ref{rem:quotient}).
+\end{enumerate}
+
+Table~\ref{tab:summary} summarizes the layer-by-layer behavior across all conventions.
+
+\begin{table}[ht]
+\centering
+\caption{Exact poset heights across conventions by mis\`ere layer height~$n$.}
+\label{tab:summary}
+\small
+\begin{tabular}{@{}lccccccl@{}}
+\toprule
+Poset Formalization & $n=0$ & $n=1$ & $n=2$ & $n=3$ & $n=4$ & $n=5$ & Status of $\height \le n$ \\
+\midrule
+Convention A: $(\Mlayer_n, \subsetneq)$ & $0$ & $1$ & $2$ & $3$ & $\mathbf{5}$ & $\ge 22$ & \textbf{False} ($n=4$: $5 > 4$) \\
+Convention B: $(\mathcal{P}(\Mlayer_{n-1}), \prec_{\mathrm{norm}})$ & $0$ & $0$ & $1$ & $2$ & $3$ & $\mathbf{\ge 10}$ & \textbf{False} ($n=5$: $10 > 5$) \\
+Convention B$'$: Raw trees $\lh \le n$ & $0$ & $0$ & $1$ & $3$ & $\mathbf{\ge 12}$ & $> 12$ & \textbf{False} ($n=4$: $12 > 4$) \\
+\midrule
+Normal play $(\Glayer_n^+, <)$ & $0$ & $1$ & $2$ & $3$ & $4$ & $5$ & True ($\height = n$) \\
+Scalar mis\`ere $(\Glayer^-(\Mlayer_{\le n}), <)$ & $0$ & $1$ & $2$ & $3$ & $4$ & $5$ & True ($\height \le n$) \\
+Global syntactic $(\Mlayer_n, <_{\Ppos}^{\mathrm{glob}})$ & $0$ & $0$ & $0$ & $0$ & $0$ & $0$ & True ($\height = 0$) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{First-Principles Mis\`ere Game Semantics and Poset Height}
+
+\begin{definition}[Impartial Games, Layer Height, and Disjunctive Sum]
+An \emph{impartial game tree} $G$ is inductively constructed from a finite list (or set) of option trees $G = \{G_1, \dots, G_k\}$. The terminal game with no options is denoted $0 = \emptyset$, and we write $* = \{0\}$.
+\begin{enumerate}
+  \item The \emph{layer height} (birthday) $\lh(G) \in \mathbb{N}$ is defined recursively by $\lh(0) = 0$ and
+  \[
+    \lh(G) = 1 + \max_{G' \in G} \lh(G') \qquad (G \neq \emptyset).
+  \]
+  \item The \emph{disjunctive sum} of two impartial games $G$ and $H$ is defined recursively by
+  \[
+    G + H = \{G' + H : G' \in G\} \cup \{G + H' : H' \in H\}.
+  \]
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Mis\`ere Outcome and Semantic Indistinguishability]
+Under \emph{mis\`ere play}, the last player to move loses; equivalently, a player unable to move wins because the previous player made the final move. The \emph{mis\`ere outcome} $o^-(G) \in \{\Npos, \Ppos\}$ is defined recursively by:
+\[
+  o^-(0) = \Npos, \qquad
+  o^-(G) = \begin{cases}
+    \Npos & \text{if } \exists G' \in G \text{ such that } o^-(G') = \Ppos,\\
+    \Ppos & \text{if } \forall G' \in G,\; o^-(G') = \Npos
+  \end{cases} \quad (G \neq 0).
+\]
+Two games $G$ and $H$ are \emph{semantically mis\`ere-equivalent} (indistinguishable), written $G \equiv^- H$, if
+\[
+  \forall X,\qquad o^-(G + X) = o^-(H + X),
+\]
+where $X$ ranges over \emph{all} finite impartial game trees.
+\end{definition}
+
+\begin{definition}[Mis\`ere Canonical Form and Poset Height]
+\label{def:canonical}
+An impartial game $G = \{G_1, \dots, G_k\}$ is in \emph{mis\`ere canonical form} (a normalized mis\`ere Grundy value) if:
+\begin{enumerate}
+  \item every option $G_i \in G$ is inductively in mis\`ere canonical form;
+  \item its options are pairwise mis\`ere-inequivalent: $G_i \not\equiv^- G_j$ for all $i \neq j$; and
+  \item $G$ is \emph{subset-irreducible}: for every proper subset $S \subsetneq \{G_1, \dots, G_k\}$, $S \not\equiv^- G$.
+\end{enumerate}
+(In Conway--Siegel theory~\cite[Ch.~V, Theorem~2.5]{SiegelCGT}, one also eliminates reversible moves to canonical games of smaller birthday; for every canonical game in our chains below, we verify both subset-irreducibility and inequivalence to all canonical games of smaller layer height.) We denote by $\Mlayer_n$ the set of canonical mis\`ere games $G$ with $\lh(G) \le n$.
+
+For a strict partial order $(P, \prec)$, a \emph{strict chain of height~$k$} is a sequence $x_0 \prec x_1 \prec \dots \prec x_k$ of $k+1$ elements in~$P$. The \emph{height} of $(P, \prec)$ is the supremum of~$k$ over all strict chains in~$P$ (so a singleton or antichain has height~$0$, and a $(k+1)$-element chain has height~$k$ and vertex cardinality $k+1$).
+\end{definition}
+
+\begin{remark}[Independence of Edge-Height vs.\ Vertex-Cardinality Convention]
+Some authors count vertices ($k+1$) rather than strict comparability steps ($k$) when defining chain height. Under vertex-cardinality, even $\Mlayer_0 = \{0\}$ has cardinality $1 > 0$ at $n = 0$. More importantly, our counterexamples at $n = 4$ ($6$ elements, $5$ steps) and $n = 5$ ($11$ elements, $10$ steps) exceed~$n$ under \emph{both} conventions simultaneously ($5 > 4$ and $6 > 4$; $10 > 5$ and $11 > 5$). Both versions are proved in our Lean~4 formalization.
+\end{remark}
+
+\section{Main Disproofs: Failure at Layers \texorpdfstring{$n = 4$}{n = 4} and \texorpdfstring{$n = 5$}{n = 5}}
+
+\subsection{Convention A: Canonical Option-Inclusion Order on \texorpdfstring{$\Mlayer_n$}{M\_n}}
+
+Define the canonical building blocks up to layer height~$4$:
+\begin{align*}
+  g_0 &= \emptyset = 0 && (\lh = 0,\; o^- = \Npos),\\
+  g_1 &= \{g_0\} = * && (\lh = 1,\; o^- = \Ppos),\\
+  g_2 &= \{g_0, g_1\} = *2 && (\lh = 2,\; o^- = \Npos),\\
+  g_{2b} &= \{g_2\} = \{*2\} && (\lh = 3,\; o^- = \Ppos),\\
+  g_3 &= \{g_0, g_1, g_2\} = *3 && (\lh = 3,\; o^- = \Npos),\\
+  g_4 &= \{g_0, g_1, g_2, g_3\} = *4 && (\lh = 4,\; o^- = \Npos),\\
+  g_5 &= \{g_0, g_1, g_2, g_{2b}, g_3\} && (\lh = 4,\; o^- = \Npos).
+\end{align*}
+
+Why does a $5$-option canonical game appear at layer $n = 4$? For $n \le 3$, the canonical layers are $\Mlayer_0 = \{g_0\}$, $\Mlayer_1 = \{g_0, g_1\}$, and $\Mlayer_2 = \{g_0, g_1, g_2\}$ (since $\{g_1\} = \{*\} \equiv^- 0$). At $n = 3$, however, $\{*2\} = g_{2b}$ is a $\Ppos$-position with normal Grundy value~$0$ and mis\`ere Grundy value~$0$ (genus $0^0$, equivalent to $*2 + *2$ in tame quotients, whereas $g_0$ has genus $0^1$), expanding $\Mlayer_3$ to \emph{five} elements $\{g_0, g_1, g_2, g_{2b}, g_3\}$. At $n = 4$, including all five elements of $\Mlayer_3$ as options produces $g_5$, and crucially $g_{2b}$ cannot be deleted from $g_5$!
+
+\begin{lemma}[Contextual Separation of $g_0, \dots, g_5$]
+\label{lem:canon_g5}
+Each of the games $g_0, g_1, g_2,$ $g_{2b}, g_3, g_4, g_5$ satisfies $\lh \le 4$ and is in mis\`ere canonical form (Definition~\ref{def:canonical}). In particular, $g_5 \not\equiv^- g_4$: for the context game
+\[
+  w_7 = \bigl\{g_1,\; g_2,\; g_3,\; \{g_1, g_{2b}\}\bigr\},
+\]
+we have $o^-(g_5 + w_7) \neq o^-(g_4 + w_7)$. More generally, every proper subset $S \subsetneq g_5$ is separated from $g_5$ by a context $w \in \{w_0, w_1, w_2, w_3, w_4, w_7\}$, where $w_0 = g_0$, $w_1 = g_1$, $w_2 = g_2$, $w_3 = \{g_{2b}\}$, and $w_4 = g_3$.
+\end{lemma}
+
+\begin{proof}
+We first verify conceptually why $w_7$ separates $g_5$ from $g_4$ via Conway linkedness. Let $z = \{g_1, g_{2b}\}$; since $o^-(g_1) = \Ppos$, we have $o^-(z) = \Npos$. Consider $g_1 + z$: moving $g_1 \to g_0$ leaves $z$ ($\Npos$); moving $z \to g_1$ leaves $g_1 + g_1$ ($\Npos$, since $g_1 + g_1 \to g_1$); and moving $z \to g_{2b}$ leaves $g_1 + g_{2b}$ ($\Npos$, since $g_1 + g_{2b} \to g_0 + g_{2b} = g_{2b}$ and $o^-(g_{2b}) = \Ppos$). Thus $o^-(g_1 + z) = \Ppos$. Next:
+\begin{itemize}
+  \item Since $o^-(g_1 + z) = \Ppos$, for $k \in \{2, 3\}$ moving $g_k \to g_1$ reaches the $\Ppos$-position $g_1 + z$, so $o^-(g_2 + z) = o^-(g_3 + z) = \Npos$. Similarly, $g_{2b} + z$ moves via $g_{2b} \to g_2$ only to $g_2 + z$ ($\Npos$), via $z \to g_1$ to $g_{2b} + g_1$ ($\Npos$), and via $z \to g_{2b}$ to $g_{2b} + g_{2b}$ (whose unique move is $g_2 + g_{2b}$, which moves via $g_2 \to g_0$ to $g_{2b}$, so $o^-(g_2 + g_{2b}) = \Npos$ and $o^-(g_{2b} + g_{2b}) = \Ppos$); hence $o^-(g_{2b} + z) = \Npos$.
+  \item Now evaluate $g_4 + w_7$ and $g_{2b} + w_7$, where $w_7 = \{g_1, g_2, g_3, z\}$. Every right move of $g_4 + w_7$ is an $\Npos$-position: $g_4 + g_k$ moves via $g_4 \to g_k$ to the tame $\Ppos$-position $g_k + g_k$ for $k \in \{2,3\}$, $g_4 + g_1$ moves via $g_4 \to g_0$ to $g_1$ ($\Ppos$), and $g_4 + z$ moves via $g_4 \to g_1$ to $g_1 + z$ ($\Ppos$). Every left move $g_j + w_7$ ($0 \le j \le 3$) is also $\Npos$: $w_7$ itself moves to $g_1$ ($\Ppos$), $g_1 + w_7$ moves to $g_1 + z$ ($\Ppos$), and $g_k + w_7$ moves to $g_k + g_k$ ($\Ppos$) for $k \in \{2, 3\}$. Thus $o^-(g_4 + w_7) = \Ppos$.
+  \item By contrast, in $g_{2b} + w_7$, the left move is $g_2 + w_7$ ($\Npos$), while the right moves are $g_{2b} + g_1$ ($\Npos$, moves to $g_{2b}$), $g_{2b} + g_2$ ($\Npos$, moves to $g_{2b}$), $g_{2b} + g_3$ ($\Npos$, moves via $g_3 \to g_0$ to $g_{2b}$), and $g_{2b} + z$ ($\Npos$, moves to $g_{2b} + g_{2b}$). Hence $o^-(g_{2b} + w_7) = \Ppos$ as well! Because $g_{2b} \in g_5$, moving $g_5 \to g_{2b}$ in $g_5 + w_7$ reaches the $\Ppos$-position $g_{2b} + w_7$, yielding $o^-(g_5 + w_7) = \Npos \neq \Ppos = o^-(g_4 + w_7)$.
+\end{itemize}
+More generally, for any option list $s \subsetneq g_i$ (even allowing repetitions or permutations), letting $s' = g_i \cap s$ yields $s' \equiv^- s$ (as identical option membership sets induce identical disjunctive sum outcomes by structural induction) and $s'$ is one of the $2^{|g_i|} - 1$ proper sublists of $g_i$. Exhaustive finite evaluation over the $31$ proper sublists of $g_5$ (and the $1, 3, 1, 7, 15$ proper sublists of $g_1, g_2, g_{2b}, g_3, g_4$) against $\{w_0, w_1, w_2, w_3, w_4, w_7\}$ confirms $o^-(g_i + w) \neq o^-(s' + w)$ in every case (mechanized by pure kernel reduction in \texttt{Counterexamples.lean}).
+\end{proof}
+
+\begin{theorem}[Disproof of Conjecture~\texttt{00000001291} under Convention~A]
+\label{thm:convA}
+Under strict option-set inclusion $\subsetneq$ on the canonical mis\`ere Grundy values $\Mlayer_n$ of layer height at most~$n$:
+\begin{enumerate}
+  \item For $n = 0, 1, 2, 3$, the exact poset height of $(\Mlayer_n, \subsetneq)$ is $n$ (attained by $g_0 \subsetneq \dots \subsetneq g_n$).
+  \item At $n = 4$, the $6$ canonical games
+  \[
+    g_0 \subsetneq g_1 \subsetneq g_2 \subsetneq g_3 \subsetneq g_4 \subsetneq g_5
+  \]
+  all belong to $\Mlayer_4$ and form a strict chain of poset height $5 > 4$ (and vertex cardinality $6 > 4$). Hence $\height(\Mlayer_n, \subsetneq) \le n$ fails at $n = 4$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+Part~(1) follows for $n \le 2$ from $|\Mlayer_n| = n+1$, and for $n = 3$ from $\Mlayer_3 = \{g_0, g_1, g_2, g_{2b}, g_3\}$ where $|g| \le 3$ for all $g \in \Mlayer_3$, so any strict chain $x_0 \subsetneq \dots \subsetneq x_k$ has $0 \le |x_0| < \dots < |x_k| \le 3$, forcing $k \le 3$ (with equality for $g_0 \subsetneq g_1 \subsetneq g_2 \subsetneq g_3$). Part~(2) follows directly from Lemma~\ref{lem:canon_g5}, since $\lh(g_i) \le 4$ for $0 \le i \le 5$ and $|g_0|=0 < |g_1|=1 < |g_2|=2 < |g_3|=3 < |g_4|=4 < |g_5|=5$ with $g_0 \subsetneq g_1 \subsetneq g_2 \subsetneq g_3 \subsetneq g_4 \subsetneq g_5$.
+\end{proof}
+
+\subsection{Convention B: Conway Normalization Partial Order on Layer-\texorpdfstring{$n$}{n} Games}
+
+A natural alternative reading of ``the normalization partial order of Grundy values'' is the canonical reduction (option-deletion normalization) partial order itself: given games at layer height $\le n$ whose options are already distinct canonical mis\`ere Grundy values in $\Mlayer_{n-1}$, define
+\[
+  H \prec_{\mathrm{norm}} G \quad :\Longleftrightarrow \quad H \subsetneq G \;\;\text{and}\;\; H \equiv^- G.
+\]
+Clearly $\prec_{\mathrm{norm}}$ is irreflexive and transitive (hence a strict partial order), representing multi-step deletion of redundant/reversible options. For $n = 1, 2, 3, 4$, exhaustive computation on $\mathcal{P}(\Mlayer_{n-1})$ gives exact heights $0, 1, 2, 3 = n - 1 \le n$. To refute $\height \le n$ at $n = 5$ cleanly and conceptually, we establish the following general lemma.
+
+\begin{theorem}[Universal Zero-Normalization Theorem]
+\label{thm:zero_norm}
+Let $H$ be any finite impartial game such that:
+\begin{enumerate}
+  \item $g_1 = * = \{0\} \in H$, and
+  \item every option $u \in H$ contains $g_0 = 0 = \emptyset$ as an option ($0 \in u$).
+\end{enumerate}
+Then $H \equiv^- 0$; that is, $o^-(H + X) = o^-(X)$ for every finite impartial game~$X$.
+\end{theorem}
+
+\begin{proof}
+We proceed by strong structural induction on~$X$, assuming $o^-(H + X') = o^-(X')$ for every option $X' \in X$.
+\begin{itemize}
+  \item \textbf{Case 1: $X = 0$.} Then $o^-(0) = \Npos$. Meanwhile $H + 0 = H$ has option $g_1 = \{0\}$ by~(1); since $o^-(g_1) = \Ppos$, $H$ has a $\Ppos$-option, so $o^-(H) = \Npos = o^-(0)$.
+  \item \textbf{Case 2: $X \neq 0$ and $o^-(X) = \Npos$.} Then there exists $X' \in X$ with $o^-(X') = \Ppos$. By the induction hypothesis, $o^-(H + X') = o^-(X') = \Ppos$. Since $H + X'$ is a right-hand option of $H + X$, we obtain $o^-(H + X) = \Npos = o^-(X)$.
+  \item \textbf{Case 3: $X \neq 0$ and $o^-(X) = \Ppos$.} Note that $H + X$ is non-empty (since $g_1 \in H$). Every option of $H + X$ has one of two forms:
+  \begin{enumerate}
+    \item \emph{Left move $u + X$ with $u \in H$:} By hypothesis~(2), $0 \in u$, so $0 + X = X$ is an option of $u + X$. Because $o^-(X) = \Ppos$, $u + X$ has a $\Ppos$-option and therefore $o^-(u + X) = \Npos$.
+    \item \emph{Right move $H + X'$ with $X' \in X$:} Because $o^-(X) = \Ppos$, every $X' \in X$ satisfies $o^-(X') = \Npos$. By the induction hypothesis, $o^-(H + X') = o^-(X') = \Npos$.
+  \end{enumerate}
+  Since all options of $H + X$ are $\Npos$-positions, $o^-(H + X) = \Ppos = o^-(X)$. \qedhere
+\end{itemize}
+\end{proof}
+
+\begin{theorem}[Disproof of Conjecture~\texttt{00000001291} under Convention~B]
+\label{thm:convB}
+Consider the set $U_4 = \{u_1, \dots, u_{10}\}$ of $10$ games of layer height at most~$4$:
+\begin{align*}
+  u_1 &= \{g_0\}, & u_2 &= \{g_0, g_1\}, & u_3 &= \{g_0, g_1, g_2\},\\
+  u_4 &= \{g_0, g_{2b}\}, & u_5 &= \{g_0, g_2, g_{2b}\}, & u_6 &= \{g_0, g_{2b}, g_3\},\\
+  u_7 &= \{g_0, g_1, g_2, g_{2b}\}, & u_8 &= g_4, & u_9 &= \{g_0, g_2, g_{2b}, g_3\},\\
+  u_{10} &= g_5.
+\end{align*}
+Then:
+\begin{enumerate}
+  \item Every $u_i$ ($1 \le i \le 10$) belongs to $\Mlayer_4$ (canonical and subset-irreducible, with $\lh(u_i) \le 4$ and $g_0 \in u_i$), and $u_1, \dots, u_{10}$ are pairwise semantically mis\`ere-inequivalent ($u_i \not\equiv^- u_j$ for $1 \le i < j \le 10$).
+  \item Setting $H_0 = \emptyset$ and $H_k = \{u_1, \dots, u_k\}$ for $1 \le k \le 10$, every $H_k$ has layer height $\lh(H_k) \le 5$, has pairwise inequivalent canonical options, and satisfies $H_k \equiv^- 0$.
+  \item Consequently,
+  \[
+    H_0 \prec_{\mathrm{norm}} H_1 \prec_{\mathrm{norm}} H_2 \prec_{\mathrm{norm}} \dots \prec_{\mathrm{norm}} H_{10}
+  \]
+  is a strict chain in the Conway normalization partial order at layer $n = 5$ of poset height $10 > 5$ (and vertex cardinality $11 > 5$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+For~(1), $\lh(u_i) \le 1 + \max_{c \in u_i}\lh(c) \le 1 + 3 = 4$ and $g_0 \in u_i$ hold by definition. Adding the two witnesses
+\[
+  w_5 = \{g_1, g_2, \{g_{2b}\}\}, \qquad
+  w_6 = \bigl\{g_0, g_1, \{g_0, g_1, \{g_1, g_{2b}\}\}\bigr\}
+\]
+to $\{w_0, w_1, w_2, w_3, w_4, w_7\}$ yields an $8$-element witness pool (maximum tree size $23$ nodes) that separates all $\binom{10}{2} = 45$ pairs $(u_i, u_j)$ and all proper sublists of each $u_i$ (verified by kernel reduction in \texttt{Counterexamples.lean}). For~(2), $\lh(H_k) \le 1 + 4 = 5$; $H_0 = g_0 \equiv^- 0$ trivially, and for $1 \le k \le 10$, $u_1 = g_1 \in H_k$ and $\forall u \in H_k,\, g_0 \in u$, so Theorem~\ref{thm:zero_norm} gives $H_k \equiv^- 0$. Thus $H_k \subsetneq H_{k+1}$ and $H_k \equiv^- 0 \equiv^- H_{k+1}$ yield $H_k \prec_{\mathrm{norm}} H_{k+1}$ for $0 \le k \le 9$, proving~(3).
+\end{proof}
+
+\begin{remark}[Raw Hereditary Tree Variant Fails Already at $n = 4$]
+If one allows unnormalized options in raw hereditary game trees of layer height $\le n$, Theorem~\ref{thm:zero_norm} generalizes immediately to any option $u$ having a child $c \equiv^- 0$. Among the $16$ raw trees of layer height $\le 3$, exactly $12$ contain an option equivalent to~$0$ (including $g_1 = *$), yielding a $13$-element chain of layer-$\le 4$ trees all mis\`ere-equivalent to~$0$ (normalization height $\ge 12 > 4$ at $n = 4$).
+\end{remark}
+
+\section{Positive Contrast Regimes and Structural Scope}
+\label{sec:contrast}
+
+To clarify why the bound $\height \le n$ holds in related settings and fails specifically for mis\`ere canonical structures, we prove three positive counterparts.
+
+\begin{theorem}[Normal-Play Sprague--Grundy Bound]
+\label{thm:normal}
+Define the normal-play Grundy function $\Glayer^+(G) = \mex\{\Glayer^+(G') : G' \in G\}$. For every impartial game $G$, $\Glayer^+(G) \le \lh(G)$. Hence for every $n \in \mathbb{N}$, the poset $(\{\Glayer^+(G) : \lh(G) \le n\}, <)$ has height at most~$n$ (and exact height~$n$, attained by $*0, *1, \dots, *n$).
+\end{theorem}
+
+\begin{proof}
+By structural induction on $G$: $\Glayer^+(0) = \mex(\emptyset) = 0 = \lh(0)$. If $G \neq \emptyset$ and $\Glayer^+(G) > \lh(G)$, then $\lh(G) < \mex\{\Glayer^+(G') : G' \in G\}$ implies $\lh(G) = \Glayer^+(G')$ for some $G' \in G$; by the induction hypothesis $\Glayer^+(G') \le \lh(G') < \lh(G)$, a contradiction. Any strict chain in a subset of $\{0, \dots, n\}$ has at most $n+1$ elements, hence height at most~$n$.
+\end{proof}
+
+\begin{theorem}[Conway's Scalar Mis\`ere Grundy Function $\Glayer^-(G)$]
+\label{thm:scalar}
+Define Conway's scalar mis\`ere Grundy number~\cite[Ch.~V.4]{SiegelCGT} recursively by $\Glayer^-(0) = 1$ and $\Glayer^-(G) = \mex\{\Glayer^-(G') : G' \in G\}$ for $G \neq 0$. Then:
+\begin{enumerate}
+  \item For every game $G$, $o^-(G) = \Ppos \iff \Glayer^-(G) = 0$.
+  \item For every game $G$, $\Glayer^-(G) \le \max(1, \lh(G))$.
+  \item For every $n \in \mathbb{N}$, the poset of attained scalar mis\`ere Grundy values $S_n^- = \{\Glayer^-(G) : \lh(G) \le n\}$ under~$<$ has height at most~$n$ ($S_0^- = \{1\}$ has height~$0$, and $S_n^- = \{0, 1, \dots, n\}$ has height~$n$ for all $n \ge 1$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+(1) At $G = 0$, $o^-(0) = \Npos$ and $\Glayer^-(0) = 1 \neq 0$. For $G \neq 0$, $\Glayer^-(G) = 0 \iff \forall G' \in G,\, \Glayer^-(G') \neq 0 \iff \forall G' \in G,\, o^-(G') = \Npos \iff o^-(G) = \Ppos$ by induction.
+
+(2) At $\lh(G) = 0$, $G = 0$ and $\Glayer^-(0) = 1 = \max(1, 0)$. If $\lh(G) = 1$, every $G' \in G$ has $\lh(G') = 0$, so $G' = 0$ and $\Glayer^-(G') = 1$; thus $0 \notin \{\Glayer^-(G') : G' \in G\}$ and $\Glayer^-(G) = 0 \le 1$. If $\lh(G) \ge 2$ and $\Glayer^-(G) > \lh(G)$, there exists $G' \in G$ with $\Glayer^-(G') = \lh(G)$; by induction $\Glayer^-(G') \le \max(1, \lh(G')) < \lh(G)$ since $\lh(G') < \lh(G)$ and $1 < \lh(G)$, a contradiction.
+
+(3) For $n = 0$, $S_0^- = \{1\}$ is a singleton of height~$0 \le 0$. For $n \ge 1$, (2) implies $S_n^- \subseteq \{0, 1, \dots, n\}$, so $(S_n^-, <)$ has height at most~$n$.
+\end{proof}
+
+\begin{theorem}[Global Syntactic Outcome Antichain Theorem]
+\label{thm:antichain}
+Define the global syntactic outcome preorder on impartial games by
+\[
+  G \le_{\Ppos}^{\mathrm{glob}} H \quad :\Longleftrightarrow \quad \forall X,\;\bigl(o^-(H + X) = \Ppos \implies o^-(G + X) = \Ppos\bigr).
+\]
+Then $G \le_{\Ppos}^{\mathrm{glob}} H \iff G \equiv^- H$. Consequently, the strict order $G <_{\Ppos}^{\mathrm{glob}} H$ is empty, and every subset of mis\`ere equivalence classes has poset height $0 \le n$.
+\end{theorem}
+
+\begin{proof}
+First, every game $A$ admits a \emph{$\Ppos$-partner} $S(A)$ with $o^-(A + S(A)) = \Ppos$: set $S(0) = *$; for $A \neq 0$, set $S(A) = 0$ if $o^-(A) = \Ppos$, and $S(A) = \{S(A') : A' \in A\}$ if $o^-(A) = \Npos$. By induction on~$A$, in the latter case every left move $A' + S(A)$ moves to $A' + S(A')$ ($\Ppos$) and every right move $A + S(A')$ moves to $A' + S(A')$ ($\Ppos$), so $o^-(A + S(A)) = \Ppos$.
+
+Now assume $G \le_{\Ppos}^{\mathrm{glob}} H$. If $G \not\equiv^- H$, there exists $X$ with $o^-(G + X) \neq o^-(H + X)$; since $o^-(H + X) = \Ppos \implies o^-(G + X) = \Ppos$, we must have $o^-(H + X) = \Npos$ and $o^-(G + X) = \Ppos$. Define $W = \{X\} \cup \{S(H') : H' \in H\}$. In $H + W$ (non-empty since $X \in W$), every left move $H' + W$ moves to $H' + S(H')$ ($\Ppos$), the right move $H + X$ is $\Npos$ by assumption, and every right move $H + S(H')$ moves to $H' + S(H')$ ($\Ppos$); thus $o^-(H + W) = \Ppos$. By $G \le_{\Ppos}^{\mathrm{glob}} H$, this forces $o^-(G + W) = \Ppos$, contradicting that $G + W$ has the $\Ppos$-option $G + X$.
+\end{proof}
+
+\begin{remark}[Finite Non-Tame Mis\`ere Quotients]
+\label{rem:quotient}
+Theorem~\ref{thm:antichain} crucially uses curly-brace tree formation $W = \{X\} \cup \dots$ outside any fixed disjunctive-sum monoid. When contexts~$X$ are restricted to the commutative monoid closure $\langle \mathcal{A} \rangle_+$ of the hereditary subpositions of $u_9 = \{g_0, g_2, g_{2b}, g_3\} \in \Mlayer_4$, one obtains Plambeck--Siegel's $8$-element non-tame mis\`ere quotient $\mathcal{R}_8$~\cite[Example~5.4]{SiegelCGT}, in which the restricted syntactic partial order has $2$ strict comparabilities and height $1 > 0$ (verified in \texttt{verify.py}).
+\end{remark}
+
+\section{Mechanized Verification in Core Lean 4.19.0 and Python}
+
+All definitions and theorems are formalized from first principles in Core Lean~4.19.0 inside \texttt{package/lean/}, compiled with \texttt{warningAsError=true} and \texttt{autoImplicit=false}, with zero external dependencies, zero \texttt{sorry} or \texttt{admit}, zero \texttt{native\_decide}, and zero custom \texttt{axiom} declarations. Table~\ref{tab:lean} maps each mathematical result to its mechanized Lean~4 theorem.
+
+\begin{table}[ht]
+\centering
+\caption{Correspondence between paper theorems and Core Lean~4.19.0 declarations.}
+\label{tab:lean}
+\scriptsize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Mathematical Result & Module & Lean~4 Declaration \\
+\midrule
+Fast sum outcome equivalence & \texttt{Basic.lean} & \texttt{IGame.misereWin\_add\_eq} \\
+Zero-Normalization (Thm.~\ref{thm:zero_norm}) & \texttt{Basic.lean} & \texttt{IGame.misereEquiv\_zero\_of\_star\_and\_zero\_mem} \\
+Canonicality of $g_0, \dots, g_5$ (Lem.~\ref{lem:canon_g5}) & \texttt{Counterexamples.lean} & \texttt{canon\_g0} \dots \texttt{canon\_g5} \\
+Layer $n=3$ tightness witness & \texttt{Counterexamples.lean} & \texttt{small\_layer\_3\_attains\_height\_3} \\
+Convention A disproof ($n=4$, Thm.~\ref{thm:convA}) & \texttt{Counterexamples.lean} & \texttt{refutation\_conventionA\_at\_4} \\
+Convention A universal disproof & \texttt{Counterexamples.lean} & \texttt{refutation\_conventionA\_universal} \\
+Convention A cardinality disproof & \texttt{Counterexamples.lean} & \texttt{refutation\_conventionA\_card\_universal} \\
+Convention B disproof ($n=5$, Thm.~\ref{thm:convB}) & \texttt{Counterexamples.lean} & \texttt{refutation\_conventionB\_at\_5} \\
+Convention B universal disproof & \texttt{Counterexamples.lean} & \texttt{refutation\_conventionB\_universal} \\
+Convention B cardinality disproof & \texttt{Counterexamples.lean} & \texttt{refutation\_conventionB\_card\_universal} \\
+Normal-play bound (Thm.~\ref{thm:normal}) & \texttt{Contrast.lean} & \texttt{normal\_grundy\_posetHeight\_le} \\
+$\Glayer^-(G) = 0 \iff o^-(G) = \Ppos$ (Thm.~\ref{thm:scalar}) & \texttt{Contrast.lean} & \texttt{misereWin\_false\_iff\_grundyMisere\_zero} \\
+Scalar $\Glayer^-$ poset bound (Thm.~\ref{thm:scalar}) & \texttt{Contrast.lean} & \texttt{scalar\_misere\_grundy\_posetHeight\_le} \\
+Global Antichain Theorem (Thm.~\ref{thm:antichain}) & \texttt{Contrast.lean} & \texttt{misereOutcomeLe\_iff\_misereEquiv} \\
+Global syntactic height $\le n$ & \texttt{Contrast.lean} & \texttt{global\_misereOutcome\_posetHeight\_le} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{thebibliography}{9}
+
+\bibitem{WinningWays}
+E.~R.~Berlekamp, J.~H.~Conway, and R.~K.~Guy,
+\emph{Winning Ways for Your Mathematical Plays}, Vol.~2, 2nd ed.,
+A~K~Peters, Wellesley, MA, 2003, Ch.~13 (``Survival in the Lost World'').
+
+\bibitem{ConwayONAG}
+J.~H.~Conway,
+\emph{On Numbers and Games}, 2nd ed.,
+A~K~Peters, Natick, MA, 2001, Ch.~12 (Theorem~70).
+
+\bibitem{Plambeck2005}
+T.~E.~Plambeck,
+\emph{Taming the wild in impartial combinatorial games},
+Integers \textbf{5} (2005), no.~1, G5, 1--36.
+
+\bibitem{PlambeckSiegel2008}
+T.~E.~Plambeck and A.~N.~Siegel,
+\emph{Mis\`ere quotients for impartial games},
+J.~Combin.\ Theory Ser.~A \textbf{115} (2008), no.~4, 593--622.
+
+\bibitem{SiegelCGT}
+A.~N.~Siegel,
+\emph{Combinatorial Game Theory},
+Graduate Studies in Mathematics, Vol.~146, American Mathematical Society, Providence, RI, 2013, Ch.~V (``Mis\`ere Play'').
+
+\end{thebibliography}
+
+\end{document}
