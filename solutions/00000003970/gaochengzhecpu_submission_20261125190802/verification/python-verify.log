@@ -1,0 +1,77 @@
+==============================================================================
+CONJECTURE 00000003970 — EXHAUSTIVE COMPUTATIONAL VERIFICATION
+==============================================================================
+
+[Check 1] Non-isomorphic simple graph census (OEIS A000088 & A001349):
+  n = 1:     1 total graphs,     1 connected graphs  [OK]
+  n = 2:     2 total graphs,     1 connected graphs  [OK]
+  n = 3:     4 total graphs,     2 connected graphs  [OK]
+  n = 4:    11 total graphs,     6 connected graphs  [OK]
+  n = 5:    34 total graphs,    21 connected graphs  [OK]
+  n = 6:   156 total graphs,   112 connected graphs  [OK]
+  n = 7:  1044 total graphs,   853 connected graphs  [OK]
+  n = 8: 12346 total graphs, 11117 connected graphs  [OK]
+
+[Check 2] Algorithm cross-validation on all graphs with 1 <= n <= 5:
+  Verified DP == BruteForce and Faddeev == Laplace on all 52 graphs (n <= 5)  [OK]
+
+[Check 3] Reading I — Connected induced subgraph order-vector c^ind(G):
+  n = 1:    0 separating pairs (   0 connected pairs)  [OK]
+  n = 2:    0 separating pairs (   0 connected pairs)  [OK]
+  n = 3:    0 separating pairs (   0 connected pairs)  [OK]
+  n = 4:    0 separating pairs (   0 connected pairs)  [OK]
+  n = 5:    4 separating pairs (   3 connected pairs)  [OK]
+  n = 6:   45 separating pairs (  38 connected pairs)  [OK]
+  n = 7:  873 separating pairs ( 799 connected pairs)  [OK]
+  -> Exact minimal vertex number n_min(c^ind) = 5 (refuting '6 or 7').
+  -> Complete enumeration of all 4 minimal pairs at n = 5:
+     Pair 1: c^ind = (5, 3, 1, 0, 0), connected = (False, False)
+       G1 edges = [(0, 1), (0, 4), (2, 3)], charPoly = (0, 2, 0, -3, 0, 1)
+       G2 edges = [(0, 1), (0, 2), (1, 2)], charPoly = (0, 0, -2, -3, 0, 1)
+     Pair 2: c^ind = (5, 5, 6, 4, 1), connected = (True, True)
+       G1 edges = [(0, 1), (0, 2), (0, 4), (1, 3), (2, 3)], charPoly = (0, 2, 0, -5, 0, 1)
+       G2 edges = [(0, 1), (0, 2), (0, 3), (0, 4), (1, 2)], charPoly = (0, 2, -2, -5, 0, 1)
+     Pair 3: c^ind = (5, 6, 6, 4, 1), connected = (True, True)
+       G1 edges = [(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (3, 4)], charPoly = (4, 5, -4, -6, 0, 1)
+       G2 edges = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 4)], charPoly = (2, 3, -4, -6, 0, 1)
+     Pair 4: c^ind = (5, 7, 9, 5, 1), connected = (True, True)
+       G1 edges = [(0, 1), (0, 2), (0, 3), (1, 2), (1, 3), (2, 4), (3, 4)], charPoly = (0, 2, -4, -7, 0, 1)
+       G2 edges = [(0, 1), (0, 2), (0, 3), (0, 4), (1, 2), (1, 3), (1, 4)], charPoly = (0, 0, -6, -7, 0, 1)
+
+[Check 4] Reading II — Connected edge-subset subgraph order-vector c^sub(G):
+  n = 1: 0 collisions among    1 non-isomorphic graphs  [OK]
+  n = 2: 0 collisions among    2 non-isomorphic graphs  [OK]
+  n = 3: 0 collisions among    4 non-isomorphic graphs  [OK]
+  n = 4: 0 collisions among   11 non-isomorphic graphs  [OK]
+  n = 5: 0 collisions among   34 non-isomorphic graphs  [OK]
+  n = 6: 0 collisions among  156 non-isomorphic graphs  [OK]
+  n = 7: 0 collisions among 1044 non-isomorphic graphs  [OK]
+  n = 8 separating pairs for c^sub(G):
+    # 1: c^sub=(8, 5, 3, 1, 0, 0, 0, 0), conn=(False,False), same_cind=True, same_ssub=False
+    # 2: c^sub=(8, 7, 8, 5, 0, 0, 0, 0), conn=(False,False), same_cind=False, same_ssub=False
+    # 3: c^sub=(8, 12, 34, 102, 298, 716, 1086, 592), conn=(True,True), same_cind=True, same_ssub=True
+    # 4: c^sub=(8, 13, 37, 114, 354, 984, 2040, 2136), conn=(True,True), same_cind=True, same_ssub=True
+    # 5: c^sub=(8, 13, 38, 124, 385, 961, 1830, 1992), conn=(True,True), same_cind=False, same_ssub=True
+    # 6: c^sub=(8, 14, 44, 160, 594, 1939, 4554, 5144), conn=(True,True), same_cind=False, same_ssub=True
+    # 7: c^sub=(8, 14, 45, 167, 614, 1801, 4024, 5240), conn=(True,True), same_cind=False, same_ssub=True
+    # 8: c^sub=(8, 14, 46, 175, 671, 2091, 4470, 4896), conn=(True,True), same_cind=False, same_ssub=True
+    # 9: c^sub=(8, 14, 46, 177, 665, 2098, 4514, 4976), conn=(True,True), same_cind=True, same_ssub=True
+    #10: c^sub=(8, 15, 51, 206, 870, 3199, 9178, 12964), conn=(True,True), same_cind=False, same_ssub=True
+    #11: c^sub=(8, 15, 52, 225, 948, 3406, 8330, 12648), conn=(True,True), same_cind=True, same_ssub=True
+  -> Exact minimal vertex number n_min(c^sub) = 8: 11 pairs (9 connected)  [OK]
+
+[Check 5] Reading III — Isomorphism-class connected subgraph counts (1 <= n <= 6):
+  n = 1: all   1 graphs uniquely reconstructed by connected N_ind(H, G)  [OK]
+  n = 2: all   2 graphs uniquely reconstructed by connected N_ind(H, G)  [OK]
+  n = 3: all   4 graphs uniquely reconstructed by connected N_ind(H, G)  [OK]
+  n = 4: all  11 graphs uniquely reconstructed by connected N_ind(H, G)  [OK]
+  n = 5: all  34 graphs uniquely reconstructed by connected N_ind(H, G)  [OK]
+  n = 6: all 156 graphs uniquely reconstructed by connected N_ind(H, G)  [OK]
+
+[Check 6] Diagnostic variants explaining heuristic '6 or 7':
+  Variant (c^ind + degree sequence): 0 pairs for n <= 5; 7 pairs at n = 6  [OK]
+  Variant s^sub (unrestricted subgraph vector): 0 pairs for n <= 6; 20 pairs at n = 7  [OK]
+
+==============================================================================
+ALL VERIFICATION CHECKS PASSED SUCCESSFULLY (35.80s)
+==============================================================================
