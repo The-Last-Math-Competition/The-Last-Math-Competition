@@ -1,0 +1,59 @@
+\documentclass[11pt]{article}
+\usepackage[hmargin=1.05in,vmargin=0.8in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{A counterexample to Conjecture 00000008785}
+\author{Feiyu (Independent researcher)}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section*{The exact single-step rate}
+Both \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000008785.md}{versions of the conjecture}
+state that the single-step convergence rate is exactly \(q=1-2/\sqrt{\kappa}\).
+The preceding clause concerns relative Ritz-value error. For the largest Ritz
+value \(\theta_k\) in the \(k\)-dimensional Krylov subspace, set
+\(E_k=|\lambda_{\max}-\theta_k|/|\lambda_{\max}|\).
+Reading the stated rate as an exact multiplier of this error gives
+\(E_{k+1}/E_k=q\) whenever \(E_k>0\) and the next step exists.
+A stepwise upper bound with factor \(q\) would give \(E_{k+1}\le qE_k\).
+The conjecture states the exact rate without a lower cutoff on \(\kappa\).
+
+\section*{Failure with probability one}
+Take \(A=\operatorname{diag}(1,3/2,2)\), which is positive definite.
+Its largest eigenvalue is \(2\). The condition number
+\(\kappa=\|A\|_2\|A^{-1}\|_2=2\) gives \(q=1-\sqrt{2}<0\).
+Choose \(x\) uniformly on the Euclidean unit sphere in \(\mathbb R^3\).
+The event \(x_0 x_1\ne 0\) has probability one. Each excluded coordinate
+section has area zero because its radial cone lies in a coordinate plane,
+which has zero three-dimensional volume. The sphere law is normalized area.
+
+For a nonzero Krylov subspace, the largest Ritz value is the maximum of
+the Rayleigh quotient over its nonzero vectors by the Rayleigh--Ritz
+principle. The quotient is unchanged under nonzero scaling and continuous
+on the compact intersection of that subspace with the unit sphere, so the
+maximum is attained.
+\href{https://www.cs.cornell.edu/courses/cs6210/2025fa/lec/2025-12-01.html}{See Cornell's notes on Lanczos and Arnoldi eigensolvers.}
+
+On the event \(x_0 x_1\ne 0\), the first Krylov subspace is spanned by \(x\)
+and has Ritz value
+\[
+ \theta_1=\frac{x_0^2+(3/2)x_1^2+2x_2^2}{x_0^2+x_1^2+x_2^2}<2.
+\]
+Thus \(E_1>0\). If \(Ax=cx\), the first coordinate gives \(c=1\) and the
+second gives \(c=3/2\). Hence the second step exists. Its relative error
+satisfies \(E_2\ge 0>qE_1\), which also rules out the exact ratio \(E_2/E_1=q\).
+If the rate denotes an asymptotic ratio as \(k\to\infty\), any defined limit
+of nonnegative error ratios is nonnegative as well. A large-\(\kappa\)
+asymptotic approximation to a rate remains outside this counterexample.
+
+\section*{Lean verification}
+The Lean proof identifies the first Ritz value, proves attainment of the
+second, and proves failure with probability one for Mathlib's normalized
+Euclidean sphere measure. It also shows that nonnegative error ratios
+cannot converge to \(q\). Run \texttt{lake build} in \texttt{lean/} with the pinned
+Lean and Mathlib v4.33.1. The audited theorems depend only on
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+\end{document}
