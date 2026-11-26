@@ -1,0 +1,148 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,booktabs}
+\usepackage[hidelinks]{hyperref}
+\setlength{\emergencystretch}{2em}
+
+\title{Derived Design Parameters\\A Counterexample to Conjecture 00000008435}
+\author{Feiyu\thanks{Independent researcher.}}
+\date{November 26, 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Both versions of Conjecture 00000008435 assign the parameters $(k,t,1)$
+to a derived design. We construct a simple symmetric $2$-$(11,6,3)$
+design. Derivation at any block gives a $2$-$(6,3,2)$ design, and
+derivation at any point gives a $1$-$(10,5,3)$ design. The counterexample
+applies under both standard derivation conventions. Lean verifies the
+incidence structure, the derived parameters, and the resulting
+contradictions.
+\end{abstract}
+
+\section{Statement and definitions}
+
+The first clause of the English statement reads \cite{conjecture}
+\begin{quote}
+The parameters of the residual and derived designs are
+$(v-k,k-t,\lambda)$ and $(k,t,1)$
+\end{quote}
+The Chinese version assigns the same two triples in the same order.
+The two subsequent clauses concern parameter recovery and derivation
+chain length. The derived parameter formula is itself a conjunct, so
+its failure suffices to disprove both versions.
+
+A $u$-$(v,k,\lambda)$ design has $v$ points and blocks of size $k$.
+Every $u$-subset of the point set occurs in exactly $\lambda$ blocks.
+A symmetric BIBD is a $2$-design with as many blocks as points. We use
+the parameter triple $(v,k,\lambda)$, with the design strength $u$
+written separately. The two derivation conventions are as follows.
+
+\begin{itemize}
+\item At a block $A$ of a symmetric BIBD, the points are those of $A$.
+  Each other block $B$ gives the block $B\cap A$. The claimed triple
+  requires every pair of points in $A$ to occur exactly once, for any
+  proposed value of the middle parameter. \cite{block}
+\item At a point $p$ of a $u$-design, the points are those other than
+  $p$. Each block $B$ containing $p$ gives the block
+  $B\setminus\{p\}$. The claimed triple requires exactly $k$ points
+  in the derived design, where $k$ is the original block size.
+  \cite[pp.~7--8]{point}
+\end{itemize}
+
+\section{Construction and proof}
+
+Use the additive group $\mathbb{Z}/11\mathbb{Z}$ as the point set and let
+\[
+  A=\{0,2,6,7,8,10\},\qquad B_i=A+i\quad(i\in\mathbb{Z}/11\mathbb{Z}).
+\]
+Each block has six points. The following table gives $A\cap(A+d)$ for
+each nonzero $d$. It can be checked by keeping the entries $a\in A$
+for which $a-d\in A$ modulo $11$.
+
+\begin{center}
+\begin{tabular}{c@{\qquad}l@{\qquad}c@{\qquad}l}
+\toprule
+$d$ & $A\cap(A+d)$ & $d$ & $A\cap(A+d)$ \\
+\midrule
+$1$ & $\{0,7,8\}$  & $6$  & $\{2,6,8\}$ \\
+$2$ & $\{2,8,10\}$ & $7$  & $\{2,6,7\}$ \\
+$3$ & $\{0,2,10\}$ & $8$  & $\{7,8,10\}$ \\
+$4$ & $\{0,6,10\}$ & $9$  & $\{0,6,8\}$ \\
+$5$ & $\{0,2,7\}$  & $10$ & $\{6,7,10\}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+For distinct points $x,y$, put $d=x-y$. The shifts $i$ for which
+both points belong to $B_i$ correspond bijectively to the entries
+of $A\cap(A+d)$ by $i\mapsto x-i$, with inverse $a\mapsto x-a$.
+Indeed, $x-i\in A$ and $y-i=(x-i)-d\in A$ express the two required
+incidences. Every pair thus occurs in exactly three blocks. Also,
+$B_i\cap B_j$ is a translate of $A\cap(A+(j-i))$, so distinct shifts
+give different blocks. The design is symmetric, with eleven points
+and eleven blocks. It is incomplete and nontrivial even under the
+stricter conditions $2<k<v-1$ and $b<\binom{v}{k}$.
+
+\paragraph{Derivation at a block.}
+At $B_0=A$, the table lists ten distinct blocks of size three.
+Each pair in $A$ lies in three original blocks, one of which is
+$A$ itself. It therefore lies in exactly two of the displayed
+intersections. The derived design is a $2$-$(6,3,2)$ design, with
+index $2$ in place of $1$. For example, the pair $\{0,2\}$ occurs
+in the intersections indexed by $3$ and $5$. For any $i$, translation
+by $i$ carries the design and this derivation at $A$ to the derivation
+at $B_i$.
+
+\paragraph{Derivation at a point.}
+For every $p$ the new point set has ten points. Exactly six blocks
+contain $p$, indexed by the six distinct shifts $p-a$ for $a\in A$.
+They remain distinct when $p$ is erased, and each then has five points.
+Each remaining point $x$ belongs to three of them because
+$\{p,x\}$ belonged to three original blocks. The derived design is a
+$1$-$(10,5,3)$ design. Its ten points violate the asserted count
+$k=6$.
+
+\section{Lean verification}
+
+The project uses Lean 4 and Mathlib \texttt{v4.33.1}. It represents
+points and block indices as finite sets over \texttt{ZMod 11}.
+\texttt{IsTDesign} checks block containment, uniform size, and exact
+incidence on every subset of the specified size.
+\texttt{IsSymmetricBIBD} also checks distinctness of blocks and equality
+of point and block counts.
+
+{\raggedright
+\texttt{translated\_design\_parameters},
+\texttt{block\_derived\_parameters}, and
+\texttt{point\_derived\_parameters} certify the three designs computed
+above, with the derived examples taken at block or point zero.
+
+\texttt{translated\_block\_parameter\_failure} and
+\texttt{translated\_point\_count} establish the decisive obstructions
+for every eligible block and point. The universal assertions
+\texttt{BlockParameterClaim} and \texttt{PointParameterClaim} encode
+the respective necessary conditions from Section~1.
+\texttt{conjecture\_00000008435\_false} negates each conjunction for
+arbitrary remaining conjuncts.
+\par}
+
+\begin{thebibliography}{9}
+\bibitem{conjecture}
+The Last Math Competition.
+\href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/8c9cc2fb29ed8a59d7daa18ed6ba387a77cf897f/conjectures/00000008435.md}{Conjecture 00000008435},
+English and Chinese versions.
+
+\bibitem{block}
+Charles University, \href{https://kam.mff.cuni.cz/~honza/NDMI036/Handout-11.pdf}{\emph{Symmetric Block Designs}}, NMAG403 Combinatorics,
+handout 11, December 17, 2021, p.~3.
+
+\bibitem{point}
+P.~J. Cameron and J.~H. van Lint.
+\href{https://assets.cambridge.org/97805212/07423/excerpt/9780521207423_excerpt.pdf}{\emph{Graph Theory, Coding Theory and Block Designs}}.
+Cambridge University Press, 1975.
+\end{thebibliography}
+\end{document}
