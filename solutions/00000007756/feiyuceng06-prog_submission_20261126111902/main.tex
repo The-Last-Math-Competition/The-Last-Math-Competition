@@ -1,0 +1,138 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=26mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Maximum Tail Length One for $x^2+1$\\[4pt]
+  \large Disproof of Conjecture 00000007756}
+\author{Feiyu (Independent researcher)}
+\date{26 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For the functional graph of $x\mapsto x^2+1$ over $\mathbb F_p$, the
+maximum tail length is one exactly at $p=5$. Its frequency over the
+primes tends to zero. If occurrence means that the graph contains a
+vertex of tail length one, the frequency tends to one. Both limits
+differ from the conjectured $3-4\log 2$.
+\end{abstract}
+
+\section{The tail-frequency claim}
+
+The \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000007756.md}{bilingual
+statement} fixes $f(x)=x^2+1$ and varies the prime $p$, with one
+functional graph per prime. Its first assertion gives the limiting
+frequency of shapes of tail length one as $3-4\log 2$. The second
+assertion concerns the distribution of the longest cycle scaled by $p$.
+
+Write $f_p(x)=x^2+1$ on $\mathbb F_p$. The graph has the edge
+$x\to f_p(x)$ at every vertex. The tail length $t_p(x)$ is the least
+$t\ge0$ for which $f_p^t(x)$ is on a directed cycle \cite[Section~1]{vs}.
+Put $T_p=\max_{x\in\mathbb F_p} t_p(x)$. A graph has maximum tail length
+one if and only if every $f_p(x)$ is cyclic and some $x$ is noncyclic.
+The asserted limit for this graph property is
+\[
+  \lim_{X\to\infty}
+  \frac{\#\{p\le X : p\text{ prime},\ T_p=1\}}{\pi(X)}
+  =3-4\log 2 ,
+\]
+where $\pi(X)$ counts primes at most $X$ and $\log$ is the natural
+logarithm. Section~\ref{sec:frequency} also treats the graph property
+$\exists x\in\mathbb F_p$ with $t_p(x)=1$.
+
+\section{An obstruction for every prime above five}
+
+Fix a prime $p>5$, write $I=f_p(\mathbb F_p)$, and suppose all points
+of $I$ are cyclic. The map on cyclic points is a permutation, so it
+is injective on $I$. Since $f_p(z)=f_p(-z)$, any $z\in I\cap(-I)$
+must satisfy $z=-z$, hence $z=0$.
+
+The residues represented by $0,1,\ldots,(p-1)/2$ have distinct images.
+Indeed, if $f_p(a)=f_p(b)$, then $a=b$ or $a=-b$ in $\mathbb F_p$.
+The first case forces equality of the representatives. In the second,
+$a+b$ is divisible by $p$, and $0\le a+b\le p-1$, so both are zero.
+Thus $|I|\ge (p+1)/2$. The sets $I$ and $-I$ intersect since their
+cardinalities sum to more than $p$. Therefore $0\in I$, and there
+exists $i\in\mathbb F_p$ satisfying $i^2=-1$.
+
+Now put $u=1/2$ and $v=3i/2$. Their images are
+\[
+  f_p(u)=\frac54,\qquad f_p(v)=-\frac54 .
+\]
+These are nonzero because $p>5$, contradicting $I\cap(-I)\subseteq\{0\}$.
+Consequently there is a vertex $x$ whose successor $f_p(x)$ is
+noncyclic. This gives $t_p(x)\ge2$.
+
+\newpage
+
+\section{Exact classification and limiting frequencies}
+\label{sec:frequency}
+
+The prime fields of size at most five give the following graphs.
+In the table the tail lengths are in the order of the residues
+$0,1,\ldots,p-1$.
+\[
+\begin{array}{c|l|c}
+p & \text{Cyclic part} & (t_p(0),\ldots,t_p(p-1)) \\ \hline
+2 & 0\to1\to0 & (0,0) \\
+3 & 2\to2 & (2,1,0) \\
+5 & 0\to1\to2\to0 & (0,0,0,1,1)
+\end{array}
+\]
+For $p=3$, $0\to1\to2$. For $p=5$, the two remaining edges are
+$3\to0$ and $4\to2$. Together with the uniform obstruction, this
+shows that $T_p=1$ exactly at $p=5$. For every $X\ge5$ the frequency
+is $1/\pi(X)$, which tends to $0$ by the infinitude of primes.
+
+For the graph property of containing a tail of length one, take any
+prime $p>2$. The vertices $1$ and $-1$ are distinct and have the same
+successor, so at least one is noncyclic. A forward orbit of a
+noncyclic vertex in a finite graph eventually enters a cycle. The
+vertex immediately before its first entry has tail length one.
+At $p=2$ all vertices are cyclic. Thus for every $X\ge2$ this
+frequency is $1-1/\pi(X)$, which tends to $1$.
+
+On $1<t<2$ one has $1/2<1/t<(3-t)/2$. Integrating gives
+$1/2<\log 2<3/4$, so $0<3-4\log 2<1$. The tail-frequency assertion
+is false under either of the graph properties above, which disproves
+the conjunction with the cycle-length assertion.
+
+\section{Lean formalization}
+
+The project uses Lean and Mathlib v4.33.1. The map
+\texttt{quadraticMap} acts on \texttt{ZMod p}, and
+\texttt{Function.periodicPts} gives the set of cyclic vertices.
+\texttt{MaxTailOne} expresses $T_p=1$ through cycle membership after
+one step and the existence of a noncyclic vertex.
+\texttt{ContainsTailOne} checks for a vertex at distance one from a cycle.
+
+\begin{itemize}
+\item \texttt{exists\_successor\_off\_cycle} proves the obstruction for
+  every prime $p>5$ using an injective set of representatives,
+  finite-set cardinalities and the opposite pair of nonzero images.
+\item \texttt{maxTailOne\_iff\_eq\_five} combines this with the three
+  small cases. For the finite checks, a vertex is cyclic exactly
+  when it returns after some positive number of steps at most $p$.
+\item The two limit theorems use Mathlib's prime-counting function.\newline
+  \texttt{tailOneFrequency\_tendsto\_zero}\newline
+  \texttt{containsTailOneFrequency\_tendsto\_one}
+\item \texttt{conjecture\_00000007756\_false} negates the conjunction
+  of the primary frequency claim with any second proposition.
+  \texttt{not\_containsTailFrequencyClaim} refutes the alternative
+  occurrence reading. The axiom audits use only \texttt{propext},
+  \texttt{Classical.choice} and \texttt{Quot.sound}.
+\end{itemize}
+
+\begin{thebibliography}{9}
+\bibitem{vs}
+T. Vasiga and J. Shallit,
+\href{https://cs.uwaterloo.ca/~shallit/Papers/vas.pdf}
+     {On the iteration of certain quadratic maps over $\mathrm{GF}(p)$},
+\emph{Discrete Mathematics} \textbf{277} (2004), 219--240.
+\end{thebibliography}
+
+\end{document}
