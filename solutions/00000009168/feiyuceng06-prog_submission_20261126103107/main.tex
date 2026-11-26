@@ -1,0 +1,67 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[hidelinks]{hyperref}
+
+\DeclareMathOperator{\SpecFO}{Spec}
+\newtheorem{theorem}{Theorem}
+\title{The First-Order Spectrum $\{6\}$\\
+  \large Disproof of Conjecture 00000009168}
+\author{Feiyu\thanks{Independent researcher.}}
+\date{26 November 2026}
+
+\begin{document}
+\maketitle
+
+A Fagin spectrum is the set of sizes of the nonempty finite models of a
+first-order sentence~\cite[\S1]{fagin}. Conjecture 00000009168 characterizes
+these spectra as prime-power sets. This characterization requires each
+member of each spectrum to be a prime power.
+
+\begin{theorem}
+There is a first-order sentence $\varphi$ in the empty signature with
+$\SpecFO(\varphi)=\{6\}$. Consequently the prime-power characterization fails.
+\end{theorem}
+
+\begin{proof}
+For $n\ge 1$, let
+\[
+  \theta_n =
+  \exists x_1\cdots\exists x_n
+    \bigwedge_{1\le i<j\le n} (x_i\ne x_j),
+  \qquad
+  \varphi=\theta_6\land\neg\theta_7 .
+\]
+A structure satisfies $\theta_n$ exactly when its domain has at least $n$
+elements. Thus a model of $\varphi$ has at least six elements and fewer than
+seven. Conversely, on the domain $\{0,1,2,3,4,5\}$, its six distinct elements
+witness $\theta_6$, and no seven distinct witnesses exist. Equality is
+logical, so the domain alone specifies the empty-signature model. Hence
+$\SpecFO(\varphi)=\{6\}$.
+
+If $6=p^k$ for a prime $p$ and an integer $k\ge 1$, every prime divisor of
+$6$ equals $p$. Both $2$ and $3$ divide $6$, giving a contradiction.
+\end{proof}
+
+\paragraph{Lean formalization.}
+In \texttt{lean/Submission/Basic.lean}, \texttt{faginSpectrum} quantifies
+over finite, nonempty carriers with an interpretation of the language and
+uses Mathlib's sentence satisfaction. The sentence \texttt{exactlySix}
+conjoins \texttt{Sentence.cardGe} at six with its negation at seven.
+\texttt{realize\_exactCard\_iff} proves the cardinality equivalence for every
+finite structure, and \texttt{spectrum\_exactlySix} exhibits \texttt{Fin 6}
+as a model. \texttt{conjecture\_false} refutes the universal inclusion of
+spectra in the set of prime powers. The project uses Lean and Mathlib
+\texttt{v4.33.1}.
+
+\begin{thebibliography}{1}
+\bibitem{fagin}
+R.~Fagin, \emph{Generalized First-Order Spectra and Polynomial-Time
+Recognizable Sets}, in Complexity of Computation, SIAM--AMS Proceedings~7
+(1974), 43--73.
+\href{https://www.cs.umd.edu/users/gasarch/COURSES/752/S26/slides/genspec.pdf}{PDF}.
+\end{thebibliography}
+
+\end{document}
