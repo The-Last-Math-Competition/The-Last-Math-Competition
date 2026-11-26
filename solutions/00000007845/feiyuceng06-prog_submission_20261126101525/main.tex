@@ -1,0 +1,65 @@
+\documentclass[11pt]{article}
+\usepackage[hmargin=1.05in,vmargin=0.8in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{A counterexample to Conjecture 00000007845}
+\author{Feiyu (Independent researcher)}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For the consistent system $I_2x=0$, one randomized Kaczmarz step leaves
+an expected squared relative error of $1/2$. The Euclidean condition
+number of $I_2$ is $1$, so the proposed worst-case expression evaluates
+to zero.
+\end{abstract}
+
+\section*{The rate claim}
+The first clause of the \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000007845.md}{English and Chinese statements}
+asserts the exact worst-case rate $1-\kappa^{-2}$ for full-row-rank
+matrices, using the expected ratio of squared errors. In particular,
+for each condition number $\kappa$ this expression must bound the
+expected ratio for every admissible system and nonzero current error.
+A single consistent square system suffices to test that bound.
+
+For a real row $a_i$ of $A$, let $e=x-x_*$ be the current error for a
+solution $x_*$ of $Ax=b$. Projection onto the hyperplane
+$a_i\cdot x=b_i$ gives the new error
+\[
+   e^{(i)}=e-\frac{a_i\cdot e}{\|a_i\|_2^2}a_i.
+\]
+The expected ratio is $\sum_i p_i\|e^{(i)}\|_2^2/\|e\|_2^2$.
+The row spectral norm is its Euclidean norm. Both sampling proportional
+to that norm, as in the statement, and the usual squared-row-norm
+sampling give the same probabilities for rows of equal norm.
+
+\section*{Counterexample}
+Take $A=I_2$, $b=0$, $x_*=0$, and $x=(1,0)$. The rows are $(1,0)$ and
+$(0,1)$, both of norm one, so each has probability $1/2$. Choosing the
+first row gives $e^{(0)}=(0,0)$. Choosing the second leaves
+$e^{(1)}=(1,0)$. Since $\|e\|_2^2=1$, the rate is
+\[
+  \tfrac12\cdot 0+\tfrac12\cdot 1=\tfrac12.
+\]
+The matrix has rank two and
+$\kappa_2(I_2)=\|I_2\|_2\|I_2^{-1}\|_2=1$.
+Thus the actual rate $1/2$ exceeds $1-\kappa_2(I_2)^{-2}=0$.
+This refutes the conjunction in the conjecture independently of the
+additional claim about the expected logarithmic ratio.
+
+\section*{Lean verification}
+The Lean project uses Mathlib's real matrices, matrix rank, matrix
+inverse, dot product, and Euclidean operator norm. It defines the
+Kaczmarz error projection and computes the expectation as a sum over
+the two rows. The theorem \texttt{kaczmarz\_counterexample} produces
+a full-row-rank matrix and nonzero error with a strict violation.
+The final theorem \texttt{conjecture\_00000007845\_false} refutes the
+stated bound for each of the two sampling rules.
+
+Run \texttt{lake build} in \texttt{lean/}. The pinned Lean and Mathlib
+versions are both v4.33.1. The final theorem's axiom dependencies are
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+\end{document}
