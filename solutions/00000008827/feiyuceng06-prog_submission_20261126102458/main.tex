@@ -1,0 +1,62 @@
+\documentclass[11pt]{article}
+\usepackage[hmargin=1.05in,vmargin=0.8in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{A counterexample to Conjecture 00000008827}
+\author{Feiyu (Independent researcher)}
+\date{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+For one empirical observation, an affine loss, and compact convex
+support, the $1$-Wasserstein robust dual has the same value at radii
+$1$ and $2$. Both values exceed the empirical risk. Hence the dual
+cannot equal the empirical risk plus the radius times a fixed penalty.
+\end{abstract}
+
+\section*{The regularization claim}
+The final clause of the \href{https://github.com/The-Last-Math-Competition/The-Last-Math-Competition/blob/main/conjectures/00000008827.md}{English and Chinese statements}
+asserts exact equality of the Wasserstein robust dual and a regularized
+empirical risk with coefficient equal to the ball radius. With the
+loss, data, and decision held fixed, this coefficient claim requires
+$D(r)=\widehat R+rP$ for one penalty value $P$ and all $r>0$.
+
+\section*{An exact dual calculation}
+Let the support be $[-2,1]$ with distance $|z-z'|$, take the single
+observation $0$, and use the nonnegative affine loss $\ell(z)=z+2$.
+Thus $\widehat R=\ell(0)=2$. Every transport plan from the empirical
+point mass $\delta_0$ has first coordinate $0$ almost surely, so its
+cost is the expected value of $|z|$. The transport dual for radius $r$
+is therefore
+\[
+ D(r)=\inf_{\lambda\ge 0}
+   \left\{\lambda r+\sup_{z\in[-2,1]}\bigl(z+2-\lambda|z|\bigr)\right\}.
+\]
+This is the standard one-sample Wasserstein dual, also obtained by
+dualizing the expected-cost cap with multiplier $\lambda$.
+
+For $r\ge 1$, evaluating the inner expression at $z=1$ gives the lower
+bound $3+\lambda(r-1)\ge 3$. Taking $\lambda=0$ gives exactly $3$.
+The worst-case distribution $\delta_1$ also attains loss $3$ at cost
+$1$. In particular, $D(1)=D(2)=3$ while $\widehat R=2$. The proposed
+identity would require both $P=1$ and $P=1/2$.
+Both radii lie below the support diameter of $3$.
+
+\section*{Lean verification}
+The Lean project represents the interval as a subtype of real
+numbers and defines the transport dual with its infimum over
+nonnegative multipliers and its supremum over the support.
+The final theorem refutes the fixed-penalty formula using the two
+dual values. Build with \texttt{lake build} in \texttt{lean/} using
+Lean and Mathlib v4.33.1. The axiom dependencies are
+\texttt{propext}, \texttt{Classical.choice}, and \texttt{Quot.sound}.
+
+\smallskip
+\noindent
+Reference. P. Mohajerin Esfahani and D. Kuhn,
+\href{https://doi.org/10.1007/s10107-017-1172-1}{Data-driven distributionally robust optimization using the Wasserstein metric},
+\emph{Mathematical Programming} 171 (2018), 115--166.
+\end{document}
