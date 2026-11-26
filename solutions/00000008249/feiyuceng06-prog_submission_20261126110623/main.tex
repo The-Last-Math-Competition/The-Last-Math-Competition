@@ -1,0 +1,134 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=27mm]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb}
+\usepackage[hidelinks]{hyperref}
+
+\title{Scale Covariance and Pareto Efficiency Do Not\\
+  Characterize Nash--Kalai--Smorodinsky Mixtures\\[4pt]
+  \large Disproof of Conjecture 00000008249}
+\author{Feiyu (Independent researcher)}
+\date{26 November 2026}
+
+\begin{document}
+\maketitle
+
+\section{The characterization}
+
+Conjecture 00000008249 includes the claim that scale covariance and
+Pareto efficiency characterize convex combinations of the Nash and
+Kalai--Smorodinsky bargaining solutions. For a two-player bargaining problem
+$(S,d)$, write these points as $N(S,d)$ and $K(S,d)$. The characterized rules
+would be the maps
+\[
+  (S,d)\longmapsto \lambda N(S,d)+(1-\lambda)K(S,d),
+  \qquad 0\le\lambda\le1 .
+\]
+We disprove the characterization in both directions. The failure of
+sufficiency persists when the weight may depend on $(S,d)$.
+
+On the bargaining domain in \cite[pp.~513--514]{ks}, the set
+$S\subset\mathbb R^2$ is compact and convex, every $p\in S$ satisfies $p\ge d$ coordinatewise, and
+some $p\in S$ strictly improves both coordinates of $d$. A rule is Pareto
+efficient if its value is feasible and no distinct feasible point is
+coordinatewise at least as large. Scale covariance means that changing
+utility units by $T(x,y)=(a x,b y)$ with $a,b>0$ sends the output for
+$(S,d)$ to the output for $(T(S),T(d))$.
+
+\section{A bargaining polygon}
+
+Set $d=(0,0)$ and take
+\[
+  S=\{(x,y): 0\le x\le32,\quad 0\le y,\quad
+                 x+2y\le64,\quad 2x+3y\le108\}.
+\]
+The set is a closed convex subset of $[0,32]^2$. It contains $d$ and
+$(1,1)$, and it is downward comprehensive above $d$ because the upper
+bounds have nonnegative coefficients. The points $(32,0)$ and $(0,32)$
+show that the coordinate maxima form the ideal point $(32,32)$.
+
+\paragraph{Nash solution.}
+Nash maximizes the product of gains over disagreement
+\cite[p.~159]{nash}. For every $(x,y)\in S$,
+\[
+  3xy\le x(108-2x)=1458-2(x-27)^2 .
+\]
+The feasible point $N=(27,18)$ attains $3xy=1458$. Equality forces
+$x=27$, then $y=18$, so the maximum is unique.
+
+\paragraph{Kalai--Smorodinsky solution.}
+This solution is the greatest feasible point on the line through
+disagreement and the ideal \cite[p.~516]{ks}. Here the line is $y=x$.
+Along it, $x+2y\le64$ gives $x\le64/3$, and
+$K=(64/3,64/3)$ is feasible. Thus $K$ is the unique line maximum.
+The constraints $2x+3y\le108$ and $x+2y\le64$ are tight at $N$ and $K$,
+respectively. Since both have positive coefficients, both solutions
+are Pareto efficient.
+
+\newpage
+
+\section{The axioms allow a rule outside the segment}
+
+Define $L(S,d)$ by maximizing the first coordinate on $S$, then maximizing
+the second coordinate among the points with maximal first coordinate.
+Compactness of $S$ gives the first maximum. The first-coordinate maximizing
+face is nonempty and closed in $S$, so compactness gives the second maximum.
+The two coordinates determine a unique point of $S$.
+
+A feasible point dominating $L(S,d)$ must have the same first coordinate
+by the first maximization and the same second coordinate by the second
+maximization. Therefore $L$ is Pareto efficient. Each positive affine
+change of the two utility coordinates preserves both maximizations, so
+$L$ is covariant under such changes. In particular it is scale covariant.
+
+On the bargaining polygon, $L(S,d)=(32,44/3)$ since at $x=32$ the second
+upper bound gives $y\le44/3$, and equality is feasible. Every point of
+$[K,N]$ has first coordinate at most $27$. Consequently no weight
+$\lambda\in[0,1]$ gives $L(S,d)$ on this instance.
+
+\section{Interior mixtures violate Pareto efficiency}
+
+For $0<\lambda<1$ set $(x,y)=\lambda N+(1-\lambda)K$.
+This point lies in $S$ by convexity. The two sloping bounds have slacks
+\[
+  64-(x+2y)=\lambda,\qquad
+  108-(2x+3y)=\tfrac43(1-\lambda).
+\]
+With $\varepsilon=\min\{\lambda,1-\lambda\}/6>0$, increasing both
+coordinates by $\varepsilon$ costs $3\varepsilon\le\lambda/2$ in the first
+bound and $5\varepsilon\le(5/6)(1-\lambda)$ in the second. The vertical
+bound is preserved since $x\le27$ and $\varepsilon\le1/6$. Thus
+$(x+\varepsilon,y+\varepsilon)$ is feasible and strictly improves both
+utilities. For example, the midpoint $(145/6,59/3)$ is strictly dominated
+by $(97/4,79/4)$. Every fixed weight strictly between $0$ and $1$ therefore
+fails even the weak Pareto axiom excluding simultaneous strict gains.
+
+\subsection*{Lean formalization}
+The project uses Lean and Mathlib \texttt{v4.33.1}. The module
+\texttt{Submission.Basic} defines the bargaining domain over
+$\mathbb R\times\mathbb R$ with Mathlib's compactness and convexity.
+It uses \texttt{IsMaxOn} for Nash and \texttt{IsGreatest} for the
+coordinate maxima and the KS line optimum.
+
+\smallskip\noindent
+\texttt{disprove\_conjecture\_00000008249} refutes the characterization
+of fixed-weight mixtures. The lexicographic witness also refutes the claim
+with instance-dependent weights.
+
+\smallskip\noindent
+\texttt{interior\_mixture\_strictly\_dominated} verifies the improvement
+for every interior weight on the polygon.
+
+\begin{thebibliography}{9}
+\bibitem{nash}
+J.~F.~Nash, Jr., \emph{The Bargaining Problem},
+Econometrica \textbf{18} (1950), 155--162.
+\href{https://www.haverford.edu/sites/default/files/Nash1950.pdf}{PDF}.
+
+\bibitem{ks}
+E.~Kalai and M.~Smorodinsky, \emph{Other Solutions to Nash's Bargaining
+Problem}, Econometrica \textbf{43} (1975), 513--518.
+\href{https://www.haverford.edu/sites/default/files/KalaiSmorodinsky1975.pdf}{PDF}.
+\end{thebibliography}
+\end{document}
